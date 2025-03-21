@@ -1,0 +1,41 @@
+name: Run CI Tests 🧪
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - CI-*
+    paths:
+      - src/main/java/**/*.*
+      - src/main/test/**/*.*
+      - .github/workflows/**.*
+  pull_request:
+    types:
+      - opened
+      - reopened
+    paths:
+      - src/main/java/**/*.*
+      - .github/workflows/**.*
+      - src/test/java/**/*.*
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    name: Testing on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout Repo
+      - uses: actions/setup-java@v4.7.0
+        name: Setup Java
+        with:
+          java-version-file: .tool-versions-ci
+          distribution: graalvm
+          cache: gradle
+      - name: Run tests
+        run: gradle test
