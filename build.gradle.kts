@@ -32,7 +32,11 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml")
 }
 
+val springVersion = "6.1.14"
+
 dependencies {
+    implementation("org.springframework:spring-context:$springVersion")
+    implementation("org.springframework:spring-core:$springVersion")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
@@ -40,7 +44,6 @@ dependencies {
 jlink {
     options = listOf(
             "--strip-debug",
-//            "--compress", "2",
             "--no-header-files",
             "--no-man-pages"
     )
@@ -120,4 +123,16 @@ tasks.register("installerFilePath") {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+val appName = System.getenv("APP_NAME") ?: name
+val apiUrl = System.getenv("API_URL") ?: ""
+
+tasks.processResources {
+    filesMatching("application.properties") {
+        expand(
+                "appName" to appName,
+                "apiUrl" to apiUrl
+        )
+    }
 }

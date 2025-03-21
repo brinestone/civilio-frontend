@@ -1,32 +1,35 @@
 package fr.civipol.civilio;
 
+import fr.civipol.civilio.beans.SpringConfig;
+import fr.civipol.civilio.events.StageReadyEvent;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 import java.util.Objects;
 
 public class Bootstrapper extends Application {
+    private AbstractApplicationContext context;
+
     @Override
     public void start(Stage primaryStage) {
-        var scene = new Scene(new StackPane(new Label("Application can be launched")), 600, 400);
-        primaryStage.setTitle("CivilIO");
+        final var appName = context.getEnvironment().getProperty("app.name");
+        primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
-        primaryStage.setScene(scene);
-        primaryStage.show();
+
+        context.publishEvent(new StageReadyEvent(primaryStage, this));
     }
 
     @Override
-    public void stop() throws Exception {
-        super.stop();
+    public void stop() {
+        context.close();
     }
 
     @Override
-    public void init() throws Exception {
-        super.init();
+    public void init() {
+        context = new AnnotationConfigApplicationContext(SpringConfig.class);
     }
 
     public static void main(String[] args) {
