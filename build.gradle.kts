@@ -2,7 +2,8 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.0.9"
-    id("org.beryx.jlink") version "2.23.1"
+//    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.beryx.jlink") version "3.1.1"
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
@@ -15,7 +16,7 @@ repositories {
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
-val javaFxVersion = "17.0.6"
+val javaFxVersion = "23.0.1"
 
 application {
     mainModule.set(moduleName)
@@ -33,12 +34,25 @@ javafx {
 }
 
 val springVersion = "6.1.14"
+val lombokVersion = "1.18.36"
 
 dependencies {
+
+    implementation("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+
     implementation("org.springframework:spring-context:$springVersion")
     implementation("org.springframework:spring-core:$springVersion")
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+//    compileOnly("io.micrometer:context-propagation:1.1.2")
+//    runtimeOnly("io.micrometer:context-propagation:1.1.2")
+//    testCompileOnly("io.micrometer:context-propagation:1.1.2")
+//    runtimeOnly("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
+//    testRuntimeOnly("io.projectreactor.tools:blockhound:1.0.11.RELEASE")
 }
 
 jlink {
@@ -52,6 +66,7 @@ jlink {
         jvmArgs = listOf("-Djdk.gtk.version=2")
     }
     jpackage {
+//        jvmArgs.addAll(listOf("--add-exports", "java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED"))
         if (System.getProperty("os.name").lowercase().contains("linux")) {
             targetPlatformName = "linux"
             installerType = "deb"
@@ -74,6 +89,7 @@ jlink {
         ))
         imageOptions = listOf("--icon", "src/main/resources/img/Logo32x32.ico")
     }
+    addExtraDependencies("io.micrometer:micrometer-context:latest.release", "io.projectreactor.tools:blockhound-integration:1.0.9.RELEASE")
 }
 
 tasks.register("installerFileName") {
