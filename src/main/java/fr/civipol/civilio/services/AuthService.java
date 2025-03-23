@@ -1,8 +1,19 @@
 package fr.civipol.civilio.services;
 
-public class AuthService {
+
+import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
+public class AuthService implements AppService {
+    private final ApiService apiService;
 
     public boolean isUserAuthed() {
         return false;
+    }
+
+    @Override
+    public void initialize() {
+
     }
 }

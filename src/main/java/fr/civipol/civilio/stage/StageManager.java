@@ -1,21 +1,22 @@
 package fr.civipol.civilio.stage;
 
 import fr.civipol.civilio.services.AuthService;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
+//@NoArgsConstructor(onConstructor = @__({@Inject}))
 public class StageManager {
     private final AuthService authService;
     private final ViewLoader viewLoader;
 
+    @Inject
     public StageManager(AuthService authService, ViewLoader viewLoader) {
         this.authService = authService;
         this.viewLoader = viewLoader;
@@ -25,14 +26,8 @@ public class StageManager {
         try {
             if (!authService.isUserAuthed()) {
                 renderAuth().ifPresentOrElse(
-                        (__) -> {
-                            stage.setOnCloseRequest(___ -> Platform.exit());
-                            try {
-                                renderShell(stage);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }, Platform::exit
+                        (__) -> Platform.runLater(() -> onReady(stage)),
+                        Platform::exit
                 );
             } else {
                 stage.setOnCloseRequest(__ -> Platform.exit());
@@ -46,6 +41,7 @@ public class StageManager {
     private void renderShell(Stage stage) throws IOException {
         stage.setResizable(true);
         var scene = new Scene((Parent) viewLoader.loadTransientView("shell"));
+        scene.getStylesheets().add(Objects.requireNonNull(StageManager.class.getResource("/styles/root.css")).toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

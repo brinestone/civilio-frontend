@@ -1,19 +1,20 @@
 package fr.civipol.civilio;
 
-import fr.civipol.civilio.services.AuthService;
+import fr.civipol.civilio.dagger.DaggerUIComponent;
+import fr.civipol.civilio.dagger.UIComponent;
 import fr.civipol.civilio.stage.StageManager;
-import fr.civipol.civilio.stage.ViewLoader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
 
+@Slf4j
 public class Bootstrapper extends Application {
-    private StageManager stageManager;
 
     @Override
     public void start(Stage primaryStage) {
@@ -22,6 +23,8 @@ public class Bootstrapper extends Application {
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
+        UIComponent uiComponent = DaggerUIComponent.create();
+        StageManager stageManager = uiComponent.stageManager();
         stageManager.onReady(primaryStage);
     }
 
@@ -32,11 +35,11 @@ public class Bootstrapper extends Application {
 
     @Override
     public void init() throws IOException {
+        log.info("Initializing services...");
         loadConfiguration();
-        stageManager = new StageManager(new AuthService(), new ViewLoader());
     }
 
-    private void loadConfiguration() throws IOException {
+    private static void loadConfiguration() throws IOException {
         try (var in = Bootstrapper.class.getResourceAsStream("/application.properties")) {
             final var properties = new Properties();
             properties.load(in);
@@ -45,6 +48,7 @@ public class Bootstrapper extends Application {
     }
 
     public static void main(String[] args) {
+        log.info("Application launching");
         launch(args);
     }
 }

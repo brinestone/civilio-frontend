@@ -7,7 +7,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -17,11 +16,12 @@ record ViewControllerPair(Node view, Object controllerRef) {
 }
 
 public class ViewLoader {
-    private final Map<String, SoftReference<ViewControllerPair>> viewMemo = new HashMap<>();
+    private final Map<String, ViewControllerPair> viewMemo = new HashMap<>();
 
     public <T> Dialog<T> prepareDialog() {
         final var dialog = new Dialog<T>();
         final var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getScene().getStylesheets().add(Objects.requireNonNull(ViewLoader.class.getResource("/styles/root.css")).toExternalForm());
         stage.getIcons().add(new Image(Objects.requireNonNull(ViewLoader.class.getResourceAsStream("/img/Logo32x32.png"))));
         dialog.getDialogPane().getButtonTypes().clear();
         dialog.setTitle(System.getProperty("app.name"));
@@ -33,16 +33,16 @@ public class ViewLoader {
         return pair.view();
     }
 
-    public Node loadView(String name) throws IOException {
+    public Node loadView(String name) {
         final var ref = viewMemo.computeIfAbsent(name, n -> {
             try {
-                return new SoftReference<>(doLoadView(n));
+                return doLoadView(n);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        return Objects.requireNonNull(ref.get()).view();
+        return Objects.requireNonNull(ref.view());
     }
 
     private ViewControllerPair doLoadView(String name) throws IOException {
