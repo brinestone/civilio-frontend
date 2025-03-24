@@ -16,7 +16,7 @@ repositories {
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
-val javaFxVersion = "23.0.1"
+val javaFxVersion = "17.0.6"
 
 application {
     mainModule.set(moduleName)
