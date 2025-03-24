@@ -1,4 +1,4 @@
-package fr.civipol.civilio.dagger;
+package fr.civipol.civilio.dagger.module;
 
 import dagger.Module;
 import dagger.Provides;

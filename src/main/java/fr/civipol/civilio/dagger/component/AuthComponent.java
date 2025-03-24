@@ -1,7 +1,8 @@
-package fr.civipol.civilio.services;
+package fr.civipol.civilio.dagger.component;
 
 import dagger.Component;
-import fr.civipol.civilio.dagger.BackgroundModule;
+import fr.civipol.civilio.dagger.module.BackgroundModule;
+import fr.civipol.civilio.services.AuthService;
 import jakarta.inject.Singleton;
 
 @Singleton

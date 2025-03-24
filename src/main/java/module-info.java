@@ -9,6 +9,8 @@ module fr.civipol.civilio {
     requires java.compiler;
 
     opens fr.civipol.civilio.controller to javafx.fxml;
-    opens fr.civipol.civilio.dagger to dagger;
     exports fr.civipol.civilio;
+    opens fr.civipol.civilio.dagger.module to dagger;
+    opens fr.civipol.civilio.dagger.component to dagger;
+    opens fr.civipol.civilio.dagger.factory to dagger, javafx.fxml;
 }

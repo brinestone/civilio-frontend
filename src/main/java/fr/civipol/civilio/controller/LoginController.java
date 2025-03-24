@@ -1,4 +1,9 @@
 package fr.civipol.civilio.controller;
 
-public class LoginController {
+import jakarta.inject.Inject;
+
+public class LoginController implements AppController {
+    @Inject
+    public LoginController() {
+    }
 }

@@ -6,21 +6,22 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-//@NoArgsConstructor(onConstructor = @__({@Inject}))
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class StageManager {
     private final AuthService authService;
     private final ViewLoader viewLoader;
 
-    @Inject
-    public StageManager(AuthService authService, ViewLoader viewLoader) {
-        this.authService = authService;
-        this.viewLoader = viewLoader;
-    }
+//    @Inject
+//    public StageManager(AuthService authService, ViewLoader viewLoader) {
+//        this.authService = authService;
+//        this.viewLoader = viewLoader;
+//    }
 
     public void onReady(Stage stage) {
         try {
@@ -40,7 +41,7 @@ public class StageManager {
 
     private void renderShell(Stage stage) throws IOException {
         stage.setResizable(true);
-        var scene = new Scene((Parent) viewLoader.loadTransientView("shell"));
+        var scene = new Scene((Parent) viewLoader.loadView("shell"));
         scene.getStylesheets().add(Objects.requireNonNull(StageManager.class.getResource("/styles/root.css")).toExternalForm());
         stage.setScene(scene);
         stage.show();
@@ -49,7 +50,7 @@ public class StageManager {
     private Optional<Void> renderAuth() throws IOException {
         final var dialog = viewLoader.<Void>prepareDialog();
         dialog.getDialogPane().getScene().getWindow().setOnCloseRequest(__ -> Platform.exit());
-        final var view = viewLoader.loadTransientView("login");
+        final var view = viewLoader.loadView("login");
         dialog.getDialogPane().setContent(view);
         return dialog.showAndWait();
     }
