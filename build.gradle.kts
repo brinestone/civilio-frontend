@@ -2,7 +2,8 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.0.9"
-    id("org.beryx.jlink") version "2.23.1"
+//    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.beryx.jlink") version "3.1.1"
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
@@ -15,7 +16,7 @@ repositories {
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
-val javaFxVersion = "17.0.6"
+val javaFxVersion = "23.0.1"
 
 application {
     mainModule.set(moduleName)
@@ -32,7 +33,22 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml")
 }
 
+val springVersion = "6.1.14"
+val lombokVersion = "1.18.36"
+val daggerVersion = "2.56"
+
 dependencies {
+    implementation("com.google.dagger:dagger:$daggerVersion")
+    annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
+    implementation("jakarta.inject:jakarta.inject-api:2.0.1")
+
+    implementation("org.slf4j:slf4j-api:2.0.7")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
+
+    implementation("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
@@ -40,15 +56,16 @@ dependencies {
 jlink {
     options = listOf(
             "--strip-debug",
-//            "--compress", "2",
             "--no-header-files",
             "--no-man-pages"
     )
+
     launcher {
         name = rootProject.name
         jvmArgs = listOf("-Djdk.gtk.version=2")
     }
     jpackage {
+//        jvmArgs.addAll(listOf("--add-exports", "java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED"))
         if (System.getProperty("os.name").lowercase().contains("linux")) {
             targetPlatformName = "linux"
             installerType = "deb"
@@ -71,6 +88,9 @@ jlink {
         ))
         imageOptions = listOf("--icon", "src/main/resources/img/Logo32x32.ico")
     }
+
+    addExtraDependencies("org.slf4j")
+    addExtraDependencies("ch.qos.logback")
 }
 
 tasks.register("installerFileName") {
@@ -121,3 +141,23 @@ tasks.register("installerFilePath") {
 tasks.test {
     useJUnitPlatform()
 }
+
+val appName = System.getenv("APP_NAME") ?: name
+val apiUrl = System.getenv("API_URL") ?: ""
+val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
+
+tasks.processResources {
+    filesMatching("logback.xml") {
+        expand("logLevel" to logLevel)
+    }
+    filesMatching("application.properties") {
+        expand(
+                "appName" to appName,
+                "apiUrl" to apiUrl
+        )
+    }
+}
+
+//tasks.register("signInstaller") {
+//    dependsOn("jpackageImage")
+//}

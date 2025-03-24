@@ -1,4 +1,4 @@
 package fr.civipol.civilio.controller;
 
-public class ShellController extends ControllerBase {
+public class ShellController{
 }
