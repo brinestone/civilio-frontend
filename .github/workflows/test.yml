@@ -23,6 +23,9 @@ on:
 
 jobs:
   test:
+    env:
+      APP_NAME: ${{ vars.APP_NAME }}
+      LOG_LEVEL: ${{ vars.LOG_LEVEL }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]

@@ -16,7 +16,7 @@ repositories {
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
-val javaFxVersion = "23.0.1"
+val javaFxVersion = "17.0.6"
 
 application {
     mainModule.set(moduleName)
@@ -38,16 +38,17 @@ val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
 
 dependencies {
+
+    implementation("org.projectlombok:lombok:$lombokVersion")
+    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
+    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
+
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
 
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.12")
-
-    implementation("org.projectlombok:lombok:$lombokVersion")
-    annotationProcessor("org.projectlombok:lombok:$lombokVersion")
-    testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")

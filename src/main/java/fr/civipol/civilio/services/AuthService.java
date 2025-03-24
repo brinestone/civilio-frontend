@@ -9,7 +9,7 @@ public class AuthService implements AppService {
     private final ApiService apiService;
 
     public boolean isUserAuthed() {
-        return false;
+        return true;
     }
 
     @Override

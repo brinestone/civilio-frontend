@@ -1,8 +1,6 @@
 package fr.civipol.civilio;
 
-import fr.civipol.civilio.dagger.DaggerUIComponent;
-import fr.civipol.civilio.dagger.UIComponent;
-import fr.civipol.civilio.stage.StageManager;
+import fr.civipol.civilio.dagger.component.DaggerUIComponent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
@@ -23,14 +21,9 @@ public class Bootstrapper extends Application {
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
-        UIComponent uiComponent = DaggerUIComponent.create();
-        StageManager stageManager = uiComponent.stageManager();
+        var uiComponent = DaggerUIComponent.create();
+        var stageManager = uiComponent.stageManager();
         stageManager.onReady(primaryStage);
-    }
-
-    @Override
-    public void stop() {
-        System.gc();
     }
 
     @Override
