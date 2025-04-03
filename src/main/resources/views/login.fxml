@@ -45,14 +45,15 @@
                 </VBox>
                 <Region prefHeight="24.0" prefWidth="286.0"/>
                 <VBox spacing="3.0">
-                    <Label styleClass="muted-text" text="%login.email"/>
+                    <Label styleClass="muted-text" text="%login.username"/>
                     <TextField fx:id="tfEmail"/>
                 </VBox>
                 <VBox layoutX="10.0" layoutY="169.0" spacing="3.0">
                     <Label styleClass="muted-text" text="%login.password"/>
                     <PasswordField fx:id="pfPassword"/>
                 </VBox>
-                <Button fx:id="btnSignIn" mnemonicParsing="false" prefHeight="26.0" prefWidth="217.0"
+                <Button fx:id="btnSignIn" defaultButton="true" mnemonicParsing="false" prefHeight="26.0"
+                        prefWidth="217.0"
                         styleClass="primary-button" text="%login.sign_in"/>
                 <HBox>
                     <Hyperlink fx:id="hlForgotPassword" text="%login.forgot_password"/>

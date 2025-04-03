@@ -16,7 +16,6 @@ public class Bootstrapper extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Platform.setImplicitExit(false);
         final var appName = System.getProperty("app.name");
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
@@ -43,5 +42,11 @@ public class Bootstrapper extends Application {
     public static void main(String[] args) {
         log.info("Application launching");
         launch(args);
+    }
+
+    @Override
+    public void stop() {
+        System.gc();
+        Platform.exit();
     }
 }

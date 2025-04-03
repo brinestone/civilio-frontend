@@ -14,9 +14,7 @@ module fr.civipol.civilio {
     requires com.dlsc.preferencesfx;
     requires com.dlsc.formsfx;
     requires com.fasterxml.jackson.databind;
-    requires org.hibernate.orm.core;
-    requires jakarta.persistence;
-    requires static java.naming;
+    requires jbcrypt;
 
     opens fr.civipol.civilio.controller to javafx.fxml;
     opens fr.civipol.civilio.dagger.module to dagger;
@@ -25,4 +23,6 @@ module fr.civipol.civilio {
 
     exports fr.civipol.civilio;
     exports fr.civipol.civilio.controller;
+    exports fr.civipol.civilio.exception;
+    exports fr.civipol.civilio.entity;
 }
