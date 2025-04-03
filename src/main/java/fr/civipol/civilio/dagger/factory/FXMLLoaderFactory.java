@@ -17,7 +17,6 @@ public class FXMLLoaderFactory {
         loader.setResources(ResourceBundle.getBundle("messages"));
         loader.setControllerFactory(c -> {
             final var v = controllerFactory.apply(c);
-            System.out.println(v);
             return v;
         });
         return loader;

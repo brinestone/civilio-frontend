@@ -62,7 +62,7 @@ public class SettingsControl implements AppControl, StorageHandler {
                 Category.of("settings.advanced.title",
                         Group.of("settings.advanced.db.title",
                                 Setting.of("settings.advanced.db.host", dbHostProperty)
-                                        .validate(RegexValidator.forURL("settings.invalid_url")),
+                                        .validate(StringLengthValidator.atLeast(1, "settings.msg.value_required")),
                                 Setting.of("settings.advanced.db.port", dbPortProperty)
                                         .validate(CustomValidator.<String>forPredicate(v -> {
                                             try {
