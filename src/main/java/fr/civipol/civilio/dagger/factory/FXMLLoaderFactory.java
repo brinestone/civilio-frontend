@@ -15,7 +15,11 @@ public class FXMLLoaderFactory {
     public FXMLLoader newFXMLLoader() {
         final var loader = new FXMLLoader();
         loader.setResources(ResourceBundle.getBundle("messages"));
-        loader.setControllerFactory(controllerFactory::apply);
+        loader.setControllerFactory(c -> {
+            final var v = controllerFactory.apply(c);
+            System.out.println(v);
+            return v;
+        });
         return loader;
     }
 }

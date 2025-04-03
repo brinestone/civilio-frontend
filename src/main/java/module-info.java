@@ -7,10 +7,19 @@ module fr.civipol.civilio {
     requires dagger;
     requires jakarta.inject;
     requires java.compiler;
+    requires java.prefs;
+    requires java.net.http;
+    requires org.apache.commons.lang3;
+    requires org.kordamp.ikonli.javafx;
+    requires com.dlsc.preferencesfx;
+    requires com.dlsc.formsfx;
+    requires com.fasterxml.jackson.databind;
 
     opens fr.civipol.civilio.controller to javafx.fxml;
-    exports fr.civipol.civilio;
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
     opens fr.civipol.civilio.dagger.factory to dagger, javafx.fxml;
+
+    exports fr.civipol.civilio;
+    exports fr.civipol.civilio.controller;
 }

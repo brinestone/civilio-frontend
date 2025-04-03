@@ -2,12 +2,11 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.0.9"
-//    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.beryx.jlink") version "3.1.1"
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
-group = "org.example"
+group = "fr.civipol"
 version = "0.0.1"
 description = "A Civil Status data management tool."
 
@@ -33,11 +32,20 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml")
 }
 
-val springVersion = "6.1.14"
 val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
 
 dependencies {
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
+
+    implementation("com.dlsc.formsfx:formsfx-core:11.6.0")
+
+    implementation("com.dlsc.preferencesfx:preferencesfx-core:11.17.0")
+
+    implementation("org.apache.commons:commons-lang3:3.17.0")
 
     implementation("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -144,8 +152,14 @@ tasks.test {
 }
 
 val appName = System.getenv("APP_NAME") ?: name
-val apiUrl = System.getenv("API_URL") ?: ""
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
+val appId = "${group}-${rootProject.name}"
+val dbName = System.getenv("DB_NAME") ?: "civilio_db"
+val dbHost = System.getenv("DB_HOST") ?: "localhost"
+val dbPort = System.getenv("DB_PORT") ?: "5432"
+val dbUser = System.getenv("DB_USER") ?: "civilio"
+val dbSslMode = System.getenv("DB_SSL_MODE") ?: "disable"
+val dbPwd = System.getenv("DB_PWD") ?: ""
 
 tasks.processResources {
     filesMatching("logback.xml") {
@@ -153,12 +167,15 @@ tasks.processResources {
     }
     filesMatching("application.properties") {
         expand(
+                "dbSecure" to (dbSslMode == "require").toString(),
                 "appName" to appName,
-                "apiUrl" to apiUrl
+                "appId" to appId,
+                "dbHost" to dbHost,
+                "dbPort" to dbPort,
+                "dbUser" to dbUser,
+                "dbPort" to dbPort,
+                "dbPwd" to dbPwd,
+                "dbName" to dbName
         )
     }
 }
-
-//tasks.register("signInstaller") {
-//    dependsOn("jpackageImage")
-//}
