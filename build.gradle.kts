@@ -57,6 +57,7 @@ dependencies {
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
+    implementation("jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1")
 
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.12")

@@ -13,6 +13,7 @@ module fr.civipol.civilio {
     requires org.kordamp.ikonli.javafx;
     requires com.dlsc.preferencesfx;
     requires com.dlsc.formsfx;
+    requires jakarta.cdi;
     requires com.fasterxml.jackson.databind;
     requires minio;
 
