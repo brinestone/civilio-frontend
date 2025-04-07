@@ -60,7 +60,7 @@ public class LoginController implements AppController {
 
             @Override
             public Locale fromString(String string) {
-                return Locale.of(string.toLowerCase().substring(0, 2));
+                return Locale.forLanguageTag(string.toLowerCase().substring(0, 2));
             }
         }));
         final var signInButtonBinding = Bindings.and(

@@ -172,6 +172,6 @@ tasks.processResources {
 
 tasks.compileJava {
     options.compilerArgs.addAll(listOf(
-            "--add-modules", "jakarta.inject,java.sql,java.naming,java.desktop"
+            "--add-modules", "jakarta.inject,java.naming,java.desktop"
     ))
 }
