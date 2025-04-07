@@ -5,11 +5,24 @@
     font-style: normal italic;
 }
 
-.label {
+.root {
+    -fx-background-color: #FAFAFA;
+}
+
+.label, .text-field, .text-area, .text {
     -fx-font-family: Inter, sans-serif;
 }
 
 .text {
     -fx-font-family: Inter, sans-serif;
     -fx-font-style: normal;
+}
+
+.muted-text {
+    -fx-text-fill: #868686;
+}
+
+.primary-button {
+    -fx-base: #1F5673;
+    -fx-font-weight: 600;
 }

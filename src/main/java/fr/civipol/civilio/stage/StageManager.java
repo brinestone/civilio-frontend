@@ -17,12 +17,6 @@ public class StageManager {
     private final AuthService authService;
     private final ViewLoader viewLoader;
 
-//    @Inject
-//    public StageManager(AuthService authService, ViewLoader viewLoader) {
-//        this.authService = authService;
-//        this.viewLoader = viewLoader;
-//    }
-
     public void onReady(Stage stage) {
         try {
             if (!authService.isUserAuthed()) {

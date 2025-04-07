@@ -2,12 +2,11 @@ plugins {
     id("java")
     id("application")
     id("org.openjfx.javafxplugin") version "0.0.9"
-//    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("org.beryx.jlink") version "3.1.1"
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
-group = "org.example"
+group = "fr.civipol"
 version = "0.0.1"
 description = "A Civil Status data management tool."
 
@@ -33,11 +32,23 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml")
 }
 
-val springVersion = "6.1.14"
 val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
+val hibernateVersion = "6.6.12.Final"
 
 dependencies {
+    // MinIO Client
+    implementation("io.minio:minio:8.5.7")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
+
+    implementation("com.dlsc.formsfx:formsfx-core:11.6.0")
+
+    implementation("com.dlsc.preferencesfx:preferencesfx-core:11.17.0")
+
+    implementation("org.apache.commons:commons-lang3:3.17.0")
 
     implementation("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
@@ -60,13 +71,11 @@ jlink {
             "--no-header-files",
             "--no-man-pages"
     )
-
     launcher {
         name = rootProject.name
         jvmArgs = listOf("-Djdk.gtk.version=2")
     }
     jpackage {
-//        jvmArgs.addAll(listOf("--add-exports", "java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED"))
         if (System.getProperty("os.name").lowercase().contains("linux")) {
             targetPlatformName = "linux"
             installerType = "deb"
@@ -89,9 +98,10 @@ jlink {
         ))
         imageOptions = listOf("--icon", "src/main/resources/img/Logo32x32.ico")
     }
-
     addExtraDependencies("org.slf4j")
     addExtraDependencies("ch.qos.logback")
+    addExtraDependencies("postgresql")
+    addOptions("--add-modules", "jakarta.cdi,jakarta.inject")
 }
 
 tasks.register("installerFileName") {
@@ -144,8 +154,8 @@ tasks.test {
 }
 
 val appName = System.getenv("APP_NAME") ?: name
-val apiUrl = System.getenv("API_URL") ?: ""
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
+val appId = "${group}-${rootProject.name}"
 
 tasks.processResources {
     filesMatching("logback.xml") {
@@ -154,11 +164,13 @@ tasks.processResources {
     filesMatching("application.properties") {
         expand(
                 "appName" to appName,
-                "apiUrl" to apiUrl
+                "appId" to appId,
         )
     }
 }
 
-//tasks.register("signInstaller") {
-//    dependsOn("jpackageImage")
-//}
+tasks.compileJava {
+    options.compilerArgs.addAll(listOf(
+            "--add-modules", "jakarta.inject,java.sql,java.naming,java.desktop"
+    ))
+}

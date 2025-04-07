@@ -1,5 +1,5 @@
 package fr.civipol.civilio.services;
 
 public interface AppService {
-    void initialize();
+    void initialize() throws Exception;
 }
