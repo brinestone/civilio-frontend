@@ -37,10 +37,8 @@ val daggerVersion = "2.56"
 val hibernateVersion = "6.6.12.Final"
 
 dependencies {
-    implementation("org.mindrot:jbcrypt:0.4")
-
-    // Database
-    runtimeOnly("org.postgresql:postgresql:42.7.2")
+    // MinIO Client
+    implementation("io.minio:minio:8.5.7")
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 
@@ -158,12 +156,6 @@ tasks.test {
 val appName = System.getenv("APP_NAME") ?: name
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
 val appId = "${group}-${rootProject.name}"
-val dbName = System.getenv("DB_NAME") ?: "civilio_db"
-val dbHost = System.getenv("DB_HOST") ?: "localhost"
-val dbPort = System.getenv("DB_PORT") ?: "5432"
-val dbUser = System.getenv("DB_USER") ?: "civilio"
-val dbSslMode = System.getenv("DB_SSL_MODE") ?: "disable"
-val dbPwd = System.getenv("DB_PWD") ?: ""
 
 tasks.processResources {
     filesMatching("logback.xml") {
@@ -171,15 +163,8 @@ tasks.processResources {
     }
     filesMatching("application.properties") {
         expand(
-                "dbSecure" to (dbSslMode == "require").toString(),
                 "appName" to appName,
                 "appId" to appId,
-                "dbHost" to dbHost,
-                "dbPort" to dbPort,
-                "dbUser" to dbUser,
-                "dbPort" to dbPort,
-                "dbPwd" to dbPwd,
-                "dbName" to dbName
         )
     }
 }

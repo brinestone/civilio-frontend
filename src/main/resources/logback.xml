@@ -13,12 +13,12 @@
             <maxHistory>1000</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSSS} [%thread] %-5level %logger{32} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="${logLevel}">
         <appender-ref ref="stdout"/>
-        <appender-ref ref="file"/>
+        <appender-ref  ref="file"/>
     </root>
 </configuration>

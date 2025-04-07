@@ -1,8 +1,8 @@
 package fr.civipol.civilio.services;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.domain.Principal;
 import fr.civipol.civilio.entity.User;
 import fr.civipol.civilio.exception.NotFoundException;
@@ -12,17 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
+import java.util.prefs.Preferences;
 
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 @Slf4j
 public class AuthService implements AppService {
     private static final String USER_INFO_PREFS_KEY = "user_info";
 
-    private final PrefsService prefsService;
-
     public Optional<Principal> getPrincipal() {
         final var mapper = new ObjectMapper();
-        return prefsService.getToken(USER_INFO_PREFS_KEY)
+        return Optional.ofNullable(Preferences.userRoot().node(Constants.ROOT_PREFS_KEY_PATH).get(USER_INFO_PREFS_KEY, null))
                 .map(json -> {
                     try {
                         return mapper.readValue(json, User.class);
@@ -39,12 +38,13 @@ public class AuthService implements AppService {
     private boolean storeUserInfo(User user) throws JsonProcessingException {
         final var mapper = new ObjectMapper();
         final var json = mapper.writeValueAsString(user);
-        prefsService.storeToken(USER_INFO_PREFS_KEY, json);
         return true;
     }
 
     public boolean isUserAuthed() {
-        return prefsService.getToken(USER_INFO_PREFS_KEY)
+        return Optional.ofNullable(Preferences.userRoot()
+                        .node(Constants.ROOT_PREFS_KEY_PATH)
+                        .get(Constants.PRINCIPAL_PREFS_KEY_NAME, null))
                 .map(StringUtils::isNotBlank)
                 .orElse(false);
     }
