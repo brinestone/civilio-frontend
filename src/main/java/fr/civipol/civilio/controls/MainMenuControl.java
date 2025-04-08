@@ -1,6 +1,7 @@
 package fr.civipol.civilio.controls;
 
 import jakarta.inject.Inject;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.VBox;
 

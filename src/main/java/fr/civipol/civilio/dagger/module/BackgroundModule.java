@@ -2,9 +2,9 @@ package fr.civipol.civilio.dagger.module;
 
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoMap;
-import dagger.multibindings.LazyClassKey;
+import dagger.multibindings.ElementsIntoSet;
 import fr.civipol.civilio.Constants;
+import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.services.AppService;
 import fr.civipol.civilio.services.AuthService;
 import io.minio.MinioClient;
@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -40,11 +41,9 @@ public class BackgroundModule {
     }
 
     @Provides
-    @Singleton
-    @LazyClassKey(AuthService.class)
-    @IntoMap
-    public AppService authService() {
-        return new AuthService();
+    @ElementsIntoSet
+    public Set<AppService> authService(AuthService authService) {
+        return Set.of(authService);
     }
 
     @Provides
