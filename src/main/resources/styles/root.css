@@ -9,7 +9,7 @@
     -fx-background-color: #FAFAFA;
 }
 
-.label, .text-field, .text-area, .text {
+.label {
     -fx-font-family: Inter, sans-serif;
 }
 

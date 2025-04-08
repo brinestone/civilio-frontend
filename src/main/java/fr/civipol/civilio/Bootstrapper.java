@@ -1,6 +1,10 @@
 package fr.civipol.civilio;
 
+import fr.civipol.civilio.dagger.component.DaggerServiceComponent;
 import fr.civipol.civilio.dagger.component.DaggerUIComponent;
+import fr.civipol.civilio.dagger.component.ServiceComponent;
+import fr.civipol.civilio.dagger.component.UIComponent;
+import fr.civipol.civilio.event.StageReadyEvent;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
@@ -20,15 +24,21 @@ public class Bootstrapper extends Application {
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
-        var uiComponent = DaggerUIComponent.create();
+        UIComponent uiComponent = DaggerUIComponent.create();
         var stageManager = uiComponent.stageManager();
-        stageManager.onReady(primaryStage);
+        uiComponent.eventBus().publish(new StageReadyEvent(primaryStage));
     }
 
     @Override
-    public void init() throws IOException {
+    public void init() throws Exception {
         log.info("Initializing services...");
         loadConfiguration();
+        ServiceComponent serviceComponent = DaggerServiceComponent.create();
+        final var services = serviceComponent.allServices();
+
+        for (var service : services) {
+            service.initialize();
+        }
     }
 
     private static void loadConfiguration() throws IOException {

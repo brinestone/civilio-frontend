@@ -14,8 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class AuthService implements AppService {
     private static final String USER_INFO_PREFS_KEY = "user_info";
 
