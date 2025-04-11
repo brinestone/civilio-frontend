@@ -1,22 +1,30 @@
 package fr.civipol.civilio.controller;
 
-import fr.civipol.civilio.controls.MainMenuControl;
 import jakarta.inject.Inject;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 
 public class ShellController implements AppController {
     @FXML
     private BorderPane root;
-    private final MainMenuControl mainMenu;
+
+    @FXML
+    private Button BtnButton;
 
     @Inject
-    public ShellController(MainMenuControl mainMenu) {
-        this.mainMenu = mainMenu;
+    public ShellController() {
+
     }
 
     @FXML
     private void initialize() {
-        root.setLeft(mainMenu);
+
+    }
+
+    @FXML
+    private void onClickButton() {
+        //TO DO : Log out to the account
+
     }
 }
