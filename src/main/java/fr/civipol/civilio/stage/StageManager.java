@@ -1,6 +1,7 @@
 package fr.civipol.civilio.stage;
 
 import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import fr.civipol.civilio.event.StageReadyEvent;
 import fr.civipol.civilio.services.AuthService;
 import jakarta.inject.Inject;
@@ -26,8 +27,12 @@ public class StageManager {
         this.authService = authService;
         this.viewLoader = viewLoader;
         eventBus.subscribe(StageReadyEvent.class, this::onReady);
+        eventBus.subscribe(SettingsUpdatedEvent.class, this::onSettingsChanged);
     }
 
+    private void onSettingsChanged(SettingsUpdatedEvent event) {
+        // TODO: Notify the user that the application needs to be restarted. And then restart.
+    }
 
     private void onReady(StageReadyEvent event) {
         final var stage = event.getStage();

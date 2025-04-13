@@ -32,7 +32,11 @@ public class AuthService implements AppService {
     }
 
     public void signIn(String username, String password) throws NotFoundException {
+        // TODO: to be done later
+    }
 
+    public void signOut() {
+        // TODO: to be done later
     }
 
     private boolean storeUserInfo(User user) throws JsonProcessingException {
