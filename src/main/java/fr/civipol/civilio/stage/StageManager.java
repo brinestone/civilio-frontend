@@ -1,33 +1,45 @@
 package fr.civipol.civilio.stage;
 
+import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.SettingsUpdatedEvent;
+import fr.civipol.civilio.event.StageReadyEvent;
 import fr.civipol.civilio.services.AuthService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class StageManager {
     private final AuthService authService;
     private final ViewLoader viewLoader;
 
-//    @Inject
-//    public StageManager(AuthService authService, ViewLoader viewLoader) {
-//        this.authService = authService;
-//        this.viewLoader = viewLoader;
-//    }
+    @Inject
+    public StageManager(
+            AuthService authService,
+            ViewLoader viewLoader,
+            EventBus eventBus
+    ) {
+        this.authService = authService;
+        this.viewLoader = viewLoader;
+        eventBus.subscribe(StageReadyEvent.class, this::onReady);
+        eventBus.subscribe(SettingsUpdatedEvent.class, this::onSettingsChanged);
+    }
 
-    public void onReady(Stage stage) {
+    private void onSettingsChanged(SettingsUpdatedEvent event) {
+        // TODO: Notify the user that the application needs to be restarted. And then restart.
+    }
+
+    private void onReady(StageReadyEvent event) {
+        final var stage = event.getStage();
         try {
             if (!authService.isUserAuthed()) {
                 renderAuth().ifPresentOrElse(
-                        (__) -> Platform.runLater(() -> onReady(stage)),
+                        (__) -> Platform.runLater(() -> onReady(event)),
                         Platform::exit
                 );
             } else {
