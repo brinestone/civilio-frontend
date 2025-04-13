@@ -7,9 +7,10 @@
 
 .root {
     -fx-background-color: #FAFAFA;
+    /*-fx-base: #1F5673;*/
 }
 
-.label, .text-field, .text-area, .text {
+.label {
     -fx-font-family: Inter, sans-serif;
 }
 

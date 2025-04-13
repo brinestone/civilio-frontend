@@ -14,8 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Optional;
 import java.util.prefs.Preferences;
 
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class AuthService implements AppService {
     private static final String USER_INFO_PREFS_KEY = "user_info";
 
@@ -32,7 +32,11 @@ public class AuthService implements AppService {
     }
 
     public void signIn(String username, String password) throws NotFoundException {
+        // TODO: to be done later
+    }
 
+    public void signOut() {
+        // TODO: to be done later
     }
 
     private boolean storeUserInfo(User user) throws JsonProcessingException {

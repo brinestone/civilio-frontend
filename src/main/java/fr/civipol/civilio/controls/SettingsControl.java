@@ -15,6 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.civipol.civilio.Constants;
+import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import jakarta.inject.Inject;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -38,9 +40,10 @@ public class SettingsControl implements AppControl, StorageHandler {
     private static final String GENERAL_SETTINGS_CATEGORY_KEY = "settings.general";
     private static final String DISPLAY_SETTINGS_GROUP_KEY = "settings.general";
     private static final String LANGUAGE_SETTING_FIELD_KEY = "settings.language";
-    private static final String MINIO_ENDPOINT = "settings.advanced.storage.endpoint";
-    private static final String MINIO_ACCESS_KEY = "settings.advanced.storage.access_key";
-    private static final String MINIO_SECRET_KEY = "settings.advanced.storage.secret_key";
+    private static final String MINIO_ENDPOINT = Constants.MINIO_ENDPOINT_KEY_NAME;
+    private static final String MINIO_ACCESS_KEY = Constants.MINIO_ACCESS_KEY_NAME;
+    private static final String MINIO_SECRET_KEY = Constants.MINIO_SECRET_KEY_NAME;
+    private static final String API_ORIGIN_KEY = Constants.API_ORIGIN_KEY;
     private static final String WINDOW_POS_X = "WINDOW_POS_X";
     private static final String WINDOW_POS_Y = "WINDOW_POS_Y";
     private static final String WINDOW_HEIGHT = "WINDOW_HEIGHT";
@@ -53,12 +56,14 @@ public class SettingsControl implements AppControl, StorageHandler {
     private final ObjectProperty<String> selectedLocaleProperty = new SimpleObjectProperty<>(this, "selectedLocale", ENGLISH_LOCALE_KEY);
     private final StringProperty s3StorageEndpointProperty = new SimpleStringProperty(this, "s3Endpoint", "");
     private final StringProperty s3StorageAccessKeyProperty = new SimpleStringProperty(this, "s3AccessKey", "");
-    private final StringProperty s3ServiceAccountSecret = new SimpleStringProperty(this, "s3SecretKey", "");
+    private final StringProperty s3ServiceAccountSecretProperty = new SimpleStringProperty(this, "s3SecretKey", "");
+    private final StringProperty apiOriginProperty = new SimpleStringProperty(this, "apiOrigin", "");
+    private final EventBus eventBus;
 
     public PreferencesFx makePreferencesForm() {
         final var rbs = ResourceBundle.getBundle("messages");
         final var ts = new ResourceBundleService(rbs);
-        final var secretKeyPasswordField = Field.ofPasswordType(s3ServiceAccountSecret).render(SimplePasswordControl::new);
+        final var secretKeyPasswordField = Field.ofPasswordType(s3ServiceAccountSecretProperty).render(SimplePasswordControl::new);
         final var localeKeys = FXCollections.observableArrayList(
                 rbs.getString(ENGLISH_LOCALE_KEY),
                 rbs.getString(FRENCH_LOCALE_KEY)
@@ -83,8 +88,15 @@ public class SettingsControl implements AppControl, StorageHandler {
                                         .validate(
                                                 StringLengthValidator.atLeast(20, "settings.msg.value_too_short")
                                         ),
-                                Setting.of(MINIO_SECRET_KEY, secretKeyPasswordField, s3ServiceAccountSecret)
+                                Setting.of(MINIO_SECRET_KEY, secretKeyPasswordField, s3ServiceAccountSecretProperty)
                                         .validate(StringLengthValidator.atLeast(40, "settings.msg.value_too_short"))
+                        ),
+                        Group.of("settings.advanced.api.title",
+                                Setting.of(API_ORIGIN_KEY, apiOriginProperty)
+                                        .validate(
+                                                StringLengthValidator.atLeast(10, "settings.msg.value_too_short"),
+                                                RegexValidator.forURL("settings.msg.invalid_url")
+                                        )
                         )
                 )
         ).i18n(ts);
@@ -97,13 +109,14 @@ public class SettingsControl implements AppControl, StorageHandler {
     }
 
     private void onPrefsSaved(PreferencesFxEvent preferencesFxEvent) {
-        final var prefKeys = new String[]{MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_ENDPOINT, LANGUAGE_SETTING_FIELD_KEY};
+        final var prefKeys = List.of(MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_ENDPOINT, LANGUAGE_SETTING_FIELD_KEY);
         for (var key : prefKeys) {
             System.setProperty(key, Optional.ofNullable(prefs.get(key, null))
                     .filter(StringUtils::isNotBlank)
                     .filter(s -> !s.equalsIgnoreCase("null"))
                     .orElse(""));
         }
+        eventBus.publish(new SettingsUpdatedEvent());
     }
 
     @Override
