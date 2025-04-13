@@ -16,6 +16,7 @@ module fr.civipol.civilio {
     requires jakarta.cdi;
     requires com.fasterxml.jackson.databind;
     requires minio;
+    requires com.google.common;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;

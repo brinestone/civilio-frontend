@@ -9,7 +9,7 @@ import fr.civipol.civilio.controller.csc.CSCViewController;
 import fr.civipol.civilio.controller.LoginController;
 import fr.civipol.civilio.controller.ShellController;
 
-@Module(includes = {ControlModule.class})
+@Module()
 public class ControllerModule {
 
     @Provides
