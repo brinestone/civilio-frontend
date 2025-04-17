@@ -5,12 +5,20 @@ import dagger.Provides;
 import dagger.multibindings.IntoMap;
 import dagger.multibindings.LazyClassKey;
 import fr.civipol.civilio.controller.AppController;
+import fr.civipol.civilio.controller.FOSASubmissionsController;
 import fr.civipol.civilio.controller.csc.CSCViewController;
 import fr.civipol.civilio.controller.LoginController;
 import fr.civipol.civilio.controller.ShellController;
 
 @Module(includes = {ControlModule.class})
 public class ControllerModule {
+
+    @Provides
+    @IntoMap
+    @LazyClassKey(FOSASubmissionsController.class)
+    public AppController fosaSubmissionsController(FOSASubmissionsController fosaSubmissionsController) {
+        return fosaSubmissionsController;
+    }
 
     @Provides
     @IntoMap

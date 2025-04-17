@@ -36,6 +36,7 @@ public class AuthService implements AppService {
     }
 
     public void signOut() {
+        log.info("signing out...");
         // TODO: to be done later
     }
 
@@ -50,7 +51,7 @@ public class AuthService implements AppService {
                         .node(Constants.ROOT_PREFS_KEY_PATH)
                         .get(Constants.PRINCIPAL_PREFS_KEY_NAME, null))
                 .map(StringUtils::isNotBlank)
-                .orElse(false);
+                .orElse(true);
     }
 
     @Override

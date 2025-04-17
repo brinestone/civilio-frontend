@@ -17,6 +17,7 @@ import java.util.Properties;
 
 @Slf4j
 public class Bootstrapper extends Application {
+    private ServiceComponent uiComponent;
 
     @Override
     public void start(Stage primaryStage) {
@@ -39,6 +40,7 @@ public class Bootstrapper extends Application {
         for (var service : services) {
             service.initialize();
         }
+
     }
 
     private static void loadConfiguration() throws IOException {
@@ -50,6 +52,7 @@ public class Bootstrapper extends Application {
     }
 
     public static void main(String[] args) {
+        System.setProperty("prism.lcdtext", "false");
         log.info("Application launching");
         launch(args);
     }

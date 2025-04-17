@@ -7,16 +7,18 @@
 
 .root {
     -fx-background-color: #FAFAFA;
-    /*-fx-base: #1F5673;*/
 }
 
 .label {
     -fx-font-family: Inter, sans-serif;
+    -fx-text-fill: #505050;
 }
 
 .text {
     -fx-font-family: Inter, sans-serif;
     -fx-font-style: normal;
+    -fx-font-smoothing-type: gray;
+    -fx-fill: #505050;
 }
 
 .muted-text {
@@ -26,4 +28,30 @@
 .primary-button {
     -fx-base: #1F5673;
     -fx-font-weight: 600;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.outlined-button {
+    -fx-base: #1F5673;
+    -fx-border-color: -fx-base;
+    -fx-cursor: HAND;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-background-color: none;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-base;
+}
+
+.outlined-button:hover {
+    -fx-background-color: rgba(31, 86, 115, 0.29);
+}
+
+.button {
+    -fx-font-weight: bold;
+}
+
+.submissions-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
 }
