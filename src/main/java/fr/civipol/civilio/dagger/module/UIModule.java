@@ -10,7 +10,7 @@ import fr.civipol.civilio.stage.StageManager;
 import fr.civipol.civilio.stage.ViewLoader;
 import jakarta.inject.Singleton;
 
-@Module(includes = {BackgroundModule.class, ControllerModule.class, ControlModule.class})
+@Module(includes = {BackgroundModule.class, ControllerModule.class})
 public class UIModule {
 
     @Provides
