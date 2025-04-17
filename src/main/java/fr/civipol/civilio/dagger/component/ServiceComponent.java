@@ -6,9 +6,11 @@ import fr.civipol.civilio.services.AppService;
 import jakarta.inject.Singleton;
 
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 @Singleton
 @Component(modules = {BackgroundModule.class})
 public interface ServiceComponent {
     Set<AppService> allServices();
+    ExecutorService executorService();
 }

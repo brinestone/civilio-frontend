@@ -17,7 +17,7 @@ import java.util.Properties;
 
 @Slf4j
 public class Bootstrapper extends Application {
-    private ServiceComponent uiComponent;
+    private ServiceComponent serviceComponent;
 
     @Override
     public void start(Stage primaryStage) {
@@ -59,6 +59,7 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
+        serviceComponent.executorService().shutdown();
         System.gc();
         Platform.exit();
     }
