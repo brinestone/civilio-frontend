@@ -37,6 +37,9 @@ val daggerVersion = "2.56"
 val hibernateVersion = "6.6.12.Final"
 
 dependencies {
+    // ControlsFX
+    implementation("org.controlsfx:controlsfx:11.2.2")
+
     // MinIO Client
     implementation("io.minio:minio:8.5.7")
 

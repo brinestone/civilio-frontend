@@ -28,7 +28,7 @@ jobs:
       - uses: actions/setup-java@v4.7.0
         name: Setup Java
         with:
-          java-version-file: .tool-versions-ci
+          java-version-file: .tool-versions
           distribution: graalvm
           cache: gradle
       - name: Run tests
