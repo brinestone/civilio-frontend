@@ -29,7 +29,7 @@ jobs:
         name: Setup Java
         with:
           java-version-file: .tool-versions
-          distribution: graalvm
+          distribution: oracle
           cache: gradle
       - name: Run tests
         run: gradle test
