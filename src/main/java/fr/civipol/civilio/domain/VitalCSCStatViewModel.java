@@ -1,20 +1,22 @@
 package fr.civipol.civilio.domain;
 
 import fr.civipol.civilio.entity.VitalCSCStat;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import lombok.Getter;
 
 public class VitalCSCStatViewModel {
     private final ObjectProperty<String> observations;
     private final ObjectProperty<Integer> deathCount, birthCount, year;
-    private final ObjectProperty<Boolean> selected;
+    private final BooleanProperty selected;
     @Getter
     private final VitalCSCStat stat;
 
     public VitalCSCStatViewModel(VitalCSCStat stat) {
         this.stat = stat;
-        this.selected = new SimpleObjectProperty<>(this, "selected", false);
+        this.selected = new SimpleBooleanProperty(this, "selected", false);
         observations = new SimpleObjectProperty<>(stat, "observations", stat.getObservations());
         year = new SimpleObjectProperty<>(stat, "year", stat.getYear());
         birthCount = new SimpleObjectProperty<>(stat, "registeredBirths", stat.getRegisteredBirths());
@@ -26,11 +28,15 @@ public class VitalCSCStatViewModel {
         deathCount.addListener((ob, ov, nv) -> stat.setRegisteredDeaths(nv));
     }
 
+    public Integer getYear() {
+        return year.get();
+    }
+
     public boolean isSelected() {
         return selected.get();
     }
 
-    public ObjectProperty<Boolean> selectedProperty() {
+    public BooleanProperty selectedProperty() {
         return selected;
     }
 

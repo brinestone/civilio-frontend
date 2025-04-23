@@ -113,7 +113,6 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                                 .span(ColSpan.TWO_THIRD),
                         StatsField.statsField(Collections.emptyList())
                                 .label("fosa.form.fields.stats.title")
-                                .render(new StatsControl())
                                 .span(12)
                 ))
                 .i18n(ts);

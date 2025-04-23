@@ -3,6 +3,7 @@ package fr.civipol.civilio.domain;
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
+import fr.civipol.civilio.controls.StatsControl;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -72,6 +73,7 @@ public class StatsField extends DataField<ListProperty<VitalCSCStat>, List<Vital
     }
 
     public static Field<StatsField> statsField(List<VitalCSCStat> items) {
-        return new StatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)));
+        return new StatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
+                .render(StatsControl::new);
     }
 }

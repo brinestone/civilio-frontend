@@ -6,8 +6,11 @@ import fr.civipol.civilio.domain.StatsField;
 import fr.civipol.civilio.domain.VitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener;
-import javafx.collections.transformation.FilteredList;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -20,9 +23,11 @@ import javafx.scene.layout.HBox;
 import javafx.util.converter.DefaultStringConverter;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.Optional;
 
 public class StatsControl extends SimpleControl<StatsField> {
+    private final BooleanProperty listItemsChanged = new SimpleBooleanProperty(false);
     private TableView<VitalCSCStatViewModel> tvStats;
     private TableColumn<VitalCSCStatViewModel, Integer> tcYear;
     private TableColumn<VitalCSCStatViewModel, Integer> tcBirths;
@@ -33,10 +38,8 @@ public class StatsControl extends SimpleControl<StatsField> {
     private Label mainLabel;
     private HBox actionBar;
     private CheckBox cbSelectAll;
-    //    private Button btnSelectAll;
     private Button btnRemoveSelection;
-
-    private FilteredList<VitalCSCStatViewModel> selectedItems;
+    private ObservableSet<VitalCSCStatViewModel> selectedItems;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -69,9 +72,15 @@ public class StatsControl extends SimpleControl<StatsField> {
         tcObservations.textProperty().bind(field.observationsColumnLabelProperty());
         btnAddRow.disableProperty().bind(
                 Bindings.createBooleanBinding(() -> {
-                    final var value = field.getValue();
-                    return !value.isEmpty() && value.get(0).getYear() + 1 >= LocalDate.now().getYear();
-                }, field.valueProperty())
+                    LocalDate now = LocalDate.now();
+                    final var maxYear = now.getYear() - 1;
+                    final var minYear = now.getYear() - 5;
+                    final var yearCount = tvStats.getItems()
+                            .stream()
+                            .filter(vm -> vm.getYear() <= maxYear && vm.getYear() >= minYear)
+                            .count();
+                    return yearCount == 5;
+                }, tvStats.getItems())
         );
         btnAddRow.textProperty().bind(field.addRowLabelProperty());
         tcObservations.editableProperty().bind(field.editableProperty());
@@ -89,19 +98,39 @@ public class StatsControl extends SimpleControl<StatsField> {
     @Override
     public void setupValueChangedListeners() {
         super.setupValueChangedListeners();
+        listItemsChanged.addListener((ob, ov, nv) -> {
+            tvStats.getItems().stream()
+                    .filter(VitalCSCStatViewModel::isSelected)
+                    .forEach(selectedItems::add);
+            tvStats.getItems().stream()
+                    .filter(vm -> !vm.isSelected())
+                    .forEach(selectedItems::remove);
+            if (!nv) return;
+            listItemsChanged.set(false);
+        });
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var wrappers = nv.stream()
                     .map(VitalCSCStatViewModel::new)
+                    .peek(vm -> {
+                        if (selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))) {
+                            vm.setSelected(true);
+                        }
+                    })
+                    .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> {
+                        listItemsChanged.set(true);
+                    }))
                     .toList();
             tvStats.getItems().setAll(wrappers);
         });
-        cbSelectAll.selectedProperty().addListener((ob, ov, nv) -> {
-            tvStats.getItems().forEach(vm -> vm.setSelected(nv));
-            System.out.println(tvStats.getItems());
-        });
-        selectedItems.addListener((ListChangeListener<VitalCSCStatViewModel>) c -> {
-            final var selectionSize = c.getList().size();
+
+        selectedItems.addListener((SetChangeListener<VitalCSCStatViewModel>) c -> {
+            final var selectionSize = c.getSet().size();
             final var itemsSize = tvStats.getItems().size();
+
+            if (itemsSize == 0) {
+                cbSelectAll.setSelected(false);
+                return;
+            }
 
             cbSelectAll.setIndeterminate(itemsSize != selectionSize && selectionSize > 0);
             if (!cbSelectAll.isIndeterminate()) {
@@ -113,8 +142,11 @@ public class StatsControl extends SimpleControl<StatsField> {
     @Override
     public void initializeParts() {
         super.initializeParts();
+        tcSelection.setCellFactory(param -> new CheckBoxTableCell<>(index -> {
+            final var value = param.getTableView().getItems().get(index);
+            return value.selectedProperty();
+        }));
         tcSelection.setCellValueFactory(param -> param.getValue().selectedProperty());
-        tcSelection.setCellFactory(CheckBoxTableCell.forTableColumn(tcSelection));
 
         tcYear.setCellValueFactory(param -> param.getValue().yearProperty());
         tcYear.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
@@ -134,10 +166,12 @@ public class StatsControl extends SimpleControl<StatsField> {
                 Optional.ofNullable(field.getValue())
                         .stream()
                         .flatMap(c -> c.stream().map(VitalCSCStatViewModel::new))
+                        .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> {
+                            listItemsChanged.set(true);
+                        }))
                         .toList()
         );
         tcSelection.setSortable(false);
-//        cbSelectAll.setAllowIndeterminate(true);
     }
 
     @Override
@@ -154,7 +188,7 @@ public class StatsControl extends SimpleControl<StatsField> {
         tcDeaths = new TableColumn<>("controls.stats_collector.columns.deaths");
         tcObservations = new TableColumn<>("controls.stats_collector.columns.observation");
         btnAddRow = new Button("controls.stats_collector.columns.add_new");
-        selectedItems = tvStats.getItems().filtered(VitalCSCStatViewModel::isSelected);
+        selectedItems = FXCollections.observableSet();
     }
 
     @Override
@@ -166,22 +200,28 @@ public class StatsControl extends SimpleControl<StatsField> {
         tcObservations.setOnEditCommit(e -> e.getRowValue().setObservations(e.getNewValue()));
         tcBirths.setOnEditCommit(e -> e.getRowValue().setBirthCount(e.getNewValue()));
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
-        tcSelection.setOnEditCommit(e -> e.getRowValue().setSelected(e.getNewValue()));
+        cbSelectAll.setOnAction(e -> tvStats.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
 
     private void onRemoveSelectionButtonClicked(ActionEvent ignored) {
-        final var value = field.getValue();
-        selectedItems.stream()
-                .map(VitalCSCStatViewModel::getStat)
-                .forEach(value::remove);
-        field.valueProperty().setAll(value);
+        for (var item : selectedItems) {
+            field.valueProperty().remove(item.getStat());
+        }
+        selectedItems.clear();
+//        listItemsChanged.set(true);
     }
 
     private void onAddRowButtonClicked(ActionEvent ignored) {
         int currentYear = LocalDate.now().getYear();
-        final var lastYear = field.getValue().size() == 0 ? currentYear - 5 : field.getValue().get(0).getYear() + 1;
-        if (lastYear >= currentYear) return;
+        final var years = new int[]{currentYear - 1, currentYear - 2, currentYear - 3, currentYear - 4, currentYear - 5};
+        for (int year : years) {
+            final var yearExists = field.getValue().stream().anyMatch(s -> s.getYear() == year);
+            if (yearExists) continue;
 
-        field.getValue().add(0, VitalCSCStat.builder().year(lastYear).build());
+            field.getValue().add(VitalCSCStat.builder().year(year).build());
+            break;
+        }
+        field.getValue().sort((o1, o2) -> o2.getYear() - o1.getYear());
+        listItemsChanged.set(true);
     }
 }
