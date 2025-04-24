@@ -1,11 +1,11 @@
-package fr.civipol.civilio.controls;
+package fr.civipol.civilio.forms.controls;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.IntegerStringConverter;
-import fr.civipol.civilio.domain.InventoryEntryViewModel;
-import fr.civipol.civilio.domain.InventoryField;
+import fr.civipol.civilio.domain.FOSAInventoryEntryViewModel;
 import fr.civipol.civilio.entity.InventoryEntry;
+import fr.civipol.civilio.forms.field.FOSAInventoryField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,17 +25,17 @@ import org.controlsfx.control.tableview2.cell.TextField2TableCell;
 
 import java.util.Optional;
 
-public class InventoryControl extends SimpleControl<InventoryField> {
+public class FOSAInventoryControl extends SimpleControl<FOSAInventoryField> {
     private Label fieldLabel;
     private final BooleanProperty listChanged = new SimpleBooleanProperty(this, "listChanged", false);
-    private TableView<InventoryEntryViewModel> tvInventoryEntries;
-    private TableColumn<InventoryEntryViewModel, String> tcEquipment;
-    private TableColumn<InventoryEntryViewModel, Integer> tcQuantity;
-    private TableColumn<InventoryEntryViewModel, Boolean> tcSelection;
+    private TableView<FOSAInventoryEntryViewModel> tvInventoryEntries;
+    private TableColumn<FOSAInventoryEntryViewModel, String> tcEquipment;
+    private TableColumn<FOSAInventoryEntryViewModel, Integer> tcQuantity;
+    private TableColumn<FOSAInventoryEntryViewModel, Boolean> tcSelection;
     private Button btnRemoveSelection, btnAddRow;
     private HBox actionBar;
     private CheckBox cbSelectAll;
-    private ObservableSet<InventoryEntryViewModel> selectedItems;
+    private ObservableSet<FOSAInventoryEntryViewModel> selectedItems;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -49,12 +49,13 @@ public class InventoryControl extends SimpleControl<InventoryField> {
         actionBar.getChildren().setAll(btnRemoveSelection, btnAddRow);
         actionBar.setSpacing(5.0);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvInventoryEntries.getColumns().setAll(tcSelection,tcEquipment,tcQuantity);
+        tvInventoryEntries.getColumns().setAll(tcSelection, tcEquipment, tcQuantity);
+        tvInventoryEntries.setPrefHeight(200);
         setVgap(5.0);
         add(fieldLabel, 0, 0, 3, 1);
         add(tvInventoryEntries, 0, 1, 12, 1);
         add(actionBar, 10, 0, 2, 1);
-        setHalignment(btnAddRow, HPos.RIGHT);
+        setHalignment(actionBar, HPos.RIGHT);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class InventoryControl extends SimpleControl<InventoryField> {
         super.setupValueChangedListeners();
         listChanged.addListener((ob, ov, nv) -> {
             tvInventoryEntries.getItems().stream()
-                    .filter(InventoryEntryViewModel::isSelected)
+                    .filter(FOSAInventoryEntryViewModel::isSelected)
                     .forEach(selectedItems::add);
             tvInventoryEntries.getItems().stream()
                     .filter(vm -> !vm.isSelected())
@@ -89,13 +90,13 @@ public class InventoryControl extends SimpleControl<InventoryField> {
         });
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var vms = nv.stream()
-                    .map(InventoryEntryViewModel::new)
+                    .map(FOSAInventoryEntryViewModel::new)
                     .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getEntry(), vm.getEntry()))))
                     .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                     .toList();
             tvInventoryEntries.getItems().setAll(vms);
         });
-        selectedItems.addListener((SetChangeListener<InventoryEntryViewModel>) c -> {
+        selectedItems.addListener((SetChangeListener<FOSAInventoryEntryViewModel>) c -> {
             final var selectionSize = c.getSet().size();
             final var itemsSize = tvInventoryEntries.getItems().size();
 
@@ -122,11 +123,12 @@ public class InventoryControl extends SimpleControl<InventoryField> {
         tcQuantity.setCellFactory(param -> new TextField2TableCell<>(new IntegerStringConverter()));
 
         btnAddRow.setCursor(Cursor.HAND);
+        btnRemoveSelection.setCursor(Cursor.HAND);
 
         tvInventoryEntries.getItems().setAll(
                 Optional.ofNullable(field.getValue())
                         .stream()
-                        .flatMap(c -> c.stream().map(InventoryEntryViewModel::new))
+                        .flatMap(c -> c.stream().map(FOSAInventoryEntryViewModel::new))
                         .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                         .toList()
         );

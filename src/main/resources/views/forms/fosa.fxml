@@ -8,9 +8,6 @@
             fx:controller="fr.civipol.civilio.controller.fosa.FOSAFormSubmissionController">
     <center>
         <TabPane prefHeight="439.0" prefWidth="775.0">
-            <Tab closable="false" text="%fosa.form.sections.personnel_status.title">
-                <ScrollPane fx:id="spPersonalStatusContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0"/>
-            </Tab>
             <Tab closable="false" text="%fosa.form.sections.respondent.title">
                 <ScrollPane fx:id="spRespondentContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0"/>
             </Tab>
@@ -22,6 +19,9 @@
             </Tab>
             <Tab closable="false" text="%fosa.form.sections.infra_eq.title">
                 <ScrollPane fx:id="spEquipmentContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0"/>
+            </Tab>
+            <Tab closable="false" text="%fosa.form.sections.personnel_status.title">
+                <ScrollPane fx:id="spPersonalStatusContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0"/>
             </Tab>
         </TabPane>
     </center>

@@ -7,14 +7,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import lombok.Getter;
 
-public class VitalCSCStatViewModel {
+public class FOSAVitalCSCStatViewModel {
     private final ObjectProperty<String> observations;
     private final ObjectProperty<Integer> deathCount, birthCount, year;
     private final BooleanProperty selected;
     @Getter
     private final VitalCSCStat stat;
 
-    public VitalCSCStatViewModel(VitalCSCStat stat) {
+    public FOSAVitalCSCStatViewModel(VitalCSCStat stat) {
         this.stat = stat;
         this.selected = new SimpleBooleanProperty(this, "selected", false);
         observations = new SimpleObjectProperty<>(stat, "observations", stat.getObservations());

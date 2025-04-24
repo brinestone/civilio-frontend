@@ -38,4 +38,8 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.ui;
     exports fr.civipol.civilio.domain;
     opens fr.civipol.civilio.domain to javafx.fxml;
+    exports fr.civipol.civilio.forms.field;
+    opens fr.civipol.civilio.forms.field to javafx.fxml;
+    exports fr.civipol.civilio.forms.controls;
+    opens fr.civipol.civilio.forms.controls to javafx.fxml;
 }

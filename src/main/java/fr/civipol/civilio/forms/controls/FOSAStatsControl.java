@@ -1,9 +1,9 @@
-package fr.civipol.civilio.controls;
+package fr.civipol.civilio.forms.controls;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.IntegerStringConverter;
-import fr.civipol.civilio.domain.StatsField;
-import fr.civipol.civilio.domain.VitalCSCStatViewModel;
+import fr.civipol.civilio.forms.field.FOSAStatsField;
+import fr.civipol.civilio.domain.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -26,20 +26,20 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-public class StatsControl extends SimpleControl<StatsField> {
+public class FOSAStatsControl extends SimpleControl<FOSAStatsField> {
     private final BooleanProperty listItemsChanged = new SimpleBooleanProperty(false);
-    private TableView<VitalCSCStatViewModel> tvStats;
-    private TableColumn<VitalCSCStatViewModel, Integer> tcYear;
-    private TableColumn<VitalCSCStatViewModel, Integer> tcBirths;
-    private TableColumn<VitalCSCStatViewModel, Integer> tcDeaths;
-    private TableColumn<VitalCSCStatViewModel, String> tcObservations;
-    private TableColumn<VitalCSCStatViewModel, Boolean> tcSelection;
+    private TableView<FOSAVitalCSCStatViewModel> tvStats;
+    private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcYear;
+    private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcBirths;
+    private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcDeaths;
+    private TableColumn<FOSAVitalCSCStatViewModel, String> tcObservations;
+    private TableColumn<FOSAVitalCSCStatViewModel, Boolean> tcSelection;
     private Button btnAddRow;
     private Label mainLabel;
     private HBox actionBar;
     private CheckBox cbSelectAll;
     private Button btnRemoveSelection;
-    private ObservableSet<VitalCSCStatViewModel> selectedItems;
+    private ObservableSet<FOSAVitalCSCStatViewModel> selectedItems;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -100,7 +100,7 @@ public class StatsControl extends SimpleControl<StatsField> {
         super.setupValueChangedListeners();
         listItemsChanged.addListener((ob, ov, nv) -> {
             tvStats.getItems().stream()
-                    .filter(VitalCSCStatViewModel::isSelected)
+                    .filter(FOSAVitalCSCStatViewModel::isSelected)
                     .forEach(selectedItems::add);
             tvStats.getItems().stream()
                     .filter(vm -> !vm.isSelected())
@@ -110,14 +110,14 @@ public class StatsControl extends SimpleControl<StatsField> {
         });
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var wrappers = nv.stream()
-                    .map(VitalCSCStatViewModel::new)
+                    .map(FOSAVitalCSCStatViewModel::new)
                     .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))))
                     .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
                     .toList();
             tvStats.getItems().setAll(wrappers);
         });
 
-        selectedItems.addListener((SetChangeListener<VitalCSCStatViewModel>) c -> {
+        selectedItems.addListener((SetChangeListener<FOSAVitalCSCStatViewModel>) c -> {
             final var selectionSize = c.getSet().size();
             final var itemsSize = tvStats.getItems().size();
 
@@ -159,7 +159,7 @@ public class StatsControl extends SimpleControl<StatsField> {
         tvStats.getItems().setAll(
                 Optional.ofNullable(field.getValue())
                         .stream()
-                        .flatMap(c -> c.stream().map(VitalCSCStatViewModel::new))
+                        .flatMap(c -> c.stream().map(FOSAVitalCSCStatViewModel::new))
                         .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
                         .toList()
         );

@@ -5,15 +5,18 @@ import com.dlsc.formsfx.model.structure.Form;
 import com.dlsc.formsfx.model.structure.Group;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
+import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
 import com.dlsc.formsfx.view.controls.SimpleRadioButtonControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
-import fr.civipol.civilio.domain.InventoryField;
-import fr.civipol.civilio.domain.StatsField;
+import fr.civipol.civilio.forms.field.FOSAStatsField;
 import fr.civipol.civilio.entity.InventoryEntry;
+import fr.civipol.civilio.entity.PersonnelInfo;
+import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
+import fr.civipol.civilio.forms.field.FOSAInventoryField;
 import jakarta.inject.Inject;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -93,8 +96,15 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
     }
 
     private void setPersonnelStatusContainer(TranslationService ts) {
+        final var personnel = Collections.<PersonnelInfo>emptyList();
         final var form = Form.of(Group.of(
-
+                Field.ofIntegerType(0)
+                        .label("fosa.form.fields.personnel_count.title")
+                        .tooltip("fosa.form.fields.personnel_count.description")
+                        .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
+                        .span(ColSpan.HALF),
+                FOSAPersonnelInfoField.personnelInfoField(personnel)
+                        .label("fosa.form.fields.personnel_status.title")
         )).i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
     }
@@ -126,7 +136,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                 Field.ofSingleSelectionType(waterSources)
                         .label("fosa.form.fields.water_source.title")
                         .span(ColSpan.THIRD),
-                InventoryField.inventoryField(inventory)
+                FOSAInventoryField.inventoryField(inventory)
                         .label("fosa.form.fields.inventory.title")
         )).i18n(ts);
         spEquipmentContainer.setContent(new FormRenderer(form));
@@ -155,7 +165,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                                 .label("fosa.form.fields.csc_event_reg_type.title")
                                 .tooltip("fosa.form.fields.csc_event_reg_type.description")
                                 .span(ColSpan.TWO_THIRD),
-                        StatsField.statsField(Collections.emptyList())
+                        FOSAStatsField.statsField(Collections.emptyList())
                                 .label("fosa.form.fields.stats.title")
                                 .span(12)
                 ))
