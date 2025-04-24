@@ -11,9 +11,11 @@ import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
-import fr.civipol.civilio.controls.StatsControl;
+import fr.civipol.civilio.domain.InventoryField;
 import fr.civipol.civilio.domain.StatsField;
+import fr.civipol.civilio.entity.InventoryEntry;
 import jakarta.inject.Inject;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -86,6 +88,48 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
         setRespondentSection(ts);
         setStructureIdContainer(ts);
         setCSERegContainer(ts);
+        setEquipmentContainer(ts);
+        setPersonnelStatusContainer(ts);
+    }
+
+    private void setPersonnelStatusContainer(TranslationService ts) {
+        final var form = Form.of(Group.of(
+
+        )).i18n(ts);
+        spPersonalStatusContainer.setContent(new FormRenderer(form));
+    }
+
+    private void setEquipmentContainer(TranslationService ts) {
+        final var hasPowerSource = new SimpleBooleanProperty(false);
+        final var powerSourceTypes = new SimpleListProperty<>();
+        final var inventory = Collections.<InventoryEntry>emptyList();
+        final var waterSources = new SimpleListProperty<>();
+        final var form = Form.of(Group.of(
+                Field.ofBooleanType(false)
+                        .label("fosa.form.fields.toilet_present.title")
+                        .tooltip("fosa.form.fields.toilet_resent.description"),
+                Field.ofBooleanType(false)
+                        .label("fosa.form.fields.has_eneo_connection.title")
+                        .tooltip("fosa.form.fields.has_eneo_connection.description"),
+                Field.ofBooleanType(false)
+                        .label("fosa.form.fields.has_power_source.title")
+                        .tooltip("fosa.form.fields.has_power_source.description")
+                        .bind(hasPowerSource),
+                Field.ofSingleSelectionType(powerSourceTypes)
+                        .label("fosa.form.fields.alternative_power.title")
+                        .span(ColSpan.THIRD),
+                Field.ofBooleanType(false)
+                        .label("fosa.form.fields.internet_conn.title"),
+                Field.ofBooleanType(false)
+                        .label("fosa.form.fields.has_water_source.title")
+                        .tooltip("fosa.form.fields.has_water_source.description"),
+                Field.ofSingleSelectionType(waterSources)
+                        .label("fosa.form.fields.water_source.title")
+                        .span(ColSpan.THIRD),
+                InventoryField.inventoryField(inventory)
+                        .label("fosa.form.fields.inventory.title")
+        )).i18n(ts);
+        spEquipmentContainer.setContent(new FormRenderer(form));
     }
 
     private void setCSERegContainer(TranslationService ts) {
@@ -142,15 +186,12 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                                 .span(ColSpan.HALF),
                         Field.ofSingleSelectionType(communes)
                                 .label("fosa.form.fields.communes.title")
-//                                .tooltip("fosa.form.fields.communes.description")
                                 .span(ColSpan.HALF),
                         Field.ofStringType("")
                                 .label("fosa.form.fields.quarter.title")
-//                                .tooltip("fosa.form.fields.quarter.description")
                                 .span(ColSpan.HALF),
                         Field.ofStringType("")
                                 .label("fosa.form.fields.locality.title")
-//                                .tooltip("fosa.form.fields.locality.description")
                                 .span(ColSpan.HALF),
                         Field.ofStringType("")
                                 .label("fosa.form.fields.fosa_name.title")
@@ -162,20 +203,16 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                                 .span(ColSpan.HALF),
                         Field.ofSingleSelectionType(healthAreas)
                                 .label("fosa.form.fields.health_area.title")
-//                                .tooltip("fosa.form.fields.health_area.description")
                                 .span(ColSpan.HALF),
                         Field.ofSingleSelectionType(environmentTypes, 0)
                                 .label("fosa.form.fields.environment.title")
-//                                .tooltip("fosa.form.fields.environment.description")
                                 .span(ColSpan.HALF)
                                 .render(new SimpleRadioButtonControl<>()),
                         Field.ofSingleSelectionType(fosaTypes)
                                 .label("fosa.form.fields.fosa_type.title")
-//                                .tooltip("fosa.form.fields.fosa_type.description")
                                 .span(ColSpan.HALF),
                         Field.ofSingleSelectionType(fosaStatusTypes)
                                 .label("fosa.form.fields.fosa_status.title")
-//                                .tooltip("fosa.form.fields.fosa_status.description")
                                 .span(ColSpan.HALF),
                         Field.ofBooleanType(false)
                                 .label("fosa.form.fields.has_maternity.title")

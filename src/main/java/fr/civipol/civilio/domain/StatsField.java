@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 
+import java.util.Collection;
 import java.util.List;
 
 public class StatsField extends DataField<ListProperty<VitalCSCStat>, List<VitalCSCStat>, StatsField> {
@@ -72,7 +73,7 @@ public class StatsField extends DataField<ListProperty<VitalCSCStat>, List<Vital
         return yearColumnLabel;
     }
 
-    public static Field<StatsField> statsField(List<VitalCSCStat> items) {
+    public static Field<StatsField> statsField(Collection<VitalCSCStat> items) {
         return new StatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
                 .render(StatsControl::new);
     }

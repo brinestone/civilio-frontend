@@ -79,7 +79,7 @@ public class StatsControl extends SimpleControl<StatsField> {
                             .stream()
                             .filter(vm -> vm.getYear() <= maxYear && vm.getYear() >= minYear)
                             .count();
-                    return yearCount == 5;
+                    return yearCount >= 5;
                 }, tvStats.getItems())
         );
         btnAddRow.textProperty().bind(field.addRowLabelProperty());
@@ -111,14 +111,8 @@ public class StatsControl extends SimpleControl<StatsField> {
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var wrappers = nv.stream()
                     .map(VitalCSCStatViewModel::new)
-                    .peek(vm -> {
-                        if (selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))) {
-                            vm.setSelected(true);
-                        }
-                    })
-                    .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> {
-                        listItemsChanged.set(true);
-                    }))
+                    .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))))
+                    .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
                     .toList();
             tvStats.getItems().setAll(wrappers);
         });
@@ -166,9 +160,7 @@ public class StatsControl extends SimpleControl<StatsField> {
                 Optional.ofNullable(field.getValue())
                         .stream()
                         .flatMap(c -> c.stream().map(VitalCSCStatViewModel::new))
-                        .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> {
-                            listItemsChanged.set(true);
-                        }))
+                        .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
                         .toList()
         );
         tcSelection.setSortable(false);
@@ -208,7 +200,6 @@ public class StatsControl extends SimpleControl<StatsField> {
             field.valueProperty().remove(item.getStat());
         }
         selectedItems.clear();
-//        listItemsChanged.set(true);
     }
 
     private void onAddRowButtonClicked(ActionEvent ignored) {
