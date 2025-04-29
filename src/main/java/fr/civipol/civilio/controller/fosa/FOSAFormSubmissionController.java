@@ -3,6 +3,7 @@ package fr.civipol.civilio.controller.fosa;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.structure.Form;
 import com.dlsc.formsfx.model.structure.Group;
+import com.dlsc.formsfx.model.structure.Section;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
@@ -12,11 +13,13 @@ import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
+import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.forms.field.FOSAStatsField;
 import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
 import fr.civipol.civilio.forms.field.FOSAInventoryField;
+import fr.civipol.civilio.forms.field.GPSField;
 import jakarta.inject.Inject;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -102,7 +105,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                         .label("fosa.form.fields.personnel_count.title")
                         .tooltip("fosa.form.fields.personnel_count.description")
                         .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
-                        .span(ColSpan.HALF),
+                        .span(ColSpan.TWO_THIRD),
                 FOSAPersonnelInfoField.personnelInfoField(personnel)
                         .label("fosa.form.fields.personnel_status.title")
         )).i18n(ts);
@@ -185,59 +188,67 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
         final var fosaTypes = new SimpleListProperty<>();
         final var fosaStatusTypes = new SimpleListProperty<>();
         final var regions = new SimpleListProperty<>();
+        final var gpsLocation = GeoPoint.builder()
+                .latitude(5.4811225f)
+                .longitude(10.4087592f)
+                .build();
         final var form = Form.of(
-                Group.of(
-                        Field.ofSingleSelectionType(regions)
-                                .label("fosa.form.fields.region.title")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(departments)
-                                .label("fosa.form.fields.department.title")
-                                .tooltip("fosa.form.fields.department.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(communes)
-                                .label("fosa.form.fields.communes.title")
-                                .span(ColSpan.HALF),
-                        Field.ofStringType("")
-                                .label("fosa.form.fields.quarter.title")
-                                .span(ColSpan.HALF),
-                        Field.ofStringType("")
-                                .label("fosa.form.fields.locality.title")
-                                .span(ColSpan.HALF),
-                        Field.ofStringType("")
-                                .label("fosa.form.fields.fosa_name.title")
-                                .tooltip("fosa.form.fields.fosa_name.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(districts)
-                                .label("fosa.form.fields.district.title")
-                                .tooltip("fosa.form.fields.district.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(healthAreas)
-                                .label("fosa.form.fields.health_area.title")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(environmentTypes, 0)
-                                .label("fosa.form.fields.environment.title")
-                                .span(ColSpan.HALF)
-                                .render(new SimpleRadioButtonControl<>()),
-                        Field.ofSingleSelectionType(fosaTypes)
-                                .label("fosa.form.fields.fosa_type.title")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(fosaStatusTypes)
-                                .label("fosa.form.fields.fosa_status.title")
-                                .span(ColSpan.HALF),
-                        Field.ofBooleanType(false)
-                                .label("fosa.form.fields.has_maternity.title")
-                                .tooltip("fosa.form.fields.has_maternity.description")
-                                .span(ColSpan.HALF),
-                        Field.ofStringType("")
-                                .label("fosa.form.fields.csc_reg.title")
-                                .tooltip("fosa.form.fields.csc_reg.description")
-                                .span(ColSpan.HALF),
-                        Field.ofDoubleType(.5)
-                                .label("fosa.form.fields.distance_csc.title")
-                                .tooltip("fosa.form.fields.distance_csc.description")
-                                .span(ColSpan.HALF)
-                        // TODO: add a custom control for selecting lat/long coordinates.
-                )
+                Section.of(
+                                Field.ofSingleSelectionType(regions)
+                                        .label("fosa.form.fields.region.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(departments)
+                                        .label("fosa.form.fields.department.title")
+                                        .tooltip("fosa.form.fields.department.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(communes)
+                                        .label("fosa.form.fields.communes.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofStringType("")
+                                        .label("fosa.form.fields.quarter.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofStringType("")
+                                        .label("fosa.form.fields.locality.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofStringType("")
+                                        .label("fosa.form.fields.fosa_name.title")
+                                        .tooltip("fosa.form.fields.fosa_name.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(districts)
+                                        .label("fosa.form.fields.district.title")
+                                        .tooltip("fosa.form.fields.district.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(healthAreas)
+                                        .label("fosa.form.fields.health_area.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(environmentTypes, 0)
+                                        .label("fosa.form.fields.environment.title")
+                                        .span(ColSpan.HALF)
+                                        .render(new SimpleRadioButtonControl<>()),
+                                Field.ofSingleSelectionType(fosaTypes)
+                                        .label("fosa.form.fields.fosa_type.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofSingleSelectionType(fosaStatusTypes)
+                                        .label("fosa.form.fields.fosa_status.title")
+                                        .span(ColSpan.HALF),
+                                Field.ofBooleanType(false)
+                                        .label("fosa.form.fields.has_maternity.title")
+                                        .tooltip("fosa.form.fields.has_maternity.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofStringType("")
+                                        .label("fosa.form.fields.csc_reg.title")
+                                        .tooltip("fosa.form.fields.csc_reg.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofDoubleType(.5)
+                                        .label("fosa.form.fields.distance_csc.title")
+                                        .tooltip("fosa.form.fields.distance_csc.description")
+                                        .span(ColSpan.HALF)
+                        ).title("fosa.form.sections.structure_identification.title")
+                        .collapse(false),
+                Section.of(
+                                GPSField.gpsField(gpsLocation)
+                        ).title("fosa.form.sections.geo_point.title")
+                        .collapse(true)
         ).i18n(ts);
         spStructureIdContainer.setContent(new FormRenderer(form));
     }

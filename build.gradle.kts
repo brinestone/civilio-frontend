@@ -12,6 +12,10 @@ description = "A Civil Status data management tool."
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    flatDir {
+        dirs("libs")
+    }
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
@@ -29,21 +33,25 @@ java {
 
 javafx {
     version = javaFxVersion
-    modules = listOf("javafx.controls", "javafx.fxml")
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.web")
 }
 
 val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
 val hibernateVersion = "6.6.12.Final"
+val geoToolsVersion = "28.1"
 
 dependencies {
+    // GMapsFX
+    implementation("com.dlsc:GMapsFX:11.0.7")
+
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 
     // MinIO Client
     implementation("io.minio:minio:8.5.7")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+//    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
 
@@ -71,6 +79,8 @@ dependencies {
 
 jlink {
     options = listOf(
+            "--add-modules",
+            "jakarta.cdi,jakarta.inject,jakarta.activation,jakarta.mail",
             "--strip-debug",
             "--no-header-files",
             "--no-man-pages"

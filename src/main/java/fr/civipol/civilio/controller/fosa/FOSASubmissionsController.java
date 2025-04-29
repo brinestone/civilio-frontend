@@ -56,7 +56,6 @@ public class FOSASubmissionsController implements AppController, Initializable {
         try {
             final var dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.setResizable(false);
             dialog.initOwner(((Node) ignored.getSource()).getScene().getWindow());
             dialog.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/Logo32x32.png"))));
 

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GPS Picker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+<script lang="text/javascript">
+    let marker;
+    const map = L.map('map').setView([51.505, -0.09], 13);
+
+    /**
+     * Called from Java code
+     * @param lat latitude
+     * @param lon longitude
+     */
+    function moveMarker(lat, lon) {
+        try {
+            marker.setLatLng(L.latLng([lat, lon]));
+            window.agent?.onGeoPointMoved(lat, lng);
+        } catch (e) {
+            window.agent?.log(e.message, JSON.stringify(e.stack));
+        }
+    }
+
+    function onMapClicked({latlng: {lat, lng}}) {
+        window.agent?.log('test', JSON.stringify(['foo']));
+        try {
+            moveMarker(lat, lng);
+            window.agent?.onGeoPointMoved(lat, lng);
+        } catch (e) {
+            window.agent?.log(e.message, JSON.stringify(e.stack));
+        }
+    }
+
+    function initMarker() {
+        try {
+            const pageUrl = new URL(location.href);
+            const [lat, lon, alt] = (pageUrl.searchParams.get('at') ?? '5.4811225,10.4087592').split(',');
+            const coords = [Number(lat), Number(lon)];
+            if (alt) {
+                coords.push(Number(alt));
+            }
+            const latLng = L.latLng(coords);
+            marker = L.marker(latLng);
+            setTimeout(() => {
+                map.flyTo(latLng);
+            }, 3800);
+            marker.addTo(map);
+        } catch (e) {
+            window.agent?.log(e.message, JSON.stringify(e.stack));
+        }
+    }
+
+    function initTileLayer() {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            minZoom: 5,
+        }).addTo(map);
+
+        const leafletAnchor = document.querySelector('a[href="https://leafletjs.com"]');
+        if (leafletAnchor)
+            leafletAnchor.style.display = 'none';
+    }
+
+    map.on('click', onMapClicked);
+</script>
+</body>
+</html>

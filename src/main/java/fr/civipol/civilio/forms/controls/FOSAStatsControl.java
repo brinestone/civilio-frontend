@@ -51,6 +51,7 @@ public class FOSAStatsControl extends SimpleControl<FOSAStatsField> {
         tcObservations.setPrefWidth(400);
         tcSelection.setPrefWidth(30);
         tcSelection.setMaxWidth(30);
+        tvStats.setPrefHeight(200);
         actionBar.getChildren().setAll(btnRemoveSelection, btnAddRow);
         actionBar.setSpacing(5.0);
         actionBar.setAlignment(Pos.CENTER_RIGHT);

@@ -18,6 +18,8 @@ module fr.civipol.civilio {
     requires minio;
     requires com.google.common;
     requires org.controlsfx.controls;
+    requires javafx.web;
+    requires jdk.jsobject;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
