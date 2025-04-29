@@ -19,7 +19,7 @@ import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
 import fr.civipol.civilio.forms.field.FOSAInventoryField;
-import fr.civipol.civilio.forms.field.GPSField;
+import fr.civipol.civilio.forms.field.GeoPointField;
 import jakarta.inject.Inject;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -246,7 +246,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                         ).title("fosa.form.sections.structure_identification.title")
                         .collapse(false),
                 Section.of(
-                                GPSField.gpsField(gpsLocation)
+                                GeoPointField.gpsField(gpsLocation)
                         ).title("fosa.form.sections.geo_point.title")
                         .collapse(true)
         ).i18n(ts);

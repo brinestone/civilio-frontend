@@ -42,9 +42,6 @@ val hibernateVersion = "6.6.12.Final"
 val geoToolsVersion = "28.1"
 
 dependencies {
-    // GMapsFX
-    implementation("com.dlsc:GMapsFX:11.0.7")
-
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 

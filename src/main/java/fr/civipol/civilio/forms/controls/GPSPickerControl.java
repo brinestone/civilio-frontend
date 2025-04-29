@@ -2,7 +2,7 @@ package fr.civipol.civilio.forms.controls;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.GeoPointViewModel;
-import fr.civipol.civilio.forms.field.GPSField;
+import fr.civipol.civilio.forms.field.GeoPointField;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -44,7 +44,7 @@ class ConfigurableSpinnerValueFactory extends SpinnerValueFactory<Float> {
 }
 
 @Slf4j
-public class GPSPickerControl extends SimpleControl<GPSField> {
+public class GPSPickerControl extends SimpleControl<GeoPointField> {
     private GeoPointViewModel viewModel;
     private Label lblAltitude, lblLongitude, lblLatitude, lblAccuracy;
     private Spinner<Float> spAltitude, spLongitude, spLatitude, spAccuracy;

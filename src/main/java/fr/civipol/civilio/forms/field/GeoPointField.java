@@ -10,14 +10,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class GPSField extends DataField<ObjectProperty<GeoPoint>, GeoPoint, GPSField> {
+public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint, GeoPointField> {
     private static final String LAT_LABEL = "controls.gps.lat";
     private static final String LON_LABEL = "controls.gps.lon";
     private static final String ACC_LABEL = "controls.gps.acc";
     private static final String ALTITUDE_LABEL = "controls.gps.alt";
     private final StringProperty latitudeLabel, longitudeLabel, accuracyLabel, altitude;
 
-    protected GPSField(ObjectProperty<GeoPoint> valueProperty, ObjectProperty<GeoPoint> persistentValueProperty) {
+    protected GeoPointField(ObjectProperty<GeoPoint> valueProperty, ObjectProperty<GeoPoint> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
         latitudeLabel = new SimpleStringProperty(this, "latLabel", LAT_LABEL);
         longitudeLabel = new SimpleStringProperty(this, "lonLabel", LON_LABEL);
@@ -50,8 +50,8 @@ public class GPSField extends DataField<ObjectProperty<GeoPoint>, GeoPoint, GPSF
         return altitude;
     }
 
-    public static Field<GPSField> gpsField(GeoPoint loc) {
-        return new GPSField(new SimpleObjectProperty<>(loc), new SimpleObjectProperty<>())
+    public static Field<GeoPointField> gpsField(GeoPoint loc) {
+        return new GeoPointField(new SimpleObjectProperty<>(loc), new SimpleObjectProperty<>())
                 .render(GPSPickerControl::new);
     }
 }
