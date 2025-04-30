@@ -6,6 +6,7 @@ import dagger.multibindings.IntoMap;
 import dagger.multibindings.LazyClassKey;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FOSASubmissionsController;
+import fr.civipol.civilio.controller.chefferie.CHEFFERIESubmissionController;
 import fr.civipol.civilio.controller.csc.CSCViewController;
 import fr.civipol.civilio.controller.LoginController;
 import fr.civipol.civilio.controller.ShellController;
@@ -18,6 +19,13 @@ public class ControllerModule {
     @LazyClassKey(FOSASubmissionsController.class)
     public AppController fosaSubmissionsController(FOSASubmissionsController fosaSubmissionsController) {
         return fosaSubmissionsController;
+    }
+
+    @Provides
+    @IntoMap
+    @LazyClassKey(CHEFFERIESubmissionController.class)
+    public AppController chefferieSubmissionController(CHEFFERIESubmissionController chefferieSubmissionController) {
+        return chefferieSubmissionController;
     }
 
     @Provides
