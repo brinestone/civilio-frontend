@@ -34,13 +34,12 @@ public class Bootstrapper extends Application {
     public void init() throws Exception {
         log.info("Initializing services...");
         loadConfiguration();
-        ServiceComponent serviceComponent = DaggerServiceComponent.create();
+        serviceComponent = DaggerServiceComponent.create();
         final var services = serviceComponent.allServices();
 
         for (var service : services) {
             service.initialize();
         }
-
     }
 
     private static void loadConfiguration() throws IOException {

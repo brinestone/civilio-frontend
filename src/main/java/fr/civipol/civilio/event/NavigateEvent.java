@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class MenuNavigationEvent implements UIEvent {
-    private final String label;
-    private final String localizationKey;
+public class NavigateEvent implements Event {
     private final String viewRef;
 }
