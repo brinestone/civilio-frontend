@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class ShellController implements AppController, Initializable {
     private static final UIEvent FOSA_FORM = new MenuNavigationEvent("FOSA form", "shell.menu.forms.fosa", "fosa-submissions");
+    private static final UIEvent CSC_FORM = new MenuNavigationEvent("CSC form", "shell.menu.forms.csc", "submissions/csc");
 
     private final ViewLoader vl;
     private final EventBus eb;
@@ -43,7 +44,7 @@ public class ShellController implements AppController, Initializable {
     private TextField tfSearch;
 
     public void initialize(URL location, ResourceBundle resources) {
-        lvMenu.setItems(FXCollections.observableArrayList(FOSA_FORM));
+        lvMenu.setItems(FXCollections.observableArrayList(FOSA_FORM, CSC_FORM));
         lvMenu.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(UIEvent item, boolean empty) {
