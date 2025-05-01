@@ -77,7 +77,7 @@ dependencies {
 jlink {
     options = listOf(
             "--add-modules",
-            "jakarta.cdi,jakarta.inject,jakarta.activation,jakarta.mail",
+            "jakarta.cdi,jakarta.inject",
             "--strip-debug",
             "--no-header-files",
             "--no-man-pages"
@@ -105,13 +105,17 @@ jlink {
         installerOptions.addAll(listOf(
                 "--description", project.description,
                 "--vendor", "Civipol",
-                "--copyright", "Copyright 2025 Civipol"
+                "--copyright", "Copyright 2025 Civipol",
+                "--resource-dir", "${layout.buildDirectory.get()}/resources/main"
         ))
-        imageOptions = listOf("--icon", "src/main/resources/img/Logo32x32.ico")
+        imageOptions = listOf(
+                "--icon", "src/main/resources/img/Logo32x32.ico",
+                "--resource-dir", "src/main/resources"
+        )
     }
     addExtraDependencies("org.slf4j")
     addExtraDependencies("ch.qos.logback")
-    addExtraDependencies("postgresql")
+    addExtraDependencies("resources")
     addOptions("--add-modules", "jakarta.cdi,jakarta.inject")
 }
 
@@ -184,4 +188,11 @@ tasks.compileJava {
     options.compilerArgs.addAll(listOf(
             "--add-modules", "jakarta.inject,java.naming,java.desktop"
     ))
+}
+
+tasks.named<Jar>("jar") {
+    from(sourceSets.main.get().resources) {
+        include("**/*.html")
+        into("resources")
+    }
 }

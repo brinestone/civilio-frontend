@@ -20,33 +20,41 @@
         #map {
             height: 100%;
         }
+
     </style>
 </head>
 <body>
 <div id="map"></div>
-<script lang="text/javascript">
-    let marker;
-    const map = L.map('map').setView([51.505, -0.09], 13);
-
-    /**
-     * Called from Java code
-     * @param lat latitude
-     * @param lon longitude
-     */
-    function moveMarker(lat, lon) {
+<script lang="text/javascript" defer>
+    function initJava() {
         try {
-            marker.setLatLng(L.latLng([lat, lon]));
-            window.agent?.onGeoPointMoved(lat, lng);
+            marker.on('move', onMarkerMoved);
+            return 'java initialized';
         } catch (e) {
-            window.agent?.log(e.message, JSON.stringify(e.stack));
+            window.agent?.log(e.message, e.stack);
+        }
+    }
+
+    function onMarkerMoved(arg) {
+        const {latlng: {lat, lng: lon}} = arg;
+        currentLon = lon;
+        currentLat = lat;
+        if (inboundChange) return;
+        currentPrecision = window.agent?.notifyGeoPointChanged();
+    }
+
+    function moveMarker(lat, lon, change = false) {
+        try {
+            inboundChange = change;
+            marker.setLatLng(L.latLng([lat, lon]));
+        } catch (e) {
+            window.agent?.log(e.message, e.stack);
         }
     }
 
     function onMapClicked({latlng: {lat, lng}}) {
-        window.agent?.log('test', JSON.stringify(['foo']));
         try {
             moveMarker(lat, lng);
-            window.agent?.onGeoPointMoved(lat, lng);
         } catch (e) {
             window.agent?.log(e.message, JSON.stringify(e.stack));
         }
@@ -66,6 +74,8 @@
                 map.flyTo(latLng);
             }, 3800);
             marker.addTo(map);
+
+            // marker.on('move', onMarkerMoved);
         } catch (e) {
             window.agent?.log(e.message, JSON.stringify(e.stack));
         }
@@ -82,7 +92,19 @@
             leafletAnchor.style.display = 'none';
     }
 
-    map.on('click', onMapClicked);
+    function initScale() {
+        scale = L.control.scale().addTo(map);
+    }
+
+    function onReady() {
+        initTileLayer();
+        initScale();
+        initMarker();
+    }
+
+    let marker, scale, currentLat, currentLon, currentPrecision, inboundChange = false;
+    const map = L.map('map').setView([51.505, -0.09], 13);
+    map.on('click', x => onMapClicked(x));
 </script>
 </body>
 </html>

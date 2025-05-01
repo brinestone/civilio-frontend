@@ -52,7 +52,7 @@ public class FOSASubmissionsController implements AppController, Initializable {
     private TableView<FormSubmission> tvSubmissions;
 
     @FXML
-    void onAddSubmissionButtonClicked(ActionEvent ignored) {
+    private void onAddSubmissionButtonClicked(ActionEvent ignored) {
         try {
             final var dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);

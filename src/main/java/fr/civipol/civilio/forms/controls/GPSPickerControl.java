@@ -51,6 +51,8 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
     private WebView mapView;
     private StackPane mapContainer;
     private WebEngine webEngine;
+    private JsAgent jsAgent;
+    private boolean inboundChange;
 
     private Node wrapSpinner(Spinner<Float> spinner, Label label) {
         final var box = new VBox();
@@ -84,9 +86,9 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
     }
 
     private void loadMapView() {
-        final var url = GPSPickerControl.class.getResource("/views/forms/leaflet.html");
+        final var url = GPSPickerControl.class.getResource("/html/leaflet.html");
         if (url == null) {
-            log.warn("url not found for \"/views/forms/leaflet.html\" resource");
+            log.warn("url not found for \"/html/leaflet.html\" resource");
             return;
         }
 
@@ -120,6 +122,20 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
         spAccuracy.getValueFactory().valueProperty().bindBidirectional(viewModel.accuracyProperty());
     }
 
+    private void setupDynamicChangeListeners() {
+        viewModel.latitudeProperty().addListener((ob, ov, nv) -> {
+            if (inboundChange) return;
+
+            webEngine.executeScript(String.format("moveMarker(%f, %f, true)", nv.doubleValue(), viewModel.getLongitude()));
+        });
+
+        viewModel.longitudeProperty().addListener((ob, ov, nv) -> {
+            if (inboundChange) return;
+
+            webEngine.executeScript(String.format("moveMarker(%f, %f, true)", viewModel.getLatitude(), nv.doubleValue()));
+        });
+    }
+
     private void unbindDynamicBindings() {
         spAltitude.getValueFactory().valueProperty().unbind();
         spLongitude.getValueFactory().valueProperty().unbind();
@@ -130,6 +146,7 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
     @Override
     public void setupValueChangedListeners() {
         super.setupValueChangedListeners();
+        jsAgent.registerGeoPointChangeNotifier(this::onGeoPointChanged);
         field.valueProperty().addListener((ob, ov, nv) -> {
             if (nv == null) {
                 unbindDynamicBindings();
@@ -138,30 +155,42 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
             } else {
                 this.viewModel = new GeoPointViewModel(nv);
                 setupDynamicBindings();
+                setupDynamicChangeListeners();
             }
         });
 
         webEngine.getLoadWorker().stateProperty().addListener((ob, ov, nv) -> {
-            if (nv != Worker.State.SUCCEEDED) return;
-            final var window = (JSObject) webEngine.executeScript("window");
-            final var agent = new JsAgent();
-            agent.registerPointConsumer(this::onGeoPointChanged);
+            try {
+                if (nv != Worker.State.SUCCEEDED) return;
+                final var window = (JSObject) webEngine.executeScript("window");
 
-            window.setMember("agent", agent);
-            webEngine.executeScript("initTileLayer()");
-            webEngine.executeScript("initMarker()");
+                window.setMember("agent", jsAgent);
+                System.out.println(webEngine.executeScript("onReady()"));
+                System.out.println(webEngine.executeScript("initJava()"));
+            } catch (Throwable ex) {
+                log.error("error during load working", ex);
+            }
         });
+        setupDynamicChangeListeners();
     }
 
-    private void onGeoPointChanged(Float lat, Float lon) {
-        viewModel.setLatitude(lat);
-        viewModel.setLongitude(lon);
+    private void onGeoPointChanged() {
+        inboundChange = true;
+        final var lat = (Double) webEngine.executeScript("currentLat");
+        final var lon = (Double) webEngine.executeScript("currentLon");
+
+        viewModel.setLatitude(lat.floatValue());
+        viewModel.setLongitude(lon.floatValue());
+        inboundChange = false;
     }
 
     @Override
     public void setupEventHandlers() {
         super.setupEventHandlers();
-        webEngine.setOnError(System.err::println);
+        webEngine.setOnError(ev -> {
+            final var ex = ev.getException();
+            log.error("web engine error", ex);
+        });
     }
 
     @Override
@@ -178,6 +207,7 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
         spLongitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-180f, 180f));
         spAltitude = new Spinner<>(new ConfigurableSpinnerValueFactory(0f, 8_848f));
         spLatitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-90.0f, 90.0f));
-        this.viewModel = new GeoPointViewModel(field.getValue());
+        viewModel = new GeoPointViewModel(field.getValue());
+        jsAgent = new JsAgent();
     }
 }

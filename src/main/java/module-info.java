@@ -28,6 +28,9 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.controls to javafx.fxml;
     opens fr.civipol.civilio.controller to javafx.fxml;
     opens fr.civipol.civilio.controller.fosa to javafx.fxml;
+    opens fr.civipol.civilio.forms.controls to javafx.fxml, javafx.web;
+    opens fr.civipol.civilio.domain to javafx.fxml;
+    opens fr.civipol.civilio.forms.field to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -39,9 +42,6 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.controller.fosa;
     exports fr.civipol.civilio.ui;
     exports fr.civipol.civilio.domain;
-    opens fr.civipol.civilio.domain to javafx.fxml;
     exports fr.civipol.civilio.forms.field;
-    opens fr.civipol.civilio.forms.field to javafx.fxml;
     exports fr.civipol.civilio.forms.controls;
-    opens fr.civipol.civilio.forms.controls to javafx.fxml;
 }
