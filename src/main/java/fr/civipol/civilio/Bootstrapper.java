@@ -40,7 +40,6 @@ public class Bootstrapper extends Application {
         for (var service : services) {
             service.initialize();
         }
-
     }
 
     private static void loadConfiguration() throws IOException {

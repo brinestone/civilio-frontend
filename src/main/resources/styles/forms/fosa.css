@@ -1,0 +1,8 @@
+.section-title {
+    -fx-font-size: 16px;
+}
+
+.section-description {
+    -fx-font-size: 11px;
+    -fx-text-fill: #E9E9E9;
+}
