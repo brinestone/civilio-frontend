@@ -1,10 +1,10 @@
 package fr.civipol.civilio.controller;
 
 import fr.civipol.civilio.event.EventBus;
-import fr.civipol.civilio.event.MenuNavigationEvent;
-import fr.civipol.civilio.event.UIEvent;
+import fr.civipol.civilio.event.NavigateEvent;
 import fr.civipol.civilio.services.AuthService;
 import fr.civipol.civilio.stage.ViewLoader;
+import fr.civipol.civilio.ui.MenuItem;
 import jakarta.inject.Inject;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -26,8 +26,8 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class ShellController implements AppController, Initializable {
-    private static final UIEvent FOSA_FORM = new MenuNavigationEvent("FOSA form", "shell.menu.forms.fosa", "fosa-submissions");
-    private static final UIEvent CHEFFERIE_FORM = new MenuNavigationEvent("CHEFFERIE form", "shell.menu.forms.chefferie", "submissions/chefferie");
+    private static final MenuItem FOSA_FORM = new MenuItem("shell.menu.forms.fosa", "submissions/fosa");
+    private static final MenuItem CHEFFERIE_FORM = new MenuItem("shell.menu.forms.chefferie", "submissions/chefferie");
 
     private final ViewLoader vl;
     private final EventBus eb;
@@ -35,7 +35,7 @@ public class ShellController implements AppController, Initializable {
     private final ExecutorService executorService;
 
     @FXML
-    private ListView<UIEvent> lvMenu;
+    private ListView<MenuItem> lvMenu;
 
     @FXML
     private BorderPane root;
@@ -47,7 +47,7 @@ public class ShellController implements AppController, Initializable {
         lvMenu.setItems(FXCollections.observableArrayList(FOSA_FORM, CHEFFERIE_FORM));
         lvMenu.setCellFactory(param -> new ListCell<>() {
             @Override
-            protected void updateItem(UIEvent item, boolean empty) {
+            protected void updateItem(MenuItem item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty && item != null) {
                     setText(resources.getString(item.getLocalizationKey()));
@@ -61,14 +61,14 @@ public class ShellController implements AppController, Initializable {
         lvMenu.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         lvMenu.getSelectionModel().selectedItemProperty().addListener((ob, ov, nv) -> {
             if (nv == null) return;
-            eb.publish(nv);
+            eb.publish(new NavigateEvent(nv.getViewRef()));
         });
 
-        eb.subscribe(MenuNavigationEvent.class, this::onNavigate);
+        eb.subscribe(NavigateEvent.class, this::onNavigate);
         lvMenu.getSelectionModel().selectFirst();
     }
 
-    private void onNavigate(MenuNavigationEvent t) {
+    private void onNavigate(NavigateEvent t) {
         try {
             root.setCenter(vl.loadView(t.getViewRef()));
         } catch (IOException e) {

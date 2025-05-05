@@ -28,8 +28,8 @@ jobs:
       - uses: actions/setup-java@v4.7.0
         name: Setup Java
         with:
-          java-version-file: .tool-versions-ci
-          distribution: graalvm
+          java-version-file: .tool-versions
+          distribution: temurin
           cache: gradle
       - name: Run tests
         run: gradle test
