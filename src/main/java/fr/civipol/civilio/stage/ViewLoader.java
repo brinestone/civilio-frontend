@@ -38,8 +38,13 @@ public class ViewLoader {
         final var loader = fxmlLoaderFactory.newFXMLLoader();
         final var viewResource = ViewLoader.class.getResource("/views/" + name + ".fxml");
         loader.setLocation(viewResource);
+
+        // Chargez une seule fois et stockez le résultat
         final var view = (Node) loader.load();
+
+        // Mémorisez le contrôleur
         controllerMemo.put(name, loader.getController());
-        return loader.load();
+
+        return view; // Retournez le résultat chargé
     }
 }
