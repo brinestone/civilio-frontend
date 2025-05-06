@@ -1,14 +1,22 @@
 package fr.civipol.civilio.controller.chefferie;
 
+import jakarta.inject.Inject;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 
 public class CHEFFERIEFormSubmissionController {
-    public void onSubmitButtonClicked(ActionEvent event) {
+
+    @Inject
+    public  CHEFFERIEFormSubmissionController(){
+
+    }
+    @FXML
+    public void onSubmitButtonClicked(ActionEvent ignored) {
 
 
     }
-
-    public void onDiscardButtonClicked(ActionEvent event)
+@FXML
+    public void onDiscardButtonClicked(ActionEvent ignored)
 
     {
     }
