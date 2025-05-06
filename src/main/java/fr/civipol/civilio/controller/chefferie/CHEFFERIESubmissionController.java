@@ -64,13 +64,18 @@ public class CHEFFERIESubmissionController implements AppController, Initializab
         final var controller = (FormController) vl.getControllerFor(viewName).orElseThrow();
         controller.setOnSubmit(this::onFormSubmitted);
 
-        dialog.setTitle("Forms::FOSA - " + System.getProperty("app.name"));
+        dialog.setTitle("Forms::CHEFFERIE - " + System.getProperty("app.name"));
         dialog.setScene(new Scene((Parent) view));
         dialog.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
         dialog.showAndWait();
     } catch (IOException | NullPointerException ex) {
-        log.error("failed to load FOSA form view", ex);
+        log.error("failed to load CHEFFERIE form view", ex);
     }
 
 }
+
+    private void onFormSubmitted(String formSubmission) {
+        // TODO: refresh the view
+    }
+
 }
