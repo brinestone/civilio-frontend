@@ -17,6 +17,9 @@ module fr.civipol.civilio {
     requires com.fasterxml.jackson.databind;
     requires minio;
     requires com.google.common;
+    requires org.controlsfx.controls;
+    requires javafx.web;
+    requires jdk.jsobject;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
@@ -31,5 +34,7 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.exception;
     exports fr.civipol.civilio.entity;
     exports fr.civipol.civilio.event;
+    exports fr.civipol.civilio.controller.csc;
+    opens fr.civipol.civilio.controller.chefferie to javafx.fxml; // Cette ligne est importante
     exports fr.civipol.civilio.controller.csc;
 }
