@@ -9,11 +9,17 @@ import javafx.stage.Stage;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class ViewLoader {
     private final FXMLLoaderFactory fxmlLoaderFactory;
+    private final Map<String, Object> controllerMemo = new HashMap<>();
+
+
 
     public <T> Dialog<T> prepareDialog() {
         final var dialog = new Dialog<T>();
@@ -24,11 +30,16 @@ public class ViewLoader {
         dialog.setTitle(System.getProperty("app.name"));
         return dialog;
     }
-
+    public Optional<Object> getControllerFor(String name) {
+        return Optional.ofNullable(controllerMemo.get(name));
+    }
     public Node loadView(String name) throws IOException {
+        System.gc();
         final var loader = fxmlLoaderFactory.newFXMLLoader();
         final var viewResource = ViewLoader.class.getResource("/views/" + name + ".fxml");
         loader.setLocation(viewResource);
+        final var view = (Node) loader.load();
+        controllerMemo.put(name, loader.getController());
         return loader.load();
     }
 }
