@@ -8,7 +8,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane prefHeight="611.0" prefWidth="1059.0"  xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.chefferie.CHEFFERIEFormSubmissionController">
+<BorderPane prefHeight="611.0" prefWidth="1059.0"  xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.chefferie.CHEFFERIEFormSubmissionController">
     <center>
         <TabPane prefHeight="439.0" prefWidth="775.0">
             <Tab closable="false" text="%chefferie.form.sections.respondent.title">
