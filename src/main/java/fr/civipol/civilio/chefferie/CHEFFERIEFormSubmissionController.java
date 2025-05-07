@@ -10,6 +10,8 @@ import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
+import fr.civipol.civilio.entity.PersonnelInfo;
+import fr.civipol.civilio.forms.field.CHEFFERIEPersonnelInfoField;
 import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -84,8 +86,7 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
                         .tooltip("chefferie.form.fields.personnel_count.description")
                         .validate(IntegerRangeValidator.atLeast(0, "chefferie.form.msg.value_out_of_range"))
                         .span(ColSpan.TWO_THIRD),
-                CHEFFERIEPersonnelInfoField.personnelInfoField(personnel)
-                        .label("chefferie.form.fields.personnel_status.title")
+                CHEFFERIEPersonnelInfoField.label("chefferie.form.fields.personnel_status.title")
         )).i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
     }
