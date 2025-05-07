@@ -1,4 +1,4 @@
-package fr.civipol.civilio.forms.controls;
+package fr.civipol.civilio.form.control;
 
 import lombok.extern.slf4j.Slf4j;
 

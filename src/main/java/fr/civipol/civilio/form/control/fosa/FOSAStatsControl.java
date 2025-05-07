@@ -1,9 +1,9 @@
-package fr.civipol.civilio.forms.controls;
+package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.IntegerStringConverter;
-import fr.civipol.civilio.forms.field.FOSAStatsField;
-import fr.civipol.civilio.domain.FOSAVitalCSCStatViewModel;
+import fr.civipol.civilio.form.field.FOSAStatsField;
+import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;

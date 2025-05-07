@@ -7,8 +7,11 @@ import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.services.AppService;
 import fr.civipol.civilio.services.AuthService;
+import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.UserService;
 import io.minio.MinioClient;
 import jakarta.inject.Singleton;
+import org.controlsfx.tools.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +45,8 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService) {
-        return Set.of(authService);
+    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService) {
+        return Set.of(authService, formService, userService);
     }
 
     @Provides

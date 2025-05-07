@@ -1,10 +1,10 @@
-package fr.civipol.civilio.forms.field;
+package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.GeoPoint;
-import fr.civipol.civilio.forms.controls.GPSPickerControl;
+import fr.civipol.civilio.form.control.GeoPointPickerControl;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -52,6 +52,6 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
 
     public static Field<GeoPointField> gpsField(GeoPoint loc) {
         return new GeoPointField(new SimpleObjectProperty<>(loc), new SimpleObjectProperty<>())
-                .render(GPSPickerControl::new);
+                .render(GeoPointPickerControl::new);
     }
 }

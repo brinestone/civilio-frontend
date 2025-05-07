@@ -50,7 +50,8 @@ dependencies {
 
 //    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 
-    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
+    implementation("org.kordamp.ikonli:ikonli-feather-pack:12.4.0")
 
     implementation("com.dlsc.formsfx:formsfx-core:11.6.0")
 
@@ -75,7 +76,7 @@ dependencies {
 }
 
 jlink {
-    options = listOf(
+    addOptions(
             "--add-modules",
             "jakarta.cdi,jakarta.inject",
             "--strip-debug",
@@ -168,7 +169,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
-val appName = System.getenv("APP_NAME") ?: name
+val appName = System.getenv("APP_NAME") ?: "CivilIO"
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
 val appId = "${group}-${rootProject.name}"
 

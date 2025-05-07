@@ -1,11 +1,11 @@
-package fr.civipol.civilio.forms.controls;
+package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.IntegerStringConverter;
-import fr.civipol.civilio.domain.FOSAInventoryEntryViewModel;
+import fr.civipol.civilio.domain.viewmodel.FOSAInventoryEntryViewModel;
 import fr.civipol.civilio.entity.InventoryEntry;
-import fr.civipol.civilio.forms.field.FOSAInventoryField;
+import fr.civipol.civilio.form.field.FOSAInventoryField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

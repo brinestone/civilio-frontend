@@ -12,5 +12,6 @@ import java.util.concurrent.ExecutorService;
 @Component(modules = {BackgroundModule.class})
 public interface ServiceComponent {
     Set<AppService> allServices();
+
     ExecutorService executorService();
 }

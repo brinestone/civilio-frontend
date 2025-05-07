@@ -31,18 +31,18 @@
 }
 
 .outlined-button {
-    -fx-base: #1F5673;
-    -fx-border-color: -fx-base;
-    -fx-cursor: HAND;
-    -fx-border-radius: 12px;
-    -fx-background-radius: 12px;
-    -fx-background-color: none;
-    -fx-font-weight: bold;
-    -fx-text-fill: -fx-base;
+    /*-fx-base: #1F5673;*/
+    /*-fx-border-color: -fx-base;*/
+    /*-fx-cursor: HAND;*/
+    /*-fx-border-radius: 12px;*/
+    /*-fx-background-radius: 12px;*/
+    /*-fx-background-color: none;*/
+    /*-fx-font-weight: bold;*/
+    /*-fx-text-fill: -fx-base;*/
 }
 
 .outlined-button:hover {
-    -fx-background-color: rgba(31, 86, 115, 0.29);
+    /*-fx-background-color: rgba(31, 86, 115, 0.29);*/
 }
 
 .button {

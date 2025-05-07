@@ -1,10 +1,10 @@
-package fr.civipol.civilio.forms.field;
+package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.forms.controls.FOSAPersonnelInfoControl;
+import fr.civipol.civilio.form.control.fosa.FOSAPersonnelInfoControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;

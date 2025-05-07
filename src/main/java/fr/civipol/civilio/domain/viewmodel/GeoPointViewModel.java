@@ -1,4 +1,4 @@
-package fr.civipol.civilio.domain;
+package fr.civipol.civilio.domain.viewmodel;
 
 import fr.civipol.civilio.entity.GeoPoint;
 import javafx.beans.property.ObjectProperty;

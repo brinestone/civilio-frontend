@@ -20,17 +20,19 @@ module fr.civipol.civilio {
     requires org.controlsfx.controls;
     requires javafx.web;
     requires jdk.jsobject;
+    requires annotations;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
     opens fr.civipol.civilio.dagger.factory to dagger, javafx.fxml;
-    opens fr.civipol.civilio.controller.csc to javafx.fxml;
     opens fr.civipol.civilio.controls to javafx.fxml;
     opens fr.civipol.civilio.controller to javafx.fxml;
     opens fr.civipol.civilio.controller.fosa to javafx.fxml;
-    opens fr.civipol.civilio.forms.controls to javafx.fxml, javafx.web;
+    opens fr.civipol.civilio.form.control to javafx.fxml, javafx.web;
     opens fr.civipol.civilio.domain to javafx.fxml;
-    opens fr.civipol.civilio.forms.field to javafx.fxml;
+    opens fr.civipol.civilio.form.field to javafx.fxml;
+    opens fr.civipol.civilio.form.control.fosa to javafx.fxml, javafx.web;
+    opens fr.civipol.civilio.domain.viewmodel to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -42,6 +44,9 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.controller.fosa;
     exports fr.civipol.civilio.ui;
     exports fr.civipol.civilio.domain;
-    exports fr.civipol.civilio.forms.field;
-    exports fr.civipol.civilio.forms.controls;
+    exports fr.civipol.civilio.form.field;
+    exports fr.civipol.civilio.form.control;
+    exports fr.civipol.civilio.form.control.fosa;
+    exports fr.civipol.civilio.domain.viewmodel;
+    exports fr.civipol.civilio.services;
 }

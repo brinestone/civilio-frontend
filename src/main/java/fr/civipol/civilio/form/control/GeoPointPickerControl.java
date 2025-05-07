@@ -1,8 +1,8 @@
-package fr.civipol.civilio.forms.controls;
+package fr.civipol.civilio.form.control;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
-import fr.civipol.civilio.domain.GeoPointViewModel;
-import fr.civipol.civilio.forms.field.GeoPointField;
+import fr.civipol.civilio.domain.viewmodel.GeoPointViewModel;
+import fr.civipol.civilio.form.field.GeoPointField;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -44,7 +44,7 @@ class ConfigurableSpinnerValueFactory extends SpinnerValueFactory<Float> {
 }
 
 @Slf4j
-public class GPSPickerControl extends SimpleControl<GeoPointField> {
+public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
     private GeoPointViewModel viewModel;
     private Label lblAltitude, lblLongitude, lblLatitude, lblAccuracy;
     private Spinner<Float> spAltitude, spLongitude, spLatitude, spAccuracy;
@@ -86,7 +86,7 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
     }
 
     private void loadMapView() {
-        final var url = GPSPickerControl.class.getResource("/html/leaflet.html");
+        final var url = GeoPointPickerControl.class.getResource("/html/leaflet.html");
         if (url == null) {
             log.warn("url not found for \"/html/leaflet.html\" resource");
             return;
@@ -165,8 +165,8 @@ public class GPSPickerControl extends SimpleControl<GeoPointField> {
                 final var window = (JSObject) webEngine.executeScript("window");
 
                 window.setMember("agent", jsAgent);
-                System.out.println(webEngine.executeScript("onReady()"));
-                System.out.println(webEngine.executeScript("initJava()"));
+                webEngine.executeScript("onReady()");
+                webEngine.executeScript("initJava()");
             } catch (Throwable ex) {
                 log.error("error during load working", ex);
             }
