@@ -22,13 +22,13 @@ public class EventBus {
         list.add((Consumer<Event>) subscriber);
     }
 
-    public <T extends Event> void unsubscribe(Class<T> eventType, Consumer<T> subscriber) {
-        if (subscriber == null) return;
-        final var subs = subscribers.get(eventType);
-        if (subs != null) {
-            subs.remove(subscriber);
-        }
-    }
+//    public <T extends Event> void unsubscribe(Class<T> eventType, Consumer<T> subscriber) {
+//        if (subscriber == null) return;
+//        final var subs = subscribers.get(eventType);
+//        if (subs != null) {
+//            subs.remove(subscriber);
+//        }
+//    }
 
     public <T extends Event> void publish(T event) {
         final var consumers = subscribers.get(event.getClass().getName());

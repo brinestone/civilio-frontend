@@ -18,7 +18,7 @@ module fr.civipol.civilio {
     requires minio;
     requires com.google.common;
     requires org.controlsfx.controls;
-    //requires javafx.web;
+    requires javafx.web;
     requires jdk.jsobject;
 
     opens fr.civipol.civilio.dagger.module to dagger;
@@ -27,6 +27,10 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.controller.csc to javafx.fxml;
     opens fr.civipol.civilio.controls to javafx.fxml;
     opens fr.civipol.civilio.controller to javafx.fxml;
+    opens fr.civipol.civilio.controller.fosa to javafx.fxml;
+    opens fr.civipol.civilio.forms.controls to javafx.fxml, javafx.web;
+    opens fr.civipol.civilio.domain to javafx.fxml;
+    opens fr.civipol.civilio.forms.field to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -34,6 +38,12 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.exception;
     exports fr.civipol.civilio.entity;
     exports fr.civipol.civilio.event;
+    exports fr.civipol.civilio.stage;
+    exports fr.civipol.civilio.controller.fosa;
+    exports fr.civipol.civilio.ui;
+    exports fr.civipol.civilio.domain;
+    exports fr.civipol.civilio.forms.field;
+    exports fr.civipol.civilio.forms.controls;
     exports fr.civipol.civilio.controller.csc;
     opens fr.civipol.civilio.controller.chefferie to javafx.fxml; // Cette ligne est importante
    // exports fr.civipol.civilio.controller.csc;

@@ -12,6 +12,10 @@ description = "A Civil Status data management tool."
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    flatDir {
+        dirs("libs")
+    }
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
@@ -29,18 +33,22 @@ java {
 
 javafx {
     version = javaFxVersion
-    modules = listOf("javafx.controls", "javafx.fxml")
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.web")
 }
 
 val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
 val hibernateVersion = "6.6.12.Final"
+val geoToolsVersion = "28.1"
 
 dependencies {
+    // ControlsFX
+    implementation("org.controlsfx:controlsfx:11.2.2")
+
     // MinIO Client
     implementation("io.minio:minio:8.5.7")
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
+//    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
 
     implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
 
@@ -68,6 +76,8 @@ dependencies {
 
 jlink {
     options = listOf(
+            "--add-modules",
+            "jakarta.cdi,jakarta.inject",
             "--strip-debug",
             "--no-header-files",
             "--no-man-pages"
@@ -95,13 +105,17 @@ jlink {
         installerOptions.addAll(listOf(
                 "--description", project.description,
                 "--vendor", "Civipol",
-                "--copyright", "Copyright 2025 Civipol"
+                "--copyright", "Copyright 2025 Civipol",
+                "--resource-dir", "${layout.buildDirectory.get()}/resources/main"
         ))
-        imageOptions = listOf("--icon", "src/main/resources/img/Logo32x32.ico")
+        imageOptions = listOf(
+                "--icon", "src/main/resources/img/Logo32x32.ico",
+                "--resource-dir", "src/main/resources"
+        )
     }
     addExtraDependencies("org.slf4j")
     addExtraDependencies("ch.qos.logback")
-    addExtraDependencies("postgresql")
+    addExtraDependencies("resources")
     addOptions("--add-modules", "jakarta.cdi,jakarta.inject")
 }
 
@@ -174,4 +188,11 @@ tasks.compileJava {
     options.compilerArgs.addAll(listOf(
             "--add-modules", "jakarta.inject,java.naming,java.desktop"
     ))
+}
+
+tasks.named<Jar>("jar") {
+    from(sourceSets.main.get().resources) {
+        include("**/*.html")
+        into("resources")
+    }
 }

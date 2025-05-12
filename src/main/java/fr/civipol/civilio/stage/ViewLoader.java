@@ -19,8 +19,6 @@ public class ViewLoader {
     private final FXMLLoaderFactory fxmlLoaderFactory;
     private final Map<String, Object> controllerMemo = new HashMap<>();
 
-
-
     public <T> Dialog<T> prepareDialog() {
         final var dialog = new Dialog<T>();
         final var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
@@ -30,9 +28,11 @@ public class ViewLoader {
         dialog.setTitle(System.getProperty("app.name"));
         return dialog;
     }
+
     public Optional<Object> getControllerFor(String name) {
         return Optional.ofNullable(controllerMemo.get(name));
     }
+
     public Node loadView(String name) throws IOException {
         System.gc();
         final var loader = fxmlLoaderFactory.newFXMLLoader();
