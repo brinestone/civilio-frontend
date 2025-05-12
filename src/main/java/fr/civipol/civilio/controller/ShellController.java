@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class ShellController implements AppController, Initializable {
     private static final MenuItem FOSA_FORM = new MenuItem("shell.menu.forms.fosa", "submissions/fosa");
+    private static final MenuItem CHEFFERIE_FORM = new MenuItem("shell.menu.forms.chefferie", "submissions/chefferie");
 
     private final ViewLoader vl;
     private final EventBus eb;
@@ -43,7 +44,7 @@ public class ShellController implements AppController, Initializable {
     private TextField tfSearch;
 
     public void initialize(URL location, ResourceBundle resources) {
-        lvMenu.setItems(FXCollections.observableArrayList(FOSA_FORM));
+        lvMenu.setItems(FXCollections.observableArrayList(FOSA_FORM, CHEFFERIE_FORM));
         lvMenu.setCellFactory(param -> new ListCell<>() {
             @Override
             protected void updateItem(MenuItem item, boolean empty) {
