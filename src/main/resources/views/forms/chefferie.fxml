@@ -17,8 +17,8 @@
             <Tab closable="false" text="%chefferie.form.sections.structure_identification.title">
                 <ScrollPane fx:id="spStructureIdContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
             </Tab>
-            <Tab closable="false" text="%chefferie.form.sections.reg_cs_events.title">
-                <ScrollPane fx:id="spCSERegContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
+            <Tab closable="false" text="%chefferie.form.sections.service_offered_and_amenities.title">
+                <ScrollPane fx:id="spServiceContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
             </Tab>
             <Tab closable="false" text="%chefferie.form.sections.infra_eq.title">
                 <ScrollPane fx:id="spEquipmentContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
