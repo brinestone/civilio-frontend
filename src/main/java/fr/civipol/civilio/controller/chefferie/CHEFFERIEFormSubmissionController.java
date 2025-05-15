@@ -82,6 +82,7 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
         setStructureIdContainer(ts);
         spServiceContainer(ts);
         spEquipmentContainer(ts);
+        spPersonalStatusContainer(ts);
 
 
     }
@@ -137,6 +138,10 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
 
 
     private void setStructureIdContainer(TranslationService ts) {
+        final var classificationOptions = FXCollections.observableArrayList(
+                "1ier degré ou Lamidat",
+                "2e degré"
+        );
         final var departments = new SimpleListProperty<>();
         final var communes = new SimpleListProperty<>();
         final var classification = new SimpleListProperty<>();
@@ -164,7 +169,7 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
                                         .label("chefferie.form.fields.name.title")
                                         .span(ColSpan.HALF),
 
-                                Field.ofSingleSelectionType(classification)
+                                Field.ofSingleSelectionType(classificationOptions)
                                         .label("chefferie.form.fields.classification.title")
                                         .tooltip("chefferie.form.fields.classification.description")
                                         .span(ColSpan.HALF),
@@ -185,41 +190,72 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
 
 
     private void spServiceContainer(ResourceBundleService ts) {
-        final var fonction = new SimpleListProperty<>();
-        final var benefit = new SimpleListProperty<>();
-        final var conservation_place = new SimpleListProperty<>();
-        final var training = new SimpleListProperty<>();
-        final var waiting_room= new SimpleListProperty<>();
-        final var reception_location = new SimpleListProperty<>();
-        final var toilets_accessible = new SimpleListProperty<>();
 
+        final var fonction = new SimpleListProperty<>();
+        final var fonctionOptions = FXCollections.observableArrayList(
+                "Oui, Officier d’état civi",
+                "Oui, Secrétaire d’état civil",
+                "Non"
+        );
+        final var benefit = new SimpleListProperty<>();
+        final var benefitOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var conservation_place = new SimpleListProperty<>();
+        final var conservation_placeOptions = FXCollections.observableArrayList(
+                "Dans une salle réservée",
+                "Dans le domicile du chef",
+                "Autres (A préciser)"
+        );
+        final var training = new SimpleListProperty<>();
+        final var trainingOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var waiting_room= new SimpleListProperty<>();
+        final var waiting_roomOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var reception_location = new SimpleListProperty<>();
+        final var reception_locationOptions = FXCollections.observableArrayList(
+                "Dans une salle réservée",
+                "Dans le domicile du chef",
+                "Autres (A préciser)"
+        );
+        final var toilets_accessible = new SimpleListProperty<>();
+        final var toilets_accessibleOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
         final var form = Form.of(
                 Section.of(
-                        Field.ofSingleSelectionType(fonction)
+                        Field.ofSingleSelectionType(fonctionOptions)
                                 .label("chefferie.form.fields.fonction.title")
                                 .tooltip("chefferie.form.fields.fonction.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(benefit)
+                        Field.ofSingleSelectionType(benefitOptions)
                                 .label("chefferie.form.fields.benefit.title")
                                 .tooltip("chefferie.form.fields.benefit.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(conservation_place)
+                        Field.ofSingleSelectionType(conservation_placeOptions)
                                 .label("chefferie.form.fields.conservation_place.title")
                                 .tooltip("chefferie.form.fields.conservation_place.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(training)
+                        Field.ofSingleSelectionType(trainingOptions)
                                 .label("chefferie.form.fields.training.title")
                                 .tooltip("chefferie.form.fields.training.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(waiting_room)
+                        Field.ofSingleSelectionType(waiting_roomOptions)
                                 .label("chefferie.form.fields.waiting_room.title")
                                 .tooltip("chefferie.form.fields.waiting_room.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(reception_location)
+                        Field.ofSingleSelectionType(reception_locationOptions)
                                 .label("chefferie.form.fields.reception_location.title")
                                 .tooltip("chefferie.form.fields.reception_location.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(toilets_accessible)
+                        Field.ofSingleSelectionType(toilets_accessibleOptions)
                                 .label("chefferie.form.fields.toilets_accessible.title")
                                 .tooltip("chefferie.form.fields.toilets_accessible.description")
                                 .span(ColSpan.HALF)
@@ -229,10 +265,120 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
     }
 
     private void spEquipmentContainer(ResourceBundleService ts) {
+        final var structure = new SimpleListProperty<>();
+        final var structureOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var connexion = new SimpleListProperty<>();
+        final var connexionOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var typeConnexion = new SimpleListProperty<>();
+        final var  typeConnexionOptions = FXCollections.observableArrayList(
+                "2G",
+                "3G",
+                "4G",
+                "ADSL (téléphone filaire)",
+                "Fibre optique"
+        );
+        final var eneoConnexion = new SimpleListProperty<>();
+        final var eneoConnexionOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var waterAcces = new SimpleListProperty<>();
+        final var waterAccesOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var waterType = new SimpleListProperty<>();
+        final var waterTypeOptions = FXCollections.observableArrayList(
+                "CAMWATER",
+                "Puit aménagé/Forage",
+                "Puit non aménagé/Traditionnel ",
+                "Cour d’eau",
+                "Autres (A préciser)"
+        );
+        final var  extinguisher= new SimpleListProperty<>();
+        final var extinguisherOptions = FXCollections.observableArrayList(
+                "Oui",
+                "Non"
+        );
+        final var form = Form.of(
+                Section.of(
+                        Field.ofStringType("")
+                                .label("chefferie.form.fields.equipment_question.title")
+                                .editable(false)
+                                .span(ColSpan.HALF), // Utilisez ColSpan.HALF ici
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.equipment_quantity.computers")
+                                .tooltip("chefferie.form.fields.equipment_quantity.computers.description")
+                                .span(ColSpan.HALF),
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.equipment_quantity.tablets")
+                                .tooltip("chefferie.form.fields.equipment_quantity.tablets.description")
+                                .span(ColSpan.HALF),
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.equipment_quantity.printers")
+                                .tooltip("chefferie.form.fields.equipment_quantity.printers.description")
+                                .span(ColSpan.HALF),
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.equipment_quantity.cars")
+                                .tooltip("chefferie.form.fields.equipment_quantity.cars.description")
+                                .span(ColSpan.HALF),
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.equipment_quantity.motorcycles")
+                                .tooltip("chefferie.form.fields.equipment_quantity.motorcycles.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(structureOptions)
+                                .label("chefferie.form.fields.structure.title")
+                                .tooltip("chefferie.form.fields.structure.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(connexionOptions)
+                                .label("chefferie.form.fields.connexion.title")
+                                .tooltip("chefferie.form.fields.connexion.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(typeConnexionOptions)
+                                .label("chefferie.form.fields.typeConnexion.title")
+                                .tooltip("chefferie.form.fields.typeConnexion.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(eneoConnexionOptions)
+                                .label("chefferie.form.fields.eneoConnexion.title")
+                                .tooltip("chefferie.form.fields.eneoConnexion.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(waterAccesOptions)
+                                .label("chefferie.form.fields.waterAcces.title")
+                                .tooltip("chefferie.form.fields.waterAcces.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(waterTypeOptions)
+                                .label("chefferie.form.fields.waterType.title")
+                                .tooltip("chefferie.form.fields.waterType.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(extinguisherOptions)
+                                .label("chefferie.form.fields.extinguisher.title")
+                                .tooltip("chefferie.form.fields.extinguisher.description")
+                                .span(ColSpan.HALF)
+                )
+        ).i18n(ts);
+
+        spEquipmentContainer.setContent(new FormRenderer(form));
+    }
+
+    private void spPersonalStatusContainer(ResourceBundleService ts) {
+        final var employer = new SimpleListProperty<>();
+        final var form = Form.of(
+                Section.of(
+                        Field.ofIntegerType(0)
+                                .label("chefferie.form.fields.employer.title")
+                                .tooltip("chefferie.form.fields.employer.description")
+                                .span(ColSpan.HALF)
 
 
-
-
+                )
+        ).i18n(ts);
+        spPersonalStatusContainer.setContent(new FormRenderer(form));
     }
 
 }
