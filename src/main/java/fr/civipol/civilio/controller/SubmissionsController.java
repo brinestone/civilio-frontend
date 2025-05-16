@@ -31,8 +31,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
+import javafx.util.converter.DefaultStringConverter;
 import lombok.extern.slf4j.Slf4j;
-import org.controlsfx.control.PopOver;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.IOException;
@@ -82,7 +82,9 @@ public class SubmissionsController implements AppController, Initializable {
     @FXML
     private Pagination pgPagination;
     @FXML
-    private TableColumn<FormSubmissionViewModel, Date> tcRecordedAt;
+    private TableColumn<FormSubmissionViewModel, String> tcRecordedAt;
+    @FXML
+    private TableColumn<FormSubmissionViewModel, Date> tcRecordedOn;
     @FXML
     private TableColumn<FormSubmissionViewModel, String> tcRecordedBy;
     @FXML
@@ -96,7 +98,7 @@ public class SubmissionsController implements AppController, Initializable {
     private final HBox hbSelectionActionBar = new HBox();
     private final ObservableSet<FormSubmissionViewModel> selectedItems = FXCollections.observableSet();
     private SubmissionsFilter filters;
-    private final PopOver filterContainer = new PopOver();
+    private Dialog<ButtonType> filterDialog;
     private ResourceBundle resourceRef;
 
     @FXML
@@ -124,7 +126,7 @@ public class SubmissionsController implements AppController, Initializable {
             dialog.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
             dialog.showAndWait();
         } catch (IOException | NullPointerException ex) {
-            log.error("failed to load FOSA form view", ex);
+            log.error("failed to load " + cbFormType.getValue().toString().toUpperCase() + " form view", ex);
         }
     }
 
@@ -135,6 +137,7 @@ public class SubmissionsController implements AppController, Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         resourceRef = resources;
         filters = new SubmissionsFilter(resources);
+        initFilterDialog();
         initFormTypeComboBox();
         initColumns();
         initBindings();
@@ -143,6 +146,17 @@ public class SubmissionsController implements AppController, Initializable {
         setupEventListeners();
         setupChangeListeners();
         doLoadSubmissionData();
+    }
+
+    private void initFilterDialog() {
+        filterDialog = new Dialog<>();
+        filterDialog.getDialogPane().getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
+        filterDialog.getDialogPane().setContent(filters.getView());
+        filterDialog.getDialogPane().getButtonTypes().setAll(
+                new ButtonType(resourceRef.getString("Dialog.filters.clear"), ButtonBar.ButtonData.CANCEL_CLOSE),
+                ButtonType.OK
+        );
+        filterDialog.setTitle(resourceRef.getString("filters.title"));
     }
 
     private void initSelectionActionBar() {
@@ -214,12 +228,11 @@ public class SubmissionsController implements AppController, Initializable {
     }
 
     private void setupEventListeners() {
-        btnOpenFilters.setOnAction(e -> {
-            filterContainer.setContentNode(filters.getView());
-            filterContainer.setArrowLocation(PopOver.ArrowLocation.BOTTOM_CENTER);
-            filterContainer.show(((Button) e.getSource()));
-        });
+        btnOpenFilters.setOnAction(this::onOpenFiltersButtonClicked);
         cbSelectAll.setOnAction(e -> tvSubmissions.getItems().forEach(vm -> vm.setSelected(cbSelectAll.isSelected())));
+        tcRecordedAt.setOnEditCommit(e -> e.getRowValue().setSubmittedAt(e.getNewValue()));
+        tcValidationCode.setOnEditCommit(param -> param.getRowValue().setValidationCode(param.getNewValue()));
+        tcRecordedBy.setOnEditCommit(e -> e.getRowValue().setSubmittedBy(e.getNewValue()));
     }
 
     private void initLoadingSpinner() {
@@ -236,7 +249,7 @@ public class SubmissionsController implements AppController, Initializable {
         spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
         executorService.submit(() -> {
             try {
-                final var result = formService.findFormSubmissions(pgPagination.getCurrentPageIndex(), PAGE_SIZE);
+                final var result = formService.findFormSubmissions(pgPagination.getCurrentPageIndex(), PAGE_SIZE, filters.getFilterManager());
                 Platform.runLater(() -> {
                     try {
                         final var submissions = result.getData().stream()
@@ -327,7 +340,7 @@ public class SubmissionsController implements AppController, Initializable {
 
     private void initColumns() {
         tcValidationCode.setCellValueFactory(param -> param.getValue().validationCodeProperty());
-        tcValidationCode.setCellFactory(param -> new TextFieldTableCell<>());
+        tcValidationCode.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
 
         tcValidated.setCellFactory(param -> new CheckBoxTableCell<>(index -> tvSubmissions.getItems().get(index).validatedProperty()));
         tcValidated.setCellValueFactory(param -> param.getValue().validatedProperty());
@@ -338,8 +351,8 @@ public class SubmissionsController implements AppController, Initializable {
         tcRecordedBy.setCellValueFactory(param -> param.getValue().submittedByProperty());
         tcRecordedBy.setCellFactory(param -> new ComboBoxTableCell<>());
 
-        tcRecordedAt.setCellValueFactory(param -> param.getValue().submittedAtProperty());
-        tcRecordedAt.setCellFactory(param -> new TableCell<>() {
+        tcRecordedOn.setCellValueFactory(param -> param.getValue().submittedOnProperty());
+        tcRecordedOn.setCellFactory(param -> new TableCell<>() {
             @Override
             protected void updateItem(Date item, boolean empty) {
                 super.updateItem(item, empty);
@@ -350,5 +363,15 @@ public class SubmissionsController implements AppController, Initializable {
                 }
             }
         });
+
+        tcRecordedAt.setCellValueFactory(param -> param.getValue().submittedAtProperty());
+        tcRecordedAt.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+    }
+
+    private void onOpenFiltersButtonClicked(ActionEvent e) {
+        filterDialog.showAndWait()
+                .filter(b -> b.getButtonData().equals(ButtonBar.ButtonData.CANCEL_CLOSE))
+                .ifPresent(__ -> filters.reset());
+        doLoadSubmissionData();
     }
 }

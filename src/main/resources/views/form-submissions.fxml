@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<BorderPane fx:id="bpRoot" prefHeight="412.0" prefWidth="777.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.SubmissionsController">
+<BorderPane fx:id="bpRoot" prefHeight="412.0" prefWidth="853.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.SubmissionsController">
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="692.0" spacing="10.0">
             <padding>
@@ -56,6 +56,7 @@
                         <TableColumn fx:id="tcValidationCode" prefWidth="200" text="%fosa.columns.validation_code" />
                         <TableColumn fx:id="tcRecordedBy" prefWidth="126.0" text="%fosa.columns.recorded_by" />
                         <TableColumn fx:id="tcRecordedAt" editable="false" prefWidth="167.0" text="%fosa.columns.recorded_at" />
+                        <TableColumn fx:id="tcRecordedOn" editable="false" prefWidth="182.0" text="%fosa.columns.recorded_on" />
                     </columns>
                 </TableView>
             </children>

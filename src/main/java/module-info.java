@@ -21,6 +21,7 @@ module fr.civipol.civilio {
     requires javafx.web;
     requires jdk.jsobject;
     requires annotations;
+    requires java.sql;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
@@ -49,4 +50,6 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.form.control.fosa;
     exports fr.civipol.civilio.domain.viewmodel;
     exports fr.civipol.civilio.services;
+    exports fr.civipol.civilio.domain.filter;
+    opens fr.civipol.civilio.domain.filter to javafx.fxml;
 }

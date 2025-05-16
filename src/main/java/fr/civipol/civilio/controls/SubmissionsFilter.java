@@ -1,51 +1,48 @@
 package fr.civipol.civilio.controls;
 
-import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.structure.Form;
 import com.dlsc.formsfx.model.structure.Group;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
-import com.dlsc.formsfx.view.util.ColSpan;
+import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.User;
+import fr.civipol.civilio.form.field.FilterManagerField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.StackPane;
+import lombok.Getter;
 
 import java.util.*;
 
 public class SubmissionsFilter {
-    private static final String VS_VALID_ONLY = "filters.validation.valid";
-    private static final String VS_INVALID_ONLY = "filters.validation.invalid";
-    private static final String VS_ANY = "filters.validation.any";
-    private static final List<User> DEFAULT_USERS = Collections.emptyList();
     private final ListProperty<User> users = new SimpleListProperty<>();
-    private final ListProperty<User> selectedUsers = new SimpleListProperty<>();
     private final Form filterForm;
     private Node view;
     private final ObservableValue<Integer> activeFilters;
+    @Getter
+    private final FilterManager filterManager = new FilterManager();
 
     public SubmissionsFilter(ResourceBundle resources) {
         final var ts = new ResourceBundleService(resources);
         filterForm = Form.of(
                 Group.of(
-                        Field.ofMultiSelectionType(DEFAULT_USERS)
-                                .label("filters.user.recorded_by.title")
-                                .bind(users, selectedUsers),
-                        Field.ofSingleSelectionType(List.of(resources.getString(VS_ANY), resources.getString(VS_VALID_ONLY), resources.getString(VS_INVALID_ONLY)), 0)
-                                .label("filters.validation.title")
-                                .span(ColSpan.HALF)
+                        FilterManagerField.conditionsField(resources, filterManager, this::getFilterOptions)
+                                .label("filters.title")
                 )
         ).i18n(ts);
-        activeFilters = Bindings.createIntegerBinding(() -> Long.valueOf(filterForm.getFields().stream()
-                .filter(Field::hasChanged)
-                .count()).intValue(), filterForm.changedProperty()).asObject();
+        activeFilters = Bindings.size(filterManager.conditionsProperty()).asObject();
+    }
+
+    private Collection<FilterManagerField.Option> getFilterOptions(String key) {
+        return Collections.emptyList();
     }
 
     public void reset() {
-        // TODO: reset all filters to default values.
+        filterManager.conditionsProperty().clear();
     }
 
     public Integer getActiveFilters() {
@@ -63,9 +60,11 @@ public class SubmissionsFilter {
 
     public Node getView() {
         if (view == null) {
-            final var view = new ScrollPane(new FormRenderer(filterForm));
+            FormRenderer content = new FormRenderer(filterForm);
+            final var view = new ScrollPane(new StackPane(content));
             this.view = view;
-            view.setPrefHeight(400);
+            view.setMinWidth(640);
+            view.setMinHeight(480);
             view.setFitToWidth(true);
         }
         return view;

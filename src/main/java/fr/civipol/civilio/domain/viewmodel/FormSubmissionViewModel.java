@@ -1,20 +1,22 @@
 package fr.civipol.civilio.domain.viewmodel;
 
+import fr.civipol.civilio.domain.filter.FilterCondition;
+import fr.civipol.civilio.domain.filter.FilterField;
 import fr.civipol.civilio.entity.FormSubmission;
 import javafx.beans.property.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
 public class FormSubmissionViewModel implements Comparable<FormSubmissionViewModel> {
     @Getter
     private final FormSubmission submission;
-    private final ObjectProperty<Date> submittedAt;
-    private final StringProperty submittedBy, validationCode;
+    private final ObjectProperty<Date> submittedOn;
+    private final StringProperty submittedBy, validationCode, submittedAt;
     private final BooleanProperty selected, validated;
 
     public FormSubmissionViewModel(FormSubmission submission) {
@@ -32,14 +34,16 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         submittedBy = new SimpleStringProperty(submission, "submittedBy", Optional.ofNullable(submission)
                 .map(FormSubmission::getSubmittedBy)
                 .orElse(null));
-        submittedAt = new SimpleObjectProperty<>(submission, "submittedAt", Optional.ofNullable(submission)
-                .map(FormSubmission::getSubmittedAt)
+        submittedOn = new SimpleObjectProperty<>(submission, "submittedOn", Optional.ofNullable(submission)
+                .map(FormSubmission::getSubmittedOn)
+                .orElse(null));
+        submittedAt = new SimpleStringProperty(submission, "submittedAt", Optional.ofNullable(submission)
+                .map(FormSubmission::getRegion)
                 .orElse(null));
 
+        submittedAt.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setRegion(nv)));
         submittedBy.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setSubmittedBy(nv)));
-        validated.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> {
-            fs.setValidationStatus(nv ? "validation_status_passed" : "validation_status_on_hold");
-        }));
+        validated.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setValidationStatus(nv ? "validation_status_passed" : "validation_status_on_hold")));
     }
 
     public void setSelected(boolean val) {
@@ -50,8 +54,8 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         return submittedBy;
     }
 
-    public ObjectProperty<Date> submittedAtProperty() {
-        return submittedAt;
+    public ObjectProperty<Date> submittedOnProperty() {
+        return submittedOn;
     }
 
     public StringProperty validationCodeProperty() {
@@ -64,6 +68,22 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
 
     public BooleanProperty selectedProperty() {
         return selected;
+    }
+
+    public void setSubmittedBy(String v) {
+        submittedBy.set(v);
+    }
+
+    public void setValidationCode(String v) {
+        validationCode.set(v);
+    }
+
+    public void setSubmittedAt(String v) {
+        submittedAt.set(v);
+    }
+
+    public StringProperty submittedAtProperty() {
+        return submittedAt;
     }
 
     @Override
@@ -80,4 +100,5 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
     public int hashCode() {
         return getSubmission().hashCode();
     }
+
 }
