@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A Dagger factory for instantiating and managing custom controls.
+ * A Dagger factory for instantiating and managing custom control.
  */
 public class ControlFactory implements Function<Class<?>, Object> {
     private final Map<Class<?>, AppControl> controls;

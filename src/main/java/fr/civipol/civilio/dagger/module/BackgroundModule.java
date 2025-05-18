@@ -1,23 +1,25 @@
 package fr.civipol.civilio.dagger.module;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
 import fr.civipol.civilio.Constants;
-import fr.civipol.civilio.event.EventBus;
-import fr.civipol.civilio.services.AppService;
-import fr.civipol.civilio.services.AuthService;
+import fr.civipol.civilio.services.*;
 import io.minio.MinioClient;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.prefs.Preferences;
+import java.util.stream.Stream;
 
 @Module
 public class BackgroundModule {
@@ -25,14 +27,43 @@ public class BackgroundModule {
 
     @Provides
     @Singleton
-    public MinioClient minioClient() {
+    public DataSource dataSource(HikariConfig config) {
+        return new HikariDataSource(config);
+    }
+
+    @Provides
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    public HikariConfig hikariDataSource(ConfigManager cm) {
+        final var host = cm.loadObject(Constants.DB_HOST_KEY, String.class);
+        final var port = cm.loadObject(Constants.DB_PORT_KEY, Integer.class);
+        final var dbName = cm.loadObject(Constants.DB_NAME_KEY, String.class);
+        final var pass = cm.loadObject(Constants.DB_USER_PWD_KEY, String.class);
+        final var user = cm.loadObject(Constants.DB_USER_KEY, String.class);
+
+        if (!Stream.of(host, port, dbName, pass, user).allMatch(Optional::isPresent)) {
+            LOGGER.warn("datasource configuration is invalid");
+            return null;
+        }
+        final var config = new HikariConfig();
+        config.setPassword(pass.get());
+        config.setUsername(user.get());
+        config.setDataSourceClassName("org.postgresql.ds.PGSimpleDataSource");
+        config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s", host.get(), port.get(), dbName.get()));
+
+        return config;
+    }
+
+    @Provides
+    @Singleton
+    public MinioClient minioClient(ConfigManager cm) {
         try {
-            final var accessKey = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH).get(Constants.MINIO_ACCESS_KEY_NAME, null);
-            final var secretKey = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH).get(Constants.MINIO_SECRET_KEY_NAME, null);
-            final var endpoint = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH).get(Constants.MINIO_ENDPOINT_KEY_NAME, null);
+            final var accessKey = cm.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class);
+            final var secretKey = cm.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class);
+            final var endpoint = cm.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class);
+
             return MinioClient.builder()
-                    .credentials(accessKey, secretKey)
-                    .endpoint(URI.create(endpoint).toURL())
+                    .credentials(accessKey.orElse(""), secretKey.orElse(""))
+                    .endpoint(URI.create(endpoint.orElse("")).toURL())
                     .build();
         } catch (MalformedURLException ex) {
             LOGGER.error("error while creating minio client", ex);
@@ -42,8 +73,8 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService) {
-        return Set.of(authService);
+    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService) {
+        return Set.of(authService, formService, userService);
     }
 
     @Provides

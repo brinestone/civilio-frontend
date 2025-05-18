@@ -14,13 +14,14 @@ import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.entity.GeoPoint;
-import fr.civipol.civilio.forms.field.FOSAStatsField;
 import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
-import fr.civipol.civilio.forms.field.FOSAInventoryField;
-import fr.civipol.civilio.forms.field.GeoPointField;
+import fr.civipol.civilio.form.field.FOSAInventoryField;
+import fr.civipol.civilio.form.field.FOSAPersonnelInfoField;
+import fr.civipol.civilio.form.field.FOSAStatsField;
+import fr.civipol.civilio.form.field.GeoPointField;
 import jakarta.inject.Inject;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -30,6 +31,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.util.StringConverter;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -37,13 +41,17 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
-public class FOSAFormSubmissionController implements AppController, Initializable, FormController {
-    private Consumer<String> submissionCallback;
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
+public class FOSAFormSubmissionController extends FormController implements AppController, Initializable {
+    @Getter(AccessLevel.PROTECTED)
+    private final ExecutorService executorService;
+    private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
     @FXML
     private ScrollPane spCSERegContainer;
 
@@ -65,28 +73,37 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
     @FXML
     private Button btnDiscard;
 
-    @Inject
-    public FOSAFormSubmissionController() {
+    @FXML
+    void onDiscardButtonClicked(ActionEvent event) {
+        handleDiscardEvent(event);
     }
 
     @FXML
-    void onDiscardButtonClicked(ActionEvent ignored) {
-
-    }
-
-    @FXML
-    void onSubmitButtonClicked(ActionEvent ignored) {
-
+    void onSubmitButtonClicked(ActionEvent event) {
+        handleSubmitEvent(event);
     }
 
     @Override
-    public void setOnSubmit(Consumer<String> callback) {
-        this.submissionCallback = callback;
+    protected final void doSubmit() {
+        // TODO: Perform actual data submission
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setForms(resources);
+        btnFinish.disableProperty().bind(
+                Bindings.not(
+                        respondentForm.validProperty()
+                                .and(structureIdForm.validProperty())
+                                .and(eventRegistrationForm.validProperty())
+                                .and(equipmentForm.validProperty())
+                                .and(personnelForm.validProperty())
+                )
+        );
+    }
+
+    protected final Map<String, Object> loadSubmissionData() {
+        return Map.of();
     }
 
     private void setForms(ResourceBundle resources) {
@@ -102,6 +119,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
         final var personnel = Collections.<PersonnelInfo>emptyList();
         final var form = Form.of(Group.of(
                 Field.ofIntegerType(0)
+                        .id("fosa.form.fields.personnel_count")
                         .label("fosa.form.fields.personnel_count.title")
                         .tooltip("fosa.form.fields.personnel_count.description")
                         .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
@@ -110,6 +128,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                         .label("fosa.form.fields.personnel_status.title")
         )).i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
+        personnelForm = form;
     }
 
     private void setEquipmentContainer(TranslationService ts) {
@@ -143,6 +162,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                         .label("fosa.form.fields.inventory.title")
         )).i18n(ts);
         spEquipmentContainer.setContent(new FormRenderer(form));
+        equipmentForm = form;
     }
 
     private void setCSERegContainer(TranslationService ts) {
@@ -174,6 +194,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                 ))
                 .i18n(ts);
         spCSERegContainer.setContent(new FormRenderer(form));
+        eventRegistrationForm = form;
     }
 
     private void setStructureIdContainer(TranslationService ts) {
@@ -188,7 +209,7 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
         final var fosaTypes = new SimpleListProperty<>();
         final var fosaStatusTypes = new SimpleListProperty<>();
         final var regions = new SimpleListProperty<>();
-        final var gpsLocation = GeoPoint.builder()
+        final var geoPoint = GeoPoint.builder()
                 .latitude(5.4811225f)
                 .longitude(10.4087592f)
                 .build();
@@ -246,11 +267,12 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                         ).title("fosa.form.sections.structure_identification.title")
                         .collapse(false),
                 Section.of(
-                                GeoPointField.gpsField(gpsLocation)
+                                GeoPointField.gpsField(geoPoint)
                         ).title("fosa.form.sections.geo_point.title")
                         .collapse(true)
         ).i18n(ts);
         spStructureIdContainer.setContent(new FormRenderer(form));
+        structureIdForm = form;
     }
 
     private void setRespondentSection(TranslationService ts) {
@@ -296,5 +318,6 @@ public class FOSAFormSubmissionController implements AppController, Initializabl
                 )
                 .i18n(ts);
         spRespondentContainer.setContent(new FormRenderer(form));
+        respondentForm = form;
     }
 }
