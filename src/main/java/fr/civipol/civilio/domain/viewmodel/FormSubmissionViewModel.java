@@ -1,14 +1,11 @@
 package fr.civipol.civilio.domain.viewmodel;
 
-import fr.civipol.civilio.domain.filter.FilterCondition;
-import fr.civipol.civilio.domain.filter.FilterField;
 import fr.civipol.civilio.entity.FormSubmission;
 import javafx.beans.property.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
@@ -16,7 +13,7 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
     @Getter
     private final FormSubmission submission;
     private final ObjectProperty<Date> submittedOn;
-    private final StringProperty submittedBy, validationCode, submittedAt;
+    private final StringProperty submittedBy, validationCode, region;
     private final BooleanProperty selected, validated;
 
     public FormSubmissionViewModel(FormSubmission submission) {
@@ -37,11 +34,11 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         submittedOn = new SimpleObjectProperty<>(submission, "submittedOn", Optional.ofNullable(submission)
                 .map(FormSubmission::getSubmittedOn)
                 .orElse(null));
-        submittedAt = new SimpleStringProperty(submission, "submittedAt", Optional.ofNullable(submission)
+        region = new SimpleStringProperty(submission, "submittedAt", Optional.ofNullable(submission)
                 .map(FormSubmission::getRegion)
                 .orElse(null));
 
-        submittedAt.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setRegion(nv)));
+        region.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setRegion(nv)));
         submittedBy.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setSubmittedBy(nv)));
         validated.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setValidationStatus(nv ? "validation_status_passed" : "validation_status_on_hold")));
     }
@@ -78,12 +75,12 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         validationCode.set(v);
     }
 
-    public void setSubmittedAt(String v) {
-        submittedAt.set(v);
+    public void setRegion(String v) {
+        region.set(v);
     }
 
-    public StringProperty submittedAtProperty() {
-        return submittedAt;
+    public StringProperty regionProperty() {
+        return region;
     }
 
     @Override

@@ -22,6 +22,7 @@ module fr.civipol.civilio {
     requires jdk.jsobject;
     requires annotations;
     requires java.sql;
+    requires com.zaxxer.hikari;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;

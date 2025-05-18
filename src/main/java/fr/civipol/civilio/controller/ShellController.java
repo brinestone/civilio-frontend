@@ -2,10 +2,12 @@ package fr.civipol.civilio.controller;
 
 import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.event.NavigateEvent;
+import fr.civipol.civilio.event.ProgressEvent;
 import fr.civipol.civilio.services.AuthService;
 import fr.civipol.civilio.stage.ViewLoader;
 import fr.civipol.civilio.ui.MenuItem;
 import jakarta.inject.Inject;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,10 +15,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.controlsfx.control.StatusBar;
 
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +34,10 @@ public class ShellController implements AppController, Initializable {
     private final EventBus eb;
     private final AuthService authService;
     private final ExecutorService executorService;
+    private ResourceBundle resourceRef;
+
+    @FXML
+    private StatusBar sbStatus;
 
     @FXML
     private ListView<MenuItem> lvMenu;
@@ -39,10 +45,8 @@ public class ShellController implements AppController, Initializable {
     @FXML
     private BorderPane root;
 
-    @FXML
-    private TextField tfSearch;
-
     public void initialize(URL location, ResourceBundle resources) {
+        this.resourceRef = resources;
         lvMenu.setItems(FXCollections.observableArrayList(MENU_FORMS));
         lvMenu.setCellFactory(param -> new ListCell<>() {
             @Override
@@ -63,16 +67,26 @@ public class ShellController implements AppController, Initializable {
             eb.publish(new NavigateEvent(nv.getViewRef()));
         });
 
+        eb.subscribe(ProgressEvent.class, this::onProgress);
         eb.subscribe(NavigateEvent.class, this::onNavigate);
         lvMenu.getSelectionModel().selectFirst();
     }
 
+    private void onProgress(ProgressEvent event) {
+        Platform.runLater(() -> {
+            sbStatus.setText(resourceRef.getString(event.key()));
+            sbStatus.setProgress(event.currentProgress());
+        });
+    }
+
     private void onNavigate(NavigateEvent t) {
-        try {
-            root.setCenter(vl.loadView(t.getViewRef()));
-        } catch (IOException e) {
-            log.error("error while navigating", e);
-        }
+        Platform.runLater(() -> {
+            try {
+                root.setCenter(vl.loadView(t.getViewRef()));
+            } catch (IOException e) {
+                log.error("error while navigating", e);
+            }
+        });
     }
 
     @FXML

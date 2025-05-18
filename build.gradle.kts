@@ -24,6 +24,7 @@ val javaFxVersion = "17.0.6"
 application {
     mainModule.set(moduleName)
     mainClass.set(mainClassName)
+    applicationDefaultJvmArgs = listOf("-Dprism.forceGPU=true", "-Dprism.lcdtext=false")
 }
 
 java {
@@ -42,6 +43,10 @@ val hibernateVersion = "6.6.12.Final"
 val geoToolsVersion = "28.1"
 
 dependencies {
+    // HikariCP
+    implementation("com.zaxxer:HikariCP:6.3.0")
+    runtimeOnly("org.postgresql:postgresql:42.7.5")
+
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 
@@ -172,6 +177,7 @@ tasks.test {
 val appName = System.getenv("APP_NAME") ?: "CivilIO"
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
 val appId = "${group}-${rootProject.name}"
+val build = version;
 
 tasks.processResources {
     filesMatching("logback.xml") {
@@ -181,6 +187,7 @@ tasks.processResources {
         expand(
                 "appName" to appName,
                 "appId" to appId,
+                "build" to build
         )
     }
 }

@@ -25,7 +25,8 @@ public class FilterManager {
     }
 
     public PreparedStatementFilter toPreparedstatementFilter() {
-        if (conditions.isEmpty()) return new PreparedStatementFilter("", Collections.emptyList(), Collections.emptyMap());
+        if (conditions.isEmpty())
+            return new PreparedStatementFilter("", Collections.emptyList(), Collections.emptyMap());
 
         final var clauses = new ArrayList<String>();
         final var parameters = new ArrayList<>();
@@ -77,6 +78,8 @@ public class FilterManager {
                     ps.setFloat(index, (Float) param);
                 else if (param instanceof Date)
                     ps.setDate(index, new java.sql.Date(((Date) param).getTime()));
+                else if (param instanceof Boolean)
+                    ps.setBoolean(index, (Boolean) param);
             }
         }
     }

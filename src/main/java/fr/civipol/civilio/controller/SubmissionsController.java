@@ -4,11 +4,14 @@ import fr.civipol.civilio.controls.SubmissionsFilter;
 import fr.civipol.civilio.domain.viewmodel.FormSubmissionViewModel;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.FormType;
+import fr.civipol.civilio.entity.UpdateSpec;
 import fr.civipol.civilio.services.FormService;
 import fr.civipol.civilio.stage.ViewLoader;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableSet;
@@ -38,15 +41,12 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
 public class SubmissionsController implements AppController, Initializable {
-    private static final int PAGE_SIZE = 50;
+    private static final int PAGE_SIZE = 100;
     private final ViewLoader vl;
     private final FormService formService;
     private final ExecutorService executorService;
@@ -82,7 +82,7 @@ public class SubmissionsController implements AppController, Initializable {
     @FXML
     private Pagination pgPagination;
     @FXML
-    private TableColumn<FormSubmissionViewModel, String> tcRecordedAt;
+    private TableColumn<FormSubmissionViewModel, String> tcRegion;
     @FXML
     private TableColumn<FormSubmissionViewModel, Date> tcRecordedOn;
     @FXML
@@ -97,6 +97,8 @@ public class SubmissionsController implements AppController, Initializable {
     private TableView<FormSubmissionViewModel> tvSubmissions;
     private final HBox hbSelectionActionBar = new HBox();
     private final ObservableSet<FormSubmissionViewModel> selectedItems = FXCollections.observableSet();
+    private final Map<String, Stack<UpdateSpec>> pendingUpdates = new HashMap<>();
+    private final BooleanProperty hasPendingUpdates = new SimpleBooleanProperty(this, "hasPendingChanges", false);
     private SubmissionsFilter filters;
     private Dialog<ButtonType> filterDialog;
     private ResourceBundle resourceRef;
@@ -230,9 +232,24 @@ public class SubmissionsController implements AppController, Initializable {
     private void setupEventListeners() {
         btnOpenFilters.setOnAction(this::onOpenFiltersButtonClicked);
         cbSelectAll.setOnAction(e -> tvSubmissions.getItems().forEach(vm -> vm.setSelected(cbSelectAll.isSelected())));
-        tcRecordedAt.setOnEditCommit(e -> e.getRowValue().setSubmittedAt(e.getNewValue()));
-        tcValidationCode.setOnEditCommit(param -> param.getRowValue().setValidationCode(param.getNewValue()));
-        tcRecordedBy.setOnEditCommit(e -> e.getRowValue().setSubmittedBy(e.getNewValue()));
+        tcRegion.setOnEditCommit(e -> {
+            e.getRowValue().setRegion(e.getNewValue());
+            hasPendingUpdates.set(true);
+            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
+            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+        });
+        tcValidationCode.setOnEditCommit(e -> {
+            e.getRowValue().setValidationCode(e.getNewValue());
+            hasPendingUpdates.set(true);
+            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
+            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+        });
+        tcRecordedBy.setOnEditCommit(e -> {
+            e.getRowValue().setSubmittedBy(e.getNewValue());
+            hasPendingUpdates.set(true);
+            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
+            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+        });
     }
 
     private void initLoadingSpinner() {
@@ -243,6 +260,30 @@ public class SubmissionsController implements AppController, Initializable {
                 -fx-background-color: black;
                 -fx-opacity: .5;
                                 """);
+    }
+
+    private void doSavePendingChanges() {
+        spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
+        executorService.submit(() -> {
+            try {
+                for (var entry : pendingUpdates.entrySet())
+                    formService.updateSubmission(entry.getKey(), entry.getValue().toArray(UpdateSpec[]::new));
+                Platform.runLater(() -> {
+                    pendingUpdates.clear();
+                    hasPendingUpdates.set(false);
+                    doLoadSubmissionData();
+                });
+            } catch (Throwable t) {
+                log.error("error while loading submissions data", t);
+                Platform.runLater(() -> {
+                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    alert.initOwner(spTableContainer.getScene().getWindow());
+                    alert.showAndWait();
+                });
+            } finally {
+                Platform.runLater(() -> spTableContainer.getChildren().remove(1));
+            }
+        });
     }
 
     private void doLoadSubmissionData() {
@@ -291,8 +332,10 @@ public class SubmissionsController implements AppController, Initializable {
 
     private void setupChangeListeners() {
         tvSubmissions.getItems().addListener((ListChangeListener<FormSubmissionViewModel>) c -> {
-            if (c.wasRemoved()) {
-                c.getRemoved().forEach(selectedItems::remove);
+            while(c.next()) {
+                if (c.wasRemoved()) {
+                    c.getRemoved().forEach(selectedItems::remove);
+                }
             }
         });
         selectedItems.addListener((SetChangeListener<FormSubmissionViewModel>) ignored -> {
@@ -305,6 +348,19 @@ public class SubmissionsController implements AppController, Initializable {
             filters.reset();
             pgPagination.setCurrentPageIndex(0);
         });
+        hasPendingUpdates.addListener((ob, ov, nv) -> {
+            if (!nv) {
+                btnOpenFilters.setGraphic(new FontIcon("fth-filter"));
+                btnOpenFilters.setOnAction(this::onOpenFiltersButtonClicked);
+            } else {
+                btnOpenFilters.setGraphic(new FontIcon("fth-save"));
+                btnOpenFilters.setOnAction(this::onSavePendingChangesButtonClicked);
+            }
+        });
+    }
+
+    private void onSavePendingChangesButtonClicked(ActionEvent ignored) {
+        doSavePendingChanges();
     }
 
     private void initFormTypeComboBox() {
@@ -364,8 +420,8 @@ public class SubmissionsController implements AppController, Initializable {
             }
         });
 
-        tcRecordedAt.setCellValueFactory(param -> param.getValue().submittedAtProperty());
-        tcRecordedAt.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+        tcRegion.setCellValueFactory(param -> param.getValue().regionProperty());
+        tcRegion.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
     }
 
     private void onOpenFiltersButtonClicked(ActionEvent e) {

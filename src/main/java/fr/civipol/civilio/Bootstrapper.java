@@ -10,8 +10,10 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -26,15 +28,15 @@ public class Bootstrapper extends Application {
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
         UIComponent uiComponent = DaggerUIComponent.create();
-        var stageManager = uiComponent.stageManager();
+        var ignored = uiComponent.stageManager();
         uiComponent.eventBus().publish(new StageReadyEvent(primaryStage));
     }
 
     @Override
     public void init() throws Exception {
         log.info("Initializing services...");
-        loadConfiguration();
         serviceComponent = DaggerServiceComponent.create();
+        loadConfiguration();
         final var services = serviceComponent.allServices();
 
         for (var service : services) {
@@ -42,16 +44,24 @@ public class Bootstrapper extends Application {
         }
     }
 
-    private static void loadConfiguration() throws IOException {
+    private void loadConfiguration() throws IOException {
         try (var in = Bootstrapper.class.getResourceAsStream("/application.properties")) {
             final var properties = new Properties();
             properties.load(in);
             System.getProperties().putAll(properties);
         }
+
+        serviceComponent.configManager().loadObject(Constants.SYSTEM_LANGUAGE_KEY, String.class)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(s -> {
+                    if (s.equalsIgnoreCase("anglais") || s.equalsIgnoreCase("english"))
+                        Locale.setDefault(Locale.ENGLISH);
+                    else Locale.setDefault(Locale.FRENCH);
+                });
     }
 
     public static void main(String[] args) {
-        System.setProperty("prism.lcdtext", "false");
+//        System.setProperty("prism.lcdtext", "false");
         log.info("Application launching");
         launch(args);
     }
