@@ -4,4 +4,5 @@ import java.util.function.Consumer;
 
 public interface FormController {
     void setOnSubmit(Consumer<String> callback);
+
 }

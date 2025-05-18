@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane fx:id="bpRootContainer" prefHeight="409.0" prefWidth="580.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.csc.CSCViewController">
+<BorderPane fx:id="bpRootContainer" prefHeight="409.0" prefWidth="580.0" xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.csc.CSCViewController">
     <top>
         <ToolBar prefHeight="11.0" prefWidth="437.0" BorderPane.alignment="CENTER">
-            <ChoiceBox fx:id="cbDisplayMode" prefHeight="23.0" prefWidth="103.0" />
-         <Button fx:id="btnAddNew" mnemonicParsing="false" text="%csc.add_new" />
+            <Button fx:id="btnAddNew" mnemonicParsing="false" text="%csc.add_new"/>
         </ToolBar>
     </top>
 </BorderPane>

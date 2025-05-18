@@ -44,4 +44,7 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.domain;
     exports fr.civipol.civilio.forms.field;
     exports fr.civipol.civilio.forms.controls;
+    exports fr.civipol.civilio.controller.csc;
+    opens fr.civipol.civilio.controller.chefferie to javafx.fxml; // Cette ligne est importante
+   // exports fr.civipol.civilio.controller.csc;
 }
