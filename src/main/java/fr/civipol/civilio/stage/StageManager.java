@@ -39,8 +39,7 @@ public class StageManager {
             ViewLoader viewLoader,
             EventBus eventBus,
             Lazy<SettingsControl> settingsControlProvider,
-            Lazy<ConfigManager> configManager
-    ) {
+            Lazy<ConfigManager> configManager) {
         this.settingsControlProvider = settingsControlProvider;
         this.authService = authService;
         this.viewLoader = viewLoader;
@@ -65,7 +64,9 @@ public class StageManager {
         final var rbs = ResourceBundle.getBundle("messages");
         notificationPane.setText(rbs.getString("msg.restart_notice"));
         notificationPane.setCloseButtonVisible(false);
-        notificationPane.getActions().add(new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked));
+        notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
+        notificationPane.getActions().add(
+                new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked));
 
         try {
             if (!configurationValid()) {
@@ -79,15 +80,14 @@ public class StageManager {
             if (!authService.isUserAuthed()) {
                 renderAuth().ifPresentOrElse(
                         (__) -> Platform.runLater(() -> onReady(event)),
-                        Platform::exit
-                );
+                        Platform::exit);
             } else {
                 stage.setOnCloseRequest(__ -> Platform.exit());
                 renderShell(stage);
             }
         } catch (IOException e) {
             log.error("error on stage ready", e);
-            throw new RuntimeException(e);
+            Platform.exit();
         }
     }
 
@@ -98,15 +98,14 @@ public class StageManager {
     private boolean configurationValid() {
         final var configManager = this.configManager.get();
         return Stream.of(
-                        configManager.loadObject(Constants.DB_HOST_KEY, String.class),
-                        configManager.loadObject(Constants.DB_PORT_KEY, String.class),
-                        configManager.loadObject(Constants.DB_NAME_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
-                        configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class)
-                )
+                configManager.loadObject(Constants.DB_HOST_KEY, String.class),
+                configManager.loadObject(Constants.DB_PORT_KEY, String.class),
+                configManager.loadObject(Constants.DB_NAME_KEY, String.class),
+                configManager.loadObject(Constants.DB_USER_KEY, String.class),
+                configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
+                configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
+                configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
+                configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class))
                 .map(o -> o.filter(StringUtils::isNotBlank))
                 .allMatch(Optional::isPresent);
     }
@@ -126,7 +125,8 @@ public class StageManager {
         notificationPane.setContent(viewLoader.loadView("shell"));
         stage.setResizable(true);
         var scene = new Scene(notificationPane);
-        scene.getStylesheets().add(Objects.requireNonNull(StageManager.class.getResource("/styles/root.css")).toExternalForm());
+        scene.getStylesheets()
+                .add(Objects.requireNonNull(StageManager.class.getResource("/styles/root.css")).toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

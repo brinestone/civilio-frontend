@@ -8,7 +8,6 @@ module fr.civipol.civilio {
     requires jakarta.inject;
     requires java.compiler;
     requires java.prefs;
-    requires java.net.http;
     requires org.apache.commons.lang3;
     requires org.kordamp.ikonli.javafx;
     requires com.dlsc.preferencesfx;
@@ -23,6 +22,7 @@ module fr.civipol.civilio {
     requires annotations;
     requires java.sql;
     requires com.zaxxer.hikari;
+    requires java.management;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;

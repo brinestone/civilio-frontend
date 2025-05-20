@@ -48,7 +48,7 @@ import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class FOSAFormSubmissionController extends FormController implements AppController, Initializable {
+public class FOSAFormController extends FormController implements AppController, Initializable {
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;

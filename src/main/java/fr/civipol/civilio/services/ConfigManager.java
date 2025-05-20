@@ -2,6 +2,8 @@ package fr.civipol.civilio.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.civipol.civilio.Constants;
+import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +13,17 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Singleton
@@ -26,9 +33,37 @@ public class ConfigManager {
     private static SecretKeySpec keyRef;
     private final Preferences settings = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH);
     private final ObjectMapper mapper = new ObjectMapper();
+    private final EventBus bus;
+    private String stateHash = "";
 
     @Inject
-    public ConfigManager() {
+    public ConfigManager(EventBus eventBus) {
+        this.bus = eventBus;
+        updateStateHash();
+        settings.addPreferenceChangeListener(evt -> updateStateHash());
+    }
+
+    private void updateStateHash() {
+        try {
+            final var allValues = Arrays.stream(settings.keys())
+                    .map(k -> settings.get(k, ""))
+                    .collect(Collectors.joining(","));
+
+            final var digest = MessageDigest.getInstance("SHA-512");
+            final var cipherBytes = digest.digest(allValues.getBytes(StandardCharsets.UTF_8));
+            final var hexString = new StringBuilder(cipherBytes.length * 2);
+            for (var b : cipherBytes) {
+                final var hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1)
+                    hexString.append('0');
+                hexString.append(hex);
+            }
+            final var temp = hexString.toString();
+            if (!temp.equalsIgnoreCase(stateHash) && stateHash.length() > 0)
+                bus.publish(new SettingsUpdatedEvent());
+            stateHash = temp;
+        } catch (BackingStoreException | NoSuchAlgorithmException ignore) {
+        }
     }
 
     public void clear() throws BackingStoreException {
