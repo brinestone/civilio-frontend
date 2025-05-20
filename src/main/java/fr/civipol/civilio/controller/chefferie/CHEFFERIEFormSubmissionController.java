@@ -6,23 +6,16 @@ import com.dlsc.formsfx.model.structure.Group;
 import com.dlsc.formsfx.model.structure.Section;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
-import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
-import com.dlsc.formsfx.view.controls.SimpleRadioButtonControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.entity.GeoPoint;
-import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.forms.field.CHEFFERIEInventoryField;
-import fr.civipol.civilio.forms.field.FOSAInventoryField;
-import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
-import fr.civipol.civilio.forms.field.CHEFFERIEPersonnelInfoField;
+
 import fr.civipol.civilio.forms.field.GeoPointField;
 import jakarta.inject.Inject;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -375,9 +368,7 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
                         Field.ofIntegerType(0)
                                 .label("chefferie.form.fields.employer.title")
                                 .tooltip("chefferie.form.fields.employer.description")
-                                .span(ColSpan.HALF),
-                        CHEFFERIEPersonnelInfoField.personnelInfoField(personnel)
-                                .label("fosa.form.fields.personnel_status.title")
+                                .span(ColSpan.HALF)
 
                 )
         ).i18n(ts);
