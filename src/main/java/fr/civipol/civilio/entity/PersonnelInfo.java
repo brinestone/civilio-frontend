@@ -1,5 +1,7 @@
 package fr.civipol.civilio.entity;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.extern.jackson.Jacksonized;
@@ -34,4 +36,20 @@ public class PersonnelInfo {
         GOOD,
         VERY_GOOD
     }
+
+    private final StringProperty nom = new SimpleStringProperty();
+    private final StringProperty prenom = new SimpleStringProperty();
+    private final StringProperty fonction = new SimpleStringProperty();
+
+    public StringProperty nomProperty() { return nom; }
+    public String getNom() { return nom.get(); }
+    public void setNom(String value) { nom.set(value); }
+
+    public StringProperty prenomProperty() { return prenom; }
+    public String getPrenom() { return prenom.get(); }
+    public void setPrenom(String value) { prenom.set(value); }
+
+    public StringProperty fonctionProperty() { return fonction; }
+    public String getFonction() { return fonction.get(); }
+    public void setFonction(String value) { fonction.set(value); }
 }

@@ -19,6 +19,7 @@ import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.forms.field.CHEFFERIEInventoryField;
 import fr.civipol.civilio.forms.field.FOSAInventoryField;
 import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
+import fr.civipol.civilio.forms.field.CHEFFERIEPersonnelInfoField;
 import fr.civipol.civilio.forms.field.GeoPointField;
 import jakarta.inject.Inject;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -367,14 +368,16 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
     }
 
     private void spPersonalStatusContainer(ResourceBundleService ts) {
+        final var personnel = Collections.<PersonnelInfo>emptyList();
         final var employer = new SimpleListProperty<>();
         final var form = Form.of(
                 Section.of(
                         Field.ofIntegerType(0)
                                 .label("chefferie.form.fields.employer.title")
                                 .tooltip("chefferie.form.fields.employer.description")
-                                .span(ColSpan.HALF)
-
+                                .span(ColSpan.HALF),
+                        CHEFFERIEPersonnelInfoField.personnelInfoField(personnel)
+                                .label("fosa.form.fields.personnel_status.title")
 
                 )
         ).i18n(ts);

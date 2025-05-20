@@ -20,6 +20,7 @@ module fr.civipol.civilio {
     requires org.controlsfx.controls;
     requires javafx.web;
     requires jdk.jsobject;
+    requires java.management;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;

@@ -1,17 +1,13 @@
 package fr.civipol.civilio.forms.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
-import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.InventoryEntry;
-import fr.civipol.civilio.forms.controls.FOSAInventoryControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 
-import java.util.Collection;
 import java.util.List;
 
 public class CHEFFERIEInventoryField extends DataField<ListProperty<InventoryEntry>, List<InventoryEntry>, CHEFFERIEInventoryField> {
