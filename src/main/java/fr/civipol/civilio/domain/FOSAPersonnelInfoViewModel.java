@@ -7,7 +7,7 @@ import lombok.Getter;
 public class FOSAPersonnelInfoViewModel {
     @Getter
     private final PersonnelInfo personnelInfo;
-    private final StringProperty names, role, phone;
+    private final StringProperty names, role, phone, email;
     private final BooleanProperty selected, hasCivilStatusTraining;
     private final ObjectProperty<Integer> age;
     private final ObjectProperty<PersonnelInfo.EducationLevel> educationLevel;
@@ -24,6 +24,7 @@ public class FOSAPersonnelInfoViewModel {
         educationLevel = new SimpleObjectProperty<>(info, "educationLevel", info.getEducationLevel());
         computerKnowledgeLevel = new SimpleObjectProperty<>(info, "computerKnowledgeLevel", info.getComputerKnowledgeLevel());
         gender = new SimpleObjectProperty<>(info, "gender", info.getGender());
+        email = new SimpleStringProperty(info, "email", info.getEmail());
         age = new SimpleObjectProperty<>(info, "age", info.getAge());
 
         age.addListener((ob, ov, nv) -> info.setAge(nv));
@@ -46,6 +47,8 @@ public class FOSAPersonnelInfoViewModel {
     public void setGender(PersonnelInfo.Gender gender) {
         this.gender.set(gender);
     }
+
+
 
     public void setComputerKnowledgeLevel(PersonnelInfo.ComputerKnowledgeLevel val) {
         computerKnowledgeLevel.set(val);
@@ -89,6 +92,11 @@ public class FOSAPersonnelInfoViewModel {
 
     public StringProperty phoneProperty() {
         return phone;
+    }
+
+
+    public StringProperty emailProperty() {
+        return email;
     }
 
     public StringProperty roleProperty() {

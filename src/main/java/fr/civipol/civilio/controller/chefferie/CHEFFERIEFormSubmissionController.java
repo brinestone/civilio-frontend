@@ -14,6 +14,7 @@ import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 
+import fr.civipol.civilio.forms.field.FOSAPersonnelInfoField;
 import fr.civipol.civilio.forms.field.GeoPointField;
 import jakarta.inject.Inject;
 import javafx.beans.property.SimpleListProperty;
@@ -368,7 +369,9 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
                         Field.ofIntegerType(0)
                                 .label("chefferie.form.fields.employer.title")
                                 .tooltip("chefferie.form.fields.employer.description")
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.HALF),
+                        FOSAPersonnelInfoField.personnelInfoField(personnel)
+                                .label("fosa.form.fields.personnel_status.title")
 
                 )
         ).i18n(ts);

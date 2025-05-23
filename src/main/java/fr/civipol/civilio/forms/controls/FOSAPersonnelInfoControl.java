@@ -31,13 +31,14 @@ import java.util.Locale;
 import java.util.Optional;
 
 public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoField> {
+ 
     private final BooleanProperty listChanged = new SimpleBooleanProperty();
     private Label fieldLabel, totalCountLabel;
     private CheckBox cbSelectAll;
     private Button btnRemoveSelection, btnAdd;
     private HBox actionBar;
     private ObservableSet<FOSAPersonnelInfoViewModel> selectedItems;
-    private TableView<FOSAPersonnelInfoViewModel> tvPersonnel;
+    public TableView<FOSAPersonnelInfoViewModel> tvPersonnel;
     private TableColumn<FOSAPersonnelInfoViewModel, Boolean> tcSelection, tcHasCSTraining;
     private TableColumn<FOSAPersonnelInfoViewModel, String> tcNames, tcRole, tcPhone;
     private TableColumn<FOSAPersonnelInfoViewModel, PersonnelInfo.Gender> tcGender;
@@ -47,24 +48,31 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
 
     @Override
     @SuppressWarnings("unchecked")
+
     public void layoutParts() {
         super.layoutParts();
+
+        // Configurez la colonne "Sélection"
         tcSelection.setGraphic(cbSelectAll);
         tcSelection.setPrefWidth(30);
         tcSelection.setMaxWidth(30);
+
+        // Configurez la colonne "Nom"
         tcNames.setPrefWidth(200);
-        tcGender.setPrefWidth(100);
-        tcPhone.setPrefWidth(150);
-        tcRole.setPrefWidth(150);
-        tcHasCSTraining.setPrefWidth(100);
-        tcComputerKnowledge.setPrefWidth(200);
-        tcEducationLevel.setPrefWidth(200);
-        tcAge.setPrefWidth(80);
+
+
+        // Effacez toutes les colonnes existantes
+        tvPersonnel.getColumns().clear();
+
+        // Ajoutez uniquement la colonne "Nom"
+        tvPersonnel.getColumns().add(tcNames);
+
+        // Organisez les autres composants de l'interface utilisateur
         setVgap(5.0);
         actionBar.getChildren().setAll(btnRemoveSelection, btnAdd);
         actionBar.setSpacing(5);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcGender, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
+
         add(fieldLabel, 0, 0, 3, 1);
         add(tvPersonnel, 0, 1, 12, 1);
         add(actionBar, 10, 0, 2, 1);
@@ -72,7 +80,6 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         setHalignment(actionBar, HPos.RIGHT);
         tvPersonnel.setPrefHeight(300);
     }
-
     @Override
     public void setupEventHandlers() {
         super.setupEventHandlers();
@@ -80,8 +87,9 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
         tcNames.setOnEditCommit(e -> e.getRowValue().setNames(e.getNewValue()));
         tcRole.setOnEditCommit(e -> e.getRowValue().setRole(e.getNewValue()));
-        tcPhone.setOnEditCommit(e -> e.getRowValue().setPhone(e.getNewValue()));
         tcGender.setOnEditCommit(e -> e.getRowValue().setGender(e.getNewValue()));
+        tcPhone.setOnEditCommit(e -> e.getRowValue().setPhone(e.getNewValue()));
+
         tcAge.setOnEditCommit(e -> e.getRowValue().setAge(e.getNewValue()));
         tcEducationLevel.setOnEditCommit(e -> e.getRowValue().setEducationLevel(e.getNewValue()));
         tcComputerKnowledge.setOnEditCommit(e -> e.getRowValue().setComputerKnowledgeLevel(e.getNewValue()));
@@ -152,6 +160,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         tcRole.textProperty().bind(field.roleColumnLabelProperty());
         tcPhone.textProperty().bind(field.phoneColumnLabelProperty());
         tcGender.textProperty().bind(field.genderColumnLabelProperty());
+
         tcAge.textProperty().bind(field.ageColumnLabelProperty());
         tcEducationLevel.textProperty().bind(field.educationLevelColumnLabelProperty());
         tcComputerKnowledge.textProperty().bind(field.computerKnowledgeLevelColumnLabelProperty());
@@ -196,6 +205,8 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
 
         tcGender.setCellFactory(param -> new ComboBoxTableCell<>(new EnumStringConverter<>(PersonnelInfo.Gender.class), PersonnelInfo.Gender.values()));
         tcGender.setCellValueFactory(param -> param.getValue().genderProperty());
+
+
 
         tcPhone.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         tcPhone.setCellValueFactory(param -> param.getValue().phoneProperty());
@@ -246,4 +257,6 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         tcEducationLevel = new TableColumn<>();
         tcComputerKnowledge = new TableColumn<>();
     }
+
+
 }
