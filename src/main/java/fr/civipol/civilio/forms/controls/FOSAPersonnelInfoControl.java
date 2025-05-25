@@ -49,23 +49,39 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
     @Override
     @SuppressWarnings("unchecked")
 
+
+
     public void layoutParts() {
         super.layoutParts();
 
-        // Configurez la colonne "Sélection"
-        tcSelection.setGraphic(cbSelectAll);
-        tcSelection.setPrefWidth(30);
-        tcSelection.setMaxWidth(30);
-
-        // Configurez la colonne "Nom"
-        tcNames.setPrefWidth(200);
-
+        // Configurez les autres colonnes
+        tcNames.setPrefWidth(80);
+        tcRole.setPrefWidth(100);
+        tcPhone.setPrefWidth(100);
+        tcAge.setPrefWidth(80);
+        tcHasCSTraining.setPrefWidth(150);
+        tcComputerKnowledge.setPrefWidth(150);
+        tcEducationLevel.setPrefWidth(150);
 
         // Effacez toutes les colonnes existantes
         tvPersonnel.getColumns().clear();
 
-        // Ajoutez uniquement la colonne "Nom"
+        // Ajoutez les colonnes
         tvPersonnel.getColumns().add(tcNames);
+        tvPersonnel.getColumns().add(tcRole);
+        tvPersonnel.getColumns().add(tcGender);
+        tvPersonnel.getColumns().add(tcPhone);
+        tvPersonnel.getColumns().add(tcAge);
+        tvPersonnel.getColumns().add(tcHasCSTraining);
+        tvPersonnel.getColumns().add(tcEducationLevel);
+        tvPersonnel.getColumns().add(tcComputerKnowledge);
+
+        // Configurez la colonne "Sexe"
+        tcGender.setCellValueFactory(param -> param.getValue().genderProperty());
+
+        // Utilisez ComboBoxTableCell pour les options "MALE" et "FEMALE"
+        tcGender.setCellFactory(ComboBoxTableCell.forTableColumn(PersonnelInfo.Gender.values())); // Utilise les valeurs de l'énumération
+        tcGender.setEditable(true);
 
         // Organisez les autres composants de l'interface utilisateur
         setVgap(5.0);
@@ -243,6 +259,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         totalCountLabel = new Label();
         cbSelectAll = new CheckBox();
         btnRemoveSelection = new Button();
+
         btnAdd = new Button();
         actionBar = new HBox();
         selectedItems = FXCollections.observableSet();
