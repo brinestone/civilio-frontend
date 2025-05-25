@@ -30,6 +30,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -133,9 +134,11 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
 
 
     private void setStructureIdContainer(TranslationService ts) {
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+
         final var classificationOptions = FXCollections.observableArrayList(
-                "1ier degré ou Lamidat",
-                "2e degré"
+                bundle.getString("chefferie.form.fields.classification.option.first"),
+                bundle.getString("chefferie.form.fields.classification.option.second")
         );
         final var departments = new SimpleListProperty<>();
         final var communes = new SimpleListProperty<>();
@@ -185,44 +188,53 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
 
 
     private void spServiceContainer(ResourceBundleService ts) {
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
 
         final var fonction = new SimpleListProperty<>();
         final var fonctionOptions = FXCollections.observableArrayList(
-                "Oui, Officier d’état civi",
-                "Oui, Secrétaire d’état civil",
-                "Non"
+                bundle.getString("chefferie.form.fields.fonction.option.first"),
+                bundle.getString("chefferie.form.fields.fonction.option.second"),
+                bundle.getString("chefferie.form.fields.fonction.option.third")
         );
         final var benefit = new SimpleListProperty<>();
         final var benefitOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.benefit.option.first"),
+                bundle.getString("chefferie.form.fields.benefit.option.second")
         );
         final var conservation_place = new SimpleListProperty<>();
         final var conservation_placeOptions = FXCollections.observableArrayList(
-                "Dans une salle réservée",
-                "Dans le domicile du chef",
-                "Autres (A préciser)"
+                bundle.getString("chefferie.form.fields.conservation_place.option.first"),
+                bundle.getString("chefferie.form.fields.conservation_place.option.second"),
+                bundle.getString("chefferie.form.fields.conservation_place.option.third")
+
+
         );
         final var training = new SimpleListProperty<>();
         final var trainingOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.training.option.first"),
+                bundle.getString("chefferie.form.fields.training.option.second")
+
         );
         final var waiting_room= new SimpleListProperty<>();
         final var waiting_roomOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.waiting_room.option.first"),
+                bundle.getString("chefferie.form.fields.waiting_room.option.second")
+
         );
         final var reception_location = new SimpleListProperty<>();
         final var reception_locationOptions = FXCollections.observableArrayList(
-                "Dans une salle réservée",
-                "Dans le domicile du chef",
-                "Autres (A préciser)"
+                bundle.getString("chefferie.form.fields.reception_location.option.first"),
+                bundle.getString("chefferie.form.fields.reception_location.option.second"),
+                bundle.getString("chefferie.form.fields.reception_location.option.third")
+
+
         );
         final var toilets_accessible = new SimpleListProperty<>();
         final var toilets_accessibleOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+
+                bundle.getString("chefferie.form.fields.toilets_accessible.option.first"),
+                bundle.getString("chefferie.form.fields.toilets_accessible.option.second")
+
         );
         final var form = Form.of(
                 Section.of(
@@ -260,46 +272,55 @@ public class CHEFFERIEFormSubmissionController implements AppController, Initial
     }
 
     private void spEquipmentContainer(ResourceBundleService ts) {
+        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+
         final var structure = new SimpleListProperty<>();
         final var structureOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.structure.option.first"),
+                bundle.getString("chefferie.form.fields.structure.option.second")
+
         );
         final var connexion = new SimpleListProperty<>();
         final var connexionOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.connexion.option.first"),
+                bundle.getString("chefferie.form.fields.connexion.option.second")
+
         );
         final var typeConnexion = new SimpleListProperty<>();
         final var  typeConnexionOptions = FXCollections.observableArrayList(
-                "2G",
-                "3G",
-                "4G",
-                "ADSL (téléphone filaire)",
-                "Fibre optique"
+                bundle.getString("chefferie.form.fields.type.connexion.option.first"),
+                bundle.getString("chefferie.form.fields.type.connexion.option.second"),
+                bundle.getString("chefferie.form.fields.type.connexion.option.third"),
+                bundle.getString("chefferie.form.fields.type.connexion.option.fourth"),
+                bundle.getString("chefferie.form.fields.type.connexion.option.fith")
+
+
         );
         final var eneoConnexion = new SimpleListProperty<>();
         final var eneoConnexionOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.eneo.connexion.option.first"),
+                bundle.getString("chefferie.form.fields.eneo.connexion.option.second")
         );
         final var waterAcces = new SimpleListProperty<>();
         final var waterAccesOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.water.acces.option.first"),
+                bundle.getString("chefferie.form.fields.water.acces.option.second")
+
         );
         final var waterType = new SimpleListProperty<>();
         final var waterTypeOptions = FXCollections.observableArrayList(
-                "CAMWATER",
-                "Puit aménagé/Forage",
-                "Puit non aménagé/Traditionnel ",
-                "Cour d’eau",
-                "Autres (A préciser)"
+                bundle.getString("chefferie.form.fields.water.type.option.first"),
+                bundle.getString("chefferie.form.fields.water.type.option.second"),
+                bundle.getString("chefferie.form.fields.water.type.option.third"),
+                bundle.getString("chefferie.form.fields.water.type.option.fourth"),
+                bundle.getString("chefferie.form.fields.water.type.option.fith")
+
         );
         final var  extinguisher= new SimpleListProperty<>();
         final var extinguisherOptions = FXCollections.observableArrayList(
-                "Oui",
-                "Non"
+                bundle.getString("chefferie.form.fields.extinguisher.option.first"),
+                bundle.getString("chefferie.form.fields.extinguisher.option.second")
+
         );
         final var form = Form.of(
                 Section.of(
