@@ -41,9 +41,10 @@ public abstract class FormController {
                     Optional.ofNullable(loadSubmissionData())
                             .ifPresent(submissionData::putAll);
                 } catch (Throwable t) {
-                    log.error("error while loading submission data");
+                    log.error("error while loading submission data", t);
                     Platform.runLater(() -> {
-                        final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                        final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                        alert.setHeaderText(t.getLocalizedMessage());
                         alert.showAndWait();
                     });
                 }
@@ -75,7 +76,8 @@ public abstract class FormController {
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
                 Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                    alert.setHeaderText(t.getLocalizedMessage());
                     alert.initOwner(((Node) event.getSource()).getScene().getWindow());
                     alert.showAndWait();
                 });
@@ -92,7 +94,8 @@ public abstract class FormController {
             } catch (Throwable t) {
                 log.error("error while discarding form", t);
                 Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                    alert.setHeaderText(t.getLocalizedMessage());
                     alert.initOwner(((Node) ev.getSource()).getScene().getWindow());
                     alert.showAndWait();
                 });

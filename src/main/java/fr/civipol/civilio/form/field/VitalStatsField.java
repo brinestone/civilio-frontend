@@ -3,8 +3,8 @@ package fr.civipol.civilio.form.field;
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
-import fr.civipol.civilio.form.control.fosa.FOSAStatsControl;
 import fr.civipol.civilio.entity.VitalCSCStat;
+import fr.civipol.civilio.form.control.fosa.VitalStatsControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,7 +14,7 @@ import javafx.collections.FXCollections;
 import java.util.Collection;
 import java.util.List;
 
-public class FOSAStatsField extends DataField<ListProperty<VitalCSCStat>, List<VitalCSCStat>, FOSAStatsField> {
+public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<VitalCSCStat>, VitalStatsField> {
     private final StringProperty yearColumnLabel;
     private final StringProperty deathsColumnLabel;
     private final StringProperty birthsColumnLabel;
@@ -28,7 +28,7 @@ public class FOSAStatsField extends DataField<ListProperty<VitalCSCStat>, List<V
     private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
 
-    protected FOSAStatsField(ListProperty<VitalCSCStat> valueProperty, ListProperty<VitalCSCStat> persistentValueProperty) {
+    protected VitalStatsField(ListProperty<VitalCSCStat> valueProperty, ListProperty<VitalCSCStat> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
         yearColumnLabel = new SimpleStringProperty(this, "year", YEAR_COLUMN_LABEL);
         deathsColumnLabel = new SimpleStringProperty(this, "deaths", DEATHS_COLUMN_LABEL);
@@ -73,8 +73,8 @@ public class FOSAStatsField extends DataField<ListProperty<VitalCSCStat>, List<V
         return yearColumnLabel;
     }
 
-    public static Field<FOSAStatsField> statsField(Collection<VitalCSCStat> items) {
-        return new FOSAStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
-                .render(FOSAStatsControl::new);
+    public static Field<VitalStatsField> statsField(Collection<VitalCSCStat> items) {
+        return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
+                .render(VitalStatsControl::new);
     }
 }

@@ -2,9 +2,9 @@ package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
-import fr.civipol.civilio.domain.EnumStringConverter;
+import fr.civipol.civilio.domain.converter.EnumStringConverter;
+import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAPersonnelInfoViewModel;
-import fr.civipol.civilio.domain.IntegerStringConverter;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.FOSAPersonnelInfoField;
 import javafx.beans.Observable;

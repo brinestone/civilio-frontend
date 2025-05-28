@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 public interface ServiceComponent {
     Set<AppService> allServices();
 
+//    @Named("exs")
     ExecutorService executorService();
+
     ConfigManager configManager();
 }

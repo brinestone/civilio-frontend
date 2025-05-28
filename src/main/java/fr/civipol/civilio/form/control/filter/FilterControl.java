@@ -7,6 +7,7 @@ import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.domain.filter.FilterOperator;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.form.field.FilterManagerField;
+import fr.civipol.civilio.form.field.Option;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -204,21 +205,21 @@ public class FilterControl extends SimpleControl<FilterManagerField> {
                                     final var picker = new CheckComboBox<>(FXCollections.observableArrayList(field.getOptionSource().apply(propertySelector.getValue().labelKey())));
                                     picker.setConverter(new StringConverter<>() {
                                         @Override
-                                        public String toString(FilterManagerField.Option object) {
+                                        public String toString(Option object) {
                                             picker.setUserData(object);
                                             return Optional.ofNullable(object)
-                                                    .map(FilterManagerField.Option::label)
+                                                    .map(Option::label)
                                                     .orElse("");
                                         }
 
                                         @Override
-                                        public FilterManagerField.Option fromString(String string) {
-                                            return (FilterManagerField.Option) picker.getUserData();
+                                        public Option fromString(String string) {
+                                            return (Option) picker.getUserData();
                                         }
                                     });
-                                    picker.getCheckModel().getCheckedItems().addListener((ListChangeListener<FilterManagerField.Option>) c -> condition.setValue(
+                                    picker.getCheckModel().getCheckedItems().addListener((ListChangeListener<Option>) c -> condition.setValue(
                                             picker.getCheckModel().getCheckedItems().stream()
-                                                    .map(FilterManagerField.Option::value)
+                                                    .map(Option::value)
                                                     .toList()
                                     ));
                                     getChildren().add(index, picker);

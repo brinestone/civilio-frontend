@@ -65,7 +65,11 @@ public class FilterManager {
         }
 
         public void applyToPreparedStatement(PreparedStatement ps) throws SQLException {
-            for (var i = 0; i < parameters.size(); i++) {
+            applyToPreparedStatement(ps, 1);
+        }
+
+        public void applyToPreparedStatement(PreparedStatement ps, int startingIndex) throws SQLException {
+            for (var i = startingIndex; i < parameters.size() + startingIndex; i++) {
                 final var param = parameters.get(i);
                 final var index = i + 1;
                 if (param instanceof String)

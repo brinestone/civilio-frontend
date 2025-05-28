@@ -27,6 +27,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -122,6 +123,7 @@ public class SubmissionsController implements AppController, Initializable {
             final var controller = (FormController) vl.getControllerFor(viewName).orElseThrow();
             controller.setSubmissionId(submissionId);
             controller.setOnSubmit(this::onFormSubmitted);
+            controller.setOnDiscard(__ -> dialog.close());
 
             dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));
             dialog.setScene(new Scene((Parent) view));
@@ -139,6 +141,7 @@ public class SubmissionsController implements AppController, Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         resourceRef = resources;
         filters = new SubmissionsFilter(resources);
+        initTableView();
         initFilterDialog();
         initFormTypeComboBox();
         initColumns();
@@ -148,6 +151,27 @@ public class SubmissionsController implements AppController, Initializable {
         setupEventListeners();
         setupChangeListeners();
         doLoadSubmissionData();
+    }
+
+    private void initTableView() {
+        tvSubmissions.setRowFactory(param -> {
+            final var row = new TableRow<FormSubmissionViewModel>();
+            final var contextMenu = new ContextMenu();
+            contextMenu.getItems().setAll(new MenuItem(resourceRef.getString("fosa.submissions.context_menu.actions.edit")));
+            contextMenu.setOnAction(ignored -> {
+                final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
+                showFormDialog(row.getScene().getWindow(), submissionId);
+            });
+
+            row.setContextMenu(contextMenu);
+
+            row.setOnMouseClicked(event -> {
+                if (!event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() != 2) return;
+                final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
+                showFormDialog(row.getScene().getWindow(), submissionId);
+            });
+            return row;
+        });
     }
 
     private void initFilterDialog() {
@@ -210,7 +234,8 @@ public class SubmissionsController implements AppController, Initializable {
             } catch (Throwable t) {
                 log.error("error while loading submissions data", t);
                 Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                    alert.setHeaderText(t.getLocalizedMessage());
                     alert.initOwner(spTableContainer.getScene().getWindow());
                     alert.showAndWait();
                 });
@@ -276,7 +301,8 @@ public class SubmissionsController implements AppController, Initializable {
             } catch (Throwable t) {
                 log.error("error while loading submissions data", t);
                 Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                    alert.setHeaderText(t.getLocalizedMessage());
                     alert.initOwner(spTableContainer.getScene().getWindow());
                     alert.showAndWait();
                 });
@@ -311,7 +337,8 @@ public class SubmissionsController implements AppController, Initializable {
             } catch (Throwable t) {
                 log.error("error while loading submissions data", t);
                 Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, t.getLocalizedMessage(), ButtonType.OK);
+                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+                    alert.setHeaderText(t.getLocalizedMessage());
                     alert.initOwner(spTableContainer.getScene().getWindow());
                     alert.showAndWait();
                 });
@@ -332,7 +359,7 @@ public class SubmissionsController implements AppController, Initializable {
 
     private void setupChangeListeners() {
         tvSubmissions.getItems().addListener((ListChangeListener<FormSubmissionViewModel>) c -> {
-            while(c.next()) {
+            while (c.next()) {
                 if (c.wasRemoved()) {
                     c.getRemoved().forEach(selectedItems::remove);
                 }

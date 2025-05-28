@@ -1,10 +1,10 @@
 package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
-import fr.civipol.civilio.domain.IntegerStringConverter;
-import fr.civipol.civilio.form.field.FOSAStatsField;
+import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
+import fr.civipol.civilio.form.field.VitalStatsField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +26,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-public class FOSAStatsControl extends SimpleControl<FOSAStatsField> {
+public class VitalStatsControl extends SimpleControl<VitalStatsField> {
     private final BooleanProperty listItemsChanged = new SimpleBooleanProperty(false);
     private TableView<FOSAVitalCSCStatViewModel> tvStats;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcYear;

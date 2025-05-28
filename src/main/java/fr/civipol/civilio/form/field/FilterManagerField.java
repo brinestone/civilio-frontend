@@ -16,9 +16,6 @@ import java.util.function.Function;
 
 public class FilterManagerField extends DataField<ObjectProperty<FilterManager>, FilterManager, FilterManagerField> {
 
-    public record Option(String label, Object value) {
-    }
-
     @Getter
     private final ResourceBundle resourceBundle;
     @Getter

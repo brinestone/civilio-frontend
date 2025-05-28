@@ -79,7 +79,7 @@ public class StageManager {
 
             if (!authService.isUserAuthed()) {
                 renderAuth().ifPresentOrElse(
-                        (__) -> Platform.runLater(() -> onReady(event)),
+                        (__) -> Platform.runLater(() -> eventBus.publish(new RestartEvent())),
                         Platform::exit);
             } else {
                 stage.setOnCloseRequest(__ -> Platform.exit());

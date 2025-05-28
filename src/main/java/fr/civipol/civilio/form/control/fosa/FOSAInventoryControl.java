@@ -2,7 +2,7 @@ package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
-import fr.civipol.civilio.domain.IntegerStringConverter;
+import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAInventoryEntryViewModel;
 import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.form.field.FOSAInventoryField;
