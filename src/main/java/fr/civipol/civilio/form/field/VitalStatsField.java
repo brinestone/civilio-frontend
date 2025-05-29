@@ -73,8 +73,8 @@ public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<
         return yearColumnLabel;
     }
 
-    public static Field<VitalStatsField> statsField(Collection<VitalCSCStat> items) {
-        return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
+    public static Field<VitalStatsField> statsField(Collection<VitalCSCStat> items, ListProperty<VitalCSCStat> target) {
+        return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), target)
                 .render(VitalStatsControl::new);
     }
 }

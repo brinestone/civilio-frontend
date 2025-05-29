@@ -48,7 +48,7 @@
             inboundChange = change;
             const coords = L.latLng([lat, lon]);
             marker.setLatLng(coords);
-            if (inboundChange) map.flyTo(coords);
+            if (inboundChange) map.setView(coords);
             inboundChange = false;
         } catch (e) {
             window.agent?.log(e.message, e.stack);

@@ -1,10 +1,10 @@
 package fr.civipol.civilio;
 
+import com.zaxxer.hikari.HikariDataSource;
 import fr.civipol.civilio.dagger.component.DaggerServiceComponent;
 import fr.civipol.civilio.dagger.component.DaggerUIComponent;
 import fr.civipol.civilio.dagger.component.ServiceComponent;
 import fr.civipol.civilio.dagger.component.UIComponent;
-import fr.civipol.civilio.event.Event;
 import fr.civipol.civilio.event.RestartEvent;
 import fr.civipol.civilio.event.StageReadyEvent;
 import javafx.application.Application;
@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
@@ -77,6 +75,7 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
+        ((HikariDataSource) serviceComponent.dataSource()).close();
         serviceComponent.executorService().shutdown();
         System.gc();
         Platform.exit();

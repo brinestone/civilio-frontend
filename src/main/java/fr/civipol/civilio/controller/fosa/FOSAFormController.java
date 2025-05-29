@@ -13,7 +13,6 @@ import com.dlsc.formsfx.view.util.ColSpan;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
-import fr.civipol.civilio.domain.converter.CachedStringConverter;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.InventoryEntry;
 import fr.civipol.civilio.entity.PersonnelInfo;
@@ -33,18 +32,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.util.StringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -220,7 +218,7 @@ public class FOSAFormController extends FormController implements AppController,
                                 .label("fosa.form.fields.csc_event_reg_type.title")
                                 .tooltip("fosa.form.fields.csc_event_reg_type.description")
                                 .span(ColSpan.TWO_THIRD),
-                        VitalStatsField.statsField(Collections.emptyList())
+                        VitalStatsField.statsField(model.vitalCscStats(), model.vitalCSCStatsValueProperty())
                                 .label("fosa.form.fields.stats.title")
                                 .span(12)))
                 .i18n(ts);
@@ -343,12 +341,21 @@ public class FOSAFormController extends FormController implements AppController,
                                         .label("fosa.form.fields.creation_date.title")
                                         .valueDescription(
                                                 "fosa.form.fields.creation_date.description")
-                                        .format(new CachedStringConverter<>() {
+                                        .format(new StringConverter<>() {
+
                                             @Override
-                                            public String doToString(LocalDate object) {
-                                                return object.format(
-                                                        DateTimeFormatter
-                                                                .ofPattern("dd/MM/yyyy"));
+                                            public String toString(LocalDate object) {
+                                                return Optional.ofNullable(object)
+                                                        .map(o -> object.format(
+                                                                DateTimeFormatter
+                                                                        .ofPattern("dd/MM/yyyy")))
+                                                        .orElse("");
+                                            }
+
+                                            @Override
+                                            public LocalDate fromString(String s) {
+                                                if (!StringUtils.isNotBlank(s)) return null;
+                                                return LocalDate.from(DateTimeFormatter.ofPattern("dd/MM/yyyy").parse(s));
                                             }
                                         })
                                         .span(ColSpan.HALF)))

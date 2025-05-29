@@ -166,7 +166,7 @@ public class SubmissionsController implements AppController, Initializable {
             row.setContextMenu(contextMenu);
 
             row.setOnMouseClicked(event -> {
-                if (!event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() != 2) return;
+                if (!event.getButton().equals(MouseButton.PRIMARY) || event.getClickCount() != 2) return;
                 final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
                 showFormDialog(row.getScene().getWindow(), submissionId);
             });

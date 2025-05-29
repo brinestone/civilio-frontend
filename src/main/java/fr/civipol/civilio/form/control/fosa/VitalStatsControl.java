@@ -1,7 +1,7 @@
 package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
-import fr.civipol.civilio.domain.converter.IntegerStringConverter;
+import fr.civipol.civilio.domain.converter.CachedStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.field.VitalStatsField;
@@ -20,8 +20,9 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.util.converter.DefaultStringConverter;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +33,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcYear;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcBirths;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcDeaths;
-    private TableColumn<FOSAVitalCSCStatViewModel, String> tcObservations;
+    //    private TableColumn<FOSAVitalCSCStatViewModel, String> tcObservations;
     private TableColumn<FOSAVitalCSCStatViewModel, Boolean> tcSelection;
     private Button btnAddRow;
     private Label mainLabel;
@@ -48,17 +49,17 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcSelection.setGraphic(cbSelectAll);
         tcBirths.setPrefWidth(200);
         tcDeaths.setPrefWidth(200);
-        tcObservations.setPrefWidth(400);
+//        tcObservations.setPrefWidth(400);
         tcSelection.setPrefWidth(30);
         tcSelection.setMaxWidth(30);
         tvStats.setPrefHeight(200);
         actionBar.getChildren().setAll(btnRemoveSelection, btnAddRow);
         actionBar.setSpacing(5.0);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvStats.getColumns().setAll(tcSelection, tcYear, tcBirths, tcDeaths, tcObservations);
-        add(mainLabel, 0, 0, 3, 1);
+        tvStats.getColumns().setAll(tcSelection, tcYear, tcBirths, tcDeaths/*, tcObservations*/);
+        add(mainLabel, 0, 0, 5, 1);
         add(tvStats, 0, 1, 12, 1);
-        add(actionBar, 10, 0, 2, 1);
+        add(actionBar, 8, 0, 4, 1);
         GridPane.setHalignment(btnAddRow, HPos.RIGHT);
         setVgap(5.0);
     }
@@ -70,7 +71,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcYear.textProperty().bind(field.yearColumnLabelProperty());
         tcBirths.textProperty().bind(field.birthsColumnLabelProperty());
         tcDeaths.textProperty().bind(field.deathsColumnLabelProperty());
-        tcObservations.textProperty().bind(field.observationsColumnLabelProperty());
+//        tcObservations.textProperty().bind(field.observationsColumnLabelProperty());
         btnAddRow.disableProperty().bind(
                 Bindings.createBooleanBinding(() -> {
                     LocalDate now = LocalDate.now();
@@ -84,7 +85,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
                 }, tvStats.getItems())
         );
         btnAddRow.textProperty().bind(field.addRowLabelProperty());
-        tcObservations.editableProperty().bind(field.editableProperty());
+//        tcObservations.editableProperty().bind(field.editableProperty());
         tcDeaths.editableProperty().bind(field.editableProperty());
         tcBirths.editableProperty().bind(field.editableProperty());
         tcSelection.editableProperty().bind(field.editableProperty());
@@ -144,16 +145,31 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcSelection.setCellValueFactory(param -> param.getValue().selectedProperty());
 
         tcYear.setCellValueFactory(param -> param.getValue().yearProperty());
-        tcYear.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
+        final var converter = new CachedStringConverter<Integer>() {
+            private final NumberFormat formatter = NumberFormat.getNumberInstance();
+
+            @Override
+            protected Integer doFromString(String s) {
+                try {
+                    return formatter.parse(s).intValue();
+                } catch (ParseException ignored) {
+                    return null;
+                }
+            }
+
+            @Override
+            public String doToString(Integer value) {
+                return formatter.format((long) value);
+            }
+        };
+        tcYear.setCellFactory(param -> new TextFieldTableCell<>(converter));
 
         tcDeaths.setCellValueFactory(param -> param.getValue().deathCountProperty());
-        tcDeaths.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
+        tcDeaths.setCellFactory(param -> new TextFieldTableCell<>(converter));
 
         tcBirths.setCellValueFactory(param -> param.getValue().birthCountProperty());
-        tcBirths.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
+        tcBirths.setCellFactory(param -> new TextFieldTableCell<>(converter));
 
-        tcObservations.setCellValueFactory(param -> param.getValue().observationsProperty());
-        tcObservations.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         tcSelection.setStyle("-fx-alignment: CENTER;");
         btnAddRow.setCursor(Cursor.HAND);
 
@@ -179,7 +195,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcYear = new TableColumn<>("controls.stats_collector.columns.year");
         tcBirths = new TableColumn<>("controls.stats_collector.columns.births");
         tcDeaths = new TableColumn<>("controls.stats_collector.columns.deaths");
-        tcObservations = new TableColumn<>("controls.stats_collector.columns.observation");
+//        tcObservations = new TableColumn<>("controls.stats_collector.columns.observation");
         btnAddRow = new Button("controls.stats_collector.columns.add_new");
         selectedItems = FXCollections.observableSet();
     }
@@ -190,7 +206,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         btnAddRow.setOnAction(this::onAddRowButtonClicked);
         tcYear.setOnEditCommit(e -> e.getRowValue().setYear(e.getNewValue()));
         tcDeaths.setOnEditCommit(e -> e.getRowValue().setDeathCount(e.getNewValue()));
-        tcObservations.setOnEditCommit(e -> e.getRowValue().setObservations(e.getNewValue()));
+//        tcObservations.setOnEditCommit(e -> e.getRowValue().setObservations(e.getNewValue()));
         tcBirths.setOnEditCommit(e -> e.getRowValue().setBirthCount(e.getNewValue()));
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
         cbSelectAll.setOnAction(e -> tvStats.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));

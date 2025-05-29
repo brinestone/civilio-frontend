@@ -11,8 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
 public class FOSAFormModel extends FormModel {
@@ -42,6 +46,9 @@ public class FOSAFormModel extends FormModel {
     public static final String FOSA_SENDS_BIRTH_DECLARATION_TO_CSC = "Transmettez_vous_les_u_centre_d_tat_civil";
     public static final String FOSA_CSC_EVENT_REGISTRATIONS = "Sous_quelles_formes_s_faits_d_tat_civil_";
     private static final String FOSA_STATS_FIELD_PATTERN = "group_ce1sz98_ligne%s_%s";
+    private static final String FOSA_STATS_FIELD_DEATH_SUFFIX = "colonne_1";
+    private static final String FOSA_STATS_FIELD_BIRTH_SUFFIX = "colonne";
+    private static final String FOSA_STATS_FIELD_YEAR_SUFFIX = "note";
 
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
@@ -55,7 +62,8 @@ public class FOSAFormModel extends FormModel {
             birthDeclarationToCsc;
     private final DoubleProperty cscDistance;
     private final OptionSource optionSource;
-    private final ListProperty<VitalCSCStat> vitalCSCStat;
+    private final MapProperty<String, VitalCSCStat> vitalCSCStats;
+    private final ListProperty<VitalCSCStat> vitalCSCStatsValue;
 
     public FOSAFormModel(
             Function<String, ?> valueExtractor,
@@ -96,7 +104,8 @@ public class FOSAFormModel extends FormModel {
         bunecBirthFormUsage = new SimpleBooleanProperty(this, "bunecBirthFormUsage");
         dihs2FormsUsage = new SimpleBooleanProperty(this, "dihs2FormsUsage");
         birthDeclarationToCsc = new SimpleBooleanProperty(this, "birthDeclarationToCsc");
-        vitalCSCStat = new SimpleListProperty<>(this, "vitalCSCStat", FXCollections.observableArrayList());
+        vitalCSCStats = new SimpleMapProperty<>(this, "vitalCSCStat", FXCollections.observableHashMap());
+        vitalCSCStatsValue = new SimpleListProperty<>(this, "vitalCSCStatsValue", FXCollections.observableArrayList());
 
         region.addListener((ob, ov, nv) -> {
             if (nv == null) {
@@ -142,35 +151,16 @@ public class FOSAFormModel extends FormModel {
     }
 
     private void loadStatsValue() {
-        final var values = new ArrayList<VitalCSCStat>();
         for (var i = 0; i < 5; i++) {
             final var cnt = i == 0 ? "" : String.format("_%d", i);
             final var yearField = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "note");
             final var birthCountField = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne");
             final var deathCountField = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne_1");
 
-            final var builder = VitalCSCStat.builder();
+            loadValue(yearField, vitalCSCStats.getValue());
+            loadValue(birthCountField, vitalCSCStats.getValue());
+            loadValue(deathCountField, vitalCSCStats.getValue());
 
-            final var yearValue = valueSource.apply(yearField);
-
-            Optional.ofNullable(yearValue)
-                    .map(String::valueOf)
-                    .filter(StringUtils::isNotBlank)
-                    .filter(s -> s.matches("\\d+"))
-                    .ifPresent(s -> builder.year(Integer.parseInt(Arrays.toString(s.chars()
-                            .mapToObj(c -> (char) c)
-                            .filter(Character::isDigit)
-                            .toArray(Character[]::new)))));
-
-            final var birthCountValue = valueSource.apply(birthCountField);
-            Optional.ofNullable(birthCountValue)
-                    .map(String::valueOf)
-                    .filter(StringUtils::isNotBlank)
-                    .filter(s -> s.matches("\\d+"))
-                    .ifPresent(s -> builder.registeredBirths(Integer.parseInt(Arrays.toString(s.chars()
-                            .mapToObj(c -> (char) c)
-                            .filter(Character::isDigit)
-                            .toArray(Character[]::new)))));
         }
     }
 
@@ -220,7 +210,7 @@ public class FOSAFormModel extends FormModel {
     @Override
     public Property getPropertyFor(String id) {
         if (id.startsWith("group_ce1sz98_ligne")) {
-            return vitalCSCStat;
+            return vitalCSCStats;
         }
         return switch (id) {
             case FOSA_CREATION_DATE_FIELD -> creationDate;
@@ -340,15 +330,51 @@ public class FOSAFormModel extends FormModel {
                         return o;
                     })
                     .toList();
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(VitalCSCStat.class)).isPresent()) {
+        } else if (raw instanceof String && Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(VitalCSCStat.class)).isPresent()) {
+            final var isYearField = id.endsWith(FOSA_STATS_FIELD_YEAR_SUFFIX);
+            final var isBirthField = id.endsWith(FOSA_STATS_FIELD_BIRTH_SUFFIX);
+            final var isDeathsField = id.endsWith(FOSA_STATS_FIELD_DEATH_SUFFIX);
 
+            String keyPrefix;
+            if (isYearField)
+                keyPrefix = id.substring(0, id.indexOf(FOSA_STATS_FIELD_YEAR_SUFFIX));
+            else if (isBirthField)
+                keyPrefix = id.substring(0, id.indexOf(FOSA_STATS_FIELD_BIRTH_SUFFIX));
+            else
+                keyPrefix = id.substring(0, id.indexOf(FOSA_STATS_FIELD_DEATH_SUFFIX));
+
+            final var entry = vitalCSCStats.computeIfAbsent(keyPrefix, __ -> VitalCSCStat.builder().build());
+            final var stringValue = String.valueOf(raw);
+            if (stringValue.matches("\\d+")) {
+                final var value = stringValue.chars()
+                        .mapToObj(Character.class::cast)
+                        .filter(Character::isDigit)
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(""));
+                final var intValue = Integer.parseUnsignedInt(value);
+
+                if (isYearField) entry.setYear(intValue);
+                else if (isBirthField) entry.setRegisteredBirths(intValue);
+                else if (isDeathsField) entry.setRegisteredDeaths(intValue);
+                vitalCSCStats.put(keyPrefix, entry);
+                return vitalCSCStats.get();
+            }
         }
         return raw;
+    }
+
+    public Collection<VitalCSCStat> vitalCscStats() {
+        return vitalCSCStats.values();
+    }
+
+    public ListProperty<VitalCSCStat> vitalCSCStatsValueProperty() {
+        return vitalCSCStatsValue;
     }
 
     public List<Integer> getRegisteredEventTypeIndices() {
         return registeredEventTypes.stream()
                 .map(eventRegistrationTypes::indexOf)
+                .filter(i -> i >= 0)
                 .toList();
     }
 

@@ -1,11 +1,13 @@
 package fr.civipol.civilio.dagger.component;
 
 import dagger.Component;
+import dagger.Lazy;
 import fr.civipol.civilio.dagger.module.BackgroundModule;
 import fr.civipol.civilio.services.AppService;
 import fr.civipol.civilio.services.ConfigManager;
 import jakarta.inject.Singleton;
 
+import javax.sql.DataSource;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -18,4 +20,5 @@ public interface ServiceComponent {
     ExecutorService executorService();
 
     ConfigManager configManager();
+    Lazy<DataSource> dataSource();
 }
