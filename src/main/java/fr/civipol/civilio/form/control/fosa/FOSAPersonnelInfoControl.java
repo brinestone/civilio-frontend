@@ -1,16 +1,19 @@
 package fr.civipol.civilio.form.control.fosa;
 
+import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
-import fr.civipol.civilio.domain.converter.EnumStringConverter;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
+import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAPersonnelInfoViewModel;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.form.field.FOSAPersonnelInfoField;
+import fr.civipol.civilio.form.field.Option;
+import fr.civipol.civilio.form.field.PersonnelInfoField;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
@@ -30,8 +33,9 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 
-public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoField> {
+public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     private final BooleanProperty listChanged = new SimpleBooleanProperty();
+    private final TranslationService translationService;
     private Label fieldLabel, totalCountLabel;
     private CheckBox cbSelectAll;
     private Button btnRemoveSelection, btnAdd;
@@ -40,10 +44,14 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
     private TableView<FOSAPersonnelInfoViewModel> tvPersonnel;
     private TableColumn<FOSAPersonnelInfoViewModel, Boolean> tcSelection, tcHasCSTraining;
     private TableColumn<FOSAPersonnelInfoViewModel, String> tcNames, tcRole, tcPhone;
-    private TableColumn<FOSAPersonnelInfoViewModel, PersonnelInfo.Gender> tcGender;
+    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcGender;
     private TableColumn<FOSAPersonnelInfoViewModel, Integer> tcAge;
-    private TableColumn<FOSAPersonnelInfoViewModel, PersonnelInfo.EducationLevel> tcEducationLevel;
-    private TableColumn<FOSAPersonnelInfoViewModel, PersonnelInfo.ComputerKnowledgeLevel> tcComputerKnowledge;
+    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcEducationLevel;
+    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcComputerKnowledge;
+
+    public FOSAPersonnelInfoControl(TranslationService translationService) {
+        this.translationService = translationService;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -64,7 +72,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         actionBar.getChildren().setAll(btnRemoveSelection, btnAdd);
         actionBar.setSpacing(5);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcGender, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
+        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcRole, tcGender, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
         add(fieldLabel, 0, 0, 3, 1);
         add(tvPersonnel, 0, 1, 12, 1);
         add(actionBar, 10, 0, 2, 1);
@@ -81,10 +89,10 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         tcNames.setOnEditCommit(e -> e.getRowValue().setNames(e.getNewValue()));
         tcRole.setOnEditCommit(e -> e.getRowValue().setRole(e.getNewValue()));
         tcPhone.setOnEditCommit(e -> e.getRowValue().setPhone(e.getNewValue()));
-        tcGender.setOnEditCommit(e -> e.getRowValue().setGender(e.getNewValue()));
+        tcGender.setOnEditCommit(e -> e.getRowValue().setGender((String) e.getNewValue().value()));
         tcAge.setOnEditCommit(e -> e.getRowValue().setAge(e.getNewValue()));
-        tcEducationLevel.setOnEditCommit(e -> e.getRowValue().setEducationLevel(e.getNewValue()));
-        tcComputerKnowledge.setOnEditCommit(e -> e.getRowValue().setComputerKnowledgeLevel(e.getNewValue()));
+        tcEducationLevel.setOnEditCommit(e -> e.getRowValue().setEducationLevel((String) e.getNewValue().value()));
+        tcComputerKnowledge.setOnEditCommit(e -> e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value()));
         cbSelectAll.setOnAction(e -> tvPersonnel.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
 
@@ -172,7 +180,6 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
     @Override
     public void initializeParts() {
         super.initializeParts();
-
         tvPersonnel.getItems().setAll(
                 Optional.ofNullable(field.getValue())
                         .stream()
@@ -185,17 +192,44 @@ public class FOSAPersonnelInfoControl extends SimpleControl<FOSAPersonnelInfoFie
         btnAdd.setCursor(Cursor.HAND);
         btnRemoveSelection.setCursor(Cursor.HAND);
 
-        tcComputerKnowledge.setCellValueFactory(param -> param.getValue().computerKnowledgeLevelProperty());
-        tcComputerKnowledge.setCellFactory(param -> new ComboBoxTableCell<>(new EnumStringConverter<>(PersonnelInfo.ComputerKnowledgeLevel.class), PersonnelInfo.ComputerKnowledgeLevel.values()));
+        tcComputerKnowledge.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                field.computerKnowledgeLevelsProperty().stream()
+                        .filter(o -> o.value().equals(param.getValue().computerKnowledgeLevelProperty().getValueSafe()))
+                        .findFirst()
+                        .orElse(null)
+        ));
+        tcComputerKnowledge.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.computerKnowledgeLevelsProperty().stream()
+                .filter(o -> o.value().equals(v))
+                .findFirst()
+                .orElse(null)),
+                field.computerKnowledgeLevelsProperty()));
 
-        tcEducationLevel.setCellValueFactory(param -> param.getValue().educationLevelProperty());
-        tcEducationLevel.setCellFactory(param -> new ComboBoxTableCell<>(new EnumStringConverter<>(PersonnelInfo.EducationLevel.class), PersonnelInfo.EducationLevel.values()));
+        tcEducationLevel.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                field.educationLevelOptionsProperty().stream()
+                        .filter(o -> o.value().equals(param.getValue().educationLevelProperty().getValueSafe()))
+                        .findFirst()
+                        .orElse(null)));
+        tcEducationLevel.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.educationLevelOptionsProperty().stream()
+                .filter(o -> o.value().equals(v))
+                .findFirst()
+                .orElse(null)),
+                field.educationLevelOptionsProperty()
+        ));
 
         tcAge.setCellValueFactory(param -> param.getValue().ageProperty());
         tcAge.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
 
-        tcGender.setCellFactory(param -> new ComboBoxTableCell<>(new EnumStringConverter<>(PersonnelInfo.Gender.class), PersonnelInfo.Gender.values()));
-        tcGender.setCellValueFactory(param -> param.getValue().genderProperty());
+        tcGender.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.genderOptionsProperty().stream()
+                .filter(o -> o.value().equals(v))
+                .findFirst()
+                .orElse(null)),
+                field.genderOptionsProperty()));
+        tcGender.setCellValueFactory(param -> new SimpleObjectProperty<>(
+                field.genderOptionsProperty().stream()
+                        .filter(o -> o.value().equals(param.getValue().genderProperty().getValueSafe()))
+                        .findFirst()
+                        .orElse(null)
+        ));
 
         tcPhone.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         tcPhone.setCellValueFactory(param -> param.getValue().phoneProperty());

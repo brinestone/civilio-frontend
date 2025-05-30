@@ -1,14 +1,11 @@
 package fr.civipol.civilio;
 
-import com.zaxxer.hikari.HikariDataSource;
-import fr.civipol.civilio.dagger.component.DaggerServiceComponent;
-import fr.civipol.civilio.dagger.component.DaggerUIComponent;
-import fr.civipol.civilio.dagger.component.ServiceComponent;
-import fr.civipol.civilio.dagger.component.UIComponent;
+import fr.civipol.civilio.dagger.component.AppComponent;
+import fr.civipol.civilio.dagger.component.DaggerAppComponent;
 import fr.civipol.civilio.event.RestartEvent;
+import fr.civipol.civilio.event.ShutdownEvent;
 import fr.civipol.civilio.event.StageReadyEvent;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +18,7 @@ import java.util.Properties;
 
 @Slf4j
 public class Bootstrapper extends Application {
-    private ServiceComponent serviceComponent;
+    private AppComponent appComponent;
 
     @Override
     public void start(Stage primaryStage) {
@@ -29,10 +26,9 @@ public class Bootstrapper extends Application {
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
-        UIComponent uiComponent = DaggerUIComponent.create();
-        var ignored = uiComponent.stageManager();
-        uiComponent.eventBus().publish(new StageReadyEvent(primaryStage));
-        uiComponent.eventBus().subscribe(RestartEvent.class, this::onRestartRequested);
+        var ignored = appComponent.stageManager();
+        appComponent.eventBus().publish(new StageReadyEvent(primaryStage));
+        appComponent.eventBus().subscribe(RestartEvent.class, this::onRestartRequested);
     }
 
     private void onRestartRequested(RestartEvent ignored) {
@@ -42,9 +38,9 @@ public class Bootstrapper extends Application {
     @Override
     public void init() throws Exception {
         log.info("Initializing services...");
-        serviceComponent = DaggerServiceComponent.create();
+        appComponent = DaggerAppComponent.create();
         loadConfiguration();
-        final var services = serviceComponent.allServices();
+        final var services = appComponent.allServices();
 
         for (var service : services) {
             service.initialize();
@@ -58,7 +54,7 @@ public class Bootstrapper extends Application {
             System.getProperties().putAll(properties);
         }
 
-        serviceComponent.configManager().loadObject(Constants.SYSTEM_LANGUAGE_KEY, String.class)
+        appComponent.configManager().loadObject(Constants.SYSTEM_LANGUAGE_KEY, String.class)
                 .filter(StringUtils::isNotBlank)
                 .ifPresent(s -> {
                     if (s.equalsIgnoreCase("anglais") || s.equalsIgnoreCase("english"))
@@ -68,16 +64,12 @@ public class Bootstrapper extends Application {
     }
 
     public static void main(String[] args) {
-//        System.setProperty("prism.lcdtext", "false");
         log.info("Application launching");
         launch(args);
     }
 
     @Override
     public void stop() {
-        ((HikariDataSource) serviceComponent.dataSource()).close();
-        serviceComponent.executorService().shutdown();
-        System.gc();
-        Platform.exit();
+        appComponent.eventBus().publish(new ShutdownEvent());
     }
 }

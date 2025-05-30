@@ -1,7 +1,6 @@
 package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
-import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.control.fosa.FOSAPersonnelInfoControl;
@@ -10,11 +9,11 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import java.util.Collection;
 import java.util.List;
 
-public class FOSAPersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, List<PersonnelInfo>, FOSAPersonnelInfoField> {
+public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, List<PersonnelInfo>, PersonnelInfoField> {
     private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
     private static final String NAME_COLUMN_LABEL = "controls.personnel_info.columns.name";
@@ -26,9 +25,13 @@ public class FOSAPersonnelInfoField extends DataField<ListProperty<PersonnelInfo
     private static final String EDUCATION_LEVEL_COLUMN_LABEL = "controls.personnel_info.columns.education_level";
     private static final String PC_KNOWLEDGE_COLUMN_LABEL = "controls.personnel_info.columns.pc_knowledge";
     private final StringProperty addRowLabel, removeSelectionLabel, nameColumnLabel, roleColumnLabel, genderColumnLabel, phoneColumnLabel, ageColumnLabel, hasCivilStatusTrainingColumnLabel, educationLevelColumnLabel, computerKnowledgeLevelColumnLabel;
+    private ListProperty<Option> genderOptions, educationLevelOptions, computerKnowledgeLevels;
 
-    protected FOSAPersonnelInfoField(ListProperty<PersonnelInfo> valueProperty, ListProperty<PersonnelInfo> persistentValueProperty) {
+    protected PersonnelInfoField(ListProperty<PersonnelInfo> valueProperty, ListProperty<PersonnelInfo> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
+        genderOptions = new SimpleListProperty<>(this, "genders", FXCollections.observableArrayList());
+        educationLevelOptions = new SimpleListProperty<>(this, "educationLevels", FXCollections.observableArrayList());
+        computerKnowledgeLevels = new SimpleListProperty<>(this, "computerKnowledgeLevels", FXCollections.observableArrayList());
         addRowLabel = new SimpleStringProperty(this, "add-row", ADD_ROW_LABEL);
         removeSelectionLabel = new SimpleStringProperty(this, "remove-selection", REMOVE_SELECTION_LABEL);
         roleColumnLabel = new SimpleStringProperty();
@@ -97,8 +100,35 @@ public class FOSAPersonnelInfoField extends DataField<ListProperty<PersonnelInfo
         return addRowLabel;
     }
 
-    public static Field<FOSAPersonnelInfoField> personnelInfoField(Collection<PersonnelInfo> items) {
-        return new FOSAPersonnelInfoField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList()))
-                .render(FOSAPersonnelInfoControl::new);
+    public ListProperty<Option> educationLevelOptionsProperty() {
+        return educationLevelOptions;
+    }
+
+    public ListProperty<Option> computerKnowledgeLevelsProperty() {
+        return computerKnowledgeLevels;
+    }
+
+    public ListProperty<Option> genderOptionsProperty() {
+        return genderOptions;
+    }
+
+    public PersonnelInfoField genders(ListProperty<Option> genders) {
+        this.genderOptions = genders;
+        return this;
+    }
+
+    public PersonnelInfoField computerKnowledgeLevels(ListProperty<Option> levels) {
+        this.computerKnowledgeLevels = levels;
+        return this;
+    }
+
+    public PersonnelInfoField educationLevels(ListProperty<Option> levels) {
+        this.educationLevelOptions = levels;
+        return this;
+    }
+
+    public static PersonnelInfoField personnelInfoField(ObservableList<PersonnelInfo> items, TranslationService translationService) {
+        return new PersonnelInfoField(new SimpleListProperty<>(items), new SimpleListProperty<>(FXCollections.observableArrayList()))
+                .render(() -> new FOSAPersonnelInfoControl(translationService));
     }
 }

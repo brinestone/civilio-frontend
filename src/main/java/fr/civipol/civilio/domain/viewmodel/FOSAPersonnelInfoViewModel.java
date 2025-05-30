@@ -7,12 +7,9 @@ import lombok.Getter;
 public class FOSAPersonnelInfoViewModel {
     @Getter
     private final PersonnelInfo personnelInfo;
-    private final StringProperty names, role, phone;
+    private final StringProperty names, role, phone, educationLevel, computerKnowledgeLevel, gender;
     private final BooleanProperty selected, hasCivilStatusTraining;
     private final ObjectProperty<Integer> age;
-    private final ObjectProperty<PersonnelInfo.EducationLevel> educationLevel;
-    private final ObjectProperty<PersonnelInfo.ComputerKnowledgeLevel> computerKnowledgeLevel;
-    private final ObjectProperty<PersonnelInfo.Gender> gender;
 
     public FOSAPersonnelInfoViewModel(PersonnelInfo info) {
         this.personnelInfo = info;
@@ -21,9 +18,9 @@ public class FOSAPersonnelInfoViewModel {
         phone = new SimpleStringProperty(info, "phone", info.getPhone());
         selected = new SimpleBooleanProperty(this, "selected", false);
         hasCivilStatusTraining = new SimpleBooleanProperty(info, "hasCivilStatusTraining", info.getCivilStatusTraining());
-        educationLevel = new SimpleObjectProperty<>(info, "educationLevel", info.getEducationLevel());
-        computerKnowledgeLevel = new SimpleObjectProperty<>(info, "computerKnowledgeLevel", info.getComputerKnowledgeLevel());
-        gender = new SimpleObjectProperty<>(info, "gender", info.getGender());
+        educationLevel = new SimpleStringProperty(info, "educationLevel", info.getEducationLevel());
+        computerKnowledgeLevel = new SimpleStringProperty(info, "computerKnowledgeLevel", info.getComputerKnowledgeLevel());
+        gender = new SimpleStringProperty(info, "gender", info.getGender());
         age = new SimpleObjectProperty<>(info, "age", info.getAge());
 
         age.addListener((ob, ov, nv) -> info.setAge(nv));
@@ -43,15 +40,15 @@ public class FOSAPersonnelInfoViewModel {
         this.age.set(age);
     }
 
-    public void setGender(PersonnelInfo.Gender gender) {
+    public void setGender(String gender) {
         this.gender.set(gender);
     }
 
-    public void setComputerKnowledgeLevel(PersonnelInfo.ComputerKnowledgeLevel val) {
+    public void setComputerKnowledgeLevel(String val) {
         computerKnowledgeLevel.set(val);
     }
 
-    public void setEducationLevel(PersonnelInfo.EducationLevel level) {
+    public void setEducationLevel(String level) {
         educationLevel.set(level);
     }
 
@@ -71,11 +68,11 @@ public class FOSAPersonnelInfoViewModel {
         return selected.get();
     }
 
-    public ObjectProperty<PersonnelInfo.ComputerKnowledgeLevel> computerKnowledgeLevelProperty() {
+    public StringProperty computerKnowledgeLevelProperty() {
         return computerKnowledgeLevel;
     }
 
-    public ObjectProperty<PersonnelInfo.EducationLevel> educationLevelProperty() {
+    public StringProperty educationLevelProperty() {
         return educationLevel;
     }
 
@@ -83,7 +80,7 @@ public class FOSAPersonnelInfoViewModel {
         return age;
     }
 
-    public ObjectProperty<PersonnelInfo.Gender> genderProperty() {
+    public StringProperty genderProperty() {
         return gender;
     }
 

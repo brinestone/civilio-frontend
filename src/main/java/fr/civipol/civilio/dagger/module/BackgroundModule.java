@@ -6,6 +6,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
 import fr.civipol.civilio.Constants;
+import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.ShutdownEvent;
 import fr.civipol.civilio.services.*;
 import io.minio.MinioClient;
 import jakarta.inject.Singleton;
@@ -27,11 +29,14 @@ public class BackgroundModule {
 
     @Provides
     @Singleton
-    public DataSource dataSource(HikariConfig config) {
-        return new HikariDataSource(config);
+    public DataSource dataSource(HikariConfig config, EventBus eventBus) {
+        final var dataSource = new HikariDataSource(config);
+        eventBus.subscribe(ShutdownEvent.class, __ -> dataSource.close());
+        return dataSource;
     }
 
     @Provides
+    @Singleton
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     public HikariConfig hikariDataSource(ConfigManager cm) {
         final var host = cm.loadObject(Constants.DB_HOST_KEY, String.class);
@@ -79,8 +84,9 @@ public class BackgroundModule {
 
     @Provides
     @Singleton
-//    @Named("exs")
-    public ExecutorService executorService() {
-        return Executors.newCachedThreadPool();
+    public ExecutorService executorService(EventBus eventBus) {
+        final var es = Executors.newCachedThreadPool();
+        eventBus.subscribe(ShutdownEvent.class, __ -> es.shutdown());
+        return es;
     }
 }

@@ -2,24 +2,26 @@ package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.GeoPoint;
+import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.field.Option;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unchecked")
 public class FOSAFormModel extends FormModel {
+    private static final String DELIMITER_TOKEN_PATTERN = "[, ]";
     private static final String FORM_ID = "am5nSncmYooy8nknSHzYaz";
     public static final String FOSA_MAIL_FIELD = "q0_04_mail";
     public static final String FOSA_PHONE_FIELD = "q0_03_phone";
@@ -46,52 +48,105 @@ public class FOSAFormModel extends FormModel {
     public static final String FOSA_SENDS_BIRTH_DECLARATION_TO_CSC = "Transmettez_vous_les_u_centre_d_tat_civil";
     public static final String FOSA_CSC_EVENT_REGISTRATIONS = "Sous_quelles_formes_s_faits_d_tat_civil_";
     private static final String FOSA_STATS_FIELD_PATTERN = "group_ce1sz98_ligne%s_%s";
-    private static final String FOSA_STATS_FIELD_DEATH_SUFFIX = "colonne_1";
-    private static final String FOSA_STATS_FIELD_BIRTH_SUFFIX = "colonne";
-    private static final String FOSA_STATS_FIELD_YEAR_SUFFIX = "note";
+    private static final String FOSA_STATS_FIELD_DEATH_SUFFIX = "colonne_1".toLowerCase();
+    private static final String FOSA_STATS_FIELD_BIRTH_SUFFIX = "colonne".toLowerCase();
+    private static final String FOSA_STATS_FIELD_YEAR_SUFFIX = "note".toLowerCase();
+    private static final String FOSA_PERSONNEL_NAME_SUFFIX = "q12_01_name".toLowerCase();
+    private static final String FOSA_PERSONNEL_POSITION_SUFFIX = "q12_02_tittle_position".toLowerCase();
+    private static final String FOSA_PERSONNEL_GENDER_SUFFIX = "q12_03_gender".toLowerCase();
+    private static final String FOSA_PERSONNEL_PHONE_SUFFIX = "T_l_phone".toLowerCase();
+    private static final String FOSA_PERSONNEL_AGE_SUFFIX = "Age_en_ann_es".toLowerCase();
+    private static final String FOSA_PERSONNEL_CS_TRAINING_SUFFIX = "Avez_vous_re_u_une_f_ion_sur_l_tat_civil_".toLowerCase();
+    private static final String FOSA_PERSONNEL_EDUCATION_LEVEL_SUFFIX = "q12_08_education_level_attaine".toLowerCase();
+    private static final String FOSA_PERSONNEL_COMPUTER_LEVEL_SUFFIX = "Niveau_en_informatique".toLowerCase();
+    public static final String FOSA_HAS_TOILET_FIELD = "q6_10_bathroom_or_outhouse";
+    public static final String FOSA_HAS_ENEO_CONNECTION_FIELD = "q7_01_facility_conn_power_grid";
+    public static final String FOSA_HAS_BACKUP_POWER_SOURCE_FIELD = "q7_04_any_source_of_backup";
+    public static final String FOSA_HAS_INTERNET_CONNECTION_FIELD = "q7_08_broadband_conn_available";
+    public static final String FOSA_WATER_SOURCES_FIELD = "q6_09-0_type_eau";
+    public static final String FOSA_ENVIRONMENT_TYPE_FIELD = "Milieu";
+    public static final String FOSA_PC_COUNT_FIELD = "q9_02_computers";
+    public static final String FOSA_PRINTER_COUNT_FIELD = "q9_03_printers";
+    public static final String FOSA_TABLET_COUNT_FIELD = "q9_04_tablets";
+    public static final String FOSA_CAR_COUNT_FIELD = "q9_10_car";
+    public static final String FOSA_BIKE_COUNT_FIELD = "q9_11_mopeds";
+    public static final String FOSA_KEY_PERSONNEL_COUNT_FIELD = "q11_01_employees_at_site";
+    private static final String FOSA_PERSONNEL_INFO_KEY_PREFIX = "personnel_info_";
 
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
-    private final ListProperty<Option> registeredEventTypes, eventRegistrationTypes, districts, regions, divisions,
-            municipalities, healthAreas, environmentTypes,
-            fosaTypes, fosaStatusTypes;
+    private final ListProperty<Option> waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
+            districts, regions, divisions,
+            municipalities, healthAreas, environmentTypes, emergencyPowerSourceTypes, emergencyPowerSources,
+            fosaTypes,
+            genders, educationLevels, computerKnowledgeLevels,
+            fosaStatusTypes;
     private final ObjectProperty<Option> district, region, division, municipality, healthArea, environmentType,
             fosaType, fosaStatusType;
     private final ObjectProperty<GeoPoint> geoPoint;
-    private final BooleanProperty maternityAvailable, dihs2Usage, bunecBirthFormUsage, dihs2FormsUsage,
+    private final BooleanProperty internetConnectionAvailable, emergencyPowerSourceAvailable,
+            eneoConnection, toiletAvailable, maternityAvailable, dihs2Usage, bunecBirthFormUsage, dihs2FormsUsage,
             birthDeclarationToCsc;
     private final DoubleProperty cscDistance;
-    private final OptionSource optionSource;
     private final MapProperty<String, VitalCSCStat> vitalCSCStats;
+    private final MapProperty<String, PersonnelInfo> personnelInfoMap;
     private final ListProperty<VitalCSCStat> vitalCSCStatsValue;
+    private final ListProperty<PersonnelInfo> personnelInfo;
+    private final IntegerProperty personnelCount,
+            pcCount,
+            printerCount,
+            tabletCount,
+            carCount,
+            bikeCount;
+    private final OptionSource optionSource;
 
     public FOSAFormModel(
             Function<String, ?> valueExtractor,
-            OptionSource optionSource) {
-        super(valueExtractor);
+            OptionSource optionSource,
+            Supplier<Stream<String>> fieldSource
+    ) {
+        super(valueExtractor, fieldSource);
         this.optionSource = optionSource;
+        genders = new SimpleListProperty<>(FXCollections.observableArrayList());
+        educationLevels = new SimpleListProperty<>(FXCollections.observableArrayList());
+        computerKnowledgeLevels = new SimpleListProperty<>(FXCollections.observableArrayList());
+        personnelInfo = new SimpleListProperty<>(FXCollections.observableArrayList());
         fosaStatusTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
         municipalities = new SimpleListProperty<>(FXCollections.observableArrayList());
         fosaTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
         districts = new SimpleListProperty<>(FXCollections.observableArrayList());
         environmentTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+        emergencyPowerSourceTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+        emergencyPowerSources = new SimpleListProperty<>(FXCollections.observableArrayList());
         healthAreas = new SimpleListProperty<>(FXCollections.observableArrayList());
         regions = new SimpleListProperty<>(FXCollections.observableArrayList());
         divisions = new SimpleListProperty<>(FXCollections.observableArrayList());
         eventRegistrationTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
         registeredEventTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
-        email = new SimpleStringProperty(this, "email");
+        waterSources = new SimpleListProperty<>(FXCollections.observableArrayList());
+        waterSourceTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
+
+        pcCount = new SimpleIntegerProperty(this, "pcCount");
+        personnelCount = new SimpleIntegerProperty(this, "personnelCount");
+        printerCount = new SimpleIntegerProperty(this, "printerCount");
+        tabletCount = new SimpleIntegerProperty(this, "tableCount");
+        carCount = new SimpleIntegerProperty(this, "carCount");
+        bikeCount = new SimpleIntegerProperty(this, "bikeCount");
+        email = new SimpleStringProperty(this, "email", "");
         district = new SimpleObjectProperty<>(this, "district");
-        phone = new SimpleStringProperty(this, "phone");
+        phone = new SimpleStringProperty(this, "phone", "");
         maternityAvailable = new SimpleBooleanProperty(this, "hasMaternity");
-        position = new SimpleStringProperty(this, "position");
-        attachedCsc = new SimpleStringProperty(this, "position");
-        respondentNames = new SimpleStringProperty(this, "respondentNames");
+        toiletAvailable = new SimpleBooleanProperty(this, "toiletAvailable");
+        emergencyPowerSourceAvailable = new SimpleBooleanProperty(this, "emergencyPowerSource");
+        eneoConnection = new SimpleBooleanProperty(this, "eneoConnection");
+        position = new SimpleStringProperty(this, "position", "");
+        attachedCsc = new SimpleStringProperty(this, "position", "");
+        respondentNames = new SimpleStringProperty(this, "respondentNames", "");
         creationDate = new SimpleObjectProperty<>(this, "creationDate");
         municipality = new SimpleObjectProperty<>(this, "municipality");
-        officeName = new SimpleStringProperty(this, "officeName");
-        quarter = new SimpleStringProperty(this, "quarter");
-        locality = new SimpleStringProperty(this, "locality");
+        officeName = new SimpleStringProperty(this, "officeName", "");
+        quarter = new SimpleStringProperty(this, "quarter", "");
+        locality = new SimpleStringProperty(this, "locality", "");
         fosaStatusType = new SimpleObjectProperty<>(this, "statusType");
         geoPoint = new SimpleObjectProperty<>(this, "geoPoint");
         fosaType = new SimpleObjectProperty<>(this, "fosaType");
@@ -104,16 +159,23 @@ public class FOSAFormModel extends FormModel {
         bunecBirthFormUsage = new SimpleBooleanProperty(this, "bunecBirthFormUsage");
         dihs2FormsUsage = new SimpleBooleanProperty(this, "dihs2FormsUsage");
         birthDeclarationToCsc = new SimpleBooleanProperty(this, "birthDeclarationToCsc");
+        internetConnectionAvailable = new SimpleBooleanProperty(this, "internetConnectionAvailable");
         vitalCSCStats = new SimpleMapProperty<>(this, "vitalCSCStat", FXCollections.observableHashMap());
+        personnelInfoMap = new SimpleMapProperty<>(this, "personnelInfo_", FXCollections.observableHashMap());
         vitalCSCStatsValue = new SimpleListProperty<>(this, "vitalCSCStatsValue", FXCollections.observableArrayList());
 
+        setupBindings();
+        setupChangeListeners();
+    }
+
+    private void setupChangeListeners() {
         region.addListener((ob, ov, nv) -> {
             if (nv == null) {
                 divisionsProperty().clear();
                 division.set(null);
                 return;
             }
-            optionSource.populate(FORM_ID, "division", ((String) nv.value()), divisionsProperty());
+            optionSource.get(FORM_ID, "division", ((String) nv.value()), divisionsProperty()::setAll);
         });
 
         division.addListener((ob, ov, nv) -> {
@@ -122,7 +184,7 @@ public class FOSAFormModel extends FormModel {
                 municipality.set(null);
                 return;
             }
-            optionSource.populate(FORM_ID, "commune", ((String) nv.value()), municipalitiesProperty());
+            optionSource.get(FORM_ID, "commune", ((String) nv.value()), municipalitiesProperty()::setAll);
         });
 
         municipality.addListener((ob, ov, nv) -> {
@@ -135,19 +197,31 @@ public class FOSAFormModel extends FormModel {
             healthArea.set(null);
             if (nv == null)
                 return;
-            optionSource.populate(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty());
+            optionSource.get(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty()::setAll);
         });
-        loadOptions();
-        loadValues();
+        vitalCSCStats.addListener((MapChangeListener<String, VitalCSCStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
+        personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo.setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
+    }
+
+    private void setupBindings() {
     }
 
     private void loadValue(String field, Object defaultValue) {
         final var property = getPropertyFor(field);
         if (property == null)
             return;
-        final var rawValue = valueSource.apply(field);
-        final var parsedValue = parseValue(rawValue, field);
+        final var serializedValue = valueSource.apply(field);
+        final var parsedValue = deserializeValue(serializedValue, field);
         property.setValue(Optional.ofNullable(parsedValue).orElse(defaultValue));
+    }
+
+    private void loadPersonnelInfo() {
+        final var fields = fieldSource.get()
+                .filter(s -> s.startsWith(FOSA_PERSONNEL_INFO_KEY_PREFIX))
+                .toList();
+        for (var field : fields) {
+            loadValue(field, null);
+        }
     }
 
     private void loadStatsValue() {
@@ -160,12 +234,22 @@ public class FOSAFormModel extends FormModel {
             loadValue(yearField, vitalCSCStats.getValue());
             loadValue(birthCountField, vitalCSCStats.getValue());
             loadValue(deathCountField, vitalCSCStats.getValue());
-
         }
     }
 
-    private void loadValues() {
+    public void loadValues() {
         loadStatsValue();
+        loadPersonnelInfo();
+        loadValue(FOSA_KEY_PERSONNEL_COUNT_FIELD, 0);
+        loadValue(FOSA_PC_COUNT_FIELD, 0);
+        loadValue(FOSA_PRINTER_COUNT_FIELD, 0);
+        loadValue(FOSA_TABLET_COUNT_FIELD, 0);
+        loadValue(FOSA_CAR_COUNT_FIELD, 0);
+        loadValue(FOSA_BIKE_COUNT_FIELD, 0);
+        loadValue(FOSA_HAS_ENEO_CONNECTION_FIELD, false);
+        loadValue(FOSA_HAS_BACKUP_POWER_SOURCE_FIELD, false);
+        loadValue(FOSA_HAS_INTERNET_CONNECTION_FIELD, false);
+        loadValue(FOSA_HAS_TOILET_FIELD, false);
         loadValue(FOSA_USES_DHIS_FIELD, false);
         loadValue(FOSA_CSC_DISTANCE_FIELD, 0.0);
         loadValue(FOSA_ATTACHED_CSC, "");
@@ -181,38 +265,59 @@ public class FOSAFormModel extends FormModel {
                 .longitude(11.4661458f)
                 .build());
 
+        loadOptionValue(FOSA_ENVIRONMENT_TYPE_FIELD);
+        loadOptionValue(FOSA_WATER_SOURCES_FIELD);
         loadOptionValue(FOSA_CSC_EVENT_REGISTRATIONS);
         loadOptionValue(FOSA_HEALTH_AREA_FIELD);
         loadOptionValue(FOSA_DISTRICT_FIELD);
         loadOptionValue(FOSA_REGION_FIELD);
         loadOptionValue(FOSA_FACILITY_TYPE_FIELD);
         loadOptionValue(FOSA_STATUS_FIELD);
+        loadPowerSources();
+    }
+
+    private void loadPowerSources() {
+        final var fieldPattern = "q7_05-%d_sources_of_backup_power";
+        final var optionsProperty = getOptionsFor(fieldPattern);
+        for (var i = 0; i < optionsProperty.getSize(); i++) {
+            final var field = fieldPattern.formatted(i);
+            loadOptionValue(field);
+        }
     }
 
     private void loadOptionValue(String field) {
         Optional.ofNullable(valueSource.apply(field))
-                .map(v -> (String) v)
+                .map(String::valueOf)
                 .filter(StringUtils::isNotBlank)
-                .map(v -> (Option) parseValue(v, field))
+                .map(v -> deserializeValue(v, field))
                 .ifPresent(v -> this.getPropertyFor(field).setValue(v));
     }
 
-    private void loadOptions() {
-        optionSource.populate(FORM_ID, "region", null, regions);
-        optionSource.populate(FORM_ID, "vb2qk85", null, environmentTypes);
-        optionSource.populate(FORM_ID, "district", null, districts);
-        optionSource.populate(FORM_ID, "pa9ii12", null, fosaTypes);
-        optionSource.populate(FORM_ID, "qy7we33", null, fosaStatusTypes);
-        optionSource.populate(FORM_ID, "ij2ql10", null, eventRegistrationTypes);
+    public void loadOptions(OptionSource optionSource, Runnable callback) {
+        optionSource.get(FORM_ID, "region", null, regions::setAll);
+        optionSource.get(FORM_ID, "vb2qk85", null, environmentTypes::setAll);
+        optionSource.get(FORM_ID, "district", null, districts::setAll);
+        optionSource.get(FORM_ID, "pa9ii12", null, fosaTypes::setAll);
+        optionSource.get(FORM_ID, "qy7we33", null, fosaStatusTypes::setAll);
+        optionSource.get(FORM_ID, "ij2ql10", null, eventRegistrationTypes::setAll);
+        optionSource.get(FORM_ID, "xt53f30", null, emergencyPowerSourceTypes::setAll);
+        optionSource.get(FORM_ID, "zp4ec39", null, waterSourceTypes::setAll);
+        optionSource.get(FORM_ID, "xw39g10", null, genders::setAll);
+        optionSource.get(FORM_ID, "ta2og93", null, educationLevels::setAll);
+        optionSource.get(FORM_ID, "nz2pr56", null, computerKnowledgeLevels::setAll);
+        Optional.ofNullable(callback).ifPresent(Runnable::run);
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
+    @SuppressWarnings("rawtypes,DuplicatedCode")
     public Property getPropertyFor(String id) {
         if (id.startsWith("group_ce1sz98_ligne")) {
             return vitalCSCStats;
-        }
+        } else if (id.endsWith("sources_of_backup_power")) {
+            return emergencyPowerSources;
+        } else if (id.startsWith(FOSA_PERSONNEL_INFO_KEY_PREFIX)) return personnelInfoMap;
         return switch (id) {
+            case FOSA_KEY_PERSONNEL_COUNT_FIELD -> personnelCount;
             case FOSA_CREATION_DATE_FIELD -> creationDate;
             case FOSA_MAIL_FIELD -> email;
             case FOSA_PHONE_FIELD -> phone;
@@ -237,11 +342,33 @@ public class FOSAFormModel extends FormModel {
             case FOSA_USES_DHIS_FORMS_FIELD -> this.dihs2FormsUsage;
             case FOSA_SENDS_BIRTH_DECLARATION_TO_CSC -> this.birthDeclarationToCsc;
             case FOSA_CSC_EVENT_REGISTRATIONS -> this.registeredEventTypes;
+            case FOSA_HAS_TOILET_FIELD -> toiletAvailable;
+            case FOSA_HAS_ENEO_CONNECTION_FIELD -> eneoConnection;
+            case FOSA_HAS_BACKUP_POWER_SOURCE_FIELD -> emergencyPowerSourceAvailable;
+            case FOSA_HAS_INTERNET_CONNECTION_FIELD -> internetConnectionAvailable;
+            case FOSA_WATER_SOURCES_FIELD -> waterSources;
+            case FOSA_ENVIRONMENT_TYPE_FIELD -> environmentType;
+            case FOSA_PC_COUNT_FIELD -> pcCount;
+            case FOSA_PRINTER_COUNT_FIELD -> printerCount;
+            case FOSA_TABLET_COUNT_FIELD -> tabletCount;
+            case FOSA_CAR_COUNT_FIELD -> carCount;
+            case FOSA_BIKE_COUNT_FIELD -> bikeCount;
             default -> null;
         };
     }
 
-    private ListProperty<Option> getOptionPropertyFor(String id) {
+    @SuppressWarnings("DuplicatedCode")
+    private ListProperty<Option> getOptionsFor(String id) {
+        if (id.endsWith("sources_of_backup_power")) {
+            return emergencyPowerSourceTypes;
+        } else if (id.startsWith(FOSA_PERSONNEL_INFO_KEY_PREFIX)) {
+            if (id.endsWith(FOSA_PERSONNEL_GENDER_SUFFIX))
+                return genders;
+            else if (id.endsWith(FOSA_PERSONNEL_EDUCATION_LEVEL_SUFFIX))
+                return educationLevels;
+            else if (id.endsWith(FOSA_PERSONNEL_COMPUTER_LEVEL_SUFFIX))
+                return computerKnowledgeLevels;
+        }
         return switch (id) {
             case FOSA_REGION_FIELD -> regions;
             case FOSA_STATUS_FIELD -> fosaStatusTypes;
@@ -251,58 +378,75 @@ public class FOSAFormModel extends FormModel {
             case FOSA_DIVISION_FIELD -> divisions;
             case FOSA_MUNICIPALITY_FIELD -> municipalities;
             case FOSA_CSC_EVENT_REGISTRATIONS -> eventRegistrationTypes;
+            case FOSA_WATER_SOURCES_FIELD -> waterSourceTypes;
+            case FOSA_ENVIRONMENT_TYPE_FIELD -> environmentTypes;
             default -> null;
         };
     }
 
     @Override
     public Class<?> getPropertyTypeFor(String id) {
-        if (id.startsWith("group_ce1sz98_ligne")) return VitalCSCStat.class;
+        if (id.startsWith("group_ce1sz98_ligne"))
+            return VitalCSCStat.class;
+        else if (id.startsWith(FOSA_PERSONNEL_INFO_KEY_PREFIX))
+            return PersonnelInfo.class;
+        else if (id.endsWith("sources_of_backup_power")) {
+            return List.class;
+        }
         return switch (id) {
             case FOSA_CREATION_DATE_FIELD -> LocalDate.class;
             case FOSA_MAIL_FIELD, FOSA_ATTACHED_CSC, FOSA_OFFICE_NAME_FIELD, FOSA_PHONE_FIELD, FOSA_POSITION_FIELD,
                     FOSA_RESPONDENT_NAME_FIELD, FOSA_QUARTER_FIELD, FOSA_LOCALITY_FIELD -> String.class;
             case FOSA_REGION_FIELD, FOSA_STATUS_FIELD, FOSA_FACILITY_TYPE_FIELD, FOSA_HEALTH_AREA_FIELD,
-                    FOSA_DISTRICT_FIELD, FOSA_DIVISION_FIELD, FOSA_MUNICIPALITY_FIELD -> Option.class;
-            case FOSA_SENDS_BIRTH_DECLARATION_TO_CSC, FOSA_USES_DHIS_FORMS_FIELD, FOSA_USES_BUNEC_BIRTH_FORM_FIELD,
-                    FOSA_HAS_MATERNITY_FIELD,
+                    FOSA_DISTRICT_FIELD, FOSA_DIVISION_FIELD, FOSA_MUNICIPALITY_FIELD, FOSA_ENVIRONMENT_TYPE_FIELD ->
+                    Option.class;
+            case FOSA_HAS_INTERNET_CONNECTION_FIELD, FOSA_HAS_TOILET_FIELD, FOSA_SENDS_BIRTH_DECLARATION_TO_CSC,
+                    FOSA_USES_DHIS_FORMS_FIELD, FOSA_USES_BUNEC_BIRTH_FORM_FIELD,
+                    FOSA_HAS_MATERNITY_FIELD, FOSA_HAS_ENEO_CONNECTION_FIELD, FOSA_HAS_BACKUP_POWER_SOURCE_FIELD,
                     FOSA_USES_DHIS_FIELD -> Boolean.class;
             case FOSA_CSC_DISTANCE_FIELD -> Double.class;
             case FOSA_GEO_POINT_FIELD -> GeoPoint.class;
-            case FOSA_CSC_EVENT_REGISTRATIONS -> List.class;
+            case FOSA_CSC_EVENT_REGISTRATIONS, FOSA_WATER_SOURCES_FIELD -> List.class;
+            case FOSA_KEY_PERSONNEL_COUNT_FIELD, FOSA_PC_COUNT_FIELD, FOSA_PRINTER_COUNT_FIELD, FOSA_TABLET_COUNT_FIELD, FOSA_CAR_COUNT_FIELD, FOSA_BIKE_COUNT_FIELD ->
+                    Integer.class;
             default -> null;
         };
     }
 
     @Override
-    protected final Object parseValue(Object raw, String id) {
-        if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(LocalDate.class)).isPresent()) {
+    @SuppressWarnings("rawtypes")
+    protected final Object deserializeValue(Object raw, String id) {
+        if (Optional.ofNullable(getPropertyTypeFor(id)).filter(LocalDate.class::equals).isPresent()) {
             if (raw instanceof String)
                 return LocalDateTime.parse(((String) raw)).toLocalDate();
             else if (raw instanceof Date)
                 return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
-            else if (raw instanceof LocalDate)
-                return raw;
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(Option.class)).isPresent()
-                   && raw instanceof String)
-            return getOptionPropertyFor(id).stream()
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
+                && raw instanceof String)
+            return getOptionsFor(id).stream()
                     .filter(o -> o.value().equals(raw))
                     .findFirst().orElse(null);
-        else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(Boolean.class)).isPresent()) {
-            if (raw instanceof String && ((String) raw).equalsIgnoreCase("true") || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
+        else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Boolean.class::equals).isPresent()) {
+            if (raw instanceof String && ((String) raw).equalsIgnoreCase("true")
+                    || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
                 return Boolean.valueOf(((String) raw));
             } else if (("1".equals(raw) || "2".equals(raw)))
                 return "1".equals(raw);
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(Double.class)).isPresent()) {
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Double.class::equals).isPresent()) {
             if (raw instanceof String && StringUtils.isNotBlank(((String) raw)))
                 return Double.valueOf(((String) raw));
             else if (raw instanceof Double || raw instanceof Integer) {
                 return Double.valueOf(String.valueOf(raw));
             } else
                 return 0.0;
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(GeoPoint.class)).isPresent()) {
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
+            if (raw instanceof String && StringUtils.isNotBlank(((String) raw)))
+                return Double.valueOf(Math.max(Integer.parseInt(((String) raw)), 0.0)).intValue();
+            else if (raw instanceof Double) return ((Double) raw).intValue();
+            else return 0;
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(GeoPoint.class::equals).isPresent()) {
             if (raw instanceof String) {
-                final var segments = ((String) raw).split(" ");
+                final var segments = ((String) raw).split(DELIMITER_TOKEN_PATTERN);
                 final var lat = segments[0];
                 final var lon = segments[1];
                 final var altitude = segments[2];
@@ -315,22 +459,31 @@ public class FOSAFormModel extends FormModel {
                         .accuracy(Float.valueOf(accuracy))
                         .build();
             }
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(String.class)).isPresent()
-                   && raw instanceof String)
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(String.class::equals).isPresent()) {
             return StringUtils.isNotBlank(((String) raw)) ? (String) raw : "";
-        else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(List.class)).isPresent()
-                 && raw instanceof List) {
-            return ((List<?>) raw).stream()
-                    .map(o -> {
-                        if (o instanceof String) {
-                            return getOptionPropertyFor(id).stream()
-                                    .filter(opt -> opt.value().equals(o))
-                                    .findFirst().orElse(null);
-                        }
-                        return o;
-                    })
-                    .toList();
-        } else if (raw instanceof String && Optional.ofNullable(getPropertyTypeFor(id)).filter(c -> c.equals(VitalCSCStat.class)).isPresent()) {
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(List.class::equals).isPresent()) {
+            if (raw instanceof Collection)
+                return ((Collection) raw).stream()
+                        .map(o -> {
+                            if (o instanceof String) {
+                                return getOptionsFor(id).stream()
+                                        .filter(opt -> opt.value().equals(o))
+                                        .findFirst().orElse(null);
+                            }
+                            return o;
+                        })
+                        .toList();
+            else if (raw instanceof String) {
+                final var values = Arrays.asList(((String) raw).split(DELIMITER_TOKEN_PATTERN));
+                final var x = getOptionsFor(id).stream()
+                        .filter(o -> values.stream().anyMatch(s -> o.value().equals(s)))
+                        .toList();
+                final var property = (ListProperty) getPropertyFor(id);
+                property.addAll(x);
+                return property.getValue();
+            }
+        } else if (raw instanceof String
+                && Optional.ofNullable(getPropertyTypeFor(id)).filter(VitalCSCStat.class::equals).isPresent()) {
             final var isYearField = id.endsWith(FOSA_STATS_FIELD_YEAR_SUFFIX);
             final var isBirthField = id.endsWith(FOSA_STATS_FIELD_BIRTH_SUFFIX);
             final var isDeathsField = id.endsWith(FOSA_STATS_FIELD_DEATH_SUFFIX);
@@ -353,37 +506,140 @@ public class FOSAFormModel extends FormModel {
                         .collect(Collectors.joining(""));
                 final var intValue = Integer.parseUnsignedInt(value);
 
-                if (isYearField) entry.setYear(intValue);
-                else if (isBirthField) entry.setRegisteredBirths(intValue);
-                else if (isDeathsField) entry.setRegisteredDeaths(intValue);
+                if (isYearField)
+                    entry.setYear(intValue);
+                else if (isBirthField)
+                    entry.setRegisteredBirths(intValue);
+                else if (isDeathsField)
+                    entry.setRegisteredDeaths(intValue);
+                vitalCSCStats.remove(keyPrefix);
                 vitalCSCStats.put(keyPrefix, entry);
                 return vitalCSCStats.get();
             }
+        } else if (raw instanceof String && Optional.ofNullable(getPropertyTypeFor(id)).filter(PersonnelInfo.class::equals).isPresent()) {
+            final var isNameField = id.endsWith(FOSA_PERSONNEL_NAME_SUFFIX);
+            final var isPositionField = id.endsWith(FOSA_PERSONNEL_POSITION_SUFFIX);
+            final var isGenderField = id.endsWith(FOSA_PERSONNEL_GENDER_SUFFIX);
+            final var isPhoneField = id.endsWith(FOSA_PERSONNEL_PHONE_SUFFIX);
+            final var isAgeField = id.endsWith(FOSA_PERSONNEL_AGE_SUFFIX);
+            final var isCSTrainingField = id.endsWith(FOSA_PERSONNEL_CS_TRAINING_SUFFIX);
+            final var isEdLevelField = id.endsWith(FOSA_PERSONNEL_EDUCATION_LEVEL_SUFFIX);
+            final var isComputerLevelField = id.endsWith(FOSA_PERSONNEL_COMPUTER_LEVEL_SUFFIX);
+            String key = null;
+            if (isNameField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_NAME_SUFFIX));
+            else if (isPositionField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_POSITION_SUFFIX));
+            else if (isPhoneField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_PHONE_SUFFIX));
+            else if (isAgeField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_AGE_SUFFIX));
+            else if (isCSTrainingField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_CS_TRAINING_SUFFIX));
+            else if (isEdLevelField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_EDUCATION_LEVEL_SUFFIX));
+            else if (isGenderField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_GENDER_SUFFIX));
+            else if (isComputerLevelField) key = id.substring(0, id.indexOf(FOSA_PERSONNEL_COMPUTER_LEVEL_SUFFIX));
+
+            if (key == null) return personnelInfoMap.getValue();
+
+            final var entry = personnelInfoMap.computeIfAbsent(key, __ -> PersonnelInfo.builder().build());
+            final var stringValue = String.valueOf(raw);
+
+            if (stringValue.matches("^\\d+$") && isAgeField) {
+                entry.setAge(Integer.parseInt(stringValue));
+            } else if (isNameField) entry.setNames(stringValue);
+            else if (isPositionField) entry.setRole(stringValue);
+            else if (isPhoneField) entry.setPhone(stringValue);
+            else if (isCSTrainingField) entry.setCivilStatusTraining("1".equals(stringValue));
+            else if (isEdLevelField) entry.setEducationLevel(stringValue);
+            else if (isGenderField) entry.setGender(stringValue);
+            else if (isComputerLevelField) entry.setComputerKnowledgeLevel(stringValue);
+
+            personnelInfoMap.remove(key);
+            personnelInfoMap.put(key, entry);
+            return personnelInfoMap.getValue();
         }
+
         return raw;
     }
 
-    public Collection<VitalCSCStat> vitalCscStats() {
-        return vitalCSCStats.values();
+    public ListProperty<Option> gendersProperty() {
+        return genders;
+    }
+
+    public ListProperty<Option> educationLevelsProperty() {
+        return educationLevels;
+    }
+
+    public ListProperty<PersonnelInfo> personnelInfoProperty() {
+        return personnelInfo;
+    }
+
+    public ListProperty<Option> computerKnowledgeLevelsProperty() {
+        return computerKnowledgeLevels;
+    }
+
+    public IntegerProperty personnelCountProperty() {
+        return personnelCount;
+    }
+
+    public IntegerProperty carCountProperty() {
+        return carCount;
+    }
+
+    public IntegerProperty bikeCountProperty() {
+        return bikeCount;
+    }
+
+    public IntegerProperty tabletCountProperty() {
+        return tabletCount;
+    }
+
+    public IntegerProperty printerCountProperty() {
+        return printerCount;
+    }
+
+    public IntegerProperty pcCountProperty() {
+        return pcCount;
+    }
+
+    public ListProperty<Option> waterSourcesProperty() {
+        return waterSources;
+    }
+
+    public ListProperty<Option> waterSourceTypesProperty() {
+        return waterSourceTypes;
+    }
+
+    public BooleanProperty internetConnectionAvailableProperty() {
+        return internetConnectionAvailable;
+    }
+
+    public ListProperty<Option> emergencyPowerSourceTypesProperty() {
+        return emergencyPowerSourceTypes;
+    }
+
+    public ListProperty<Option> emergencyPowerSourcesProperty() {
+        return emergencyPowerSources;
+    }
+
+    public BooleanProperty emergencyPowerSourceAvailableProperty() {
+        return emergencyPowerSourceAvailable;
+    }
+
+    public BooleanProperty eneoConnectionProperty() {
+        return eneoConnection;
+    }
+
+    public BooleanProperty toiletAvailableProperty() {
+        return toiletAvailable;
     }
 
     public ListProperty<VitalCSCStat> vitalCSCStatsValueProperty() {
         return vitalCSCStatsValue;
     }
 
-    public List<Integer> getRegisteredEventTypeIndices() {
-        return registeredEventTypes.stream()
-                .map(eventRegistrationTypes::indexOf)
-                .filter(i -> i >= 0)
-                .toList();
+    public ListProperty<Option> registeredEventTypesProperty() {
+        return registeredEventTypes;
     }
 
     public ListProperty<Option> eventRegistrationTypesProperty() {
         return eventRegistrationTypes;
-    }
-
-    public ListProperty<Option> registeredEventTypesProperty() {
-        return registeredEventTypes;
     }
 
     public BooleanProperty birthDeclarationToCscProperty() {

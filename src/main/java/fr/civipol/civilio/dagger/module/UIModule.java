@@ -18,12 +18,6 @@ public class UIModule {
 
     @Provides
     @Singleton
-    public EventBus eventBus() {
-        return new EventBus();
-    }
-
-    @Provides
-    @Singleton
     public FXMLLoaderFactory fxmlLoaderFactory(ControllerFactory controllerFactory) {
         return new FXMLLoaderFactory(controllerFactory);
     }

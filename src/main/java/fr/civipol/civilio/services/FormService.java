@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Lazy;
 import fr.civipol.civilio.domain.PageResult;
-import fr.civipol.civilio.domain.filter.FilterField;
 import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.UpdateSpec;
@@ -28,28 +27,45 @@ public class FormService implements AppService {
         this.dataSourceProvider = dataSourceProvider;
     }
 
-    public Map<String, Object> findSubmissionData(String submissionId) throws SQLException, JsonProcessingException {
-        final var excludedFields = Arrays.stream(FormSubmission.class.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(FilterField.class))
-                .map(f -> f.getAnnotation(FilterField.class))
-                .map(FilterField::dbFieldName)
-                .toArray(String[]::new);
-        final var sql = """
-                SELECT * FROM func_get_submission_data(?, ?)
+    public Map<String, Object> findFosaSubmissionData(String submissionId) throws SQLException, JsonProcessingException {
+        final var dataQuery = """
+                SELECT to_jsonb(sub_query) FROM (SELECT * FROM data1 WHERE _id = ?) AS sub_query;
+                """;
+        final var personnelQuery = """
+                SELECT to_jsonb(sub_query) FROM (SELECT * FROM personnel_info WHERE _parent_index = ?) AS sub_query;
                 """;
         final var datasource = dataSourceProvider.get();
         try (final var connection = datasource.getConnection()) {
-            try (final var st = connection.prepareStatement(sql)) {
+            Map<String, Object> ans;
+            final var mapper = new ObjectMapper();
+            try (final var st = connection.prepareStatement(dataQuery)) {
                 st.setString(1, submissionId);
-                st.setArray(2, connection.createArrayOf("TEXT", excludedFields));
                 try (final var rs = st.executeQuery()) {
                     if (!rs.next()) return Collections.emptyMap();
                     final var json = rs.getString(1);
-                    final var mapper = new ObjectMapper();
-                    return mapper.readValue(json, new TypeReference<>() {
+                    ans = mapper.readValue(json, new TypeReference<>() {
                     });
                 }
             }
+
+            try (final var st = connection.prepareStatement(personnelQuery)) {
+                final var format = "personnel_info_%d_%s_%s";
+                st.setObject(1, ans.get("_index"));
+                try (final var rs = st.executeQuery()) {
+                    var cnt = 0;
+                    while (rs.next()) {
+                        final var json = rs.getString(1);
+                        final var temp = mapper.readValue(json, new TypeReference<Map<String, Object>>() {
+                        });
+                        final var entries = new ArrayList<>(temp.entrySet());
+                        for (var i = 0; i < temp.size(); i++) {
+                            ans.put(format.formatted(cnt, ans.get("_index"), entries.get(i).getKey()), entries.get(i).getValue());
+                        }
+                        cnt++;
+                    }
+                }
+            }
+            return ans;
         }
     }
 
@@ -119,7 +135,7 @@ public class FormService implements AppService {
         try (final var connection = dataSource.getConnection()) {
             final var sql = """
                     SELECT * FROM form_submissions
-                    WHERE %s
+                    WHERE "_index" = '294' AND %s
                     OFFSET %d
                     LIMIT %d;
                     """.formatted(filter.getWhereClause(), page * size, size);
@@ -129,13 +145,15 @@ public class FormService implements AppService {
                 try (final var rs = ps.executeQuery()) {
                     final var list = new ArrayList<FormSubmission>();
                     while (rs.next()) {
-                        final var builder = FormSubmission.builder();
-                        builder.id(rs.getString("_id"));
-                        builder.validationStatus(rs.getString("_validation_status"));
-                        builder.validationCode(rs.getString("q14_02_validation_code"));
-                        builder.region(rs.getString("q1_01_region"));
-                        builder.submittedBy(rs.getString("_submitted_by"));
-                        builder.submittedOn(rs.getDate("_submission_time"));
+                        var builder = FormSubmission.builder();
+                        builder = builder.id(rs.getString("_id"))
+                                .validationStatus(rs.getString("_validation_status"))
+                                .validationCode(rs.getString("q14_02_validation_code"))
+                                .region(rs.getString("q1_01_region"))
+                                .submittedBy(rs.getString("_submitted_by"))
+                                .submittedOn(rs.getDate("_submission_time"))
+                                .index(rs.getString("_index"))
+                                .facilityName(rs.getString("q1_12_officename"));
 
                         list.add(builder.build());
                     }

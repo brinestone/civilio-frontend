@@ -2,8 +2,9 @@ package fr.civipol.civilio.domain;
 
 import fr.civipol.civilio.form.field.Option;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.function.Consumer;
 
 public interface OptionSource {
-    void populate(String form, String group, String parent, List<Option> destination);
+    void get(String form, String group, String parent, Consumer<Collection<Option>> callback);
 }
