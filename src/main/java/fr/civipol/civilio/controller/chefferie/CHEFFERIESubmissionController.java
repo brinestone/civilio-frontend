@@ -29,7 +29,6 @@ public class CHEFFERIESubmissionController implements AppController, Initializab
     
     private final ViewLoader vl;
 
-
     @Inject
     public CHEFFERIESubmissionController(ViewLoader vl){
 
