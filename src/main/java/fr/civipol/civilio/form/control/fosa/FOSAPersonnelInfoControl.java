@@ -9,6 +9,7 @@ import fr.civipol.civilio.domain.viewmodel.FOSAPersonnelInfoViewModel;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -32,8 +33,10 @@ import org.controlsfx.control.tableview2.cell.TextField2TableCell;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
+    private static final Pattern PHONE_REGEX = Pattern.compile("^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$");
     private final BooleanProperty listChanged = new SimpleBooleanProperty();
     private final TranslationService translationService;
     private Label fieldLabel, totalCountLabel;
@@ -48,9 +51,11 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
     private TableColumn<FOSAPersonnelInfoViewModel, Integer> tcAge;
     private TableColumn<FOSAPersonnelInfoViewModel, Option> tcEducationLevel;
     private TableColumn<FOSAPersonnelInfoViewModel, Option> tcComputerKnowledge;
+    private final NotifyCallback updateTrigger;
 
-    public FOSAPersonnelInfoControl(TranslationService translationService) {
+    public FOSAPersonnelInfoControl(TranslationService translationService, NotifyCallback updateTrigger) {
         this.translationService = translationService;
+        this.updateTrigger = updateTrigger;
     }
 
     @Override
@@ -72,7 +77,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         actionBar.getChildren().setAll(btnRemoveSelection, btnAdd);
         actionBar.setSpacing(5);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcRole, tcGender, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
+        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcRole, tcGender, tcPhone, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
         add(fieldLabel, 0, 0, 3, 1);
         add(tvPersonnel, 0, 1, 12, 1);
         add(actionBar, 10, 0, 2, 1);
@@ -86,14 +91,45 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         super.setupEventHandlers();
         btnAdd.setOnAction(this::onAddButtonClicked);
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
-        tcNames.setOnEditCommit(e -> e.getRowValue().setNames(e.getNewValue()));
-        tcRole.setOnEditCommit(e -> e.getRowValue().setRole(e.getNewValue()));
-        tcPhone.setOnEditCommit(e -> e.getRowValue().setPhone(e.getNewValue()));
-        tcGender.setOnEditCommit(e -> e.getRowValue().setGender((String) e.getNewValue().value()));
-        tcAge.setOnEditCommit(e -> e.getRowValue().setAge(e.getNewValue()));
-        tcEducationLevel.setOnEditCommit(e -> e.getRowValue().setEducationLevel((String) e.getNewValue().value()));
-        tcComputerKnowledge.setOnEditCommit(e -> e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value()));
+        tcNames.setOnEditCommit(e -> {
+            e.getRowValue().setNames(e.getNewValue());
+            triggerUpdate();
+        });
+        tcRole.setOnEditCommit(e -> {
+            e.getRowValue().setRole(e.getNewValue());
+            triggerUpdate();
+        });
+        tcPhone.setOnEditCommit(e -> {
+            final var matcher = PHONE_REGEX.matcher(e.getNewValue());
+            if (matcher.matches()) {
+                e.getRowValue().setPhone(e.getNewValue());
+                triggerUpdate();
+            } else {
+                e.consume();
+                e.getTableView().refresh();
+            }
+        });
+        tcGender.setOnEditCommit(e -> {
+            e.getRowValue().setGender((String) e.getNewValue().value());
+            triggerUpdate();
+        });
+        tcAge.setOnEditCommit(e -> {
+            e.getRowValue().setAge(e.getNewValue());
+            triggerUpdate();
+        });
+        tcEducationLevel.setOnEditCommit(e -> {
+            e.getRowValue().setEducationLevel((String) e.getNewValue().value());
+            triggerUpdate();
+        });
+        tcComputerKnowledge.setOnEditCommit(e -> {
+            e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value());
+            triggerUpdate();
+        });
         cbSelectAll.setOnAction(e -> tvPersonnel.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
+    }
+
+    private void triggerUpdate() {
+        updateTrigger.call();
     }
 
     private void onRemoveSelectionButtonClicked(ActionEvent ignored) {
@@ -125,6 +161,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
             final var vms = nv.stream()
                     .map(FOSAPersonnelInfoViewModel::new)
                     .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getPersonnelInfo(), vm.getPersonnelInfo()))))
+                    .peek(vm -> vm.hasCivilStatusTrainingProperty().addListener((oob, oov, nnv) -> triggerUpdate()))
                     .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                     .toList();
             tvPersonnel.getItems().setAll(vms);
@@ -270,11 +307,11 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         actionBar = new HBox();
         selectedItems = FXCollections.observableSet();
         tvPersonnel = new TableView<>();
+        tcPhone = new TableColumn<>();
         tcSelection = new TableColumn<>();
         tcNames = new TableColumn<>();
         tcRole = new TableColumn<>();
         tcHasCSTraining = new TableColumn<>();
-        tcPhone = new TableColumn<>();
         tcGender = new TableColumn<>();
         tcAge = new TableColumn<>();
         tcEducationLevel = new TableColumn<>();

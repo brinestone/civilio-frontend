@@ -16,15 +16,37 @@ import org.apache.commons.lang3.StringUtils;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class FormService implements AppService {
     private final Lazy<DataSource> dataSourceProvider;
 
+    @SuppressWarnings("CdiInjectionPointsInspection")
     @Inject
     public FormService(Lazy<DataSource> dataSourceProvider) {
         this.dataSourceProvider = dataSourceProvider;
+    }
+
+    public <T> Collection<T> findAutoCompletionValuesFor(String field, String query, int size, Function<String, T> deserializer) throws SQLException {
+        final var ans = new HashSet<T>();
+        final var sql = """
+                SELECT DISTINCT UPPER(%s::TEXT) FROM data1 WHERE LOWER(%s) LIKE LOWER(?) ORDER BY UPPER(%s) ASC LIMIT ?;
+                """.formatted(field, field, field);
+        final var ds = dataSourceProvider.get();
+        try (final var conn = ds.getConnection()) {
+            try (final var st = conn.prepareStatement(sql)) {
+                st.setString(1, "%%" + query + "%%");
+                st.setInt(2, size);
+                try (final var rs = st.executeQuery()) {
+                    while (rs.next()) {
+                        ans.add(deserializer.apply(rs.getString(1)));
+                    }
+                }
+            }
+        }
+        return ans;
     }
 
     public Map<String, Object> findFosaSubmissionData(String submissionId) throws SQLException, JsonProcessingException {
@@ -75,7 +97,7 @@ public class FormService implements AppService {
         try (final var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             final var setClauses = Arrays.stream(updates)
-                    .map(spec -> "SET %s = ?".formatted(spec.field()))
+                    .map(spec -> "SET %s = ?".formatted(spec.getField()))
                     .collect(Collectors.joining(",\n"));
             try (final var st = connection.prepareStatement("""
                     UPDATE data1
@@ -86,22 +108,22 @@ public class FormService implements AppService {
                 for (var i = 0; i < updates.length; i++) {
                     final var update = updates[i];
                     final var index = i + 1;
-                    if (update.newValue() instanceof String)
-                        st.setString(index, ((String) update.newValue()));
-                    else if (update.newValue() instanceof Integer)
-                        st.setInt(index, ((Integer) update.newValue()));
-                    else if (update.newValue() instanceof Long)
-                        st.setLong(index, ((Long) update.newValue()));
-                    else if (update.newValue() instanceof Date)
-                        st.setDate(index, (java.sql.Date) Optional.of(update.newValue())
+                    if (update.getNewValue() instanceof String)
+                        st.setString(index, ((String) update.getNewValue()));
+                    else if (update.getNewValue() instanceof Integer)
+                        st.setInt(index, ((Integer) update.getNewValue()));
+                    else if (update.getNewValue() instanceof Long)
+                        st.setLong(index, ((Long) update.getNewValue()));
+                    else if (update.getNewValue() instanceof Date)
+                        st.setDate(index, (java.sql.Date) Optional.of(update.getNewValue())
                                 .map(d -> java.sql.Date.from(((Date) d).toInstant()))
                                 .orElse(null));
-                    else if (update.newValue() instanceof Double)
-                        st.setDouble(index, (Double) update.newValue());
-                    else if (update.newValue() instanceof Float)
-                        st.setFloat(index, (Float) update.newValue());
-                    else if (update.newValue() instanceof Boolean)
-                        st.setBoolean(index, (Boolean) update.newValue());
+                    else if (update.getNewValue() instanceof Double)
+                        st.setDouble(index, (Double) update.getNewValue());
+                    else if (update.getNewValue() instanceof Float)
+                        st.setFloat(index, (Float) update.getNewValue());
+                    else if (update.getNewValue() instanceof Boolean)
+                        st.setBoolean(index, (Boolean) update.getNewValue());
                 }
                 st.execute();
             }
@@ -135,7 +157,7 @@ public class FormService implements AppService {
         try (final var connection = dataSource.getConnection()) {
             final var sql = """
                     SELECT * FROM form_submissions
-                    WHERE "_index" = '294' AND %s
+                    WHERE %s
                     OFFSET %d
                     LIMIT %d;
                     """.formatted(filter.getWhereClause(), page * size, size);

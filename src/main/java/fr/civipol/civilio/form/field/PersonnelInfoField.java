@@ -4,6 +4,7 @@ import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.control.fosa.FOSAPersonnelInfoControl;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -127,8 +128,11 @@ public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, L
         return this;
     }
 
-    public static PersonnelInfoField personnelInfoField(ObservableList<PersonnelInfo> items, TranslationService translationService) {
+    public static PersonnelInfoField personnelInfoField(
+            ObservableList<PersonnelInfo> items,
+            TranslationService translationService,
+            NotifyCallback changeCallback) {
         return new PersonnelInfoField(new SimpleListProperty<>(items), new SimpleListProperty<>(FXCollections.observableArrayList()))
-                .render(() -> new FOSAPersonnelInfoControl(translationService));
+                .render(() -> new FOSAPersonnelInfoControl(translationService, changeCallback));
     }
 }

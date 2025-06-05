@@ -25,7 +25,12 @@ val javaFxVersion = "17.0.6"
 application {
     mainModule.set(moduleName)
     mainClass.set(mainClassName)
-    applicationDefaultJvmArgs = listOf("-Dprism.forceGPU=true", "-Dprism.lcdtext=false")
+    // Add the --add-exports argument here
+    applicationDefaultJvmArgs = listOf(
+            "-Dprism.forceGPU=true",
+            "-Dprism.lcdtext=false",
+            "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
+    )
 }
 
 java {
@@ -79,6 +84,7 @@ dependencies {
 }
 
 jlink {
+    // This is for jlink's internal module path, not for runtime of your application
     addOptions(
             "--add-modules",
             "jakarta.cdi,jakarta.inject",
@@ -202,6 +208,8 @@ tasks.processResources {
 }
 
 tasks.compileJava {
+    // This is for compilation, which is different from runtime.
+    // The previous error was a runtime error.
     options.compilerArgs.addAll(listOf(
             "--add-modules", "jakarta.inject,java.naming,java.desktop"
     ))

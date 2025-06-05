@@ -24,6 +24,7 @@ public class FOSAPersonnelInfoViewModel {
         age = new SimpleObjectProperty<>(info, "age", info.getAge());
 
         age.addListener((ob, ov, nv) -> info.setAge(nv));
+        phone.addListener((ob, ov, nv) -> info.setPhone(nv));
         gender.addListener((ob, ov, nv) -> info.setGender(nv));
         computerKnowledgeLevel.addListener((ob, ov, nv) -> info.setComputerKnowledgeLevel(nv));
         educationLevel.addListener((ob, ov, nv) -> info.setEducationLevel(nv));
@@ -46,6 +47,10 @@ public class FOSAPersonnelInfoViewModel {
 
     public void setComputerKnowledgeLevel(String val) {
         computerKnowledgeLevel.set(val);
+    }
+
+    public void setHasCivilStatusTraining(boolean v) {
+        hasCivilStatusTraining.set(v);
     }
 
     public void setEducationLevel(String level) {

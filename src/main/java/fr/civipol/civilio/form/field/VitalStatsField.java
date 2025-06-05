@@ -1,16 +1,19 @@
 package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
-import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.control.fosa.VitalStatsControl;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.util.Collection;
 import java.util.List;
 
 public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<VitalCSCStat>, VitalStatsField> {
@@ -20,6 +23,7 @@ public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<
     private final StringProperty observationsColumnLabel;
     private final StringProperty addRowLabel;
     private final StringProperty removeSelectionLabel;
+    private ObservableList<VitalCSCStat> valueList;
     private static final String YEAR_COLUMN_LABEL = "controls.stats_collector.columns.year";
     private static final String DEATHS_COLUMN_LABEL = "controls.stats_collector.columns.deaths";
     private static final String BIRTHS_COLUMN_LABEL = "controls.stats_collector.columns.births";
@@ -72,8 +76,15 @@ public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<
         return yearColumnLabel;
     }
 
-    public static Field<VitalStatsField> statsField(ObservableList<VitalCSCStat> items, ListProperty<VitalCSCStat> target) {
-        return new VitalStatsField(new SimpleListProperty<>(items), target)
-                .render(VitalStatsControl::new);
+    private VitalStatsField values(Collection<VitalCSCStat> items) {
+        valueList = FXCollections.observableArrayList(items);
+        valueList.addListener((ListChangeListener<VitalCSCStat>) c -> value.setAll(valueList));
+        return this;
+    }
+
+    public static VitalStatsField statsField(ObservableList<VitalCSCStat> items, ListProperty<VitalCSCStat> target, NotifyCallback notifyCallback) {
+        return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), target)
+                .values(items)
+                .render(() -> new VitalStatsControl(notifyCallback));
     }
 }

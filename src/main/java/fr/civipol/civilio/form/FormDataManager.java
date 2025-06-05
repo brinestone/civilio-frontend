@@ -1,22 +1,29 @@
 package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.entity.UpdateSpec;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
+import javafx.beans.value.ObservableBooleanValue;
 
+import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
-public abstract class FormModel {
+public abstract class FormDataManager {
     protected final Function<String, ?> valueSource;
     protected final Supplier<Stream<String>> fieldSource;
 
-    public FormModel(Function<String, ?> valueSource, Supplier<Stream<String>> fieldSource) {
+    public FormDataManager(Function<String, ?> valueSource, Supplier<Stream<String>> fieldSource) {
         this.valueSource = valueSource;
         this.fieldSource = fieldSource;
     }
+
+    public abstract ObservableBooleanValue pristine();
+
+    public abstract Collection<UpdateSpec> getUpdates();
 
     public abstract Property getPropertyFor(String id);
 
@@ -33,7 +40,8 @@ public abstract class FormModel {
         final var property = getPropertyFor(id);
         final var type = getPropertyTypeFor(id);
 
-        if (property == null || type == null) return;
+        if (property == null || type == null)
+            return;
         final var rawValue = valueSource.apply(id);
         final var parsedValue = deserializeValue(rawValue, id);
         Platform.runLater(() -> property.setValue(parsedValue));

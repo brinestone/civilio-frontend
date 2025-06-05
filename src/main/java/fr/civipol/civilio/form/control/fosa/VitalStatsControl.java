@@ -5,10 +5,12 @@ import fr.civipol.civilio.domain.converter.CachedStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.field.VitalStatsField;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableSet;
 import javafx.collections.SetChangeListener;
 import javafx.event.ActionEvent;
@@ -24,6 +26,7 @@ import javafx.scene.layout.HBox;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,14 +36,18 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcYear;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcBirths;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcDeaths;
-    //    private TableColumn<FOSAVitalCSCStatViewModel, String> tcObservations;
     private TableColumn<FOSAVitalCSCStatViewModel, Boolean> tcSelection;
+    private final NotifyCallback updateTrigger;
     private Button btnAddRow;
     private Label mainLabel;
     private HBox actionBar;
     private CheckBox cbSelectAll;
     private Button btnRemoveSelection;
     private ObservableSet<FOSAVitalCSCStatViewModel> selectedItems;
+
+    public VitalStatsControl(NotifyCallback updateTrigger) {
+        this.updateTrigger = updateTrigger;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -89,7 +96,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcDeaths.editableProperty().bind(field.editableProperty());
         tcBirths.editableProperty().bind(field.editableProperty());
         tcSelection.editableProperty().bind(field.editableProperty());
-        tcYear.editableProperty().bind(field.editableProperty());
+//        tcYear.editableProperty().bind(field.editableProperty());
         tvStats.editableProperty().bind(field.editableProperty());
 
         cbSelectAll.disableProperty().bind(field.valueProperty().emptyProperty());
@@ -110,13 +117,21 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
             if (!nv) return;
             listItemsChanged.set(false);
         });
-        field.valueProperty().addListener((ob, ov, nv) -> {
-            final var wrappers = nv.stream()
-                    .map(FOSAVitalCSCStatViewModel::new)
-                    .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))))
-                    .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
-                    .toList();
-            tvStats.getItems().setAll(wrappers);
+        field.valueProperty().addListener((ListChangeListener<VitalCSCStat>) c -> {
+            while (c.next()) {
+                if (c.wasAdded()) {
+                    final var wrappers = c.getAddedSubList().stream()
+                            .map(FOSAVitalCSCStatViewModel::new)
+                            .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))))
+                            .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
+                            .toList();
+                    tvStats.getItems().addAll(wrappers);
+                } else if (c.wasRemoved()) {
+                    for (var i : c.getRemoved()) {
+                        tvStats.getItems().removeIf(vm -> vm.getStat().equals(i));
+                    }
+                }
+            }
         });
 
         selectedItems.addListener((SetChangeListener<FOSAVitalCSCStatViewModel>) c -> {
@@ -133,6 +148,13 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
                 cbSelectAll.setSelected(selectionSize == itemsSize);
             }
         });
+    }
+
+    private void triggerValueUpdate() {
+        final var temp = new ArrayList<>(field.getValue());
+        field.valueProperty().clear();
+        tvStats.getItems().clear();
+        field.valueProperty().addAll(temp);
     }
 
     @Override
@@ -162,7 +184,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
                 return formatter.format((long) value);
             }
         };
-        tcYear.setCellFactory(param -> new TextFieldTableCell<>(converter));
+        tcYear.setCellFactory(param -> new TextFieldTableCell<>());
 
         tcDeaths.setCellValueFactory(param -> param.getValue().deathCountProperty());
         tcDeaths.setCellFactory(param -> new TextFieldTableCell<>(converter));
@@ -181,6 +203,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
                         .toList()
         );
         tcSelection.setSortable(false);
+        tcYear.setEditable(false);
     }
 
     @Override
@@ -195,7 +218,6 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         tcYear = new TableColumn<>("controls.stats_collector.columns.year");
         tcBirths = new TableColumn<>("controls.stats_collector.columns.births");
         tcDeaths = new TableColumn<>("controls.stats_collector.columns.deaths");
-//        tcObservations = new TableColumn<>("controls.stats_collector.columns.observation");
         btnAddRow = new Button("controls.stats_collector.columns.add_new");
         selectedItems = FXCollections.observableSet();
     }
@@ -204,10 +226,18 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
     public void setupEventHandlers() {
         super.setupEventHandlers();
         btnAddRow.setOnAction(this::onAddRowButtonClicked);
-        tcYear.setOnEditCommit(e -> e.getRowValue().setYear(e.getNewValue()));
-        tcDeaths.setOnEditCommit(e -> e.getRowValue().setDeathCount(e.getNewValue()));
-//        tcObservations.setOnEditCommit(e -> e.getRowValue().setObservations(e.getNewValue()));
-        tcBirths.setOnEditCommit(e -> e.getRowValue().setBirthCount(e.getNewValue()));
+        tcYear.setOnEditCommit(e -> {
+            e.getRowValue().setYear(e.getNewValue());
+            triggerValueUpdate();
+        });
+        tcDeaths.setOnEditCommit(e -> {
+            e.getRowValue().setDeathCount(e.getNewValue());
+            triggerValueUpdate();
+        });
+        tcBirths.setOnEditCommit(e -> {
+            e.getRowValue().setBirthCount(e.getNewValue());
+            triggerValueUpdate();
+        });
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
         cbSelectAll.setOnAction(e -> tvStats.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
@@ -217,6 +247,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
             field.valueProperty().remove(item.getStat());
         }
         selectedItems.clear();
+        System.gc();
     }
 
     private void onAddRowButtonClicked(ActionEvent ignored) {
@@ -226,7 +257,8 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
             final var yearExists = field.getValue().stream().anyMatch(s -> s.getYear() == year);
             if (yearExists) continue;
 
-            field.getValue().add(VitalCSCStat.builder().year(year).build());
+            final var stats = VitalCSCStat.builder().year(year).build();
+            field.getValue().add(stats);
             break;
         }
         field.getValue().sort((o1, o2) -> o2.getYear() - o1.getYear());

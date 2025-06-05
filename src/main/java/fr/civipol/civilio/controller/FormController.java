@@ -1,15 +1,16 @@
 package fr.civipol.civilio.controller;
 
-import fr.civipol.civilio.form.FormModel;
+import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import lombok.Setter;
@@ -27,6 +28,7 @@ import java.util.function.Consumer;
  */
 @Slf4j
 public abstract class FormController implements AppController {
+    private final BooleanProperty submitting = new SimpleBooleanProperty(this, "submitting", false);
     @Setter
     protected Consumer<String> onSubmit;
     @Setter
@@ -34,7 +36,19 @@ public abstract class FormController implements AppController {
     protected final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
     protected final ObservableMap<String, Object> submissionData = FXCollections.observableHashMap();
 
-    protected abstract FormModel getModel();
+    protected void setSubmitting(boolean v) {
+        submitting.set(v);
+    }
+
+    public BooleanProperty submittingProperty() {
+        return submitting;
+    }
+
+    public boolean isSubmitting() {
+        return submitting.get();
+    }
+
+    protected abstract FormDataManager getModel();
 
     public void setSubmissionId(String submissionId) {
         this.submissionId.set(submissionId);
@@ -64,7 +78,7 @@ public abstract class FormController implements AppController {
                         .ifPresent(__ -> {
                             try {
                                 Optional.ofNullable(loadSubmissionData())
-                                        .ifPresent(submissionData::putAll);
+                                        .ifPresent(data -> Platform.runLater(() -> submissionData.putAll(data)));
                                 Platform.runLater(getModel()::loadValues);
                             } catch (Throwable e) {
                                 showErrorAlert(e.getLocalizedMessage());
@@ -91,7 +105,7 @@ public abstract class FormController implements AppController {
     /**
      * Performs the actual logic of submitting the form's data.
      */
-    protected abstract void doSubmit();
+    protected abstract void doSubmit() throws Exception;
 
     protected abstract Map<String, Object> loadSubmissionData() throws Exception;
 
@@ -113,11 +127,15 @@ public abstract class FormController implements AppController {
     }
 
     protected void handleSubmitEvent(ActionEvent ignored) {
+        setSubmitting(true);
         getExecutorService().submit(() -> {
             try {
                 doSubmit();
-                Platform.runLater(() -> Optional.ofNullable(onSubmit)
-                        .ifPresent(c -> c.accept(submissionId.get())));
+                Platform.runLater(() -> {
+                    setSubmitting(false);
+                    Optional.ofNullable(onSubmit)
+                            .ifPresent(c -> c.accept(submissionId.get()));
+                });
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
                 showErrorAlert(t.getLocalizedMessage());
@@ -125,21 +143,20 @@ public abstract class FormController implements AppController {
         });
     }
 
-    protected void handleDiscardEvent(ActionEvent ev) {
-        getExecutorService().submit(() -> {
+    protected void handleDiscardEvent(ActionEvent ignored, String confirmationMessage) {
+        if (getModel().pristine().get()) {
+            Platform.runLater(() -> Optional.ofNullable(onDiscard).ifPresent(c -> c.accept(null)));
+            return;
+        }
+        showConfirmationDialog(confirmationMessage).ifPresent(__ -> getExecutorService().submit(() -> {
             try {
                 doDiscard();
                 Platform.runLater(() -> Optional.ofNullable(onDiscard)
                         .ifPresent(c -> c.accept(null)));
             } catch (Throwable t) {
                 log.error("error while discarding form", t);
-                Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
-                    alert.setHeaderText(t.getLocalizedMessage());
-                    alert.initOwner(((Node) ev.getSource()).getScene().getWindow());
-                    alert.showAndWait();
-                });
+                showErrorAlert(t.getLocalizedMessage());
             }
-        });
+        }));
     }
 }

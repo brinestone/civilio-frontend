@@ -186,12 +186,6 @@ public class SubmissionsController implements AppController, Initializable {
                     }
                 }
             });
-//            row.setOnMouseClicked(event -> {
-//                if (!event.getButton().equals(MouseButton.PRIMARY) || event.getClickCount() != 2) return;
-//                event.consume();
-//                final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
-//                showFormDialog(row.getScene().getWindow(), submissionId);
-//            });
             return row;
         });
     }
@@ -323,12 +317,7 @@ public class SubmissionsController implements AppController, Initializable {
                 });
             } catch (Throwable t) {
                 log.error("error while loading submissions data", t);
-                Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
-                    alert.setHeaderText(t.getLocalizedMessage());
-                    alert.initOwner(spTableContainer.getScene().getWindow());
-                    alert.showAndWait();
-                });
+                showErrorAlert(t.getLocalizedMessage());
             } finally {
                 Platform.runLater(() -> spTableContainer.getChildren().remove(1));
             }
@@ -358,12 +347,7 @@ public class SubmissionsController implements AppController, Initializable {
                 });
             } catch (Throwable t) {
                 log.error("error while loading submissions data", t);
-                Platform.runLater(() -> {
-                    final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
-                    alert.setHeaderText(t.getLocalizedMessage());
-                    alert.initOwner(spTableContainer.getScene().getWindow());
-                    alert.showAndWait();
-                });
+                showErrorAlert(t.getLocalizedMessage());
             } finally {
                 Platform.runLater(() -> spTableContainer.getChildren().remove(1));
             }
