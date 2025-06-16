@@ -7,6 +7,7 @@ import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -20,8 +21,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
 
@@ -76,6 +75,7 @@ public class ConfigManager {
 
     private <T> Optional<T> deserialize(Class<T> type, String serialized) {
         return Optional.ofNullable(serialized)
+                .filter(StringUtils::isNotBlank)
                 .map(s -> {
                     try {
                         final var cipher = Cipher.getInstance(ALG);
@@ -87,6 +87,8 @@ public class ConfigManager {
 
                         final var json = new String(decryptedBytes, StandardCharsets.UTF_8);
                         return mapper.readValue(json, type);
+                    } catch (IllegalArgumentException ex) {
+                        return null;
                     } catch (Exception e) {
                         log.error("error while deserializing value from settings: %s".formatted(serialized), e);
                         throw new RuntimeException(e);
