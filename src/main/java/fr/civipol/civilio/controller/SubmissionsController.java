@@ -125,7 +125,10 @@ public class SubmissionsController implements AppController, Initializable {
             final var controller = (FormController) vl.getControllerFor(viewName).orElseThrow();
             if (StringUtils.isBlank(submissionId))
                 controller.setup();
-            controller.setOnSubmit(this::onFormSubmitted);
+            controller.setOnSubmit(__ -> {
+                dialog.close();
+                doLoadSubmissionData();
+            });
             controller.setOnDiscard(__ -> dialog.close());
             controller.setSubmissionId(submissionId);
 
@@ -136,10 +139,6 @@ public class SubmissionsController implements AppController, Initializable {
         } catch (IOException | NullPointerException ex) {
             log.error("failed to load " + cbFormType.getValue().toString().toUpperCase() + " form view", ex);
         }
-    }
-
-    private void onFormSubmitted(String formSubmission) {
-        doLoadSubmissionData();
     }
 
     public void initialize(URL location, ResourceBundle resources) {

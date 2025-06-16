@@ -7,9 +7,11 @@ import com.dlsc.formsfx.model.structure.Section;
 import com.dlsc.formsfx.model.util.BindingMode;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
+import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
+import com.dlsc.formsfx.view.controls.SimpleDateControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
@@ -37,7 +39,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import javafx.util.StringConverter;
+import javafx.util.converter.LocalDateStringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -48,10 +50,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.time.format.FormatStyle;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
@@ -122,7 +122,7 @@ public class FOSAFormController extends FormController implements Initializable 
 
     @Override
     protected final void doSubmit() throws SQLException {
-        formService.updateSubmission(submissionId.getValue(), model.getUpdates().toArray(UpdateSpec[]::new));
+        formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(UpdateSpec[]::new));
     }
 
 
@@ -432,6 +432,8 @@ public class FOSAFormController extends FormController implements Initializable 
 
     private void setRespondentSection(TranslationService ts) {
         final var model = (FOSAFormDataManager) this.model;
+        final var today = LocalDate.now();
+        final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
                         Group.of(
                                 Field.ofStringType(model.respondentNamesProperty())
@@ -446,40 +448,23 @@ public class FOSAFormController extends FormController implements Initializable 
                                 Field.ofStringType(model.phoneProperty())
                                         .span(ColSpan.HALF)
                                         .required(true)
-                                        .validate(RegexValidator.forPattern("^(([62][0-9]{8})((([,/])|( ))[62][0-9]{8})*)$", "fosa.form.msg.invalid_value"))
+                                        .validate(RegexValidator.forPattern("^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$", "fosa.form.msg.invalid_value"))
                                         .label("fosa.form.fields.phone.title")
                                         .tooltip("fosa.form.fields.phone.description"),
                                 Field.ofStringType(model.emailProperty())
                                         .span(ColSpan.HALF)
-                                        .validate(RegexValidator.forPattern("^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$","fosa.form.msg.invalid_value"))
+                                        .validate(RegexValidator.forPattern("^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$", "fosa.form.msg.invalid_value"))
                                         .label("fosa.form.fields.email.title")
                                         .tooltip("fosa.form.fields.email.description"),
                                 Field.ofDate(model.creationDateProperty())
                                         .label("fosa.form.fields.creation_date.title")
-                                        .valueDescription(
-                                                "fosa.form.fields.creation_date.description")
-                                        .format(new StringConverter<>() {
-
+                                        .validate(CustomValidator.forPredicate(d -> d == null || today.isEqual(d) || today.isAfter(d), "fosa.form.msg.value_out_of_range"))
+                                        .format(localDateStringConverter, "fosa.form.msg.invalid_value")
+                                        .render(new SimpleDateControl(){
                                             @Override
-                                            public String toString(LocalDate object) {
-                                                return Optional.ofNullable(object)
-                                                        .map(o -> object.format(
-                                                                DateTimeFormatter
-                                                                        .ofPattern("dd/MM/yyyy")))
-                                                        .orElse("");
-                                            }
-
-                                            @Override
-                                            public LocalDate fromString(String s) {
-                                                if (!StringUtils.isNotBlank(s))
-                                                    return null;
-                                                try {
-                                                    return LocalDate.from(DateTimeFormatter
-                                                            .ofPattern("dd/MM/yyyy")
-                                                            .parse(s));
-                                                } catch (DateTimeParseException ignored) {
-                                                    return null;
-                                                }
+                                            public void initializeParts() {
+                                                super.initializeParts();
+                                                picker.setConverter(localDateStringConverter);
                                             }
                                         })
                                         .span(ColSpan.HALF)))

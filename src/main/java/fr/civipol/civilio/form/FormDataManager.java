@@ -23,13 +23,15 @@ public abstract class FormDataManager {
 
     public abstract ObservableBooleanValue pristine();
 
-    public abstract Collection<UpdateSpec> getUpdates();
+    public abstract Collection<UpdateSpec> getPendingUpdates();
 
     public abstract Property getPropertyFor(String id);
 
     protected abstract Class<?> getPropertyTypeFor(String id);
 
     protected abstract Object deserializeValue(Object raw, String id);
+
+    protected abstract Object serializeValue(Object deserialized);
 
     public abstract void loadOptions(OptionSource optionSource, Runnable callback);
 

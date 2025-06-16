@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.Function;
@@ -96,34 +97,44 @@ public class FormService implements AppService {
         final var dataSource = this.dataSourceProvider.get();
         try (final var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-            final var setClauses = Arrays.stream(updates)
+            List<UpdateSpec> filteredUpdates;
+            try (final var st = connection.prepareStatement("""
+                    SELECT quote_ident(c.column_name) FROM information_schema.columns c WHERE c.table_name = 'data1' AND c.table_schema = 'public' AND c.column_name = ANY(?);
+                    """)) {
+                st.setArray(1, connection.createArrayOf("text", Arrays.stream(updates).map(UpdateSpec::getField).toArray(String[]::new)));
+                try (final var rs = st.executeQuery()) {
+                    final var columnNames = new ArrayList<String>();
+                    while (rs.next()) {
+                        columnNames.add(rs.getString(1));
+                    }
+                    filteredUpdates = columnNames.stream()
+                            .flatMap(c -> Arrays.stream(updates)
+                                    .filter(u -> {
+                                        if (c.startsWith("\"")) return c.contains(u.getField());
+                                        return u.getField().contains(c);
+                                    })
+                                    .peek(u -> u.setField(c)))
+                            .toList();
+
+                }
+            }
+            final var setClauses = filteredUpdates.stream()
                     .map(spec -> "SET %s = ?".formatted(spec.getField()))
                     .collect(Collectors.joining(",\n"));
-            try (final var st = connection.prepareStatement("""
+            final var sql = """
                     UPDATE data1
                     %s
                     WHERE _id = ?;
-                    """.formatted(setClauses))) {
-                st.setString(updates.length + 1, id);
-                for (var i = 0; i < updates.length; i++) {
-                    final var update = updates[i];
+                    """.formatted(setClauses);
+            try (final var st = connection.prepareStatement(sql)) {
+                st.setString(filteredUpdates.size() + 1, id);
+                for (var i = 0; i < filteredUpdates.size(); i++) {
+                    final var update = filteredUpdates.get(i);
                     final var index = i + 1;
-                    if (update.getNewValue() instanceof String)
-                        st.setString(index, ((String) update.getNewValue()));
-                    else if (update.getNewValue() instanceof Integer)
-                        st.setInt(index, ((Integer) update.getNewValue()));
-                    else if (update.getNewValue() instanceof Long)
-                        st.setLong(index, ((Long) update.getNewValue()));
-                    else if (update.getNewValue() instanceof Date)
-                        st.setDate(index, (java.sql.Date) Optional.of(update.getNewValue())
-                                .map(d -> java.sql.Date.from(((Date) d).toInstant()))
-                                .orElse(null));
-                    else if (update.getNewValue() instanceof Double)
-                        st.setDouble(index, (Double) update.getNewValue());
-                    else if (update.getNewValue() instanceof Float)
-                        st.setFloat(index, (Float) update.getNewValue());
-                    else if (update.getNewValue() instanceof Boolean)
-                        st.setBoolean(index, (Boolean) update.getNewValue());
+                    if (update.getNewValue() instanceof Date d)
+                        st.setDate(index, d);
+                    else
+                        st.setObject(index, update.getNewValue());
                 }
                 st.execute();
             }

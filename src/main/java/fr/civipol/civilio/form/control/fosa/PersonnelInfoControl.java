@@ -5,7 +5,7 @@ import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.converter.OptionConverter;
-import fr.civipol.civilio.domain.viewmodel.FOSAPersonnelInfoViewModel;
+import fr.civipol.civilio.domain.viewmodel.PersonnelInfoViewModel;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
@@ -28,14 +28,13 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.util.converter.DefaultStringConverter;
-import org.controlsfx.control.tableview2.cell.TextField2TableCell;
 
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
+public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     private static final Pattern PHONE_REGEX = Pattern.compile("^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$");
     private final BooleanProperty listChanged = new SimpleBooleanProperty();
     private final TranslationService translationService;
@@ -43,17 +42,18 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
     private CheckBox cbSelectAll;
     private Button btnRemoveSelection, btnAdd;
     private HBox actionBar;
-    private ObservableSet<FOSAPersonnelInfoViewModel> selectedItems;
-    private TableView<FOSAPersonnelInfoViewModel> tvPersonnel;
-    private TableColumn<FOSAPersonnelInfoViewModel, Boolean> tcSelection, tcHasCSTraining;
-    private TableColumn<FOSAPersonnelInfoViewModel, String> tcNames, tcRole, tcPhone;
-    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcGender;
-    private TableColumn<FOSAPersonnelInfoViewModel, Integer> tcAge;
-    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcEducationLevel;
-    private TableColumn<FOSAPersonnelInfoViewModel, Option> tcComputerKnowledge;
+    private ObservableSet<PersonnelInfoViewModel> selectedItems;
+    private TableView<PersonnelInfoViewModel> tvPersonnel;
+    private TableColumn<PersonnelInfoViewModel, Boolean> tcSelection, tcHasCSTraining;
+    private TableColumn<PersonnelInfoViewModel, String> tcNames, tcRole, tcPhone;
+    private TableColumn<PersonnelInfoViewModel, Option> tcGender;
+    private TableColumn<PersonnelInfoViewModel, Integer> tcAge;
+    private TableColumn<PersonnelInfoViewModel, Option> tcEducationLevel;
+    private TableColumn<PersonnelInfoViewModel, Option> tcComputerKnowledge;
+    private TableColumn<PersonnelInfoViewModel, String> tcEmail;
     private final NotifyCallback updateTrigger;
 
-    public FOSAPersonnelInfoControl(TranslationService translationService, NotifyCallback updateTrigger) {
+    public PersonnelInfoControl(TranslationService translationService, NotifyCallback updateTrigger) {
         this.translationService = translationService;
         this.updateTrigger = updateTrigger;
     }
@@ -77,7 +77,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         actionBar.getChildren().setAll(btnRemoveSelection, btnAdd);
         actionBar.setSpacing(5);
         actionBar.setAlignment(Pos.CENTER_RIGHT);
-        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcRole, tcGender, tcPhone, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
+        tvPersonnel.getColumns().setAll(tcSelection, tcNames, tcRole, tcGender, tcPhone, tcEmail, tcAge, tcHasCSTraining, tcEducationLevel, tcComputerKnowledge);
         add(fieldLabel, 0, 0, 3, 1);
         add(tvPersonnel, 0, 1, 12, 1);
         add(actionBar, 10, 0, 2, 1);
@@ -125,6 +125,10 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
             e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value());
             triggerUpdate();
         });
+        tcEmail.setOnEditCommit(e -> {
+            e.getRowValue().setEmail(e.getNewValue());
+            triggerUpdate();
+        });
         cbSelectAll.setOnAction(e -> tvPersonnel.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
 
@@ -149,7 +153,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         super.setupValueChangedListeners();
         listChanged.addListener((ob, ov, nv) -> {
             tvPersonnel.getItems().stream()
-                    .filter(FOSAPersonnelInfoViewModel::isSelected)
+                    .filter(PersonnelInfoViewModel::isSelected)
                     .forEach(selectedItems::add);
             tvPersonnel.getItems().stream()
                     .filter(vm -> !vm.isSelected())
@@ -159,14 +163,14 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         });
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var vms = nv.stream()
-                    .map(FOSAPersonnelInfoViewModel::new)
+                    .map(PersonnelInfoViewModel::new)
                     .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getPersonnelInfo(), vm.getPersonnelInfo()))))
                     .peek(vm -> vm.hasCivilStatusTrainingProperty().addListener((oob, oov, nnv) -> triggerUpdate()))
                     .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                     .toList();
             tvPersonnel.getItems().setAll(vms);
         });
-        selectedItems.addListener((SetChangeListener<FOSAPersonnelInfoViewModel>) c -> {
+        selectedItems.addListener((SetChangeListener<PersonnelInfoViewModel>) c -> {
             final var selectionSize = c.getSet().size();
             final var itemsSize = tvPersonnel.getItems().size();
 
@@ -196,6 +200,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         tcNames.textProperty().bind(field.nameColumnLabelProperty());
         tcRole.textProperty().bind(field.roleColumnLabelProperty());
         tcPhone.textProperty().bind(field.phoneColumnLabelProperty());
+        tcEmail.textProperty().bind(field.emailColumnLabelProperty());
         tcGender.textProperty().bind(field.genderColumnLabelProperty());
         tcAge.textProperty().bind(field.ageColumnLabelProperty());
         tcEducationLevel.textProperty().bind(field.educationLevelColumnLabelProperty());
@@ -211,6 +216,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         tcEducationLevel.editableProperty().bind(field.editableProperty());
         tvPersonnel.editableProperty().bind(field.editableProperty());
         tcComputerKnowledge.editableProperty().bind(field.editableProperty());
+        tcEmail.editableProperty().bind(field.editableProperty());
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -221,8 +227,8 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
                 Optional.ofNullable(field.getValue())
                         .stream()
                         .flatMap(Collection::stream)
-                        .map(FOSAPersonnelInfoViewModel::new)
-                        .peek(vm -> vm.selectedProperty().addListener(FOSAPersonnelInfoControl.this::onItemSelectionStatusChanged))
+                        .map(PersonnelInfoViewModel::new)
+                        .peek(vm -> vm.selectedProperty().addListener(PersonnelInfoControl.this::onItemSelectionStatusChanged))
                         .toList()
         );
 
@@ -274,7 +280,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         tcRole.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         tcRole.setCellValueFactory(param -> param.getValue().roleProperty());
 
-        tcNames.setCellFactory(param -> new TextField2TableCell<>(new DefaultStringConverter()));
+        tcNames.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
         tcNames.setCellValueFactory(param -> param.getValue().namesProperty());
 
         tcHasCSTraining.setCellFactory(param -> new CheckBoxTableCell<>(index -> {
@@ -287,6 +293,10 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
             final var value = param.getTableView().getItems().get(index);
             return value.selectedProperty();
         }));
+
+        tcEmail.setCellValueFactory(param -> param.getValue().emailProperty());
+        tcEmail.setCellFactory(param -> new TextFieldTableCell<>(new DefaultStringConverter()));
+
         tcSelection.setCellValueFactory(param -> param.getValue().selectedProperty());
         tcSelection.setStyle("-fx-alignment: CENTER;");
         tcSelection.setSortable(false);
@@ -313,6 +323,7 @@ public class FOSAPersonnelInfoControl extends SimpleControl<PersonnelInfoField> 
         tcRole = new TableColumn<>();
         tcHasCSTraining = new TableColumn<>();
         tcGender = new TableColumn<>();
+        tcEmail = new TableColumn<>();
         tcAge = new TableColumn<>();
         tcEducationLevel = new TableColumn<>();
         tcComputerKnowledge = new TableColumn<>();

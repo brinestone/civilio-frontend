@@ -185,6 +185,7 @@ public class FOSAFormDataManager extends FormDataManager {
 
             if (Objects.equals(nv, updatesEntry.getOldValue()))
                 updates.remove(field);
+            System.out.println(updates);
         });
     }
 
@@ -522,8 +523,10 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     @Override
-    public Collection<UpdateSpec> getUpdates() {
-        return updates.values();
+    public Collection<UpdateSpec> getPendingUpdates() {
+        return updates.values().stream()
+                .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
+                .toList();
     }
 
     @Override
@@ -629,6 +632,26 @@ public class FOSAFormDataManager extends FormDataManager {
                     Integer.class;
             default -> null;
         };
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    protected Object serializeValue(Object deserialized) {
+        if (deserialized instanceof LocalDate l) {
+            return java.sql.Date.from(l.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+        } else if (deserialized instanceof Option) {
+            final var value = ((Option) deserialized).value();
+            return serializeValue(value);
+        } else if (deserialized instanceof Collection c) {
+            return c.stream()
+                    .map(this::serializeValue)
+                    .toList();
+        } else if (deserialized instanceof Boolean)
+            return ((Boolean) deserialized) ? "1" : "2";
+        else if (deserialized instanceof GeoPoint g)
+            return "%f %f %f %f".formatted(g.getLatitude(), g.getLongitude(), g.getAltitude(), g.getAccuracy());
+        else if (deserialized == null) return null;
+        return String.valueOf(deserialized);
     }
 
     @Override

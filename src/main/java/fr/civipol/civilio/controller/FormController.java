@@ -131,14 +131,13 @@ public abstract class FormController implements AppController {
         getExecutorService().submit(() -> {
             try {
                 doSubmit();
-                Platform.runLater(() -> {
-                    setSubmitting(false);
-                    Optional.ofNullable(onSubmit)
-                            .ifPresent(c -> c.accept(submissionId.get()));
-                });
+                Platform.runLater(() -> Optional.ofNullable(onSubmit)
+                        .ifPresent(c -> c.accept(submissionId.get())));
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
                 showErrorAlert(t.getLocalizedMessage());
+            } finally {
+                Platform.runLater(() -> setSubmitting(false));
             }
         });
     }

@@ -4,7 +4,10 @@ import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.image.Image;
+import javafx.stage.Stage;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -15,6 +18,7 @@ public interface AppController {
     default void showErrorAlert(String message) {
         Platform.runLater(() -> {
             final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
+            ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(Objects.requireNonNull(AppController.class.getResourceAsStream("/img/Logo32x32.png"))));
             alert.setHeaderText(message);
             alert.showAndWait();
         });
@@ -22,6 +26,7 @@ public interface AppController {
 
     default Optional<Boolean> showConfirmationDialog(String message) {
         final var alert = new Alert(Alert.AlertType.CONFIRMATION, null, ButtonType.YES, ButtonType.NO);
+        ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(Objects.requireNonNull(AppController.class.getResourceAsStream("/img/Logo32x32.png"))));
         alert.setHeaderText(message);
         return alert.showAndWait()
                 .map(bt -> bt.getButtonData().equals(ButtonBar.ButtonData.YES))
