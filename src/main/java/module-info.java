@@ -8,7 +8,6 @@ module fr.civipol.civilio {
     requires jakarta.inject;
     requires java.compiler;
     requires java.prefs;
-    requires java.net.http;
     requires org.apache.commons.lang3;
     requires org.kordamp.ikonli.javafx;
     requires com.dlsc.preferencesfx;
@@ -23,6 +22,7 @@ module fr.civipol.civilio {
     requires annotations;
     requires java.sql;
     requires com.zaxxer.hikari;
+    requires java.management;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;
@@ -35,6 +35,9 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.form.field to javafx.fxml;
     opens fr.civipol.civilio.form.control.fosa to javafx.fxml, javafx.web;
     opens fr.civipol.civilio.domain.viewmodel to javafx.fxml;
+    opens fr.civipol.civilio.domain.filter to javafx.fxml;
+    opens fr.civipol.civilio.domain.converter to javafx.fxml;
+    opens fr.civipol.civilio.form to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -52,5 +55,7 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.domain.viewmodel;
     exports fr.civipol.civilio.services;
     exports fr.civipol.civilio.domain.filter;
-    opens fr.civipol.civilio.domain.filter to javafx.fxml;
+    exports fr.civipol.civilio.form;
+    exports fr.civipol.civilio.domain.converter;
+    exports fr.civipol.civilio.util;
 }

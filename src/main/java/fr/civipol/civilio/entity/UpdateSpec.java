@@ -1,4 +1,11 @@
 package fr.civipol.civilio.entity;
 
-public record UpdateSpec(String field, Object newValue, Object oldValue) {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class UpdateSpec {
+    private String field;
+    private Object newValue, oldValue;
 }

@@ -1,4 +1,4 @@
-package fr.civipol.civilio.domain;
+package fr.civipol.civilio.domain.converter;
 
 import javafx.util.StringConverter;
 import lombok.RequiredArgsConstructor;

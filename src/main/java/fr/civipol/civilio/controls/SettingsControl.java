@@ -6,7 +6,6 @@ import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
 import com.dlsc.formsfx.model.validators.StringLengthValidator;
 import com.dlsc.preferencesfx.PreferencesFx;
-import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.formsfx.view.controls.SimplePasswordControl;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
@@ -14,7 +13,6 @@ import com.dlsc.preferencesfx.model.Setting;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.event.EventBus;
-import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import fr.civipol.civilio.services.ConfigManager;
 import jakarta.inject.Inject;
 import javafx.beans.property.*;
@@ -23,9 +21,11 @@ import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -111,22 +111,10 @@ public class SettingsControl implements AppControl, StorageHandler {
                 )
         ).i18n(ts);
 
-        prefs.addEventHandler(PreferencesFxEvent.EVENT_PREFERENCES_SAVED, this::onPrefsSaved);
         prefs.dialogIcon(new Image(Objects.requireNonNull(SettingsControl.class.getResourceAsStream("/img/Logo32x32.png"))));
         prefs.dialogTitle(rbs.getString("settings.title"));
         prefs.getStylesheets().add(Objects.requireNonNull(SettingsControl.class.getResource("/styles/root.css")).toExternalForm());
         return prefs;
-    }
-
-    private void onPrefsSaved(PreferencesFxEvent preferencesFxEvent) {
-        final var prefKeys = List.of(MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_ENDPOINT, LANGUAGE_SETTING_FIELD_KEY);
-        for (var key : prefKeys) {
-            System.setProperty(key, Optional.ofNullable(prefs.get(key, null))
-                    .filter(StringUtils::isNotBlank)
-                    .filter(s -> !s.equalsIgnoreCase("null"))
-                    .orElse(""));
-        }
-        eventBus.publish(new SettingsUpdatedEvent());
     }
 
     @Override

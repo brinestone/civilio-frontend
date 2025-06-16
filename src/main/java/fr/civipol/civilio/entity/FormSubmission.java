@@ -19,13 +19,16 @@ public class FormSubmission implements Comparable<FormSubmission> {
     private String validationStatus;
     @FilterField(dbFieldName ="q14_02_validation_code", labelKey = "filters.validation.code")
     private String validationCode;
-    @FilterField(dbFieldName = "_submit", labelKey = "filters.submitted_at.region.title")
+    @FilterField(dbFieldName = "q1_01_region", labelKey = "filters.submitted_at.region.title")
     private String region;
     @FilterField(dbFieldName = "_submitted_by", labelKey = "filters.user.recorded_by.title")
     private String submittedBy;
     @FilterField(dbFieldName = "_submission_time", labelKey = "filters.recorded_on.title")
     private Date submittedOn;
-
+    @FilterField(dbFieldName = "_index", labelKey = "filters.index.title")
+    private String index;
+    @FilterField(dbFieldName = "q1_12_officename", labelKey = "filters.facility_name.title")
+    private String facilityName;
     @Override
     public int compareTo(@NotNull FormSubmission o) {
         return o.getId().compareTo(getId());

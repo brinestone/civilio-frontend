@@ -17,6 +17,19 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
     private static final String ALTITUDE_LABEL = "controls.gps.alt";
     private final StringProperty latitudeLabel, longitudeLabel, accuracyLabel, altitude;
 
+    /**
+     * Internal constructor for the {@code DataField} class. To create new
+     * elements, see the static factory methods in {@code Field}.
+     *
+     * @param valueProperty           The property that is used to store the current valid value
+     *                                of the field.
+     * @param persistentValueProperty The property that is used to store the latest persisted
+     *                                value of the field.
+     * @see Field::ofStringType
+     * @see Field::ofIntegerType
+     * @see Field::ofDoubleType
+     * @see Field::ofBooleanType
+     */
     protected GeoPointField(ObjectProperty<GeoPoint> valueProperty, ObjectProperty<GeoPoint> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
         latitudeLabel = new SimpleStringProperty(this, "latLabel", LAT_LABEL);
@@ -24,6 +37,7 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
         accuracyLabel = new SimpleStringProperty(this, "accLabel", ACC_LABEL);
         altitude = new SimpleStringProperty(this, "altLabel", ALTITUDE_LABEL);
     }
+
 
     @Override
     public void translate(TranslationService service) {
@@ -50,8 +64,11 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
         return altitude;
     }
 
-    public static Field<GeoPointField> gpsField(GeoPoint loc) {
-        return new GeoPointField(new SimpleObjectProperty<>(loc), new SimpleObjectProperty<>())
+    public static Field<GeoPointField> gpsField(ObjectProperty<GeoPoint> binding) {
+        final var prop = new SimpleObjectProperty<>(binding.getValue());
+        binding.addListener((ob, ov, nv) -> prop.setValue(nv));
+
+        return new GeoPointField(prop, binding)
                 .render(GeoPointPickerControl::new);
     }
 }

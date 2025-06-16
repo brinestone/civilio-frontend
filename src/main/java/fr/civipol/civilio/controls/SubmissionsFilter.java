@@ -7,6 +7,7 @@ import com.dlsc.formsfx.view.renderer.FormRenderer;
 import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.User;
 import fr.civipol.civilio.form.field.FilterManagerField;
+import fr.civipol.civilio.form.field.Option;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -16,7 +17,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class SubmissionsFilter {
     private final ListProperty<User> users = new SimpleListProperty<>();
@@ -37,7 +41,7 @@ public class SubmissionsFilter {
         activeFilters = Bindings.size(filterManager.conditionsProperty()).asObject();
     }
 
-    private Collection<FilterManagerField.Option> getFilterOptions(String key) {
+    private Collection<Option> getFilterOptions(String key) {
         return Collections.emptyList();
     }
 

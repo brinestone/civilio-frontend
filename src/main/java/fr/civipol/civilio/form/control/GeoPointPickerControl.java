@@ -68,6 +68,7 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
         spLatitude.setEditable(true);
         spLongitude.setEditable(true);
         spAccuracy.setEditable(true);
+        mapView.setContextMenuEnabled(false);
     }
 
     @Override
@@ -126,13 +127,25 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
         viewModel.latitudeProperty().addListener((ob, ov, nv) -> {
             if (inboundChange) return;
 
-            webEngine.executeScript(String.format("moveMarker(%f, %f, true)", nv.doubleValue(), viewModel.getLongitude()));
+            if (webEngine.getLoadWorker().isRunning()) {
+                webEngine.getLoadWorker().stateProperty().addListener((oob, oov, nnv) -> {
+                    if (nnv != Worker.State.SUCCEEDED) return;
+                    webEngine.executeScript("moveMarker(%f, %f, true)".formatted(nv.doubleValue(), viewModel.getLongitude()));
+                });
+            } else
+                webEngine.executeScript("moveMarker(%f, %f, true)".formatted(nv.doubleValue(), viewModel.getLongitude()));
         });
 
         viewModel.longitudeProperty().addListener((ob, ov, nv) -> {
             if (inboundChange) return;
 
-            webEngine.executeScript(String.format("moveMarker(%f, %f, true)", viewModel.getLatitude(), nv.doubleValue()));
+            if (webEngine.getLoadWorker().isRunning()) {
+                webEngine.getLoadWorker().stateProperty().addListener((oob, oov, nnv) -> {
+                    if (nnv != Worker.State.SUCCEEDED) return;
+                    webEngine.executeScript("moveMarker(%f, %f, true)".formatted(viewModel.getLatitude(), nv.doubleValue()));
+                });
+            } else
+                webEngine.executeScript("moveMarker(%f, %f, true)".formatted(viewModel.getLatitude(), nv.doubleValue()));
         });
     }
 
