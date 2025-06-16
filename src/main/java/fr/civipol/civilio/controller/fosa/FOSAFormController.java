@@ -122,7 +122,10 @@ public class FOSAFormController extends FormController implements Initializable 
 
     @Override
     protected final void doSubmit() throws SQLException {
-        formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(UpdateSpec[]::new));
+        final var dropped = formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(UpdateSpec[]::new));
+        if (dropped.isEmpty()) return;
+        log.info("Dropped updates");
+        log.info(dropped.toString());
     }
 
 
@@ -460,7 +463,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                         .label("fosa.form.fields.creation_date.title")
                                         .validate(CustomValidator.forPredicate(d -> d == null || today.isEqual(d) || today.isAfter(d), "fosa.form.msg.value_out_of_range"))
                                         .format(localDateStringConverter, "fosa.form.msg.invalid_value")
-                                        .render(new SimpleDateControl(){
+                                        .render(new SimpleDateControl() {
                                             @Override
                                             public void initializeParts() {
                                                 super.initializeParts();

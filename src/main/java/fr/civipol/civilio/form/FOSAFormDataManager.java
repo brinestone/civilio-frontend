@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -185,7 +186,6 @@ public class FOSAFormDataManager extends FormDataManager {
 
             if (Objects.equals(nv, updatesEntry.getOldValue()))
                 updates.remove(field);
-            System.out.println(updates);
         });
     }
 
@@ -199,7 +199,6 @@ public class FOSAFormDataManager extends FormDataManager {
                 entry.setNewValue(v);
                 if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
                     updates.remove(k);
-                System.out.println(updates);
             };
             while (c.next()) {
                 if (c.wasAdded()) {
@@ -352,7 +351,6 @@ public class FOSAFormDataManager extends FormDataManager {
             entry.setNewValue(v);
             if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
                 updates.remove(k);
-            System.out.println(updates);
         };
         for (var i = 0; i < personnelInfo.size(); i++) {
             final var info = personnelInfo.get(i);
@@ -638,7 +636,7 @@ public class FOSAFormDataManager extends FormDataManager {
     @SuppressWarnings("rawtypes")
     protected Object serializeValue(Object deserialized) {
         if (deserialized instanceof LocalDate l) {
-            return java.sql.Date.from(l.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+            return java.sql.Date.valueOf(l);
         } else if (deserialized instanceof Option) {
             final var value = ((Option) deserialized).value();
             return serializeValue(value);

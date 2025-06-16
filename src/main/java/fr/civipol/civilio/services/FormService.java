@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.sql.DataSource;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -92,8 +93,9 @@ public class FormService implements AppService {
         }
     }
 
-    public void updateSubmission(String id, UpdateSpec... updates) throws SQLException {
-        if (updates.length == 0) return;
+    public Collection<UpdateSpec> updateSubmission(String id, UpdateSpec... updates) throws SQLException {
+        final var droppedUpdates = new ArrayList<UpdateSpec>();
+        if (updates.length == 0) return droppedUpdates;
         final var dataSource = this.dataSourceProvider.get();
         try (final var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
@@ -119,11 +121,16 @@ public class FormService implements AppService {
                 }
             }
             final var setClauses = filteredUpdates.stream()
-                    .map(spec -> "SET %s = ?".formatted(spec.getField()))
+                    .map(spec -> "%s = ?".formatted(spec.getField()))
                     .collect(Collectors.joining(",\n"));
+            Arrays.stream(updates).forEach(u -> {
+                if (filteredUpdates.stream().noneMatch(uu -> uu.getField().contains(u.getField())))
+                    droppedUpdates.add(u);
+            });
+            if (setClauses.isEmpty()) return droppedUpdates;
             final var sql = """
                     UPDATE data1
-                    %s
+                    SET %s
                     WHERE _id = ?;
                     """.formatted(setClauses);
             try (final var st = connection.prepareStatement(sql)) {
@@ -133,6 +140,8 @@ public class FormService implements AppService {
                     final var index = i + 1;
                     if (update.getNewValue() instanceof Date d)
                         st.setDate(index, d);
+                    else if (update.getNewValue() instanceof java.util.Date d)
+                        st.setDate(index, Date.valueOf(DateTimeFormatter.ISO_DATE.format(d.toInstant())));
                     else
                         st.setObject(index, update.getNewValue());
                 }
@@ -140,6 +149,7 @@ public class FormService implements AppService {
             }
             connection.commit();
         }
+        return droppedUpdates;
     }
 
     public void deleteSubmissions(String... ids) throws SQLException {

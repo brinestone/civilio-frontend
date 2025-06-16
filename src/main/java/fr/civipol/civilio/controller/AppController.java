@@ -15,6 +15,15 @@ import java.util.Optional;
  * in Dagger's dependency injection.
  */
 public interface AppController {
+    default void showAlert(String message, Alert.AlertType type) {
+        Platform.runLater(() -> {
+            final var alert = new Alert(type, null, ButtonType.OK);
+            ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image(Objects.requireNonNull(AppController.class.getResourceAsStream("/img/Logo32x32.png"))));
+            alert.setHeaderText(message);
+            alert.showAndWait();
+        });
+    }
+
     default void showErrorAlert(String message) {
         Platform.runLater(() -> {
             final var alert = new Alert(Alert.AlertType.ERROR, null, ButtonType.OK);
