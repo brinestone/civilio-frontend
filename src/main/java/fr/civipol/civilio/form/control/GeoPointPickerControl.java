@@ -3,6 +3,7 @@ package fr.civipol.civilio.form.control;
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.viewmodel.GeoPointViewModel;
 import fr.civipol.civilio.form.field.GeoPointField;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.concurrent.Worker;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -53,6 +54,11 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
     private WebEngine webEngine;
     private JsAgent jsAgent;
     private boolean inboundChange;
+    private final NotifyCallback updateTrigger;
+
+    public GeoPointPickerControl(NotifyCallback updateTrigger) {
+        this.updateTrigger = updateTrigger;
+    }
 
     private Node wrapSpinner(Spinner<Float> spinner, Label label) {
         final var box = new VBox();
@@ -132,8 +138,9 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
                     if (nnv != Worker.State.SUCCEEDED) return;
                     webEngine.executeScript("moveMarker(%f, %f, true)".formatted(nv.doubleValue(), viewModel.getLongitude()));
                 });
-            } else
+            } else {
                 webEngine.executeScript("moveMarker(%f, %f, true)".formatted(nv.doubleValue(), viewModel.getLongitude()));
+            }
         });
 
         viewModel.longitudeProperty().addListener((ob, ov, nv) -> {
@@ -147,6 +154,11 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
             } else
                 webEngine.executeScript("moveMarker(%f, %f, true)".formatted(viewModel.getLatitude(), nv.doubleValue()));
         });
+
+        viewModel.latitudeProperty().addListener((ob, ov, nv) -> updateTrigger.call());
+        viewModel.longitudeProperty().addListener((ob, ov, nv) -> updateTrigger.call());
+        viewModel.accuracyProperty().addListener((ob, ov, nv) -> updateTrigger.call());
+        viewModel.altitudeProperty().addListener((ob, ov, nv) -> updateTrigger.call());
     }
 
     private void unbindDynamicBindings() {
@@ -217,9 +229,9 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
         webEngine = mapView.getEngine();
         mapContainer = new StackPane();
         spAccuracy = new Spinner<>(new ConfigurableSpinnerValueFactory(0.0f, Float.MAX_VALUE, 100f));
-        spLongitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-180f, 180f));
+        spLongitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-180f, 180f, 11.4661458f));
         spAltitude = new Spinner<>(new ConfigurableSpinnerValueFactory(0f, 8_848f));
-        spLatitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-90.0f, 90.0f));
+        spLatitude = new Spinner<>(new ConfigurableSpinnerValueFactory(-90.0f, 90.0f, 3.8542679f));
         viewModel = new GeoPointViewModel(field.getValue());
         jsAgent = new JsAgent();
     }

@@ -78,7 +78,7 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService, PingService pingService) {
+    public Set<AppService> authService(AuthService authService, FormDataService formService, UserService userService, PingService pingService) {
         return Set.of(authService, formService, userService, pingService);
     }
 

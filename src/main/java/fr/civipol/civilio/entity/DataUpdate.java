@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UpdateSpec {
+public class DataUpdate {
     private String field;
     private Object newValue, oldValue;
 }

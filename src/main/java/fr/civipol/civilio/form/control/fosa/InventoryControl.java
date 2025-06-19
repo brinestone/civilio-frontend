@@ -3,9 +3,9 @@ package fr.civipol.civilio.form.control.fosa;
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
-import fr.civipol.civilio.domain.viewmodel.FOSAInventoryEntryViewModel;
+import fr.civipol.civilio.domain.viewmodel.InventoryEntryViewModel;
 import fr.civipol.civilio.entity.InventoryEntry;
-import fr.civipol.civilio.form.field.FOSAInventoryField;
+import fr.civipol.civilio.form.field.InventoryField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,17 +25,17 @@ import org.controlsfx.control.tableview2.cell.TextField2TableCell;
 
 import java.util.Optional;
 
-public class FOSAInventoryControl extends SimpleControl<FOSAInventoryField> {
+public class InventoryControl extends SimpleControl<InventoryField> {
     private Label fieldLabel;
     private final BooleanProperty listChanged = new SimpleBooleanProperty(this, "listChanged", false);
-    private TableView<FOSAInventoryEntryViewModel> tvInventoryEntries;
-    private TableColumn<FOSAInventoryEntryViewModel, String> tcEquipment;
-    private TableColumn<FOSAInventoryEntryViewModel, Integer> tcQuantity;
-    private TableColumn<FOSAInventoryEntryViewModel, Boolean> tcSelection;
+    private TableView<InventoryEntryViewModel> tvInventoryEntries;
+    private TableColumn<InventoryEntryViewModel, String> tcEquipment;
+    private TableColumn<InventoryEntryViewModel, Integer> tcQuantity;
+    private TableColumn<InventoryEntryViewModel, Boolean> tcSelection;
     private Button btnRemoveSelection, btnAddRow;
     private HBox actionBar;
     private CheckBox cbSelectAll;
-    private ObservableSet<FOSAInventoryEntryViewModel> selectedItems;
+    private ObservableSet<InventoryEntryViewModel> selectedItems;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -80,7 +80,7 @@ public class FOSAInventoryControl extends SimpleControl<FOSAInventoryField> {
         super.setupValueChangedListeners();
         listChanged.addListener((ob, ov, nv) -> {
             tvInventoryEntries.getItems().stream()
-                    .filter(FOSAInventoryEntryViewModel::isSelected)
+                    .filter(InventoryEntryViewModel::isSelected)
                     .forEach(selectedItems::add);
             tvInventoryEntries.getItems().stream()
                     .filter(vm -> !vm.isSelected())
@@ -90,13 +90,13 @@ public class FOSAInventoryControl extends SimpleControl<FOSAInventoryField> {
         });
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var vms = nv.stream()
-                    .map(FOSAInventoryEntryViewModel::new)
+                    .map(InventoryEntryViewModel::new)
                     .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getEntry(), vm.getEntry()))))
                     .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                     .toList();
             tvInventoryEntries.getItems().setAll(vms);
         });
-        selectedItems.addListener((SetChangeListener<FOSAInventoryEntryViewModel>) c -> {
+        selectedItems.addListener((SetChangeListener<InventoryEntryViewModel>) c -> {
             final var selectionSize = c.getSet().size();
             final var itemsSize = tvInventoryEntries.getItems().size();
 
@@ -128,7 +128,7 @@ public class FOSAInventoryControl extends SimpleControl<FOSAInventoryField> {
         tvInventoryEntries.getItems().setAll(
                 Optional.ofNullable(field.getValue())
                         .stream()
-                        .flatMap(c -> c.stream().map(FOSAInventoryEntryViewModel::new))
+                        .flatMap(c -> c.stream().map(InventoryEntryViewModel::new))
                         .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                         .toList()
         );

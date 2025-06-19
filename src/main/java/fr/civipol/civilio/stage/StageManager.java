@@ -26,12 +26,14 @@ import java.util.stream.Stream;
 @Slf4j
 public class StageManager {
     private final AuthService authService;
+    private final ResourceBundle rbs = ResourceBundle.getBundle("messages");
     private final ViewLoader viewLoader;
     private final Lazy<SettingsControl> settingsControlProvider;
     @org.jetbrains.annotations.NotNull
     private final EventBus eventBus;
     private final Lazy<ConfigManager> configManager;
     private NotificationPane notificationPane;
+    private final Action restartAction = new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked);
 
     @Inject
     public StageManager(
@@ -45,13 +47,41 @@ public class StageManager {
         this.viewLoader = viewLoader;
         this.eventBus = eventBus;
         this.configManager = configManager;
-        eventBus.subscribe(StageReadyEvent.class, this::onReady);
-        eventBus.subscribe(SettingsUpdatedEvent.class, this::onSettingsChanged);
-        eventBus.subscribe(RestartPendingEvent.class, this::onRestartPending);
+        eventBus.subscribe(StageReadyEvent.class, (e) -> {
+            if (Platform.isFxApplicationThread())
+                onReady(e);
+            else Platform.runLater(() -> onReady(e));
+        });
+        eventBus.subscribe(SettingsUpdatedEvent.class, (e) -> {
+            if (Platform.isFxApplicationThread())
+                onSettingsChanged(e);
+            else Platform.runLater(() -> onSettingsChanged(e));
+        });
+        eventBus.subscribe(RestartPendingEvent.class, (e) -> {
+            if (Platform.isFxApplicationThread())
+                onRestartPending(e);
+            else Platform.runLater(() -> onRestartPending(e));
+        });
+        eventBus.subscribe(ToastEvent.class, (e) -> {
+            if (Platform.isFxApplicationThread())
+                onToastMessage(e);
+            else Platform.runLater(() -> onToastMessage(e));
+        });
+    }
+
+    private void onToastMessage(ToastEvent t) {
+        notificationPane.setText(t.message());
+        if (t.actions().length == 0)
+            notificationPane.getActions().setAll(new Action(rbs.getString("msg.ok"), __ -> {
+            }));
+        else notificationPane.getActions().setAll(t.actions());
+        notificationPane.show();
     }
 
     private void onRestartPending(RestartPendingEvent ignored) {
-        Platform.runLater(notificationPane::show);
+        notificationPane.setText(rbs.getString("msg.restart_notice"));
+        notificationPane.getActions().setAll(restartAction);
+        notificationPane.show();
     }
 
     private void onSettingsChanged(SettingsUpdatedEvent ignored) {
@@ -61,12 +91,10 @@ public class StageManager {
     private void onReady(StageReadyEvent event) {
         final var stage = event.getStage();
         notificationPane = new NotificationPane();
-        final var rbs = ResourceBundle.getBundle("messages");
         notificationPane.setText(rbs.getString("msg.restart_notice"));
         notificationPane.setCloseButtonVisible(false);
         notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
-        notificationPane.getActions().add(
-                new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked));
+        notificationPane.getActions().setAll(restartAction);
 
         try {
             if (!configurationValid()) {
@@ -98,14 +126,14 @@ public class StageManager {
     private boolean configurationValid() {
         final var configManager = this.configManager.get();
         return Stream.of(
-                configManager.loadObject(Constants.DB_HOST_KEY, String.class),
-                configManager.loadObject(Constants.DB_PORT_KEY, String.class),
-                configManager.loadObject(Constants.DB_NAME_KEY, String.class),
-                configManager.loadObject(Constants.DB_USER_KEY, String.class),
-                configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
-                configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
-                configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
-                configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class))
+                        configManager.loadObject(Constants.DB_HOST_KEY, String.class),
+                        configManager.loadObject(Constants.DB_PORT_KEY, String.class),
+                        configManager.loadObject(Constants.DB_NAME_KEY, String.class),
+                        configManager.loadObject(Constants.DB_USER_KEY, String.class),
+                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
+                        configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
+                        configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
+                        configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class))
                 .map(o -> o.filter(StringUtils::isNotBlank))
                 .allMatch(Optional::isPresent);
     }

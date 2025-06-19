@@ -5,6 +5,7 @@ import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.form.control.GeoPointPickerControl;
+import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -64,11 +65,11 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
         return altitude;
     }
 
-    public static Field<GeoPointField> gpsField(ObjectProperty<GeoPoint> binding) {
+    public static Field<GeoPointField> gpsField(ObjectProperty<GeoPoint> binding, NotifyCallback callback) {
         final var prop = new SimpleObjectProperty<>(binding.getValue());
         binding.addListener((ob, ov, nv) -> prop.setValue(nv));
 
         return new GeoPointField(prop, binding)
-                .render(GeoPointPickerControl::new);
+                .render(new GeoPointPickerControl(callback));
     }
 }

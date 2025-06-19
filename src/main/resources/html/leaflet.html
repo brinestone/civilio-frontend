@@ -65,12 +65,8 @@
 
     function initMarker() {
         try {
-            const pageUrl = new URL(location.href);
-            const [lat, lon, alt] = (pageUrl.searchParams.get('at') ?? '3.8542679,11.4661458').split(',');
-            const coords = [Number(lat), Number(lon)];
-            if (alt) {
-                coords.push(Number(alt));
-            }
+            const coords = [3.8542679, 11.4661458];
+
             const latLng = L.latLng(coords);
             marker = L.marker(latLng);
             marker.addTo(map);
@@ -85,7 +81,6 @@
     function initTileLayer() {
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            minZoom: 5,
         }).addTo(map);
 
         const leafletAnchor = document.querySelector('a[href="https://leafletjs.com"]');
