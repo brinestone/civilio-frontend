@@ -4,11 +4,8 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoMap;
 import dagger.multibindings.LazyClassKey;
-import fr.civipol.civilio.controller.AppController;
-import fr.civipol.civilio.controller.LoginController;
-import fr.civipol.civilio.controller.ShellController;
+import fr.civipol.civilio.controller.*;
 import fr.civipol.civilio.controller.fosa.FOSAFormController;
-import fr.civipol.civilio.controller.SubmissionsController;
 
 @Module()
 public class ControllerModule {
@@ -39,5 +36,19 @@ public class ControllerModule {
     @LazyClassKey(LoginController.class)
     public AppController loginController(LoginController loginController) {
         return loginController;
+    }
+
+    @Provides
+    @IntoMap
+    @LazyClassKey(FormHeaderController.class)
+    public AppController formHeaderController(FormHeaderController formHeaderController) {
+        return formHeaderController;
+    }
+
+    @Provides
+    @IntoMap
+    @LazyClassKey(FormFooterController.class)
+    public AppController formFooterController(FormFooterController formHeaderController) {
+        return formHeaderController;
     }
 }

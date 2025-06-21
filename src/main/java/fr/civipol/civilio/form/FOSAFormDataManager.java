@@ -1,26 +1,27 @@
 package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.entity.UpdateSpec;
 import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.field.Option;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
+import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -80,7 +81,6 @@ public class FOSAFormDataManager extends FormDataManager {
     public static final String FOSA_BIKE_COUNT_FIELD = "q9_11_mopeds";
     public static final String FOSA_KEY_PERSONNEL_COUNT_FIELD = "q11_01_employees_at_site";
     private static final String FOSA_PERSONNEL_INFO_KEY_PREFIX = "personnel_info_";
-
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
@@ -107,7 +107,6 @@ public class FOSAFormDataManager extends FormDataManager {
             carCount,
             bikeCount;
     private final OptionSource optionSource;
-    private final ObservableMap<String, UpdateSpec> updates = FXCollections.observableHashMap();
     private boolean trackingUpdates = false;
 
     public FOSAFormDataManager(
@@ -174,19 +173,7 @@ public class FOSAFormDataManager extends FormDataManager {
         personnelInfoMap = new SimpleMapProperty<>(this, "personnelInfo_", FXCollections.observableHashMap());
         vitalCSCStatsValue = new SimpleListProperty<>(this, "vitalCSCStatsValue", FXCollections.observableArrayList());
 
-        setupBindings();
         setupChangeListeners();
-    }
-
-    private void trackUpdatesForField(String field) {
-        final var property = getPropertyFor(field);
-        property.addListener((ob, ov, nv) -> {
-            final var updatesEntry = updates.computeIfAbsent(field, k -> new UpdateSpec(k, nv, ov));
-            updatesEntry.setNewValue(nv);
-
-            if (Objects.equals(nv, updatesEntry.getOldValue()))
-                updates.remove(field);
-        });
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -195,7 +182,7 @@ public class FOSAFormDataManager extends FormDataManager {
             var index = (String) valueSource.apply("_index");
             final var format = "personnel_info_%d_" + index + "_%s";
             BiConsumer<String, Object> fn = (k, v) -> {
-                final var entry = updates.computeIfAbsent(k, kk -> new UpdateSpec(kk, null, v));
+                final var entry = updates.computeIfAbsent(k, kk -> new DataUpdate(kk, null, v));
                 entry.setNewValue(v);
                 if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
                     updates.remove(k);
@@ -254,9 +241,9 @@ public class FOSAFormDataManager extends FormDataManager {
                         final var birthKey = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne");
                         final var deathKey = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne_1");
                         int finalI = i;
-                        final var yearEntry = updates.computeIfAbsent(yearKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getYear()));
-                        final var birthEntry = updates.computeIfAbsent(birthKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getRegisteredBirths()));
-                        final var deathEntry = updates.computeIfAbsent(deathKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getRegisteredDeaths()));
+                        final var yearEntry = updates.computeIfAbsent(yearKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getYear()));
+                        final var birthEntry = updates.computeIfAbsent(birthKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getRegisteredBirths()));
+                        final var deathEntry = updates.computeIfAbsent(deathKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getRegisteredDeaths()));
 
                         yearEntry.setNewValue(vitalCSCStatsValue.get(i).getYear());
                         birthEntry.setNewValue(vitalCSCStatsValue.get(i).getRegisteredBirths());
@@ -278,8 +265,9 @@ public class FOSAFormDataManager extends FormDataManager {
         });
     }
 
+    @Override
     @SuppressWarnings("DuplicatedCode")
-    private void trackFieldUpdates() {
+    public void trackFieldChanges() {
         if (trackingUpdates) return;
         trackUpdatesForField(FOSA_KEY_PERSONNEL_COUNT_FIELD);
         trackUpdatesForField(FOSA_BIKE_COUNT_FIELD);
@@ -323,18 +311,22 @@ public class FOSAFormDataManager extends FormDataManager {
         trackingUpdates = true;
     }
 
+    public void updateGeoPointUpdates() {
+        final var entry = updates.computeIfAbsent(FOSA_GEO_POINT_FIELD, k -> new DataUpdate(k, null, this.geoPoint.getValue()));
+        entry.setNewValue(this.geoPoint.getValue());
+    }
+
     @SuppressWarnings("DuplicatedCode")
     public void updateTrackedCSCStatsFields() {
-        final var index = (String) valueSource.apply("_index");
         for (var i = 0; i < vitalCSCStatsValue.size(); i++) {
             final var cnt = i == 0 ? "" : "_%d".formatted(i);
             final var yearKey = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "note");
             final var birthKey = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne");
             final var deathKey = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "colonne_1");
             int finalI = i;
-            final var yearEntry = updates.computeIfAbsent(yearKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getYear()));
-            final var birthEntry = updates.computeIfAbsent(birthKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getRegisteredBirths()));
-            final var deathEntry = updates.computeIfAbsent(deathKey, k -> new UpdateSpec(k, null, vitalCSCStatsValue.get(finalI).getRegisteredDeaths()));
+            final var yearEntry = updates.computeIfAbsent(yearKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getYear()));
+            final var birthEntry = updates.computeIfAbsent(birthKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getRegisteredBirths()));
+            final var deathEntry = updates.computeIfAbsent(deathKey, k -> new DataUpdate(k, null, vitalCSCStatsValue.get(finalI).getRegisteredDeaths()));
 
             yearEntry.setNewValue(vitalCSCStatsValue.get(i).getYear());
             birthEntry.setNewValue(vitalCSCStatsValue.get(i).getRegisteredBirths());
@@ -347,7 +339,7 @@ public class FOSAFormDataManager extends FormDataManager {
         final var index = (String) valueSource.apply("_index");
         final var format = "personnel_info_%d_" + index + "_%s";
         BiConsumer<String, Object> fn = (k, v) -> {
-            final var entry = updates.computeIfAbsent(k, kk -> new UpdateSpec(kk, null, v));
+            final var entry = updates.computeIfAbsent(k, kk -> new DataUpdate(kk, null, v));
             entry.setNewValue(v);
             if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
                 updates.remove(k);
@@ -407,18 +399,12 @@ public class FOSAFormDataManager extends FormDataManager {
         });
         vitalCSCStats.addListener((MapChangeListener<String, VitalCSCStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
         personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo.setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
-    }
-
-    private void setupBindings() {
-    }
-
-    private void loadValue(String field, Object defaultValue) {
-        final var property = getPropertyFor(field);
-        if (property == null)
-            return;
-        final var serializedValue = valueSource.apply(field);
-        final var parsedValue = deserializeValue(serializedValue, field);
-        property.setValue(Optional.ofNullable(parsedValue).orElse(defaultValue));
+        updates.addListener(new MapChangeListener<String, DataUpdate>() {
+            @Override
+            public void onChanged(Change<? extends String, ? extends DataUpdate> change) {
+                System.out.println(updates);
+            }
+        });
     }
 
     private void loadPersonnelInfo() {
@@ -430,7 +416,7 @@ public class FOSAFormDataManager extends FormDataManager {
         }
     }
 
-    private void loadStatsValue() {
+    private void loadVitalStats() {
         for (var i = 0; i < 5; i++) {
             final var cnt = i == 0 ? "" : String.format("_%d", i);
             final var yearField = FOSA_STATS_FIELD_PATTERN.formatted(cnt, "note");
@@ -444,7 +430,8 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void loadValues() {
-        loadStatsValue();
+        super.loadValues();
+        loadVitalStats();
         loadPersonnelInfo();
         loadValue(FOSA_KEY_PERSONNEL_COUNT_FIELD, 0);
         loadValue(FOSA_PC_COUNT_FIELD, 0);
@@ -480,7 +467,6 @@ public class FOSAFormDataManager extends FormDataManager {
         loadOptionValue(FOSA_FACILITY_TYPE_FIELD);
         loadOptionValue(FOSA_STATUS_FIELD);
         loadPowerSources();
-        trackFieldUpdates();
     }
 
     private void loadPowerSources() {
@@ -501,17 +487,21 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void loadOptions(OptionSource optionSource, Runnable callback) {
-        optionSource.get(FORM_ID, "region", null, regions::setAll);
-        optionSource.get(FORM_ID, "vb2qk85", null, environmentTypes::setAll);
-        optionSource.get(FORM_ID, "district", null, districts::setAll);
-        optionSource.get(FORM_ID, "pa9ii12", null, fosaTypes::setAll);
-        optionSource.get(FORM_ID, "qy7we33", null, fosaStatusTypes::setAll);
-        optionSource.get(FORM_ID, "ij2ql10", null, eventRegistrationTypes::setAll);
-        optionSource.get(FORM_ID, "xt53f30", null, emergencyPowerSourceTypes::setAll);
-        optionSource.get(FORM_ID, "zp4ec39", null, waterSourceTypes::setAll);
-        optionSource.get(FORM_ID, "xw39g10", null, genders::setAll);
-        optionSource.get(FORM_ID, "ta2og93", null, educationLevels::setAll);
-        optionSource.get(FORM_ID, "nz2pr56", null, computerKnowledgeLevels::setAll);
+        Function<ObservableList<Option>, Consumer<Collection<Option>>> consumer = list -> v -> {
+            if (Platform.isFxApplicationThread()) list.setAll(v);
+            else Platform.runLater(() -> list.setAll(v));
+        };
+        optionSource.get(FORM_ID, "region", null, consumer.apply(regions));
+        optionSource.get(FORM_ID, "vb2qk85", null, consumer.apply(environmentTypes));
+        optionSource.get(FORM_ID, "district", null, consumer.apply(districts));
+        optionSource.get(FORM_ID, "pa9ii12", null, consumer.apply(fosaTypes));
+        optionSource.get(FORM_ID, "qy7we33", null, consumer.apply(fosaStatusTypes));
+        optionSource.get(FORM_ID, "ij2ql10", null, consumer.apply(eventRegistrationTypes));
+        optionSource.get(FORM_ID, "xt53f30", null, consumer.apply(emergencyPowerSourceTypes));
+        optionSource.get(FORM_ID, "zp4ec39", null, consumer.apply(waterSourceTypes));
+        optionSource.get(FORM_ID, "xw39g10", null, consumer.apply(genders));
+        optionSource.get(FORM_ID, "ta2og93", null, consumer.apply(educationLevels));
+        optionSource.get(FORM_ID, "nz2pr56", null, consumer.apply(computerKnowledgeLevels));
         Optional.ofNullable(callback).ifPresent(Runnable::run);
     }
 
@@ -521,7 +511,7 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     @Override
-    public Collection<UpdateSpec> getPendingUpdates() {
+    public Collection<DataUpdate> getPendingUpdates() {
         return updates.values().stream()
                 .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
                 .toList();
@@ -530,6 +520,7 @@ public class FOSAFormDataManager extends FormDataManager {
     @Override
     @SuppressWarnings("rawtypes,DuplicatedCode")
     public Property getPropertyFor(String id) {
+
         if (id.startsWith("group_ce1sz98_ligne")) {
             return vitalCSCStats;
         } else if (id.endsWith("sources_of_backup_power")) {
@@ -572,7 +563,7 @@ public class FOSAFormDataManager extends FormDataManager {
             case FOSA_TABLET_COUNT_FIELD -> tabletCount;
             case FOSA_CAR_COUNT_FIELD -> carCount;
             case FOSA_BIKE_COUNT_FIELD -> bikeCount;
-            default -> null;
+            default -> super.getPropertyFor(id);
         };
     }
 
@@ -628,28 +619,8 @@ public class FOSAFormDataManager extends FormDataManager {
             case FOSA_CSC_EVENT_REGISTRATIONS, FOSA_WATER_SOURCES_FIELD -> List.class;
             case FOSA_KEY_PERSONNEL_COUNT_FIELD, FOSA_PC_COUNT_FIELD, FOSA_PRINTER_COUNT_FIELD, FOSA_TABLET_COUNT_FIELD, FOSA_CAR_COUNT_FIELD, FOSA_BIKE_COUNT_FIELD ->
                     Integer.class;
-            default -> null;
+            default -> super.getPropertyTypeFor(id);
         };
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected Object serializeValue(Object deserialized) {
-        if (deserialized instanceof LocalDate l) {
-            return java.sql.Date.valueOf(l);
-        } else if (deserialized instanceof Option) {
-            final var value = ((Option) deserialized).value();
-            return serializeValue(value);
-        } else if (deserialized instanceof Collection c) {
-            return c.stream()
-                    .map(this::serializeValue)
-                    .toList();
-        } else if (deserialized instanceof Boolean)
-            return ((Boolean) deserialized) ? "1" : "2";
-        else if (deserialized instanceof GeoPoint g)
-            return "%f %f %f %f".formatted(g.getLatitude(), g.getLongitude(), g.getAltitude(), g.getAccuracy());
-        else if (deserialized == null) return null;
-        return String.valueOf(deserialized);
     }
 
     @Override
@@ -661,13 +632,13 @@ public class FOSAFormDataManager extends FormDataManager {
             else if (raw instanceof Date)
                 return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
-                && raw instanceof String)
+                   && raw instanceof String)
             return getOptionsFor(id).stream()
                     .filter(o -> o.value().equals(raw))
                     .findFirst().orElse(null);
         else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Boolean.class::equals).isPresent()) {
             if (raw instanceof String && ((String) raw).equalsIgnoreCase("true")
-                    || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
+                || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
                 return Boolean.valueOf(((String) raw));
             } else if (("1".equals(raw) || "2".equals(raw)))
                 return "1".equals(raw);
@@ -722,7 +693,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 return property.getValue();
             }
         } else if (raw instanceof String
-                && Optional.ofNullable(getPropertyTypeFor(id)).filter(VitalCSCStat.class::equals).isPresent()) {
+                   && Optional.ofNullable(getPropertyTypeFor(id)).filter(VitalCSCStat.class::equals).isPresent()) {
             final var isYearField = id.endsWith(FOSA_STATS_FIELD_YEAR_SUFFIX);
             final var isBirthField = id.endsWith(FOSA_STATS_FIELD_BIRTH_SUFFIX);
             final var isDeathsField = id.endsWith(FOSA_STATS_FIELD_DEATH_SUFFIX);
@@ -778,7 +749,10 @@ public class FOSAFormDataManager extends FormDataManager {
 
             if (key == null) return personnelInfoMap.getValue();
 
-            final var entry = personnelInfoMap.computeIfAbsent(key, __ -> PersonnelInfo.builder().build());
+            final var entry = personnelInfoMap.computeIfAbsent(key, __ -> PersonnelInfo.builder()
+                    .parentIndex((String) valueSource.apply("_index"))
+                    .parentSubmissionId((String) valueSource.apply("_id"))
+                    .build());
             final var stringValue = String.valueOf(raw);
 
             if (stringValue.matches("^\\d+$") && isAgeField) {

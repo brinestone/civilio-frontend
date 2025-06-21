@@ -1,0 +1,12 @@
+.btn-next {
+    -fx-background-radius: 0 3px 3px 0;
+}
+
+.btn-prev {
+    -fx-background-radius: 3px 0 0 3px;
+}
+
+.tf-index-search {
+    -fx-background-radius: 0;
+    -fx-border-width: 1px 0 1px 0;
+}

@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class LoginController implements AppController {
     //    private final ViewLoader viewLoader;
     private final Lazy<SettingsControl> settingsControl;

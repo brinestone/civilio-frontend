@@ -4,14 +4,14 @@ import fr.civipol.civilio.entity.InventoryEntry;
 import javafx.beans.property.*;
 import lombok.Getter;
 
-public class FOSAInventoryEntryViewModel {
+public class InventoryEntryViewModel {
     @Getter
     private final InventoryEntry entry;
     private final StringProperty equipmentName;
     private final ObjectProperty<Integer> quantity;
     private final BooleanProperty selected;
 
-    public FOSAInventoryEntryViewModel(InventoryEntry entry) {
+    public InventoryEntryViewModel(InventoryEntry entry) {
         this.entry = entry;
         equipmentName = new SimpleStringProperty(entry, "equipmentName", entry.getEquipmentName());
         selected = new SimpleBooleanProperty(this, "selected", false);

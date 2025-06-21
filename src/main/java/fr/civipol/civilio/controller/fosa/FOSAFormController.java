@@ -17,8 +17,10 @@ import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.civipol.civilio.controller.FormController;
+import fr.civipol.civilio.controller.FormFooterController;
+import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.converter.OptionConverter;
-import fr.civipol.civilio.entity.UpdateSpec;
+import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.form.FOSAFormDataManager;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.control.MultiComboBoxControl;
@@ -26,16 +28,15 @@ import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.form.field.VitalStatsField;
-import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.FormDataService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
@@ -62,13 +63,13 @@ public class FOSAFormController extends FormController implements Initializable 
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
-    private final FormService formService;
+    private final FormDataService formService;
     private ResourceBundle resources;
 
     @Inject
     public FOSAFormController(
             @SuppressWarnings("CdiInjectionPointsInspection") ExecutorService executorService,
-            FormService formService) {
+            FormDataService formService) {
         this.formService = formService;
         this.executorService = executorService;
     }
@@ -90,9 +91,6 @@ public class FOSAFormController extends FormController implements Initializable 
     private ScrollPane spStructureIdContainer;
 
     @FXML
-    private Button btnFinish, btnDiscard;
-
-    @FXML
     private Tab tEvents;
 
     @FXML
@@ -111,45 +109,46 @@ public class FOSAFormController extends FormController implements Initializable 
     private FormDataManager model;
 
     @FXML
-    private void onDiscardButtonClicked(ActionEvent event) {
-        handleDiscardEvent(event, resources.getString("fosa.form.msg.discard"));
-    }
-
+    @Getter(AccessLevel.PROTECTED)
+    private FormHeaderController headerManagerController;
     @FXML
-    private void onSubmitButtonClicked(ActionEvent event) {
-        handleSubmitEvent(event);
-    }
+    private FormFooterController footerManagerController;
 
     @Override
     protected final void doSubmit() throws SQLException {
-        final var dropped = formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(UpdateSpec[]::new));
+        final var dropped = formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(DataUpdate[]::new));
         if (dropped.isEmpty()) return;
-        log.info("Dropped updates");
-        log.info(dropped.toString());
+        log.debug("Dropped {} updates", dropped.size());
+        log.debug(dropped.toString());
     }
-
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         this.resources = resources;
         final var ts = new ResourceBundleService(resources);
-        model = new FOSAFormDataManager(submissionData::get, this::findOptionsFor, submissionData.keySet()::stream);
+        model = new FOSAFormDataManager(
+                submissionData::get,
+                this::findOptionsFor,
+                submissionData.keySet()::stream
+        );
+        initializeController();
+        model.trackFieldChanges();
         configureForms(ts);
-        btnFinish.disableProperty().bind(
-                Bindings.not(
-                        respondentForm.validProperty()
-                                .and(structureIdForm.validProperty())
-                                .and(eventRegistrationForm.validProperty())
-                                .and(equipmentForm.validProperty())
-                                .and(personnelForm.validProperty())
-                ).or(submittingProperty()).or(model.pristine()));
-        btnDiscard.disableProperty().bind(submittingProperty());
-        setChangeListeners();
+        BooleanBinding canSubmit = Bindings.and(
+                respondentForm.validProperty().and(structureIdForm.validProperty()).and(eventRegistrationForm.validProperty()).and(equipmentForm.validProperty()).and(personnelForm.validProperty()),
+                Bindings.not(model.pristine())
+        ).and(submittingProperty().not());
+        canSubmit.addListener((ob, ov, nv) -> {
+            System.out.println("canSubmit = " + nv);
+        });
+        footerManagerController.canSubmitProperty().bind(canSubmit);
+        footerManagerController.canDiscardProperty().bind(submittingProperty().not());
+        setEventHandlers();
     }
 
-    private void setChangeListeners() {
-//        submissionData.addListener(
-//                (MapChangeListener<String, Object>) change -> model.updateValue(change.getKey()));
+    private void setEventHandlers() {
+        footerManagerController.setOnDiscard(e -> handleDiscardEvent(e, resources.getString("fosa.form.msg.discard")));
+        footerManagerController.setOnSubmit(this::handleSubmitEvent);
     }
 
     protected final Map<String, Object> loadSubmissionData() throws SQLException, JsonProcessingException {
@@ -422,7 +421,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                 .title("fosa.form.sections.structure_identification.title")
                                 .collapse(false),
                         Section.of(
-                                        GeoPointField.gpsField(model.geoPointProperty()))
+                                        GeoPointField.gpsField(model.geoPointProperty(), model::updateGeoPointUpdates))
                                 .title("fosa.form.sections.geo_point.title")
                                 .collapse(true))
                 .i18n(ts);

@@ -4,7 +4,7 @@ import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.InventoryEntry;
-import fr.civipol.civilio.form.control.fosa.FOSAInventoryControl;
+import fr.civipol.civilio.form.control.fosa.InventoryControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,14 +14,14 @@ import javafx.collections.FXCollections;
 import java.util.Collection;
 import java.util.List;
 
-public class FOSAInventoryField extends DataField<ListProperty<InventoryEntry>, List<InventoryEntry>, FOSAInventoryField> {
+public class InventoryField extends DataField<ListProperty<InventoryEntry>, List<InventoryEntry>, InventoryField> {
     private static final String NAME_LABEL = "controls.inventory.columns.equipment";
     private static final String QUANTITY_LABEL = "controls.inventory.columns.quantity";
     private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
     private final StringProperty nameLabel, quantityLabel, addRowLabel, removeSelectionLabel;
 
-    protected FOSAInventoryField(ListProperty<InventoryEntry> valueProperty, ListProperty<InventoryEntry> persistentValueProperty) {
+    protected InventoryField(ListProperty<InventoryEntry> valueProperty, ListProperty<InventoryEntry> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
         nameLabel = new SimpleStringProperty(this, "nameLabel", NAME_LABEL);
         quantityLabel = new SimpleStringProperty(this, "quantityLabel", QUANTITY_LABEL);
@@ -54,8 +54,8 @@ public class FOSAInventoryField extends DataField<ListProperty<InventoryEntry>, 
         return addRowLabel;
     }
 
-    public static Field<FOSAInventoryField> inventoryField(Collection<InventoryEntry> items) {
-        return new FOSAInventoryField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
-                .render(FOSAInventoryControl::new);
+    public static Field<InventoryField> inventoryField(Collection<InventoryEntry> items) {
+        return new InventoryField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), new SimpleListProperty<>(FXCollections.observableArrayList(items)))
+                .render(InventoryControl::new);
     }
 }

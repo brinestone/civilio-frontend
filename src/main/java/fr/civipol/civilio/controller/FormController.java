@@ -2,7 +2,7 @@ package fr.civipol.civilio.controller;
 
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
-import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.FormDataService;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -44,24 +44,27 @@ public abstract class FormController implements AppController {
         return submitting;
     }
 
-    public boolean isSubmitting() {
-        return submitting.get();
-    }
-
     protected abstract FormDataManager getModel();
 
     public void setSubmissionId(String submissionId) {
         this.submissionId.set(submissionId);
     }
-
+    protected abstract FormHeaderController getHeaderManagerController();
     protected FormController() {
         submissionId.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
-            setup();
+            updateFormValues();
         });
     }
 
-    public void setup() {
+    protected void initializeController() {
+        getHeaderManagerController().indexProperty().bindBidirectional(getModel().indexProperty());
+        getHeaderManagerController().validationCodeProperty().bindBidirectional(getModel().validationCodeProperty());
+        getHeaderManagerController().submissionIdProperty().bindBidirectional(submissionId);
+    }
+
+    public void updateFormValues() {
+        getModel().resetChanges();
         getExecutorService().submit(() -> {
             try {
                 getModel().loadOptions((form, group, parent, callback) -> {
@@ -111,7 +114,7 @@ public abstract class FormController implements AppController {
 
     protected abstract ExecutorService getExecutorService();
 
-    protected abstract FormService getFormService();
+    protected abstract FormDataService getFormService();
 
     protected void findOptionsFor(String form, String group, String parent, Consumer<Collection<Option>> callback) {
         getExecutorService().submit(() -> {

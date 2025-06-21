@@ -2,10 +2,10 @@ package fr.civipol.civilio.controller;
 
 import fr.civipol.civilio.controls.SubmissionsFilter;
 import fr.civipol.civilio.domain.viewmodel.FormSubmissionViewModel;
+import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.FormType;
-import fr.civipol.civilio.entity.UpdateSpec;
-import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.FormDataService;
 import fr.civipol.civilio.stage.ViewLoader;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
@@ -51,14 +51,14 @@ import java.util.concurrent.ExecutorService;
 public class SubmissionsController implements AppController, Initializable {
     private static final int PAGE_SIZE = 100;
     private final ViewLoader vl;
-    private final FormService formService;
+    private final FormDataService formService;
     private final ExecutorService executorService;
 
     @Inject
     @SuppressWarnings("CdiInjectionPointsInspection")
     public SubmissionsController(
             ViewLoader vl,
-            FormService formService,
+            FormDataService formService,
             ExecutorService executorService
     ) {
         this.vl = vl;
@@ -100,7 +100,7 @@ public class SubmissionsController implements AppController, Initializable {
     private TableView<FormSubmissionViewModel> tvSubmissions;
     private final HBox hbSelectionActionBar = new HBox();
     private final ObservableSet<FormSubmissionViewModel> selectedItems = FXCollections.observableSet();
-    private final Map<String, Stack<UpdateSpec>> pendingUpdates = new HashMap<>();
+    private final Map<String, Stack<DataUpdate>> pendingUpdates = new HashMap<>();
     private final BooleanProperty hasPendingUpdates = new SimpleBooleanProperty(this, "hasPendingChanges", false);
     private SubmissionsFilter filters;
     private Dialog<ButtonType> filterDialog;
@@ -124,7 +124,7 @@ public class SubmissionsController implements AppController, Initializable {
             final var view = vl.loadView(viewName);
             final var controller = (FormController) vl.getControllerFor(viewName).orElseThrow();
             if (StringUtils.isBlank(submissionId))
-                controller.setup();
+                controller.updateFormValues();
             controller.setOnSubmit(__ -> {
                 dialog.close();
                 doLoadSubmissionData();
@@ -277,19 +277,19 @@ public class SubmissionsController implements AppController, Initializable {
             e.getRowValue().setRegion(e.getNewValue());
             hasPendingUpdates.set(true);
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+            stack.push(new DataUpdate(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
         });
         tcValidationCode.setOnEditCommit(e -> {
             e.getRowValue().setValidationCode(e.getNewValue());
             hasPendingUpdates.set(true);
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+            stack.push(new DataUpdate(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
         });
         tcRecordedBy.setOnEditCommit(e -> {
             e.getRowValue().setSubmittedBy(e.getNewValue());
             hasPendingUpdates.set(true);
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new UpdateSpec(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
+            stack.push(new DataUpdate(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue()));
         });
     }
 
@@ -303,24 +303,30 @@ public class SubmissionsController implements AppController, Initializable {
                                 """);
     }
 
+    @FXML
+    private void onRefreshButtonClicked(ActionEvent ignored) {
+        doLoadSubmissionData();
+    }
+
     private void doSavePendingChanges() {
-        spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
-        executorService.submit(() -> {
-            try {
-                for (var entry : pendingUpdates.entrySet())
-                    formService.updateSubmission(entry.getKey(), entry.getValue().toArray(UpdateSpec[]::new));
-                Platform.runLater(() -> {
-                    pendingUpdates.clear();
-                    hasPendingUpdates.set(false);
-                    doLoadSubmissionData();
-                });
-            } catch (Throwable t) {
-                log.error("error while loading submissions data", t);
-                showErrorAlert(t.getLocalizedMessage());
-            } finally {
-                Platform.runLater(() -> spTableContainer.getChildren().remove(1));
-            }
-        });
+//
+//        spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
+//        executorService.submit(() -> {
+//            try {
+//                for (var entry : pendingUpdates.entrySet())
+//                    formService.updateSubmission(entry.getKey(), entry.getValue().toArray(UpdateSpec[]::new));
+//                Platform.runLater(() -> {
+//                    pendingUpdates.clear();
+//                    hasPendingUpdates.set(false);
+//                    doLoadSubmissionData();
+//                });
+//            } catch (Throwable t) {
+//                log.error("error while loading submissions data", t);
+//                showErrorAlert(t.getLocalizedMessage());
+//            } finally {
+//                Platform.runLater(() -> spTableContainer.getChildren().remove(1));
+//            }
+//        });
     }
 
     private void doLoadSubmissionData() {
