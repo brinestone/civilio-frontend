@@ -18,6 +18,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
@@ -37,6 +38,7 @@ public abstract class FormDataManager {
     public abstract ObservableBooleanValue pristine();
 
     public abstract Collection<DataUpdate> getPendingUpdates();
+    public abstract void trackFieldChanges();
 
     public Property getPropertyFor(String id) {
         return switch (id) {
@@ -68,7 +70,8 @@ public abstract class FormDataManager {
         } else if (deserialized instanceof Collection c) {
             return c.stream()
                     .map(this::serializeValue)
-                    .toList();
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(" "));
         } else if (deserialized instanceof Boolean b)
             return b ? "1" : "2";
         else if (deserialized == null) return null;

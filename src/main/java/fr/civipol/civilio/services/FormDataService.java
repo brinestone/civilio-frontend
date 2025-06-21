@@ -101,7 +101,7 @@ public class FormDataService implements AppService {
         }
     }
 
-    @SuppressWarnings({"DuplicatedCode"})
+    @SuppressWarnings({"DuplicatedCode", "rawtypes"})
     public Collection<DataUpdate> updateSubmission(String submissionId, DataUpdate... updates) throws SQLException {
         if (updates.length == 0) return Collections.emptyList();
         final var droppedUpdates = new ArrayList<DataUpdate>();
@@ -163,16 +163,16 @@ public class FormDataService implements AppService {
                                     _id = ?;
                                 """.formatted(DATA_TABLE, fieldName))) {
                             final var value = update.getNewValue();
-                            if (value instanceof java.util.Date d) {
+                            if (value instanceof java.util.Date d)
                                 st.setDate(1, new Date(d.getTime()));
-                            } else {
+                            else {
                                 st.setObject(1, update.getNewValue());
                             }
                             st.setString(2, submissionId);
                             if (st.executeUpdate() > 0) {
-                                log.debug("updated field: {} with db-name: {} to {}", update.getField(), fieldName, update.getNewValue());
+                                log.debug("updated field: {} with db fieldname: {} to {}", update.getField(), fieldName, update.getNewValue());
                             } else {
-                                log.warn("field not updated: {} with db-name: {}", update.getField(), fieldName);
+                                log.warn("field not updated: {} with db fieldname: {}", update.getField(), fieldName);
                             }
                         }
                     } else {
@@ -186,7 +186,8 @@ public class FormDataService implements AppService {
         }
     }
 
-    private Optional<String> sanitizeFieldName(String table, String field, Connection connection) throws SQLException {
+    private Optional<String> sanitizeFieldName(String table, String field, Connection connection) throws
+            SQLException {
         try (final var st = connection.prepareStatement("""
                 SELECT
                     quote_ident(c.column_name)

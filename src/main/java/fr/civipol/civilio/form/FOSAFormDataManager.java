@@ -265,8 +265,9 @@ public class FOSAFormDataManager extends FormDataManager {
         });
     }
 
+    @Override
     @SuppressWarnings("DuplicatedCode")
-    private void trackFieldUpdates() {
+    public void trackFieldChanges() {
         if (trackingUpdates) return;
         trackUpdatesForField(FOSA_KEY_PERSONNEL_COUNT_FIELD);
         trackUpdatesForField(FOSA_BIKE_COUNT_FIELD);
@@ -466,7 +467,6 @@ public class FOSAFormDataManager extends FormDataManager {
         loadOptionValue(FOSA_FACILITY_TYPE_FIELD);
         loadOptionValue(FOSA_STATUS_FIELD);
         loadPowerSources();
-        trackFieldUpdates();
     }
 
     private void loadPowerSources() {

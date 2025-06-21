@@ -118,8 +118,8 @@ public class FOSAFormController extends FormController implements Initializable 
     protected final void doSubmit() throws SQLException {
         final var dropped = formService.updateSubmission(submissionId.getValue(), model.getPendingUpdates().toArray(DataUpdate[]::new));
         if (dropped.isEmpty()) return;
-        log.info("Dropped updates");
-        log.info(dropped.toString());
+        log.debug("Dropped {} updates", dropped.size());
+        log.debug(dropped.toString());
     }
 
     @Override
@@ -132,6 +132,7 @@ public class FOSAFormController extends FormController implements Initializable 
                 submissionData.keySet()::stream
         );
         initializeController();
+        model.trackFieldChanges();
         configureForms(ts);
         BooleanBinding canSubmit = Bindings.and(
                 respondentForm.validProperty().and(structureIdForm.validProperty()).and(eventRegistrationForm.validProperty()).and(equipmentForm.validProperty()).and(personnelForm.validProperty()),

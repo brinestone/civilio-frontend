@@ -303,6 +303,11 @@ public class SubmissionsController implements AppController, Initializable {
                                 """);
     }
 
+    @FXML
+    private void onRefreshButtonClicked(ActionEvent ignored) {
+        doLoadSubmissionData();
+    }
+
     private void doSavePendingChanges() {
 //
 //        spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
