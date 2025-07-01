@@ -4,9 +4,12 @@ import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.preferencesfx.model.Category;
+import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import fr.civipol.civilio.domain.FieldMappingSource;
-import javafx.beans.property.*;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import org.apache.commons.lang3.StringUtils;
@@ -18,7 +21,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class FieldKeys {
-    public final class Fosa {
+    public static final class Fosa {
         public static final String MAIL = "fosa.form.fields.email.title";
         public static final String PHONE = "fosa.form.fields.phone.title";
         public static final String POSITION = "fosa.form.fields.position.title";
@@ -44,15 +47,15 @@ public class FieldKeys {
         public static final String STATS_YEAR = "controls.stats_collector.columns.year";
         public static final String STATS_DEATH_COUNT = "controls.stats_collector.columns.deaths";
         public static final String STATS_BIRTH_COUNT = "controls.stats_collector.columns.births";
-        public static final String PERSONNEL_NAME = "controls.personnel_info.columns.name";
-        public static final String PERSONNEL_POSITION = "controls.personnel_info.columns.role";
-        public static final String PERSONNEL_GENDER = "controls.personnel_info.columns.gender";
-        public static final String PERSONNEL_PHONE = "controls.personnel_info.columns.phone";
-        public static final String PERSONNEL_EMAIL = "controls.personnel_info.columns.email";
-        public static final String PERSONNEL_AGE = "controls.personnel_info.columns.age";
-        public static final String PERSONNEL_CS_TRAINING = "controls.personnel_info.columns.has_cs_training";
-        public static final String PERSONNEL_ED_LEVEL = "controls.personnel_info.columns.education_level";
-        public static final String PERSONNEL_COMPUTER_LEVEL = "controls.personnel_info.columns.pc_knowledge";
+        public static final String PERSONNEL_NAME = "personnel_info.columns.name.title";
+        public static final String PERSONNEL_POSITION = "personnel_info.columns.role.title";
+        public static final String PERSONNEL_GENDER = "personnel_info.columns.gender.title";
+        public static final String PERSONNEL_PHONE = "personnel_info.columns.phone.title";
+        public static final String PERSONNEL_EMAIL = "personnel_info.columns.email.title";
+        public static final String PERSONNEL_AGE = "personnel_info.columns.age.title";
+        public static final String PERSONNEL_CS_TRAINING = "personnel_info.columns.has_cs_training.title";
+        public static final String PERSONNEL_ED_LEVEL = "personnel_info.columns.education_level.title";
+        public static final String PERSONNEL_COMPUTER_LEVEL = "personnel_info.columns.pc_knowledge.title";
         public static final String HAS_TOILET_FIELD = "fosa.form.fields.toilet_present.title";
         public static final String HAS_ENEO_CONNECTION = "fosa.form.fields.has_eneo_connection.title";
         public static final String HAS_BACKUP_POWER_SOURCE = "fosa.form.fields.has_power_source.title";
@@ -85,14 +88,12 @@ public class FieldKeys {
         }
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings("rawtypes")
     public static Category fosaFieldSettingsCategory(FieldMappingSource fieldFinder) {
         final var fieldMap = FXCollections.<String, Property>observableHashMap();
         final var allFields = FXCollections.<String>observableArrayList();
         fieldFinder.findAllFields(allFields::setAll);
-        Function<String, ListProperty<String>> binder = key -> new SimpleListProperty<>(allFields);
 
-//        Function<String, Setting> settingFactory = k -> Setting.of(k, binder.apply(k), (ObjectProperty<String>) fieldMap.computeIfAbsent(k, kk -> new SimpleObjectProperty<String>()));
         Function<String, Setting> settingFactory = k -> Setting.of(k, Field.ofStringType((StringProperty) fieldMap.computeIfAbsent(k, kk -> new SimpleStringProperty()))
                 .validate(CustomValidator.forPredicate(v -> allFields.stream().anyMatch(s -> s.equals(v)), "fosa.form.msg.invalid_value"))
                 .render(new SimpleTextControl() {
@@ -115,7 +116,9 @@ public class FieldKeys {
                                     for (var entry : fieldMap.entrySet()) {
                                         if (entry.getKey().equals(k) || entry.getValue() == null) continue;
                                         final var otherProperty = entry.getValue();
-                                        if (Objects.equals(otherProperty.getValue(), f)) return false;
+                                        if (otherProperty.getValue() instanceof String s) {
+                                            if (s.equalsIgnoreCase(f)) return false;
+                                        } else if (Objects.equals(otherProperty.getValue(), f)) return false;
                                     }
                                     return f.contains(nv);
                                 });
@@ -124,7 +127,8 @@ public class FieldKeys {
                     }
                 }), fieldMap.get(k));
         return Category.of("fosa.form.title")
-                .subCategories(Category.of("mapper.base_fields.title",
+                .subCategories(
+                        Category.of("mapper.categories.forms.fosa.base_fields.title",
                                 settingFactory.apply(Fosa.RESPONDENT_NAME),
                                 settingFactory.apply(Fosa.POSITION),
                                 settingFactory.apply(Fosa.PHONE),
@@ -163,6 +167,26 @@ public class FieldKeys {
                                 settingFactory.apply(Fosa.CAR_COUNT),
                                 settingFactory.apply(Fosa.BIKE_COUNT),
                                 settingFactory.apply(Fosa.PERSONNEL_COUNT)
+                        ),
+                        Category.of("mapper.categories.forms.fosa.sub_forms.title",
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.personnel_info.title",
+                                        settingFactory.apply(Fosa.PERSONNEL_NAME),
+                                        settingFactory.apply(Fosa.PERSONNEL_POSITION),
+                                        settingFactory.apply(Fosa.PERSONNEL_GENDER),
+                                        settingFactory.apply(Fosa.PERSONNEL_PHONE),
+                                        settingFactory.apply(Fosa.PERSONNEL_EMAIL),
+                                        settingFactory.apply(Fosa.PERSONNEL_AGE),
+                                        settingFactory.apply(Fosa.PERSONNEL_CS_TRAINING),
+                                        settingFactory.apply(Fosa.PERSONNEL_ED_LEVEL),
+                                        settingFactory.apply(Fosa.PERSONNEL_COMPUTER_LEVEL)
+                                ),
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.stats.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT)
+                                )
                         )
                 );
     }

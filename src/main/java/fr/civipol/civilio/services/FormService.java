@@ -31,6 +31,7 @@ import java.util.stream.Stream;
 public class FormService implements AppService {
     private static final String PERSONNEL_INFO_TABLE = "personnel_info";
     private static final String DATA_TABLE = "data1";
+    private static final String[] TABLES = {DATA_TABLE, PERSONNEL_INFO_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
 
     @Inject
@@ -85,7 +86,7 @@ public class FormService implements AppService {
                 st.setString(1, field);
                 st.setString(2, i18nKey);
                 st.setObject(3, dbColumn);
-                st.setString(4, DATA_TABLE);
+                st.setString(4, field.startsWith(PERSONNEL_INFO_TABLE) ? PERSONNEL_INFO_TABLE : DATA_TABLE);
                 st.setString(5, form);
             } else {
                 sql = """
@@ -120,14 +121,14 @@ public class FormService implements AppService {
                     SELECT 1
                     FROM form_field_mappings ffm
                     WHERE ffm.db_column = c.column_name AND ffm.form = CAST(? as form_types)
-                ) AND c.table_name = ?
+                ) AND c.table_name = ANY(?)
                 ORDER BY c.column_name;
                 """;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement(sql)) {
                 st.setString(1, form);
-                st.setString(2, DATA_TABLE);
+                st.setArray(2, connection.createArrayOf("text", TABLES));
                 try (final var rs = st.executeQuery()) {
                     final var list = new ArrayList<String>();
                     while (rs.next()) {
@@ -146,7 +147,7 @@ public class FormService implements AppService {
                 FROM
                     form_field_mappings
                 WHERE
-                    form = ?;
+                    form = CAST(? as form_types);
                 """;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {

@@ -119,10 +119,14 @@ public class FieldMapper implements StorageHandler {
         return segments[segments.length - 1];
     }
 
+    private String extractForm(String breadcrumb) {
+        return breadcrumb.substring(0, breadcrumb.indexOf("."));
+    }
+
     @Override
     public void saveObject(String breadcrumb, Object object) {
         final var key = extractKey(breadcrumb);
-        final var form = key.split("\\.", 2)[0];
+        final var form = extractForm(breadcrumb);
         executorService.submit(() -> {
             try {
                 var acceptableValue = object;
@@ -139,7 +143,7 @@ public class FieldMapper implements StorageHandler {
     @Override
     public Object loadObject(String breadcrumb, Object defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = key.split("\\.", 2)[0];
+        final var form = extractForm(breadcrumb);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
@@ -154,7 +158,7 @@ public class FieldMapper implements StorageHandler {
     @Override
     public <T> T loadObject(String breadcrumb, Class<T> type, T defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = key.split("\\.", 2)[0];
+        final var form = extractForm(breadcrumb);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
