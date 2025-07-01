@@ -2,7 +2,7 @@ package fr.civipol.civilio.controller;
 
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
-import fr.civipol.civilio.services.FormDataService;
+import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -114,7 +114,7 @@ public abstract class FormController implements AppController {
 
     protected abstract ExecutorService getExecutorService();
 
-    protected abstract FormDataService getFormService();
+    protected abstract FormService getFormService();
 
     protected void findOptionsFor(String form, String group, String parent, Consumer<Collection<Option>> callback) {
         getExecutorService().submit(() -> {

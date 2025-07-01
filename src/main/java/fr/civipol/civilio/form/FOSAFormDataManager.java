@@ -399,12 +399,6 @@ public class FOSAFormDataManager extends FormDataManager {
         });
         vitalCSCStats.addListener((MapChangeListener<String, VitalCSCStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
         personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo.setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
-        updates.addListener(new MapChangeListener<String, DataUpdate>() {
-            @Override
-            public void onChanged(Change<? extends String, ? extends DataUpdate> change) {
-                System.out.println(updates);
-            }
-        });
     }
 
     private void loadPersonnelInfo() {

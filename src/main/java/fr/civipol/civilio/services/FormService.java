@@ -7,6 +7,7 @@ import dagger.Lazy;
 import fr.civipol.civilio.domain.PageResult;
 import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.DataUpdate;
+import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.NewSubmissionResult;
 import fr.civipol.civilio.event.SubmissionRef;
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -26,16 +28,144 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
-public class FormDataService implements AppService {
+public class FormService implements AppService {
     private static final String PERSONNEL_INFO_TABLE = "personnel_info";
     private static final String DATA_TABLE = "data1";
-    private static final String[] TABLES = {PERSONNEL_INFO_TABLE, DATA_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
 
     @Inject
     @SuppressWarnings("CdiInjectionPointsInspection")
-    public FormDataService(Lazy<DataSource> dataSourceProvider) {
+    public FormService(Lazy<DataSource> dataSourceProvider) {
         this.dataSourceProvider = dataSourceProvider;
+    }
+
+    public Optional<FieldMapping> findFieldMapping(String form, String field) throws SQLException {
+        final var sql = """
+                SELECT
+                    i18n_key, db_column, db_table
+                FROM
+                    form_field_mappings ffm
+                WHERE
+                    ffm.form = CAST(? AS form_types) AND ffm.field = ?
+                LIMIT 1;
+                """;
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            try (final var st = connection.prepareStatement(sql)) {
+                st.setString(1, form);
+                st.setString(2, field);
+                try (final var rs = st.executeQuery()) {
+                    if (!rs.next()) return Optional.empty();
+                    return Optional.of(new FieldMapping(
+                            field, rs.getString(1), rs.getString(2), rs.getString(3)
+                    ));
+                }
+            }
+        }
+    }
+
+    public void updateFieldMapping(String form, String field, String i18nKey, Object dbColumn) throws SQLException {
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            connection.setAutoCommit(false);
+            PreparedStatement st;
+            String sql;
+            if (dbColumn != null) {
+                sql = """
+                        INSERT INTO
+                            form_field_mappings(field, i18n_key, db_column, db_table, form)
+                        VALUES (?, ?, ?, ?, CAST(? as form_types))
+                        ON CONFLICT (field, form) DO UPDATE
+                        SET
+                            db_column = EXCLUDED.db_column,
+                            db_table = EXCLUDED.db_table,
+                            i18n_key = EXCLUDED.i18n_key;
+                        """;
+                st = connection.prepareStatement(sql);
+                st.setString(1, field);
+                st.setString(2, i18nKey);
+                st.setObject(3, dbColumn);
+                st.setString(4, DATA_TABLE);
+                st.setString(5, form);
+            } else {
+                sql = """
+                        DELETE FROM
+                            form_field_mappings
+                        WHERE
+                            field = ? AND form = CAST(? as form_types);
+                        """;
+                st = connection.prepareStatement(sql);
+                st.setString(1, field);
+                st.setString(2, form);
+            }
+
+            try (st) {
+                st.executeUpdate();
+            } catch (SQLException ex) {
+                log.error("error while updating field mapping for form: {}, and field : {}", form, field, ex);
+                throw ex;
+            }
+
+            connection.commit();
+        }
+    }
+
+    public Collection<String> findFormFields(String form) throws SQLException {
+        final var sql = """
+                SELECT
+                    c.column_name
+                FROM
+                    information_schema.columns c
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM form_field_mappings ffm
+                    WHERE ffm.db_column = c.column_name AND ffm.form = CAST(? as form_types)
+                ) AND c.table_name = ?
+                ORDER BY c.column_name;
+                """;
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            try (final var st = connection.prepareStatement(sql)) {
+                st.setString(1, form);
+                st.setString(2, DATA_TABLE);
+                try (final var rs = st.executeQuery()) {
+                    final var list = new ArrayList<String>();
+                    while (rs.next()) {
+                        list.add(rs.getString(1));
+                    }
+                    return list;
+                }
+            }
+        }
+    }
+
+    public Collection<FieldMapping> findFieldMappings(String form) throws SQLException {
+        final var sql = """
+                SELECT
+                    field, i18n_key, db_column, db_table
+                FROM
+                    form_field_mappings
+                WHERE
+                    form = ?;
+                """;
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            try (final var st = connection.prepareStatement(sql)) {
+                st.setString(1, form);
+                try (final var rs = st.executeQuery()) {
+                    final var builder = Stream.<FieldMapping>builder();
+                    while (rs.next()) {
+                        builder.add(new FieldMapping(
+                                rs.getString(1),
+                                rs.getString(2),
+                                rs.getString(3),
+                                rs.getString(4)
+                        ));
+                    }
+                    return builder.build().toList();
+                }
+            }
+        }
     }
 
     public <T> Collection<T> findAutoCompletionValuesFor(String field, String query, int limit,
@@ -61,10 +191,28 @@ public class FormDataService implements AppService {
 
     public Map<String, Object> findFosaSubmissionData(String submissionId) throws SQLException, JsonProcessingException {
         final var dataQuery = """
-                SELECT to_jsonb(sub_query) FROM (SELECT * FROM data1 WHERE _id = ?) AS sub_query;
+                SELECT
+                    to_jsonb(sub_query)
+                FROM (
+                        SELECT
+                            *
+                        FROM
+                            data1
+                        WHERE
+                            _id = ?
+                    ) AS sub_query;
                 """;
         final var personnelQuery = """
-                SELECT to_jsonb(sub_query) FROM (SELECT * FROM personnel_info WHERE _parent_index = ?) AS sub_query;
+                SELECT
+                    to_jsonb(sub_query)
+                FROM (
+                    SELECT
+                        *
+                    FROM
+                        personnel_info
+                    WHERE
+                        _parent_index = ?
+                ) AS sub_query;
                 """;
         final var datasource = dataSourceProvider.get();
         try (final var connection = datasource.getConnection()) {

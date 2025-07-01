@@ -28,7 +28,7 @@ import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.form.field.VitalStatsField;
-import fr.civipol.civilio.services.FormDataService;
+import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -63,13 +63,13 @@ public class FOSAFormController extends FormController implements Initializable 
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
-    private final FormDataService formService;
+    private final FormService formService;
     private ResourceBundle resources;
 
     @Inject
     public FOSAFormController(
             @SuppressWarnings("CdiInjectionPointsInspection") ExecutorService executorService,
-            FormDataService formService) {
+            FormService formService) {
         this.formService = formService;
         this.executorService = executorService;
     }
@@ -138,9 +138,6 @@ public class FOSAFormController extends FormController implements Initializable 
                 respondentForm.validProperty().and(structureIdForm.validProperty()).and(eventRegistrationForm.validProperty()).and(equipmentForm.validProperty()).and(personnelForm.validProperty()),
                 Bindings.not(model.pristine())
         ).and(submittingProperty().not());
-        canSubmit.addListener((ob, ov, nv) -> {
-            System.out.println("canSubmit = " + nv);
-        });
         footerManagerController.canSubmitProperty().bind(canSubmit);
         footerManagerController.canDiscardProperty().bind(submittingProperty().not());
         setEventHandlers();

@@ -1,12 +1,15 @@
 package fr.civipol.civilio.controller;
 
+import dagger.Lazy;
 import fr.civipol.civilio.event.SubmissionRef;
-import fr.civipol.civilio.services.FormDataService;
+import fr.civipol.civilio.form.FieldMapper;
+import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -27,8 +30,9 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class FormHeaderController implements AppController {
-    private final FormDataService formService;
+    private final FormService formService;
     private final ExecutorService executorService;
+    private final Lazy<FieldMapper> fieldMapperProvider;
     private final ReadOnlyBooleanWrapper valid = new ReadOnlyBooleanWrapper(true);
     private final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
     private final StringProperty index = new SimpleStringProperty(this, "index");
@@ -145,5 +149,11 @@ public class FormHeaderController implements AppController {
 
     public ReadOnlyBooleanProperty validProperty() {
         return valid.getReadOnlyProperty();
+    }
+
+    @FXML
+    void onSettingsButtonClicked(ActionEvent ignored) {
+        final var mapper = fieldMapperProvider.get();
+        mapper.makePrefsForm().show(true);
     }
 }

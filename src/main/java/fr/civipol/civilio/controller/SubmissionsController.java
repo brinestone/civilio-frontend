@@ -5,7 +5,7 @@ import fr.civipol.civilio.domain.viewmodel.FormSubmissionViewModel;
 import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.FormType;
-import fr.civipol.civilio.services.FormDataService;
+import fr.civipol.civilio.services.FormService;
 import fr.civipol.civilio.stage.ViewLoader;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
@@ -51,14 +51,14 @@ import java.util.concurrent.ExecutorService;
 public class SubmissionsController implements AppController, Initializable {
     private static final int PAGE_SIZE = 100;
     private final ViewLoader vl;
-    private final FormDataService formService;
+    private final FormService formService;
     private final ExecutorService executorService;
 
     @Inject
     @SuppressWarnings("CdiInjectionPointsInspection")
     public SubmissionsController(
             ViewLoader vl,
-            FormDataService formService,
+            FormService formService,
             ExecutorService executorService
     ) {
         this.vl = vl;

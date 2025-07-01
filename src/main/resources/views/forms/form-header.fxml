@@ -5,46 +5,44 @@
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.layout.*?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<HBox alignment="CENTER" prefHeight="35.0" spacing="10.0" stylesheets="@../../styles/forms/header.css"
-      xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="fr.civipol.civilio.controller.FormHeaderController">
+<HBox alignment="CENTER" prefHeight="35.0" spacing="10.0" stylesheets="@../../styles/forms/header.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.FormHeaderController">
     <padding>
-        <Insets left="10.0" right="10.0"/>
+        <Insets left="10.0" right="10.0" />
     </padding>
+   <Button contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false" onAction="#onSettingsButtonClicked" text="Button">
+      <graphic>
+         <FontIcon iconLiteral="fth-settings" />
+      </graphic>
+   </Button>
     <BorderPane prefHeight="35.0" prefWidth="235.0">
         <left>
-            <Button fx:id="btnPrev" mnemonicParsing="false" styleClass="btn-prev"
-                    text="%forms.header.actions.navigation.prev" BorderPane.alignment="CENTER">
+            <Button fx:id="btnPrev" mnemonicParsing="false" styleClass="btn-prev" text="%forms.header.actions.navigation.prev" BorderPane.alignment="CENTER">
                 <graphic>
-                    <FontIcon iconLiteral="fth-arrow-left"/>
+                    <FontIcon iconLiteral="fth-arrow-left" />
                 </graphic>
                 <cursor>
-                    <Cursor fx:constant="HAND"/>
+                    <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
         </left>
         <center>
-            <TextField fx:id="tfIndexSearch" prefHeight="25.0" prefWidth="123.0"
-                       promptText="%forms.header.index_search.prompt" styleClass="tf-index-search"
-                       BorderPane.alignment="CENTER"/>
+            <TextField fx:id="tfIndexSearch" prefHeight="25.0" prefWidth="123.0" promptText="%forms.header.index_search.prompt" styleClass="tf-index-search" BorderPane.alignment="CENTER" />
         </center>
         <right>
-            <Button fx:id="btnNext" contentDisplay="RIGHT" mnemonicParsing="false"
-                    styleClass="btn-next" text="%forms.header.actions.navigation.next" BorderPane.alignment="CENTER">
+            <Button fx:id="btnNext" contentDisplay="RIGHT" mnemonicParsing="false" styleClass="btn-next" text="%forms.header.actions.navigation.next" BorderPane.alignment="CENTER">
                 <graphic>
-                    <FontIcon iconLiteral="fth-arrow-right"/>
+                    <FontIcon iconLiteral="fth-arrow-right" />
                 </graphic>
                 <cursor>
-                    <Cursor fx:constant="HAND"/>
+                    <Cursor fx:constant="HAND" />
                 </cursor>
             </Button>
         </right>
     </BorderPane>
-    <Label fx:id="lblSubmissionDate"/>
-    <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+    <Label fx:id="lblSubmissionDate" />
+    <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
     <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="29.0" spacing="5.0">
-        <TextField fx:id="tfValidationCode" promptText="%forms.header.controls.validation_code"/>
-        <TextField fx:id="tfIndex" layoutX="10.0" layoutY="15.0" prefHeight="25.0" prefWidth="104.0"
-                   promptText="%forms.header.controls.index"/>
+        <TextField fx:id="tfValidationCode" promptText="%forms.header.controls.validation_code" />
+        <TextField fx:id="tfIndex" layoutX="10.0" layoutY="15.0" prefHeight="25.0" prefWidth="104.0" promptText="%forms.header.controls.index" />
     </HBox>
 </HBox>
