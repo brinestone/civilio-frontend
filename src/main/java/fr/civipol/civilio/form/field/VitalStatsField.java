@@ -2,7 +2,7 @@ package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
-import fr.civipol.civilio.entity.VitalCSCStat;
+import fr.civipol.civilio.entity.FosaStat;
 import fr.civipol.civilio.form.control.fosa.VitalStatsControl;
 import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.property.ListProperty;
@@ -16,22 +16,22 @@ import javafx.collections.ObservableList;
 import java.util.Collection;
 import java.util.List;
 
-public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<VitalCSCStat>, VitalStatsField> {
+public class VitalStatsField extends DataField<ListProperty<FosaStat>, List<FosaStat>, VitalStatsField> {
     private final StringProperty yearColumnLabel;
     private final StringProperty deathsColumnLabel;
     private final StringProperty birthsColumnLabel;
     private final StringProperty observationsColumnLabel;
     private final StringProperty addRowLabel;
     private final StringProperty removeSelectionLabel;
-    private ObservableList<VitalCSCStat> valueList;
-    private static final String YEAR_COLUMN_LABEL = "controls.stats_collector.columns.year";
-    private static final String DEATHS_COLUMN_LABEL = "controls.stats_collector.columns.deaths";
-    private static final String BIRTHS_COLUMN_LABEL = "controls.stats_collector.columns.births";
-    private static final String OBSERVATIONS_COLUMN_LABEL = "controls.stats_collector.columns.observation";
-    private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
+    private ObservableList<FosaStat> valueList;
+    private static final String YEAR_COLUMN_LABEL = "fosa_vital_stats.columns.year";
+    private static final String DEATHS_COLUMN_LABEL = "fosa_vital_stats.columns.deaths";
+    private static final String BIRTHS_COLUMN_LABEL = "fosa_vital_stats.columns.births";
+    private static final String OBSERVATIONS_COLUMN_LABEL = "fosa_vital_stats.columns.observation";
+    private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
 
-    protected VitalStatsField(ListProperty<VitalCSCStat> valueProperty, ListProperty<VitalCSCStat> persistentValueProperty) {
+    protected VitalStatsField(ListProperty<FosaStat> valueProperty, ListProperty<FosaStat> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
         yearColumnLabel = new SimpleStringProperty(this, "year", YEAR_COLUMN_LABEL);
         deathsColumnLabel = new SimpleStringProperty(this, "deaths", DEATHS_COLUMN_LABEL);
@@ -76,13 +76,13 @@ public class VitalStatsField extends DataField<ListProperty<VitalCSCStat>, List<
         return yearColumnLabel;
     }
 
-    private VitalStatsField values(Collection<VitalCSCStat> items) {
+    private VitalStatsField values(Collection<FosaStat> items) {
         valueList = FXCollections.observableArrayList(items);
-        valueList.addListener((ListChangeListener<VitalCSCStat>) c -> value.setAll(valueList));
+        valueList.addListener((ListChangeListener<FosaStat>) c -> value.setAll(valueList));
         return this;
     }
 
-    public static VitalStatsField statsField(ObservableList<VitalCSCStat> items, ListProperty<VitalCSCStat> target, NotifyCallback notifyCallback) {
+    public static VitalStatsField statsField(ObservableList<FosaStat> items, ListProperty<FosaStat> target, NotifyCallback notifyCallback) {
         return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), target)
                 .values(items)
                 .render(() -> new VitalStatsControl(notifyCallback));

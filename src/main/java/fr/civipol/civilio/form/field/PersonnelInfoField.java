@@ -15,7 +15,7 @@ import javafx.collections.ObservableList;
 import java.util.List;
 
 public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, List<PersonnelInfo>, PersonnelInfoField> {
-    private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
+    private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
     private static final String NAME_COLUMN_LABEL = "personnel_info.columns.name.title";
     private static final String ROLE_COLUMN_LABEL = "personnel_info.columns.role.title";

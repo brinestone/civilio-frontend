@@ -2,9 +2,9 @@ package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.DataUpdate;
+import fr.civipol.civilio.entity.FosaStat;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.entity.VitalCSCStat;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -96,9 +96,9 @@ public class FOSAFormDataManager extends FormDataManager {
             eneoConnection, toiletAvailable, maternityAvailable, dhis2Usage, bunecBirthFormUsage, dhis2FormUsage,
             birthDeclarationToCsc;
     private final DoubleProperty cscDistance;
-    private final MapProperty<String, VitalCSCStat> vitalCSCStats;
+    private final MapProperty<String, FosaStat> vitalCSCStats;
     private final MapProperty<String, PersonnelInfo> personnelInfoMap;
-    private final ListProperty<VitalCSCStat> vitalCSCStatsValue;
+    private final ListProperty<FosaStat> vitalCSCStatsValue;
     private final ListProperty<PersonnelInfo> personnelInfo;
     private final IntegerProperty personnelCount,
             pcCount,
@@ -232,7 +232,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 }
             }
         });
-        vitalCSCStatsValue.addListener((ListChangeListener<VitalCSCStat>) c -> {
+        vitalCSCStatsValue.addListener((ListChangeListener<FosaStat>) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
                     for (var i = c.getFrom(); i < c.getTo(); i++) {
@@ -397,7 +397,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 return;
             optionSource.get(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty()::setAll);
         });
-        vitalCSCStats.addListener((MapChangeListener<String, VitalCSCStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
+        vitalCSCStats.addListener((MapChangeListener<String, FosaStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
         personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo.setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
     }
 
@@ -591,7 +591,7 @@ public class FOSAFormDataManager extends FormDataManager {
     @Override
     public Class<?> getPropertyTypeFor(String id) {
         if (id.startsWith("group_ce1sz98_ligne"))
-            return VitalCSCStat.class;
+            return FosaStat.class;
         else if (id.startsWith(FOSA_PERSONNEL_INFO_KEY_PREFIX))
             return PersonnelInfo.class;
         else if (id.endsWith("sources_of_backup_power")) {
@@ -687,7 +687,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 return property.getValue();
             }
         } else if (raw instanceof String
-                   && Optional.ofNullable(getPropertyTypeFor(id)).filter(VitalCSCStat.class::equals).isPresent()) {
+                   && Optional.ofNullable(getPropertyTypeFor(id)).filter(FosaStat.class::equals).isPresent()) {
             final var isYearField = id.endsWith(FOSA_STATS_FIELD_YEAR_SUFFIX);
             final var isBirthField = id.endsWith(FOSA_STATS_FIELD_BIRTH_SUFFIX);
             final var isDeathsField = id.endsWith(FOSA_STATS_FIELD_DEATH_SUFFIX);
@@ -700,7 +700,7 @@ public class FOSAFormDataManager extends FormDataManager {
             else
                 keyPrefix = id.substring(0, id.indexOf(FOSA_STATS_FIELD_DEATH_SUFFIX));
 
-            final var entry = vitalCSCStats.computeIfAbsent(keyPrefix, __ -> VitalCSCStat.builder().build());
+            final var entry = vitalCSCStats.computeIfAbsent(keyPrefix, __ -> FosaStat.builder().build());
             final var stringValue = String.valueOf(raw);
             if (stringValue.matches("\\d+")) {
                 final var value = stringValue.chars()
@@ -840,7 +840,7 @@ public class FOSAFormDataManager extends FormDataManager {
         return toiletAvailable;
     }
 
-    public ListProperty<VitalCSCStat> vitalCSCStatsValueProperty() {
+    public ListProperty<FosaStat> vitalCSCStatsValueProperty() {
         return vitalCSCStatsValue;
     }
 

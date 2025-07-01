@@ -40,7 +40,7 @@ public class FieldMapper implements StorageHandler {
         final var ts = new ResourceBundleService(ResourceBundle.getBundle("messages"));
         Function<String, FieldMappingSource> f = form -> (callback) -> executorService.submit(() -> {
             try {
-                final var result = new ArrayList<>(formService.findFormFields(form));
+                final var result = new ArrayList<>(formService.getFormFields(form));
                 Platform.runLater(() -> callback.accept(result));
             } catch (Throwable t) {
                 log.error("error while finding fields", t);

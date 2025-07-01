@@ -149,7 +149,7 @@ public class FOSAFormController extends FormController implements Initializable 
     }
 
     protected final Map<String, Object> loadSubmissionData() throws SQLException, JsonProcessingException {
-        return formService.findFosaSubmissionData(submissionId.get());
+        return formService.findSubmissionData(submissionId.get(), "fosa");
     }
 
     private void configureForms(TranslationService ts) {

@@ -44,9 +44,9 @@ public class FieldKeys {
         public static final String USES_DHIS_FORMS = "fosa.form.fields.uses_dhis2_form.title";
         public static final String SEND_BIRTH_DECLARATIONS_TO_CSC = "fosa.form.fields.birth_declaration_transmission_to_csc.title";
         public static final String CSC_EVENT_REGISTRATIONS = "fosa.form.fields.csc_event_reg_type.title";
-        public static final String STATS_YEAR = "controls.stats_collector.columns.year";
-        public static final String STATS_DEATH_COUNT = "controls.stats_collector.columns.deaths";
-        public static final String STATS_BIRTH_COUNT = "controls.stats_collector.columns.births";
+        public static final String STATS_YEAR = "fosa_vital_stats.columns.year";
+        public static final String STATS_DEATH_COUNT = "fosa_vital_stats.columns.deaths";
+        public static final String STATS_BIRTH_COUNT = "fosa_vital_stats.columns.births";
         public static final String PERSONNEL_NAME = "personnel_info.columns.name.title";
         public static final String PERSONNEL_POSITION = "personnel_info.columns.role.title";
         public static final String PERSONNEL_GENDER = "personnel_info.columns.gender.title";

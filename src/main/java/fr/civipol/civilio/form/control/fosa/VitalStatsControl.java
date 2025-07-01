@@ -3,7 +3,7 @@ package fr.civipol.civilio.form.control.fosa;
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.converter.CachedStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
-import fr.civipol.civilio.entity.VitalCSCStat;
+import fr.civipol.civilio.entity.FosaStat;
 import fr.civipol.civilio.form.field.VitalStatsField;
 import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.binding.Bindings;
@@ -117,7 +117,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
             if (!nv) return;
             listItemsChanged.set(false);
         });
-        field.valueProperty().addListener((ListChangeListener<VitalCSCStat>) c -> {
+        field.valueProperty().addListener((ListChangeListener<FosaStat>) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
                     final var wrappers = c.getAddedSubList().stream()
@@ -215,10 +215,10 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         actionBar = new HBox();
         tvStats = new TableView<>();
         tcSelection = new TableColumn<>();
-        tcYear = new TableColumn<>("controls.stats_collector.columns.year");
-        tcBirths = new TableColumn<>("controls.stats_collector.columns.births");
-        tcDeaths = new TableColumn<>("controls.stats_collector.columns.deaths");
-        btnAddRow = new Button("controls.stats_collector.columns.add_new");
+        tcYear = new TableColumn<>("fosa_vital_stats.columns.year");
+        tcBirths = new TableColumn<>("fosa_vital_stats.columns.births");
+        tcDeaths = new TableColumn<>("fosa_vital_stats.columns.deaths");
+        btnAddRow = new Button("controls.stats_collector.actions.add_new");
         selectedItems = FXCollections.observableSet();
     }
 
@@ -257,7 +257,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
             final var yearExists = field.getValue().stream().anyMatch(s -> s.getYear() == year);
             if (yearExists) continue;
 
-            final var stats = VitalCSCStat.builder().year(year).build();
+            final var stats = FosaStat.builder().year(year).build();
             field.getValue().add(stats);
             break;
         }

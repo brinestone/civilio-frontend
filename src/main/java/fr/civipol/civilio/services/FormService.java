@@ -1,8 +1,5 @@
 package fr.civipol.civilio.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Lazy;
 import fr.civipol.civilio.domain.PageResult;
 import fr.civipol.civilio.domain.filter.FilterManager;
@@ -31,7 +28,8 @@ import java.util.stream.Stream;
 public class FormService implements AppService {
     private static final String PERSONNEL_INFO_TABLE = "personnel_info";
     private static final String DATA_TABLE = "data1";
-    private static final String[] TABLES = {DATA_TABLE, PERSONNEL_INFO_TABLE};
+    private static final String STATS_TABLE = "fosa_vital_stats";
+    private static final String[] TABLES = {DATA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
 
     @Inject
@@ -86,7 +84,7 @@ public class FormService implements AppService {
                 st.setString(1, field);
                 st.setString(2, i18nKey);
                 st.setObject(3, dbColumn);
-                st.setString(4, field.startsWith(PERSONNEL_INFO_TABLE) ? PERSONNEL_INFO_TABLE : DATA_TABLE);
+                st.setString(4, field.startsWith(PERSONNEL_INFO_TABLE) ? PERSONNEL_INFO_TABLE : field.startsWith(STATS_TABLE) ? STATS_TABLE : DATA_TABLE);
                 st.setString(5, form);
             } else {
                 sql = """
@@ -111,17 +109,13 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<String> findFormFields(String form) throws SQLException {
+    public Collection<String> getFormFields(String form) throws SQLException {
         final var sql = """
                 SELECT
                     c.column_name
                 FROM
                     information_schema.columns c
-                WHERE NOT EXISTS (
-                    SELECT 1
-                    FROM form_field_mappings ffm
-                    WHERE ffm.db_column = c.column_name AND ffm.form = CAST(? as form_types)
-                ) AND c.table_name = ANY(?)
+                WHERE c.table_name = ANY(?)
                 ORDER BY c.column_name;
                 """;
         final var ds = dataSourceProvider.get();
@@ -140,31 +134,28 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<FieldMapping> findFieldMappings(String form) throws SQLException {
+    private List<FieldMapping> findFieldMappingsInternal(Connection connection, String form) throws SQLException {
         final var sql = """
                 SELECT
-                    field, i18n_key, db_column, db_table
+                    field, i18n_key, quote_ident(db_column), db_table
                 FROM
                     form_field_mappings
                 WHERE
                     form = CAST(? as form_types);
                 """;
-        final var ds = dataSourceProvider.get();
-        try (final var connection = ds.getConnection()) {
-            try (final var st = connection.prepareStatement(sql)) {
-                st.setString(1, form);
-                try (final var rs = st.executeQuery()) {
-                    final var builder = Stream.<FieldMapping>builder();
-                    while (rs.next()) {
-                        builder.add(new FieldMapping(
-                                rs.getString(1),
-                                rs.getString(2),
-                                rs.getString(3),
-                                rs.getString(4)
-                        ));
-                    }
-                    return builder.build().toList();
+        try (final var st = connection.prepareStatement(sql)) {
+            st.setString(1, form);
+            try (final var rs = st.executeQuery()) {
+                final var builder = Stream.<FieldMapping>builder();
+                while (rs.next()) {
+                    builder.add(new FieldMapping(
+                            rs.getString(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4)
+                    ));
                 }
+                return builder.build().toList();
             }
         }
     }
@@ -190,67 +181,55 @@ public class FormService implements AppService {
         return ans;
     }
 
-    public Map<String, Object> findFosaSubmissionData(String submissionId) throws SQLException, JsonProcessingException {
-        final var dataQuery = """
-                SELECT
-                    to_jsonb(sub_query)
-                FROM (
-                        SELECT
-                            *
-                        FROM
-                            data1
-                        WHERE
-                            _id = ?
-                    ) AS sub_query;
-                """;
-        final var personnelQuery = """
-                SELECT
-                    to_jsonb(sub_query)
-                FROM (
+    public Map<String, Object> findSubmissionData(String submissionId, String form) throws SQLException {
+        final var ds = dataSourceProvider.get();
+        final var result = new HashMap<String, Object>();
+        try (final var connection = ds.getConnection()) {
+            final var formMappings = findFieldMappingsInternal(connection, form);
+            final var sqlFormat = """
                     SELECT
-                        *
+                        %s
                     FROM
-                        personnel_info
+                        %s
                     WHERE
-                        _parent_index = ?
-                ) AS sub_query;
-                """;
-        final var datasource = dataSourceProvider.get();
-        try (final var connection = datasource.getConnection()) {
-            Map<String, Object> ans;
-            final var mapper = new ObjectMapper();
-            try (final var st = connection.prepareStatement(dataQuery)) {
-                st.setString(1, submissionId);
-                try (final var rs = st.executeQuery()) {
-                    if (!rs.next()) return Collections.emptyMap();
-                    final var json = rs.getString(1);
-                    ans = mapper.readValue(json, new TypeReference<>() {
-                    });
+                        %s = ?
+                    %s;
+                    """;
+            for (final var mapping : formMappings) {
+                String sql;
+                PreparedStatement ps;
+                switch (mapping.dbTable()) {
+                    default -> {
+                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
+                        ps = connection.prepareStatement(sql);
+                        ps.setString(1, submissionId);
+                    }
+                    case PERSONNEL_INFO_TABLE -> {
+                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission__id", "");
+                        ps = connection.prepareStatement(sql);
+                        ps.setString(1, submissionId);
+                    }
+                    case STATS_TABLE -> {
+                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
+                        ps = connection.prepareStatement(sql);
+                        ps.setString(1, submissionId);
+                    }
                 }
-            }
-
-            try (final var st = connection.prepareStatement(personnelQuery)) {
-                final var format = "personnel_info_%s_%s_%s";
-                st.setObject(1, ans.get("_index"));
-                try (final var rs = st.executeQuery()) {
-                    var cnt = 0;
-                    while (rs.next()) {
-                        final var json = rs.getString(1);
-                        final var temp = mapper.readValue(json, new TypeReference<Map<String, Object>>() {
-                        });
-                        final var entries = new ArrayList<>(temp.entrySet());
-                        for (var i = 0; i < temp.size(); i++) {
-                            ans.put(format.formatted(temp.get("_index"), ans.get("_index"), entries.get(i).getKey()), entries.get(i).getValue());
+                try (ps) {
+                    try (final var rs = ps.executeQuery()) {
+                        var cnt = 0;
+                        while (rs.next()) {
+                            result.put("%s:::%d".formatted(mapping.field(), cnt), rs.getObject(1));
+                            cnt++;
                         }
-                        cnt++;
                     }
                 }
             }
-            return ans;
         }
+        return result;
     }
 
-    @SuppressWarnings({"DuplicatedCode", "rawtypes"})
+    @SuppressWarnings({"DuplicatedCode"})
     public Collection<DataUpdate> updateSubmission(String submissionId, DataUpdate... updates) throws SQLException {
         if (updates.length == 0) return Collections.emptyList();
         final var droppedUpdates = new ArrayList<DataUpdate>();
