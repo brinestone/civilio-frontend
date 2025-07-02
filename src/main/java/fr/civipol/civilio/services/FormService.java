@@ -47,27 +47,9 @@ public class FormService implements AppService {
     }
 
     public Optional<FieldMapping> findFieldMapping(String form, String field) throws SQLException {
-        final var sql = """
-                SELECT
-                    i18n_key, db_column, db_table
-                FROM
-                    form_field_mappings ffm
-                WHERE
-                    ffm.form = CAST(? AS form_types) AND ffm.field = ?
-                LIMIT 1;
-                """;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
-            try (final var st = connection.prepareStatement(sql)) {
-                st.setString(1, form);
-                st.setString(2, field);
-                try (final var rs = st.executeQuery()) {
-                    if (!rs.next()) return Optional.empty();
-                    return Optional.of(new FieldMapping(
-                            field, rs.getString(1), rs.getString(2), rs.getString(3)
-                    ));
-                }
-            }
+            return findFieldMappingInternal(connection, form, field);
         }
     }
 
@@ -92,7 +74,8 @@ public class FormService implements AppService {
                 st.setString(1, field);
                 st.setString(2, i18nKey);
                 st.setObject(3, dbColumn);
-                st.setString(4, field.startsWith(PERSONNEL_INFO_TABLE) ? PERSONNEL_INFO_TABLE : field.startsWith(STATS_TABLE) ? STATS_TABLE : DATA_TABLE);
+                st.setString(4, field.startsWith(PERSONNEL_INFO_TABLE) ? PERSONNEL_INFO_TABLE
+                        : field.startsWith(STATS_TABLE) ? STATS_TABLE : DATA_TABLE);
                 st.setString(5, form);
             } else {
                 sql = """
@@ -141,6 +124,29 @@ public class FormService implements AppService {
         }
     }
 
+    private Optional<FieldMapping> findFieldMappingInternal(Connection connection, String form, String field)
+            throws SQLException {
+        final var sql = """
+                SELECT
+                    i18n_key, db_column, db_table
+                FROM
+                    form_field_mappings ffm
+                WHERE
+                    ffm.form = CAST(? AS form_types) AND ffm.field = ?
+                LIMIT 1;
+                """;
+        try (final var st = connection.prepareStatement(sql)) {
+            st.setString(1, form);
+            st.setString(2, field);
+            try (final var rs = st.executeQuery()) {
+                if (!rs.next())
+                    return Optional.empty();
+                return Optional.of(new FieldMapping(
+                        field, rs.getString(1), rs.getString(2), rs.getString(3)));
+            }
+        }
+    }
+
     private List<FieldMapping> findFieldMappingsInternal(Connection connection, String form) throws SQLException {
         final var sql = """
                 SELECT
@@ -159,23 +165,41 @@ public class FormService implements AppService {
                             rs.getString(1),
                             rs.getString(2),
                             rs.getString(3),
-                            rs.getString(4)
-                    ));
+                            rs.getString(4)));
                 }
                 return builder.build().toList();
             }
         }
     }
 
-    public <T> Collection<T> findAutoCompletionValuesFor(String field, String query, int limit,
-                                                         Function<String, T> deserializer) throws SQLException {
+    public <T> Collection<T> findAutoCompletionValuesFor(
+            String fieldId,
+            String form,
+            String query,
+            int limit,
+            Function<String, T> deserializer
+    ) throws SQLException {
         final var ans = new HashSet<T>();
         final var sql = """
-                SELECT DISTINCT UPPER(%s::TEXT) FROM %s WHERE LOWER(%s) LIKE LOWER(?) ORDER BY UPPER(%s) ASC LIMIT ?;
-                """.formatted(field, DATA_TABLE, field, field);
+                SELECT DISTINCT
+                    UPPER(TRIM(BOTH FROM %s::TEXT))
+                FROM
+                    %s
+                WHERE
+                    LOWER(%s) LIKE LOWER(?)
+                ORDER BY
+                    UPPER(TRIM(BOTH FROM %s::TEXT)) ASC
+                LIMIT ?;
+                """;
         final var ds = dataSourceProvider.get();
         try (final var conn = ds.getConnection()) {
-            try (final var st = conn.prepareStatement(sql)) {
+            final var mappingWrapper = findFieldMappingInternal(conn, form, fieldId);
+            if (mappingWrapper.isEmpty())
+                return Collections.emptyList();
+            final var mapping = mappingWrapper.get();
+            final var columnNameWrapper = sanitizeFieldName(mapping.dbTable(), mapping.dbColumn(), conn);
+            if (columnNameWrapper.isEmpty()) return Collections.emptyList();
+            try (final var st = conn.prepareStatement(sql.formatted(columnNameWrapper.get(), mapping.dbTable(), columnNameWrapper.get(), columnNameWrapper.get()))) {
                 st.setString(1, "%%" + query + "%%");
                 st.setInt(2, limit);
                 try (final var rs = st.executeQuery()) {
@@ -188,7 +212,11 @@ public class FormService implements AppService {
         return ans;
     }
 
-    public Map<String, String> findSubmissionData(String submissionId, String form, BiFunction<FieldMapping, Integer, String> keyMaker) throws SQLException {
+    public Map<String, String> findSubmissionData(
+            String submissionId,
+            String form,
+            BiFunction<FieldMapping, Integer, String> keyMaker
+    ) throws SQLException {
         final var ds = dataSourceProvider.get();
         final var result = new HashMap<String, String>();
         try (final var connection = ds.getConnection()) {
@@ -238,7 +266,8 @@ public class FormService implements AppService {
 
     @SuppressWarnings({"DuplicatedCode"})
     public Collection<DataUpdate> updateSubmission(String submissionId, DataUpdate... updates) throws SQLException {
-        if (updates.length == 0) return Collections.emptyList();
+        if (updates.length == 0)
+            return Collections.emptyList();
         final var droppedUpdates = new ArrayList<DataUpdate>();
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
@@ -261,7 +290,8 @@ public class FormService implements AppService {
             for (var update : updates) {
                 final var isPersonnelInfoUpdate = update.getField().startsWith(personnelFieldPrefix);
                 if (isPersonnelInfoUpdate) {
-                    Function<String, String[]> personnelFieldStripper = f -> Arrays.stream(f.split("_", 5)).skip(2L).toArray(String[]::new);
+                    Function<String, String[]> personnelFieldStripper = f -> Arrays.stream(f.split("_", 5)).skip(2L)
+                            .toArray(String[]::new);
                     final var segments = personnelFieldStripper.apply(update.getField());
                     var fieldName = segments[segments.length - 1];
                     final var rowIndex = segments[0];
@@ -305,7 +335,8 @@ public class FormService implements AppService {
                             }
                             st.setString(2, submissionId);
                             if (st.executeUpdate() > 0) {
-                                log.debug("updated field: {} with db fieldname: {} to {}", update.getField(), fieldName, update.getNewValue());
+                                log.debug("updated field: {} with db fieldname: {} to {}", update.getField(), fieldName,
+                                        update.getNewValue());
                             } else {
                                 log.warn("field not updated: {} with db fieldname: {}", update.getField(), fieldName);
                             }
@@ -321,8 +352,7 @@ public class FormService implements AppService {
         }
     }
 
-    private Optional<String> sanitizeFieldName(String table, String field, Connection connection) throws
-            SQLException {
+    private Optional<String> sanitizeFieldName(String table, String field, Connection connection) throws SQLException {
         try (final var st = connection.prepareStatement("""
                 SELECT
                     quote_ident(c.column_name)
@@ -334,7 +364,8 @@ public class FormService implements AppService {
             st.setString(1, table);
             st.setString(2, field);
             try (final var rs = st.executeQuery()) {
-                if (!rs.next()) return Optional.empty();
+                if (!rs.next())
+                    return Optional.empty();
                 return Optional.ofNullable(rs.getString(1));
             }
         }
@@ -430,8 +461,8 @@ public class FormService implements AppService {
         return result;
     }
 
-    private Stream<DataUpdate> filterUpdates(String tableName, Connection connection, DataUpdate... updates) throws
-            SQLException {
+    private Stream<DataUpdate> filterUpdates(String tableName, Connection connection, DataUpdate... updates)
+            throws SQLException {
         final var builder = Stream.<DataUpdate>builder();
         try (final var st = connection.prepareStatement("""
                 SELECT
@@ -444,7 +475,7 @@ public class FormService implements AppService {
             st.setArray(2, connection.createArrayOf("text",
                     Arrays.stream(updates)
                             .map(DataUpdate::getField)
-//                            .map(s -> s.substring(s.indexOf(":") + 1))
+                            // .map(s -> s.substring(s.indexOf(":") + 1))
                             .toArray(String[]::new)));
             st.setString(1, tableName);
             try (final var rs = st.executeQuery()) {
@@ -466,7 +497,7 @@ public class FormService implements AppService {
         return builder.build();
     }
 
-    @SuppressWarnings({"DuplicatedCode", "rawtypes", "unchecked"})
+    @SuppressWarnings({"DuplicatedCode", "unchecked"})
     public NewSubmissionResult createSubmission(DataUpdate... updates) throws SQLException {
         final var droppedUpdates = new ArrayList<DataUpdate>();
         if (updates.length == 0)

@@ -276,11 +276,12 @@ public class FOSAFormDataManager extends FormDataManager {
         loadOptionValue(FieldKeys.Fosa.REGION);
         loadOptionValue(FieldKeys.Fosa.FACILITY_TYPE);
         loadOptionValue(FieldKeys.Fosa.STATUS);
-        loadPowerSources();
+        loadOptionValue(FieldKeys.Fosa.BACKUP_POWER_SOURCES);
+//        loadPowerSources();
     }
 
     private void loadPowerSources() {
-        // TODO: implement this
+
     }
 
     private void loadOptionValue(String field) {
@@ -355,6 +356,7 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.HAS_TOILET_FIELD -> toiletAvailable;
             case FieldKeys.Fosa.HAS_ENEO_CONNECTION -> eneoConnection;
             case FieldKeys.Fosa.HAS_BACKUP_POWER_SOURCE -> emergencyPowerSourceAvailable;
+            case FieldKeys.Fosa.BACKUP_POWER_SOURCES -> emergencyPowerSources;
             case FieldKeys.Fosa.HAS_INTERNET_CONNECTION -> internetConnectionAvailable;
             case FieldKeys.Fosa.WATER_SOURCES -> waterSources;
             case FieldKeys.Fosa.ENVIRONMENT_TYPE -> environmentType;
@@ -380,6 +382,7 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS -> eventRegistrationTypes;
             case FieldKeys.Fosa.WATER_SOURCES -> waterSourceTypes;
             case FieldKeys.Fosa.ENVIRONMENT_TYPE -> environmentTypes;
+            case FieldKeys.Fosa.BACKUP_POWER_SOURCES -> emergencyPowerSourceTypes;
             default -> null;
         };
     }
