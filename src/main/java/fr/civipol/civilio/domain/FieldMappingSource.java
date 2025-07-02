@@ -1,10 +1,12 @@
 package fr.civipol.civilio.domain;
 
+import fr.civipol.civilio.entity.FieldMapping;
+
 import java.util.Collection;
 import java.util.function.Consumer;
 
 public interface FieldMappingSource {
-    void findAllFields(Consumer<Collection<String>> callback);
+    void findAllDbColumns(String form, Consumer<Collection<String>> callback);
 
-//    Optional<FieldMapping> findMappingFor(String form, String field);
+    void findConfiguredMappings(String form, Consumer<Collection<FieldMapping>> callback);
 }

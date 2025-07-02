@@ -15,8 +15,6 @@ import javafx.collections.transformation.FilteredList;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.textfield.TextFields;
 
-import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -72,27 +70,15 @@ public class FieldKeys {
         public static final String PERSONNEL_COUNT = "fosa.form.fields.key_personnel_count.title";
         public static final String STATUS = "fosa.form.fields.fosa_status.title";
         public static final String ATTACHED_CSC = "fosa.form.fields.csc_reg.title";
-
-        public static String[] allFields() {
-            return Arrays.stream(Fosa.class.getDeclaredFields())
-                    .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers()))
-                    .map(f -> {
-                        try {
-                            f.setAccessible(true);
-                            return (String) f.get(null);
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toArray(String[]::new);
-        }
+        public static final String INDEX = "fosa.form.fields.index";
+        public static final String VALIDATION_CODE = "fosa.form.fields.validation_code";
     }
 
     @SuppressWarnings("rawtypes")
-    public static Category fosaFieldSettingsCategory(FieldMappingSource fieldFinder) {
+    public static Category fosaFieldSettingsCategory(FieldMappingSource fieldMappingSource) {
         final var fieldMap = FXCollections.<String, Property>observableHashMap();
         final var allFields = FXCollections.<String>observableArrayList();
-        fieldFinder.findAllFields(allFields::setAll);
+        fieldMappingSource.findAllDbColumns("fosa", allFields::setAll);
 
         Function<String, Setting> settingFactory = k -> Setting.of(k, Field.ofStringType((StringProperty) fieldMap.computeIfAbsent(k, kk -> new SimpleStringProperty()))
                 .validate(CustomValidator.forPredicate(v -> allFields.stream().anyMatch(s -> s.equals(v)), "fosa.form.msg.invalid_value"))
@@ -120,7 +106,7 @@ public class FieldKeys {
                                             if (s.equalsIgnoreCase(f)) return false;
                                         } else if (Objects.equals(otherProperty.getValue(), f)) return false;
                                     }
-                                    return f.contains(nv);
+                                    return f.toLowerCase().contains(nv.toLowerCase());
                                 });
                             }
                         });
@@ -129,6 +115,8 @@ public class FieldKeys {
         return Category.of("fosa.form.title")
                 .subCategories(
                         Category.of("mapper.categories.forms.fosa.base_fields.title",
+                                settingFactory.apply(Fosa.INDEX),
+                                settingFactory.apply(Fosa.VALIDATION_CODE),
                                 settingFactory.apply(Fosa.RESPONDENT_NAME),
                                 settingFactory.apply(Fosa.POSITION),
                                 settingFactory.apply(Fosa.PHONE),

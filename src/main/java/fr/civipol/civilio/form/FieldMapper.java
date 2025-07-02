@@ -17,15 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.prefs.Preferences;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class FieldMapper implements StorageHandler {
+public class FieldMapper implements StorageHandler, FieldMappingSource {
     private static final String WINDOW_POS_X = "WINDOW_POS_X";
     private static final String WINDOW_POS_Y = "WINDOW_POS_Y";
     private static final String WINDOW_HEIGHT = "WINDOW_HEIGHT";
@@ -38,16 +40,9 @@ public class FieldMapper implements StorageHandler {
 
     public PreferencesFx makePrefsForm() {
         final var ts = new ResourceBundleService(ResourceBundle.getBundle("messages"));
-        Function<String, FieldMappingSource> f = form -> (callback) -> executorService.submit(() -> {
-            try {
-                final var result = new ArrayList<>(formService.getFormFields(form));
-                Platform.runLater(() -> callback.accept(result));
-            } catch (Throwable t) {
-                log.error("error while finding fields", t);
-            }
-        });
+        Function<String, FieldMappingSource> f = x -> this;
         return PreferencesFx.of(this,
-                        FieldKeys.fosaFieldSettingsCategory(f.apply("fosa"))
+                        FieldKeys.fosaFieldSettingsCategory(this)
                 ).i18n(ts)
                 .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("/img/Logo32x32.png"))))
                 .dialogTitle(ts.translate("field_mapper.title"))
@@ -184,5 +179,29 @@ public class FieldMapper implements StorageHandler {
     @Override
     public boolean clearPreferences() {
         return true;
+    }
+
+    @Override
+    public void findAllDbColumns(String form, Consumer<Collection<String>> callback) {
+        executorService.submit(() -> {
+            try {
+                final var result = new ArrayList<>(formService.getFormFields());
+                Platform.runLater(() -> callback.accept(result));
+            } catch (Throwable t) {
+                log.error("error while finding fields", t);
+            }
+        });
+    }
+
+    @Override
+    public void findConfiguredMappings(String form, Consumer<Collection<FieldMapping>> callback) {
+        executorService.submit(() -> {
+            try {
+                final var result = formService.findFieldMappings(form);
+                Platform.runLater(() -> callback.accept(result));
+            } catch (Throwable t) {
+                log.error("error while finding field mappings for form: {}", form, t);
+            }
+        });
     }
 }

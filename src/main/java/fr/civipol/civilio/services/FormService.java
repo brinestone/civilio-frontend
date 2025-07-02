@@ -20,6 +20,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +37,13 @@ public class FormService implements AppService {
     @SuppressWarnings("CdiInjectionPointsInspection")
     public FormService(Lazy<DataSource> dataSourceProvider) {
         this.dataSourceProvider = dataSourceProvider;
+    }
+
+    public Collection<FieldMapping> findFieldMappings(String form) throws SQLException {
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            return findFieldMappingsInternal(connection, form);
+        }
     }
 
     public Optional<FieldMapping> findFieldMapping(String form, String field) throws SQLException {
@@ -109,9 +117,9 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<String> getFormFields(String form) throws SQLException {
+    public Collection<String> getFormFields() throws SQLException {
         final var sql = """
-                SELECT
+                SELECT DISTINCT
                     c.column_name
                 FROM
                     information_schema.columns c
@@ -121,8 +129,7 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement(sql)) {
-                st.setString(1, form);
-                st.setArray(2, connection.createArrayOf("text", TABLES));
+                st.setArray(1, connection.createArrayOf("text", TABLES));
                 try (final var rs = st.executeQuery()) {
                     final var list = new ArrayList<String>();
                     while (rs.next()) {
@@ -181,14 +188,14 @@ public class FormService implements AppService {
         return ans;
     }
 
-    public Map<String, Object> findSubmissionData(String submissionId, String form) throws SQLException {
+    public Map<String, String> findSubmissionData(String submissionId, String form, BiFunction<FieldMapping, Integer, String> keyMaker) throws SQLException {
         final var ds = dataSourceProvider.get();
-        final var result = new HashMap<String, Object>();
+        final var result = new HashMap<String, String>();
         try (final var connection = ds.getConnection()) {
             final var formMappings = findFieldMappingsInternal(connection, form);
             final var sqlFormat = """
                     SELECT
-                        %s
+                        %s::TEXT
                     FROM
                         %s
                     WHERE
@@ -219,7 +226,7 @@ public class FormService implements AppService {
                     try (final var rs = ps.executeQuery()) {
                         var cnt = 0;
                         while (rs.next()) {
-                            result.put("%s:::%d".formatted(mapping.field(), cnt), rs.getObject(1));
+                            result.put(keyMaker.apply(mapping, cnt), rs.getString(1));
                             cnt++;
                         }
                     }

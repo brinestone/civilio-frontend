@@ -12,40 +12,56 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
 public abstract class FormDataManager {
     protected final ObservableMap<String, DataUpdate> updates = FXCollections.observableHashMap();
-    public static final String INDEX_FIELD = "_index";
-    public static final String VALIDATION_CODE_FIELD = "q14_02_validation_code";
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
-    protected final Supplier<Stream<String>> fieldSource;
 
-    public FormDataManager(Function<String, ?> valueSource, Supplier<Stream<String>> fieldSource) {
+    public FormDataManager(Function<String, ?> valueSource, Function<String, String> fieldExtractor) {
         this.valueSource = valueSource;
-        this.fieldSource = fieldSource;
+        this.fieldExtractor = fieldExtractor;
     }
 
     public abstract ObservableBooleanValue pristine();
 
     public abstract Collection<DataUpdate> getPendingUpdates();
+
     public abstract void trackFieldChanges();
 
+    /**
+     * Extracts field names from map keys
+     */
+    protected final Function<String, String> fieldExtractor;
+
+    /**
+     * Retrieves the form-specific key which points to its index code field.
+     * Classes implementing this class must provide an implementation for this.
+     *
+     * @return The key which points to the index code field.
+     */
+    protected abstract String getIndexFieldKey();
+
+    /**
+     * Retrieves the form-specific key which points to its validation code field.
+     * Classes implementing this class must provide an implementation for this.
+     *
+     * @return The key which points to the validation code field.
+     */
+    protected abstract String getValidationCodeFieldKey();
+
     public Property getPropertyFor(String id) {
-        return switch (id) {
-            case VALIDATION_CODE_FIELD -> validationCode;
-            case INDEX_FIELD -> index;
-            default -> null;
-        };
+        if (id.equals(getIndexFieldKey())) return index;
+        else if (id.equals(getValidationCodeFieldKey())) return validationCode;
+        return null;
     }
 
     public void resetChanges() {
@@ -54,10 +70,12 @@ public abstract class FormDataManager {
     }
 
     protected Class<?> getPropertyTypeFor(String id) {
-        return switch (id) {
-            case VALIDATION_CODE_FIELD, INDEX_FIELD -> String.class;
-            default -> null;
-        };
+        return Optional.ofNullable(id)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> {
+                    if (s.equals(getIndexFieldKey()) || s.equals(getValidationCodeFieldKey())) return String.class;
+                    return null;
+                }).orElse(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -106,33 +124,22 @@ public abstract class FormDataManager {
     }
 
     @SuppressWarnings("unchecked")
-    protected void loadValue(String field, Object defaultValue) {
-        final var property = getPropertyFor(field);
+    protected void loadValue(String key, Object defaultValue) {
+        final var field = fieldExtractor.apply(key);
+        final var property = getPropertyFor(key);
         if (property == null)
             return;
-        final var serializedValue = valueSource.apply(field);
-        final var parsedValue = deserializeValue(serializedValue, field);
+        final var serializedValue = valueSource.apply(key);
+        final var parsedValue = deserializeValue(serializedValue, key);
         property.setValue(Optional.ofNullable(parsedValue).orElse(defaultValue));
     }
 
     public void loadValues() {
-        loadValue(INDEX_FIELD, "");
-        loadValue(VALIDATION_CODE_FIELD, "");
-        trackUpdatesForField(VALIDATION_CODE_FIELD);
-        trackUpdatesForField(INDEX_FIELD);
+        loadValue(getIndexFieldKey(), "");
+        loadValue(getValidationCodeFieldKey(), "");
+        trackUpdatesForField(getIndexFieldKey());
+        trackUpdatesForField(getValidationCodeFieldKey());
     }
-
-//    @SuppressWarnings("unchecked")
-//    public void updateValue(String id) {
-//        final var property = getPropertyFor(id);
-//        final var type = getPropertyTypeFor(id);
-//
-//        if (property == null || type == null)
-//            return;
-//        final var rawValue = valueSource.apply(id);
-//        final var parsedValue = deserializeValue(rawValue, id);
-//        Platform.runLater(() -> property.setValue(parsedValue));
-//    }
 
     public StringProperty indexProperty() {
         return index;

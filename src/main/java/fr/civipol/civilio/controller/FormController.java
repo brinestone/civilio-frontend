@@ -1,5 +1,6 @@
 package fr.civipol.civilio.controller;
 
+import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
@@ -49,7 +50,9 @@ public abstract class FormController implements AppController {
     public void setSubmissionId(String submissionId) {
         this.submissionId.set(submissionId);
     }
+
     protected abstract FormHeaderController getHeaderManagerController();
+
     protected FormController() {
         submissionId.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
@@ -57,10 +60,32 @@ public abstract class FormController implements AppController {
         });
     }
 
+    protected String keyMaker(FieldMapping mapping, Integer ordinal) {
+        return "%s:::%d".formatted(mapping.field(), ordinal);
+    }
+
+    protected String extractFieldKey(String s) {
+        return Optional.ofNullable(s)
+                .filter(StringUtils::isNotBlank)
+                .map(ss -> ss.split(":::")[0])
+                .orElse(null);
+    }
+
     protected void initializeController() {
         getHeaderManagerController().indexProperty().bindBidirectional(getModel().indexProperty());
         getHeaderManagerController().validationCodeProperty().bindBidirectional(getModel().validationCodeProperty());
         getHeaderManagerController().submissionIdProperty().bindBidirectional(submissionId);
+    }
+
+    protected Object valueLoader(String id) {
+        final var key = extractFieldKey(id);
+        final var result = submissionData.keySet().stream()
+                .filter(k -> k.startsWith(key))
+                .map(submissionData::get)
+                .toList();
+        if (result.isEmpty()) return null;
+        else if (result.size() == 1) return result.get(0);
+        return result;
     }
 
     public void updateFormValues() {
@@ -110,7 +135,7 @@ public abstract class FormController implements AppController {
      */
     protected abstract void doSubmit() throws Exception;
 
-    protected abstract Map<String, Object> loadSubmissionData() throws Exception;
+    protected abstract Map<String, String> loadSubmissionData() throws Exception;
 
     protected abstract ExecutorService getExecutorService();
 

@@ -15,13 +15,13 @@ import com.dlsc.formsfx.view.controls.SimpleDateControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.form.FOSAFormDataManager;
+import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.GeoPointField;
@@ -103,15 +103,18 @@ public class FOSAFormController extends FormController implements Initializable 
     private Tab tPersonnel;
 
     @FXML
-    private Tab tRespondant;
+    private Tab tRespondent;
 
     @Getter(AccessLevel.PROTECTED)
     private FormDataManager model;
 
     @FXML
     @Getter(AccessLevel.PROTECTED)
+    @SuppressWarnings("unused")
     private FormHeaderController headerManagerController;
+
     @FXML
+    @SuppressWarnings("unused")
     private FormFooterController footerManagerController;
 
     @Override
@@ -127,9 +130,9 @@ public class FOSAFormController extends FormController implements Initializable 
         this.resources = resources;
         final var ts = new ResourceBundleService(resources);
         model = new FOSAFormDataManager(
-                submissionData::get,
-                this::findOptionsFor,
-                submissionData.keySet()::stream
+                this::valueLoader,
+                this::extractFieldKey,
+                this::findOptionsFor
         );
         initializeController();
         model.trackFieldChanges();
@@ -148,8 +151,8 @@ public class FOSAFormController extends FormController implements Initializable 
         footerManagerController.setOnSubmit(this::handleSubmitEvent);
     }
 
-    protected final Map<String, Object> loadSubmissionData() throws SQLException, JsonProcessingException {
-        return formService.findSubmissionData(submissionId.get(), "fosa");
+    protected final Map<String, String> loadSubmissionData() throws SQLException {
+        return formService.findSubmissionData(submissionId.get(), "fosa", this::keyMaker);
     }
 
     private void configureForms(TranslationService ts) {
@@ -159,7 +162,7 @@ public class FOSAFormController extends FormController implements Initializable 
         setEquipmentContainer(ts);
         setPersonnelStatusContainer(ts);
 
-        Stream.of(tRespondant, tIdentification, tEvents, tInfrastructure, tPersonnel)
+        Stream.of(tRespondent, tIdentification, tEvents, tInfrastructure, tPersonnel)
                 .forEach(tab -> {
                     final var form = (Form) tab.getUserData();
                     form.validProperty().addListener((ob, ov, nv) -> {
@@ -366,10 +369,10 @@ public class FOSAFormController extends FormController implements Initializable 
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.quarterProperty())
                                                 .label("fosa.form.fields.quarter.title")
-                                                .render(bindAutoCompletionWrapper(FOSAFormDataManager.FOSA_QUARTER_FIELD, String::valueOf))
+                                                .render(bindAutoCompletionWrapper(FieldKeys.Fosa.QUARTER, String::valueOf))
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.localityProperty())
-                                                .render(bindAutoCompletionWrapper(FOSAFormDataManager.FOSA_LOCALITY_FIELD, String::valueOf))
+                                                .render(bindAutoCompletionWrapper(FieldKeys.Fosa.LOCALITY, String::valueOf))
                                                 .label("fosa.form.fields.locality.title")
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.officeNameProperty())
@@ -407,7 +410,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                                 .tooltip("fosa.form.fields.has_maternity.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.attachedCscProperty())
-                                                .render(bindAutoCompletionWrapper(FOSAFormDataManager.FOSA_ATTACHED_CSC, String::valueOf))
+                                                .render(bindAutoCompletionWrapper(FieldKeys.Fosa.ATTACHED_CSC, String::valueOf))
                                                 .label("fosa.form.fields.csc_reg.title")
                                                 .tooltip("fosa.form.fields.csc_reg.description")
                                                 .span(ColSpan.HALF),
@@ -441,7 +444,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                 Field.ofStringType(model.positionProperty())
                                         .span(ColSpan.HALF)
                                         .required(true)
-                                        .render(bindAutoCompletionWrapper(FOSAFormDataManager.FOSA_POSITION_FIELD, String::valueOf))
+                                        .render(bindAutoCompletionWrapper(FieldKeys.Fosa.POSITION, String::valueOf))
                                         .tooltip("fosa.form.fields.position.description")
                                         .label("fosa.form.fields.position.title"),
                                 Field.ofStringType(model.phoneProperty())
@@ -472,6 +475,6 @@ public class FOSAFormController extends FormController implements Initializable 
         respondentForm = form;
         form.binding(BindingMode.CONTINUOUS);
         form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
-        tRespondant.setUserData(form);
+        tRespondent.setUserData(form);
     }
 }

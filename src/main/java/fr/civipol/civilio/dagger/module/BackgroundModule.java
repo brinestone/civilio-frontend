@@ -54,7 +54,7 @@ public class BackgroundModule {
         config.setPassword(pass.get());
         config.setUsername(user.get());
         config.setDataSourceClassName("org.postgresql.ds.PGSimpleDataSource");
-        config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s", host.get(), port.get(), dbName.get()));
+        config.setJdbcUrl("jdbc:postgresql://%s:%d/%s".formatted(host.get(), port.get(), dbName.get()));
         if (useSsl) {
             config.addDataSourceProperty("sslmode", "require");
         }
