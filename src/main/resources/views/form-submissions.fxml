@@ -59,8 +59,6 @@
                         <TableColumn fx:id="tcValidated" prefWidth="104.0" text="%fosa.columns.validated"/>
                         <TableColumn fx:id="tcValidationCode" prefWidth="200" text="%fosa.columns.validation_code"/>
                         <TableColumn fx:id="tcRecordedBy" prefWidth="126.0" text="%fosa.columns.recorded_by"/>
-                        <TableColumn fx:id="tcRegion" editable="false" prefWidth="167.0"
-                                     text="%fosa.columns.recorded_at"/>
                         <TableColumn fx:id="tcRecordedOn" editable="false" prefWidth="182.0"
                                      text="%fosa.columns.recorded_on"/>
                     </columns>

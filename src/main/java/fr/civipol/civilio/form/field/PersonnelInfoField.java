@@ -17,15 +17,15 @@ import java.util.List;
 public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, List<PersonnelInfo>, PersonnelInfoField> {
     private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
-    private static final String NAME_COLUMN_LABEL = "personnel_info.columns.name.title";
-    private static final String ROLE_COLUMN_LABEL = "personnel_info.columns.role.title";
-    private static final String GENDER_COLUMN_LABEL = "personnel_info.columns.gender.title";
-    private static final String PHONE_COLUMN_LABEL = "personnel_info.columns.phone.title";
-    private static final String AGE_COLUMN_LABEL = "personnel_info.columns.age.title";
-    private static final String EMAIL_COLUMN_LABEL = "personnel_info.columns.email.title";
-    private static final String HAS_CS_TRAINING_COLUMN_LABEL = "personnel_info.columns.has_cs_training.title";
-    private static final String EDUCATION_LEVEL_COLUMN_LABEL = "personnel_info.columns.education_level.title";
-    private static final String PC_KNOWLEDGE_COLUMN_LABEL = "personnel_info.columns.pc_knowledge.title";
+    private static final String NAME_COLUMN_LABEL = "data_personnel.columns.name.title";
+    private static final String ROLE_COLUMN_LABEL = "data_personnel.columns.role.title";
+    private static final String GENDER_COLUMN_LABEL = "data_personnel.columns.gender.title";
+    private static final String PHONE_COLUMN_LABEL = "data_personnel.columns.phone.title";
+    private static final String AGE_COLUMN_LABEL = "data_personnel.columns.age.title";
+    private static final String EMAIL_COLUMN_LABEL = "data_personnel.columns.email.title";
+    private static final String HAS_CS_TRAINING_COLUMN_LABEL = "data_personnel.columns.has_cs_training.title";
+    private static final String EDUCATION_LEVEL_COLUMN_LABEL = "data_personnel.columns.education_level.title";
+    private static final String PC_KNOWLEDGE_COLUMN_LABEL = "data_personnel.columns.pc_knowledge.title";
     private final StringProperty emailColumnLabel, addRowLabel, removeSelectionLabel, nameColumnLabel, roleColumnLabel, genderColumnLabel, phoneColumnLabel, ageColumnLabel, hasCivilStatusTrainingColumnLabel, educationLevelColumnLabel, computerKnowledgeLevelColumnLabel;
     private ListProperty<Option> genderOptions, educationLevelOptions, computerKnowledgeLevels;
 

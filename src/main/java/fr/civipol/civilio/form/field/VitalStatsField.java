@@ -2,9 +2,9 @@ package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.entity.FosaStat;
-import fr.civipol.civilio.form.control.fosa.VitalStatsControl;
-import fr.civipol.civilio.util.NotifyCallback;
+import fr.civipol.civilio.form.control.fosa.FosaStatsControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class VitalStatsField extends DataField<ListProperty<FosaStat>, List<FosaStat>, VitalStatsField> {
     private final StringProperty yearColumnLabel;
@@ -24,10 +25,10 @@ public class VitalStatsField extends DataField<ListProperty<FosaStat>, List<Fosa
     private final StringProperty addRowLabel;
     private final StringProperty removeSelectionLabel;
     private ObservableList<FosaStat> valueList;
-    private static final String YEAR_COLUMN_LABEL = "fosa_vital_stats.columns.year";
-    private static final String DEATHS_COLUMN_LABEL = "fosa_vital_stats.columns.deaths";
-    private static final String BIRTHS_COLUMN_LABEL = "fosa_vital_stats.columns.births";
-    private static final String OBSERVATIONS_COLUMN_LABEL = "fosa_vital_stats.columns.observation";
+    private static final String YEAR_COLUMN_LABEL = "fosa.columns.year";
+    private static final String DEATHS_COLUMN_LABEL = "fosa.columns.deaths";
+    private static final String BIRTHS_COLUMN_LABEL = "fosa.columns.births";
+    private static final String OBSERVATIONS_COLUMN_LABEL = "fosa.columns.observation";
     private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
 
@@ -82,9 +83,9 @@ public class VitalStatsField extends DataField<ListProperty<FosaStat>, List<Fosa
         return this;
     }
 
-    public static VitalStatsField statsField(ObservableList<FosaStat> items, ListProperty<FosaStat> target, NotifyCallback notifyCallback) {
+    public static VitalStatsField statsField(ObservableList<FosaStat> items, ListProperty<FosaStat> target, Consumer<FieldChange> notifyCallback) {
         return new VitalStatsField(new SimpleListProperty<>(FXCollections.observableArrayList(items)), target)
                 .values(items)
-                .render(() -> new VitalStatsControl(notifyCallback));
+                .render(() -> new FosaStatsControl(notifyCallback));
     }
 }

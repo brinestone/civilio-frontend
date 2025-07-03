@@ -1,7 +1,7 @@
 package fr.civipol.civilio.form;
 
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
-import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
@@ -17,30 +17,42 @@ import org.apache.commons.lang3.StringUtils;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public abstract class FormDataManager {
-    protected final ObservableMap<String, DataUpdate> updates = FXCollections.observableHashMap();
+    protected final ObservableMap<String, FieldChange> changes = FXCollections.observableHashMap();
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
 
-    public FormDataManager(Function<String, ?> valueSource, Function<String, String> fieldExtractor) {
+    public FormDataManager(
+            Function<String, ?> valueSource,
+            BiFunction<String, Integer, String> keyMaker,
+            Function<String, String> keyExtractor
+    ) {
         this.valueSource = valueSource;
-        this.fieldExtractor = fieldExtractor;
+        this.keyMaker = keyMaker;
+        this.keyExtractor = keyExtractor;
     }
 
     public abstract ObservableBooleanValue pristine();
 
-    public abstract Collection<DataUpdate> getPendingUpdates();
+    public Collection<FieldChange> getPendingUpdates() {
+        return changes.values().stream()
+                .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
+                .peek(u -> u.setField(keyExtractor.apply(u.getField())))
+                .toList();
+    }
 
     public abstract void trackFieldChanges();
 
     /**
      * Extracts field names from map keys
      */
-    protected final Function<String, String> fieldExtractor;
+    protected final BiFunction<String, Integer, String> keyMaker;
+    protected final Function<String, String> keyExtractor;
 
     /**
      * Retrieves the form-specific key which points to its index code field.
@@ -65,8 +77,12 @@ public abstract class FormDataManager {
     }
 
     public void resetChanges() {
-        if (Platform.isFxApplicationThread()) updates.clear();
-        else Platform.runLater(updates::clear);
+        Runnable f = () -> {
+            loadValues();
+            markAsPristine();
+        };
+        if (Platform.isFxApplicationThread()) f.run();
+        else Platform.runLater(f);
     }
 
     protected Class<?> getPropertyTypeFor(String id) {
@@ -106,26 +122,23 @@ public abstract class FormDataManager {
         if (property instanceof ListProperty l) {
             final var initialValue = List.copyOf(l);
             l.addListener((ListChangeListener) c -> {
-                final var entry = updates.computeIfAbsent(field, k -> new DataUpdate(k, null, initialValue));
+                final var entry = changes.computeIfAbsent(field, k -> new FieldChange(k, null, initialValue, 0));
                 while (c.next()) {
                     entry.setNewValue(List.copyOf(l));
                 }
-                if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
-                    updates.remove(field);
             });
         } else
             property.addListener((ob, ov, nv) -> {
-                final var updatesEntry = updates.computeIfAbsent(field, k -> new DataUpdate(k, nv, ov));
+                final var updatesEntry = changes.computeIfAbsent(field, k -> new FieldChange(k, nv, ov, 0));
                 updatesEntry.setNewValue(nv);
 
                 if (Objects.equals(nv, updatesEntry.getOldValue()))
-                    updates.remove(field);
+                    changes.remove(field);
             });
     }
 
     @SuppressWarnings("unchecked")
     protected void loadValue(String key, Object defaultValue) {
-        final var field = fieldExtractor.apply(key);
         final var property = getPropertyFor(key);
         if (property == null)
             return;
@@ -139,6 +152,10 @@ public abstract class FormDataManager {
         loadValue(getValidationCodeFieldKey(), "");
         trackUpdatesForField(getIndexFieldKey());
         trackUpdatesForField(getValidationCodeFieldKey());
+    }
+
+    public void markAsPristine() {
+        this.changes.clear();
     }
 
     public StringProperty indexProperty() {

@@ -61,7 +61,11 @@ public abstract class FormController implements AppController {
     }
 
     protected String keyMaker(FieldMapping mapping, Integer ordinal) {
-        return "%s:::%d".formatted(mapping.field(), ordinal);
+        return keyMaker(mapping.field(), ordinal);
+    }
+
+    protected String keyMaker(String key, Integer ordinal) {
+        return "%s:::%d".formatted(key, ordinal);
     }
 
     protected String extractFieldKey(String s) {
@@ -69,6 +73,14 @@ public abstract class FormController implements AppController {
                 .filter(StringUtils::isNotBlank)
                 .map(ss -> ss.split(":::")[0])
                 .orElse(null);
+    }
+
+    protected String[] extractFieldIdentifiers(String field) {
+        return Optional.ofNullable(field)
+                .filter(s -> s.contains(":::"))
+                .map(ss -> ss.split(":::")[1])
+                .map(s -> s.split("\\|"))
+                .orElse(new String[]{});
     }
 
     protected void initializeController() {
@@ -107,7 +119,10 @@ public abstract class FormController implements AppController {
                             try {
                                 Optional.ofNullable(loadSubmissionData())
                                         .ifPresent(data -> Platform.runLater(() -> submissionData.putAll(data)));
-                                Platform.runLater(getModel()::loadValues);
+                                Platform.runLater(() -> {
+                                    getModel().loadValues();
+                                    getModel().markAsPristine();
+                                });
                             } catch (Throwable e) {
                                 showErrorAlert(e.getLocalizedMessage());
                             }

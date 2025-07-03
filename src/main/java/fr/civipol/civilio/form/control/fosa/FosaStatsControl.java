@@ -1,11 +1,12 @@
 package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.converter.CachedStringConverter;
 import fr.civipol.civilio.domain.viewmodel.FOSAVitalCSCStatViewModel;
 import fr.civipol.civilio.entity.FosaStat;
+import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.field.VitalStatsField;
-import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,18 +27,18 @@ import javafx.scene.layout.HBox;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class VitalStatsControl extends SimpleControl<VitalStatsField> {
+public class FosaStatsControl extends SimpleControl<VitalStatsField> {
     private final BooleanProperty listItemsChanged = new SimpleBooleanProperty(false);
     private TableView<FOSAVitalCSCStatViewModel> tvStats;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcYear;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcBirths;
     private TableColumn<FOSAVitalCSCStatViewModel, Integer> tcDeaths;
     private TableColumn<FOSAVitalCSCStatViewModel, Boolean> tcSelection;
-    private final NotifyCallback updateTrigger;
+    private final Consumer<FieldChange> updateTrigger;
     private Button btnAddRow;
     private Label mainLabel;
     private HBox actionBar;
@@ -45,7 +46,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
     private Button btnRemoveSelection;
     private ObservableSet<FOSAVitalCSCStatViewModel> selectedItems;
 
-    public VitalStatsControl(NotifyCallback updateTrigger) {
+    public FosaStatsControl(Consumer<FieldChange> updateTrigger) {
         this.updateTrigger = updateTrigger;
     }
 
@@ -124,6 +125,12 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
                             .map(FOSAVitalCSCStatViewModel::new)
                             .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getYear(), vm.getYear()))))
                             .peek(vm -> vm.selectedProperty().addListener((obb, ovv, nvv) -> listItemsChanged.set(true)))
+                            .peek(vm -> {
+                                int ordinal = field.getValue().indexOf(vm.getStat());
+                                vm.yearProperty().addListener((ob, ov, nv) -> triggerValueUpdate(FieldKeys.Fosa.STATS_YEAR_1, ordinal, ov, nv));
+                                vm.deathCountProperty().addListener((ob, ov, nv) -> triggerValueUpdate(FieldKeys.Fosa.STATS_DEATH_COUNT_1, ordinal, ov, nv));
+                                vm.birthCountProperty().addListener((ob, ov, nv) -> triggerValueUpdate(FieldKeys.Fosa.STATS_BIRTH_COUNT_1, ordinal, ov, nv));
+                            })
                             .toList();
                     tvStats.getItems().addAll(wrappers);
                 } else if (c.wasRemoved()) {
@@ -150,11 +157,8 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         });
     }
 
-    private void triggerValueUpdate() {
-        final var temp = new ArrayList<>(field.getValue());
-        field.valueProperty().clear();
-        tvStats.getItems().clear();
-        field.valueProperty().addAll(temp);
+    private void triggerValueUpdate(String fieldId, Integer ordinal, Object oldValue, Object newValue) {
+        updateTrigger.accept(new FieldChange(fieldId, newValue, oldValue, ordinal));
     }
 
     @Override
@@ -215,9 +219,9 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         actionBar = new HBox();
         tvStats = new TableView<>();
         tcSelection = new TableColumn<>();
-        tcYear = new TableColumn<>("fosa_vital_stats.columns.year");
-        tcBirths = new TableColumn<>("fosa_vital_stats.columns.births");
-        tcDeaths = new TableColumn<>("fosa_vital_stats.columns.deaths");
+        tcYear = new TableColumn<>("fosa.columns.year");
+        tcBirths = new TableColumn<>("fosa.columns.births");
+        tcDeaths = new TableColumn<>("fosa.columns.deaths");
         btnAddRow = new Button("controls.stats_collector.actions.add_new");
         selectedItems = FXCollections.observableSet();
     }
@@ -228,15 +232,12 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
         btnAddRow.setOnAction(this::onAddRowButtonClicked);
         tcYear.setOnEditCommit(e -> {
             e.getRowValue().setYear(e.getNewValue());
-            triggerValueUpdate();
         });
         tcDeaths.setOnEditCommit(e -> {
             e.getRowValue().setDeathCount(e.getNewValue());
-            triggerValueUpdate();
         });
         tcBirths.setOnEditCommit(e -> {
             e.getRowValue().setBirthCount(e.getNewValue());
-            triggerValueUpdate();
         });
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
         cbSelectAll.setOnAction(e -> tvStats.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
@@ -244,6 +245,10 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
 
     private void onRemoveSelectionButtonClicked(ActionEvent ignored) {
         for (var item : selectedItems) {
+            int ordinal = field.getValue().indexOf(item.getStat());
+            triggerValueUpdate(FieldKeys.Fosa.STATS_YEAR_1, ordinal, null, null);
+            triggerValueUpdate(FieldKeys.Fosa.STATS_BIRTH_COUNT_1, ordinal, null, null);
+            triggerValueUpdate(FieldKeys.Fosa.STATS_DEATH_COUNT_1, ordinal, null, null);
             field.valueProperty().remove(item.getStat());
         }
         selectedItems.clear();
@@ -259,6 +264,7 @@ public class VitalStatsControl extends SimpleControl<VitalStatsField> {
 
             final var stats = FosaStat.builder().year(year).build();
             field.getValue().add(stats);
+            triggerValueUpdate(FieldKeys.Fosa.STATS_YEAR_1, field.getValue().size() - 1, null, year);
             break;
         }
         field.getValue().sort((o1, o2) -> o2.getYear() - o1.getYear());

@@ -1,6 +1,7 @@
 package fr.civipol.civilio.controller;
 
 import dagger.Lazy;
+import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.event.SubmissionRef;
 import fr.civipol.civilio.form.FieldMapper;
 import fr.civipol.civilio.services.FormService;
@@ -34,10 +35,13 @@ public class FormHeaderController implements AppController {
     private final ExecutorService executorService;
     private final Lazy<FieldMapper> fieldMapperProvider;
     private final ReadOnlyBooleanWrapper valid = new ReadOnlyBooleanWrapper(true);
+    private final BooleanProperty canGoNext = new SimpleBooleanProperty(this, "canGoNext", true);
+    private final BooleanProperty canGoPrev = new SimpleBooleanProperty(this, "canGoNext", true);
     private final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
     private final StringProperty index = new SimpleStringProperty(this, "index");
     private final StringProperty validationCode = new SimpleStringProperty(this, "validationCode");
     private final ObjectProperty<SubmissionRef> submissionRef = new SimpleObjectProperty<>();
+    private final ObjectProperty<FormType> formType = new SimpleObjectProperty<>(this, "formType");
     @FXML
     private Button btnNext;
     @FXML
@@ -116,27 +120,27 @@ public class FormHeaderController implements AppController {
         btnPrev.disableProperty().bind(Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::prev)
                 .map(StringUtils::isBlank)
-                .orElse(true), submissionRef));
+                .orElse(true), submissionRef).or(canGoPrev.not()));
         btnNext.disableProperty().bind(Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::next)
                 .map(StringUtils::isBlank)
-                .orElse(true), submissionRef));
+                .orElse(true), submissionRef).or(canGoNext.not()));
         submissionId.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
             executorService.submit(() -> {
                 try {
-                    formService.findSubmissionRefById(nv)
+                    formService.findSubmissionRefById(nv, formType.getValue())
                             .ifPresentOrElse(v -> Platform.runLater(() -> {
                                 submissionRef.setValue(v);
                                 submissionIdUpdatedExternally = true;
                                 tfIndexSearch.setText(v.index());
                                 submissionIdUpdatedExternally = false;
-                            }), () -> {
+                            }), () -> Platform.runLater(() -> {
                                 submissionRef.setValue(null);
                                 submissionIdUpdatedExternally = true;
                                 tfIndexSearch.setText(null);
                                 submissionIdUpdatedExternally = false;
-                            });
+                            }));
                 } catch (Throwable t) {
                     log.error("error while finding submission ref", t);
                 }
@@ -155,5 +159,17 @@ public class FormHeaderController implements AppController {
     void onSettingsButtonClicked(ActionEvent ignored) {
         final var mapper = fieldMapperProvider.get();
         mapper.makePrefsForm().show(true);
+    }
+
+    public BooleanProperty canGoNextProperty() {
+        return canGoNext;
+    }
+
+    public BooleanProperty canGoPrevProperty() {
+        return canGoPrev;
+    }
+
+    public ObjectProperty<FormType> formTypeProperty() {
+        return formType;
     }
 }

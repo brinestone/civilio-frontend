@@ -6,6 +6,7 @@ import com.dlsc.preferencesfx.util.StorageHandler;
 import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.domain.FieldMappingSource;
 import fr.civipol.civilio.entity.FieldMapping;
+import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
@@ -114,8 +115,8 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
         return segments[segments.length - 1];
     }
 
-    private String extractForm(String breadcrumb) {
-        return breadcrumb.substring(0, breadcrumb.indexOf("."));
+    private FormType extractForm(String breadcrumb) {
+        return FormType.fromString(breadcrumb.substring(0, breadcrumb.indexOf(".")));
     }
 
     @Override
@@ -182,7 +183,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     }
 
     @Override
-    public void findAllDbColumns(String form, Consumer<Collection<String>> callback) {
+    public void findAllDbColumns(FormType form, Consumer<Collection<String>> callback) {
         executorService.submit(() -> {
             try {
                 final var result = new ArrayList<>(formService.getFormFields());
@@ -194,7 +195,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     }
 
     @Override
-    public void findConfiguredMappings(String form, Consumer<Collection<FieldMapping>> callback) {
+    public void findConfiguredMappings(FormType form, Consumer<Collection<FieldMapping>> callback) {
         executorService.submit(() -> {
             try {
                 final var result = formService.findFieldMappings(form);

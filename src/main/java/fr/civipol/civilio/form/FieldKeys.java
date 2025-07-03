@@ -7,6 +7,7 @@ import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import fr.civipol.civilio.domain.FieldMappingSource;
+import fr.civipol.civilio.entity.FormType;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -42,18 +43,31 @@ public class FieldKeys {
         public static final String USES_DHIS_FORMS = "fosa.form.fields.uses_dhis2_form.title";
         public static final String SEND_BIRTH_DECLARATIONS_TO_CSC = "fosa.form.fields.birth_declaration_transmission_to_csc.title";
         public static final String CSC_EVENT_REGISTRATIONS = "fosa.form.fields.csc_event_reg_type.title";
-        public static final String STATS_YEAR = "fosa_vital_stats.columns.year";
-        public static final String STATS_DEATH_COUNT = "fosa_vital_stats.columns.deaths";
-        public static final String STATS_BIRTH_COUNT = "fosa_vital_stats.columns.births";
-        public static final String PERSONNEL_NAME = "personnel_info.columns.name.title";
-        public static final String PERSONNEL_POSITION = "personnel_info.columns.role.title";
-        public static final String PERSONNEL_GENDER = "personnel_info.columns.gender.title";
-        public static final String PERSONNEL_PHONE = "personnel_info.columns.phone.title";
-        public static final String PERSONNEL_EMAIL = "personnel_info.columns.email.title";
-        public static final String PERSONNEL_AGE = "personnel_info.columns.age.title";
-        public static final String PERSONNEL_CS_TRAINING = "personnel_info.columns.has_cs_training.title";
-        public static final String PERSONNEL_ED_LEVEL = "personnel_info.columns.education_level.title";
-        public static final String PERSONNEL_COMPUTER_LEVEL = "personnel_info.columns.pc_knowledge.title";
+        public static final String STATS_YEAR_1 = "fosa.columns.year.1";
+        public static final String STATS_DEATH_COUNT_1 = "fosa.columns.deaths.1";
+        public static final String STATS_BIRTH_COUNT_1 = "fosa.columns.births.1";
+        public static final String STATS_OBSERVATIONS_1 = "fosa.columns.observation.1";
+        public static final String STATS_YEAR_2 = "fosa.columns.year.2";
+        public static final String STATS_DEATH_COUNT_2 = "fosa.columns.deaths.2";
+        public static final String STATS_BIRTH_COUNT_2 = "fosa.columns.births.2";
+        public static final String STATS_YEAR_3 = "fosa.columns.year.3";
+        public static final String STATS_DEATH_COUNT_3 = "fosa.columns.deaths.3";
+        public static final String STATS_BIRTH_COUNT_3 = "fosa.columns.births.3";
+        public static final String STATS_YEAR_4 = "fosa.columns.year.4";
+        public static final String STATS_DEATH_COUNT_4 = "fosa.columns.deaths.4";
+        public static final String STATS_BIRTH_COUNT_4 = "fosa.columns.births.4";
+        public static final String STATS_YEAR_5 = "fosa.columns.year.5";
+        public static final String STATS_DEATH_COUNT_5 = "fosa.columns.deaths.5";
+        public static final String STATS_BIRTH_COUNT_5 = "fosa.columns.births.5";
+        public static final String PERSONNEL_NAME = "data_personnel.columns.name.title";
+        public static final String PERSONNEL_POSITION = "data_personnel.columns.role.title";
+        public static final String PERSONNEL_GENDER = "data_personnel.columns.gender.title";
+        public static final String PERSONNEL_PHONE = "data_personnel.columns.phone.title";
+        public static final String PERSONNEL_EMAIL = "data_personnel.columns.email.title";
+        public static final String PERSONNEL_AGE = "data_personnel.columns.age.title";
+        public static final String PERSONNEL_CS_TRAINING = "data_personnel.columns.has_cs_training.title";
+        public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
+        public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
         public static final String HAS_TOILET_FIELD = "fosa.form.fields.toilet_present.title";
         public static final String HAS_ENEO_CONNECTION = "fosa.form.fields.has_eneo_connection.title";
         public static final String HAS_BACKUP_POWER_SOURCE = "fosa.form.fields.has_power_source.title";
@@ -78,7 +92,7 @@ public class FieldKeys {
     public static Category fosaFieldSettingsCategory(FieldMappingSource fieldMappingSource) {
         final var fieldMap = FXCollections.<String, Property>observableHashMap();
         final var allFields = FXCollections.<String>observableArrayList();
-        fieldMappingSource.findAllDbColumns("fosa", allFields::setAll);
+        fieldMappingSource.findAllDbColumns(FormType.FOSA, allFields::setAll);
 
         Function<String, Setting> settingFactory = k -> Setting.of(k, Field.ofStringType((StringProperty) fieldMap.computeIfAbsent(k, kk -> new SimpleStringProperty()))
                 .validate(CustomValidator.forPredicate(v -> allFields.stream().anyMatch(s -> s.equals(v)), "fosa.form.msg.invalid_value"))
@@ -158,7 +172,7 @@ public class FieldKeys {
                         ),
                         Category.of("mapper.categories.forms.fosa.sub_forms.title",
                                 Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.personnel_info.title",
+                                        "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
                                         settingFactory.apply(Fosa.PERSONNEL_NAME),
                                         settingFactory.apply(Fosa.PERSONNEL_POSITION),
                                         settingFactory.apply(Fosa.PERSONNEL_GENDER),
@@ -170,10 +184,34 @@ public class FieldKeys {
                                         settingFactory.apply(Fosa.PERSONNEL_COMPUTER_LEVEL)
                                 ),
                                 Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT)
+                                        "mapper.categories.forms.fosa.sub_forms.stats_0.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR_1),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_1),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_1)
+                                ),
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.stats_1.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR_2),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_2),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_2)
+                                ),
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.stats_2.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR_3),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_3),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_3)
+                                ),
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.stats_3.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR_4),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_4),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_4)
+                                ),
+                                Group.of(
+                                        "mapper.categories.forms.fosa.sub_forms.stats_4.title",
+                                        settingFactory.apply(Fosa.STATS_YEAR_5),
+                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_5),
+                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_5)
                                 )
                         )
                 );

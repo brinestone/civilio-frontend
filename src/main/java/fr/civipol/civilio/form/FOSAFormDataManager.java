@@ -1,7 +1,8 @@
 package fr.civipol.civilio.form;
 
+import fr.civipol.civilio.domain.FieldChange;
+import fr.civipol.civilio.domain.FieldId;
 import fr.civipol.civilio.domain.OptionSource;
-import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.entity.FosaStat;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
@@ -13,16 +14,17 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+@Slf4j
 @SuppressWarnings("unchecked")
 public class FOSAFormDataManager extends FormDataManager {
     private static final String DELIMITER_TOKEN_PATTERN = "[, ]";
@@ -42,25 +44,39 @@ public class FOSAFormDataManager extends FormDataManager {
             eneoConnection, toiletAvailable, maternityAvailable, dhis2Usage, bunecBirthFormUsage, dhis2FormUsage,
             birthDeclarationToCsc;
     private final DoubleProperty cscDistance;
-    private final MapProperty<String, FosaStat> vitalCSCStats;
     private final MapProperty<String, PersonnelInfo> personnelInfoMap;
-    private final ListProperty<FosaStat> vitalCSCStatsValue;
+    private final ListProperty<FosaStat> stats;
     private final ListProperty<PersonnelInfo> personnelInfo;
     private final IntegerProperty personnelCount,
             pcCount,
             printerCount,
             tabletCount,
             carCount,
-            bikeCount;
+            bikeCount,
+            statsYear1,
+            statsYear2,
+            statsYear3,
+            statsYear4,
+            statsYear5,
+            deathCount1,
+            deathCount2,
+            deathCount3,
+            deathCount4,
+            deathCount5,
+            birthCount1,
+            birthCount2,
+            birthCount3,
+            birthCount4,
+            birthCount5;
     private final OptionSource optionSource;
     private boolean trackingUpdates = false;
 
     public FOSAFormDataManager(
             Function<String, ?> valueExtractor,
-            Function<String, String> fieldExtractor,
-            OptionSource optionSource
-    ) {
-        super(valueExtractor, fieldExtractor);
+            BiFunction<String, Integer, String> keyMaker,
+            Function<String, String> keyExtractor,
+            OptionSource optionSource) {
+        super(valueExtractor, keyMaker, keyExtractor);
         this.optionSource = optionSource;
         genders = new SimpleListProperty<>(FXCollections.observableArrayList());
         educationLevels = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -115,10 +131,23 @@ public class FOSAFormDataManager extends FormDataManager {
         dhis2FormUsage = new SimpleBooleanProperty(this, "dhis2FormUsage");
         birthDeclarationToCsc = new SimpleBooleanProperty(this, "birthDeclarationToCsc");
         internetConnectionAvailable = new SimpleBooleanProperty(this, "internetConnectionAvailable");
-        vitalCSCStats = new SimpleMapProperty<>(this, "vitalCSCStat", FXCollections.observableHashMap());
         personnelInfoMap = new SimpleMapProperty<>(this, "personnelInfo_", FXCollections.observableHashMap());
-        vitalCSCStatsValue = new SimpleListProperty<>(this, "vitalCSCStatsValue", FXCollections.observableArrayList());
-
+        stats = new SimpleListProperty<>(this, "vitalCSCStatsValue", FXCollections.observableArrayList());
+        statsYear1 = new SimpleIntegerProperty();
+        statsYear2 = new SimpleIntegerProperty();
+        statsYear3 = new SimpleIntegerProperty();
+        statsYear4 = new SimpleIntegerProperty();
+        statsYear5 = new SimpleIntegerProperty();
+        deathCount1 = new SimpleIntegerProperty();
+        deathCount2 = new SimpleIntegerProperty();
+        deathCount3 = new SimpleIntegerProperty();
+        deathCount4 = new SimpleIntegerProperty();
+        deathCount5 = new SimpleIntegerProperty();
+        birthCount1 = new SimpleIntegerProperty();
+        birthCount2 = new SimpleIntegerProperty();
+        birthCount3 = new SimpleIntegerProperty();
+        birthCount4 = new SimpleIntegerProperty();
+        birthCount5 = new SimpleIntegerProperty();
         setupChangeListeners();
     }
 
@@ -130,7 +159,23 @@ public class FOSAFormDataManager extends FormDataManager {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void trackFieldChanges() {
-        if (trackingUpdates) return;
+        if (trackingUpdates)
+            return;
+        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_1);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_2);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_3);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_4);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_5);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_1);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_2);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_3);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_4);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_5);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_1);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_2);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_3);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_4);
+        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_5);
         trackUpdatesForField(FieldKeys.Fosa.PERSONNEL_COUNT);
         trackUpdatesForField(FieldKeys.Fosa.BIKE_COUNT);
         trackUpdatesForField(FieldKeys.Fosa.CAR_COUNT);
@@ -182,13 +227,25 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void updateGeoPointUpdates() {
-        final var entry = updates.computeIfAbsent(FieldKeys.Fosa.GEO_POINT, k -> new DataUpdate(k, null, this.geoPoint.getValue()));
+        final var entry = changes.computeIfAbsent(FieldKeys.Fosa.GEO_POINT,
+                k -> new FieldChange(k, null, this.geoPoint.getValue(), 0));
         entry.setNewValue(this.geoPoint.getValue());
     }
 
-    @SuppressWarnings("DuplicatedCode")
-    public void updateTrackedCSCStatsFields() {
-        // TODO: implement this
+    @SuppressWarnings({"DuplicatedCode", "rawtypes"})
+    public void updateTrackedCSCStatsFields(FieldChange c) {
+        final var key = keyMaker.apply(c.getField(), c.getOrdinal());
+        final var change = changes.computeIfAbsent(key, k -> {
+            Object oldValue = null;
+            final var oldValueCollection = ((List) valueSource.apply(k));
+            if (oldValueCollection != null && oldValueCollection.size() - 1 >= c.getOrdinal())
+                oldValue = oldValueCollection.get(c.getOrdinal());
+            return new FieldChange(key, c.getNewValue(), Optional.ofNullable(c.getOldValue()).orElse(oldValue),
+                    c.getOrdinal());
+        });
+        change.setNewValue(c.getNewValue());
+        if (Objects.equals(change.getNewValue(), change.getOldValue()))
+            changes.remove(key);
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -227,21 +284,18 @@ public class FOSAFormDataManager extends FormDataManager {
                 return;
             optionSource.get(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty()::setAll);
         });
-        vitalCSCStats.addListener((MapChangeListener<String, FosaStat>) change -> vitalCSCStatsValue.setValue(FXCollections.observableArrayList(vitalCSCStats.values())));
-        personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo.setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
+        personnelInfoMap.addListener((MapChangeListener<String, PersonnelInfo>) change -> personnelInfo
+                .setValue(FXCollections.observableArrayList(personnelInfoMap.values())));
+        changes.addListener(
+                (MapChangeListener<String, FieldChange>) change -> System.out.println("changes = " + changes));
     }
 
     private void loadPersonnelInfo() {
         // TODO: implement this
     }
 
-    private void loadVitalStats() {
-        // TODO: implement this
-    }
-
     public void loadValues() {
         super.loadValues();
-        loadVitalStats();
         loadPersonnelInfo();
         loadValue(FieldKeys.Fosa.PERSONNEL_COUNT, 0);
         loadValue(FieldKeys.Fosa.PC_COUNT, 0);
@@ -267,6 +321,10 @@ public class FOSAFormDataManager extends FormDataManager {
                 .latitude(3.8542679f)
                 .longitude(11.4661458f)
                 .build());
+        loadValue(FieldKeys.Fosa.PERSONNEL_NAME, "");
+        loadValue(FieldKeys.Fosa.PERSONNEL_POSITION, "");
+        loadValue(FieldKeys.Fosa.PERSONNEL_AGE, "");
+        loadValue(FieldKeys.Fosa.PERSONNEL_GENDER, "");
 
         loadOptionValue(FieldKeys.Fosa.ENVIRONMENT_TYPE);
         loadOptionValue(FieldKeys.Fosa.WATER_SOURCES);
@@ -277,11 +335,21 @@ public class FOSAFormDataManager extends FormDataManager {
         loadOptionValue(FieldKeys.Fosa.FACILITY_TYPE);
         loadOptionValue(FieldKeys.Fosa.STATUS);
         loadOptionValue(FieldKeys.Fosa.BACKUP_POWER_SOURCES);
-//        loadPowerSources();
-    }
-
-    private void loadPowerSources() {
-
+        loadOptionValue(FieldKeys.Fosa.STATS_YEAR_1);
+        loadOptionValue(FieldKeys.Fosa.STATS_YEAR_2);
+        loadOptionValue(FieldKeys.Fosa.STATS_YEAR_3);
+        loadOptionValue(FieldKeys.Fosa.STATS_YEAR_4);
+        loadOptionValue(FieldKeys.Fosa.STATS_YEAR_5);
+        loadOptionValue(FieldKeys.Fosa.STATS_BIRTH_COUNT_1);
+        loadOptionValue(FieldKeys.Fosa.STATS_BIRTH_COUNT_2);
+        loadOptionValue(FieldKeys.Fosa.STATS_BIRTH_COUNT_3);
+        loadOptionValue(FieldKeys.Fosa.STATS_BIRTH_COUNT_4);
+        loadOptionValue(FieldKeys.Fosa.STATS_BIRTH_COUNT_5);
+        loadOptionValue(FieldKeys.Fosa.STATS_DEATH_COUNT_1);
+        loadOptionValue(FieldKeys.Fosa.STATS_DEATH_COUNT_2);
+        loadOptionValue(FieldKeys.Fosa.STATS_DEATH_COUNT_3);
+        loadOptionValue(FieldKeys.Fosa.STATS_DEATH_COUNT_4);
+        loadOptionValue(FieldKeys.Fosa.STATS_DEATH_COUNT_5);
     }
 
     private void loadOptionValue(String field) {
@@ -294,8 +362,10 @@ public class FOSAFormDataManager extends FormDataManager {
 
     public void loadOptions(OptionSource optionSource, Runnable callback) {
         Function<ObservableList<Option>, Consumer<Collection<Option>>> consumer = list -> v -> {
-            if (Platform.isFxApplicationThread()) list.setAll(v);
-            else Platform.runLater(() -> list.setAll(v));
+            if (Platform.isFxApplicationThread())
+                list.setAll(v);
+            else
+                Platform.runLater(() -> list.setAll(v));
         };
         optionSource.get(FORM_ID, "region", null, consumer.apply(regions));
         optionSource.get(FORM_ID, "vb2qk85", null, consumer.apply(environmentTypes));
@@ -313,21 +383,30 @@ public class FOSAFormDataManager extends FormDataManager {
 
     @Override
     public ObservableBooleanValue pristine() {
-        return Bindings.isEmpty(updates);
-    }
-
-    @Override
-    public Collection<DataUpdate> getPendingUpdates() {
-        return updates.values().stream()
-                .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
-                .toList();
+        return Bindings.isEmpty(changes);
     }
 
     @Override
     @SuppressWarnings("rawtypes,DuplicatedCode")
     public Property getPropertyFor(String id) {
-        if (StringUtils.isBlank(id)) return null;
+        if (StringUtils.isBlank(id))
+            return null;
         return switch (id) {
+            case FieldKeys.Fosa.STATS_YEAR_1 -> statsYear1;
+            case FieldKeys.Fosa.STATS_DEATH_COUNT_1 -> deathCount1;
+            case FieldKeys.Fosa.STATS_BIRTH_COUNT_1 -> birthCount1;
+            case FieldKeys.Fosa.STATS_YEAR_2 -> statsYear2;
+            case FieldKeys.Fosa.STATS_DEATH_COUNT_2 -> deathCount2;
+            case FieldKeys.Fosa.STATS_BIRTH_COUNT_2 -> birthCount2;
+            case FieldKeys.Fosa.STATS_YEAR_3 -> statsYear3;
+            case FieldKeys.Fosa.STATS_DEATH_COUNT_3 -> deathCount3;
+            case FieldKeys.Fosa.STATS_BIRTH_COUNT_3 -> birthCount3;
+            case FieldKeys.Fosa.STATS_YEAR_4 -> statsYear4;
+            case FieldKeys.Fosa.STATS_DEATH_COUNT_4 -> deathCount4;
+            case FieldKeys.Fosa.STATS_BIRTH_COUNT_4 -> birthCount4;
+            case FieldKeys.Fosa.STATS_YEAR_5 -> statsYear5;
+            case FieldKeys.Fosa.STATS_DEATH_COUNT_5 -> deathCount5;
+            case FieldKeys.Fosa.STATS_BIRTH_COUNT_5 -> birthCount5;
             case FieldKeys.Fosa.PERSONNEL_COUNT -> personnelCount;
             case FieldKeys.Fosa.CREATION_DATE -> creationDate;
             case FieldKeys.Fosa.MAIL -> email;
@@ -391,18 +470,46 @@ public class FOSAFormDataManager extends FormDataManager {
     public Class<?> getPropertyTypeFor(String id) {
         return switch (id) {
             case FieldKeys.Fosa.CREATION_DATE -> LocalDate.class;
-            case FieldKeys.Fosa.MAIL, FieldKeys.Fosa.ATTACHED_CSC, FieldKeys.Fosa.OFFICE_NAME, FieldKeys.Fosa.PHONE, FieldKeys.Fosa.POSITION, FieldKeys.Fosa.RESPONDENT_NAME, FieldKeys.Fosa.QUARTER, FieldKeys.Fosa.LOCALITY ->
-                    String.class;
-            case FieldKeys.Fosa.REGION, FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA, FieldKeys.Fosa.DISTRICT, FieldKeys.Fosa.DIVISION, FieldKeys.Fosa.MUNICIPALITY, FieldKeys.Fosa.ENVIRONMENT_TYPE ->
-                    Option.class;
-            case FieldKeys.Fosa.HAS_INTERNET_CONNECTION, FieldKeys.Fosa.HAS_TOILET_FIELD, FieldKeys.Fosa.SEND_BIRTH_DECLARATIONS_TO_CSC, FieldKeys.Fosa.USES_DHIS_FORMS, FieldKeys.Fosa.USES_BUNEC_BIRTH_FORM, FieldKeys.Fosa.HAS_MATERNITY, FieldKeys.Fosa.HAS_ENEO_CONNECTION, FieldKeys.Fosa.HAS_BACKUP_POWER_SOURCE, FieldKeys.Fosa.USES_DHIS ->
-                    Boolean.class;
+            case FieldKeys.Fosa.MAIL, FieldKeys.Fosa.ATTACHED_CSC, FieldKeys.Fosa.OFFICE_NAME, FieldKeys.Fosa.PHONE,
+                    FieldKeys.Fosa.POSITION, FieldKeys.Fosa.RESPONDENT_NAME, FieldKeys.Fosa.QUARTER,
+                    FieldKeys.Fosa.LOCALITY -> String.class;
+            case FieldKeys.Fosa.REGION, FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA,
+                    FieldKeys.Fosa.DISTRICT, FieldKeys.Fosa.DIVISION, FieldKeys.Fosa.MUNICIPALITY,
+                    FieldKeys.Fosa.ENVIRONMENT_TYPE -> Option.class;
+            case FieldKeys.Fosa.HAS_INTERNET_CONNECTION, FieldKeys.Fosa.HAS_TOILET_FIELD,
+                    FieldKeys.Fosa.SEND_BIRTH_DECLARATIONS_TO_CSC, FieldKeys.Fosa.USES_DHIS_FORMS,
+                    FieldKeys.Fosa.USES_BUNEC_BIRTH_FORM, FieldKeys.Fosa.HAS_MATERNITY,
+                    FieldKeys.Fosa.HAS_ENEO_CONNECTION, FieldKeys.Fosa.HAS_BACKUP_POWER_SOURCE,
+                    FieldKeys.Fosa.USES_DHIS -> Boolean.class;
             case FieldKeys.Fosa.CSC_DISTANCE -> Double.class;
             case FieldKeys.Fosa.GEO_POINT -> GeoPoint.class;
-            case FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS, FieldKeys.Fosa.WATER_SOURCES, FieldKeys.Fosa.BACKUP_POWER_SOURCES ->
-                    List.class;
-            case FieldKeys.Fosa.PERSONNEL_COUNT, FieldKeys.Fosa.PC_COUNT, FieldKeys.Fosa.PRINTER_COUNT, FieldKeys.Fosa.TABLET_COUNT, FieldKeys.Fosa.CAR_COUNT, FieldKeys.Fosa.BIKE_COUNT ->
-                    Integer.class;
+            case FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS, FieldKeys.Fosa.WATER_SOURCES,
+                    FieldKeys.Fosa.BACKUP_POWER_SOURCES -> List.class;
+            case FieldKeys.Fosa.STATS_YEAR_1,
+                    FieldKeys.Fosa.STATS_DEATH_COUNT_1,
+                    FieldKeys.Fosa.STATS_BIRTH_COUNT_1,
+                    FieldKeys.Fosa.STATS_YEAR_2,
+                    FieldKeys.Fosa.STATS_DEATH_COUNT_2,
+                    FieldKeys.Fosa.STATS_BIRTH_COUNT_2,
+                    FieldKeys.Fosa.STATS_YEAR_3,
+                    FieldKeys.Fosa.STATS_DEATH_COUNT_3,
+                    FieldKeys.Fosa.STATS_BIRTH_COUNT_3,
+                    FieldKeys.Fosa.STATS_YEAR_4,
+                    FieldKeys.Fosa.STATS_DEATH_COUNT_4,
+                    FieldKeys.Fosa.STATS_BIRTH_COUNT_4,
+                    FieldKeys.Fosa.STATS_YEAR_5,
+                    FieldKeys.Fosa.STATS_DEATH_COUNT_5,
+                    FieldKeys.Fosa.STATS_BIRTH_COUNT_5,
+                    FieldKeys.Fosa.PERSONNEL_COUNT,
+                    FieldKeys.Fosa.PC_COUNT,
+                    FieldKeys.Fosa.PRINTER_COUNT,
+                    FieldKeys.Fosa.TABLET_COUNT,
+                    FieldKeys.Fosa.CAR_COUNT,
+                    FieldKeys.Fosa.BIKE_COUNT -> Integer.class;
+            case FieldKeys.Fosa.PERSONNEL_AGE, FieldKeys.Fosa.PERSONNEL_COMPUTER_LEVEL,
+                    FieldKeys.Fosa.PERSONNEL_ED_LEVEL, FieldKeys.Fosa.PERSONNEL_NAME, FieldKeys.Fosa.PERSONNEL_GENDER,
+                    FieldKeys.Fosa.PERSONNEL_PHONE, FieldKeys.Fosa.PERSONNEL_EMAIL, FieldKeys.Fosa.PERSONNEL_POSITION,
+                    FieldKeys.Fosa.PERSONNEL_CS_TRAINING -> PersonnelInfo.class;
             default -> super.getPropertyTypeFor(id);
         };
     }
@@ -412,7 +519,7 @@ public class FOSAFormDataManager extends FormDataManager {
     protected final Object deserializeValue(Object raw, String id) {
         if (Optional.ofNullable(getPropertyTypeFor(id)).filter(LocalDate.class::equals).isPresent()) {
             if (raw instanceof String s)
-                return Timestamp.valueOf(s).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                return LocalDate.parse(s);
             else if (raw instanceof Date)
                 return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
@@ -436,8 +543,10 @@ public class FOSAFormDataManager extends FormDataManager {
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
             if (raw instanceof String s && StringUtils.isNotBlank(s))
                 return Double.valueOf(Math.max(Integer.parseInt(s), 0.0)).intValue();
-            else if (raw instanceof Double d) return d.intValue();
-            else return 0;
+            else if (raw instanceof Double d)
+                return d.intValue();
+            else
+                return 0;
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(GeoPoint.class::equals).isPresent()) {
             if (raw instanceof String s) {
                 final var segments = s.split(DELIMITER_TOKEN_PATTERN);
@@ -467,42 +576,48 @@ public class FOSAFormDataManager extends FormDataManager {
                             return o;
                         })
                         .toList();
-            else if (raw instanceof String) {
-                final var values = Arrays.asList(((String) raw).split(DELIMITER_TOKEN_PATTERN));
+            else if (raw instanceof String s) {
+                final var values = Arrays.asList(s.split(DELIMITER_TOKEN_PATTERN));
                 final var x = getOptionsFor(id).stream()
-                        .filter(o -> values.stream().anyMatch(s -> o.value().equals(s)))
+                        .filter(o -> values.stream().anyMatch(ss -> o.value().equals(ss)))
                         .toList();
                 final var property = (ListProperty) getPropertyFor(id);
                 property.addAll(x);
                 return property.getValue();
             }
-        } else if (raw instanceof String
+        } else if (raw instanceof Collection c
                    && Optional.ofNullable(getPropertyTypeFor(id)).filter(FosaStat.class::equals).isPresent()) {
-            final var isYearField = id.equals(FieldKeys.Fosa.STATS_YEAR);
-            final var isBirthField = id.equals(FieldKeys.Fosa.STATS_BIRTH_COUNT);
-            final var isDeathsField = id.endsWith(FieldKeys.Fosa.STATS_DEATH_COUNT);
+            var cnt = 0;
+            for (var v : c) {
+                FosaStat stat;
+                if (cnt >= this.stats.size() || this.stats.isEmpty()) {
+                    stat = FosaStat.builder().build();
+                    this.stats.add(stat);
+                } else {
+                    stat = this.stats.get(cnt);
+                }
 
-            final var entry = vitalCSCStats.computeIfAbsent(id, __ -> FosaStat.builder().build());
-            final var stringValue = String.valueOf(raw);
-            if (stringValue.matches("\\d+")) {
-                final var value = stringValue.chars()
-                        .mapToObj(Character.class::cast)
-                        .filter(Character::isDigit)
-                        .map(String::valueOf)
-                        .collect(Collectors.joining(""));
-                final var intValue = Integer.parseUnsignedInt(value);
-
-                if (isYearField)
-                    entry.setYear(intValue);
-                else if (isBirthField)
-                    entry.setRegisteredBirths(intValue);
-                else if (isDeathsField)
-                    entry.setRegisteredDeaths(intValue);
-                vitalCSCStats.remove(id);
-                vitalCSCStats.put(id, entry);
-                return vitalCSCStats.get();
+                final var fieldWrapper = Arrays.stream(FosaStat.class.getDeclaredFields())
+                        .filter(f -> f.isAnnotationPresent(FieldId.class))
+                        .filter(f -> f.getAnnotation(FieldId.class).value().equals(id))
+                        .findFirst();
+                if (fieldWrapper.isPresent()) {
+                    final var field = fieldWrapper.get();
+                    field.setAccessible(true);
+                    try {
+                        if (field.getType().equals(Integer.class) && v instanceof String s)
+                            field.set(stat, Integer.valueOf(s));
+                        field.set(stat, v);
+                    } catch (IllegalAccessException ex) {
+                        log.error("error while loading fosa stat value: {}", id, ex);
+                    }
+                }
+                cnt++;
             }
-        } else if (raw instanceof String && Optional.ofNullable(getPropertyTypeFor(id)).filter(PersonnelInfo.class::equals).isPresent()) {
+
+            return this.stats.getValue();
+        } else if (raw instanceof String
+                   && Optional.ofNullable(getPropertyTypeFor(id)).filter(PersonnelInfo.class::equals).isPresent()) {
             final var isNameField = id.equals(FieldKeys.Fosa.PERSONNEL_NAME);
             final var isPositionField = id.equals(FieldKeys.Fosa.PERSONNEL_POSITION);
             final var isGenderField = id.equals(FieldKeys.Fosa.PERSONNEL_GENDER);
@@ -521,14 +636,22 @@ public class FOSAFormDataManager extends FormDataManager {
 
             if (stringValue.matches("^\\d+$") && isAgeField) {
                 entry.setAge(Integer.parseInt(stringValue));
-            } else if (isNameField) entry.setNames(stringValue);
-            else if (isPositionField) entry.setRole(stringValue);
-            else if (isPhoneField) entry.setPhone(stringValue);
-            else if (isCSTrainingField) entry.setCivilStatusTraining("1".equals(stringValue));
-            else if (isEdLevelField) entry.setEducationLevel(stringValue);
-            else if (isGenderField) entry.setGender(stringValue);
-            else if (isComputerLevelField) entry.setComputerKnowledgeLevel(stringValue);
-            else if (isEmailField) entry.setEmail(stringValue);
+            } else if (isNameField)
+                entry.setNames(stringValue);
+            else if (isPositionField)
+                entry.setRole(stringValue);
+            else if (isPhoneField)
+                entry.setPhone(stringValue);
+            else if (isCSTrainingField)
+                entry.setCivilStatusTraining("1".equals(stringValue));
+            else if (isEdLevelField)
+                entry.setEducationLevel(stringValue);
+            else if (isGenderField)
+                entry.setGender(stringValue);
+            else if (isComputerLevelField)
+                entry.setComputerKnowledgeLevel(stringValue);
+            else if (isEmailField)
+                entry.setEmail(stringValue);
 
             personnelInfoMap.remove(id);
             personnelInfoMap.put(id, entry);
@@ -610,8 +733,8 @@ public class FOSAFormDataManager extends FormDataManager {
         return toiletAvailable;
     }
 
-    public ListProperty<FosaStat> vitalCSCStatsValueProperty() {
-        return vitalCSCStatsValue;
+    public ListProperty<FosaStat> statsProperty() {
+        return stats;
     }
 
     public ListProperty<Option> registeredEventTypesProperty() {
@@ -748,5 +871,65 @@ public class FOSAFormDataManager extends FormDataManager {
 
     public StringProperty respondentNamesProperty() {
         return respondentNames;
+    }
+
+    public IntegerProperty statsYear1Property() {
+        return statsYear1;
+    }
+
+    public IntegerProperty statsYear2Property() {
+        return statsYear2;
+    }
+
+    public IntegerProperty statsYear3Property() {
+        return statsYear3;
+    }
+
+    public IntegerProperty statsYear4Property() {
+        return statsYear4;
+    }
+
+    public IntegerProperty statsYear5Property() {
+        return statsYear5;
+    }
+
+    public IntegerProperty birthCount1Property() {
+        return birthCount1;
+    }
+
+    public IntegerProperty birthCount2Property() {
+        return birthCount2;
+    }
+
+    public IntegerProperty birthCount3Property() {
+        return birthCount3;
+    }
+
+    public IntegerProperty birthCount4Property() {
+        return birthCount4;
+    }
+
+    public IntegerProperty birthCount5Property() {
+        return birthCount5;
+    }
+
+    public IntegerProperty deathCount1Property() {
+        return deathCount1;
+    }
+
+    public IntegerProperty deathCount2Property() {
+        return deathCount2;
+    }
+
+    public IntegerProperty deathCount3Property() {
+        return deathCount3;
+    }
+
+    public IntegerProperty deathCount4Property() {
+        return deathCount4;
+    }
+
+    public IntegerProperty deathCount5Property() {
+        return deathCount5;
     }
 }
