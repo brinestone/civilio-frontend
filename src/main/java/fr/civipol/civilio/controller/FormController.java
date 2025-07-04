@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Represents a base form capable of submitting data and loading existing submission data.
@@ -87,14 +88,17 @@ public abstract class FormController implements AppController {
         getHeaderManagerController().indexProperty().bindBidirectional(getModel().indexProperty());
         getHeaderManagerController().validationCodeProperty().bindBidirectional(getModel().validationCodeProperty());
         getHeaderManagerController().submissionIdProperty().bindBidirectional(submissionId);
+        getHeaderManagerController().indexFieldNameProperty().setValue(getModel().getIndexFieldKey());
     }
 
     protected Object valueLoader(String id) {
         final var key = extractFieldKey(id);
-        final var result = submissionData.keySet().stream()
-                .filter(k -> k.startsWith(key))
-                .map(submissionData::get)
-                .toList();
+        final var builder = Stream.builder();
+        for (var k : submissionData.keySet()) {
+            if (!k.startsWith(key)) continue;
+            builder.add(submissionData.get(k));
+        }
+        final var result = builder.build().toList();
         if (result.isEmpty()) return null;
         else if (result.size() == 1) return result.get(0);
         return result;
@@ -118,7 +122,10 @@ public abstract class FormController implements AppController {
                         .ifPresent(__ -> {
                             try {
                                 Optional.ofNullable(loadSubmissionData())
-                                        .ifPresent(data -> Platform.runLater(() -> submissionData.putAll(data)));
+                                        .ifPresent(data -> Platform.runLater(() -> {
+                                            submissionData.clear();
+                                            submissionData.putAll(data);
+                                        }));
                                 Platform.runLater(() -> {
                                     getModel().loadValues();
                                     getModel().markAsPristine();

@@ -43,6 +43,5 @@
     <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
     <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="10.0" prefHeight="29.0" spacing="5.0">
         <TextField fx:id="tfValidationCode" promptText="%forms.header.controls.validation_code" />
-        <TextField fx:id="tfIndex" layoutX="10.0" layoutY="15.0" prefHeight="25.0" prefWidth="104.0" promptText="%forms.header.controls.index" />
     </HBox>
 </HBox>

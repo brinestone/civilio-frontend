@@ -7,7 +7,6 @@ import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.FormType;
-import fr.civipol.civilio.entity.NewSubmissionResult;
 import fr.civipol.civilio.event.SubmissionRef;
 import fr.civipol.civilio.form.field.Option;
 import jakarta.inject.Inject;
@@ -16,21 +15,17 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class FormService implements AppService {
     private static final String PERSONNEL_INFO_TABLE = "data_personnel";
     private static final String FOSA_TABLE = "data_fosa";
-    // private static final String DATA_TABLE = "data1";
     private static final String STATS_TABLE = "fosa_vital_stats";
     private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
@@ -73,7 +68,12 @@ public class FormService implements AppService {
                             i18n_key = EXCLUDED.i18n_key,
                             db_column_type = EXCLUDED.db_column_type;
                         """;
-                final var tableName = form.getDbTable();
+                String tableName = form.getDbTable();
+                if (form.equals(FormType.FOSA)) {
+                    if (field.startsWith(PERSONNEL_INFO_TABLE)) tableName = PERSONNEL_INFO_TABLE;
+                } else {
+                    throw new IllegalArgumentException("Could not determine table for: " + field);
+                }
                 st = connection.prepareStatement(sql);
                 st.setString(1, field);
                 st.setString(2, i18nKey);
@@ -212,7 +212,7 @@ public class FormService implements AppService {
             if (mappingWrapper.isEmpty())
                 return Collections.emptyList();
             final var mapping = mappingWrapper.get();
-            final var columnNameWrapper = sanitizeFieldName(mapping.dbTable(), mapping.dbColumn(), conn);
+            final var columnNameWrapper = sanitizeColumnName(mapping.dbTable(), mapping.dbColumn(), conn);
             if (columnNameWrapper.isEmpty())
                 return Collections.emptyList();
             try (final var st = conn.prepareStatement(sql.formatted(columnNameWrapper.get(), mapping.dbTable(),
@@ -249,23 +249,13 @@ public class FormService implements AppService {
             for (final var mapping : formMappings) {
                 String sql;
                 PreparedStatement ps;
-                switch (mapping.dbTable()) {
-                    default -> {
-                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
-                        ps = connection.prepareStatement(sql);
-                        ps.setString(1, submissionId);
-                    }
-                    case PERSONNEL_INFO_TABLE -> {
-                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission__id", "");
-                        ps = connection.prepareStatement(sql);
-                        ps.setString(1, submissionId);
-                    }
-                    case STATS_TABLE -> {
-                        sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
-                        ps = connection.prepareStatement(sql);
-                        ps.setString(1, submissionId);
-                    }
+                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE)) {
+                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
+                } else {
+                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
                 }
+                ps = connection.prepareStatement(sql);
+                ps.setString(1, submissionId);
                 try (ps) {
                     try (final var rs = ps.executeQuery()) {
                         var cnt = 0;
@@ -320,7 +310,7 @@ public class FormService implements AppService {
 
                 String sql;
                 PreparedStatement ps;
-                final var columnNameWrapper = sanitizeFieldName(mapping.dbTable(), field, connection);
+                final var columnNameWrapper = sanitizeColumnName(mapping.dbTable(), field, connection);
                 if (columnNameWrapper.isEmpty()) {
                     droppedChanges.add(change);
                     continue;
@@ -346,7 +336,7 @@ public class FormService implements AppService {
         }
     }
 
-    private Optional<String> sanitizeFieldName(String table, String field, Connection connection) throws SQLException {
+    private Optional<String> sanitizeColumnName(String table, String column, Connection connection) throws SQLException {
         try (final var st = connection.prepareStatement("""
                 SELECT
                     quote_ident(c.column_name)
@@ -356,7 +346,7 @@ public class FormService implements AppService {
                     c.table_name = ? AND c.column_name = ? LIMIT 1;
                 """)) {
             st.setString(1, table);
-            st.setString(2, field);
+            st.setString(2, column);
             try (final var rs = st.executeQuery()) {
                 if (!rs.next())
                     return Optional.empty();
@@ -399,15 +389,17 @@ public class FormService implements AppService {
                 default -> {
                     sql = """
                             SELECT
-                                _id,
-                                _validation_status,
-                                q14_02_validation_code,
-                                _submitted_by,
-                                _index,
-                                q1_12_officename,
-                                _submission_time::DATE
+                                df._id,
+                                df._validation_status,
+                                df.q14_02_validation_code,
+                                df._submitted_by,
+                                df._index,
+                                df.q1_12_officename,
+                                df._submission_time::DATE
                             FROM
-                                data_fosa
+                                data_fosa df
+                            INNER JOIN
+                                data_personnel dp on df._index = dp._parent_index
                             WHERE
                                 %s
                             ORDER BY
@@ -490,96 +482,6 @@ public class FormService implements AppService {
         return result.build().toList();
     }
 
-    private Stream<FieldChange> filterUpdates(String tableName, Connection connection, FieldChange... updates)
-            throws SQLException {
-        final var builder = Stream.<FieldChange>builder();
-        try (final var st = connection.prepareStatement("""
-                SELECT
-                    quote_ident(c.column_name)
-                FROM
-                    information_schema.columns c
-                WHERE
-                    c.table_name = ? AND c.table_schema = 'public' AND c.column_name = ANY(?);
-                """)) {
-            st.setArray(2, connection.createArrayOf("text",
-                    Arrays.stream(updates)
-                            .map(FieldChange::getField)
-                            // .map(s -> s.substring(s.indexOf(":") + 1))
-                            .toArray(String[]::new)));
-            st.setString(1, tableName);
-            try (final var rs = st.executeQuery()) {
-                while (rs.next()) {
-                    final var columnName = rs.getString(1);
-                    Arrays.stream(updates)
-                            .filter(u -> {
-                                if (columnName.startsWith("\""))
-                                    return columnName.contains(u.getField());
-                                return u.getField().contains(columnName);
-                            }).findFirst()
-                            .ifPresent(u -> {
-                                u.setField(columnName);
-                                builder.add(u);
-                            });
-                }
-            }
-        }
-        return builder.build();
-    }
-
-    @SuppressWarnings({"DuplicatedCode", "unchecked"})
-    public NewSubmissionResult createSubmission(FieldChange... updates) throws SQLException {
-        final var droppedUpdates = new ArrayList<FieldChange>();
-        if (updates.length == 0)
-            return new NewSubmissionResult(droppedUpdates, null);
-        final var ds = this.dataSourceProvider.get();
-        try (final var conn = ds.getConnection()) {
-            conn.setAutoCommit(false);
-            List<FieldChange> filteredUpdates = filterUpdates(FOSA_TABLE, conn, updates).toList();
-
-            Arrays.stream(updates).forEach(u -> {
-                if (filteredUpdates.stream().noneMatch(uu -> uu.getField().contains(u.getField())))
-                    droppedUpdates.add(u);
-            });
-
-            if (filteredUpdates.isEmpty())
-                return new NewSubmissionResult(droppedUpdates, null);
-
-            final var sql = """
-                    INSERT INTO
-                        data1 (_id, _submitted_by, _uuid, %s)
-                    VALUES
-                        (nextval('data_id_seq'), now(), gen_random_uuid(), %s)
-                    RETURNING _id;
-                    """.formatted(
-                    filteredUpdates.stream()
-                            .map(FieldChange::getField)
-                            .collect(Collectors.joining(", ")),
-                    String.join(", ", Collections.nCopies(filteredUpdates.size(), "?")));
-
-            String id = null;
-            try (final var st = conn.prepareStatement(sql)) {
-                for (var i = 0; i < filteredUpdates.size(); i++) {
-                    final var update = filteredUpdates.get(0);
-                    final var index = i + 1;
-                    if (update.getNewValue() instanceof Date d)
-                        st.setDate(index, d);
-                    else if (update.getNewValue() instanceof Collection c)
-                        st.setString(index, (String) c.stream().map(String::valueOf).collect(Collectors.joining(" ")));
-                    else if (update.getNewValue() instanceof java.util.Date d)
-                        st.setDate(index, Date.valueOf(DateTimeFormatter.ISO_DATE.format(d.toInstant())));
-                    else
-                        st.setObject(index, update.getNewValue());
-                }
-                try (final var rs = st.executeQuery()) {
-                    if (rs.next())
-                        id = rs.getString(1);
-                }
-            }
-            conn.commit();
-            return new NewSubmissionResult(droppedUpdates, id);
-        }
-    }
-
     public Optional<SubmissionRef> findSubmissionRefById(String id, FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
@@ -595,9 +497,10 @@ public class FormService implements AppService {
                                     _submission_time,
                                     _index,
                                     q14_02_validation_code,
-                                    lead(_id) over (order by _submission_time desc) as prev,
-                                    lag(_id) over (order by _submission_time desc)  as next
-                            from %s
+                                    lead(_id) over (order by _id) as next,
+                                    lag(_id) over (order by _id)  as prev
+                            from
+                                    %s
                          ) as d
                     where d._id = CAST(? as integer);
                     """.formatted(form.getDbTable()))) {
@@ -616,29 +519,36 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<SubmissionRef> findSubmissionRefsByIndex(String query) throws SQLException {
+    public Collection<SubmissionRef> findSubmissionRefsByIndex(String query, String fieldId, FormType form) throws SQLException {
         if (StringUtils.isBlank(query))
             return Collections.emptyList();
         final var ds = dataSourceProvider.get();
         try (final var conn = ds.getConnection()) {
+            final var mappingWrapper = findFieldMappingInternal(conn, form.toString(), fieldId);
+            if (mappingWrapper.isEmpty()) {
+                return Collections.emptyList();
+            }
+            final var mapping = mappingWrapper.get();
+            final var column = sanitizeColumnName(mapping.dbTable(), mapping.dbColumn(), conn);
             try (final var st = conn.prepareStatement("""
-                    select distinct d._id,
-                                    d._submission_time::date,
-                                    d._index,
-                                    d.q14_02_validation_code,
-                                    d.prev,
-                                    d.next
+                    select d._id::TEXT,
+                           d._submission_time::date,
+                           d._index::TEXT,
+                           d.q14_02_validation_code,
+                           d.prev::TEXT,
+                           d.next::TEXT
                     from (select _id,
-                                 _submission_time,
-                                 _index,
-                                 q14_02_validation_code,
-                                 lead(_id) over (order by _submission_time desc) as prev,
-                                 lag(_id) over (order by _submission_time desc)  as next
-                          from data1) as d
+                                _submission_time,
+                                _index,
+                                q14_02_validation_code,
+                                lead(_id) over (order by _id) as next,
+                                lag(_id) over (order by _id)  as prev
+                          from
+                                %s) as d
                     where d._index LIKE ?
-                       OR lower(d.q14_02_validation_code) LIKE lower(?)
+                       OR lower(d.%s) LIKE lower(?)
                     limit 10;
-                                        """)) {
+                                        """.formatted(mapping.dbTable(), column))) {
                 st.setString(1, "%%%s%%".formatted(query));
                 st.setString(2, "%%%s%%".formatted(query));
                 try (final var rs = st.executeQuery()) {
@@ -656,5 +566,11 @@ public class FormService implements AppService {
                 }
             }
         }
+    }
+
+    @Override
+    public void initialize() throws Exception {
+        AppService.super.initialize();
+        log.info("running migration scripts...");
     }
 }

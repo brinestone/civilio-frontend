@@ -60,7 +60,7 @@ public abstract class FormDataManager {
      *
      * @return The key which points to the index code field.
      */
-    protected abstract String getIndexFieldKey();
+    public abstract String getIndexFieldKey();
 
     /**
      * Retrieves the form-specific key which points to its validation code field.

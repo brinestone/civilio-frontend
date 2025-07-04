@@ -19,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.textfield.TextFields;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -34,7 +32,6 @@ public class FormHeaderController implements AppController {
     private final FormService formService;
     private final ExecutorService executorService;
     private final Lazy<FieldMapper> fieldMapperProvider;
-    private final ReadOnlyBooleanWrapper valid = new ReadOnlyBooleanWrapper(true);
     private final BooleanProperty canGoNext = new SimpleBooleanProperty(this, "canGoNext", true);
     private final BooleanProperty canGoPrev = new SimpleBooleanProperty(this, "canGoNext", true);
     private final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
@@ -42,14 +39,13 @@ public class FormHeaderController implements AppController {
     private final StringProperty validationCode = new SimpleStringProperty(this, "validationCode");
     private final ObjectProperty<SubmissionRef> submissionRef = new SimpleObjectProperty<>();
     private final ObjectProperty<FormType> formType = new SimpleObjectProperty<>(this, "formType");
+    private final StringProperty indexFieldName = new SimpleStringProperty(this, "indexFieldName");
     @FXML
     private Button btnNext;
     @FXML
     private Button btnPrev;
     @FXML
     private Label lblSubmissionDate;
-    @FXML
-    private TextField tfIndex;
     @FXML
     private TextField tfIndexSearch;
     @FXML
@@ -68,12 +64,6 @@ public class FormHeaderController implements AppController {
         return index;
     }
 
-    public void setSubmissionId(String id) {
-        submissionIdUpdatedExternally = true;
-        submissionId.setValue(id);
-        submissionIdUpdatedExternally = false;
-    }
-
     @FXML
     private void initialize() {
         final var rb = ResourceBundle.getBundle("messages");
@@ -81,19 +71,13 @@ public class FormHeaderController implements AppController {
                 .map(SubmissionRef::submissionDate)
                 .map(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)::format)
                 .orElse(rb.getString("forms.header.date.new")), submissionId, submissionRef));
-
-        tfIndex.textProperty().bindBidirectional(index);
         tfValidationCode.textProperty().bindBidirectional(validationCode);
-        btnNext.setOnAction(ignored -> {
-            Optional.ofNullable(submissionRef.getValue())
-                    .map(SubmissionRef::next)
-                    .ifPresent(submissionId::setValue);
-        });
-        btnPrev.setOnAction(ignored -> {
-            Optional.ofNullable(submissionRef.getValue())
-                    .map(SubmissionRef::prev)
-                    .ifPresent(submissionId::setValue);
-        });
+        btnNext.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
+                .map(SubmissionRef::next)
+                .ifPresent(submissionId::setValue));
+        btnPrev.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
+                .map(SubmissionRef::prev)
+                .ifPresent(submissionId::setValue));
         final var suggestions = FXCollections.<SubmissionRef>observableArrayList();
         final var binding = TextFields.bindAutoCompletion(tfIndexSearch, ignored -> suggestions);
         binding.setDelay(500);
@@ -107,7 +91,7 @@ public class FormHeaderController implements AppController {
 
             executorService.submit(() -> {
                 try {
-                    final var submissionRefs = formService.findSubmissionRefsByIndex(nv);
+                    final var submissionRefs = formService.findSubmissionRefsByIndex(nv, indexFieldName.getValueSafe(), formType.getValue());
                     Platform.runLater(() -> suggestions.setAll(submissionRefs));
                 } catch (Throwable e) {
                     log.error("error while searching for submission refs", e);
@@ -146,13 +130,6 @@ public class FormHeaderController implements AppController {
                 }
             });
         });
-        final var vs = new ValidationSupport();
-        vs.registerValidator(tfIndex, true, Validator.createEmptyValidator(rb.getString("settings.msg.value_required")));
-        valid.bind(vs.invalidProperty());
-    }
-
-    public ReadOnlyBooleanProperty validProperty() {
-        return valid.getReadOnlyProperty();
     }
 
     @FXML
@@ -171,5 +148,9 @@ public class FormHeaderController implements AppController {
 
     public ObjectProperty<FormType> formTypeProperty() {
         return formType;
+    }
+
+    public StringProperty indexFieldNameProperty() {
+        return indexFieldName;
     }
 }

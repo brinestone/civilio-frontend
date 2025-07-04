@@ -21,6 +21,7 @@ import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FormType;
+import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FOSAFormDataManager;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
@@ -52,8 +53,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.FormatStyle;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -137,6 +137,7 @@ public class FOSAFormController extends FormController implements Initializable 
         final var ts = new ResourceBundleService(resources);
         model = new FOSAFormDataManager(
                 this::valueLoader,
+                this::findPersonnelInfo,
                 this::keyMaker,
                 this::extractFieldKey,
                 this::findOptionsFor);
@@ -154,6 +155,50 @@ public class FOSAFormController extends FormController implements Initializable 
         headerManagerController.canGoPrevProperty().bind(canSubmit.not());
         headerManagerController.formTypeProperty().setValue(FormType.FOSA);
         setEventHandlers();
+    }
+
+    private Collection<PersonnelInfo> findPersonnelInfo() {
+        final var personnelInfoFields = submissionData.keySet().stream()
+                .filter(k -> Arrays.stream(FieldKeys.Fosa.PERSONNEL_FIELDS).anyMatch(k::startsWith))
+                .toList();
+        final var map = new HashMap<String, PersonnelInfo>();
+        for (var key : personnelInfoFields) {
+            final var meta = extractFieldIdentifiers(key);
+            final var ordinal = meta[0];
+            final var id = extractFieldKey(key);
+            final var entry = map.computeIfAbsent(ordinal, k -> PersonnelInfo.builder().parentIndex((String) submissionData.get(keyMaker(FieldKeys.Fosa.INDEX, 0))).build());
+            final var isNameField = id.equals(FieldKeys.Fosa.PERSONNEL_NAME);
+            final var isPositionField = id.equals(FieldKeys.Fosa.PERSONNEL_POSITION);
+            final var isGenderField = id.equals(FieldKeys.Fosa.PERSONNEL_GENDER);
+            final var isPhoneField = id.equals(FieldKeys.Fosa.PERSONNEL_PHONE);
+            final var isAgeField = id.equals(FieldKeys.Fosa.PERSONNEL_AGE);
+            final var isCSTrainingField = id.equals(FieldKeys.Fosa.PERSONNEL_CS_TRAINING);
+            final var isEdLevelField = id.equals(FieldKeys.Fosa.PERSONNEL_ED_LEVEL);
+            final var isComputerLevelField = id.equals(FieldKeys.Fosa.PERSONNEL_COMPUTER_LEVEL);
+            final var isEmailField = id.equals(FieldKeys.Fosa.PERSONNEL_EMAIL);
+
+            final var stringValue = (String) submissionData.get(key);
+
+            if (stringValue.matches("^\\d+$") && isAgeField) {
+                entry.setAge(Integer.parseInt(stringValue));
+            } else if (isNameField)
+                entry.setNames(stringValue);
+            else if (isPositionField)
+                entry.setRole(stringValue);
+            else if (isPhoneField)
+                entry.setPhone(stringValue);
+            else if (isCSTrainingField)
+                entry.setCivilStatusTraining("1".equals(stringValue));
+            else if (isEdLevelField)
+                entry.setEducationLevel(stringValue);
+            else if (isGenderField)
+                entry.setGender(stringValue);
+            else if (isComputerLevelField)
+                entry.setComputerKnowledgeLevel(stringValue);
+            else if (isEmailField)
+                entry.setEmail(stringValue);
+        }
+        return map.values();
     }
 
     private void setEventHandlers() {

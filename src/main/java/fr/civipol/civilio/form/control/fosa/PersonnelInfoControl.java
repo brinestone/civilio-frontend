@@ -2,7 +2,6 @@ package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleControl;
-import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.domain.viewmodel.PersonnelInfoViewModel;
@@ -15,9 +14,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
+import javafx.collections.*;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
@@ -29,9 +26,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.util.converter.DefaultStringConverter;
 
-import java.util.Collection;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
@@ -43,6 +38,7 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     private Button btnRemoveSelection, btnAdd;
     private HBox actionBar;
     private ObservableSet<PersonnelInfoViewModel> selectedItems;
+    private final ObservableList<PersonnelInfoViewModel> items = FXCollections.observableArrayList();
     private TableView<PersonnelInfoViewModel> tvPersonnel;
     private TableColumn<PersonnelInfoViewModel, Boolean> tcSelection, tcHasCSTraining;
     private TableColumn<PersonnelInfoViewModel, String> tcNames, tcRole, tcPhone;
@@ -151,6 +147,17 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     @SuppressWarnings("DuplicatedCode")
     public void setupValueChangedListeners() {
         super.setupValueChangedListeners();
+        field.valueProperty().addListener((ListChangeListener<PersonnelInfo>) c -> {
+            items.clear();
+            for (var p : field.getValue()) {
+                final var vm = new PersonnelInfoViewModel(p);
+                vm.setSelected(selectedItems.stream().map(PersonnelInfoViewModel::getPersonnelInfo).anyMatch(v -> v.equals(p)));
+                vm.hasCivilStatusTrainingProperty().addListener((ob, ov, nv) -> triggerUpdate());
+                vm.selectedProperty().addListener((ob, ov, nv) -> listChanged.set(true));
+                items.add(vm);
+            }
+            tvPersonnel.refresh();
+        });
         listChanged.addListener((ob, ov, nv) -> {
             tvPersonnel.getItems().stream()
                     .filter(PersonnelInfoViewModel::isSelected)
@@ -160,15 +167,6 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
                     .forEach(selectedItems::remove);
             if (!nv) return;
             listChanged.set(false);
-        });
-        field.valueProperty().addListener((ob, ov, nv) -> {
-            final var vms = nv.stream()
-                    .map(PersonnelInfoViewModel::new)
-                    .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getPersonnelInfo(), vm.getPersonnelInfo()))))
-                    .peek(vm -> vm.hasCivilStatusTrainingProperty().addListener((oob, oov, nnv) -> triggerUpdate()))
-                    .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
-                    .toList();
-            tvPersonnel.getItems().setAll(vms);
         });
         selectedItems.addListener((SetChangeListener<PersonnelInfoViewModel>) c -> {
             final var selectionSize = c.getSet().size();
@@ -217,20 +215,15 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         tvPersonnel.editableProperty().bind(field.editableProperty());
         tcComputerKnowledge.editableProperty().bind(field.editableProperty());
         tcEmail.editableProperty().bind(field.editableProperty());
+
+
     }
 
     @SuppressWarnings("DuplicatedCode")
     @Override
     public void initializeParts() {
         super.initializeParts();
-        tvPersonnel.getItems().setAll(
-                Optional.ofNullable(field.getValue())
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .map(PersonnelInfoViewModel::new)
-                        .peek(vm -> vm.selectedProperty().addListener(PersonnelInfoControl.this::onItemSelectionStatusChanged))
-                        .toList()
-        );
+        tvPersonnel.setItems(items);
 
         btnAdd.setCursor(Cursor.HAND);
         btnRemoveSelection.setCursor(Cursor.HAND);
@@ -300,6 +293,13 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         tcSelection.setCellValueFactory(param -> param.getValue().selectedProperty());
         tcSelection.setStyle("-fx-alignment: CENTER;");
         tcSelection.setSortable(false);
+        for (var p : field.getValue()) {
+            final var vm = new PersonnelInfoViewModel(p);
+            vm.setSelected(selectedItems.stream().map(PersonnelInfoViewModel::getPersonnelInfo).anyMatch(v -> v.equals(p)));
+            vm.hasCivilStatusTrainingProperty().addListener((ob, ov, nv) -> triggerUpdate());
+            vm.selectedProperty().addListener((ob, ov, nv) -> listChanged.set(true));
+            items.add(vm);
+        }
     }
 
     private void onItemSelectionStatusChanged(Observable observable, Boolean oldValue, Boolean newValue) {

@@ -86,6 +86,7 @@ public class FieldKeys {
         public static final String ATTACHED_CSC = "fosa.form.fields.csc_reg.title";
         public static final String INDEX = "fosa.form.fields.index";
         public static final String VALIDATION_CODE = "fosa.form.fields.validation_code";
+        public static String[] PERSONNEL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
     }
 
     @SuppressWarnings("rawtypes")
