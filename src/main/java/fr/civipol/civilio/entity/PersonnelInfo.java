@@ -8,7 +8,17 @@ import lombok.extern.jackson.Jacksonized;
 @Builder
 @Jacksonized
 public class PersonnelInfo {
-    private String names, gender, role, computerKnowledgeLevel, phone, educationLevel, parentIndex, index, email;
+    private String names;
+    private String gender;
+    private String role;
+    @Builder.Default
+    private String computerKnowledgeLevel = "1";
+    private String phone;
+    @Builder.Default
+    private String educationLevel = "1";
+    private String parentIndex;
+    private String index;
+    private String email;
     @Builder.Default
     private Boolean civilStatusTraining = false;
     private Integer age;

@@ -23,21 +23,19 @@ BEGIN
             'device_' || EXTRACT(EPOCH FROM NOW())::TEXT, 0,
             '', '', 0, 0, 0, '', '', '', 0, 0, 0, 0, '', 0, 0, 0, 0, 0, '', 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', gen_random_uuid()::TEXT, CURRENT_DATE,
-            'not_approved', '1', nextval(civilio.fosa_index_seq)::integer, nextval(civilio.fosa_id_seq)::integer)
+            'not_approved', '1', nextval('civilio.fosa_index_seq')::integer, nextval('civilio.fosa_id_seq')::integer)
     RETURNING _id INTO new_index;
 
     RETURN new_index;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION civilio.func_create_personnel_record(
-    IN parent_id INTEGER,
-    IN parent_table_name TEXT
-)
-    RETURNS INTEGER AS
+create function func_create_personnel_record(parent_id integer, parent_table_name text) returns integer
+    language plpgsql
+as
 $$
 DECLARE
-    new_index INTEGER;
+    new_index INTEGER := nextval('civilio.personnel_index_seq');
 BEGIN
     INSERT INTO public.data_personnel(q12_01_name, q12_02_tittle_position, q12_03_gender, age_en_ann_es,
                                       avez_vous_re_u_une_f_ion_sur_l_tat_civil_, q12_08_education_level_attaine,
@@ -47,29 +45,36 @@ BEGIN
                                       _submission_version_, _submission_tags, q1_02_division, q1_03_municipality,
                                       ds_rattachement, as_rattachement, milieu, q1_07_type_healt_facility,
                                       statut_de_la_fosa, existence_d_une_maternit_dans_la_fosa)
-    VALUES ('', '', 1, 0, 0, 0, 0, nextval(civilio.personnel_index_seq)::INTEGER,
+    VALUES ('', '', 1, 0, 2, 1, 1,
+            new_index,
             COALESCE(parent_table_name, 'FOSA OUEST'),
-            (SELECT _index FROM public.data_fosa WHERE _id = parent_id LIMIT 1), parent_id,
-            (SELECT _uuid FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _submission_time FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _validation_status FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _notes FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _validation_status FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _submitted_by FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _version_ FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT _tags FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.q1_02_division FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.q1_03_municipality FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.ds_rattachement FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.as_rattachement FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.milieu FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.q1_07_type_healt_facility FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.statut_de_la_fosa FROM public.data_fosa WHERE _id = parent_id LIMIT 1),
-            (SELECT data_fosa.existence_d_une_maternit_dans_la_fosa
-             FROM public.data_fosa
-             WHERE _id = parent_id
-             LIMIT 1))
-    RETURNING _index INTO new_index;
+            (SELECT df._index FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            parent_id,
+            COALESCE((SELECT df._uuid FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1)::VARCHAR(36), ''),
+            COALESCE((SELECT df._submission_time FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1)::DATE,
+                     CURRENT_DATE),
+            COALESCE((SELECT df._validation_status
+                      FROM public.data_fosa df
+                      WHERE df._id = parent_id
+                      LIMIT 1)::VARCHAR(26), ''),
+            COALESCE((SELECT df._notes FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1)::VARCHAR(30), ''),
+            COALESCE((SELECT df._validation_status FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+                     CAST('' AS varchar(17))),
+            SUBSTRING((SELECT df._submitted_by FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1)::TEXT
+                      FROM 1 FOR 9),
+            (SELECT df._version_ FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df._tags FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.q1_02_division FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.q1_03_municipality FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.ds_rattachement FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.as_rattachement FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.milieu FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.q1_07_type_healt_facility FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.statut_de_la_fosa FROM public.data_fosa df WHERE df._id = parent_id LIMIT 1),
+            (SELECT df.existence_d_une_maternit_dans_la_fosa
+             FROM public.data_fosa df
+             WHERE df._id = parent_id
+             LIMIT 1));
     RETURN new_index;
 END;
-$$ LANGUAGE plpgsql;
+$$;

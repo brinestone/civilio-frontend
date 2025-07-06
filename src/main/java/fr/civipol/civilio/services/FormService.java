@@ -292,7 +292,17 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
-            try (final var call = connection.prepareCall("CALL civilio.proc_upsert_field_change(?, CAST(? as civilio.form_types), ?, ?, ?);")) {
+            try (final var call = connection.prepareCall("""
+                    SELECT CAST(
+                        (SELECT
+                            civilio.func_upsert_field_change(
+                                CAST(? as TEXT),
+                                CAST(? as civilio.form_types),
+                                CAST(? as INTEGER),
+                                CAST(? as TEXT),
+                                CAST(? AS TEXT)
+                            )) AS TEXT);
+                    """)) {
                 for (var change : changes) {
                     call.setString(1, submissionId);
                     call.setString(2, form.name().toLowerCase());
@@ -300,7 +310,11 @@ public class FormService implements AppService {
                     final var field = fieldExtractor.apply(change.getField());
                     call.setString(4, field);
                     call.setObject(5, change.getNewValue());
-                    call.executeUpdate();
+                    try (final var rs = call.executeQuery()) {
+                        if (rs.next())
+                            submissionId = rs.getString(1);
+                        else throw new IllegalStateException("An error occurred");
+                    }
                 }
             }
             connection.commit();
@@ -375,8 +389,6 @@ public class FormService implements AppService {
                                 df._submission_time::DATE
                             FROM
                                 data_fosa df
-                            INNER JOIN
-                                data_personnel dp on df._index = dp._parent_index
                             WHERE
                                 %s
                             ORDER BY
@@ -642,7 +654,7 @@ public class FormService implements AppService {
                 for (var migration : migrations) {
                     final var id = migration.substring(prefix.length(), migration.indexOf("."));
                     final var sql = Files.readString(Paths.get(Objects.requireNonNull(FormService.class.getResource(migration)).toURI()));
-                    st.executeLargeUpdate(sql);
+                    st.execute(sql);
                     try (final var ps = connection.prepareStatement("""
                             INSERT INTO
                                 civilio.migrations (_version)
@@ -705,7 +717,7 @@ public class FormService implements AppService {
                 from
                     information_schema.tables t
                 where
-                    t.table_name = 'migrations';
+                    t.table_name = 'migrations' AND t.table_schema = 'civilio';
                 """;
         try (final var ps = connection.prepareStatement(sql)) {
             try (final var rs = ps.executeQuery()) {

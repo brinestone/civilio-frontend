@@ -174,7 +174,7 @@ public abstract class FormController implements AppController {
             try {
                 log.debug("loading options for group: " + group);
                 final var result = getFormService().findOptionsFor(group, parent, form);
-                callback.accept(result);
+                Platform.runLater(() -> callback.accept(result));
             } catch (Throwable t) {
                 log.error("error while loading options list", t);
                 showErrorAlert(t.getLocalizedMessage());
