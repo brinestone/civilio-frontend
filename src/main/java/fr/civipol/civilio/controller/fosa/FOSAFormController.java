@@ -464,7 +464,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                                    ObservableList<T> destination) {
         executorService.submit(() -> {
             try {
-                final var result = formService.findAutoCompletionValuesFor(field, "fosa", query, 5,
+                final var result = formService.findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
                         deserializer);
                 Platform.runLater(() -> destination.setAll(result));
             } catch (Throwable t) {
@@ -477,14 +477,14 @@ public class FOSAFormController extends FormController implements Initializable 
         final var model = (FOSAFormDataManager) this.model;
         final var form = Form.of(
                         Section.of(
-                                        Field.ofSingleSelectionType(model.regionsProperty(),
-                                                        model.regionProperty())
-                                                .label("fosa.form.fields.region.title")
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .regionsProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
-                                                .span(ColSpan.HALF),
+//                                        Field.ofSingleSelectionType(model.regionsProperty(),
+//                                                        model.regionProperty())
+//                                                .label("fosa.form.fields.region.title")
+//                                                .render(createOptionComboBox(ts, v -> model
+//                                                        .regionsProperty().stream()
+//                                                        .filter(o -> o.value().equals(v))
+//                                                        .findFirst().orElse(null)))
+//                                                .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(model.divisionsProperty(),
                                                         model.divisionProperty())
                                                 .label("fosa.form.fields.department.title")
@@ -595,12 +595,19 @@ public class FOSAFormController extends FormController implements Initializable 
         final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
                         Group.of(
+                                Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
+                                        .label(FieldKeys.Fosa.RESPONDING_DEVICE)
+                                        .render(createOptionComboBox(ts, v -> model
+                                                .deviceOptionsProperty().stream()
+                                                .filter(o -> o.value().equals(v))
+                                                .findFirst().orElse(null)))
+                                        .required("settings.msg.value_required"),
                                 Field.ofStringType(model.respondentNamesProperty())
                                         .label(FieldKeys.Fosa.RESPONDENT_NAME)
-                                        .required(true),
+                                        .required("settings.msg.value_required"),
                                 Field.ofStringType(model.positionProperty())
                                         .span(ColSpan.HALF)
-                                        .required(true)
+                                        .required("settings.msg.value_required")
                                         .render(bindAutoCompletionWrapper(
                                                 FieldKeys.Fosa.POSITION,
                                                 String::valueOf))
@@ -608,7 +615,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                         .label("fosa.form.fields.position.title"),
                                 Field.ofStringType(model.phoneProperty())
                                         .span(ColSpan.HALF)
-                                        .required(true)
+                                        .required("settings.msg.value_required")
                                         .validate(RegexValidator.forPattern(
                                                 "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
                                                 "fosa.form.msg.invalid_value"))

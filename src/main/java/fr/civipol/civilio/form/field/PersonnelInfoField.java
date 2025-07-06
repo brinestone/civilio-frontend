@@ -2,9 +2,9 @@ package fr.civipol.civilio.form.field;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.control.fosa.PersonnelInfoControl;
-import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, List<PersonnelInfo>, PersonnelInfoField> {
     private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
@@ -138,7 +139,7 @@ public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, L
     public static PersonnelInfoField personnelInfoField(
             ObservableList<PersonnelInfo> items,
             TranslationService translationService,
-            NotifyCallback changeCallback) {
+            Consumer<FieldChange> changeCallback) {
         return new PersonnelInfoField(new SimpleListProperty<>(items), new SimpleListProperty<>(FXCollections.observableArrayList()))
                 .render(() -> new PersonnelInfoControl(translationService, changeCallback));
     }

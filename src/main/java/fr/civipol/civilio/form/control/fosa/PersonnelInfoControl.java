@@ -2,13 +2,14 @@ package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleControl;
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.domain.viewmodel.PersonnelInfoViewModel;
 import fr.civipol.civilio.entity.PersonnelInfo;
+import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
-import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -27,6 +28,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.converter.DefaultStringConverter;
 
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
@@ -47,9 +49,9 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     private TableColumn<PersonnelInfoViewModel, Option> tcEducationLevel;
     private TableColumn<PersonnelInfoViewModel, Option> tcComputerKnowledge;
     private TableColumn<PersonnelInfoViewModel, String> tcEmail;
-    private final NotifyCallback updateTrigger;
+    private final Consumer<FieldChange> updateTrigger;
 
-    public PersonnelInfoControl(TranslationService translationService, NotifyCallback updateTrigger) {
+    public PersonnelInfoControl(TranslationService translationService, Consumer<FieldChange> updateTrigger) {
         this.translationService = translationService;
         this.updateTrigger = updateTrigger;
     }
@@ -82,54 +84,49 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         tvPersonnel.setPrefHeight(300);
     }
 
+    private PersonnelInfoViewModel personnelInfoToViewModel(PersonnelInfo p) {
+        final var vm = new PersonnelInfoViewModel(p);
+        vm.setSelected(selectedItems.stream().map(PersonnelInfoViewModel::getPersonnelInfo).anyMatch(v -> v.equals(p)));
+        vm.hasCivilStatusTrainingProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING));
+        vm.selectedProperty().addListener((ob, ov, nv) -> listChanged.set(true));
+
+        vm.namesProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_NAME));
+        vm.emailProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL));
+        vm.ageProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_AGE));
+        vm.genderProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_GENDER));
+        vm.phoneProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_PHONE));
+        vm.computerKnowledgeLevelProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL));
+        vm.educationLevelProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL));
+        vm.roleProperty().addListener((ob, ov, nv) -> triggerUpdate(field.getValue().indexOf(p), ov, nv, FieldKeys.PersonnelInfo.PERSONNEL_POSITION));
+        return vm;
+    }
+
     @Override
     public void setupEventHandlers() {
         super.setupEventHandlers();
         btnAdd.setOnAction(this::onAddButtonClicked);
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
-        tcNames.setOnEditCommit(e -> {
-            e.getRowValue().setNames(e.getNewValue());
-            triggerUpdate();
-        });
-        tcRole.setOnEditCommit(e -> {
-            e.getRowValue().setRole(e.getNewValue());
-            triggerUpdate();
-        });
+        tcNames.setOnEditCommit(e -> e.getRowValue().setNames(e.getNewValue()));
+        tcRole.setOnEditCommit(e -> e.getRowValue().setRole(e.getNewValue()));
         tcPhone.setOnEditCommit(e -> {
             final var matcher = PHONE_REGEX.matcher(e.getNewValue());
             if (matcher.matches()) {
                 e.getRowValue().setPhone(e.getNewValue());
-                triggerUpdate();
             } else {
                 e.consume();
                 e.getTableView().refresh();
             }
         });
-        tcGender.setOnEditCommit(e -> {
-            e.getRowValue().setGender((String) e.getNewValue().value());
-            triggerUpdate();
-        });
-        tcAge.setOnEditCommit(e -> {
-            e.getRowValue().setAge(e.getNewValue());
-            triggerUpdate();
-        });
-        tcEducationLevel.setOnEditCommit(e -> {
-            e.getRowValue().setEducationLevel((String) e.getNewValue().value());
-            triggerUpdate();
-        });
-        tcComputerKnowledge.setOnEditCommit(e -> {
-            e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value());
-            triggerUpdate();
-        });
-        tcEmail.setOnEditCommit(e -> {
-            e.getRowValue().setEmail(e.getNewValue());
-            triggerUpdate();
-        });
+        tcGender.setOnEditCommit(e -> e.getRowValue().setGender((String) e.getNewValue().value()));
+        tcAge.setOnEditCommit(e -> e.getRowValue().setAge(e.getNewValue()));
+        tcEducationLevel.setOnEditCommit(e -> e.getRowValue().setEducationLevel((String) e.getNewValue().value()));
+        tcComputerKnowledge.setOnEditCommit(e -> e.getRowValue().setComputerKnowledgeLevel((String) e.getNewValue().value()));
+        tcEmail.setOnEditCommit(e -> e.getRowValue().setEmail(e.getNewValue()));
         cbSelectAll.setOnAction(e -> tvPersonnel.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
 
-    private void triggerUpdate() {
-        updateTrigger.call();
+    private void triggerUpdate(int index, Object oldValue, Object newValue, String field) {
+        updateTrigger.accept(new FieldChange(field, newValue, oldValue, index));
     }
 
     private void onRemoveSelectionButtonClicked(ActionEvent ignored) {
@@ -150,11 +147,7 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         field.valueProperty().addListener((ListChangeListener<PersonnelInfo>) c -> {
             items.clear();
             for (var p : field.getValue()) {
-                final var vm = new PersonnelInfoViewModel(p);
-                vm.setSelected(selectedItems.stream().map(PersonnelInfoViewModel::getPersonnelInfo).anyMatch(v -> v.equals(p)));
-                vm.hasCivilStatusTrainingProperty().addListener((ob, ov, nv) -> triggerUpdate());
-                vm.selectedProperty().addListener((ob, ov, nv) -> listChanged.set(true));
-                items.add(vm);
+                items.add(personnelInfoToViewModel(p));
             }
             tvPersonnel.refresh();
         });
@@ -294,11 +287,7 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         tcSelection.setStyle("-fx-alignment: CENTER;");
         tcSelection.setSortable(false);
         for (var p : field.getValue()) {
-            final var vm = new PersonnelInfoViewModel(p);
-            vm.setSelected(selectedItems.stream().map(PersonnelInfoViewModel::getPersonnelInfo).anyMatch(v -> v.equals(p)));
-            vm.hasCivilStatusTrainingProperty().addListener((ob, ov, nv) -> triggerUpdate());
-            vm.selectedProperty().addListener((ob, ov, nv) -> listChanged.set(true));
-            items.add(vm);
+            items.add(personnelInfoToViewModel(p));
         }
     }
 

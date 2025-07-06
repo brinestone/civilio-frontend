@@ -38,7 +38,7 @@ public class BackgroundModule {
     @Provides
     @Singleton
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public HikariConfig hikariDataSource(ConfigManager cm) {
+    public HikariConfig hikariConfig(ConfigManager cm) {
         final var host = cm.loadObject(Constants.DB_HOST_KEY, String.class);
         final var port = cm.loadObject(Constants.DB_PORT_KEY, Integer.class);
         final var dbName = cm.loadObject(Constants.DB_NAME_KEY, String.class);
@@ -52,6 +52,7 @@ public class BackgroundModule {
         }
         final var config = new HikariConfig();
         config.setPassword(pass.get());
+        config.setMaximumPoolSize(4);
         config.setUsername(user.get());
         config.setDataSourceClassName("org.postgresql.ds.PGSimpleDataSource");
         config.setJdbcUrl("jdbc:postgresql://%s:%d/%s".formatted(host.get(), port.get(), dbName.get()));

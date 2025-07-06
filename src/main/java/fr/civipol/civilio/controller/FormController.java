@@ -1,5 +1,6 @@
 package fr.civipol.civilio.controller;
 
+import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
@@ -105,10 +106,11 @@ public abstract class FormController implements AppController {
     }
 
     public void updateFormValues() {
+        getHeaderManagerController().loadingProperty().set(true);
         getModel().resetChanges();
         getExecutorService().submit(() -> {
             try {
-                getModel().loadOptions((form, group, parent, callback) -> {
+                OptionSource optionSource = (form, group, parent, callback) -> {
                     try {
                         log.debug("loading options for group: " + group);
                         final var result = getFormService().findOptionsFor(group, parent, form);
@@ -117,7 +119,8 @@ public abstract class FormController implements AppController {
                         log.error("error while loading options list", t);
                         showErrorAlert(t.getLocalizedMessage());
                     }
-                }, () -> Optional.ofNullable(submissionId.get())
+                };
+                Runnable callback = () -> Optional.ofNullable(submissionId.get())
                         .filter(StringUtils::isNotBlank)
                         .ifPresent(__ -> {
                             try {
@@ -133,7 +136,8 @@ public abstract class FormController implements AppController {
                             } catch (Throwable e) {
                                 showErrorAlert(e.getLocalizedMessage());
                             }
-                        }));
+                        });
+                getModel().loadOptions(optionSource, callback);
 
             } catch (Throwable t) {
                 log.error("error while loading submission data", t);
@@ -142,6 +146,8 @@ public abstract class FormController implements AppController {
                     alert.setHeaderText(t.getLocalizedMessage());
                     alert.showAndWait();
                 });
+            } finally {
+                Platform.runLater(() -> getHeaderManagerController().loadingProperty().set(false));
             }
         });
     }

@@ -186,7 +186,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     public void findAllDbColumns(FormType form, Consumer<Collection<String>> callback) {
         executorService.submit(() -> {
             try {
-                final var result = new ArrayList<>(formService.getFormFields());
+                final var result = new ArrayList<>(formService.getFormColumnNames());
                 Platform.runLater(() -> callback.accept(result));
             } catch (Throwable t) {
                 log.error("error while finding fields", t);

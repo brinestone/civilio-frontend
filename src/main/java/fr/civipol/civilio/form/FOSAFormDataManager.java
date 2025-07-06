@@ -29,13 +29,13 @@ public class FOSAFormDataManager extends FormDataManager {
     private static final String FORM_ID = "am5nSncmYooy8nknSHzYaz";
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
-    private final ListProperty<Option> waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
+    private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
             districts, regions, divisions,
             municipalities, healthAreas, environmentTypes, emergencyPowerSourceTypes, emergencyPowerSources,
             fosaTypes,
             genders, educationLevels, computerKnowledgeLevels,
             fosaStatusTypes;
-    private final ObjectProperty<Option> district, region, division, municipality, healthArea, environmentType,
+    private final ObjectProperty<Option> device, district, region, division, municipality, healthArea, environmentType,
             fosaType, fosaStatusType;
     private final ObjectProperty<GeoPoint> geoPoint;
     private final BooleanProperty internetConnectionAvailable, emergencyPowerSourceAvailable,
@@ -145,6 +145,8 @@ public class FOSAFormDataManager extends FormDataManager {
         birthCount3 = new SimpleIntegerProperty();
         birthCount4 = new SimpleIntegerProperty();
         birthCount5 = new SimpleIntegerProperty();
+        device = new SimpleObjectProperty<>();
+        deviceOptions = new SimpleListProperty<>(FXCollections.observableArrayList());
         setupChangeListeners();
     }
 
@@ -158,6 +160,7 @@ public class FOSAFormDataManager extends FormDataManager {
     public void trackFieldChanges() {
         if (trackingUpdates)
             return;
+        trackUpdatesForField(FieldKeys.Fosa.RESPONDING_DEVICE);
         trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_1);
         trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_2);
         trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_3);
@@ -230,19 +233,15 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void updateTrackedPersonnelFields() {
-        // TODO: implement this
+    public void updateTrackedPersonnelFields(FieldChange update) {
+        final var key = keyMaker.apply(update.getField(), update.getOrdinal());
+        final var change = changes.computeIfAbsent(key, k -> new FieldChange(k, null, update.getOldValue(), update.getOrdinal()));
+        change.setNewValue(update.getNewValue());
+        if (Objects.equals(change.getNewValue(), change.getOldValue()))
+            changes.remove(key);
     }
 
     private void setupChangeListeners() {
-        region.addListener((ob, ov, nv) -> {
-            if (nv == null) {
-                divisionsProperty().clear();
-                division.set(null);
-                return;
-            }
-        });
-
         division.addListener((ob, ov, nv) -> {
             if (nv == null) {
                 municipalitiesProperty().clear();
@@ -264,15 +263,12 @@ public class FOSAFormDataManager extends FormDataManager {
                 return;
             optionSource.get(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty()::setAll);
         });
-//        changes.addListener(
-//                (MapChangeListener<String, FieldChange>) change -> System.out.println("changes = " + changes));
     }
 
     private void loadPersonnelInfo() {
         final var allPersonnel = personnelInfoSupplier.get();
         personnelInfo.clear();
         personnelInfo.addAll(allPersonnel);
-//        System.gc();
     }
 
     public void loadValues() {
@@ -303,6 +299,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 .longitude(11.4661458f)
                 .build());
 
+        loadOptionValue(FieldKeys.Fosa.RESPONDING_DEVICE);
         loadOptionValue(FieldKeys.Fosa.ENVIRONMENT_TYPE);
         loadOptionValue(FieldKeys.Fosa.WATER_SOURCES);
         loadOptionValue(FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS);
@@ -338,24 +335,25 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void loadOptions(OptionSource optionSource, Runnable callback) {
-        Function<ObservableList<Option>, Consumer<Collection<Option>>> consumer = list -> v -> {
+        Function<ObservableList<Option>, Consumer<Collection<Option>>> consumerFactory = list -> v -> {
             if (Platform.isFxApplicationThread())
                 list.setAll(v);
             else
                 Platform.runLater(() -> list.setAll(v));
         };
-        optionSource.get(FORM_ID, "commune", null, municipalitiesProperty()::setAll);
-        optionSource.get(FORM_ID, "region", null, consumer.apply(regions));
-        optionSource.get(FORM_ID, "vb2qk85", null, consumer.apply(environmentTypes));
-        optionSource.get(FORM_ID, "district", null, consumer.apply(districts));
-        optionSource.get(FORM_ID, "pa9ii12", null, consumer.apply(fosaTypes));
-        optionSource.get(FORM_ID, "qy7we33", null, consumer.apply(fosaStatusTypes));
-        optionSource.get(FORM_ID, "ij2ql10", null, consumer.apply(eventRegistrationTypes));
-        optionSource.get(FORM_ID, "xt53f30", null, consumer.apply(emergencyPowerSourceTypes));
-        optionSource.get(FORM_ID, "zp4ec39", null, consumer.apply(waterSourceTypes));
-        optionSource.get(FORM_ID, "xw39g10", null, consumer.apply(genders));
-        optionSource.get(FORM_ID, "ta2og93", null, consumer.apply(educationLevels));
-        optionSource.get(FORM_ID, "nz2pr56", null, consumer.apply(computerKnowledgeLevels));
+        optionSource.get(FORM_ID, "commune", null, consumerFactory.apply(municipalities));
+        optionSource.get(FORM_ID, "division", null, consumerFactory.apply(divisions));
+        optionSource.get(FORM_ID, "vb2qk85", null, consumerFactory.apply(environmentTypes));
+        optionSource.get(FORM_ID, "district", null, consumerFactory.apply(districts));
+        optionSource.get(FORM_ID, "pa9ii12", null, consumerFactory.apply(fosaTypes));
+        optionSource.get(FORM_ID, "qy7we33", null, consumerFactory.apply(fosaStatusTypes));
+        optionSource.get(FORM_ID, "ij2ql10", null, consumerFactory.apply(eventRegistrationTypes));
+        optionSource.get(FORM_ID, "xt53f30", null, consumerFactory.apply(emergencyPowerSourceTypes));
+        optionSource.get(FORM_ID, "zp4ec39", null, consumerFactory.apply(waterSourceTypes));
+        optionSource.get(FORM_ID, "xw39g10", null, consumerFactory.apply(genders));
+        optionSource.get(FORM_ID, "ta2og93", null, consumerFactory.apply(educationLevels));
+        optionSource.get(FORM_ID, "nz2pr56", null, consumerFactory.apply(computerKnowledgeLevels));
+        optionSource.get(FORM_ID, "ju6tz85", null, consumerFactory.apply(deviceOptions));
         Optional.ofNullable(callback).ifPresent(Runnable::run);
     }
 
@@ -424,6 +422,7 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.TABLET_COUNT -> tabletCount;
             case FieldKeys.Fosa.CAR_COUNT -> carCount;
             case FieldKeys.Fosa.BIKE_COUNT -> bikeCount;
+            case FieldKeys.Fosa.RESPONDING_DEVICE -> device;
             default -> super.getPropertyFor(id);
         };
     }
@@ -442,6 +441,7 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.WATER_SOURCES -> waterSourceTypes;
             case FieldKeys.Fosa.ENVIRONMENT_TYPE -> environmentTypes;
             case FieldKeys.Fosa.BACKUP_POWER_SOURCES -> emergencyPowerSourceTypes;
+            case FieldKeys.Fosa.RESPONDING_DEVICE -> deviceOptions;
             default -> null;
         };
     }
@@ -455,7 +455,8 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.MAIL, FieldKeys.Fosa.ATTACHED_CSC, FieldKeys.Fosa.OFFICE_NAME, FieldKeys.Fosa.PHONE,
                     FieldKeys.Fosa.POSITION, FieldKeys.Fosa.RESPONDENT_NAME, FieldKeys.Fosa.QUARTER,
                     FieldKeys.Fosa.LOCALITY -> String.class;
-            case FieldKeys.Fosa.REGION, FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA,
+            case FieldKeys.Fosa.RESPONDING_DEVICE,
+                    FieldKeys.Fosa.REGION, FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA,
                     FieldKeys.Fosa.DISTRICT, FieldKeys.Fosa.DIVISION, FieldKeys.Fosa.MUNICIPALITY,
                     FieldKeys.Fosa.ENVIRONMENT_TYPE -> Option.class;
             case FieldKeys.Fosa.HAS_INTERNET_CONNECTION, FieldKeys.Fosa.HAS_TOILET_FIELD,
@@ -838,5 +839,13 @@ public class FOSAFormDataManager extends FormDataManager {
 
     public IntegerProperty deathCount5Property() {
         return deathCount5;
+    }
+
+    public ObjectProperty<Option> deviceProperty() {
+        return device;
+    }
+
+    public ListProperty<Option> deviceOptionsProperty() {
+        return deviceOptions;
     }
 }

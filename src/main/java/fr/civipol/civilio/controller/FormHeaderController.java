@@ -40,6 +40,7 @@ public class FormHeaderController implements AppController {
     private final ObjectProperty<SubmissionRef> submissionRef = new SimpleObjectProperty<>();
     private final ObjectProperty<FormType> formType = new SimpleObjectProperty<>(this, "formType");
     private final StringProperty indexFieldName = new SimpleStringProperty(this, "indexFieldName");
+    private final BooleanProperty loading = new SimpleBooleanProperty(this, "loading");
     @FXML
     private Button btnNext;
     @FXML
@@ -67,10 +68,13 @@ public class FormHeaderController implements AppController {
     @FXML
     private void initialize() {
         final var rb = ResourceBundle.getBundle("messages");
-        lblSubmissionDate.textProperty().bind(Bindings.createStringBinding(() -> Optional.ofNullable(submissionRef.getValue())
-                .map(SubmissionRef::submissionDate)
-                .map(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)::format)
-                .orElse(rb.getString("forms.header.date.new")), submissionId, submissionRef));
+        final var lblSubmissionDateBinding = Bindings.when(loading)
+                .then(rb.getString("loading.txt"))
+                .otherwise(Bindings.createStringBinding(() -> Optional.ofNullable(submissionRef.getValue())
+                        .map(SubmissionRef::submissionDate)
+                        .map(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)::format)
+                        .orElse(rb.getString("forms.header.date.new")), submissionId, submissionRef));
+        lblSubmissionDate.textProperty().bind(lblSubmissionDateBinding);
         tfValidationCode.textProperty().bindBidirectional(validationCode);
         btnNext.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::next)
@@ -152,5 +156,9 @@ public class FormHeaderController implements AppController {
 
     public StringProperty indexFieldNameProperty() {
         return indexFieldName;
+    }
+
+    public BooleanProperty loadingProperty() {
+        return loading;
     }
 }

@@ -21,6 +21,7 @@ import java.util.function.Function;
 
 public class FieldKeys {
     public static final class Fosa {
+        public static final String RESPONDING_DEVICE = "fosa.form.fields.responding_device.title";
         public static final String MAIL = "fosa.form.fields.email.title";
         public static final String PHONE = "fosa.form.fields.phone.title";
         public static final String POSITION = "fosa.form.fields.position.title";
@@ -89,6 +90,19 @@ public class FieldKeys {
         public static String[] PERSONNEL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
     }
 
+    public static final class PersonnelInfo {
+        public static final String PERSONNEL_NAME = "data_personnel.columns.name.title";
+        public static final String PERSONNEL_POSITION = "data_personnel.columns.role.title";
+        public static final String PERSONNEL_GENDER = "data_personnel.columns.gender.title";
+        public static final String PERSONNEL_PHONE = "data_personnel.columns.phone.title";
+        public static final String PERSONNEL_EMAIL = "data_personnel.columns.email.title";
+        public static final String PERSONNEL_AGE = "data_personnel.columns.age.title";
+        public static final String PERSONNEL_CS_TRAINING = "data_personnel.columns.has_cs_training.title";
+        public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
+        public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
+        public static String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
+    }
+
     @SuppressWarnings("rawtypes")
     public static Category fosaFieldSettingsCategory(FieldMappingSource fieldMappingSource) {
         final var fieldMap = FXCollections.<String, Property>observableHashMap();
@@ -132,12 +146,12 @@ public class FieldKeys {
                         Category.of("mapper.categories.forms.fosa.base_fields.title",
                                 settingFactory.apply(Fosa.INDEX),
                                 settingFactory.apply(Fosa.VALIDATION_CODE),
+                                settingFactory.apply(Fosa.RESPONDING_DEVICE),
                                 settingFactory.apply(Fosa.RESPONDENT_NAME),
                                 settingFactory.apply(Fosa.POSITION),
                                 settingFactory.apply(Fosa.PHONE),
                                 settingFactory.apply(Fosa.MAIL),
                                 settingFactory.apply(Fosa.CREATION_DATE),
-                                settingFactory.apply(Fosa.REGION),
                                 settingFactory.apply(Fosa.DIVISION),
                                 settingFactory.apply(Fosa.MUNICIPALITY),
                                 settingFactory.apply(Fosa.QUARTER),

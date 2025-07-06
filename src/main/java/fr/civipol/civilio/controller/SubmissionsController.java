@@ -232,7 +232,7 @@ public class SubmissionsController implements AppController, Initializable {
                         .map(FormSubmissionViewModel::getSubmission)
                         .map(FormSubmission::getId)
                         .toArray(String[]::new);
-                formService.deleteSubmissions(ids);
+                formService.deleteSubmissions(cbFormType.getValue(), ids);
                 Platform.runLater(() -> {
                     try {
                         if (cbSelectAll.isSelected()) {

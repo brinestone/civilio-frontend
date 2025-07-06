@@ -14,12 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -59,8 +68,8 @@ public class FormService implements AppService {
             if (dbColumn != null) {
                 sql = """
                         INSERT INTO
-                            form_field_mappings(field, i18n_key, db_column, db_table, form, db_column_type)
-                        VALUES (?, ?, ?, ?, CAST(? as form_types), (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? LIMIT 1))
+                            civilio.form_field_mappings(field, i18n_key, db_column, db_table, form, db_column_type)
+                        VALUES (?, ?, ?, ?, CAST(? as civilio.form_types), (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? AND c.table_schema = 'public' LIMIT 1))
                         ON CONFLICT (field, form) DO UPDATE
                         SET
                             db_column = EXCLUDED.db_column,
@@ -85,9 +94,9 @@ public class FormService implements AppService {
             } else {
                 sql = """
                         DELETE FROM
-                            form_field_mappings
+                            civilio.form_field_mappings
                         WHERE
-                            field = ? AND form = CAST(? as form_types);
+                            field = ? AND form = CAST(? as civilio.form_types);
                         """;
                 st = connection.prepareStatement(sql);
                 st.setString(1, field);
@@ -105,13 +114,13 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<String> getFormFields() throws SQLException {
+    public Collection<String> getFormColumnNames() throws SQLException {
         final var sql = """
                 SELECT DISTINCT
                     c.column_name
                 FROM
                     information_schema.columns c
-                WHERE c.table_name = ANY(?)
+                WHERE c.table_name = ANY(?) AND c.table_schema = 'public'
                 ORDER BY c.column_name;
                 """;
         final var ds = dataSourceProvider.get();
@@ -135,9 +144,9 @@ public class FormService implements AppService {
                 SELECT
                     i18n_key, db_column, db_table, db_column_type, COALESCE(ordinal, 0::SMALLINT)
                 FROM
-                    form_field_mappings ffm
+                    civilio.form_field_mappings ffm
                 WHERE
-                    ffm.form = CAST(? AS form_types) AND ffm.field = ?
+                    ffm.form = CAST(? AS civilio.form_types) AND ffm.field = ?
                 LIMIT 1;
                 """;
         try (final var st = connection.prepareStatement(sql)) {
@@ -164,9 +173,9 @@ public class FormService implements AppService {
                 SELECT
                     field, i18n_key, quote_ident(db_column), db_table, db_column_type, COALESCE(ordinal, 0::SMALLINT)
                 FROM
-                    form_field_mappings
+                    civilio.form_field_mappings
                 WHERE
-                    form = CAST(? as form_types);
+                    form = CAST(? as civilio.form_types);
                 """;
         try (final var st = connection.prepareStatement(sql)) {
             st.setString(1, form);
@@ -190,7 +199,7 @@ public class FormService implements AppService {
 
     public <T> Collection<T> findAutoCompletionValuesFor(
             String fieldId,
-            String form,
+            FormType form,
             String query,
             int limit,
             Function<String, T> deserializer) throws SQLException {
@@ -208,7 +217,7 @@ public class FormService implements AppService {
                 """;
         final var ds = dataSourceProvider.get();
         try (final var conn = ds.getConnection()) {
-            final var mappingWrapper = findFieldMappingInternal(conn, form, fieldId);
+            final var mappingWrapper = findFieldMappingInternal(conn, form.toString(), fieldId);
             if (mappingWrapper.isEmpty())
                 return Collections.emptyList();
             final var mapping = mappingWrapper.get();
@@ -283,56 +292,22 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
-
-            final var isNewSubmission = StringUtils.isBlank(submissionId);
-            if (isNewSubmission) {
-                try (final var st = connection.createStatement()) {
-                    try (final var rs = st.executeQuery("""
-                            INSERT INTO %s DEFAULT VALUES RETURNING _id
-                            """.formatted(form.getDbTable()))) {
-                        if (!rs.next())
-                            throw new RuntimeException("unknown error while retrieving submission id ");
-                        submissionId = rs.getString(1);
-                    }
-                }
-            }
-
-            for (var change : changes) {
-                final var field = fieldExtractor.apply(change.getField());
-                final var mappingWrapper = findFieldMappingInternal(connection, form.toString(), field);
-                if (mappingWrapper.isEmpty()) {
-                    droppedChanges.add(change);
-                    continue;
-                }
-                final var mapping = mappingWrapper.get();
-                final var metadata = metaDataExtractor.apply(change.getField());
-                var isNewChange = metadata.length == 0;
-
-                String sql;
-                PreparedStatement ps;
-                final var columnNameWrapper = sanitizeColumnName(mapping.dbTable(), field, connection);
-                if (columnNameWrapper.isEmpty()) {
-                    droppedChanges.add(change);
-                    continue;
-                }
-                final var columnName = columnNameWrapper.get();
-
-                if (!isNewChange) {
-                    sql = """
-                            UPDATE
-                                %s
-                            SET
-                                %s= CAST(? AS %s)
-                            WHERE
-                                _id=?;
-                            """.formatted(mapping.dbTable(), columnName, mapping.type());
-                    ps = connection.prepareStatement(sql);
-                    ps.setObject(1, change.getNewValue());
-                    ps.setString(2, submissionId);
+            try (final var call = connection.prepareCall("CALL civilio.proc_upsert_field_change(?, CAST(? as civilio.form_types), ?, ?, ?);")) {
+                for (var change : changes) {
+                    call.setString(1, submissionId);
+                    call.setString(2, form.name().toLowerCase());
+                    call.setInt(3, change.getOrdinal());
+                    final var field = fieldExtractor.apply(change.getField());
+                    call.setString(4, field);
+                    call.setObject(5, change.getNewValue());
+                    call.executeUpdate();
                 }
             }
             connection.commit();
             return droppedChanges;
+        } catch (SQLException e) {
+            log.error("Error updating submission {} for form {}", submissionId, form, e);
+            throw e;
         }
     }
 
@@ -343,7 +318,7 @@ public class FormService implements AppService {
                 FROM
                     information_schema.columns c
                 WHERE
-                    c.table_name = ? AND c.column_name = ? LIMIT 1;
+                    c.table_name = ? AND c.column_name = ? AND c.table_schema = 'public' LIMIT 1;
                 """)) {
             st.setString(1, table);
             st.setString(2, column);
@@ -355,18 +330,20 @@ public class FormService implements AppService {
         }
     }
 
-    public void deleteSubmissions(String... ids) throws SQLException {
+    public void deleteSubmissions(FormType form, String... ids) throws SQLException {
         if (ids.length == 0)
             return;
         final var dataSource = this.dataSourceProvider.get();
         try (final var connection = dataSource.getConnection()) {
-            try (final var st = connection.prepareStatement("DELETE FROM data1 WHERE _id IN ("
-                                                            + String.join(",", Collections.nCopies(ids.length, "?")) + ");")) {
+            connection.setAutoCommit(false);
+            try (final var st = connection.prepareStatement("""
+                    DELETE FROM %s WHERE _index IN (%s);
+                    """.formatted(form.getDbTable(), String.join(",", Collections.nCopies(ids.length, "?"))))) {
                 for (var i = 0; i < ids.length; i++) {
                     st.setString(i + 1, ids[i]);
                 }
 
-                st.execute();
+                st.executeUpdate();
             }
         }
     }
@@ -461,7 +438,7 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             final var sql = new StringBuilder(
-                    "SELECT name, label, i18n_key FROM choices WHERE \"group\" = ? AND version = ?"
+                    "SELECT name, label, i18n_key FROM civilio.choices WHERE \"group\" = ? AND version = ?"
             );
             if (StringUtils.isNotBlank(parent))
                 sql.append(" AND parent = ?");
@@ -571,6 +548,169 @@ public class FormService implements AppService {
     @Override
     public void initialize() throws Exception {
         AppService.super.initialize();
-        log.info("running migration scripts...");
+        runMigrations();
+    }
+
+    private Set<String> getMigrationScripts() {
+        // The path to your migrations folder within resources
+        // Ensure you use a trailing slash to indicate a directory
+        String migrationsPath = "/migrations/";
+
+        Set<String> fileNames = new HashSet<>();
+
+        // Get the URL for the migrations folder
+        URL migrationsFolderUrl = getClass().getResource(migrationsPath);
+
+        if (migrationsFolderUrl == null) {
+            System.err.println("Migrations folder not found: " + migrationsPath);
+            return fileNames;
+        }
+
+        // Determine if running from a JAR or directly from file system
+        String protocol = migrationsFolderUrl.getProtocol();
+
+        if ("jar".equals(protocol)) {
+            // Running from a JAR file
+            String jarPath = migrationsFolderUrl.getPath().substring(5, migrationsFolderUrl.getPath().indexOf("!"));
+            try (final var jar = new JarFile(java.net.URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String name = entry.getName();
+
+                    // Check if the entry is within the migrations path and is a direct file
+                    if (name.startsWith(migrationsPath) && !entry.isDirectory()) {
+                        // Extract just the file name
+                        String relativePath = name.substring(migrationsPath.length());
+                        // Ensure it's not a file in a deeper subdirectory
+                        if (!relativePath.contains("/")) {
+                            fileNames.add(relativePath);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading JAR file: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else if ("file".equals(protocol)) {
+            // Running from the file system (e.g., during development in an IDE)
+            try {
+                final var directory = new File(migrationsFolderUrl.toURI());
+                if (directory.isDirectory()) {
+                    final var files = directory.listFiles();
+                    if (files != null) {
+                        for (var file : files) {
+                            // Only add actual files, not subdirectories
+                            if (file.isFile()) {
+                                fileNames.add(file.getName());
+                            }
+                        }
+                    }
+                } else {
+                    System.err.println("Path is not a directory: " + migrationsFolderUrl.toExternalForm());
+                }
+            } catch (URISyntaxException e) {
+                System.err.println("Invalid URI for migrations path: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Unsupported protocol for migrations folder: " + protocol);
+        }
+
+        return fileNames;
+    }
+
+    private void runMigrations() throws SQLException, IOException, URISyntaxException {
+        log.debug("running migration scripts...");
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            connection.setAutoCommit(false);
+            assertMigrationsTable(connection);
+            final var prefix = "/migrations/";
+            final var appliedMigrations = countAppliedMigrations(connection);
+            final var migrations = getMigrationScripts().stream()
+                    .sorted()
+                    .skip(appliedMigrations)
+                    .map(s -> prefix + s)
+                    .toList();
+
+            if (migrations.isEmpty()) {
+                log.info("Migrations already applied");
+                return;
+            }
+            try (final var st = connection.createStatement()) {
+                for (var migration : migrations) {
+                    final var id = migration.substring(prefix.length(), migration.indexOf("."));
+                    final var sql = Files.readString(Paths.get(Objects.requireNonNull(FormService.class.getResource(migration)).toURI()));
+                    st.executeLargeUpdate(sql);
+                    try (final var ps = connection.prepareStatement("""
+                            INSERT INTO
+                                civilio.migrations (_version)
+                            VALUES
+                                (CAST(? AS INTEGER));
+                            """)) {
+                        ps.setString(1, id);
+                        ps.executeUpdate();
+                    }
+                    log.debug("Applied migration: {}", migration);
+                }
+            }
+
+
+            connection.commit();
+            log.info("Migrations applied successfully");
+        } catch (SQLException | IOException | URISyntaxException e) {
+            log.error("Error while running migrations", e);
+            throw e;
+        }
+    }
+
+    private int countAppliedMigrations(Connection connection) throws SQLException {
+        final var sql = """
+                SELECT COUNT(_version) FROM civilio.migrations;
+                """;
+        try (final var ps = connection.prepareStatement(sql)) {
+            try (final var rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return 0;
+                }
+                return rs.getInt(1);
+            }
+        }
+    }
+
+    private void assertMigrationsTable(Connection connection) throws SQLException {
+        if (!migrationsTableExists(connection)) {
+            createMigrationsTable(connection);
+        }
+    }
+
+    private void createMigrationsTable(Connection connection) throws SQLException {
+        final var sql = """
+                CREATE SCHEMA IF NOT EXISTS civilio;
+                CREATE TABLE IF NOT EXISTS civilio.migrations(
+                    _version integer not null,
+                    applied_at timestamp default now()
+                );
+                """;
+        try (final var ps = connection.prepareStatement(sql)) {
+            ps.executeUpdate();
+        }
+    }
+
+    private boolean migrationsTableExists(Connection connection) throws SQLException {
+        final var sql = """
+                select
+                    count(*) > 0 as "exists"
+                from
+                    information_schema.tables t
+                where
+                    t.table_name = 'migrations';
+                """;
+        try (final var ps = connection.prepareStatement(sql)) {
+            try (final var rs = ps.executeQuery()) {
+                return rs.next() && rs.getBoolean(1);
+            }
+        }
     }
 }
