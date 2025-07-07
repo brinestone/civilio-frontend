@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<BorderPane fx:id="bpRoot" prefHeight="412.0" prefWidth="853.0" xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.SubmissionsController">
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="692.0" spacing="10.0">
+            <padding>
+                <Insets left="15.0" right="15.0"/>
+            </padding>
+            <Label fx:id="lblTitle" styleClass="form-title" text="%fosa.submissions.title"/>
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+            <Button contentDisplay="GRAPHIC_ONLY" layoutX="820.0" layoutY="19.0" mnemonicParsing="false"
+                    onAction="#onRefreshButtonClicked" styleClass="outlined-button" text="%fosa.add_submission">
+                <graphic>
+                    <FontIcon iconLiteral="fth-refresh-cw"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="%fosa.add_submission"/>
+                </tooltip>
+                <cursor>
+                    <Cursor fx:constant="HAND"/>
+                </cursor>
+            </Button>
+            <ComboBox fx:id="cbFormType">
+                <tooltip>
+                    <Tooltip text="%fosa.submissions.form_type.prompt_text"/>
+                </tooltip>
+            </ComboBox>
+            <Button fx:id="btnOpenSubmissionForm" contentDisplay="GRAPHIC_ONLY" layoutX="577.0" layoutY="19.0"
+                    mnemonicParsing="false" onAction="#onAddSubmissionButtonClicked" styleClass="outlined-button"
+                    text="%fosa.add_submission">
+                <graphic>
+                    <FontIcon iconLiteral="fth-plus"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="%fosa.add_submission"/>
+                </tooltip>
+                <cursor>
+                    <Cursor fx:constant="HAND"/>
+                </cursor>
+            </Button>
+        </HBox>
+    </top>
+    <center>
+        <StackPane fx:id="spTableContainer" BorderPane.alignment="CENTER">
+            <children>
+                <TableView fx:id="tvSubmissions" prefHeight="200.0" prefWidth="200.0">
+                    <columns>
+                        <TableColumn fx:id="tcSelection" prefWidth="30.0" resizable="false" sortable="false">
+                            <graphic>
+                                <CheckBox fx:id="cbSelectAll" mnemonicParsing="false"/>
+                            </graphic>
+                        </TableColumn>
+                        <TableColumn fx:id="tcValidated" prefWidth="104.0" text="%fosa.columns.validated"/>
+                        <TableColumn fx:id="tcValidationCode" prefWidth="200" text="%fosa.columns.validation_code"/>
+                        <TableColumn fx:id="tcRecordedBy" prefWidth="126.0" text="%fosa.columns.recorded_by"/>
+                        <TableColumn fx:id="tcRecordedOn" editable="false" prefWidth="182.0"
+                                     text="%fosa.columns.recorded_on"/>
+                    </columns>
+                </TableView>
+            </children>
+            <padding>
+                <Insets left="10.0" right="10.0"/>
+            </padding>
+        </StackPane>
+    </center>
+    <bottom>
+        <HBox fx:id="hbActionBar" alignment="CENTER_LEFT" prefHeight="51.0" prefWidth="692.0"
+              BorderPane.alignment="CENTER">
+            <padding>
+                <Insets left="15.0" right="15.0"/>
+            </padding>
+            <Button fx:id="btnOpenFilters" mnemonicParsing="false">
+                <graphic>
+                    <FontIcon iconLiteral="fth-filter"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="%fosa.open_filters"/>
+                </tooltip>
+                <cursor>
+                    <Cursor fx:constant="HAND"/>
+                </cursor>
+            </Button>
+            <Region prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS"/>
+            <Pagination fx:id="pgPagination" maxPageIndicatorCount="5" pageCount="1" prefHeight="33.0"
+                        prefWidth="157.0"/>
+        </HBox>
+    </bottom>
+</BorderPane>

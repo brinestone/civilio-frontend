@@ -17,8 +17,8 @@
         </encoder>
     </appender>
 
-    <root level="${logLevel}">
-        <appender-ref ref="stdout"/>
-        <appender-ref  ref="file"/>
+    <root>
+        <appender-ref level="DEBUG" ref="stdout"/>
+        <appender-ref level="info" ref="file"/>
     </root>
 </configuration>
