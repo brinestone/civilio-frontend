@@ -5,7 +5,6 @@ public record FieldMapping(
         String i18nKey,
         String dbColumn,
         String dbTable,
-        String type,
-        Integer ordinal
+        String type
 ) {
 }

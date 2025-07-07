@@ -142,7 +142,7 @@ public class FormService implements AppService {
             throws SQLException {
         final var sql = """
                 SELECT
-                    i18n_key, db_column, db_table, db_column_type, COALESCE(ordinal, 0::SMALLINT)
+                    i18n_key, db_column, db_table, db_column_type
                 FROM
                     civilio.form_field_mappings ffm
                 WHERE
@@ -160,8 +160,7 @@ public class FormService implements AppService {
                                 rs.getString(1),
                                 rs.getString(2),
                                 rs.getString(3),
-                                rs.getString(4),
-                                rs.getInt(5)
+                                rs.getString(4)
                         )
                 );
             }
@@ -171,7 +170,7 @@ public class FormService implements AppService {
     private List<FieldMapping> findFieldMappingsInternal(Connection connection, String form) throws SQLException {
         final var sql = """
                 SELECT
-                    field, i18n_key, quote_ident(db_column), db_table, db_column_type, COALESCE(ordinal, 0::SMALLINT)
+                    field, i18n_key, quote_ident(db_column), db_table, db_column_type
                 FROM
                     civilio.form_field_mappings
                 WHERE
@@ -187,8 +186,7 @@ public class FormService implements AppService {
                                     rs.getString(2),
                                     rs.getString(3),
                                     rs.getString(4),
-                                    rs.getString(5),
-                                    rs.getInt(6)
+                                    rs.getString(5)
                             )
                     );
                 }
@@ -284,7 +282,6 @@ public class FormService implements AppService {
             String submissionId,
             FormType form,
             Function<String, String> fieldExtractor,
-            Function<String, String[]> metaDataExtractor,
             FieldChange... changes) throws SQLException {
         if (changes.length == 0)
             return Collections.emptyList();
@@ -304,6 +301,10 @@ public class FormService implements AppService {
                             )) AS TEXT);
                     """)) {
                 for (var change : changes) {
+                    if (change.isDeletionChange()) {
+                        processDeletionChange(change.getOrdinal() + 1, form.toString(), change.getField(), submissionId, connection);
+                        continue;
+                    }
                     call.setString(1, submissionId);
                     call.setString(2, form.name().toLowerCase());
                     call.setInt(3, change.getOrdinal());
@@ -322,6 +323,29 @@ public class FormService implements AppService {
         } catch (SQLException e) {
             log.error("Error updating submission {} for form {}", submissionId, form, e);
             throw e;
+        }
+    }
+
+    private void processDeletionChange(
+            int ordinal,
+            String form,
+            String fieldPattern,
+            String submissionId,
+            Connection connection
+    ) throws SQLException {
+        try (final var call = connection.prepareCall("""
+                CALL civilio.proc_process_deletion_change(
+                    submission_id := ?,
+                    field_pattern := ?,
+                    ordinal := ?,
+                    form_type := CAST(? as civilio.form_types)
+                );
+                """)) {
+            call.setString(1, submissionId);
+            call.setString(2, fieldPattern);
+            call.setInt(3, ordinal);
+            call.setString(4, form);
+            call.executeUpdate();
         }
     }
 

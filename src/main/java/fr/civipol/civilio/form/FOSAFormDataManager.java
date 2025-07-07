@@ -30,12 +30,12 @@ public class FOSAFormDataManager extends FormDataManager {
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
-            districts, regions, divisions,
+            districts, divisions,
             municipalities, healthAreas, environmentTypes, emergencyPowerSourceTypes, emergencyPowerSources,
             fosaTypes,
             genders, educationLevels, computerKnowledgeLevels,
             fosaStatusTypes;
-    private final ObjectProperty<Option> device, district, region, division, municipality, healthArea, environmentType,
+    private final ObjectProperty<Option> device, district, division, municipality, healthArea, environmentType,
             fosaType, fosaStatusType;
     private final ObjectProperty<GeoPoint> geoPoint;
     private final BooleanProperty internetConnectionAvailable, emergencyPowerSourceAvailable,
@@ -89,7 +89,6 @@ public class FOSAFormDataManager extends FormDataManager {
         emergencyPowerSourceTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
         emergencyPowerSources = new SimpleListProperty<>(FXCollections.observableArrayList());
         healthAreas = new SimpleListProperty<>(FXCollections.observableArrayList());
-        regions = new SimpleListProperty<>(FXCollections.observableArrayList());
         divisions = new SimpleListProperty<>(FXCollections.observableArrayList());
         eventRegistrationTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
         registeredEventTypes = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -122,7 +121,6 @@ public class FOSAFormDataManager extends FormDataManager {
         fosaType = new SimpleObjectProperty<>(this, "fosaType");
         environmentType = new SimpleObjectProperty<>(this, "environmentType");
         healthArea = new SimpleObjectProperty<>(this, "healthArea");
-        region = new SimpleObjectProperty<>(this, "region");
         division = new SimpleObjectProperty<>(this, "department");
         cscDistance = new SimpleDoubleProperty(this, "cscDistance");
         dhis2Usage = new SimpleBooleanProperty(this, "dhis2Usage");
@@ -148,11 +146,6 @@ public class FOSAFormDataManager extends FormDataManager {
         device = new SimpleObjectProperty<>();
         deviceOptions = new SimpleListProperty<>(FXCollections.observableArrayList());
         setupChangeListeners();
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    private void trackMultiValueUpdates() {
-
     }
 
     @Override
@@ -206,13 +199,11 @@ public class FOSAFormDataManager extends FormDataManager {
         trackUpdatesForField(FieldKeys.Fosa.QUARTER);
         trackUpdatesForField(FieldKeys.Fosa.MUNICIPALITY);
         trackUpdatesForField(FieldKeys.Fosa.DIVISION);
-        trackUpdatesForField(FieldKeys.Fosa.REGION);
         trackUpdatesForField(FieldKeys.Fosa.CREATION_DATE);
         trackUpdatesForField(FieldKeys.Fosa.RESPONDENT_NAME);
         trackUpdatesForField(FieldKeys.Fosa.POSITION);
         trackUpdatesForField(FieldKeys.Fosa.PHONE);
         trackUpdatesForField(FieldKeys.Fosa.MAIL);
-        trackMultiValueUpdates();
         trackingUpdates = true;
     }
 
@@ -228,14 +219,27 @@ public class FOSAFormDataManager extends FormDataManager {
 
     public void updateGeoPointUpdates() {
         final var entry = changes.computeIfAbsent(FieldKeys.Fosa.GEO_POINT,
-                k -> new FieldChange(k, null, this.geoPoint.getValue(), 0));
+                k -> new FieldChange(k, null, this.geoPoint.getValue(), 0, false));
         entry.setNewValue(this.geoPoint.getValue());
     }
 
-    @SuppressWarnings("DuplicatedCode")
     public void updateTrackedPersonnelFields(FieldChange update) {
+        if (update.isDeletionChange()) {
+            final var ordinal = update.getOrdinal();
+            final var prefix = FieldKeys.PersonnelInfo.ALL_FIELDS[0].substring(0, FieldKeys.PersonnelInfo.ALL_FIELDS[0].indexOf("."));
+            changes.values().stream()
+                    .filter(c -> !c.isDeletionChange())
+                    .filter(c -> c.getField().startsWith(prefix) && c.getField().endsWith(String.valueOf(ordinal)))
+                    .forEach(fc -> changes.remove(fc.getField()));
+            final var deletionKey = keyMaker.apply("%s.+".formatted(prefix), ordinal);
+            changes.put(deletionKey, FieldChange.builder()
+                    .field(deletionKey)
+                    .deletionChange(true)
+                    .build());
+            return;
+        }
         final var key = keyMaker.apply(update.getField(), update.getOrdinal());
-        final var change = changes.computeIfAbsent(key, k -> new FieldChange(k, null, update.getOldValue(), update.getOrdinal()));
+        final var change = changes.computeIfAbsent(key, k -> new FieldChange(k, null, update.getOldValue(), update.getOrdinal(), false));
         change.setNewValue(update.getNewValue());
         if (Objects.equals(change.getNewValue(), change.getOldValue()))
             changes.remove(key);
@@ -305,7 +309,6 @@ public class FOSAFormDataManager extends FormDataManager {
         loadOptionValue(FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS);
         loadOptionValue(FieldKeys.Fosa.HEALTH_AREA);
         loadOptionValue(FieldKeys.Fosa.DISTRICT);
-        loadOptionValue(FieldKeys.Fosa.REGION);
         loadOptionValue(FieldKeys.Fosa.FACILITY_TYPE);
         loadOptionValue(FieldKeys.Fosa.STATUS);
         loadOptionValue(FieldKeys.Fosa.BACKUP_POWER_SOURCES);
@@ -393,7 +396,6 @@ public class FOSAFormDataManager extends FormDataManager {
             case FieldKeys.Fosa.RESPONDENT_NAME -> respondentNames;
             case FieldKeys.Fosa.DIVISION -> division;
             case FieldKeys.Fosa.MUNICIPALITY -> municipality;
-            case FieldKeys.Fosa.REGION -> region;
             case FieldKeys.Fosa.QUARTER -> quarter;
             case FieldKeys.Fosa.LOCALITY -> locality;
             case FieldKeys.Fosa.OFFICE_NAME -> officeName;
@@ -430,7 +432,6 @@ public class FOSAFormDataManager extends FormDataManager {
     @SuppressWarnings("DuplicatedCode")
     private ListProperty<Option> getOptionsFor(String id) {
         return switch (id) {
-            case FieldKeys.Fosa.REGION -> regions;
             case FieldKeys.Fosa.STATUS -> fosaStatusTypes;
             case FieldKeys.Fosa.FACILITY_TYPE -> fosaTypes;
             case FieldKeys.Fosa.HEALTH_AREA -> healthAreas;
@@ -456,7 +457,7 @@ public class FOSAFormDataManager extends FormDataManager {
                     FieldKeys.Fosa.POSITION, FieldKeys.Fosa.RESPONDENT_NAME, FieldKeys.Fosa.QUARTER,
                     FieldKeys.Fosa.LOCALITY -> String.class;
             case FieldKeys.Fosa.RESPONDING_DEVICE,
-                    FieldKeys.Fosa.REGION, FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA,
+                    FieldKeys.Fosa.STATUS, FieldKeys.Fosa.FACILITY_TYPE, FieldKeys.Fosa.HEALTH_AREA,
                     FieldKeys.Fosa.DISTRICT, FieldKeys.Fosa.DIVISION, FieldKeys.Fosa.MUNICIPALITY,
                     FieldKeys.Fosa.ENVIRONMENT_TYPE -> Option.class;
             case FieldKeys.Fosa.HAS_INTERNET_CONNECTION, FieldKeys.Fosa.HAS_TOILET_FIELD,
@@ -717,10 +718,6 @@ public class FOSAFormDataManager extends FormDataManager {
         return municipality;
     }
 
-    public ObjectProperty<Option> regionProperty() {
-        return region;
-    }
-
     public ListProperty<Option> municipalitiesProperty() {
         return municipalities;
     }
@@ -747,10 +744,6 @@ public class FOSAFormDataManager extends FormDataManager {
 
     public ObjectProperty<Option> divisionProperty() {
         return division;
-    }
-
-    public ListProperty<Option> regionsProperty() {
-        return regions;
     }
 
     public ListProperty<Option> divisionsProperty() {

@@ -27,7 +27,7 @@ public class FieldKeys {
         public static final String POSITION = "fosa.form.fields.position.title";
         public static final String RESPONDENT_NAME = "fosa.form.fields.names.title";
         public static final String CREATION_DATE = "fosa.form.fields.creation_date.description";
-        public static final String REGION = "fosa.form.fields.region.title";
+        //        public static final String REGION = "fosa.form.fields.region.title";
         public static final String DIVISION = "fosa.form.fields.department.description";
         public static final String MUNICIPALITY = "fosa.form.fields.communes.title";
         public static final String QUARTER = "fosa.form.fields.quarter.title";
@@ -87,7 +87,7 @@ public class FieldKeys {
         public static final String ATTACHED_CSC = "fosa.form.fields.csc_reg.title";
         public static final String INDEX = "fosa.form.fields.index";
         public static final String VALIDATION_CODE = "fosa.form.fields.validation_code";
-        public static String[] PERSONNEL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
+        public static String[] PERSONNEL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
     }
 
     public static final class PersonnelInfo {
@@ -100,7 +100,7 @@ public class FieldKeys {
         public static final String PERSONNEL_CS_TRAINING = "data_personnel.columns.has_cs_training.title";
         public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
         public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
-        public static String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
+        public static String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
     }
 
     @SuppressWarnings("rawtypes")

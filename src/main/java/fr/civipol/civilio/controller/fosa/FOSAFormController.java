@@ -123,7 +123,6 @@ public class FOSAFormController extends FormController implements Initializable 
                 submissionId.getValue(),
                 FormType.FOSA,
                 this::extractFieldKey,
-                this::extractFieldIdentifiers,
                 model.getPendingUpdates().toArray(FieldChange[]::new));
         if (dropped.isEmpty())
             return;
@@ -159,7 +158,7 @@ public class FOSAFormController extends FormController implements Initializable 
 
     private Collection<PersonnelInfo> findPersonnelInfo() {
         final var personnelInfoFields = submissionData.keySet().stream()
-                .filter(k -> Arrays.stream(FieldKeys.Fosa.PERSONNEL_FIELDS).anyMatch(k::startsWith))
+                .filter(k -> Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(k::startsWith))
                 .toList();
         final var map = new HashMap<String, PersonnelInfo>();
         for (var key : personnelInfoFields) {
@@ -167,15 +166,15 @@ public class FOSAFormController extends FormController implements Initializable 
             final var ordinal = meta[0];
             final var id = extractFieldKey(key);
             final var entry = map.computeIfAbsent(ordinal, k -> PersonnelInfo.builder().parentIndex((String) submissionData.get(keyMaker(FieldKeys.Fosa.INDEX, 0))).build());
-            final var isNameField = id.equals(FieldKeys.Fosa.PERSONNEL_NAME);
-            final var isPositionField = id.equals(FieldKeys.Fosa.PERSONNEL_POSITION);
-            final var isGenderField = id.equals(FieldKeys.Fosa.PERSONNEL_GENDER);
-            final var isPhoneField = id.equals(FieldKeys.Fosa.PERSONNEL_PHONE);
-            final var isAgeField = id.equals(FieldKeys.Fosa.PERSONNEL_AGE);
-            final var isCSTrainingField = id.equals(FieldKeys.Fosa.PERSONNEL_CS_TRAINING);
-            final var isEdLevelField = id.equals(FieldKeys.Fosa.PERSONNEL_ED_LEVEL);
-            final var isComputerLevelField = id.equals(FieldKeys.Fosa.PERSONNEL_COMPUTER_LEVEL);
-            final var isEmailField = id.equals(FieldKeys.Fosa.PERSONNEL_EMAIL);
+            final var isNameField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_NAME);
+            final var isPositionField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_POSITION);
+            final var isGenderField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_GENDER);
+            final var isPhoneField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_PHONE);
+            final var isAgeField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_AGE);
+            final var isCSTrainingField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING);
+            final var isEdLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL);
+            final var isComputerLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL);
+            final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
 
@@ -477,14 +476,6 @@ public class FOSAFormController extends FormController implements Initializable 
         final var model = (FOSAFormDataManager) this.model;
         final var form = Form.of(
                         Section.of(
-//                                        Field.ofSingleSelectionType(model.regionsProperty(),
-//                                                        model.regionProperty())
-//                                                .label("fosa.form.fields.region.title")
-//                                                .render(createOptionComboBox(ts, v -> model
-//                                                        .regionsProperty().stream()
-//                                                        .filter(o -> o.value().equals(v))
-//                                                        .findFirst().orElse(null)))
-//                                                .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(model.divisionsProperty(),
                                                         model.divisionProperty())
                                                 .label("fosa.form.fields.department.title")

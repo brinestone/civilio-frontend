@@ -158,7 +158,7 @@ public class FosaStatsControl extends SimpleControl<VitalStatsField> {
     }
 
     private void triggerValueUpdate(String fieldId, Integer ordinal, Object oldValue, Object newValue) {
-        updateTrigger.accept(new FieldChange(fieldId, newValue, oldValue, ordinal));
+        updateTrigger.accept(new FieldChange(fieldId, newValue, oldValue, ordinal, false));
     }
 
     @Override

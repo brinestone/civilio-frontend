@@ -122,14 +122,14 @@ public abstract class FormDataManager {
         if (property instanceof ListProperty l) {
             final var initialValue = List.copyOf(l);
             l.addListener((ListChangeListener) c -> {
-                final var entry = changes.computeIfAbsent(field, k -> new FieldChange(k, null, initialValue, 0));
+                final var entry = changes.computeIfAbsent(field, k -> new FieldChange(k, null, initialValue, 0, false));
                 while (c.next()) {
                     entry.setNewValue(List.copyOf(l));
                 }
             });
         } else
             property.addListener((ob, ov, nv) -> {
-                final var updatesEntry = changes.computeIfAbsent(field, k -> new FieldChange(k, nv, ov, 0));
+                final var updatesEntry = changes.computeIfAbsent(field, k -> new FieldChange(k, nv, ov, 0, false));
                 updatesEntry.setNewValue(nv);
 
                 if (Objects.equals(nv, updatesEntry.getOldValue()))

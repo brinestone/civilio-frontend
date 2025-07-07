@@ -51,7 +51,8 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
     private TableColumn<PersonnelInfoViewModel, String> tcEmail;
     private final Consumer<FieldChange> updateTrigger;
 
-    public PersonnelInfoControl(TranslationService translationService, Consumer<FieldChange> updateTrigger) {
+    public PersonnelInfoControl(TranslationService translationService,
+                                Consumer<FieldChange> updateTrigger) {
         this.translationService = translationService;
         this.updateTrigger = updateTrigger;
     }
@@ -125,13 +126,19 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         cbSelectAll.setOnAction(e -> tvPersonnel.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
 
+    private void triggerDeleteUpdateAt(int index) {
+        updateTrigger.accept(new FieldChange(null, 1, 2, index, true));
+    }
+
     private void triggerUpdate(int index, Object oldValue, Object newValue, String field) {
-        updateTrigger.accept(new FieldChange(field, newValue, oldValue, index));
+        updateTrigger.accept(new FieldChange(field, newValue, oldValue, index, false));
     }
 
     private void onRemoveSelectionButtonClicked(ActionEvent ignored) {
+        var cnt = 0;
         for (var item : selectedItems) {
             field.valueProperty().remove(item.getPersonnelInfo());
+            triggerDeleteUpdateAt(cnt++);
         }
         selectedItems.clear();
     }

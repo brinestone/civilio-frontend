@@ -275,13 +275,13 @@ public class SubmissionsController implements AppController, Initializable {
             e.getRowValue().setValidationCode(e.getNewValue());
             hasPendingUpdates.set(true);
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0));
+            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0, false));
         });
         tcRecordedBy.setOnEditCommit(e -> {
             e.getRowValue().setSubmittedBy(e.getNewValue());
             hasPendingUpdates.set(true);
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0));
+            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0, false));
         });
     }
 
