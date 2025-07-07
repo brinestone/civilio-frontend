@@ -10,7 +10,6 @@ import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
-import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -296,10 +295,6 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
         for (var p : field.getValue()) {
             items.add(personnelInfoToViewModel(p));
         }
-    }
-
-    private void onItemSelectionStatusChanged(Observable observable, Boolean oldValue, Boolean newValue) {
-        listChanged.set(true);
     }
 
     @Override

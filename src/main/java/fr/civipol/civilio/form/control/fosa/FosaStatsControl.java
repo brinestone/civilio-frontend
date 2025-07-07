@@ -230,15 +230,9 @@ public class FosaStatsControl extends SimpleControl<VitalStatsField> {
     public void setupEventHandlers() {
         super.setupEventHandlers();
         btnAddRow.setOnAction(this::onAddRowButtonClicked);
-        tcYear.setOnEditCommit(e -> {
-            e.getRowValue().setYear(e.getNewValue());
-        });
-        tcDeaths.setOnEditCommit(e -> {
-            e.getRowValue().setDeathCount(e.getNewValue());
-        });
-        tcBirths.setOnEditCommit(e -> {
-            e.getRowValue().setBirthCount(e.getNewValue());
-        });
+        tcYear.setOnEditCommit(e -> e.getRowValue().setYear(e.getNewValue()));
+        tcDeaths.setOnEditCommit(e -> e.getRowValue().setDeathCount(e.getNewValue()));
+        tcBirths.setOnEditCommit(e -> e.getRowValue().setBirthCount(e.getNewValue()));
         btnRemoveSelection.setOnAction(this::onRemoveSelectionButtonClicked);
         cbSelectAll.setOnAction(e -> tvStats.getItems().forEach(i -> i.setSelected(cbSelectAll.isSelected())));
     }
