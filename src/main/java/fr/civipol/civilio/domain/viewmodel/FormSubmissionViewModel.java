@@ -13,7 +13,7 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
     @Getter
     private final FormSubmission submission;
     private final ObjectProperty<Date> submittedOn;
-    private final StringProperty submittedBy, validationCode, region;
+    private final StringProperty submittedBy, validationCode;
     private final BooleanProperty selected, validated;
 
     public FormSubmissionViewModel(FormSubmission submission) {
@@ -34,11 +34,6 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         submittedOn = new SimpleObjectProperty<>(submission, "submittedOn", Optional.ofNullable(submission)
                 .map(FormSubmission::getSubmittedOn)
                 .orElse(null));
-        region = new SimpleStringProperty(submission, "submittedAt", Optional.ofNullable(submission)
-                .map(FormSubmission::getRegion)
-                .orElse(null));
-
-        region.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setRegion(nv)));
         submittedBy.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setSubmittedBy(nv)));
         validated.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setValidationStatus(nv ? "validation_status_passed" : "validation_status_on_hold")));
     }
@@ -73,14 +68,6 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
 
     public void setValidationCode(String v) {
         validationCode.set(v);
-    }
-
-    public void setRegion(String v) {
-        region.set(v);
-    }
-
-    public StringProperty regionProperty() {
-        return region;
     }
 
     @Override

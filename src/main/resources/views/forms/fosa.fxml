@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
-
 <BorderPane prefHeight="611.0" prefWidth="1059.0" stylesheets="@../../styles/forms/fosa.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.fosa.FOSAFormController">
     <center>
         <TabPane prefHeight="439.0" prefWidth="775.0">
-            <Tab fx:id="tRespondant" closable="false" text="%fosa.form.sections.respondent.title">
+            <Tab fx:id="tRespondent" closable="false" text="%fosa.form.sections.respondent.title">
                 <ScrollPane fx:id="spRespondentContainer" fitToWidth="true" prefHeight="200.0" prefWidth="200.0" />
             </Tab>
             <Tab fx:id="tIdentification" closable="false" text="%fosa.form.sections.structure_identification.title">

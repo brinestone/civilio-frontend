@@ -1,6 +1,6 @@
 package fr.civipol.civilio.domain.viewmodel;
 
-import fr.civipol.civilio.entity.VitalCSCStat;
+import fr.civipol.civilio.entity.FosaStat;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,9 +12,9 @@ public class FOSAVitalCSCStatViewModel {
     private final ObjectProperty<Integer> deathCount, birthCount, year;
     private final BooleanProperty selected;
     @Getter
-    private final VitalCSCStat stat;
+    private final FosaStat stat;
 
-    public FOSAVitalCSCStatViewModel(VitalCSCStat stat) {
+    public FOSAVitalCSCStatViewModel(FosaStat stat) {
         this.stat = stat;
         this.selected = new SimpleBooleanProperty(this, "selected", false);
         observations = new SimpleObjectProperty<>(stat, "observations", stat.getObservations());

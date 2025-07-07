@@ -17,7 +17,7 @@ import java.util.List;
 public class InventoryField extends DataField<ListProperty<InventoryEntry>, List<InventoryEntry>, InventoryField> {
     private static final String NAME_LABEL = "controls.inventory.columns.equipment";
     private static final String QUANTITY_LABEL = "controls.inventory.columns.quantity";
-    private static final String ADD_ROW_LABEL = "controls.stats_collector.columns.add_new";
+    private static final String ADD_ROW_LABEL = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_SELECTION_LABEL = "controls.stats_collector.actions.remove_selection";
     private final StringProperty nameLabel, quantityLabel, addRowLabel, removeSelectionLabel;
 

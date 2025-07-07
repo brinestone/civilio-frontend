@@ -1,7 +1,7 @@
 package fr.civipol.civilio.form;
 
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
-import fr.civipol.civilio.entity.DataUpdate;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
@@ -12,52 +12,86 @@ import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableMap;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings("rawtypes")
 public abstract class FormDataManager {
-    protected final ObservableMap<String, DataUpdate> updates = FXCollections.observableHashMap();
-    public static final String INDEX_FIELD = "_index";
-    public static final String VALIDATION_CODE_FIELD = "q14_02_validation_code";
+    protected final ObservableMap<String, FieldChange> changes = FXCollections.observableHashMap();
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
-    protected final Supplier<Stream<String>> fieldSource;
 
-    public FormDataManager(Function<String, ?> valueSource, Supplier<Stream<String>> fieldSource) {
+    public FormDataManager(
+            Function<String, ?> valueSource,
+            BiFunction<String, Integer, String> keyMaker,
+            Function<String, String> keyExtractor
+    ) {
         this.valueSource = valueSource;
-        this.fieldSource = fieldSource;
+        this.keyMaker = keyMaker;
+        this.keyExtractor = keyExtractor;
     }
 
     public abstract ObservableBooleanValue pristine();
 
-    public abstract Collection<DataUpdate> getPendingUpdates();
+    public Collection<FieldChange> getPendingUpdates() {
+        return changes.values().stream()
+                .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
+                .peek(u -> u.setField(keyExtractor.apply(u.getField())))
+                .toList();
+    }
+
     public abstract void trackFieldChanges();
 
+    /**
+     * Extracts field names from map keys
+     */
+    protected final BiFunction<String, Integer, String> keyMaker;
+    protected final Function<String, String> keyExtractor;
+
+    /**
+     * Retrieves the form-specific key which points to its index code field.
+     * Classes implementing this class must provide an implementation for this.
+     *
+     * @return The key which points to the index code field.
+     */
+    public abstract String getIndexFieldKey();
+
+    /**
+     * Retrieves the form-specific key which points to its validation code field.
+     * Classes implementing this class must provide an implementation for this.
+     *
+     * @return The key which points to the validation code field.
+     */
+    protected abstract String getValidationCodeFieldKey();
+
     public Property getPropertyFor(String id) {
-        return switch (id) {
-            case VALIDATION_CODE_FIELD -> validationCode;
-            case INDEX_FIELD -> index;
-            default -> null;
-        };
+        if (id.equals(getIndexFieldKey())) return index;
+        else if (id.equals(getValidationCodeFieldKey())) return validationCode;
+        return null;
     }
 
     public void resetChanges() {
-        if (Platform.isFxApplicationThread()) updates.clear();
-        else Platform.runLater(updates::clear);
+        Runnable f = () -> {
+            loadValues();
+            markAsPristine();
+        };
+        if (Platform.isFxApplicationThread()) f.run();
+        else Platform.runLater(f);
     }
 
     protected Class<?> getPropertyTypeFor(String id) {
-        return switch (id) {
-            case VALIDATION_CODE_FIELD, INDEX_FIELD -> String.class;
-            default -> null;
-        };
+        return Optional.ofNullable(id)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> {
+                    if (s.equals(getIndexFieldKey()) || s.equals(getValidationCodeFieldKey())) return String.class;
+                    return null;
+                }).orElse(null);
     }
 
     @SuppressWarnings("unchecked")
@@ -88,51 +122,41 @@ public abstract class FormDataManager {
         if (property instanceof ListProperty l) {
             final var initialValue = List.copyOf(l);
             l.addListener((ListChangeListener) c -> {
-                final var entry = updates.computeIfAbsent(field, k -> new DataUpdate(k, null, initialValue));
+                final var entry = changes.computeIfAbsent(field, k -> new FieldChange(k, null, initialValue, 0, false));
                 while (c.next()) {
                     entry.setNewValue(List.copyOf(l));
                 }
-                if (Objects.equals(entry.getNewValue(), entry.getOldValue()))
-                    updates.remove(field);
             });
         } else
             property.addListener((ob, ov, nv) -> {
-                final var updatesEntry = updates.computeIfAbsent(field, k -> new DataUpdate(k, nv, ov));
+                final var updatesEntry = changes.computeIfAbsent(field, k -> new FieldChange(k, nv, ov, 0, false));
                 updatesEntry.setNewValue(nv);
 
                 if (Objects.equals(nv, updatesEntry.getOldValue()))
-                    updates.remove(field);
+                    changes.remove(field);
             });
     }
 
     @SuppressWarnings("unchecked")
-    protected void loadValue(String field, Object defaultValue) {
-        final var property = getPropertyFor(field);
+    protected void loadValue(String key, Object defaultValue) {
+        final var property = getPropertyFor(key);
         if (property == null)
             return;
-        final var serializedValue = valueSource.apply(field);
-        final var parsedValue = deserializeValue(serializedValue, field);
+        final var serializedValue = valueSource.apply(key);
+        final var parsedValue = deserializeValue(serializedValue, key);
         property.setValue(Optional.ofNullable(parsedValue).orElse(defaultValue));
     }
 
     public void loadValues() {
-        loadValue(INDEX_FIELD, "");
-        loadValue(VALIDATION_CODE_FIELD, "");
-        trackUpdatesForField(VALIDATION_CODE_FIELD);
-        trackUpdatesForField(INDEX_FIELD);
+        loadValue(getIndexFieldKey(), "");
+        loadValue(getValidationCodeFieldKey(), "");
+        trackUpdatesForField(getIndexFieldKey());
+        trackUpdatesForField(getValidationCodeFieldKey());
     }
 
-//    @SuppressWarnings("unchecked")
-//    public void updateValue(String id) {
-//        final var property = getPropertyFor(id);
-//        final var type = getPropertyTypeFor(id);
-//
-//        if (property == null || type == null)
-//            return;
-//        final var rawValue = valueSource.apply(id);
-//        final var parsedValue = deserializeValue(rawValue, id);
-//        Platform.runLater(() -> property.setValue(parsedValue));
-//    }
+    public void markAsPristine() {
+        this.changes.clear();
+    }
 
     public StringProperty indexProperty() {
         return index;

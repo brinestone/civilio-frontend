@@ -1,8 +1,10 @@
 package fr.civipol.civilio.controller;
 
+import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.Option;
-import fr.civipol.civilio.services.FormDataService;
+import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * Represents a base form capable of submitting data and loading existing submission data.
@@ -49,7 +52,9 @@ public abstract class FormController implements AppController {
     public void setSubmissionId(String submissionId) {
         this.submissionId.set(submissionId);
     }
+
     protected abstract FormHeaderController getHeaderManagerController();
+
     protected FormController() {
         submissionId.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
@@ -57,17 +62,55 @@ public abstract class FormController implements AppController {
         });
     }
 
+    protected String keyMaker(FieldMapping mapping, Integer ordinal) {
+        return keyMaker(mapping.field(), ordinal);
+    }
+
+    protected String keyMaker(String key, Integer ordinal) {
+        return "%s:::%d".formatted(key, ordinal);
+    }
+
+    protected String extractFieldKey(String s) {
+        return Optional.ofNullable(s)
+                .filter(StringUtils::isNotBlank)
+                .map(ss -> ss.split(":::")[0])
+                .orElse(null);
+    }
+
+    protected String[] extractFieldIdentifiers(String field) {
+        return Optional.ofNullable(field)
+                .filter(s -> s.contains(":::"))
+                .map(ss -> ss.split(":::")[1])
+                .map(s -> s.split("\\|"))
+                .orElse(new String[]{});
+    }
+
     protected void initializeController() {
         getHeaderManagerController().indexProperty().bindBidirectional(getModel().indexProperty());
         getHeaderManagerController().validationCodeProperty().bindBidirectional(getModel().validationCodeProperty());
         getHeaderManagerController().submissionIdProperty().bindBidirectional(submissionId);
+        getHeaderManagerController().indexFieldNameProperty().setValue(getModel().getIndexFieldKey());
+    }
+
+    protected Object valueLoader(String id) {
+        final var key = extractFieldKey(id);
+        final var builder = Stream.builder();
+        for (var k : submissionData.keySet()) {
+            if (!k.startsWith(key)) continue;
+            builder.add(submissionData.get(k));
+        }
+        final var result = builder.build().toList();
+        if (result.isEmpty()) return null;
+        else if (result.size() == 1) return result.get(0);
+        return result;
     }
 
     public void updateFormValues() {
+        getHeaderManagerController().loadingProperty().set(true);
         getModel().resetChanges();
         getExecutorService().submit(() -> {
             try {
-                getModel().loadOptions((form, group, parent, callback) -> {
+                OptionSource optionSource = (form, group, parent, callback) -> {
                     try {
                         log.debug("loading options for group: " + group);
                         final var result = getFormService().findOptionsFor(group, parent, form);
@@ -76,17 +119,25 @@ public abstract class FormController implements AppController {
                         log.error("error while loading options list", t);
                         showErrorAlert(t.getLocalizedMessage());
                     }
-                }, () -> Optional.ofNullable(submissionId.get())
+                };
+                Runnable callback = () -> Optional.ofNullable(submissionId.get())
                         .filter(StringUtils::isNotBlank)
                         .ifPresent(__ -> {
                             try {
                                 Optional.ofNullable(loadSubmissionData())
-                                        .ifPresent(data -> Platform.runLater(() -> submissionData.putAll(data)));
-                                Platform.runLater(getModel()::loadValues);
+                                        .ifPresent(data -> Platform.runLater(() -> {
+                                            submissionData.clear();
+                                            submissionData.putAll(data);
+                                        }));
+                                Platform.runLater(() -> {
+                                    getModel().loadValues();
+                                    getModel().markAsPristine();
+                                });
                             } catch (Throwable e) {
                                 showErrorAlert(e.getLocalizedMessage());
                             }
-                        }));
+                        });
+                getModel().loadOptions(optionSource, callback);
 
             } catch (Throwable t) {
                 log.error("error while loading submission data", t);
@@ -95,6 +146,8 @@ public abstract class FormController implements AppController {
                     alert.setHeaderText(t.getLocalizedMessage());
                     alert.showAndWait();
                 });
+            } finally {
+                Platform.runLater(() -> getHeaderManagerController().loadingProperty().set(false));
             }
         });
     }
@@ -110,18 +163,18 @@ public abstract class FormController implements AppController {
      */
     protected abstract void doSubmit() throws Exception;
 
-    protected abstract Map<String, Object> loadSubmissionData() throws Exception;
+    protected abstract Map<String, String> loadSubmissionData() throws Exception;
 
     protected abstract ExecutorService getExecutorService();
 
-    protected abstract FormDataService getFormService();
+    protected abstract FormService getFormService();
 
     protected void findOptionsFor(String form, String group, String parent, Consumer<Collection<Option>> callback) {
         getExecutorService().submit(() -> {
             try {
                 log.debug("loading options for group: " + group);
                 final var result = getFormService().findOptionsFor(group, parent, form);
-                callback.accept(result);
+                Platform.runLater(() -> callback.accept(result));
             } catch (Throwable t) {
                 log.error("error while loading options list", t);
                 showErrorAlert(t.getLocalizedMessage());

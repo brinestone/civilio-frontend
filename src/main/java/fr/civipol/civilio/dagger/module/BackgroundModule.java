@@ -38,12 +38,13 @@ public class BackgroundModule {
     @Provides
     @Singleton
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public HikariConfig hikariDataSource(ConfigManager cm) {
+    public HikariConfig hikariConfig(ConfigManager cm) {
         final var host = cm.loadObject(Constants.DB_HOST_KEY, String.class);
         final var port = cm.loadObject(Constants.DB_PORT_KEY, Integer.class);
         final var dbName = cm.loadObject(Constants.DB_NAME_KEY, String.class);
         final var pass = cm.loadObject(Constants.DB_USER_PWD_KEY, String.class);
         final var user = cm.loadObject(Constants.DB_USER_KEY, String.class);
+        final var useSsl = cm.loadObject(Constants.DB_USE_SSL_KEY, false);
 
         if (!Stream.of(host, port, dbName, pass, user).allMatch(Optional::isPresent)) {
             LOGGER.warn("datasource configuration is invalid");
@@ -51,9 +52,13 @@ public class BackgroundModule {
         }
         final var config = new HikariConfig();
         config.setPassword(pass.get());
+        config.setMaximumPoolSize(4);
         config.setUsername(user.get());
         config.setDataSourceClassName("org.postgresql.ds.PGSimpleDataSource");
-        config.setJdbcUrl(String.format("jdbc:postgresql://%s:%d/%s", host.get(), port.get(), dbName.get()));
+        config.setJdbcUrl("jdbc:postgresql://%s:%d/%s".formatted(host.get(), port.get(), dbName.get()));
+        if (useSsl) {
+            config.addDataSourceProperty("sslmode", "require");
+        }
 
         return config;
     }
@@ -78,7 +83,7 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService, FormDataService formService, UserService userService, PingService pingService) {
+    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService, PingService pingService) {
         return Set.of(authService, formService, userService, pingService);
     }
 

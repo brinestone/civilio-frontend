@@ -106,6 +106,13 @@ public class ConfigManager {
         return deserialize(type, serialized);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T loadObject(String key, T def) {
+        final var serialized = settings.get(key, null);
+        final var val = deserialize(def.getClass(), serialized);
+        return val.map(o -> (T) o).orElse(def);
+    }
+
     private static SecretKeySpec getKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
         if (keyRef != null) return keyRef;
         final var factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");

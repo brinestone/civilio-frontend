@@ -12,7 +12,6 @@ import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import fr.civipol.civilio.Constants;
-import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.services.ConfigManager;
 import jakarta.inject.Inject;
 import javafx.beans.property.*;
@@ -43,6 +42,7 @@ public class SettingsControl implements AppControl, StorageHandler {
     private static final String DB_NAME_KEY = Constants.DB_NAME_KEY;
     private static final String DB_USER_KEY = Constants.DB_USER_KEY;
     private static final String DB_PASS_KEY = Constants.DB_USER_PWD_KEY;
+    private static final String DB_USE_SSL_KEY = Constants.DB_USE_SSL_KEY;
     private static final String WINDOW_POS_X = "WINDOW_POS_X";
     private static final String WINDOW_POS_Y = "WINDOW_POS_Y";
     private static final String WINDOW_HEIGHT = "WINDOW_HEIGHT";
@@ -60,8 +60,8 @@ public class SettingsControl implements AppControl, StorageHandler {
     private final IntegerProperty dbPortProperty = new SimpleIntegerProperty(this, "dbPort", 5432);
     private final StringProperty dbUserProperty = new SimpleStringProperty(this, "dbUser", "");
     private final StringProperty dbNameProperty = new SimpleStringProperty(this, "dbName", "");
+    private final BooleanProperty useDbSslProperty = new SimpleBooleanProperty(this, "useSsl", false);
     private final StringProperty dbPwdProperty = new SimpleStringProperty(this, "dbPwd", "");
-    private final EventBus eventBus;
     private final ConfigManager configManager;
 
     public PreferencesFx makePreferencesForm() {
@@ -106,7 +106,8 @@ public class SettingsControl implements AppControl, StorageHandler {
                                 Setting.of(DB_USER_KEY, dbUserProperty)
                                         .validate(StringLengthValidator.atLeast(1, "settings.msg.value_required")),
                                 Setting.of(DB_PASS_KEY, dbPasswordField, dbPwdProperty)
-                                        .validate(StringLengthValidator.atLeast(1, "settings.msg.value_required"))
+                                        .validate(StringLengthValidator.atLeast(1, "settings.msg.value_required")),
+                                Setting.of(DB_USE_SSL_KEY, useDbSslProperty)
                         )
                 )
         ).i18n(ts);
