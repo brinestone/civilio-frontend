@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class FormService implements AppService {
+    private static String CHEFFERIE_TABLE = "data_chefferie";
     private static final String PERSONNEL_INFO_TABLE = "data_personnel";
     private static final String FOSA_TABLE = "data_fosa";
     private static final String STATS_TABLE = "fosa_vital_stats";
@@ -277,7 +278,7 @@ public class FormService implements AppService {
         return result;
     }
 
-//    @SuppressWarnings({"DuplicatedCode"})
+    //    @SuppressWarnings({"DuplicatedCode"})
     public void updateSubmission(
             String submissionId,
             FormType form,
@@ -393,50 +394,48 @@ public class FormService implements AppService {
         final var resultBuilder = PageResult.<FormSubmission>builder();
         final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
-            String countSql, sql;
-            PreparedStatement ps, countPs;
-            switch (form) {
-//                case CHIEFDOM:
-//                case CEC:
-//                    break;
-                default -> {
-                    sql = """
-                            SELECT
-                                df._id,
-                                df._validation_status,
-                                df.q14_02_validation_code,
-                                df._submitted_by,
-                                df._index,
-                                df.q1_12_officename,
-                                df._submission_time::DATE
-                            FROM
-                                data_fosa df
-                            WHERE
-                                %s
-                            ORDER BY
-                                _submission_time::DATE DESC
-                            OFFSET ?
-                            LIMIT ?;
-                            """.formatted(filter.getWhereClause());
-                    countSql = """
-                            SELECT
-                                COUNT(*)
-                            FROM
-                                data_fosa
-                            WHERE
-                                %s;
-                            """.formatted(filter.getWhereClause());
-                    ps = connection.prepareStatement(sql);
-                    filter.applyToPreparedStatement(ps);
-                    var index = filter.getParameters().size();
-                    ps.setInt(++index, page * size);
-                    ps.setInt(++index, size);
-                    countPs = connection.prepareStatement(countSql);
-                    filter.applyToPreparedStatement(countPs);
-                }
-            }
+            String tableName = switch (form) {
+                default -> FOSA_TABLE;
+                case CHIEFDOM -> CHEFFERIE_TABLE;
+            };
 
-            try (ps; countPs) {
+            final var sql = """
+                    SELECT
+                        df._id,
+                        df._validation_status,
+                        df.q14_02_validation_code,
+                        df._submitted_by,
+                        df._index,
+                        df.q1_12_officename,
+                        df._submission_time::DATE
+                    FROM
+                        %s df
+                    WHERE
+                        %s
+                    ORDER BY
+                        _submission_time::DATE DESC
+                    OFFSET ?
+                    LIMIT ?;
+                    """.formatted(tableName, filter.getWhereClause());
+            final var countSql = """
+                    SELECT
+                        COUNT(distinct _index)
+                    FROM
+                        %s
+                    WHERE
+                        %s;
+                    """.formatted(tableName, filter.getWhereClause());
+
+            try (
+                    final var ps = connection.prepareStatement(sql);
+                    final var countPs = connection.prepareStatement(countSql)
+            ) {
+                filter.applyToPreparedStatement(ps);
+                var index = filter.getParameters().size();
+                ps.setInt(++index, page * size);
+                ps.setInt(++index, size);
+                filter.applyToPreparedStatement(countPs);
+
                 try (final var rs = ps.executeQuery()) {
                     final var streamBuilder = Stream.<FormSubmission>builder();
                     while (rs.next()) {
