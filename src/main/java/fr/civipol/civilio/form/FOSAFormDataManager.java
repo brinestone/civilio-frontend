@@ -6,16 +6,13 @@ import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -25,7 +22,6 @@ import java.util.function.Supplier;
 @Slf4j
 @SuppressWarnings("unchecked")
 public class FOSAFormDataManager extends FormDataManager {
-    private static final String DELIMITER_TOKEN_PATTERN = "[, ]";
     private static final String FORM_ID = "am5nSncmYooy8nknSHzYaz";
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
@@ -66,7 +62,7 @@ public class FOSAFormDataManager extends FormDataManager {
             birthCount5;
     private final Supplier<Collection<PersonnelInfo>> personnelInfoSupplier;
     private final OptionSource optionSource;
-    private boolean trackingUpdates = false;
+    private boolean trackingUpdates = false, optionsLoaded = false;
 
     public FOSAFormDataManager(
             Function<String, ?> valueExtractor,
@@ -223,28 +219,6 @@ public class FOSAFormDataManager extends FormDataManager {
         entry.setNewValue(this.geoPoint.getValue());
     }
 
-    public void updateTrackedPersonnelFields(FieldChange update) {
-        if (update.isDeletionChange()) {
-            final var ordinal = update.getOrdinal();
-            final var prefix = FieldKeys.PersonnelInfo.ALL_FIELDS[0].substring(0, FieldKeys.PersonnelInfo.ALL_FIELDS[0].indexOf("."));
-            changes.values().stream()
-                    .filter(c -> !c.isDeletionChange())
-                    .filter(c -> c.getField().startsWith(prefix) && c.getField().endsWith(String.valueOf(ordinal)))
-                    .forEach(fc -> changes.remove(fc.getField()));
-            final var deletionKey = keyMaker.apply("%s.+".formatted(prefix), ordinal);
-            changes.put(deletionKey, FieldChange.builder()
-                    .field(deletionKey)
-                    .deletionChange(true)
-                    .build());
-            return;
-        }
-        final var key = keyMaker.apply(update.getField(), update.getOrdinal());
-        final var change = changes.computeIfAbsent(key, k -> new FieldChange(k, null, update.getOldValue(), update.getOrdinal(), false));
-        change.setNewValue(update.getNewValue());
-        if (Objects.equals(change.getNewValue(), change.getOldValue()))
-            changes.remove(key);
-    }
-
     private void setupChangeListeners() {
         division.addListener((ob, ov, nv) -> {
             if (nv == null) {
@@ -276,6 +250,7 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void loadValues() {
+
         super.loadValues();
         loadPersonnelInfo();
         loadValue(FieldKeys.Fosa.PERSONNEL_COUNT, 0);
@@ -338,6 +313,10 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     public void loadOptions(OptionSource optionSource, Runnable callback) {
+        if (optionsLoaded) {
+            Optional.ofNullable(callback).ifPresent(Runnable::run);
+            return;
+        }
         Function<ObservableList<Option>, Consumer<Collection<Option>>> consumerFactory = list -> v -> {
             if (Platform.isFxApplicationThread())
                 list.setAll(v);
@@ -357,12 +336,8 @@ public class FOSAFormDataManager extends FormDataManager {
         optionSource.get(FORM_ID, "ta2og93", null, consumerFactory.apply(educationLevels));
         optionSource.get(FORM_ID, "nz2pr56", null, consumerFactory.apply(computerKnowledgeLevels));
         optionSource.get(FORM_ID, "ju6tz85", null, consumerFactory.apply(deviceOptions));
+        optionsLoaded = true;
         Optional.ofNullable(callback).ifPresent(Runnable::run);
-    }
-
-    @Override
-    public ObservableBooleanValue pristine() {
-        return Bindings.isEmpty(changes);
     }
 
     @Override
@@ -370,7 +345,7 @@ public class FOSAFormDataManager extends FormDataManager {
     public Property getPropertyFor(String id) {
         if (StringUtils.isBlank(id))
             return null;
-        else if (Arrays.stream(FieldKeys.Fosa.PERSONNEL_FIELDS).anyMatch(id::startsWith))
+        else if (Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(id::startsWith))
             return personnelInfo;
         return switch (id) {
             case FieldKeys.Fosa.STATS_YEAR_1 -> statsYear1;
@@ -430,7 +405,7 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    private ListProperty<Option> getOptionsFor(String id) {
+    public ListProperty<Option> getOptionsFor(String id) {
         return switch (id) {
             case FieldKeys.Fosa.STATUS -> fosaStatusTypes;
             case FieldKeys.Fosa.FACILITY_TYPE -> fosaTypes;
@@ -449,7 +424,7 @@ public class FOSAFormDataManager extends FormDataManager {
 
     @Override
     public Class<?> getPropertyTypeFor(String id) {
-        if (Arrays.stream(FieldKeys.Fosa.PERSONNEL_FIELDS).anyMatch(id::startsWith))
+        if (Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(id::startsWith))
             return PersonnelInfo.class;
         return switch (id) {
             case FieldKeys.Fosa.CREATION_DATE -> LocalDate.class;
@@ -490,88 +465,12 @@ public class FOSAFormDataManager extends FormDataManager {
                     FieldKeys.Fosa.TABLET_COUNT,
                     FieldKeys.Fosa.CAR_COUNT,
                     FieldKeys.Fosa.BIKE_COUNT -> Integer.class;
-            case FieldKeys.Fosa.PERSONNEL_AGE, FieldKeys.Fosa.PERSONNEL_COMPUTER_LEVEL,
-                    FieldKeys.Fosa.PERSONNEL_ED_LEVEL, FieldKeys.Fosa.PERSONNEL_NAME, FieldKeys.Fosa.PERSONNEL_GENDER,
-                    FieldKeys.Fosa.PERSONNEL_PHONE, FieldKeys.Fosa.PERSONNEL_EMAIL, FieldKeys.Fosa.PERSONNEL_POSITION,
-                    FieldKeys.Fosa.PERSONNEL_CS_TRAINING -> PersonnelInfo.class;
+            case FieldKeys.PersonnelInfo.PERSONNEL_AGE, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
+                    FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL, FieldKeys.PersonnelInfo.PERSONNEL_NAME, FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
+                    FieldKeys.PersonnelInfo.PERSONNEL_PHONE, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+                    FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING -> PersonnelInfo.class;
             default -> super.getPropertyTypeFor(id);
         };
-    }
-
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected final Object deserializeValue(Object raw, String id) {
-        if (Optional.ofNullable(getPropertyTypeFor(id)).filter(LocalDate.class::equals).isPresent()) {
-            if (raw instanceof String s)
-                return LocalDate.parse(s);
-            else if (raw instanceof Date)
-                return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
-                   && raw instanceof String)
-            return getOptionsFor(id).stream()
-                    .filter(o -> o.value().equals(raw))
-                    .findFirst().orElse(null);
-        else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Boolean.class::equals).isPresent()) {
-            if (raw instanceof String && ((String) raw).equalsIgnoreCase("true")
-                || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
-                return Boolean.valueOf(((String) raw));
-            } else if (("1".equals(raw) || "2".equals(raw)))
-                return "1".equals(raw);
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Double.class::equals).isPresent()) {
-            if (raw instanceof String && StringUtils.isNotBlank(((String) raw)))
-                return Double.valueOf(((String) raw));
-            else if (raw instanceof Double || raw instanceof Integer) {
-                return Double.valueOf(String.valueOf(raw));
-            } else
-                return 0.0;
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
-            if (raw instanceof String s && StringUtils.isNotBlank(s))
-                return Double.valueOf(Math.max(Integer.parseInt(s), 0.0)).intValue();
-            else if (raw instanceof Double d)
-                return d.intValue();
-            else
-                return 0;
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(GeoPoint.class::equals).isPresent()) {
-            if (raw instanceof String s) {
-                final var segments = s.split(DELIMITER_TOKEN_PATTERN);
-                final var lat = segments[0];
-                final var lon = segments[1];
-                final var altitude = segments[2];
-                final var accuracy = segments[3];
-
-                return GeoPoint.builder()
-                        .latitude(Float.valueOf(lat))
-                        .longitude(Float.valueOf(lon))
-                        .altitude(Float.valueOf(altitude))
-                        .accuracy(Float.valueOf(accuracy))
-                        .build();
-            }
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(String.class::equals).isPresent()) {
-            return StringUtils.isNotBlank(((String) raw)) ? (String) raw : "";
-        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(List.class::equals).isPresent()) {
-            if (raw instanceof Collection c)
-                return c.stream()
-                        .map(o -> {
-                            if (o instanceof String) {
-                                return getOptionsFor(id).stream()
-                                        .filter(opt -> opt.value().equals(o))
-                                        .findFirst().orElse(null);
-                            }
-                            return o;
-                        })
-                        .toList();
-            else if (raw instanceof String s) {
-                final var values = Arrays.asList(s.split(DELIMITER_TOKEN_PATTERN));
-                final var x = getOptionsFor(id).stream()
-                        .filter(o -> values.stream().anyMatch(ss -> o.value().equals(ss)))
-                        .toList();
-                final var property = (ListProperty) getPropertyFor(id);
-                property.addAll(x);
-                return property.getValue();
-            }
-        }
-
-        return raw;
     }
 
     public ListProperty<Option> gendersProperty() {

@@ -1,44 +1,57 @@
 package fr.civipol.civilio.controller.chefferie;
 
-import com.dlsc.formsfx.model.structure.Field;
-import com.dlsc.formsfx.model.structure.Form;
-import com.dlsc.formsfx.model.structure.Group;
-import com.dlsc.formsfx.model.structure.Section;
+import com.dlsc.formsfx.model.structure.*;
+import com.dlsc.formsfx.model.util.BindingMode;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
+import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
+import com.dlsc.formsfx.view.controls.SimpleDateControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
 import fr.civipol.civilio.controller.FormController;
+import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
+import fr.civipol.civilio.domain.FieldChange;
+import fr.civipol.civilio.domain.converter.OptionConverter;
+import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
+import fr.civipol.civilio.form.ChefferieFormDataManager;
+import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
+import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.GeoPointField;
+import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
-import javafx.event.ActionEvent;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.util.StringConverter;
+import javafx.scene.control.Tab;
+import javafx.scene.paint.Color;
+import javafx.util.converter.LocalDateStringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import static fr.civipol.civilio.form.FieldKeys.Chefferie.*;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
@@ -47,99 +60,206 @@ public class ChefferieFormController extends FormController implements AppContro
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
     private final FormService formService;
-    private ResourceBundle resources;
 
+    private ResourceBundle resources;
     public ScrollPane spPersonalStatusContainer;
     public ScrollPane spStructureIdContainer;
-
     public ScrollPane spServiceContainer;
-
     public ScrollPane spEquipmentContainer;
-    @Setter
-    private Consumer<String> submissionCallback;
-
     public ScrollPane spRespondentContainer;
-
-    @Override
-    protected FormDataManager getModel() {
-        return null;
-    }
-
-    @Override
-    protected FormHeaderController getHeaderManagerController() {
-        return null;
-    }
+    public ScrollPane spExtra;
+    @Getter(AccessLevel.PROTECTED)
+    private FormDataManager model;
+    @FXML
+    @SuppressWarnings("unused")
+    @Getter(AccessLevel.PROTECTED)
+    private FormHeaderController headerManagerController;
+    @FXML
+    @SuppressWarnings("unused")
+    @Getter(AccessLevel.PROTECTED)
+    private FormFooterController footerManagerController;
+    @FXML
+    private Tab tabRespondent;
+    @FXML
+    private Tab tabStructureId;
+    @FXML
+    private Tab tabServices;
+    @FXML
+    private Tab tabInfra;
+    @FXML
+    private Tab tabPersonnel;
+    @FXML
+    private Tab tabExtra;
+    private Form extrasForm, respondentForm, structureIdForm, serviceForm, equipmentForm, personnelForm;
 
     @Override
     protected void doSubmit() throws Exception {
-
+        formService.updateSubmission(submissionId.getValue(), FormType.CHIEFDOM, this::extractFieldKey, model.getPendingUpdates().toArray(FieldChange[]::new));
     }
 
     @Override
     protected Map<String, String> loadSubmissionData() throws Exception {
-        return null;
+        return formService.findSubmissionData(submissionId.get(), FormType.CHIEFDOM, this::keyMaker);
     }
 
-    @FXML
-    public void onSubmitButtonClicked(ActionEvent ignored) {
+    @SuppressWarnings("DuplicatedCode")
+    private Collection<PersonnelInfo> findPersonnelInfo() {
+        final var personnelInfoFields = submissionData.keySet().stream()
+                .filter(k -> Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(k::startsWith))
+                .toList();
+        final var map = new HashMap<String, PersonnelInfo>();
+        for (var key : personnelInfoFields) {
+            final var meta = extractFieldIdentifiers(key);
+            final var ordinal = meta[0];
+            final var id = extractFieldKey(key);
+            final var entry = map.computeIfAbsent(ordinal, k -> PersonnelInfo.builder().parentIndex((String) submissionData.get(keyMaker(FieldKeys.Fosa.INDEX, 0))).build());
+            final var isNameField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_NAME);
+            final var isPositionField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_POSITION);
+            final var isGenderField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_GENDER);
+            final var isPhoneField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_PHONE);
+            final var isAgeField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_AGE);
+            final var isCSTrainingField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING);
+            final var isEdLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL);
+            final var isComputerLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL);
+            final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
 
-    }
+            final var stringValue = (String) submissionData.get(key);
 
-    @FXML
-    public void onDiscardButtonClicked(ActionEvent ignored) {
+            if (stringValue.matches("^\\d+$") && isAgeField) {
+                entry.setAge(Integer.parseInt(stringValue));
+            } else if (isNameField)
+                entry.setNames(stringValue);
+            else if (isPositionField)
+                entry.setRole(stringValue);
+            else if (isPhoneField)
+                entry.setPhone(stringValue);
+            else if (isCSTrainingField)
+                entry.setCivilStatusTraining("1".equals(stringValue));
+            else if (isEdLevelField)
+                entry.setEducationLevel(stringValue);
+            else if (isGenderField)
+                entry.setGender(stringValue);
+            else if (isComputerLevelField)
+                entry.setComputerKnowledgeLevel(stringValue);
+            else if (isEmailField)
+                entry.setEmail(stringValue);
+        }
+        return map.values();
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setForms(resourceBundle);
+        this.resources = resourceBundle;
+        final var ts = new ResourceBundleService(resourceBundle);
+        model = new ChefferieFormDataManager(this::valueLoader, this::keyMaker, this::extractFieldKey, this::findPersonnelInfo);
+        initializeController();
+        model.trackFieldChanges();
+        configureForms(ts);
+        BooleanBinding canSubmit = Bindings.and(
+                respondentForm.validProperty()
+                        .and(structureIdForm.validProperty())
+                        .and(serviceForm.validProperty())
+                        .and(equipmentForm.validProperty())
+                        .and(personnelForm.validProperty())
+                        .and(extrasForm.validProperty()),
+                Bindings.not(model.pristine())
+        ).and(submittingProperty().not());
+        footerManagerController.canSubmitProperty().bind(canSubmit);
+        footerManagerController.canDiscardProperty().bind(submittingProperty().not());
+        headerManagerController.canGoNextProperty().bind(canSubmit.not());
+        headerManagerController.canGoPrevProperty().bind(canSubmit.not());
+        setupEventHandlers();
     }
 
-    private void setForms(ResourceBundle resources) {
-        final var ts = new ResourceBundleService(resources);
+    private void setupEventHandlers() {
+        footerManagerController.setOnDiscard(e -> handleDiscardEvent(e, resources.getString("msg.discard_msg.txt")));
+        footerManagerController.setOnSubmit(this::handleSubmitEvent);
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    private void configureForms(TranslationService ts) {
         setRespondentSection(ts);
-        setStructureIdContainer(ts);
+        configureStructureIdContainer(ts);
         spServiceContainer(ts);
         spEquipmentContainer(ts);
         spPersonalStatusContainer(ts);
+        setExtraSection(ts);
+
+        Stream.of(tabRespondent, tabExtra, tabStructureId, tabInfra, tabPersonnel, tabServices)
+                .forEach(tab -> {
+                    final var form = (Form) tab.getUserData();
+                    Supplier<Node> graphicProvider = () -> {
+                        final var icon = new FontIcon("fth-alert-circle");
+                        icon.setIconColor(Color.RED);
+                        return icon;
+                    };
+                    form.validProperty().addListener((ob, ov, nv) -> tab.setGraphic(nv ? null : graphicProvider.get()));
+                    tab.setGraphic(form.isValid() ? null : graphicProvider.get());
+                });
+    }
+
+    private void setExtraSection(TranslationService ts) {
+        final var form = Form.of(
+                Group.of(
+                        Field.ofStringType("")
+                                .label("chefferie.form.fields.extra_info.title")
+                                .multiline(true)
+                                .tooltip("chefferie.form.fields.extra_info.description")
+                )
+        ).i18n(ts);
+
+        extrasForm = form;
+        spExtra.setContent(new FormRenderer(form));
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabExtra.setUserData(form);
     }
 
 
+    @SuppressWarnings("unchecked")
     private void setRespondentSection(TranslationService ts) {
+        final var today = LocalDate.now();
+        final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
                         Group.of(
-                                Field.ofStringType("")
-                                        .label("chefferie.form.fields.names.title")
-                                        .required("chefferie.form.msg.field_required"),
-                                Field.ofStringType("")
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.RESPONDENT_NAME))
+                                        .label(FieldKeys.Chefferie.RESPONDENT_NAME)
                                         .span(ColSpan.HALF)
+                                        .required("forms.validation.msg.field_required"),
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.POSITION))
+                                        .span(ColSpan.HALF)
+                                        .required("forms.validation.msg.field_required")
                                         .tooltip("chefferie.form.fields.position.description")
-                                        .label("chefferie.form.fields.position.title"),
-                                Field.ofStringType("")
+                                        .label(FieldKeys.Chefferie.POSITION),
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.PHONE))
                                         .span(ColSpan.HALF)
-                                        .label("chefferie.form.fields.phone.title")
-                                        .tooltip("chefferie.form.fields.phone.description"),
-                                Field.ofStringType("")
+                                        .label(FieldKeys.Chefferie.PHONE)
+                                        .tooltip("chefferie.form.fields.phone.description")
+                                        .validate(RegexValidator.forPattern(
+                                                "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
+                                                "fosa.form.msg.invalid_value")),
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.EMAIL))
                                         .span(ColSpan.HALF)
-                                        .label("chefferie.form.fields.email.title")
-                                        .validate(RegexValidator.forEmail("chefferie.form.msg.invalid_value"))
+                                        .label(FieldKeys.Chefferie.EMAIL)
+                                        .validate(RegexValidator.forPattern(
+                                                "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
+                                                "fosa.form.msg.invalid_value"))
                                         .tooltip("chefferie.form.fields.email.description"),
-                                Field.ofDate((LocalDate) null)
-                                        .label("chefferie.form.fields.creation_date.title")
-                                        .valueDescription("chefferie.form.fields.creation_date.description")
-                                        .format(new StringConverter<>() {
+                                Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(FieldKeys.Chefferie.CREATION_DATE))
+                                        .label("fosa.form.fields.creation_date.title")
+                                        .required("forms.validation.msg.field_required")
+                                        .validate(CustomValidator.forPredicate(
+                                                d -> d == null || today.isEqual(d)
+                                                     || today.isAfter(d),
+                                                "fosa.form.msg.value_out_of_range"))
+                                        .format(localDateStringConverter,
+                                                "fosa.form.msg.invalid_value")
+                                        .render(new SimpleDateControl() {
                                             @Override
-                                            public String toString(LocalDate object) {
-                                                return Optional.ofNullable(object)
-                                                        .map(o -> o.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
-                                                        .orElse("");
-                                            }
-
-                                            @Override
-                                            public LocalDate fromString(String string) {
-                                                return Optional.ofNullable(string)
-                                                        .filter(StringUtils::isNotBlank)
-                                                        .map(LocalDate::parse)
-                                                        .orElse(null);
+                                            public void initializeParts() {
+                                                super.initializeParts();
+                                                picker.setConverter(
+                                                        localDateStringConverter);
                                             }
                                         })
                                         .span(ColSpan.HALF)
@@ -147,292 +267,243 @@ public class ChefferieFormController extends FormController implements AppContro
                 )
                 .i18n(ts);
         spRespondentContainer.setContent(new FormRenderer(form));
+        respondentForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabRespondent.setUserData(form);
     }
 
 
-    private void setStructureIdContainer(TranslationService ts) {
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
-
-        final var classificationOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.classification.option.first"),
-                bundle.getString("chefferie.form.fields.classification.option.second")
-        );
-        final var departments = new SimpleListProperty<>();
-        final var communes = new SimpleListProperty<>();
-        final var classification = new SimpleListProperty<>();
-        final var regions = new SimpleListProperty<>();
-        final var gpsLocation = GeoPoint.builder()
-                .latitude(5.4811225f)
-                .longitude(10.4087592f)
-                .build();
+    @SuppressWarnings("unchecked")
+    private void configureStructureIdContainer(TranslationService ts) {
+        final var model = (ChefferieFormDataManager) this.model;
         final var form = Form.of(
                 Section.of(
-                                Field.ofSingleSelectionType(regions)
-                                        .label("chefferie.form.fields.region.title")
-                                        .span(ColSpan.HALF),
-                                Field.ofSingleSelectionType(departments)
-                                        .label("chefferie.form.fields.department.title")
+                                Field.ofSingleSelectionType(
+                                                model.getOptionsFor(FieldKeys.Chefferie.DIVISION),
+                                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.DIVISION))
+                                        .label(FieldKeys.Chefferie.DIVISION)
+                                        .required("forms.validation.msg.field_required")
                                         .tooltip("chefferie.form.fields.department.description")
                                         .span(ColSpan.HALF),
-                                Field.ofSingleSelectionType(communes)
-                                        .label("chefferie.form.fields.communes.title")
+                                Field.ofSingleSelectionType(
+                                                model.getOptionsFor(FieldKeys.Chefferie.MUNICIPALITY),
+                                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.MUNICIPALITY)
+                                        )
+                                        .label(FieldKeys.Chefferie.MUNICIPALITY)
+                                        .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF),
-                                Field.ofStringType("")
-                                        .label("chefferie.form.fields.quarter.title")
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.QUARTER))
+                                        .label(FieldKeys.Chefferie.QUARTER)
+                                        .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF),
-                                Field.ofStringType("")
-                                        .label("chefferie.form.fields.name.title")
+                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.FACILITY_NAME))
+                                        .label(FieldKeys.Chefferie.FACILITY_NAME)
+                                        .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF),
-
-                                Field.ofSingleSelectionType(classificationOptions)
-                                        .label("chefferie.form.fields.classification.title")
+                                Field.ofSingleSelectionType(
+                                                model.getOptionsFor(FieldKeys.Chefferie.CLASSIFICATION),
+                                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.CLASSIFICATION))
+                                        .label(FieldKeys.Chefferie.CLASSIFICATION)
+                                        .required("forms.validation.msg.field_required")
                                         .tooltip("chefferie.form.fields.classification.description")
                                         .span(ColSpan.HALF),
-                                Field.ofStringType("")
-                                        .label("chefferie.form.fields.distance.title")
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.Chefferie.HEALTH_CENTER_PROXIMITY))
+                                        .label(FieldKeys.Chefferie.HEALTH_CENTER_PROXIMITY)
+                                        .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
 
                         ).title("chefferie.form.sections.structure_identification.title")
                         .collapse(false),
                 Section.of(
-                                GeoPointField.gpsField(null, null) // TODO: Fix this later
-                        ).title("chefferie.form.sections.geo_point.title")
+                                GeoPointField.gpsField((ObjectProperty<GeoPoint>) model.getPropertyFor(GPS_COORDS), model::updateGeoPointUpdates)
+                        ).title(GPS_COORDS)
                         .collapse(true)
         ).i18n(ts);
         spStructureIdContainer.setContent(new FormRenderer(form));
+        structureIdForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabStructureId.setUserData(form);
     }
 
+    @SuppressWarnings("unchecked")
+    private void spServiceContainer(TranslationService ts) {
+        final var model = (ChefferieFormDataManager) this.model;
+        final var oathAvailable = model.oathAvailable();
+        final var otherCsRegLocationAvailable = model.otherCsRegLocationAvailable();
+        final var otherReceptionAreaAvailable = model.otherReceptionAreaAvailable();
 
-    private void spServiceContainer(ResourceBundleService ts) {
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+        BooleanField oathControl = Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.CHIEF_OATH))
+                .label(FieldKeys.Chefferie.CHIEF_OATH)
+                .tooltip("chefferie.form.fields.benefit.description")
+                .span(ColSpan.HALF);
+        oathControl.editableProperty().bind(oathAvailable);
+        oathAvailable.addListener((ob, ov, nv) -> oathControl.required(nv ? "forms.validation.msg.field_required" : null));
 
-        final var fonction = new SimpleListProperty<>();
-        final var fonctionOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.fonction.option.first"),
-                bundle.getString("chefferie.form.fields.fonction.option.second"),
-                bundle.getString("chefferie.form.fields.fonction.option.third")
-        );
-        final var benefit = new SimpleListProperty<>();
-        final var benefitOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.benefit.option.first"),
-                bundle.getString("chefferie.form.fields.benefit.option.second")
-        );
-        final var conservation_place = new SimpleListProperty<>();
-        final var conservation_placeOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.conservation_place.option.first"),
-                bundle.getString("chefferie.form.fields.conservation_place.option.second"),
-                bundle.getString("chefferie.form.fields.conservation_place.option.third")
+        StringField otherCsRegLocationControl = Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.OTHER_CS_REG_LOCATION))
+                .label(FieldKeys.Chefferie.OTHER_CS_REG_LOCATION)
+                .span(ColSpan.HALF);
 
+        otherCsRegLocationAvailable.addListener((ob, ov, nv) -> otherCsRegLocationControl.required(nv ? "forms.validation.msg.field_required" : null));
+        otherCsRegLocationControl.editableProperty().bind(otherCsRegLocationAvailable);
 
-        );
-        final var training = new SimpleListProperty<>();
-        final var trainingOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.training.option.first"),
-                bundle.getString("chefferie.form.fields.training.option.second")
+        StringField otherReceptionArea = Field.ofStringType((StringProperty) model.getPropertyFor(OTHER_RECEPTION_AREA))
+                .label(OTHER_RECEPTION_AREA)
+                .span(ColSpan.HALF);
 
-        );
-        final var waiting_room = new SimpleListProperty<>();
-        final var waiting_roomOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.waiting_room.option.first"),
-                bundle.getString("chefferie.form.fields.waiting_room.option.second")
+        otherReceptionAreaAvailable.addListener((ob, ov, nv) -> otherReceptionArea.required(nv ? "forms.validation.msg.field_required" : null));
+        otherReceptionArea.editableProperty().bind(otherReceptionAreaAvailable);
 
-        );
-        final var reception_location = new SimpleListProperty<>();
-        final var reception_locationOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.reception_location.option.first"),
-                bundle.getString("chefferie.form.fields.reception_location.option.second"),
-                bundle.getString("chefferie.form.fields.reception_location.option.third")
-
-
-        );
-        final var toilets_accessible = new SimpleListProperty<>();
-        final var toilets_accessibleOptions = FXCollections.observableArrayList(
-
-                bundle.getString("chefferie.form.fields.toilets_accessible.option.first"),
-                bundle.getString("chefferie.form.fields.toilets_accessible.option.second")
-
-        );
         final var form = Form.of(
-                Section.of(
-                        Field.ofSingleSelectionType(fonctionOptions)
-                                .label("chefferie.form.fields.fonction.title")
+                Group.of(
+                        Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER),
+                                        (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER))
+                                .label(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER)
+                                .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.fonction.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(benefitOptions)
-                                .label("chefferie.form.fields.benefit.title")
-                                .tooltip("chefferie.form.fields.benefit.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(conservation_placeOptions)
-                                .label("chefferie.form.fields.conservation_place.title")
+                        oathControl,
+                        Field.ofSingleSelectionType(
+                                        model.getOptionsFor(FieldKeys.Chefferie.CS_REG_LOCATION),
+                                        (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.CS_REG_LOCATION)
+                                ).required("forms.validation.msg.field_required")
+                                .label(FieldKeys.Chefferie.CS_REG_LOCATION)
                                 .tooltip("chefferie.form.fields.conservation_place.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(trainingOptions)
-                                .label("chefferie.form.fields.training.title")
+                        otherCsRegLocationControl,
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.CS_OFFICER_TRAINED))
+                                .label(FieldKeys.Chefferie.CS_OFFICER_TRAINED)
                                 .tooltip("chefferie.form.fields.training.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(waiting_roomOptions)
-                                .label("chefferie.form.fields.waiting_room.title")
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.WAITING_ROOM))
+                                .label(FieldKeys.Chefferie.WAITING_ROOM)
                                 .tooltip("chefferie.form.fields.waiting_room.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(reception_locationOptions)
-                                .label("chefferie.form.fields.reception_location.title")
+                        Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA), (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
+                                .label(RECEPTION_AREA)
+                                .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.reception_location.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(toilets_accessibleOptions)
-                                .label("chefferie.form.fields.toilets_accessible.title")
+                        otherReceptionArea,
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.TOILETS_ACCESSIBLE))
+                                .label(FieldKeys.Chefferie.TOILETS_ACCESSIBLE)
+                                .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.toilets_accessible.description")
                                 .span(ColSpan.HALF)
                 )
         ).i18n(ts);
         spServiceContainer.setContent(new FormRenderer(form));
+        serviceForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabServices.setUserData(form);
     }
 
-    private void spEquipmentContainer(ResourceBundleService ts) {
-        ResourceBundle bundle = ResourceBundle.getBundle("messages", Locale.getDefault());
+    private MultiComboBoxControl<Option> createMultiOptionCombobox(TranslationService ts,
+                                                                   Collection<Option> options) {
+        return new MultiComboBoxControl<>(new OptionConverter(ts, v -> options.stream().filter(o -> o.value().equals(v)).findFirst().orElse(null)));
+    }
 
-        final var structure = new SimpleListProperty<>();
-        final var structureOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.structure.option.first"),
-                bundle.getString("chefferie.form.fields.structure.option.second")
+    @SuppressWarnings("unchecked")
+    private void spEquipmentContainer(TranslationService ts) {
+        final var model = (ChefferieFormDataManager) this.model;
+        final var internetTypeAvailable = model.internetTypeAvailable();
+        final var waterSourcesAvailable = model.waterSourcesAvailable();
 
-        );
-        final var connexion = new SimpleListProperty<>();
-        final var connexionOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.connexion.option.first"),
-                bundle.getString("chefferie.form.fields.connexion.option.second")
+        final var naturalNumberValidator = CustomValidator.<Integer>forPredicate(i -> i == null || i >= 0, "fosa.form.msg.value_out_of_range");
+        final var internetTypeControl = Field.ofMultiSelectionType(model.getOptionsFor(INTERNET_TYPE), (ListProperty<Option>) model.getPropertyFor(INTERNET_TYPE))
+                .label(INTERNET_TYPE)
+                .render(createMultiOptionCombobox(ts, model.getOptionsFor(INTERNET_TYPE)))
+                .tooltip("chefferie.form.fields.typeConnexion.description")
+                .span(ColSpan.HALF);
+        internetTypeAvailable.addListener((ob, ov, nv) -> internetTypeControl.required(nv ? "forms.validation.msg.field_required" : null));
+        internetTypeControl.editableProperty().bind(internetTypeAvailable);
 
-        );
-        final var typeConnexion = new SimpleListProperty<>();
-        final var typeConnexionOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.type.connexion.option.first"),
-                bundle.getString("chefferie.form.fields.type.connexion.option.second"),
-                bundle.getString("chefferie.form.fields.type.connexion.option.third"),
-                bundle.getString("chefferie.form.fields.type.connexion.option.fourth"),
-                bundle.getString("chefferie.form.fields.type.connexion.option.fith")
+        MultiSelectionField<Option> waterSourcesControl = Field.ofMultiSelectionType(model.getOptionsFor(WATER_SOURCES))
+                .label(WATER_SOURCES)
+                .tooltip("chefferie.form.fields.waterType.description")
+                .render(createMultiOptionCombobox(ts, model.getOptionsFor(INTERNET_TYPE)))
+                .span(ColSpan.HALF);
+        waterSourcesAvailable.addListener((ob, ov, nv) -> waterSourcesControl.required(nv ? "forms.validation.msg.field_required" : null));
+        waterSourcesControl.editableProperty().bind(waterSourcesAvailable);
 
-
-        );
-        final var eneoConnexion = new SimpleListProperty<>();
-        final var eneoConnexionOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.eneo.connexion.option.first"),
-                bundle.getString("chefferie.form.fields.eneo.connexion.option.second")
-        );
-        final var waterAcces = new SimpleListProperty<>();
-        final var waterAccesOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.water.acces.option.first"),
-                bundle.getString("chefferie.form.fields.water.acces.option.second")
-
-        );
-        final var waterType = new SimpleListProperty<>();
-        final var waterTypeOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.water.type.option.first"),
-                bundle.getString("chefferie.form.fields.water.type.option.second"),
-                bundle.getString("chefferie.form.fields.water.type.option.third"),
-                bundle.getString("chefferie.form.fields.water.type.option.fourth"),
-                bundle.getString("chefferie.form.fields.water.type.option.fith")
-
-        );
-        final var extinguisher = new SimpleListProperty<>();
-        final var extinguisherOptions = FXCollections.observableArrayList(
-                bundle.getString("chefferie.form.fields.extinguisher.option.first"),
-                bundle.getString("chefferie.form.fields.extinguisher.option.second")
-
-        );
         final var form = Form.of(
                 Section.of(
-                        Field.ofStringType("")
-                                .label("chefferie.form.fields.equipment_question.title")
-                                .editable(false)
-                                .span(ColSpan.HALF), // Utilisez ColSpan.HALF ici
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.equipment_quantity.computers")
-                                .tooltip("chefferie.form.fields.equipment_quantity.computers.description")
-                                .span(ColSpan.HALF),
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.equipment_quantity.tablets")
-                                .tooltip("chefferie.form.fields.equipment_quantity.tablets.description")
-                                .span(ColSpan.HALF),
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.equipment_quantity.printers")
-                                .tooltip("chefferie.form.fields.equipment_quantity.printers.description")
-                                .span(ColSpan.HALF),
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.equipment_quantity.cars")
-                                .tooltip("chefferie.form.fields.equipment_quantity.cars.description")
-                                .span(ColSpan.HALF),
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.equipment_quantity.motorcycles")
-                                .tooltip("chefferie.form.fields.equipment_quantity.motorcycles.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(structureOptions)
-                                .label("chefferie.form.fields.structure.title")
-                                .tooltip("chefferie.form.fields.structure.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(connexionOptions)
-                                .label("chefferie.form.fields.connexion.title")
-                                .tooltip("chefferie.form.fields.connexion.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(typeConnexionOptions)
-                                .label("chefferie.form.fields.typeConnexion.title")
-                                .tooltip("chefferie.form.fields.typeConnexion.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(eneoConnexionOptions)
-                                .label("chefferie.form.fields.eneoConnexion.title")
-                                .tooltip("chefferie.form.fields.eneoConnexion.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(waterAccesOptions)
-                                .label("chefferie.form.fields.waterAcces.title")
-                                .tooltip("chefferie.form.fields.waterAcces.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(waterTypeOptions)
-                                .label("chefferie.form.fields.waterType.title")
-                                .tooltip("chefferie.form.fields.waterType.description")
-                                .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(extinguisherOptions)
-                                .label("chefferie.form.fields.extinguisher.title")
-                                .tooltip("chefferie.form.fields.extinguisher.description")
-                                .span(ColSpan.HALF)
-                )
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.Chefferie.PC_COUNT))
+                                        .label(FieldKeys.Chefferie.PC_COUNT)
+                                        .tooltip("chefferie.form.fields.equipment_quantity.computers.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.Chefferie.TABLET_COUNT))
+                                        .label(FieldKeys.Chefferie.TABLET_COUNT)
+                                        .tooltip("chefferie.form.fields.equipment_quantity.tablets.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(PRINTER_COUNT))
+                                        .label(PRINTER_COUNT)
+                                        .tooltip("chefferie.form.fields.equipment_quantity.printers.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(CAR_COUNT))
+                                        .label(CAR_COUNT)
+                                        .validate(naturalNumberValidator)
+                                        .tooltip("chefferie.form.fields.equipment_quantity.cars.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(BIKE_COUNT))
+                                        .label(BIKE_COUNT)
+                                        .tooltip("chefferie.form.fields.equipment_quantity.motorcycles.description")
+                                        .span(ColSpan.HALF)
+                        ).collapsible(false)
+                        .title("chefferie.form.sections.equipment.sections.equipment.title"),
+                Section.of(
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(IS_CHIEFDOM_CHIEF_RESIDENCE))
+                                        .label(IS_CHIEFDOM_CHIEF_RESIDENCE)
+                                        .tooltip("chefferie.form.fields.structure.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(HAS_INTERNET))
+                                        .label(HAS_INTERNET)
+                                        .tooltip("chefferie.form.fields.connexion.description")
+                                        .span(ColSpan.HALF),
+                                internetTypeControl,
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(HAS_ENEO_CONNECTION))
+                                        .label("chefferie.form.fields.eneoConnexion.title")
+                                        .tooltip("chefferie.form.fields.eneoConnexion.description")
+                                        .span(ColSpan.HALF),
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(WATER_ACCESS))
+                                        .label(WATER_ACCESS)
+                                        .tooltip("chefferie.form.fields.waterAcces.description")
+                                        .span(ColSpan.HALF),
+                                waterSourcesControl,
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(HAS_EXTINGUISHER))
+                                        .label(HAS_EXTINGUISHER)
+                                        .tooltip("chefferie.form.fields.extinguisher.description")
+                                        .span(ColSpan.HALF)
+                        ).collapsible(false)
+                        .title("chefferie.form.sections.equipment.structure_info.title")
         ).i18n(ts);
-
         spEquipmentContainer.setContent(new FormRenderer(form));
+        equipmentForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabInfra.setUserData(form);
     }
 
-    private void spPersonalStatusContainer(ResourceBundleService ts) {
-        final var personnel = Collections.<PersonnelInfo>emptyList();
-        final var employer = new SimpleListProperty<>();
+    private void spPersonalStatusContainer(TranslationService ts) {
+        final var model = (ChefferieFormDataManager) this.model;
         final var form = Form.of(
-                Section.of(
-                        Field.ofIntegerType(0)
-                                .label("chefferie.form.fields.employer.title")
+                Group.of(
+                        Field.ofIntegerType((IntegerProperty) model.getPropertyFor(EMPLOYEE_COUNT))
+                                .label(EMPLOYEE_COUNT)
                                 .tooltip("chefferie.form.fields.employer.description")
                                 .span(ColSpan.HALF),
-                        PersonnelInfoField.personnelInfoField(null, null, null)
+                        PersonnelInfoField.personnelInfoField(model.personnelInfoProperty(), ts, model::updateTrackedPersonnelFields)
                                 .label("fosa.form.fields.personnel_status.title")
 
                 )
         ).i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
+        personnelForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
+        tabPersonnel.setUserData(form);
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

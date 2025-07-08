@@ -60,15 +60,6 @@ public class FieldKeys {
         public static final String STATS_YEAR_5 = "fosa.columns.year.5";
         public static final String STATS_DEATH_COUNT_5 = "fosa.columns.deaths.5";
         public static final String STATS_BIRTH_COUNT_5 = "fosa.columns.births.5";
-        public static final String PERSONNEL_NAME = "data_personnel.columns.name.title";
-        public static final String PERSONNEL_POSITION = "data_personnel.columns.role.title";
-        public static final String PERSONNEL_GENDER = "data_personnel.columns.gender.title";
-        public static final String PERSONNEL_PHONE = "data_personnel.columns.phone.title";
-        public static final String PERSONNEL_EMAIL = "data_personnel.columns.email.title";
-        public static final String PERSONNEL_AGE = "data_personnel.columns.age.title";
-        public static final String PERSONNEL_CS_TRAINING = "data_personnel.columns.has_cs_training.title";
-        public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
-        public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
         public static final String HAS_TOILET_FIELD = "fosa.form.fields.toilet_present.title";
         public static final String HAS_ENEO_CONNECTION = "fosa.form.fields.has_eneo_connection.title";
         public static final String HAS_BACKUP_POWER_SOURCE = "fosa.form.fields.has_power_source.title";
@@ -87,7 +78,6 @@ public class FieldKeys {
         public static final String ATTACHED_CSC = "fosa.form.fields.csc_reg.title";
         public static final String INDEX = "fosa.form.fields.index";
         public static final String VALIDATION_CODE = "fosa.form.fields.validation_code";
-        public static String[] PERSONNEL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
     }
 
     public static final class PersonnelInfo {
@@ -100,7 +90,52 @@ public class FieldKeys {
         public static final String PERSONNEL_CS_TRAINING = "data_personnel.columns.has_cs_training.title";
         public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
         public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
-        public static String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
+        public static final String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE, PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL, PERSONNEL_POSITION};
+    }
+
+    public static class Chefferie {
+        public static final String RESPONDENT_NAME = "chefferie.form.fields.names.title";
+        public static final String POSITION = "chefferie.form.fields.position.title";
+        public static final String PHONE = "chefferie.form.fields.phone.title";
+        public static final String EMAIL = "chefferie.form.fields.email.title";
+        public static final String CREATION_DATE = "chefferie.form.fields.creation_date.title";
+        public static final String DIVISION = "chefferie.form.fields.department.title";
+        public static final String MUNICIPALITY = "chefferie.form.fields.communes.title";
+        public static final String QUARTER = "chefferie.form.fields.quarter.title";
+        public static final String FACILITY_NAME = "chefferie.form.fields.facility_name.title";
+        public static final String CLASSIFICATION = "chefferie.form.fields.classification.title";
+        public static final String HEALTH_CENTER_PROXIMITY = "chefferie.form.fields.distance.title";
+        public static final String GPS_COORDS = "chefferie.form.sections.geo_point.title";
+        public static final String FUNCTION = "chefferie.form.fields.fonction.title";
+        public static final String RECEPTION_AREA = "chefferie.form.fields.reception.title";
+        public static final String OTHER_RECEPTION_AREA = "chefferie.form.fields.other_recep.title";
+        public static final String CONSERVATION_PLACE = "chefferie.form.fields.conservation_place.title";
+        public static final String CS_OFFICER_TRAINED = "chefferie.form.fields.training.title";
+        public static final String WAITING_ROOM = "chefferie.form.fields.waiting_room.title";
+        public static final String OTHER_WAITING_ROOM = "chefferie.form.fields.other_waiting_room.title";
+        public static final String IS_CHIEF_CS_OFFICER = "chefferie.form.fields.cs_actor_is_chief.title";
+        public static final String CHIEF_OATH = "chefferie.form.fields.oath.title";
+        public static final String CS_REG_LOCATION = "chefferie.form.fields.cs_reg_location.title";
+        public static final String OTHER_CS_REG_LOCATION = "chefferie.form.fields.other_cs_reg_location.title";
+        public static final String TOILETS_ACCESSIBLE = "chefferie.form.fields.toilets_accessible.title";
+        public static final String PC_COUNT = "chefferie.form.fields.equipment_quantity.computers";
+        public static final String PRINTER_COUNT = "chefferie.form.fields.equipment_quantity.printers";
+        public static final String TABLET_COUNT = "chefferie.form.fields.equipment_quantity.tablets";
+        public static final String CAR_COUNT = "chefferie.form.fields.equipment_quantity.cars";
+        public static final String BIKE_COUNT = "chefferie.form.fields.equipment_quantity.motorcycles";
+        public static final String IS_CHIEFDOM_CHIEF_RESIDENCE = "chefferie.form.fields.structure.title";
+        public static final String HAS_INTERNET = "chefferie.form.fields.connexion.title";
+        public static final String INTERNET_TYPE = "chefferie.form.fields.typeConnexion.title";
+        public static final String OTHER_INTERNET_TYPE = "chefferie.form.fields.other_internet_type.title";
+        public static final String HAS_ENEO_CONNECTION = "chefferie.form.fields.eneoConnexion.title";
+        public static final String WATER_ACCESS = "chefferie.form.fields.waterAcces.title";
+        public static final String WATER_SOURCES = "chefferie.form.fields.waterType.title";
+        public static final String OTHER_WATER_SOURCE = "chefferie.form.fields.other_water_source.title";
+        public static final String HAS_EXTINGUISHER = "chefferie.form.fields.extinguisher.title";
+        public static final String EMPLOYEE_COUNT = "chefferie.form.fields.employer.title";
+        public static final String EXTRA_INFO = "chefferie.form.fields.extra_info.title";
+        public static final String INDEX = "chefferie.form.fields.index";
+        public static final String VALIDATION_CODE = "chefferie.form.fields.validation_code";
     }
 
     @SuppressWarnings("rawtypes")
@@ -188,15 +223,15 @@ public class FieldKeys {
                         Category.of("mapper.categories.forms.fosa.sub_forms.title",
                                 Group.of(
                                         "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
-                                        settingFactory.apply(Fosa.PERSONNEL_NAME),
-                                        settingFactory.apply(Fosa.PERSONNEL_POSITION),
-                                        settingFactory.apply(Fosa.PERSONNEL_GENDER),
-                                        settingFactory.apply(Fosa.PERSONNEL_PHONE),
-                                        settingFactory.apply(Fosa.PERSONNEL_EMAIL),
-                                        settingFactory.apply(Fosa.PERSONNEL_AGE),
-                                        settingFactory.apply(Fosa.PERSONNEL_CS_TRAINING),
-                                        settingFactory.apply(Fosa.PERSONNEL_ED_LEVEL),
-                                        settingFactory.apply(Fosa.PERSONNEL_COMPUTER_LEVEL)
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_NAME),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_POSITION),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_GENDER),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_PHONE),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_EMAIL),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_AGE),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_CS_TRAINING),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_ED_LEVEL),
+                                        settingFactory.apply(PersonnelInfo.PERSONNEL_COMPUTER_LEVEL)
                                 ),
                                 Group.of(
                                         "mapper.categories.forms.fosa.sub_forms.stats_0.title",

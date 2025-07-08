@@ -1,6 +1,7 @@
 package fr.civipol.civilio;
 
 import fr.civipol.civilio.dagger.component.AppComponent;
+import fr.civipol.civilio.dagger.component.DaggerAppComponent;
 import fr.civipol.civilio.event.RestartEvent;
 import fr.civipol.civilio.event.ShutdownEvent;
 import fr.civipol.civilio.event.StageReadyEvent;
@@ -37,7 +38,7 @@ public class Bootstrapper extends Application {
     @Override
     public void init() throws Exception {
         log.info("Initializing services...");
-//        appComponent = DaggerAppComponent.create();
+        appComponent = DaggerAppComponent.create();
         loadConfiguration();
         final var services = appComponent.allServices();
 

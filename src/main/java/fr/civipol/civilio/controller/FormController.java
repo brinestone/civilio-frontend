@@ -1,8 +1,12 @@
 package fr.civipol.civilio.controller;
 
+import com.dlsc.formsfx.model.util.TranslationService;
+import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.form.FormDataManager;
+import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
@@ -11,6 +15,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -169,7 +174,7 @@ public abstract class FormController implements AppController {
 
     protected abstract FormService getFormService();
 
-    protected void findOptionsFor(String form, String group, String parent, Consumer<Collection<Option>> callback) {
+    protected void findOptions(String form, String group, String parent, Consumer<Collection<Option>> callback) {
         getExecutorService().submit(() -> {
             try {
                 log.debug("loading options for group: " + group);
@@ -213,5 +218,29 @@ public abstract class FormController implements AppController {
                 showErrorAlert(t.getLocalizedMessage());
             }
         }));
+    }
+
+    protected SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts, ObservableList<Option> options) {
+        return new SimpleComboBoxControl<>() {
+            @Override
+            public void initializeParts() {
+                super.initializeParts();
+                comboBox.setConverter(new OptionConverter(ts, v -> Optional.ofNullable(options)
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .filter(o -> o.value().equals(v))
+                        .findFirst()
+                        .orElse(null)));
+            }
+        };
+    }
+
+    protected MultiComboBoxControl<Option> createMultiOptionComboBox(TranslationService ts, ObservableList<Option> options) {
+        return new MultiComboBoxControl<>(new OptionConverter(ts, v -> Optional.ofNullable(options)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(o -> o.value().equals(v))
+                .findFirst()
+                .orElse(null)));
     }
 }

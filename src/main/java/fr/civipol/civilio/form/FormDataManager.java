@@ -2,8 +2,10 @@ package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
 public abstract class FormDataManager {
+    protected static final String DELIMITER_TOKEN_PATTERN = "[, ]";
     protected final ObservableMap<String, FieldChange> changes = FXCollections.observableHashMap();
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
@@ -37,13 +40,26 @@ public abstract class FormDataManager {
         this.keyExtractor = keyExtractor;
     }
 
-    public abstract ObservableBooleanValue pristine();
+    public ObservableBooleanValue pristine() {
+        return Bindings.isEmpty(changes);
+    }
 
     public Collection<FieldChange> getPendingUpdates() {
-        return changes.values().stream()
+        final var allChanges = changes.values().stream()
                 .peek(u -> u.setNewValue(serializeValue(u.getNewValue())))
                 .peek(u -> u.setField(keyExtractor.apply(u.getField())))
                 .toList();
+        final var deletions = allChanges.stream()
+                .filter(FieldChange::isDeletionChange)
+                .toArray(FieldChange[]::new);
+        final var rest = allChanges.stream()
+                .filter(fc -> !fc.isDeletionChange())
+                .toArray(FieldChange[]::new);
+        final var sortedChanges = new FieldChange[deletions.length + rest.length];
+        System.arraycopy(deletions, 0, sortedChanges, 0, deletions.length);
+        System.arraycopy(rest, 0, sortedChanges, deletions.length, rest.length);
+
+        return Arrays.asList(sortedChanges);
     }
 
     public abstract void trackFieldChanges();
@@ -112,8 +128,82 @@ public abstract class FormDataManager {
         return String.valueOf(deserialized);
     }
 
-    protected abstract Object deserializeValue(Object raw, String id);
+    @SuppressWarnings("unchecked")
+    protected Object deserializeValue(Object raw, String id) {
+        if (Optional.ofNullable(getPropertyTypeFor(id)).filter(LocalDate.class::equals).isPresent()) {
+            if (raw instanceof String s)
+                return LocalDate.parse(s);
+            else if (raw instanceof Date)
+                return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
+                   && raw instanceof String)
+            return getOptionsFor(id).stream()
+                    .filter(o -> o.value().equals(raw))
+                    .findFirst().orElse(null);
+        else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Boolean.class::equals).isPresent()) {
+            if (raw instanceof String && ((String) raw).equalsIgnoreCase("true")
+                || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
+                return Boolean.valueOf(((String) raw));
+            } else if (("1".equals(raw) || "2".equals(raw)))
+                return "1".equals(raw);
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Double.class::equals).isPresent()) {
+            if (raw instanceof String && StringUtils.isNotBlank(((String) raw)))
+                return Double.valueOf(((String) raw));
+            else if (raw instanceof Double || raw instanceof Integer) {
+                return Double.valueOf(String.valueOf(raw));
+            } else
+                return 0.0;
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
+            if (raw instanceof String s && StringUtils.isNotBlank(s))
+                return Double.valueOf(Math.max(Integer.parseInt(s), 0.0)).intValue();
+            else if (raw instanceof Double d)
+                return d.intValue();
+            else
+                return 0;
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(GeoPoint.class::equals).isPresent()) {
+            if (raw instanceof String s) {
+                final var segments = s.split(DELIMITER_TOKEN_PATTERN);
+                final var lat = segments[0];
+                final var lon = segments[1];
+                final var altitude = segments[2];
+                final var accuracy = segments[3];
 
+                return GeoPoint.builder()
+                        .latitude(Float.valueOf(lat))
+                        .longitude(Float.valueOf(lon))
+                        .altitude(Float.valueOf(altitude))
+                        .accuracy(Float.valueOf(accuracy))
+                        .build();
+            }
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(String.class::equals).isPresent()) {
+            return StringUtils.isNotBlank(((String) raw)) ? (String) raw : "";
+        } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(List.class::equals).isPresent()) {
+            if (raw instanceof Collection c)
+                return c.stream()
+                        .map(o -> {
+                            if (o instanceof String) {
+                                return getOptionsFor(id).stream()
+                                        .filter(opt -> opt.value().equals(o))
+                                        .findFirst().orElse(null);
+                            }
+                            return o;
+                        })
+                        .toList();
+            else if (raw instanceof String s) {
+                final var values = Arrays.asList(s.split(DELIMITER_TOKEN_PATTERN));
+                final var x = getOptionsFor(id).stream()
+                        .filter(o -> values.stream().anyMatch(ss -> o.value().equals(ss)))
+                        .toList();
+                final var property = (ListProperty) getPropertyFor(id);
+                property.addAll(x);
+                return property.getValue();
+            }
+        }
+
+        return raw;
+    }
+
+    public abstract ListProperty<Option> getOptionsFor(String field);
     public abstract void loadOptions(OptionSource optionSource, Runnable callback);
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -152,6 +242,28 @@ public abstract class FormDataManager {
         loadValue(getValidationCodeFieldKey(), "");
         trackUpdatesForField(getIndexFieldKey());
         trackUpdatesForField(getValidationCodeFieldKey());
+    }
+
+    public void updateTrackedPersonnelFields(FieldChange update) {
+        if (update.isDeletionChange()) {
+            final var ordinal = update.getOrdinal();
+            final var prefix = FieldKeys.PersonnelInfo.ALL_FIELDS[0].substring(0, FieldKeys.PersonnelInfo.ALL_FIELDS[0].indexOf("."));
+            changes.values().stream()
+                    .filter(c -> !c.isDeletionChange())
+                    .filter(c -> c.getField().startsWith(prefix) && c.getField().endsWith(String.valueOf(ordinal)))
+                    .forEach(fc -> changes.remove(fc.getField()));
+            final var deletionKey = keyMaker.apply("%s.+".formatted(prefix), ordinal);
+            changes.put(deletionKey, FieldChange.builder()
+                    .field(deletionKey)
+                    .deletionChange(true)
+                    .build());
+            return;
+        }
+        final var key = keyMaker.apply(update.getField(), update.getOrdinal());
+        final var change = changes.computeIfAbsent(key, k -> new FieldChange(k, null, update.getOldValue(), update.getOrdinal(), false));
+        change.setNewValue(update.getNewValue());
+        if (Objects.equals(change.getNewValue(), change.getOldValue()))
+            changes.remove(key);
     }
 
     public void markAsPristine() {

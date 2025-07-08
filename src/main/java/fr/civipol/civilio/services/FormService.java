@@ -277,15 +277,14 @@ public class FormService implements AppService {
         return result;
     }
 
-    @SuppressWarnings({"DuplicatedCode"})
-    public Collection<FieldChange> updateSubmission(
+//    @SuppressWarnings({"DuplicatedCode"})
+    public void updateSubmission(
             String submissionId,
             FormType form,
             Function<String, String> fieldExtractor,
             FieldChange... changes) throws SQLException {
         if (changes.length == 0)
-            return Collections.emptyList();
-        final var droppedChanges = new ArrayList<FieldChange>();
+            return;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
@@ -319,7 +318,6 @@ public class FormService implements AppService {
                 }
             }
             connection.commit();
-            return droppedChanges;
         } catch (SQLException e) {
             log.error("Error updating submission {} for form {}", submissionId, form, e);
             throw e;
