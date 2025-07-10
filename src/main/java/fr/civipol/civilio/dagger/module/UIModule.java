@@ -21,7 +21,7 @@ public class UIModule {
     public FXMLLoaderFactory fxmlLoaderFactory(ControllerFactory controllerFactory) {
         return new FXMLLoaderFactory(controllerFactory);
     }
-
+//j
     @Provides
     @Singleton
     public ViewLoader viewLoader(FXMLLoaderFactory fxmlLoaderFactory) {
