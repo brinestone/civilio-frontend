@@ -2,14 +2,20 @@ package fr.civipol.civilio.form.control;
 
 import com.dlsc.formsfx.model.structure.MultiSelectionField;
 import com.dlsc.formsfx.view.controls.SimpleControl;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.util.StringConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
+import java.util.Optional;
+
 public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V>> {
+    private Tooltip tooltip;
     private boolean updatesFromComboBox = false;
     private boolean updatesFromField = false;
     private CheckComboBox<V> comboBox;
@@ -40,7 +46,11 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
         fieldLabel.textProperty().bind(field.labelProperty());
         comboBox.converterProperty().bind(converter);
         comboBox.disableProperty().bind(field.editableProperty().not());
-//        field.selectionProperty().bindContentBidirectional(comboBox.getCheckModel().getCheckedItems());
+        tooltip.textProperty().bind(Bindings.when(field.validProperty()).then(field.tooltipProperty()).otherwise(Bindings.createStringBinding(() -> String.join("\n", field.getErrorMessages()), field.errorMessagesProperty())));
+        final var defaultLabelStyle = fieldLabel.getStyle();
+        fieldLabel.styleProperty().bind(Bindings.when(field.validProperty()).then(defaultLabelStyle).otherwise("""
+                -fx-text-fill: red;
+                """));
     }
 
     @Override
@@ -71,6 +81,7 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
     public void initializeSelf() {
         super.initializeSelf();
         comboBox = new CheckComboBox<>();
+        tooltip = new Tooltip();
         fieldLabel = new Label();
     }
 
@@ -80,5 +91,15 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
         super.initializeParts();
         comboBox.getItems().setAll(field.getItems());
         field.getSelection().forEach(comboBox.getCheckModel()::check);
+        updateTooltip();
+    }
+
+    private void updateTooltip() {
+        Optional.ofNullable(field.getTooltip()).filter(StringUtils::isNotBlank).ifPresentOrElse(
+                t -> {
+                    tooltip.setText(t);
+                    comboBox.setTooltip(tooltip);
+                }, () -> comboBox.setTooltip(null)
+        );
     }
 }

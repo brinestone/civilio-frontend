@@ -129,16 +129,8 @@ public abstract class FormController implements AppController {
                         .filter(StringUtils::isNotBlank)
                         .ifPresent(__ -> {
                             try {
-                                Optional.ofNullable(loadSubmissionData())
-                                        .ifPresent(data -> Platform.runLater(() -> {
-                                            submissionData.clear();
-                                            submissionData.putAll(data);
-                                        }));
-                                Platform.runLater(() -> {
-                                    getModel().loadValues();
-                                    getModel().markAsPristine();
-                                });
-                            } catch (Throwable e) {
+                                doLoadSubmissionData();
+                            } catch (Exception e) {
                                 showErrorAlert(e.getLocalizedMessage());
                             }
                         });
@@ -194,6 +186,7 @@ public abstract class FormController implements AppController {
                 doSubmit();
                 Platform.runLater(() -> Optional.ofNullable(onSubmit)
                         .ifPresent(c -> c.accept(submissionId.get())));
+                doLoadSubmissionData();
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
                 showErrorAlert(t.getLocalizedMessage());
@@ -213,6 +206,7 @@ public abstract class FormController implements AppController {
                 doDiscard();
                 Platform.runLater(() -> Optional.ofNullable(onDiscard)
                         .ifPresent(c -> c.accept(null)));
+                doLoadSubmissionData();
             } catch (Throwable t) {
                 log.error("error while discarding form", t);
                 showErrorAlert(t.getLocalizedMessage());
@@ -242,5 +236,17 @@ public abstract class FormController implements AppController {
                 .filter(o -> o.value().equals(v))
                 .findFirst()
                 .orElse(null)));
+    }
+
+    private void doLoadSubmissionData() throws Exception {
+        Optional.ofNullable(loadSubmissionData())
+                .ifPresent(data -> Platform.runLater(() -> {
+                    submissionData.clear();
+                    submissionData.putAll(data);
+                }));
+        Platform.runLater(() -> {
+            getModel().loadValues();
+            getModel().markAsPristine();
+        });
     }
 }

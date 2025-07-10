@@ -6,7 +6,6 @@ import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
-import com.dlsc.formsfx.view.controls.SimpleDateControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.AppController;
@@ -14,14 +13,12 @@ import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.FieldChange;
-import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.ChefferieFormDataManager;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
-import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
@@ -36,7 +33,6 @@ import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import javafx.util.converter.LocalDateStringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,8 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Supplier;
@@ -105,7 +99,7 @@ public class ChefferieFormController extends FormController implements AppContro
     @SuppressWarnings("DuplicatedCode")
     private Collection<PersonnelInfo> findPersonnelInfo() {
         final var personnelInfoFields = submissionData.keySet().stream()
-                .filter(k -> Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(k::startsWith))
+                .filter(k -> Arrays.stream(FieldKeys.PersonnelInfo.Chefferie.ALL_FIELDS).anyMatch(k::startsWith))
                 .toList();
         final var map = new HashMap<String, PersonnelInfo>();
         for (var key : personnelInfoFields) {
@@ -113,15 +107,15 @@ public class ChefferieFormController extends FormController implements AppContro
             final var ordinal = meta[0];
             final var id = extractFieldKey(key);
             final var entry = map.computeIfAbsent(ordinal, k -> PersonnelInfo.builder().parentIndex((String) submissionData.get(keyMaker(FieldKeys.Fosa.INDEX, 0))).build());
-            final var isNameField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_NAME);
-            final var isPositionField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_POSITION);
-            final var isGenderField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_GENDER);
-            final var isPhoneField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_PHONE);
-            final var isAgeField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_AGE);
-            final var isCSTrainingField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING);
-            final var isEdLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL);
-            final var isComputerLevelField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL);
-            final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
+            final var isNameField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_NAME);
+            final var isPositionField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_POSITION);
+            final var isGenderField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER);
+            final var isPhoneField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_PHONE);
+            final var isAgeField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_AGE);
+            final var isCSTrainingField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_CS_TRAINING);
+            final var isEdLevelField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL);
+            final var isComputerLevelField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL);
+            final var isEmailField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
 
@@ -168,6 +162,7 @@ public class ChefferieFormController extends FormController implements AppContro
         footerManagerController.canDiscardProperty().bind(submittingProperty().not());
         headerManagerController.canGoNextProperty().bind(canSubmit.not());
         headerManagerController.canGoPrevProperty().bind(canSubmit.not());
+        headerManagerController.formTypeProperty().setValue(FormType.CHIEFDOM);
         setupEventHandlers();
     }
 
@@ -195,14 +190,15 @@ public class ChefferieFormController extends FormController implements AppContro
                     };
                     form.validProperty().addListener((ob, ov, nv) -> tab.setGraphic(nv ? null : graphicProvider.get()));
                     tab.setGraphic(form.isValid() ? null : graphicProvider.get());
+                    form.getFields().forEach(f -> f.validProperty().addListener((ob, ov, nv) -> log.debug("Field: {} is valid = {}", f.getLabel(), nv)));
                 });
     }
 
     private void setExtraSection(TranslationService ts) {
         final var form = Form.of(
                 Group.of(
-                        Field.ofStringType("")
-                                .label("chefferie.form.fields.extra_info.title")
+                        Field.ofStringType((StringProperty) model.getPropertyFor(EXTRA_INFO))
+                                .label(EXTRA_INFO)
                                 .multiline(true)
                                 .tooltip("chefferie.form.fields.extra_info.description")
                 )
@@ -216,10 +212,9 @@ public class ChefferieFormController extends FormController implements AppContro
     }
 
 
-    @SuppressWarnings("unchecked")
     private void setRespondentSection(TranslationService ts) {
-        final var today = LocalDate.now();
-        final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
+//        final var today = LocalDate.now();
+//        final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
                         Group.of(
                                 Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.RESPONDENT_NAME))
@@ -244,25 +239,25 @@ public class ChefferieFormController extends FormController implements AppContro
                                         .validate(RegexValidator.forPattern(
                                                 "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
                                                 "fosa.form.msg.invalid_value"))
-                                        .tooltip("chefferie.form.fields.email.description"),
-                                Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(FieldKeys.Chefferie.CREATION_DATE))
-                                        .label("fosa.form.fields.creation_date.title")
-                                        .required("forms.validation.msg.field_required")
-                                        .validate(CustomValidator.forPredicate(
-                                                d -> d == null || today.isEqual(d)
-                                                     || today.isAfter(d),
-                                                "fosa.form.msg.value_out_of_range"))
-                                        .format(localDateStringConverter,
-                                                "fosa.form.msg.invalid_value")
-                                        .render(new SimpleDateControl() {
-                                            @Override
-                                            public void initializeParts() {
-                                                super.initializeParts();
-                                                picker.setConverter(
-                                                        localDateStringConverter);
-                                            }
-                                        })
-                                        .span(ColSpan.HALF)
+                                        .tooltip("chefferie.form.fields.email.description")
+//                                Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(FieldKeys.Chefferie.CREATION_DATE))
+//                                        .label("fosa.form.fields.creation_date.title")
+//                                        .required("forms.validation.msg.field_required")
+//                                        .validate(CustomValidator.forPredicate(
+//                                                d -> d == null || today.isEqual(d)
+//                                                     || today.isAfter(d),
+//                                                "fosa.form.msg.value_out_of_range"))
+//                                        .format(localDateStringConverter,
+//                                                "fosa.form.msg.invalid_value")
+//                                        .render(new SimpleDateControl() {
+//                                            @Override
+//                                            public void initializeParts() {
+//                                                super.initializeParts();
+//                                                picker.setConverter(
+//                                                        localDateStringConverter);
+//                                            }
+//                                        })
+//                                        .span(ColSpan.HALF)
                         )
                 )
                 .i18n(ts);
@@ -283,6 +278,7 @@ public class ChefferieFormController extends FormController implements AppContro
                                                 model.getOptionsFor(FieldKeys.Chefferie.DIVISION),
                                                 (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.DIVISION))
                                         .label(FieldKeys.Chefferie.DIVISION)
+                                        .render(createOptionComboBox(ts, model.getOptionsFor(DIVISION)))
                                         .required("forms.validation.msg.field_required")
                                         .tooltip("chefferie.form.fields.department.description")
                                         .span(ColSpan.HALF),
@@ -290,6 +286,7 @@ public class ChefferieFormController extends FormController implements AppContro
                                                 model.getOptionsFor(FieldKeys.Chefferie.MUNICIPALITY),
                                                 (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.MUNICIPALITY)
                                         )
+                                        .render(createOptionComboBox(ts, model.getOptionsFor(MUNICIPALITY)))
                                         .label(FieldKeys.Chefferie.MUNICIPALITY)
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF),
@@ -305,6 +302,7 @@ public class ChefferieFormController extends FormController implements AppContro
                                                 model.getOptionsFor(FieldKeys.Chefferie.CLASSIFICATION),
                                                 (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.CLASSIFICATION))
                                         .label(FieldKeys.Chefferie.CLASSIFICATION)
+                                        .render(createOptionComboBox(ts, model.getOptionsFor(CLASSIFICATION)))
                                         .required("forms.validation.msg.field_required")
                                         .tooltip("chefferie.form.fields.classification.description")
                                         .span(ColSpan.HALF),
@@ -332,7 +330,7 @@ public class ChefferieFormController extends FormController implements AppContro
         final var model = (ChefferieFormDataManager) this.model;
         final var oathAvailable = model.oathAvailable();
         final var otherCsRegLocationAvailable = model.otherCsRegLocationAvailable();
-        final var otherReceptionAreaAvailable = model.otherReceptionAreaAvailable();
+//        final var otherReceptionAreaAvailable = model.otherWaitingRoomAvailableProperty();
 
         BooleanField oathControl = Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.CHIEF_OATH))
                 .label(FieldKeys.Chefferie.CHIEF_OATH)
@@ -348,18 +346,19 @@ public class ChefferieFormController extends FormController implements AppContro
         otherCsRegLocationAvailable.addListener((ob, ov, nv) -> otherCsRegLocationControl.required(nv ? "forms.validation.msg.field_required" : null));
         otherCsRegLocationControl.editableProperty().bind(otherCsRegLocationAvailable);
 
-        StringField otherReceptionArea = Field.ofStringType((StringProperty) model.getPropertyFor(OTHER_RECEPTION_AREA))
-                .label(OTHER_RECEPTION_AREA)
-                .span(ColSpan.HALF);
+//        StringField otherReceptionArea = Field.ofStringType((StringProperty) model.getPropertyFor(OTHER_RECEPTION_AREA))
+//                .label(OTHER_RECEPTION_AREA)
+//                .span(ColSpan.HALF);
 
-        otherReceptionAreaAvailable.addListener((ob, ov, nv) -> otherReceptionArea.required(nv ? "forms.validation.msg.field_required" : null));
-        otherReceptionArea.editableProperty().bind(otherReceptionAreaAvailable);
+//        otherReceptionAreaAvailable.addListener((ob, ov, nv) -> otherReceptionArea.required(nv ? "forms.validation.msg.field_required" : null));
+//        otherReceptionArea.editableProperty().bind(otherReceptionAreaAvailable);
 
         final var form = Form.of(
                 Group.of(
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER),
                                         (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER))
                                 .label(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER)
+                                .render(createOptionComboBox(ts, model.getOptionsFor(IS_CHIEF_CS_OFFICER)))
                                 .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.fonction.description")
                                 .span(ColSpan.HALF),
@@ -369,6 +368,7 @@ public class ChefferieFormController extends FormController implements AppContro
                                         (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.Chefferie.CS_REG_LOCATION)
                                 ).required("forms.validation.msg.field_required")
                                 .label(FieldKeys.Chefferie.CS_REG_LOCATION)
+                                .render(createOptionComboBox(ts, model.getOptionsFor(CS_REG_LOCATION)))
                                 .tooltip("chefferie.form.fields.conservation_place.description")
                                 .span(ColSpan.HALF),
                         otherCsRegLocationControl,
@@ -380,15 +380,16 @@ public class ChefferieFormController extends FormController implements AppContro
                                 .label(FieldKeys.Chefferie.WAITING_ROOM)
                                 .tooltip("chefferie.form.fields.waiting_room.description")
                                 .span(ColSpan.HALF),
-                        Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA), (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
-                                .label(RECEPTION_AREA)
-                                .required("forms.validation.msg.field_required")
-                                .tooltip("chefferie.form.fields.reception_location.description")
-                                .span(ColSpan.HALF),
-                        otherReceptionArea,
+//                        Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA), (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
+//                                .label(RECEPTION_AREA)
+//                                .render(createOptionComboBox(ts, model.getOptionsFor(RECEPTION_AREA)))
+//                                .required("forms.validation.msg.field_required")
+//                                .tooltip("chefferie.form.fields.reception_location.description")
+//                                .span(ColSpan.HALF),
+//                        otherReceptionArea,
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.TOILETS_ACCESSIBLE))
                                 .label(FieldKeys.Chefferie.TOILETS_ACCESSIBLE)
-                                .required("forms.validation.msg.field_required")
+//                                .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.toilets_accessible.description")
                                 .span(ColSpan.HALF)
                 )
@@ -400,33 +401,36 @@ public class ChefferieFormController extends FormController implements AppContro
         tabServices.setUserData(form);
     }
 
-    private MultiComboBoxControl<Option> createMultiOptionCombobox(TranslationService ts,
-                                                                   Collection<Option> options) {
-        return new MultiComboBoxControl<>(new OptionConverter(ts, v -> options.stream().filter(o -> o.value().equals(v)).findFirst().orElse(null)));
-    }
-
     @SuppressWarnings("unchecked")
     private void spEquipmentContainer(TranslationService ts) {
         final var model = (ChefferieFormDataManager) this.model;
         final var internetTypeAvailable = model.internetTypeAvailable();
         final var waterSourcesAvailable = model.waterSourcesAvailable();
+        final var otherWaterSourceAvailable = model.otherWaterSourceAvailable();
 
         final var naturalNumberValidator = CustomValidator.<Integer>forPredicate(i -> i == null || i >= 0, "fosa.form.msg.value_out_of_range");
         final var internetTypeControl = Field.ofMultiSelectionType(model.getOptionsFor(INTERNET_TYPE), (ListProperty<Option>) model.getPropertyFor(INTERNET_TYPE))
                 .label(INTERNET_TYPE)
-                .render(createMultiOptionCombobox(ts, model.getOptionsFor(INTERNET_TYPE)))
+                .render(createMultiOptionComboBox(ts, model.getOptionsFor(INTERNET_TYPE)))
                 .tooltip("chefferie.form.fields.typeConnexion.description")
                 .span(ColSpan.HALF);
         internetTypeAvailable.addListener((ob, ov, nv) -> internetTypeControl.required(nv ? "forms.validation.msg.field_required" : null));
         internetTypeControl.editableProperty().bind(internetTypeAvailable);
 
-        MultiSelectionField<Option> waterSourcesControl = Field.ofMultiSelectionType(model.getOptionsFor(WATER_SOURCES))
+        MultiSelectionField<Option> waterSourcesControl = Field.ofMultiSelectionType(
+                        model.getOptionsFor(WATER_SOURCES),
+                        (ListProperty<Option>) model.getPropertyFor(WATER_SOURCES)
+                )
                 .label(WATER_SOURCES)
                 .tooltip("chefferie.form.fields.waterType.description")
-                .render(createMultiOptionCombobox(ts, model.getOptionsFor(INTERNET_TYPE)))
-                .span(ColSpan.HALF);
-        waterSourcesAvailable.addListener((ob, ov, nv) -> waterSourcesControl.required(nv ? "forms.validation.msg.field_required" : null));
-        waterSourcesControl.editableProperty().bind(waterSourcesAvailable);
+                .render(createMultiOptionComboBox(ts, model.getOptionsFor(WATER_SOURCES)))
+                .span(ColSpan.THIRD);
+
+        final var otherWaterSourceControl = Field.ofStringType(((StringProperty) model.getPropertyFor(OTHER_WATER_SOURCE)))
+                .label(OTHER_WATER_SOURCE)
+                .span(ColSpan.THIRD);
+        otherWaterSourceAvailable.addListener((ob, ov, nv) -> otherWaterSourceControl.required(nv ? "forms.validation.msg.field_required" : null));
+        otherWaterSourceControl.editableProperty().bind(otherWaterSourceAvailable);
 
         final var form = Form.of(
                 Section.of(
@@ -456,7 +460,7 @@ public class ChefferieFormController extends FormController implements AppContro
                 Section.of(
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(IS_CHIEFDOM_CHIEF_RESIDENCE))
                                         .label(IS_CHIEFDOM_CHIEF_RESIDENCE)
-                                        .tooltip("chefferie.form.fields.structure.description")
+//                                        .tooltip("chefferie.form.fields.structure.description")
                                         .span(ColSpan.HALF),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(HAS_INTERNET))
                                         .label(HAS_INTERNET)
@@ -470,8 +474,9 @@ public class ChefferieFormController extends FormController implements AppContro
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(WATER_ACCESS))
                                         .label(WATER_ACCESS)
                                         .tooltip("chefferie.form.fields.waterAcces.description")
-                                        .span(ColSpan.HALF),
+                                        .span(ColSpan.THIRD),
                                 waterSourcesControl,
+                                otherWaterSourceControl,
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(HAS_EXTINGUISHER))
                                         .label(HAS_EXTINGUISHER)
                                         .tooltip("chefferie.form.fields.extinguisher.description")

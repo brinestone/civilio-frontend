@@ -164,6 +164,7 @@ public class FOSAFormController extends FormController implements Initializable 
             final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
+            if (StringUtils.isBlank(key)) return Collections.emptyList();
 
             if (stringValue.matches("^\\d+$") && isAgeField) {
                 entry.setAge(Integer.parseInt(stringValue));
@@ -340,7 +341,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                 Field.ofMultiSelectionType(
                                                 model.eventRegistrationTypesProperty(),
                                                 model.registeredEventTypesProperty())
-                                        .render(createMultiOptionComboBox(ts,model.eventRegistrationTypesProperty()))
+                                        .render(createMultiOptionComboBox(ts, model.eventRegistrationTypesProperty()))
                                         .label("fosa.form.fields.csc_event_reg_type.title")
                                         .tooltip("fosa.form.fields.csc_event_reg_type.description")
                                         .span(ColSpan.TWO_THIRD),
@@ -540,7 +541,7 @@ public class FOSAFormController extends FormController implements Initializable 
                         Group.of(
                                 Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
                                         .label(FieldKeys.Fosa.RESPONDING_DEVICE)
-                                        .render(createOptionComboBox(ts,  model
+                                        .render(createOptionComboBox(ts, model
                                                 .deviceOptionsProperty()))
                                         .required("settings.msg.value_required"),
                                 Field.ofStringType(model.respondentNamesProperty())

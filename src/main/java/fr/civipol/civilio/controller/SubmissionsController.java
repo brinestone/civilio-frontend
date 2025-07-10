@@ -124,10 +124,10 @@ public class SubmissionsController implements AppController, Initializable {
             if (StringUtils.isBlank(submissionId))
                 controller.updateFormValues();
             controller.setOnSubmit(__ -> {
-                dialog.close();
+//                dialog.close();
                 doLoadSubmissionData();
             });
-            controller.setOnDiscard(__ -> dialog.close());
+//            controller.setOnDiscard(__ -> dialog.close());
             controller.setSubmissionId(submissionId);
 
             dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));

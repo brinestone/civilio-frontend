@@ -33,11 +33,12 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class FormService implements AppService {
-    private static String CHEFFERIE_TABLE = "data_chefferie";
+    private static final String CHEFFERIE_TABLE = "data_chefferie";
     private static final String PERSONNEL_INFO_TABLE = "data_personnel";
     private static final String FOSA_TABLE = "data_fosa";
     private static final String STATS_TABLE = "fosa_vital_stats";
-    private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE};
+    private static final String CHEFFERIE_PERSONNEL_TABLE = "data_chefferie_personnel";
+    private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE, CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
 
     @Inject
@@ -81,6 +82,8 @@ public class FormService implements AppService {
                 String tableName = form.getDbTable();
                 if (form.equals(FormType.FOSA)) {
                     if (field.startsWith(PERSONNEL_INFO_TABLE)) tableName = PERSONNEL_INFO_TABLE;
+                } else if (form.equals(FormType.CHIEFDOM)) {
+                    if (field.startsWith(CHEFFERIE_PERSONNEL_TABLE)) tableName = CHEFFERIE_PERSONNEL_TABLE;
                 } else {
                     throw new IllegalArgumentException("Could not determine table for: " + field);
                 }
@@ -115,7 +118,7 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<String> getFormColumnNames() throws SQLException {
+    public Collection<String> getFormColumnNames(FormType form) throws SQLException {
         final var sql = """
                 SELECT DISTINCT
                     c.column_name
@@ -127,7 +130,10 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement(sql)) {
-                st.setArray(1, connection.createArrayOf("text", TABLES));
+                String[] tables = {};
+                if (form == FormType.FOSA) tables = new String[]{FOSA_TABLE, PERSONNEL_INFO_TABLE};
+                else if (form == FormType.CHIEFDOM) tables = new String[]{CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
+                st.setArray(1, connection.createArrayOf("text", tables));
                 try (final var rs = st.executeQuery()) {
                     final var list = new ArrayList<String>();
                     while (rs.next()) {
