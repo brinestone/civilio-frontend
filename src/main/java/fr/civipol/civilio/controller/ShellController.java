@@ -1,12 +1,10 @@
 package fr.civipol.civilio.controller;
 
-import com.dlsc.preferencesfx.PreferencesFxEvent;
 import dagger.Lazy;
 import fr.civipol.civilio.controls.SettingsControl;
 import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.event.NavigateEvent;
 import fr.civipol.civilio.event.ProgressEvent;
-import fr.civipol.civilio.event.SettingsUpdatedEvent;
 import fr.civipol.civilio.services.AuthService;
 import fr.civipol.civilio.stage.ViewLoader;
 import fr.civipol.civilio.ui.MenuItem;

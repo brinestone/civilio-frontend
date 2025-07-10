@@ -23,7 +23,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.prefs.Preferences;
 
 @Slf4j
@@ -41,9 +40,9 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
 
     public PreferencesFx makePrefsForm() {
         final var ts = new ResourceBundleService(ResourceBundle.getBundle("messages"));
-        Function<String, FieldMappingSource> f = x -> this;
         return PreferencesFx.of(this,
-                        FieldKeys.fosaFieldSettingsCategory(this)
+                        FieldKeys.fosaFieldSettingsCategory(this),
+                        FieldKeys.chefferieFieldSettingsCategory(this)
                 ).i18n(ts)
                 .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("/img/Logo32x32.png"))))
                 .dialogTitle(ts.translate("field_mapper.title"))
@@ -87,7 +86,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
 
     @Override
     public double loadWindowHeight() {
-        return prefs.getDouble(WINDOW_HEIGHT, 700);
+        return prefs.getDouble(WINDOW_HEIGHT, 640);
     }
 
     @Override
@@ -116,13 +115,16 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     }
 
     private FormType extractForm(String breadcrumb) {
-        return FormType.fromString(breadcrumb.substring(0, breadcrumb.indexOf(".")));
+        String prefix = breadcrumb.substring(0, breadcrumb.indexOf("."));
+        if (prefix.equals("data_personnel")) return FormType.FOSA;
+        else if (prefix.equals("data_chefferie_personnel")) return FormType.CHIEFDOM;
+        return FormType.fromString(prefix);
     }
 
     @Override
     public void saveObject(String breadcrumb, Object object) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(breadcrumb);
+        final var form = extractForm(key);
         executorService.submit(() -> {
             try {
                 var acceptableValue = object;
@@ -139,7 +141,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     @Override
     public Object loadObject(String breadcrumb, Object defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(breadcrumb);
+        final var form = extractForm(key);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
@@ -154,7 +156,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     @Override
     public <T> T loadObject(String breadcrumb, Class<T> type, T defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(breadcrumb);
+        final var form = extractForm(key);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
@@ -186,7 +188,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     public void findAllDbColumns(FormType form, Consumer<Collection<String>> callback) {
         executorService.submit(() -> {
             try {
-                final var result = new ArrayList<>(formService.getFormColumnNames());
+                final var result = new ArrayList<>(formService.getFormColumnNames(form));
                 Platform.runLater(() -> callback.accept(result));
             } catch (Throwable t) {
                 log.error("error while finding fields", t);

@@ -3,7 +3,6 @@ package fr.civipol.civilio.domain.filter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.Collection;

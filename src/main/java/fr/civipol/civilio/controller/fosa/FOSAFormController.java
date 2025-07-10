@@ -10,32 +10,24 @@ import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
-import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import com.dlsc.formsfx.view.controls.SimpleDateControl;
-import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.FieldChange;
-import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FOSAFormDataManager;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
-import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.GeoPointField;
-import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
@@ -44,9 +36,9 @@ import javafx.scene.paint.Color;
 import javafx.util.converter.LocalDateStringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.textfield.TextFields;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
@@ -55,24 +47,16 @@ import java.time.LocalDate;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class FOSAFormController extends FormController implements Initializable {
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
     private final FormService formService;
     private ResourceBundle resources;
-
-    @Inject
-    public FOSAFormController(
-            @SuppressWarnings("CdiInjectionPointsInspection") ExecutorService executorService,
-            FormService formService) {
-        this.formService = formService;
-        this.executorService = executorService;
-    }
 
     private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
     @FXML
@@ -119,15 +103,11 @@ public class FOSAFormController extends FormController implements Initializable 
 
     @Override
     protected final void doSubmit() throws SQLException {
-        final var dropped = formService.updateSubmission(
+        formService.updateSubmission(
                 submissionId.getValue(),
                 FormType.FOSA,
                 this::extractFieldKey,
                 model.getPendingUpdates().toArray(FieldChange[]::new));
-        if (dropped.isEmpty())
-            return;
-        log.debug("Dropped {} updates", dropped.size());
-        log.debug(dropped.toString());
     }
 
     @Override
@@ -139,7 +119,7 @@ public class FOSAFormController extends FormController implements Initializable 
                 this::findPersonnelInfo,
                 this::keyMaker,
                 this::extractFieldKey,
-                this::findOptionsFor);
+                this::findOptions);
         initializeController();
         model.trackFieldChanges();
         configureForms(ts);
@@ -153,9 +133,10 @@ public class FOSAFormController extends FormController implements Initializable 
         headerManagerController.canGoNextProperty().bind(canSubmit.not());
         headerManagerController.canGoPrevProperty().bind(canSubmit.not());
         headerManagerController.formTypeProperty().setValue(FormType.FOSA);
-        setEventHandlers();
+        setupEventHandlers();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private Collection<PersonnelInfo> findPersonnelInfo() {
         final var personnelInfoFields = submissionData.keySet().stream()
                 .filter(k -> Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(k::startsWith))
@@ -177,6 +158,7 @@ public class FOSAFormController extends FormController implements Initializable 
             final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
+            if (StringUtils.isBlank(key)) return Collections.emptyList();
 
             if (stringValue.matches("^\\d+$") && isAgeField) {
                 entry.setAge(Integer.parseInt(stringValue));
@@ -200,9 +182,9 @@ public class FOSAFormController extends FormController implements Initializable 
         return map.values();
     }
 
-    private void setEventHandlers() {
+    private void setupEventHandlers() {
         footerManagerController
-                .setOnDiscard(e -> handleDiscardEvent(e, resources.getString("fosa.form.msg.discard")));
+                .setOnDiscard(e -> handleDiscardEvent(e, resources.getString("msg.discard_msg.txt")));
         footerManagerController.setOnSubmit(this::handleSubmitEvent);
     }
 
@@ -210,6 +192,7 @@ public class FOSAFormController extends FormController implements Initializable 
         return formService.findSubmissionData(submissionId.get(), FormType.FOSA, this::keyMaker);
     }
 
+    @SuppressWarnings("DuplicatedCode")
     private void configureForms(TranslationService ts) {
         setRespondentSection(ts);
         setStructureIdContainer(ts);
@@ -250,9 +233,9 @@ public class FOSAFormController extends FormController implements Initializable 
                         PersonnelInfoField
                                 .personnelInfoField(model.personnelInfoProperty(), ts,
                                         model::updateTrackedPersonnelFields)
-                                .computerKnowledgeLevels(model.computerKnowledgeLevelsProperty())
-                                .educationLevels(model.educationLevelsProperty())
-                                .genders(model.gendersProperty())
+                                .bindKnowledgeLevels(model.computerKnowledgeLevelsProperty())
+                                .bindEducationLevels(model.educationLevelsProperty())
+                                .bindGenders(model.gendersProperty())
                                 .label("fosa.form.fields.personnel_status.title")))
                 .i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
@@ -269,8 +252,7 @@ public class FOSAFormController extends FormController implements Initializable 
                         model.emergencyPowerSourcesProperty())
                 .label("fosa.form.fields.alternative_power.title")
                 .span(ColSpan.THIRD)
-                .render(createMultiOptionCombobox(ts, v -> model.emergencyPowerSourceTypesProperty()
-                        .stream().filter(o -> o.value().equals(v)).findFirst().orElse(null)));
+                .render(createMultiOptionComboBox(ts, model.emergencyPowerSourceTypesProperty()));
         emergencyPowerSource.editableProperty().bind(model.emergencyPowerSourceAvailableProperty());
         model.emergencyPowerSourceAvailableProperty().addListener((ob, ov, nv) -> {
             if (!nv)
@@ -292,11 +274,9 @@ public class FOSAFormController extends FormController implements Initializable 
                                 Field.ofMultiSelectionType(model.waterSourceTypesProperty(),
                                                 model.waterSourcesProperty())
                                         .label("fosa.form.fields.water_source.title")
-                                        .render(createMultiOptionCombobox(
+                                        .render(createMultiOptionComboBox(
                                                 ts,
-                                                v -> model.waterSourceTypesProperty().stream().filter(
-                                                                o -> o.value().equals(v)).findFirst()
-                                                        .orElse(null)))
+                                                model.waterSourceTypesProperty()))
                                         .span(ColSpan.THIRD)),
                         Section.of(
                                         Field.ofIntegerType(model.pcCountProperty())
@@ -355,10 +335,7 @@ public class FOSAFormController extends FormController implements Initializable 
                                 Field.ofMultiSelectionType(
                                                 model.eventRegistrationTypesProperty(),
                                                 model.registeredEventTypesProperty())
-                                        .render(createMultiOptionCombobox(ts,
-                                                v -> model.eventRegistrationTypesProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
+                                        .render(createMultiOptionComboBox(ts, model.eventRegistrationTypesProperty()))
                                         .label("fosa.form.fields.csc_event_reg_type.title")
                                         .tooltip("fosa.form.fields.csc_event_reg_type.description")
                                         .span(ColSpan.TWO_THIRD),
@@ -417,60 +394,7 @@ public class FOSAFormController extends FormController implements Initializable 
         tEvents.setUserData(form);
     }
 
-    private SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts,
-                                                               Function<String, Option> optionSource) {
-        return new SimpleComboBoxControl<>() {
-            @Override
-            public void initializeParts() {
-                super.initializeParts();
-                comboBox.setConverter(new OptionConverter(ts, optionSource));
-            }
-        };
-    }
 
-    private MultiComboBoxControl<Option> createMultiOptionCombobox(TranslationService ts,
-                                                                   Function<String, Option> optionSource) {
-        return new MultiComboBoxControl<>(new OptionConverter(ts, optionSource));
-    }
-
-    private <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {
-        return new SimpleTextControl() {
-            private final ObservableList<T> suggestions = FXCollections.observableArrayList();
-
-            @Override
-            public void initializeParts() {
-                super.initializeParts();
-                final var binding = TextFields.bindAutoCompletion(editableField, param -> suggestions);
-                binding.setDelay(500);
-            }
-
-            @Override
-            public void setupValueChangedListeners() {
-                super.setupValueChangedListeners();
-                editableField.textProperty().addListener((ob, ov, nv) -> {
-                    if (StringUtils.isBlank(nv)) {
-                        suggestions.clear();
-                        return;
-                    }
-                    populateAutoCompletionOptions(targetField, nv.trim(), deserializer,
-                            suggestions);
-                });
-            }
-        };
-    }
-
-    private <T> void populateAutoCompletionOptions(String field, String query, Function<String, T> deserializer,
-                                                   ObservableList<T> destination) {
-        executorService.submit(() -> {
-            try {
-                final var result = formService.findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
-                        deserializer);
-                Platform.runLater(() -> destination.setAll(result));
-            } catch (Throwable t) {
-                log.error("error while loading auto-completion options", t);
-            }
-        });
-    }
 
     private void setStructureIdContainer(TranslationService ts) {
         final var model = (FOSAFormDataManager) this.model;
@@ -480,18 +404,14 @@ public class FOSAFormController extends FormController implements Initializable 
                                                         model.divisionProperty())
                                                 .label("fosa.form.fields.department.title")
                                                 .tooltip("fosa.form.fields.department.description")
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .divisionsProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
+                                                .render(createOptionComboBox(ts, model
+                                                        .divisionsProperty()))
                                                 .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(model.municipalitiesProperty(),
                                                         model.municipalityProperty())
                                                 .label("fosa.form.fields.communes.title")
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .municipalitiesProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
+                                                .render(createOptionComboBox(ts, model
+                                                        .municipalitiesProperty()))
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.quarterProperty())
                                                 .label("fosa.form.fields.quarter.title")
@@ -514,40 +434,30 @@ public class FOSAFormController extends FormController implements Initializable 
                                                 .label("fosa.form.fields.district.title")
                                                 .tooltip("fosa.form.fields.district.description")
                                                 .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .districtsProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null))),
+                                                .render(createOptionComboBox(ts, model
+                                                        .districtsProperty())),
                                         Field.ofSingleSelectionType(model.healthAreasProperty(),
                                                         model.healthAreaProperty())
                                                 .label("fosa.form.fields.health_area.title")
                                                 .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .healthAreasProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null))),
+                                                .render(createOptionComboBox(ts, model
+                                                        .healthAreasProperty())),
                                         Field.ofSingleSelectionType(model.environmentTypesProperty(),
                                                         model.environmentTypeProperty())
                                                 .label("fosa.form.fields.environment.title")
                                                 .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .environmentTypesProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null))),
+                                                .render(createOptionComboBox(ts, model
+                                                        .environmentTypesProperty())),
                                         Field.ofSingleSelectionType(model.fosaTypesProperty(),
                                                         model.fosaTypeProperty())
                                                 .label("fosa.form.fields.fosa_type.title")
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .fosaTypesProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
+                                                .render(createOptionComboBox(ts, model
+                                                        .fosaTypesProperty()))
                                                 .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(model.fosaStatusTypesProperty(),
                                                         model.fosaStatusTypeProperty())
-                                                .render(createOptionComboBox(ts, v -> model
-                                                        .fosaStatusTypesProperty().stream()
-                                                        .filter(o -> o.value().equals(v))
-                                                        .findFirst().orElse(null)))
+                                                .render(createOptionComboBox(ts, model
+                                                        .fosaStatusTypesProperty()))
                                                 .label("fosa.form.fields.fosa_status.title")
                                                 .span(ColSpan.HALF),
                                         Field.ofBooleanType(model.maternityAvailableProperty())
@@ -588,10 +498,8 @@ public class FOSAFormController extends FormController implements Initializable 
                         Group.of(
                                 Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
                                         .label(FieldKeys.Fosa.RESPONDING_DEVICE)
-                                        .render(createOptionComboBox(ts, v -> model
-                                                .deviceOptionsProperty().stream()
-                                                .filter(o -> o.value().equals(v))
-                                                .findFirst().orElse(null)))
+                                        .render(createOptionComboBox(ts, model
+                                                .deviceOptionsProperty()))
                                         .required("settings.msg.value_required"),
                                 Field.ofStringType(model.respondentNamesProperty())
                                         .label(FieldKeys.Fosa.RESPONDENT_NAME)

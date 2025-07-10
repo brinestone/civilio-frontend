@@ -1,4 +1,4 @@
-package fr.civipol.civilio.form.control.fosa;
+package fr.civipol.civilio.form.control;
 
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleControl;

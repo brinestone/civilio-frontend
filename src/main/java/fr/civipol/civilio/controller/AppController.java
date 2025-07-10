@@ -1,20 +1,14 @@
 package fr.civipol.civilio.controller;
 
-import fr.civipol.civilio.event.EventBus;
-import fr.civipol.civilio.event.ToastEvent;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.controlsfx.control.NotificationPane;
-import org.controlsfx.control.action.Action;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.function.Supplier;
 
 /**
  * A marker interface which is to be used for all controllers, to aid

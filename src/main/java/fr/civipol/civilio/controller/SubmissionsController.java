@@ -124,10 +124,10 @@ public class SubmissionsController implements AppController, Initializable {
             if (StringUtils.isBlank(submissionId))
                 controller.updateFormValues();
             controller.setOnSubmit(__ -> {
-                dialog.close();
+//                dialog.close();
                 doLoadSubmissionData();
             });
-            controller.setOnDiscard(__ -> dialog.close());
+//            controller.setOnDiscard(__ -> dialog.close());
             controller.setSubmissionId(submissionId);
 
             dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));
@@ -283,6 +283,7 @@ public class SubmissionsController implements AppController, Initializable {
             final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
             stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0, false));
         });
+        cbFormType.valueProperty().addListener((ob, ov, nv) -> doLoadSubmissionData());
     }
 
     private void initLoadingSpinner() {
@@ -323,6 +324,7 @@ public class SubmissionsController implements AppController, Initializable {
 
     private void doLoadSubmissionData() {
         spTableContainer.getChildren().add(1, spLoadingSpinnerContainer);
+        tvSubmissions.getItems().clear();
         executorService.submit(() -> {
             try {
                 final var result = formService.findFormSubmissions(cbFormType.getValue(), pgPagination.getCurrentPageIndex(), PAGE_SIZE, filters.getFilterManager());

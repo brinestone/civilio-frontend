@@ -4,12 +4,13 @@ import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.form.control.fosa.PersonnelInfoControl;
+import fr.civipol.civilio.form.control.PersonnelInfoControl;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, L
     private static final String EDUCATION_LEVEL_COLUMN_LABEL = "data_personnel.columns.education_level.title";
     private static final String PC_KNOWLEDGE_COLUMN_LABEL = "data_personnel.columns.pc_knowledge.title";
     private final StringProperty emailColumnLabel, addRowLabel, removeSelectionLabel, nameColumnLabel, roleColumnLabel, genderColumnLabel, phoneColumnLabel, ageColumnLabel, hasCivilStatusTrainingColumnLabel, educationLevelColumnLabel, computerKnowledgeLevelColumnLabel;
-    private ListProperty<Option> genderOptions, educationLevelOptions, computerKnowledgeLevels;
+    private final ListProperty<Option> genderOptions, educationLevelOptions, computerKnowledgeLevels;
 
     protected PersonnelInfoField(ListProperty<PersonnelInfo> valueProperty, ListProperty<PersonnelInfo> persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
@@ -121,18 +122,19 @@ public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, L
         return genderOptions;
     }
 
-    public PersonnelInfoField genders(ListProperty<Option> genders) {
-        this.genderOptions = genders;
+    public PersonnelInfoField bindGenders(ListProperty<Option> genders) {
+        genders.addListener((ListChangeListener<Option>) c -> System.out.println(genders));
+        this.genderOptions.bindContent(genders);
         return this;
     }
 
-    public PersonnelInfoField computerKnowledgeLevels(ListProperty<Option> levels) {
-        this.computerKnowledgeLevels = levels;
+    public PersonnelInfoField bindKnowledgeLevels(ListProperty<Option> levels) {
+        this.computerKnowledgeLevels.bindContent(levels);
         return this;
     }
 
-    public PersonnelInfoField educationLevels(ListProperty<Option> levels) {
-        this.educationLevelOptions = levels;
+    public PersonnelInfoField bindEducationLevels(ListProperty<Option> levels) {
+        this.educationLevelOptions.bindContent(levels);
         return this;
     }
 

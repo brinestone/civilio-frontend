@@ -1,8 +1,14 @@
 package fr.civipol.civilio.controller;
 
+import com.dlsc.formsfx.model.util.TranslationService;
+import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
+import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
+import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.form.FormDataManager;
+import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
@@ -11,6 +17,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -18,12 +25,14 @@ import javafx.scene.control.ButtonType;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.textfield.TextFields;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -124,16 +133,9 @@ public abstract class FormController implements AppController {
                         .filter(StringUtils::isNotBlank)
                         .ifPresent(__ -> {
                             try {
-                                Optional.ofNullable(loadSubmissionData())
-                                        .ifPresent(data -> Platform.runLater(() -> {
-                                            submissionData.clear();
-                                            submissionData.putAll(data);
-                                        }));
-                                Platform.runLater(() -> {
-                                    getModel().loadValues();
-                                    getModel().markAsPristine();
-                                });
+                                doLoadSubmissionData();
                             } catch (Throwable e) {
+                                log.error("error while loading submission data", e);
                                 showErrorAlert(e.getLocalizedMessage());
                             }
                         });
@@ -169,7 +171,7 @@ public abstract class FormController implements AppController {
 
     protected abstract FormService getFormService();
 
-    protected void findOptionsFor(String form, String group, String parent, Consumer<Collection<Option>> callback) {
+    protected void findOptions(String form, String group, String parent, Consumer<Collection<Option>> callback) {
         getExecutorService().submit(() -> {
             try {
                 log.debug("loading options for group: " + group);
@@ -189,6 +191,7 @@ public abstract class FormController implements AppController {
                 doSubmit();
                 Platform.runLater(() -> Optional.ofNullable(onSubmit)
                         .ifPresent(c -> c.accept(submissionId.get())));
+                doLoadSubmissionData();
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
                 showErrorAlert(t.getLocalizedMessage());
@@ -208,10 +211,86 @@ public abstract class FormController implements AppController {
                 doDiscard();
                 Platform.runLater(() -> Optional.ofNullable(onDiscard)
                         .ifPresent(c -> c.accept(null)));
+                doLoadSubmissionData();
             } catch (Throwable t) {
                 log.error("error while discarding form", t);
                 showErrorAlert(t.getLocalizedMessage());
             }
         }));
+    }
+
+    protected SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts, ObservableList<Option> options) {
+        return new SimpleComboBoxControl<>() {
+            @Override
+            public void initializeParts() {
+                super.initializeParts();
+                comboBox.setConverter(new OptionConverter(ts, v -> Optional.ofNullable(options)
+                        .stream()
+                        .flatMap(Collection::stream)
+                        .filter(o -> o.value().equals(v))
+                        .findFirst()
+                        .orElse(null)));
+            }
+        };
+    }
+
+    protected MultiComboBoxControl<Option> createMultiOptionComboBox(TranslationService ts, ObservableList<Option> options) {
+        return new MultiComboBoxControl<>(new OptionConverter(ts, v -> Optional.ofNullable(options)
+                .stream()
+                .flatMap(Collection::stream)
+                .filter(o -> o.value().equals(v))
+                .findFirst()
+                .orElse(null)));
+    }
+
+    private void doLoadSubmissionData() throws Exception {
+        Optional.ofNullable(loadSubmissionData())
+                .ifPresent(data -> Platform.runLater(() -> {
+                    submissionData.clear();
+                    submissionData.putAll(data);
+                }));
+        Platform.runLater(() -> {
+            getModel().loadValues();
+            getModel().markAsPristine();
+        });
+    }
+
+    protected <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {
+        return new SimpleTextControl() {
+            private final ObservableList<T> suggestions = FXCollections.observableArrayList();
+
+            @Override
+            public void initializeParts() {
+                super.initializeParts();
+                final var binding = TextFields.bindAutoCompletion(editableField, param -> suggestions);
+                binding.setDelay(250);
+            }
+
+            @Override
+            public void setupValueChangedListeners() {
+                super.setupValueChangedListeners();
+                editableField.textProperty().addListener((ob, ov, nv) -> {
+                    if (StringUtils.isBlank(nv)) {
+                        suggestions.clear();
+                        return;
+                    }
+                    populateAutoCompletionOptions(targetField, nv.trim(), deserializer,
+                            suggestions);
+                });
+            }
+        };
+    }
+
+    private <T> void populateAutoCompletionOptions(String field, String query, Function<String, T> deserializer,
+                                                   ObservableList<T> destination) {
+        getExecutorService().submit(() -> {
+            try {
+                final var result = getFormService().findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
+                        deserializer);
+                Platform.runLater(() -> destination.setAll(result));
+            } catch (Throwable t) {
+                log.error("error while loading auto-completion options", t);
+            }
+        });
     }
 }

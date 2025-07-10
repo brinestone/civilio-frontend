@@ -33,10 +33,12 @@ import java.util.stream.Stream;
 
 @Slf4j
 public class FormService implements AppService {
+    private static final String CHEFFERIE_TABLE = "data_chefferie";
     private static final String PERSONNEL_INFO_TABLE = "data_personnel";
     private static final String FOSA_TABLE = "data_fosa";
     private static final String STATS_TABLE = "fosa_vital_stats";
-    private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE};
+    private static final String CHEFFERIE_PERSONNEL_TABLE = "data_chefferie_personnel";
+    private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE, CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
     private final Lazy<DataSource> dataSourceProvider;
 
     @Inject
@@ -61,6 +63,7 @@ public class FormService implements AppService {
 
     public void updateFieldMapping(FormType form, String field, String i18nKey, Object dbColumn) throws SQLException {
         final var ds = dataSourceProvider.get();
+        String tableName = form.getDbTable();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
             PreparedStatement st;
@@ -77,9 +80,10 @@ public class FormService implements AppService {
                             i18n_key = EXCLUDED.i18n_key,
                             db_column_type = EXCLUDED.db_column_type;
                         """;
-                String tableName = form.getDbTable();
                 if (form.equals(FormType.FOSA)) {
                     if (field.startsWith(PERSONNEL_INFO_TABLE)) tableName = PERSONNEL_INFO_TABLE;
+                } else if (form.equals(FormType.CHIEFDOM)) {
+                    if (field.startsWith(CHEFFERIE_PERSONNEL_TABLE)) tableName = CHEFFERIE_PERSONNEL_TABLE;
                 } else {
                     throw new IllegalArgumentException("Could not determine table for: " + field);
                 }
@@ -105,6 +109,8 @@ public class FormService implements AppService {
 
             try (st) {
                 st.executeUpdate();
+                if (dbColumn != null)
+                    log.debug("Updated mapping for field: {} -> table={}, column={}", field, tableName, dbColumn);
             } catch (SQLException ex) {
                 log.error("error while updating field mapping for form: {}, and field : {}", form, field, ex);
                 throw ex;
@@ -114,7 +120,7 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<String> getFormColumnNames() throws SQLException {
+    public Collection<String> getFormColumnNames(FormType form) throws SQLException {
         final var sql = """
                 SELECT DISTINCT
                     c.column_name
@@ -126,7 +132,10 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement(sql)) {
-                st.setArray(1, connection.createArrayOf("text", TABLES));
+                String[] tables = {};
+                if (form == FormType.FOSA) tables = new String[]{FOSA_TABLE, PERSONNEL_INFO_TABLE};
+                else if (form == FormType.CHIEFDOM) tables = new String[]{CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
+                st.setArray(1, connection.createArrayOf("text", tables));
                 try (final var rs = st.executeQuery()) {
                     final var list = new ArrayList<String>();
                     while (rs.next()) {
@@ -256,7 +265,7 @@ public class FormService implements AppService {
             for (final var mapping : formMappings) {
                 String sql;
                 PreparedStatement ps;
-                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE)) {
+                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE) || mapping.dbTable().equals(CHEFFERIE_PERSONNEL_TABLE)) {
                     sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
                 } else {
                     sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
@@ -277,15 +286,14 @@ public class FormService implements AppService {
         return result;
     }
 
-    @SuppressWarnings({"DuplicatedCode"})
-    public Collection<FieldChange> updateSubmission(
+    //    @SuppressWarnings({"DuplicatedCode"})
+    public void updateSubmission(
             String submissionId,
             FormType form,
             Function<String, String> fieldExtractor,
             FieldChange... changes) throws SQLException {
         if (changes.length == 0)
-            return Collections.emptyList();
-        final var droppedChanges = new ArrayList<FieldChange>();
+            return;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
@@ -319,7 +327,6 @@ public class FormService implements AppService {
                 }
             }
             connection.commit();
-            return droppedChanges;
         } catch (SQLException e) {
             log.error("Error updating submission {} for form {}", submissionId, form, e);
             throw e;
@@ -395,50 +402,48 @@ public class FormService implements AppService {
         final var resultBuilder = PageResult.<FormSubmission>builder();
         final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
-            String countSql, sql;
-            PreparedStatement ps, countPs;
-            switch (form) {
-//                case CHIEFDOM:
-//                case CEC:
-//                    break;
-                default -> {
-                    sql = """
-                            SELECT
-                                df._id,
-                                df._validation_status,
-                                df.q14_02_validation_code,
-                                df._submitted_by,
-                                df._index,
-                                df.q1_12_officename,
-                                df._submission_time::DATE
-                            FROM
-                                data_fosa df
-                            WHERE
-                                %s
-                            ORDER BY
-                                _submission_time::DATE DESC
-                            OFFSET ?
-                            LIMIT ?;
-                            """.formatted(filter.getWhereClause());
-                    countSql = """
-                            SELECT
-                                COUNT(*)
-                            FROM
-                                data_fosa
-                            WHERE
-                                %s;
-                            """.formatted(filter.getWhereClause());
-                    ps = connection.prepareStatement(sql);
-                    filter.applyToPreparedStatement(ps);
-                    var index = filter.getParameters().size();
-                    ps.setInt(++index, page * size);
-                    ps.setInt(++index, size);
-                    countPs = connection.prepareStatement(countSql);
-                    filter.applyToPreparedStatement(countPs);
-                }
-            }
+            String tableName = switch (form) {
+                default -> FOSA_TABLE;
+                case CHIEFDOM -> CHEFFERIE_TABLE;
+            };
 
-            try (ps; countPs) {
+            final var sql = """
+                    SELECT
+                        df._id,
+                        df._validation_status,
+                        df.q14_02_validation_code,
+                        df._submitted_by,
+                        df._index,
+                        df.q1_12_officename,
+                        df._submission_time::DATE
+                    FROM
+                        %s df
+                    WHERE
+                        %s
+                    ORDER BY
+                        _submission_time::DATE DESC
+                    OFFSET ?
+                    LIMIT ?;
+                    """.formatted(tableName, filter.getWhereClause());
+            final var countSql = """
+                    SELECT
+                        COUNT(distinct _index)
+                    FROM
+                        %s
+                    WHERE
+                        %s;
+                    """.formatted(tableName, filter.getWhereClause());
+
+            try (
+                    final var ps = connection.prepareStatement(sql);
+                    final var countPs = connection.prepareStatement(countSql)
+            ) {
+                filter.applyToPreparedStatement(ps);
+                var index = filter.getParameters().size();
+                ps.setInt(++index, page * size);
+                ps.setInt(++index, size);
+                filter.applyToPreparedStatement(countPs);
+
                 try (final var rs = ps.executeQuery()) {
                     final var streamBuilder = Stream.<FormSubmission>builder();
                     while (rs.next()) {
@@ -665,7 +670,11 @@ public class FormService implements AppService {
             final var prefix = "/migrations/";
             final var appliedMigrations = countAppliedMigrations(connection);
             final var migrations = getMigrationScripts().stream()
-                    .sorted()
+                    .sorted((o1, o2) -> {
+                        final var i = Integer.parseInt(o1.substring(0, o1.indexOf(".")));
+                        final var j = Integer.parseInt(o2.substring(0, o2.indexOf(".")));
+                        return Integer.compare(i, j);
+                    })
                     .skip(appliedMigrations)
                     .map(s -> prefix + s)
                     .toList();

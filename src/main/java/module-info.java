@@ -38,6 +38,7 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.domain.filter to javafx.fxml;
     opens fr.civipol.civilio.domain.converter to javafx.fxml;
     opens fr.civipol.civilio.form to javafx.fxml;
+    opens fr.civipol.civilio.controller.chefferie to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;

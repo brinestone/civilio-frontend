@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-
 <BorderPane fx:id="root" prefHeight="558.0" prefWidth="1002.0" stylesheets="@../styles/shell.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.ShellController">
     <left>
         <VBox alignment="CENTER" prefHeight="426.0" prefWidth="195.0" spacing="5.0" BorderPane.alignment="CENTER">
