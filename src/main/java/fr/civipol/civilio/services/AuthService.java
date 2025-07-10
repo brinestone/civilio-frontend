@@ -53,9 +53,4 @@ public class AuthService implements AppService {
                 .map(StringUtils::isNotBlank)
                 .orElse(true);
     }
-
-    @Override
-    public void initialize() {
-
-    }
 }

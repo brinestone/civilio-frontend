@@ -19,11 +19,18 @@ repositories {
 }
 
 val mainClassName = "fr.civipol.civilio.Bootstrapper"
+val restarterClassName = "fr.civipol.civilio.Restarter"
 val javaFxVersion = "17.0.6"
 
 application {
     mainModule.set(moduleName)
     mainClass.set(mainClassName)
+    // Add the --add-exports argument here
+    applicationDefaultJvmArgs = listOf(
+            "-Dprism.forceGPU=true",
+            "-Dprism.lcdtext=false",
+            "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
+    )
 }
 
 java {
@@ -38,19 +45,21 @@ javafx {
 
 val lombokVersion = "1.18.36"
 val daggerVersion = "2.56"
-val hibernateVersion = "6.6.12.Final"
 val geoToolsVersion = "28.1"
 
 dependencies {
+    // HikariCP
+    implementation("com.zaxxer:HikariCP:6.3.0")
+    runtimeOnly("org.postgresql:postgresql:42.7.5")
+
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 
     // MinIO Client
     implementation("io.minio:minio:8.5.7")
 
-//    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
-
-    implementation("org.kordamp.ikonli:ikonli-javafx:12.3.1")
+    implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
+    implementation("org.kordamp.ikonli:ikonli-feather-pack:12.4.0")
 
     implementation("com.dlsc.formsfx:formsfx-core:11.6.0")
 
@@ -75,7 +84,8 @@ dependencies {
 }
 
 jlink {
-    options = listOf(
+    // This is for jlink's internal module path, not for runtime of your application
+    addOptions(
             "--add-modules",
             "jakarta.cdi,jakarta.inject",
             "--strip-debug",
@@ -83,36 +93,45 @@ jlink {
             "--no-man-pages"
     )
     launcher {
+        val os = org.gradle.internal.os.OperatingSystem.current();
         name = rootProject.name
-        jvmArgs = listOf("-Djdk.gtk.version=2")
+        mainClass = mainClassName
+
+        var separator = "/"
+        var ext = ""
+        if (os.isWindows){
+            separator = "\\"
+            ext = ".exe"
+        }
+
+        jvmArgs = listOf("-Djpackage.app-path=$separator${listOf("\${APP_HOME}", "..", "CivilIO$ext").joinToString(separator)}")
     }
     jpackage {
-        if (System.getProperty("os.name").lowercase().contains("linux")) {
-            targetPlatformName = "linux"
-            installerType = "deb"
-        } else if (System.getProperty("os.name").lowercase().contains("windows")) {
-            targetPlatformName = "win"
-            installerType = "msi"
-            installerOptions.addAll(listOf(
-                    "--win-shortcut",
-                    "--win-menu"
-            ))
-        } else {
-            targetPlatformName = "darwin"
-            installerType = "pkg"
-        }
-        targetPlatform(targetPlatformName, System.getenv("JAVA_HOME"))
+        imageName = "CivilIO"
+        val os = org.gradle.internal.os.OperatingSystem.current()
         installerOptions.addAll(listOf(
-                "--description", project.description,
+                "--description", project.description.toString(),
                 "--vendor", "Civipol",
                 "--copyright", "Copyright 2025 Civipol",
-                "--resource-dir", "${layout.buildDirectory.get()}/resources/main"
+                "--name", "CivilIO"
         ))
-        imageOptions = listOf(
-                "--icon", "src/main/resources/img/Logo32x32.ico",
-                "--resource-dir", "src/main/resources"
-        )
+
+        when {
+            os.isWindows -> {
+                installerType = "msi"
+                installerOptions.addAll(listOf("--win-shortcut", "--win-menu"))
+            }
+
+            os.isLinux -> {
+                installerType = "deb"
+            }
+
+            os.isMacOsX -> {
+                installerType = "pkg"
+            }
+        }
     }
+
     addExtraDependencies("org.slf4j")
     addExtraDependencies("ch.qos.logback")
     addExtraDependencies("resources")
@@ -135,9 +154,10 @@ tasks.register("installerFileName") {
 
 tasks.register("installerFileContentType") {
     doLast {
+        val os = org.gradle.internal.os.OperatingSystem.current();
         val installerExt = when {
-            System.getProperty("os.name").contains("linux", ignoreCase = true) -> "deb"
-            System.getProperty("os.name").contains("windows", ignoreCase = true) -> "msi"
+            os.isLinux -> "deb"
+            os.isWindows -> "msi"
             else -> "pkg"
         }
 
@@ -168,9 +188,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
-val appName = System.getenv("APP_NAME") ?: name
+val appName = System.getenv("APP_NAME") ?: "CivilIO"
 val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
 val appId = "${group}-${rootProject.name}"
+val build = version;
 
 tasks.processResources {
     filesMatching("logback.xml") {
@@ -180,11 +201,15 @@ tasks.processResources {
         expand(
                 "appName" to appName,
                 "appId" to appId,
+                "build" to build,
+                "projectName" to rootProject.name
         )
     }
 }
 
 tasks.compileJava {
+    // This is for compilation, which is different from runtime.
+    // The previous error was a runtime error.
     options.compilerArgs.addAll(listOf(
             "--add-modules", "jakarta.inject,java.naming,java.desktop"
     ))
@@ -196,3 +221,7 @@ tasks.named<Jar>("jar") {
         into("resources")
     }
 }
+
+//tasks.withType<JavaExec> {
+//    jvmArgs = listOf("-Dprism.forceGPU=true", "-Dprism.lcdtext=false")
+//}
