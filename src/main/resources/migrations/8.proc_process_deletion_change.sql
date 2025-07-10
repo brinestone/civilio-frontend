@@ -1,4 +1,4 @@
-create or replace procedure proc_process_deletion_change(IN submission_id text, IN field_pattern text,
+create or replace procedure civilio.proc_process_deletion_change(IN submission_id text, IN field_pattern text,
                                                          IN ordinal integer, IN form_type civilio.form_types)
     language plpgsql
 as

@@ -1,5 +1,6 @@
 package fr.civipol.civilio.form;
 
+import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
@@ -42,7 +43,7 @@ public class ChefferieFormDataManager extends FormDataManager {
         loadValue(OTHER_CS_REG_LOCATION, "");
         loadValue(OTHER_WAITING_ROOM, "");
         loadValue(OTHER_INTERNET_TYPE, "");
-//        loadValue(OTHER_RECEPTION_AREA, "");
+        // loadValue(OTHER_RECEPTION_AREA, "");
 
         loadValue(HEALTH_CENTER_PROXIMITY, 0);
         loadValue(PC_COUNT, 0);
@@ -63,18 +64,15 @@ public class ChefferieFormDataManager extends FormDataManager {
         loadValue(CHIEF_OATH, false);
 
         loadValue(GPS_COORDS, GeoPoint.builder()
-                .latitude(3.8542679f)
-                .longitude(11.4661458f)
                 .build());
         loadValue(INTERNET_TYPE, FXCollections.observableArrayList());
         loadValue(WATER_SOURCES, FXCollections.observableArrayList());
-
 
         loadValue(CREATION_DATE, null);
 
         loadOptionValue(DIVISION);
         loadOptionValue(CS_REG_LOCATION);
-//        loadOptionValue(RECEPTION_AREA);
+        // loadOptionValue(RECEPTION_AREA);
         loadOptionValue(MUNICIPALITY);
         loadOptionValue(CLASSIFICATION);
         loadOptionValue(IS_CHIEF_CS_OFFICER);
@@ -95,8 +93,8 @@ public class ChefferieFormDataManager extends FormDataManager {
     private final Supplier<Collection<PersonnelInfo>> personnelInfoSupplier;
 
     public ChefferieFormDataManager(Function<String, ?> valueSource,
-                                    BiFunction<String, Integer, String> keyMaker,
-                                    Function<String, String> keyExtractor, Supplier<Collection<PersonnelInfo>> personnelInfoSupplier) {
+            BiFunction<String, Integer, String> keyMaker,
+            Function<String, String> keyExtractor, Supplier<Collection<PersonnelInfo>> personnelInfoSupplier) {
         super(valueSource, keyMaker, keyExtractor);
         this.personnelInfoSupplier = personnelInfoSupplier;
         valueProperties.put(RESPONDENT_NAME, new SimpleStringProperty());
@@ -105,7 +103,7 @@ public class ChefferieFormDataManager extends FormDataManager {
         valueProperties.put(EMAIL, new SimpleStringProperty());
         valueProperties.put(QUARTER, new SimpleStringProperty());
         valueProperties.put(EXTRA_INFO, new SimpleStringProperty());
-//        valueProperties.put(OTHER_RECEPTION_AREA, new SimpleStringProperty());
+        // valueProperties.put(OTHER_RECEPTION_AREA, new SimpleStringProperty());
         // valueProperties.put(FUNCTION, new
         // SimpleStringProperty());
         valueProperties.put(FACILITY_NAME, new SimpleStringProperty());
@@ -116,7 +114,7 @@ public class ChefferieFormDataManager extends FormDataManager {
         valueProperties.put(CREATION_DATE, new SimpleObjectProperty<LocalDate>());
         valueProperties.put(DIVISION, new SimpleObjectProperty<Option>());
         valueProperties.put(CS_REG_LOCATION, new SimpleObjectProperty<Option>());
-//        valueProperties.put(RECEPTION_AREA, new SimpleObjectProperty<Option>());
+        // valueProperties.put(RECEPTION_AREA, new SimpleObjectProperty<Option>());
         valueProperties.put(MUNICIPALITY, new SimpleObjectProperty<Option>());
         valueProperties.put(CLASSIFICATION, new SimpleObjectProperty<Option>());
         valueProperties.put(IS_CHIEF_CS_OFFICER, new SimpleObjectProperty<Option>());
@@ -140,7 +138,8 @@ public class ChefferieFormDataManager extends FormDataManager {
         valueProperties.put(INTERNET_TYPE, new SimpleListProperty<>(FXCollections.observableArrayList()));
         valueProperties.put(WATER_SOURCES, new SimpleListProperty<>(FXCollections.observableArrayList()));
 
-//        options.put(WAITING_ROOM, new SimpleListProperty<>(FXCollections.observableArrayList()));
+        // options.put(WAITING_ROOM, new
+        // SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(DIVISION, new SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(MUNICIPALITY, new SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(CLASSIFICATION, new SimpleListProperty<>(FXCollections.observableArrayList()));
@@ -148,8 +147,15 @@ public class ChefferieFormDataManager extends FormDataManager {
         options.put(IS_CHIEF_CS_OFFICER,
                 new SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(CS_REG_LOCATION, new SimpleListProperty<>(FXCollections.observableArrayList()));
-//        options.put(RECEPTION_AREA, new SimpleListProperty<>(FXCollections.observableArrayList()));
+        // options.put(RECEPTION_AREA, new
+        // SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(INTERNET_TYPE, new SimpleListProperty<>(FXCollections.observableArrayList()));
+        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL,
+                new SimpleListProperty<>(FXCollections.observableArrayList()));
+        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL,
+                new SimpleListProperty<>(FXCollections.observableArrayList()));
+        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER,
+                new SimpleListProperty<>(FXCollections.observableArrayList()));
     }
 
     @Override
@@ -167,8 +173,8 @@ public class ChefferieFormDataManager extends FormDataManager {
         trackUpdatesForField(CLASSIFICATION);
         trackUpdatesForField(HEALTH_CENTER_PROXIMITY);
         trackUpdatesForField(GPS_COORDS);
-//        trackUpdatesForField(RECEPTION_AREA);
-//        trackUpdatesForField(OTHER_RECEPTION_AREA);
+        // trackUpdatesForField(RECEPTION_AREA);
+        // trackUpdatesForField(OTHER_RECEPTION_AREA);
         trackUpdatesForField(CS_OFFICER_TRAINED);
         trackUpdatesForField(WAITING_ROOM);
         trackUpdatesForField(OTHER_WAITING_ROOM);
@@ -213,8 +219,9 @@ public class ChefferieFormDataManager extends FormDataManager {
 
     @Override
     public void loadOptions(OptionSource optionSource, Runnable callback) {
-        if (optionsLoaded && callback != null) {
-            callback.run();
+        if (optionsLoaded) {
+            if (callback != null)
+                callback.run();
             return;
         }
 
@@ -236,10 +243,16 @@ public class ChefferieFormDataManager extends FormDataManager {
                 consumerFactory.apply(options.get(IS_CHIEF_CS_OFFICER)));
         optionSource.get(FORM_ID, "vo6qc48", null,
                 consumerFactory.apply(options.get(CS_REG_LOCATION)));
-//        optionSource.get(FORM_ID, "vo6qc48", null,
-//                consumerFactory.apply(options.get(WAITING_ROOM)));
+        // optionSource.get(FORM_ID, "vo6qc48", null,
+        // consumerFactory.apply(options.get(WAITING_ROOM)));
         optionSource.get(FORM_ID, "internet_types", null,
                 consumerFactory.apply(options.get(INTERNET_TYPE)));
+        optionSource.get(FORM_ID, "xw39g10", null,
+                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER)));
+        optionSource.get(FORM_ID, "nz2pr56", null,
+                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL)));
+        optionSource.get(FORM_ID, "ta2og93", null,
+                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL)));
 
         optionsLoaded = true;
         if (callback != null)
@@ -252,26 +265,30 @@ public class ChefferieFormDataManager extends FormDataManager {
             case RESPONDENT_NAME, POSITION,
                     PHONE, EMAIL, FACILITY_NAME,
                     QUARTER, OTHER_CS_REG_LOCATION,
-                    OTHER_INTERNET_TYPE, OTHER_WATER_SOURCE -> String.class;
+                    OTHER_INTERNET_TYPE, OTHER_WATER_SOURCE ->
+                String.class;
             case DIVISION, MUNICIPALITY, CLASSIFICATION,
-                    IS_CHIEF_CS_OFFICER, CS_REG_LOCATION -> Option.class;
+                    IS_CHIEF_CS_OFFICER, CS_REG_LOCATION ->
+                Option.class;
             case WATER_SOURCES, INTERNET_TYPE -> List.class;
             case CREATION_DATE -> LocalDate.class;
             case HEALTH_CENTER_PROXIMITY, PC_COUNT,
                     PRINTER_COUNT, TABLET_COUNT, BIKE_COUNT,
-                    EMPLOYEE_COUNT, CAR_COUNT -> Integer.class;
+                    EMPLOYEE_COUNT, CAR_COUNT ->
+                Integer.class;
             case CHIEF_OATH, HAS_ENEO_CONNECTION,
                     TOILETS_ACCESSIBLE, HAS_EXTINGUISHER,
                     WATER_ACCESS, CS_OFFICER_TRAINED,
                     WAITING_ROOM, HAS_INTERNET,
-                    IS_CHIEFDOM_CHIEF_RESIDENCE -> Boolean.class;
+                    IS_CHIEFDOM_CHIEF_RESIDENCE ->
+                Boolean.class;
             case GPS_COORDS -> GeoPoint.class;
             default -> super.getPropertyTypeFor(id);
         };
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Property getPropertyFor(String id) {
         return Optional.of(id)
                 .filter(StringUtils::isNotBlank)
@@ -285,7 +302,8 @@ public class ChefferieFormDataManager extends FormDataManager {
                 IS_CHIEF_CS_OFFICER);
         final var oathProperty = (BooleanProperty) getPropertyFor(CHIEF_OATH);
         final var csOfficerTrainedProperty = (BooleanProperty) getPropertyFor(CS_OFFICER_TRAINED);
-        final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(chiefIsCsRegProperty.getValue()).map(Option::value).filter(v -> "1".equals(v) || "2".equals(v)).isPresent(), chiefIsCsRegProperty);
+        final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(chiefIsCsRegProperty.getValue())
+                .map(Option::value).filter(v -> "1".equals(v) || "2".equals(v)).isPresent(), chiefIsCsRegProperty);
         binding.addListener((ob, ov, nv) -> {
             if (nv == null || !nv) {
                 oathProperty.setValue(null);
@@ -300,7 +318,8 @@ public class ChefferieFormDataManager extends FormDataManager {
         final var csRegLocationProperty = (ObjectProperty<Option>) getPropertyFor(CS_REG_LOCATION);
         final var otherCsRegLocationProperty = (StringProperty) getPropertyFor(
                 OTHER_CS_REG_LOCATION);
-        final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(csRegLocationProperty.getValue()).map(Option::value).filter("3"::equals).isPresent(), csRegLocationProperty);
+        final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(csRegLocationProperty.getValue())
+                .map(Option::value).filter("3"::equals).isPresent(), csRegLocationProperty);
         binding.addListener((ob, ov, nv) -> {
             if (!nv)
                 otherCsRegLocationProperty.setValue(null);
@@ -308,17 +327,19 @@ public class ChefferieFormDataManager extends FormDataManager {
         return binding;
     }
 
-    @SuppressWarnings("unchecked")
-    public ObservableBooleanValue otherWaitingRoomAvailableProperty() {
-        final var waitingRoomProperty = (ObjectProperty<Option>) getPropertyFor(WAITING_ROOM);
-        final var otherReceptionAreaProperty = (StringProperty) getPropertyFor(OTHER_WAITING_ROOM);
-        final var binding = waitingRoomProperty.isEqualTo("3");
-        binding.addListener((ob, ov, nv) -> {
-            if (!nv)
-                otherReceptionAreaProperty.setValue(null);
-        });
-        return binding;
-    }
+    // @SuppressWarnings("unchecked")
+    // public ObservableBooleanValue otherWaitingRoomAvailableProperty() {
+    // final var waitingRoomProperty = (ObjectProperty<Option>)
+    // getPropertyFor(WAITING_ROOM);
+    // final var otherReceptionAreaProperty = (StringProperty)
+    // getPropertyFor(OTHER_WAITING_ROOM);
+    // final var binding = waitingRoomProperty.isEqualTo("3");
+    // binding.addListener((ob, ov, nv) -> {
+    // if (!nv)
+    // otherReceptionAreaProperty.setValue(null);
+    // });
+    // return binding;
+    // }
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue internetTypeAvailable() {
@@ -349,8 +370,7 @@ public class ChefferieFormDataManager extends FormDataManager {
         final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(waterSourcesProperty.getValue())
                 .filter(l -> l.stream().anyMatch(o -> "5".equals(o.value())))
                 .isPresent(),
-                waterSourcesProperty
-        );
+                waterSourcesProperty);
         binding.addListener((ob, ov, nv) -> {
             if (!nv) {
                 otherWaterSourceProperty.setValue(null);
@@ -359,8 +379,12 @@ public class ChefferieFormDataManager extends FormDataManager {
         return binding;
     }
 
+    @SuppressWarnings("unchecked")
     public void updateGeoPointUpdates() {
-
+        final var geoPointProperty = (ObjectProperty<GeoPoint>) getPropertyFor(GPS_COORDS);
+        final var entry = changes.computeIfAbsent(FieldKeys.Fosa.GEO_POINT,
+                k -> new FieldChange(k, null, geoPointProperty.getValue(), 0, false));
+        entry.setNewValue(geoPointProperty.getValue());
     }
 
     private void loadPersonnelInfo() {
@@ -372,4 +396,5 @@ public class ChefferieFormDataManager extends FormDataManager {
     public ListProperty<PersonnelInfo> personnelInfoProperty() {
         return personnelInfo;
     }
+
 }

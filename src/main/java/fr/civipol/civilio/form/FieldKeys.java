@@ -95,15 +95,15 @@ public class FieldKeys {
                 PERSONNEL_POSITION};
 
         public static class Chefferie {
-            public static final String PERSONNEL_NAME = "data_personnel_chefferie.columns.name.title";
-            public static final String PERSONNEL_POSITION = "data_personnel_chefferie.columns.role.title";
-            public static final String PERSONNEL_GENDER = "data_personnel_chefferie.columns.gender.title";
-            public static final String PERSONNEL_PHONE = "data_personnel_chefferie.columns.phone.title";
-            public static final String PERSONNEL_EMAIL = "data_personnel_chefferie.columns.email.title";
-            public static final String PERSONNEL_AGE = "data_personnel_chefferie.columns.age.title";
-            public static final String PERSONNEL_CS_TRAINING = "data_personnel_chefferie.columns.has_cs_training.title";
-            public static final String PERSONNEL_ED_LEVEL = "data_personnel_chefferie.columns.education_level.title";
-            public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel_chefferie.columns.pc_knowledge.title";
+            public static final String PERSONNEL_NAME = "data_chefferie_personnel.columns.name.title";
+            public static final String PERSONNEL_POSITION = "data_chefferie_personnel.columns.role.title";
+            public static final String PERSONNEL_GENDER = "data_chefferie_personnel.columns.gender.title";
+            public static final String PERSONNEL_PHONE = "data_chefferie_personnel.columns.phone.title";
+            public static final String PERSONNEL_EMAIL = "data_chefferie_personnel.columns.email.title";
+            public static final String PERSONNEL_AGE = "data_chefferie_personnel.columns.age.title";
+            public static final String PERSONNEL_CS_TRAINING = "data_chefferie_personnel.columns.has_cs_training.title";
+            public static final String PERSONNEL_ED_LEVEL = "data_chefferie_personnel.columns.education_level.title";
+            public static final String PERSONNEL_COMPUTER_LEVEL = "data_chefferie_personnel.columns.pc_knowledge.title";
             public static final String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE,
                     PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL,
                     PERSONNEL_POSITION};

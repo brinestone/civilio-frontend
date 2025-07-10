@@ -37,6 +37,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
@@ -118,6 +119,7 @@ public class ChefferieFormController extends FormController implements AppContro
             final var isEmailField = id.equals(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
+            if (StringUtils.isBlank(stringValue)) return Collections.emptyList();
 
             if (stringValue.matches("^\\d+$") && isAgeField) {
                 entry.setAge(Integer.parseInt(stringValue));
@@ -334,14 +336,12 @@ public class ChefferieFormController extends FormController implements AppContro
 
         BooleanField oathControl = Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.CHIEF_OATH))
                 .label(FieldKeys.Chefferie.CHIEF_OATH)
-                .tooltip("chefferie.form.fields.benefit.description")
-                .span(ColSpan.HALF);
+                .tooltip("chefferie.form.fields.benefit.description");
         oathControl.editableProperty().bind(oathAvailable);
         oathAvailable.addListener((ob, ov, nv) -> oathControl.required(nv ? "forms.validation.msg.field_required" : null));
 
         StringField otherCsRegLocationControl = Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.Chefferie.OTHER_CS_REG_LOCATION))
-                .label(FieldKeys.Chefferie.OTHER_CS_REG_LOCATION)
-                .span(ColSpan.HALF);
+                .label(FieldKeys.Chefferie.OTHER_CS_REG_LOCATION);
 
         otherCsRegLocationAvailable.addListener((ob, ov, nv) -> otherCsRegLocationControl.required(nv ? "forms.validation.msg.field_required" : null));
         otherCsRegLocationControl.editableProperty().bind(otherCsRegLocationAvailable);
@@ -360,8 +360,7 @@ public class ChefferieFormController extends FormController implements AppContro
                                 .label(FieldKeys.Chefferie.IS_CHIEF_CS_OFFICER)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(IS_CHIEF_CS_OFFICER)))
                                 .required("forms.validation.msg.field_required")
-                                .tooltip("chefferie.form.fields.fonction.description")
-                                .span(ColSpan.HALF),
+                                .tooltip("chefferie.form.fields.fonction.description"),
                         oathControl,
                         Field.ofSingleSelectionType(
                                         model.getOptionsFor(FieldKeys.Chefferie.CS_REG_LOCATION),
@@ -369,17 +368,14 @@ public class ChefferieFormController extends FormController implements AppContro
                                 ).required("forms.validation.msg.field_required")
                                 .label(FieldKeys.Chefferie.CS_REG_LOCATION)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(CS_REG_LOCATION)))
-                                .tooltip("chefferie.form.fields.conservation_place.description")
-                                .span(ColSpan.HALF),
+                                .tooltip("chefferie.form.fields.conservation_place.description"),
                         otherCsRegLocationControl,
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.CS_OFFICER_TRAINED))
                                 .label(FieldKeys.Chefferie.CS_OFFICER_TRAINED)
-                                .tooltip("chefferie.form.fields.training.description")
-                                .span(ColSpan.HALF),
+                                .tooltip("chefferie.form.fields.training.description"),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chefferie.WAITING_ROOM))
                                 .label(FieldKeys.Chefferie.WAITING_ROOM)
-                                .tooltip("chefferie.form.fields.waiting_room.description")
-                                .span(ColSpan.HALF),
+                                .tooltip("chefferie.form.fields.waiting_room.description"),
 //                        Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA), (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
 //                                .label(RECEPTION_AREA)
 //                                .render(createOptionComboBox(ts, model.getOptionsFor(RECEPTION_AREA)))
@@ -391,7 +387,6 @@ public class ChefferieFormController extends FormController implements AppContro
                                 .label(FieldKeys.Chefferie.TOILETS_ACCESSIBLE)
 //                                .required("forms.validation.msg.field_required")
                                 .tooltip("chefferie.form.fields.toilets_accessible.description")
-                                .span(ColSpan.HALF)
                 )
         ).i18n(ts);
         spServiceContainer.setContent(new FormRenderer(form));
@@ -500,6 +495,9 @@ public class ChefferieFormController extends FormController implements AppContro
                                 .tooltip("chefferie.form.fields.employer.description")
                                 .span(ColSpan.HALF),
                         PersonnelInfoField.personnelInfoField(model.personnelInfoProperty(), ts, model::updateTrackedPersonnelFields)
+                                .bindEducationLevels(model.getOptionsFor(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL))
+                                .bindGenders(model.getOptionsFor(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER))
+                                .bindKnowledgeLevels(model.getOptionsFor(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL))
                                 .label("fosa.form.fields.personnel_status.title")
 
                 )

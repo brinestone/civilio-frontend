@@ -13,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -312,9 +315,11 @@ public class FOSAFormDataManager extends FormDataManager {
                 .ifPresent(v -> this.getPropertyFor(field).setValue(v));
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public void loadOptions(OptionSource optionSource, Runnable callback) {
         if (optionsLoaded) {
-            Optional.ofNullable(callback).ifPresent(Runnable::run);
+            if (callback != null)
+                callback.run();
             return;
         }
         Function<ObservableList<Option>, Consumer<Collection<Option>>> consumerFactory = list -> v -> {

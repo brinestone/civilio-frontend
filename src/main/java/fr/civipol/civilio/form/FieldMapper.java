@@ -117,7 +117,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     private FormType extractForm(String breadcrumb) {
         String prefix = breadcrumb.substring(0, breadcrumb.indexOf("."));
         if (prefix.equals("data_personnel")) return FormType.FOSA;
-        else if (prefix.equals("data_personnel_chefferie")) return FormType.CHIEFDOM;
+        else if (prefix.equals("data_chefferie_personnel")) return FormType.CHIEFDOM;
         return FormType.fromString(prefix);
     }
 

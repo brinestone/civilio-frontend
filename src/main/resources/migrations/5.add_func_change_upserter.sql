@@ -1,5 +1,7 @@
-create function func_upsert_field_change(submission_id text, form_type civilio.form_types, ordinal integer,
-                                         field_id text, _value text) returns integer
+drop function if exists civilio.func_upsert_field_change(text, civilio.form_types, integer, text, text);
+
+create function civilio.func_upsert_field_change(submission_id text, form_type civilio.form_types, ordinal integer,
+                                                 field_id text, _value text) returns integer
     language plpgsql
 as
 $$
@@ -23,14 +25,15 @@ BEGIN
         RAISE EXCEPTION 'Field is not mapped: % for form type %', field_id, form_type;
     END IF;
 
-    -- Handle FOSA record creation if needed
-    IF table_name = 'data_fosa' AND (submission_id IS NULL OR submission_id = '') THEN
-        SELECT civilio.create_fosa_record()::TEXT INTO submission_id;
-    END IF;
+    IF submission_id IS NULL OR submission_id = '' THEN
+        IF table_name = 'data_fosa' THEN
+            SELECT civilio.create_fosa_record()::TEXT INTO submission_id;
+        ELSIF table_name = 'data_chefferie' THEN
+            SELECT civilio.create_chefferie_record()::TEXT INTO submission_id;
+        end if;
+    end if;
 
-    -- Handle personnel record
     IF table_name = 'data_personnel' THEN
-        -- Try to find existing personnel record
         SELECT _index
         FROM data_personnel dp
         WHERE dp._submission_id = submission_id::INTEGER
@@ -42,10 +45,22 @@ BEGIN
         IF personnel_index IS NULL THEN
             SELECT civilio.func_create_personnel_record(
                            submission_id::INTEGER,
-                           CASE WHEN form_type = 'fosa' THEN 'FOSA OUEST' ELSE NULL END
+                           'FOSA OUEST'
                        )
             INTO personnel_index;
         END IF;
+    ELSIF table_name = 'data_chefferie_personnel' THEN
+        SELECT _index
+        FROM data_chefferie_personnel dcp
+        WHERE dcp._submission_id = submission_id::INTEGER
+        ORDER BY _index
+        OFFSET ordinal LIMIT 1
+        INTO personnel_index;
+
+        IF personnel_index IS NULL THEN
+            SELECT civilio.func_create_chefferie_personnel_record(submission_id::INTEGER, 'CHEFFERIE TRADITIONNELLE')
+            INTO personnel_index;
+        end if;
     END IF;
 
     -- Build and execute the appropriate update query
@@ -57,9 +72,10 @@ BEGIN
                 field_type,
                 submission_id
             );
-    ELSIF table_name = 'data_personnel' THEN
+    ELSIF table_name = 'data_personnel' OR table_name = 'data_chefferie_personnel' THEN
         update_query := format(
-                'UPDATE data_personnel SET %I = %L::%s WHERE _index = %s AND _submission_id = %L',
+                'UPDATE public.%I SET %I = %L::%s WHERE _index = %s AND _submission_id = %L',
+                table_name,
                 column_name,
                 _value,
                 field_type,

@@ -2,9 +2,11 @@ package fr.civipol.civilio.controller;
 
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
+import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
+import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.Option;
@@ -23,12 +25,14 @@ import javafx.scene.control.ButtonType;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.textfield.TextFields;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -130,7 +134,8 @@ public abstract class FormController implements AppController {
                         .ifPresent(__ -> {
                             try {
                                 doLoadSubmissionData();
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
+                                log.error("error while loading submission data", e);
                                 showErrorAlert(e.getLocalizedMessage());
                             }
                         });
@@ -247,6 +252,45 @@ public abstract class FormController implements AppController {
         Platform.runLater(() -> {
             getModel().loadValues();
             getModel().markAsPristine();
+        });
+    }
+
+    protected <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {
+        return new SimpleTextControl() {
+            private final ObservableList<T> suggestions = FXCollections.observableArrayList();
+
+            @Override
+            public void initializeParts() {
+                super.initializeParts();
+                final var binding = TextFields.bindAutoCompletion(editableField, param -> suggestions);
+                binding.setDelay(250);
+            }
+
+            @Override
+            public void setupValueChangedListeners() {
+                super.setupValueChangedListeners();
+                editableField.textProperty().addListener((ob, ov, nv) -> {
+                    if (StringUtils.isBlank(nv)) {
+                        suggestions.clear();
+                        return;
+                    }
+                    populateAutoCompletionOptions(targetField, nv.trim(), deserializer,
+                            suggestions);
+                });
+            }
+        };
+    }
+
+    private <T> void populateAutoCompletionOptions(String field, String query, Function<String, T> deserializer,
+                                                   ObservableList<T> destination) {
+        getExecutorService().submit(() -> {
+            try {
+                final var result = getFormService().findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
+                        deserializer);
+                Platform.runLater(() -> destination.setAll(result));
+            } catch (Throwable t) {
+                log.error("error while loading auto-completion options", t);
+            }
         });
     }
 }

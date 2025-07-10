@@ -63,6 +63,7 @@ public class FormService implements AppService {
 
     public void updateFieldMapping(FormType form, String field, String i18nKey, Object dbColumn) throws SQLException {
         final var ds = dataSourceProvider.get();
+        String tableName = form.getDbTable();
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
             PreparedStatement st;
@@ -79,7 +80,6 @@ public class FormService implements AppService {
                             i18n_key = EXCLUDED.i18n_key,
                             db_column_type = EXCLUDED.db_column_type;
                         """;
-                String tableName = form.getDbTable();
                 if (form.equals(FormType.FOSA)) {
                     if (field.startsWith(PERSONNEL_INFO_TABLE)) tableName = PERSONNEL_INFO_TABLE;
                 } else if (form.equals(FormType.CHIEFDOM)) {
@@ -109,6 +109,8 @@ public class FormService implements AppService {
 
             try (st) {
                 st.executeUpdate();
+                if (dbColumn != null)
+                    log.debug("Updated mapping for field: {} -> table={}, column={}", field, tableName, dbColumn);
             } catch (SQLException ex) {
                 log.error("error while updating field mapping for form: {}, and field : {}", form, field, ex);
                 throw ex;
@@ -263,7 +265,7 @@ public class FormService implements AppService {
             for (final var mapping : formMappings) {
                 String sql;
                 PreparedStatement ps;
-                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE)) {
+                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE) || mapping.dbTable().equals(CHEFFERIE_PERSONNEL_TABLE)) {
                     sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
                 } else {
                     sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
@@ -668,7 +670,11 @@ public class FormService implements AppService {
             final var prefix = "/migrations/";
             final var appliedMigrations = countAppliedMigrations(connection);
             final var migrations = getMigrationScripts().stream()
-                    .sorted()
+                    .sorted((o1, o2) -> {
+                        final var i = Integer.parseInt(o1.substring(0, o1.indexOf(".")));
+                        final var j = Integer.parseInt(o2.substring(0, o2.indexOf(".")));
+                        return Integer.compare(i, j);
+                    })
                     .skip(appliedMigrations)
                     .map(s -> prefix + s)
                     .toList();

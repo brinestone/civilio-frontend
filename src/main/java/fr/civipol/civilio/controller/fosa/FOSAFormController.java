@@ -11,7 +11,6 @@ import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
 import com.dlsc.formsfx.model.validators.RegexValidator;
 import com.dlsc.formsfx.view.controls.SimpleDateControl;
-import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.formsfx.view.renderer.FormRenderer;
 import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.FormController;
@@ -27,11 +26,8 @@ import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
@@ -43,7 +39,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.textfield.TextFields;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
@@ -52,7 +47,6 @@ import java.time.LocalDate;
 import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -239,9 +233,9 @@ public class FOSAFormController extends FormController implements Initializable 
                         PersonnelInfoField
                                 .personnelInfoField(model.personnelInfoProperty(), ts,
                                         model::updateTrackedPersonnelFields)
-                                .computerKnowledgeLevels(model.computerKnowledgeLevelsProperty())
-                                .educationLevels(model.educationLevelsProperty())
-                                .genders(model.gendersProperty())
+                                .bindKnowledgeLevels(model.computerKnowledgeLevelsProperty())
+                                .bindEducationLevels(model.educationLevelsProperty())
+                                .bindGenders(model.gendersProperty())
                                 .label("fosa.form.fields.personnel_status.title")))
                 .i18n(ts);
         spPersonalStatusContainer.setContent(new FormRenderer(form));
@@ -400,44 +394,7 @@ public class FOSAFormController extends FormController implements Initializable 
         tEvents.setUserData(form);
     }
 
-    private <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {
-        return new SimpleTextControl() {
-            private final ObservableList<T> suggestions = FXCollections.observableArrayList();
 
-            @Override
-            public void initializeParts() {
-                super.initializeParts();
-                final var binding = TextFields.bindAutoCompletion(editableField, param -> suggestions);
-                binding.setDelay(500);
-            }
-
-            @Override
-            public void setupValueChangedListeners() {
-                super.setupValueChangedListeners();
-                editableField.textProperty().addListener((ob, ov, nv) -> {
-                    if (StringUtils.isBlank(nv)) {
-                        suggestions.clear();
-                        return;
-                    }
-                    populateAutoCompletionOptions(targetField, nv.trim(), deserializer,
-                            suggestions);
-                });
-            }
-        };
-    }
-
-    private <T> void populateAutoCompletionOptions(String field, String query, Function<String, T> deserializer,
-                                                   ObservableList<T> destination) {
-        executorService.submit(() -> {
-            try {
-                final var result = formService.findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
-                        deserializer);
-                Platform.runLater(() -> destination.setAll(result));
-            } catch (Throwable t) {
-                log.error("error while loading auto-completion options", t);
-            }
-        });
-    }
 
     private void setStructureIdContainer(TranslationService ts) {
         final var model = (FOSAFormDataManager) this.model;
