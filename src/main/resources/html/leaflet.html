@@ -46,7 +46,10 @@
     function moveMarker(lat, lon, change = false) {
         try {
             inboundChange = change;
-            marker.setLatLng(L.latLng([lat, lon]));
+            const coords = L.latLng([lat, lon]);
+            marker.setLatLng(coords);
+            if (inboundChange) map.setView(coords);
+            inboundChange = false;
         } catch (e) {
             window.agent?.log(e.message, e.stack);
         }
@@ -62,18 +65,12 @@
 
     function initMarker() {
         try {
-            const pageUrl = new URL(location.href);
-            const [lat, lon, alt] = (pageUrl.searchParams.get('at') ?? '5.4811225,10.4087592').split(',');
-            const coords = [Number(lat), Number(lon)];
-            if (alt) {
-                coords.push(Number(alt));
-            }
+            const coords = [3.8542679, 11.4661458];
+
             const latLng = L.latLng(coords);
             marker = L.marker(latLng);
-            setTimeout(() => {
-                map.flyTo(latLng);
-            }, 3800);
             marker.addTo(map);
+            map.setView(latLng);
 
             // marker.on('move', onMarkerMoved);
         } catch (e) {
@@ -84,7 +81,6 @@
     function initTileLayer() {
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            minZoom: 5,
         }).addTo(map);
 
         const leafletAnchor = document.querySelector('a[href="https://leafletjs.com"]');
@@ -103,7 +99,7 @@
     }
 
     let marker, scale, currentLat, currentLon, currentPrecision, inboundChange = false;
-    const map = L.map('map').setView([51.505, -0.09], 13);
+    const map = L.map('map').setView([3.8542679, 11.4661458], 13);
     map.on('click', x => onMapClicked(x));
 </script>
 </body>
