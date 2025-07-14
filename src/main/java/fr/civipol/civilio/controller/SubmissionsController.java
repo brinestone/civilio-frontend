@@ -37,6 +37,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -48,23 +49,12 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class SubmissionsController implements AppController, Initializable {
     private static final int PAGE_SIZE = 100;
     private final ViewLoader vl;
     private final FormService formService;
     private final ExecutorService executorService;
-
-    @Inject
-    @SuppressWarnings("CdiInjectionPointsInspection")
-    public SubmissionsController(
-            ViewLoader vl,
-            FormService formService,
-            ExecutorService executorService
-    ) {
-        this.vl = vl;
-        this.formService = formService;
-        this.executorService = executorService;
-    }
 
     @FXML
     private BorderPane bpRoot;
@@ -158,9 +148,12 @@ public class SubmissionsController implements AppController, Initializable {
         tvSubmissions.setRowFactory(tv -> {
             final var row = new TableRow<FormSubmissionViewModel>();
             final var contextMenu = new ContextMenu();
-            contextMenu.getItems().setAll(new MenuItem(resourceRef.getString("fosa.submissions.context_menu.actions.edit")));
+            contextMenu.getItems().setAll(
+                    new MenuItem(resourceRef.getString("fosa.submissions.context_menu.actions.edit")),
+                    new MenuItem(resourceRef.getString("submissions.context_menu.actions.delete"))
+            );
             contextMenu.setOnAction(ignored -> {
-                final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
+                final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getIndex();
                 showFormDialog(row.getScene().getWindow(), submissionId);
             });
 
@@ -176,7 +169,7 @@ public class SubmissionsController implements AppController, Initializable {
                     }
 
                     if (!clickedOnCheckBox) { // Only proceed if the double click wasn't on the checkbox
-                        final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getId();
+                        final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getIndex();
                         System.out.println("Double-clicked on row (not checkbox): " + submissionId); // Debugging
                         showFormDialog(row.getScene().getWindow(), submissionId);
                         event.consume(); // Consume the double click event to prevent further propagation
@@ -230,7 +223,7 @@ public class SubmissionsController implements AppController, Initializable {
             try {
                 final var ids = selectedItems.stream()
                         .map(FormSubmissionViewModel::getSubmission)
-                        .map(FormSubmission::getId)
+                        .map(FormSubmission::getIndex)
                         .toArray(String[]::new);
                 formService.deleteSubmissions(cbFormType.getValue(), ids);
                 Platform.runLater(() -> {
@@ -263,7 +256,7 @@ public class SubmissionsController implements AppController, Initializable {
         showFormDialog(((Node) event.getSource()).getScene().getWindow(), selectedItems.stream()
                 .findFirst()
                 .map(FormSubmissionViewModel::getSubmission)
-                .map(FormSubmission::getId)
+                .map(FormSubmission::getIndex)
                 .orElse(null)
         );
     }
@@ -274,14 +267,14 @@ public class SubmissionsController implements AppController, Initializable {
         tcValidationCode.setOnEditCommit(e -> {
             e.getRowValue().setValidationCode(e.getNewValue());
             hasPendingUpdates.set(true);
-            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0, false));
+            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getIndex(), ignored -> new Stack<>());
+            stack.push(new FieldChange(e.getRowValue().getSubmission().getIndex(), e.getNewValue(), e.getOldValue(), 0, false));
         });
         tcRecordedBy.setOnEditCommit(e -> {
             e.getRowValue().setSubmittedBy(e.getNewValue());
             hasPendingUpdates.set(true);
-            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getId(), ignored -> new Stack<>());
-            stack.push(new FieldChange(e.getRowValue().getSubmission().getId(), e.getNewValue(), e.getOldValue(), 0, false));
+            final var stack = pendingUpdates.computeIfAbsent(e.getRowValue().getSubmission().getIndex(), ignored -> new Stack<>());
+            stack.push(new FieldChange(e.getRowValue().getSubmission().getIndex(), e.getNewValue(), e.getOldValue(), 0, false));
         });
         cbFormType.valueProperty().addListener((ob, ov, nv) -> doLoadSubmissionData());
     }

@@ -409,25 +409,44 @@ public class FormService implements AppService {
         final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
             String schema = form.toString();
-
-            final var sql = """
+            String sql;
+            if (form == FormType.FOSA || form == FormType.CHIEFDOM)
+                sql = """
+                        SELECT
+                            df._id,
+                            df._index,
+                            df._validation_status,
+                            df.q14_02_validation_code,
+                            df._submitted_by,
+                            df.q1_12_officename,
+                            df._submission_time::DATE
+                        FROM
+                            %s.data df
+                        WHERE
+                            %s
+                        ORDER BY
+                            _submission_time::DATE DESC
+                        OFFSET ?
+                        LIMIT ?;
+                        """.formatted(schema, filter.getWhereClause());
+            else sql = """
                     SELECT
                         df._id,
-                        df._validation_status,
-                        df.q14_02_validation_code,
-                        df._submitted_by,
                         df._index,
-                        df.q1_12_officename,
+                        df._validation_status,
+                        df.code_de_validation,
+                        df._submitted_by,
+                        df.q2_4_officename,
                         df._submission_time::DATE
                     FROM
-                        %s.data df
+                        csc.data df
                     WHERE
                         %s
                     ORDER BY
                         _submission_time::DATE DESC
                     OFFSET ?
                     LIMIT ?;
-                    """.formatted(schema, filter.getWhereClause());
+                    """.formatted(filter.getWhereClause());
             final var countSql = """
                     SELECT
                         COUNT(distinct _index)
@@ -436,10 +455,10 @@ public class FormService implements AppService {
                     WHERE
                         %s;
                     """.formatted(schema, filter.getWhereClause());
-
             try (
                     final var ps = connection.prepareStatement(sql);
-                    final var countPs = connection.prepareStatement(countSql)) {
+                    final var countPs = connection.prepareStatement(countSql)
+            ) {
                 filter.applyToPreparedStatement(ps);
                 var index = filter.getParameters().size();
                 ps.setInt(++index, page * size);
@@ -452,10 +471,10 @@ public class FormService implements AppService {
                         streamBuilder.add(
                                 FormSubmission.builder()
                                         .id(rs.getString(1))
-                                        .validationStatus(rs.getString(2))
-                                        .validationCode(rs.getString(3))
-                                        .submittedBy(rs.getString(4))
-                                        .index(rs.getString(5))
+                                        .index(rs.getString(2))
+                                        .validationStatus(rs.getString(3))
+                                        .validationCode(rs.getString(4))
+                                        .submittedBy(rs.getString(5))
                                         .facilityName(rs.getString(6))
                                         .submittedOn(rs.getDate(7))
                                         .build());

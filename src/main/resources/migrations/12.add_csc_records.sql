@@ -40,14 +40,15 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION civilio.func_create_csc_record() RETURNS INTEGER
+CREATE OR REPLACE FUNCTION civilio.func_create_csc_record(device_id TEXT) RETURNS INTEGER
     LANGUAGE plpgsql AS
 $$
 DECLARE
     new_index INTEGER;
 BEGIN
-    INSERT INTO csc.data(_index, _id)
-    VALUES (nextval('civilio.csc_index_seq'), nextval('civilio.csc_id_seq')::VARCHAR(20))
+    INSERT INTO csc.data(_index, _id, _submission_time, _submitted_by, deviceid)
+    VALUES (nextval('civilio.csc_index_seq'), nextval('civilio.csc_id_seq')::VARCHAR(20), CURRENT_DATE, 'recordcmr',
+            device_id)
     RETURNING _index INTO new_index;
 END;
 $$;

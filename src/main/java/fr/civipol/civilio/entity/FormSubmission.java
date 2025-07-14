@@ -12,12 +12,12 @@ import java.util.Date;
 @Data
 @Jacksonized
 @Builder
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = {"index"})
 public class FormSubmission implements Comparable<FormSubmission> {
     private String id;
     @FilterField(dbFieldName ="_validation_status", labelKey = "filters.validation.status")
     private String validationStatus;
-    @FilterField(dbFieldName ="q14_02_validation_code", labelKey = "filters.validation.code")
+    @FilterField(dbFieldName = "q14_02_validation_code", labelKey = "filters.validation.code")
     private String validationCode;
     @FilterField(dbFieldName = "_submitted_by", labelKey = "filters.user.recorded_by.title")
     private String submittedBy;
@@ -27,8 +27,9 @@ public class FormSubmission implements Comparable<FormSubmission> {
     private String index;
     @FilterField(dbFieldName = "q1_12_officename", labelKey = "filters.facility_name.title")
     private String facilityName;
+
     @Override
     public int compareTo(@NotNull FormSubmission o) {
-        return o.getId().compareTo(getId());
+        return Integer.compare(Integer.parseInt(o.getIndex()), Integer.parseInt(getIndex()));
     }
 }
