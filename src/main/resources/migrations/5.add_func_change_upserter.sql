@@ -1,6 +1,12 @@
-drop function if exists civilio.func_upsert_field_change(text, civilio.form_types, integer, text, text);
+drop function if exists civilio.func_upsert_field_change (
+    text,
+    civilio.form_types,
+    integer,
+    text,
+    text
+);
 
-create function civilio.func_upsert_field_change(submission_id text, form_type civilio.form_types, ordinal integer,
+create function civilio.func_upsert_field_change(submission_index text, form_type civilio.form_types, ordinal integer,
                                                  field_id text, _value text) returns integer
     language plpgsql
 as
@@ -9,8 +15,10 @@ DECLARE
     table_name      TEXT;
     column_name     TEXT;
     field_type      TEXT;
-    personnel_index INTEGER;
+    sub_table_index INTEGER;
     update_query    TEXT;
+    schema_name     TEXT;
+    sub_table_query TEXT;
 BEGIN
     -- Get field mapping information
     SELECT ffm.db_table,
@@ -25,62 +33,65 @@ BEGIN
         RAISE EXCEPTION 'Field is not mapped: % for form type %', field_id, form_type;
     END IF;
 
-    IF submission_id IS NULL OR submission_id = '' THEN
-        IF table_name = 'data_fosa' THEN
-            SELECT civilio.create_fosa_record()::TEXT INTO submission_id;
-        ELSIF table_name = 'data_chefferie' THEN
-            SELECT civilio.create_chefferie_record()::TEXT INTO submission_id;
-        end if;
-    end if;
+    schema_name := form_type::TEXT;
+    IF submission_index IS NULL OR submission_index = '' THEN
+        IF table_name = 'data' THEN
+            IF schema_name = 'fosa' THEN
+                SELECT civilio.func_create_fosa_record()::TEXT INTO submission_index;
+            ELSIF schema_name = 'csc' THEN
+                SELECT civilio.func_create_csc_record()::TEXT INTO submission_index;
+            ELSIF schema_name = 'chefferie' THEN
+                SELECT civilio.func_create_chefferie_record()::TEXT INTO submission_index;
+            ELSE
+                RAISE EXCEPTION 'Invalid value for form_type specified: %. form_type must be one of (''fosa'', ''chefferie'', ''csc'').', schema_name;
+            END IF;
+--         ELSIF table_name IN ('data_personnel', 'data_statistiques', 'data_villages', 'data_pieces') THEN
+--             SELECT civilio.create_chefferie_record()::TEXT INTO submission_index;
+        ELSE
+            RAISE EXCEPTION 'Unsupported table: %', table_name;
+        END IF;
+    END IF;
 
-    IF table_name = 'data_personnel' THEN
-        SELECT _index
-        FROM data_personnel dp
-        WHERE dp._submission_id = submission_id::INTEGER
-        ORDER BY _index
-        OFFSET ordinal LIMIT 1
-        INTO personnel_index;
+    IF table_name IN ('data_personnel', 'data_statistiques', 'data_villages', 'data_pieces') THEN
+        sub_table_query := FORMAT(
+                'SELECT _index FROM %I.%I dp WHERE dp._submission_id = submission_id::INTEGER ORDER BY _index OFFSET %L LIMIT 1;',
+                schema_name,
+                table_name,
+                ordinal
+            );
+
+        EXECUTE sub_table_query INTO sub_table_index;
 
         -- Create new personnel record if not found
-        IF personnel_index IS NULL THEN
-            SELECT civilio.func_create_personnel_record(
-                           submission_id::INTEGER,
-                           'FOSA OUEST'
-                       )
-            INTO personnel_index;
+        IF sub_table_index IS NULL THEN
+            IF table_name = 'data_personnel' THEN
+                SELECT civilio.func_create_personnel_record(
+                               submission_index::INTEGER,
+                               'FOSA OUEST',
+                               schema_name
+                           )
+                INTO sub_table_index;
+            ELSIF table_name = 'data_statistiques' THEN
+                SELECT civilio.func_create_csc_stat_record(submission_index::INTEGER) INTO sub_table_index;
+            ELSIF table_name = 'data_villages' THEN
+                SELECT civilio.func_create_csc_village_record(submission_index::INTEGER) INTO sub_table_index;
+            ELSIF table_name = 'data_pieces' THEN
+                SELECT civilio.func_create_csc_pieces(submission_index::INTEGER) INTO sub_table_index;
+            ELSE
+                RAISE EXCEPTION 'Unsupported table: %', table_name;
+            end if;
         END IF;
-    ELSIF table_name = 'data_chefferie_personnel' THEN
-        SELECT _index
-        FROM data_chefferie_personnel dcp
-        WHERE dcp._submission_id = submission_id::INTEGER
-        ORDER BY _index
-        OFFSET ordinal LIMIT 1
-        INTO personnel_index;
-
-        IF personnel_index IS NULL THEN
-            SELECT civilio.func_create_chefferie_personnel_record(submission_id::INTEGER, 'CHEFFERIE TRADITIONNELLE')
-            INTO personnel_index;
-        end if;
     END IF;
 
     -- Build and execute the appropriate update query
-    IF table_name = 'data_fosa' THEN
-        update_query := format(
-                'UPDATE data_fosa SET %I = %L::%s WHERE _id = %L',
+    IF table_name = 'data' THEN
+        update_query := FORMAT(
+                'UPDATE %I.data SET %I = %L::%s WHERE _id = %L',
+                schema_name,
                 column_name,
                 _value,
                 field_type,
-                submission_id
-            );
-    ELSIF table_name = 'data_personnel' OR table_name = 'data_chefferie_personnel' THEN
-        update_query := format(
-                'UPDATE public.%I SET %I = %L::%s WHERE _index = %s AND _submission_id = %L',
-                table_name,
-                column_name,
-                _value,
-                field_type,
-                personnel_index,
-                submission_id
+                submission_index
             );
     ELSE
         RAISE EXCEPTION 'Unsupported table: %', table_name;
@@ -88,7 +99,7 @@ BEGIN
 
     EXECUTE update_query;
 
-    RETURN submission_id::INTEGER;
+    RETURN submission_index::INTEGER;
 EXCEPTION
     WHEN OTHERS THEN
         RAISE EXCEPTION 'Error updating field % in table %: %', field_id, table_name, SQLERRM;

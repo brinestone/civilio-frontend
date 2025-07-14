@@ -1,19 +1,14 @@
 package fr.civipol.civilio.entity;
 
-import lombok.Getter;
-
 public enum FormType {
-    FOSA("fosa", "data_fosa"),
-    CHIEFDOM("chefferie", "data_chefferie"),
-    CEC("csc", "data_cec");
+    FOSA("fosa"),
+    CHIEFDOM("chefferie"),
+    CEC("csc");
 
     private final String formName;
-    @Getter
-    private final String dbTable;
 
-    FormType(String formName, String dbTable) {
+    FormType(String formName) {
         this.formName = formName;
-        this.dbTable = dbTable;
     }
 
     @Override

@@ -10,6 +10,7 @@ import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.event.SubmissionRef;
 import fr.civipol.civilio.form.field.Option;
 import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,20 +33,14 @@ import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Inject))
 public class FormService implements AppService {
-    private static final String CHEFFERIE_TABLE = "data_chefferie";
+    private static final String DATA_TABLE = "data";
     private static final String PERSONNEL_INFO_TABLE = "data_personnel";
-    private static final String FOSA_TABLE = "data_fosa";
-    private static final String STATS_TABLE = "fosa_vital_stats";
-    private static final String CHEFFERIE_PERSONNEL_TABLE = "data_chefferie_personnel";
-    private static final String[] TABLES = {FOSA_TABLE, PERSONNEL_INFO_TABLE, STATS_TABLE, CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
+    private static final String STATISTICS_TABLE = "data_statistiques";
+    private static final String PIECES_TABLE = "data_pieces";
+    private static final String VILLAGES_TABLE = "data_villages";
     private final Lazy<DataSource> dataSourceProvider;
-
-    @Inject
-    @SuppressWarnings("CdiInjectionPointsInspection")
-    public FormService(Lazy<DataSource> dataSourceProvider) {
-        this.dataSourceProvider = dataSourceProvider;
-    }
 
     public Collection<FieldMapping> findFieldMappings(FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
@@ -61,9 +56,9 @@ public class FormService implements AppService {
         }
     }
 
-    public void updateFieldMapping(FormType form, String field, String i18nKey, Object dbColumn) throws SQLException {
+    public void updateFieldMapping(FormType form, String field, String i18nKey, String dbColumn) throws SQLException {
         final var ds = dataSourceProvider.get();
-        String tableName = form.getDbTable();
+        String tableName = DATA_TABLE;
         try (final var connection = ds.getConnection()) {
             connection.setAutoCommit(false);
             PreparedStatement st;
@@ -72,7 +67,8 @@ public class FormService implements AppService {
                 sql = """
                         INSERT INTO
                             civilio.form_field_mappings(field, i18n_key, db_column, db_table, form, db_column_type)
-                        VALUES (?, ?, ?, ?, CAST(? as civilio.form_types), (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? AND c.table_schema = 'public' LIMIT 1))
+                        VALUES (?, ?, ?, ?, CAST(? as civilio.form_types),
+                        (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? AND c.table_schema = 'public' LIMIT 1))
                         ON CONFLICT (field, form) DO UPDATE
                         SET
                             db_column = EXCLUDED.db_column,
@@ -80,12 +76,19 @@ public class FormService implements AppService {
                             i18n_key = EXCLUDED.i18n_key,
                             db_column_type = EXCLUDED.db_column_type;
                         """;
-                if (form.equals(FormType.FOSA)) {
-                    if (field.startsWith(PERSONNEL_INFO_TABLE)) tableName = PERSONNEL_INFO_TABLE;
-                } else if (form.equals(FormType.CHIEFDOM)) {
-                    if (field.startsWith(CHEFFERIE_PERSONNEL_TABLE)) tableName = CHEFFERIE_PERSONNEL_TABLE;
+                if (field.startsWith(PERSONNEL_INFO_TABLE))
+                    tableName = PERSONNEL_INFO_TABLE;
+                else if (form.equals(FormType.CEC)) {
+                    final var temp = field.substring(0, field.indexOf("."));
+                    tableName = switch (temp) {
+                        case VILLAGES_TABLE -> VILLAGES_TABLE;
+                        case PIECES_TABLE -> PIECES_TABLE;
+                        case STATISTICS_TABLE -> STATISTICS_TABLE;
+                        default ->
+                                throw new IllegalArgumentException("Could not determine the table for field: " + field);
+                    };
                 } else {
-                    throw new IllegalArgumentException("Could not determine table for: " + field);
+                    throw new IllegalArgumentException("Could not determine table for field: " + field);
                 }
                 st = connection.prepareStatement(sql);
                 st.setString(1, field);
@@ -121,21 +124,26 @@ public class FormService implements AppService {
     }
 
     public Collection<String> getFormColumnNames(FormType form) throws SQLException {
+        final var schema = form.toString();
         final var sql = """
                 SELECT DISTINCT
                     c.column_name
                 FROM
                     information_schema.columns c
-                WHERE c.table_name = ANY(?) AND c.table_schema = 'public'
+                WHERE c.table_name = ANY(?) AND c.table_schema = ?
                 ORDER BY c.column_name;
                 """;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement(sql)) {
                 String[] tables = {};
-                if (form == FormType.FOSA) tables = new String[]{FOSA_TABLE, PERSONNEL_INFO_TABLE};
-                else if (form == FormType.CHIEFDOM) tables = new String[]{CHEFFERIE_TABLE, CHEFFERIE_PERSONNEL_TABLE};
+                if (form == FormType.FOSA || form == FormType.CHIEFDOM)
+                    tables = new String[]{DATA_TABLE, PERSONNEL_INFO_TABLE};
+                else if (form == FormType.CEC)
+                    tables = new String[]{DATA_TABLE, PERSONNEL_INFO_TABLE, VILLAGES_TABLE, PIECES_TABLE,
+                            STATISTICS_TABLE};
                 st.setArray(1, connection.createArrayOf("text", tables));
+                st.setString(2, schema);
                 try (final var rs = st.executeQuery()) {
                     final var list = new ArrayList<String>();
                     while (rs.next()) {
@@ -165,13 +173,11 @@ public class FormService implements AppService {
                 if (!rs.next())
                     return Optional.empty();
                 return Optional.of(new FieldMapping(
-                                field,
-                                rs.getString(1),
-                                rs.getString(2),
-                                rs.getString(3),
-                                rs.getString(4)
-                        )
-                );
+                        field,
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4)));
             }
         }
     }
@@ -191,13 +197,11 @@ public class FormService implements AppService {
                 final var builder = Stream.<FieldMapping>builder();
                 while (rs.next()) {
                     builder.add(new FieldMapping(
-                                    rs.getString(1),
-                                    rs.getString(2),
-                                    rs.getString(3),
-                                    rs.getString(4),
-                                    rs.getString(5)
-                            )
-                    );
+                            rs.getString(1),
+                            rs.getString(2),
+                            rs.getString(3),
+                            rs.getString(4),
+                            rs.getString(5)));
                 }
                 return builder.build().toList();
             }
@@ -246,7 +250,7 @@ public class FormService implements AppService {
     }
 
     public Map<String, String> findSubmissionData(
-            String submissionId,
+            String submissionIndex,
             FormType form,
             BiFunction<FieldMapping, Integer, String> keyMaker) throws SQLException {
         final var ds = dataSourceProvider.get();
@@ -259,19 +263,19 @@ public class FormService implements AppService {
                     FROM
                         %s
                     WHERE
-                        %s = CAST(? as INTEGER)
-                    %s;
+                        %s = CAST(? as INTEGER);
                     """;
             for (final var mapping : formMappings) {
                 String sql;
                 PreparedStatement ps;
-                if (mapping.dbTable().equals(PERSONNEL_INFO_TABLE) || mapping.dbTable().equals(CHEFFERIE_PERSONNEL_TABLE)) {
-                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_submission_id", "");
+                if (List.of(PERSONNEL_INFO_TABLE, PIECES_TABLE, STATISTICS_TABLE, VILLAGES_TABLE)
+                        .contains(mapping.dbColumn())) {
+                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_parent_index");
                 } else {
-                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_id", "LIMIT 1");
+                    sql = sqlFormat.formatted(mapping.dbColumn(), mapping.dbTable(), "_index");
                 }
                 ps = connection.prepareStatement(sql);
-                ps.setString(1, submissionId);
+                ps.setString(1, submissionIndex);
                 try (ps) {
                     try (final var rs = ps.executeQuery()) {
                         var cnt = 0;
@@ -286,9 +290,9 @@ public class FormService implements AppService {
         return result;
     }
 
-    //    @SuppressWarnings({"DuplicatedCode"})
+    // @SuppressWarnings({"DuplicatedCode"})
     public void updateSubmission(
-            String submissionId,
+            String submissionIndex,
             FormType form,
             Function<String, String> fieldExtractor,
             FieldChange... changes) throws SQLException {
@@ -310,10 +314,11 @@ public class FormService implements AppService {
                     """)) {
                 for (var change : changes) {
                     if (change.isDeletionChange()) {
-                        processDeletionChange(change.getOrdinal() + 1, form.toString(), change.getField(), submissionId, connection);
+                        processDeletionChange(change.getOrdinal() + 1, form.toString(), change.getField(),
+                                submissionIndex, connection);
                         continue;
                     }
-                    call.setString(1, submissionId);
+                    call.setString(1, submissionIndex);
                     call.setString(2, form.name().toLowerCase());
                     call.setInt(3, change.getOrdinal());
                     final var field = fieldExtractor.apply(change.getField());
@@ -321,14 +326,15 @@ public class FormService implements AppService {
                     call.setObject(5, change.getNewValue());
                     try (final var rs = call.executeQuery()) {
                         if (rs.next())
-                            submissionId = rs.getString(1);
-                        else throw new IllegalStateException("An error occurred");
+                            submissionIndex = rs.getString(1);
+                        else
+                            throw new IllegalStateException("An error occurred");
                     }
                 }
             }
             connection.commit();
         } catch (SQLException e) {
-            log.error("Error updating submission {} for form {}", submissionId, form, e);
+            log.error("Error updating submission {} for form {}", submissionIndex, form, e);
             throw e;
         }
     }
@@ -337,18 +343,17 @@ public class FormService implements AppService {
             int ordinal,
             String form,
             String fieldPattern,
-            String submissionId,
-            Connection connection
-    ) throws SQLException {
+            String submissionIndex,
+            Connection connection) throws SQLException {
         try (final var call = connection.prepareCall("""
                 CALL civilio.proc_process_deletion_change(
-                    submission_id := ?,
+                    submission_index := ?,
                     field_pattern := ?,
                     ordinal := ?,
                     form_type := CAST(? as civilio.form_types)
                 );
                 """)) {
-            call.setString(1, submissionId);
+            call.setString(1, submissionIndex);
             call.setString(2, fieldPattern);
             call.setInt(3, ordinal);
             call.setString(4, form);
@@ -356,7 +361,8 @@ public class FormService implements AppService {
         }
     }
 
-    private Optional<String> sanitizeColumnName(String table, String column, Connection connection) throws SQLException {
+    private Optional<String> sanitizeColumnName(String table, String column, Connection connection)
+            throws SQLException {
         try (final var st = connection.prepareStatement("""
                 SELECT
                     quote_ident(c.column_name)
@@ -375,17 +381,17 @@ public class FormService implements AppService {
         }
     }
 
-    public void deleteSubmissions(FormType form, String... ids) throws SQLException {
-        if (ids.length == 0)
+    public void deleteSubmissions(FormType form, String... indices) throws SQLException {
+        if (indices.length == 0)
             return;
         final var dataSource = this.dataSourceProvider.get();
         try (final var connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             try (final var st = connection.prepareStatement("""
-                    DELETE FROM %s WHERE _index IN (%s);
-                    """.formatted(form.getDbTable(), String.join(",", Collections.nCopies(ids.length, "?"))))) {
-                for (var i = 0; i < ids.length; i++) {
-                    st.setString(i + 1, ids[i]);
+                    DELETE FROM %s.data d WHERE d._index IN (%s);
+                    """.formatted(form.toString(), String.join(",", Collections.nCopies(indices.length, "?"))))) {
+                for (var i = 0; i < indices.length; i++) {
+                    st.setString(i + 1, indices[i]);
                 }
 
                 st.executeUpdate();
@@ -402,10 +408,7 @@ public class FormService implements AppService {
         final var resultBuilder = PageResult.<FormSubmission>builder();
         final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
-            String tableName = switch (form) {
-                default -> FOSA_TABLE;
-                case CHIEFDOM -> CHEFFERIE_TABLE;
-            };
+            String schema = form.toString();
 
             final var sql = """
                     SELECT
@@ -417,27 +420,26 @@ public class FormService implements AppService {
                         df.q1_12_officename,
                         df._submission_time::DATE
                     FROM
-                        %s df
+                        %s.data df
                     WHERE
                         %s
                     ORDER BY
                         _submission_time::DATE DESC
                     OFFSET ?
                     LIMIT ?;
-                    """.formatted(tableName, filter.getWhereClause());
+                    """.formatted(schema, filter.getWhereClause());
             final var countSql = """
                     SELECT
                         COUNT(distinct _index)
                     FROM
-                        %s
+                        %s.data
                     WHERE
                         %s;
-                    """.formatted(tableName, filter.getWhereClause());
+                    """.formatted(schema, filter.getWhereClause());
 
             try (
                     final var ps = connection.prepareStatement(sql);
-                    final var countPs = connection.prepareStatement(countSql)
-            ) {
+                    final var countPs = connection.prepareStatement(countSql)) {
                 filter.applyToPreparedStatement(ps);
                 var index = filter.getParameters().size();
                 ps.setInt(++index, page * size);
@@ -456,8 +458,7 @@ public class FormService implements AppService {
                                         .index(rs.getString(5))
                                         .facilityName(rs.getString(6))
                                         .submittedOn(rs.getDate(7))
-                                        .build()
-                        );
+                                        .build());
                     }
                     resultBuilder.data(streamBuilder.build().toList());
                 }
@@ -479,8 +480,7 @@ public class FormService implements AppService {
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             final var sql = new StringBuilder(
-                    "SELECT name, label, i18n_key FROM civilio.choices WHERE \"group\" = ? AND version = ?"
-            );
+                    "SELECT name, label, i18n_key FROM civilio.choices WHERE \"group\" = ? AND version = ?");
             if (StringUtils.isNotBlank(parent))
                 sql.append(" AND parent = ?");
             sql.append(";");
@@ -502,6 +502,7 @@ public class FormService implements AppService {
 
     public Optional<SubmissionRef> findSubmissionRefById(String id, FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
+        final var schema = form.toString();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement("""
                     select d._id::TEXT,
@@ -518,10 +519,10 @@ public class FormService implements AppService {
                                     lead(_id) over (order by _id) as next,
                                     lag(_id) over (order by _id)  as prev
                             from
-                                    %s
+                                    %s.data
                          ) as d
                     where d._id = CAST(? as integer);
-                    """.formatted(form.getDbTable()))) {
+                    """.formatted(schema))) {
                 st.setString(1, id);
                 try (final var rs = st.executeQuery()) {
                     if (!rs.next())
@@ -537,10 +538,12 @@ public class FormService implements AppService {
         }
     }
 
-    public Collection<SubmissionRef> findSubmissionRefsByIndex(String query, String fieldId, FormType form) throws SQLException {
+    public Collection<SubmissionRef> findSubmissionRefsByIndex(String query, String fieldId, FormType form)
+            throws SQLException {
         if (StringUtils.isBlank(query))
             return Collections.emptyList();
         final var ds = dataSourceProvider.get();
+        final var schema = form.toString();
         try (final var conn = ds.getConnection()) {
             final var mappingWrapper = findFieldMappingInternal(conn, form.toString(), fieldId);
             if (mappingWrapper.isEmpty()) {
@@ -562,11 +565,11 @@ public class FormService implements AppService {
                                 lead(_id) over (order by _id) as next,
                                 lag(_id) over (order by _id)  as prev
                           from
-                                %s) as d
+                                %s.data) as d
                     where d._index LIKE ?
                        OR lower(d.%s) LIKE lower(?)
                     limit 10;
-                                        """.formatted(mapping.dbTable(), column))) {
+                                        """.formatted(schema, column))) {
                 st.setString(1, "%%%s%%".formatted(query));
                 st.setString(2, "%%%s%%".formatted(query));
                 try (final var rs = st.executeQuery()) {
@@ -686,7 +689,8 @@ public class FormService implements AppService {
             try (final var st = connection.createStatement()) {
                 for (var migration : migrations) {
                     final var id = migration.substring(prefix.length(), migration.indexOf("."));
-                    final var sql = Files.readString(Paths.get(Objects.requireNonNull(FormService.class.getResource(migration)).toURI()));
+                    final var sql = Files.readString(
+                            Paths.get(Objects.requireNonNull(FormService.class.getResource(migration)).toURI()));
                     st.execute(sql);
                     try (final var ps = connection.prepareStatement("""
                             INSERT INTO
@@ -700,7 +704,6 @@ public class FormService implements AppService {
                     log.debug("Applied migration: {}", migration);
                 }
             }
-
 
             connection.commit();
             log.info("Migrations applied successfully");
@@ -745,12 +748,7 @@ public class FormService implements AppService {
 
     private boolean migrationsTableExists(Connection connection) throws SQLException {
         final var sql = """
-                select
-                    count(*) > 0 as "exists"
-                from
-                    information_schema.tables t
-                where
-                    t.table_name = 'migrations' AND t.table_schema = 'civilio';
+                SELECT EXISTS (SELECT 1 FROM information_schema.tables t WHERE t.table_name = 'migrations' AND t.table_schema = 'civilio');
                 """;
         try (final var ps = connection.prepareStatement(sql)) {
             try (final var rs = ps.executeQuery()) {

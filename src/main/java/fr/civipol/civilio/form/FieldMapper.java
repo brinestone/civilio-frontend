@@ -131,7 +131,8 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 if (object instanceof String s && StringUtils.isBlank(s)) {
                     acceptableValue = null;
                 }
-                formService.updateFieldMapping(form, key, key, acceptableValue);
+                assert acceptableValue instanceof String;
+                formService.updateFieldMapping(form, key, key, (String) acceptableValue);
             } catch (Throwable t) {
                 log.error("error while updating object: " + breadcrumb, t);
             }

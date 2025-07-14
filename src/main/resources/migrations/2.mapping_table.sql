@@ -1,4 +1,3 @@
-create type civilio.form_types AS ENUM ('fosa', 'chefferie', 'csc');
 create table if not exists civilio.form_field_mappings
 (
     field          text               not null,

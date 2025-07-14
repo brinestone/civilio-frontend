@@ -99,7 +99,7 @@ jlink {
 
         var separator = "/"
         var ext = ""
-        if (os.isWindows){
+        if (os.isWindows) {
             separator = "\\"
             ext = ".exe"
         }
@@ -132,9 +132,7 @@ jlink {
         }
     }
 
-    addExtraDependencies("org.slf4j")
-    addExtraDependencies("ch.qos.logback")
-    addExtraDependencies("resources")
+    addExtraDependencies("org.slf4j", "ch.qos.logback", "resources")
     addOptions("--add-modules", "jakarta.cdi,jakarta.inject")
 }
 

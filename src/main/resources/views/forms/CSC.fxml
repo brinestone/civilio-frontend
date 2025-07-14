@@ -8,7 +8,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="fr.civipol.civilio.controller.csc.CSCFormSubmissionController"
+            fx:controller="fr.civipol.civilio.controller.csc.CSCFormController"
             prefHeight="400.0" prefWidth="600.0">
 
 </BorderPane>
