@@ -41,9 +41,11 @@ public class Bootstrapper extends Application {
         appComponent = DaggerAppComponent.create();
         loadConfiguration();
         final var services = appComponent.allServices();
+        final var cm = appComponent.configManager();
 
         for (var service : services) {
-            service.initialize();
+            if (service.isConfigured(cm))
+                service.initialize();
         }
     }
 

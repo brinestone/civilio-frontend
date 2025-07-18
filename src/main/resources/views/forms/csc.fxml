@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="611.0" prefWidth="1059.0" xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.csc.CSCFormController">
+    <top>
+        <fx:include fx:id="headerManager" source="form-header.fxml"/>
+    </top>
+    <bottom>
+        <fx:include fx:id="footerManager" source="form-footer.fxml"/>
+    </bottom>
+    <center>
+        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <Tab fx:id="tRespondent" closable="false" text="%csc.form.sections.respondent.title"/>
+            <Tab fx:id="tIdentification" closable="false" text="%csc.form.sections.identification.title"/>
+            <Tab fx:id="tAccessibility" closable="false" text="%csc.form.sections.accessibility.title"/>
+            <Tab fx:id="tInfra" closable="false" text="%csc.form.sections.infrastructure.title"/>
+            <Tab fx:id="tAreas" closable="false" text="%csc.form.sections.areas.title"/>
+            <Tab fx:id="tEquipment" closable="false" text="%csc.form.sections.equipment.title"/>
+            <Tab fx:id="tDigitization" closable="false" text="%csc.form.sections.digitization.title"/>
+            <Tab fx:id="tProcurement" closable="false" text="%csc.form.sections.record_procurement.title"/>
+            <Tab fx:id="tStats" closable="false" text="%csc.form.sections.vital_stats.title"/>
+            <Tab fx:id="tDeeds" closable="false" text="%csc.form.sections.deeds.title"/>
+            <Tab fx:id="tStatusOfArchives" closable="false" text="%csc.form.sections.status_of_archived_records.title"/>
+            <Tab fx:id="tEmployees" closable="false" text="%csc.form.sections.personnel_info.title"/>
+        </TabPane>
+    </center>
+</BorderPane>

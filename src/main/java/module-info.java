@@ -59,4 +59,6 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.form;
     exports fr.civipol.civilio.domain.converter;
     exports fr.civipol.civilio.util;
+    exports fr.civipol.civilio.form.renderer;
+    opens fr.civipol.civilio.form.renderer to javafx.fxml;
 }

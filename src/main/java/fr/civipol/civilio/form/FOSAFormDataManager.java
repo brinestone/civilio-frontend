@@ -5,10 +5,8 @@ import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.Option;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,14 +16,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Slf4j
 @SuppressWarnings("unchecked")
 public class FOSAFormDataManager extends FormDataManager {
-    private static final String FORM_ID = "am5nSncmYooy8nknSHzYaz";
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
@@ -63,18 +59,18 @@ public class FOSAFormDataManager extends FormDataManager {
             birthCount3,
             birthCount4,
             birthCount5;
-    private final Supplier<Collection<PersonnelInfo>> personnelInfoSupplier;
+    private final Supplier<Collection<PersonnelInfo>> personnelSource;
     private final OptionSource optionSource;
-    private boolean trackingUpdates = false, optionsLoaded = false;
+    private boolean trackingUpdates = false;
 
     public FOSAFormDataManager(
             Function<String, ?> valueExtractor,
-            Supplier<Collection<PersonnelInfo>> personnelInfoSupplier,
+            Supplier<Collection<PersonnelInfo>> personnelSource,
             BiFunction<String, Integer, String> keyMaker,
             Function<String, String> keyExtractor,
             OptionSource optionSource) {
         super(valueExtractor, keyMaker, keyExtractor);
-        this.personnelInfoSupplier = personnelInfoSupplier;
+        this.personnelSource = personnelSource;
         this.optionSource = optionSource;
         genders = new SimpleListProperty<>(FXCollections.observableArrayList());
         educationLevels = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -150,8 +146,10 @@ public class FOSAFormDataManager extends FormDataManager {
     @Override
     @SuppressWarnings("DuplicatedCode")
     public void trackFieldChanges() {
-        if (trackingUpdates)
+        if (trackingUpdates) {
+            log.debug("Already tracking fields, skipping.");
             return;
+        }
         trackUpdatesForField(FieldKeys.Fosa.RESPONDING_DEVICE);
         trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_1);
         trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_2);
@@ -204,6 +202,7 @@ public class FOSAFormDataManager extends FormDataManager {
         trackUpdatesForField(FieldKeys.Fosa.PHONE);
         trackUpdatesForField(FieldKeys.Fosa.MAIL);
         trackingUpdates = true;
+        log.debug("Tracking field changes");
     }
 
     @Override
@@ -229,7 +228,7 @@ public class FOSAFormDataManager extends FormDataManager {
                 municipality.set(null);
                 return;
             }
-            optionSource.get(FORM_ID, "commune", ((String) nv.value()), municipalitiesProperty()::setAll);
+            municipalities.setAll(optionSource.findOptions("commune", ((String) nv.value())));
         });
 
         municipality.addListener((ob, ov, nv) -> {
@@ -242,18 +241,17 @@ public class FOSAFormDataManager extends FormDataManager {
             healthArea.set(null);
             if (nv == null)
                 return;
-            optionSource.get(FORM_ID, "airesante", ((String) nv.value()), healthAreasProperty()::setAll);
+            healthAreas.setAll(optionSource.findOptions("airesante", ((String) nv.value())));
         });
     }
 
     private void loadPersonnelInfo() {
-        final var allPersonnel = personnelInfoSupplier.get();
+        final var allPersonnel = personnelSource.get();
         personnelInfo.clear();
         personnelInfo.addAll(allPersonnel);
     }
 
     public void loadValues() {
-
         super.loadValues();
         loadPersonnelInfo();
         loadValue(FieldKeys.Fosa.PERSONNEL_COUNT, 0);
@@ -277,8 +275,6 @@ public class FOSAFormDataManager extends FormDataManager {
         loadValue(FieldKeys.Fosa.RESPONDENT_NAME, "");
         loadValue(FieldKeys.Fosa.CREATION_DATE, null);
         loadValue(FieldKeys.Fosa.GEO_POINT, GeoPoint.builder()
-                .latitude(3.8542679f)
-                .longitude(11.4661458f)
                 .build());
 
         loadOptionValue(FieldKeys.Fosa.RESPONDING_DEVICE);
@@ -313,36 +309,6 @@ public class FOSAFormDataManager extends FormDataManager {
                 .filter(StringUtils::isNotBlank)
                 .map(v -> deserializeValue(v, field))
                 .ifPresent(v -> this.getPropertyFor(field).setValue(v));
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    public void loadOptions(OptionSource optionSource, Runnable callback) {
-        if (optionsLoaded) {
-            if (callback != null)
-                callback.run();
-            return;
-        }
-        Function<ObservableList<Option>, Consumer<Collection<Option>>> consumerFactory = list -> v -> {
-            if (Platform.isFxApplicationThread())
-                list.setAll(v);
-            else
-                Platform.runLater(() -> list.setAll(v));
-        };
-        optionSource.get(FORM_ID, "commune", null, consumerFactory.apply(municipalities));
-        optionSource.get(FORM_ID, "division", null, consumerFactory.apply(divisions));
-        optionSource.get(FORM_ID, "vb2qk85", null, consumerFactory.apply(environmentTypes));
-        optionSource.get(FORM_ID, "district", null, consumerFactory.apply(districts));
-        optionSource.get(FORM_ID, "pa9ii12", null, consumerFactory.apply(fosaTypes));
-        optionSource.get(FORM_ID, "qy7we33", null, consumerFactory.apply(fosaStatusTypes));
-        optionSource.get(FORM_ID, "ij2ql10", null, consumerFactory.apply(eventRegistrationTypes));
-        optionSource.get(FORM_ID, "xt53f30", null, consumerFactory.apply(emergencyPowerSourceTypes));
-        optionSource.get(FORM_ID, "zp4ec39", null, consumerFactory.apply(waterSourceTypes));
-        optionSource.get(FORM_ID, "xw39g10", null, consumerFactory.apply(genders));
-        optionSource.get(FORM_ID, "ta2og93", null, consumerFactory.apply(educationLevels));
-        optionSource.get(FORM_ID, "nz2pr56", null, consumerFactory.apply(computerKnowledgeLevels));
-        optionSource.get(FORM_ID, "ju6tz85", null, consumerFactory.apply(deviceOptions));
-        optionsLoaded = true;
-        Optional.ofNullable(callback).ifPresent(Runnable::run);
     }
 
     @Override
@@ -409,6 +375,7 @@ public class FOSAFormDataManager extends FormDataManager {
         };
     }
 
+    @Override
     @SuppressWarnings("DuplicatedCode")
     public ListProperty<Option> getOptionsFor(String id) {
         return switch (id) {
@@ -476,6 +443,21 @@ public class FOSAFormDataManager extends FormDataManager {
                     FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING -> PersonnelInfo.class;
             default -> super.getPropertyTypeFor(id);
         };
+    }
+
+    public void loadInitialOptions() {
+        divisions.setAll(optionSource.findOptions("division", "01"));
+        environmentTypes.setAll(optionSource.findOptions("vb2qk85"));
+        districts.setAll(optionSource.findOptions("district"));
+        fosaTypes.setAll(optionSource.findOptions("pa9ii12"));
+        fosaStatusTypes.setAll(optionSource.findOptions("qy7we33"));
+        eventRegistrationTypes.setAll(optionSource.findOptions("ij2ql10"));
+        emergencyPowerSourceTypes.setAll(optionSource.findOptions("xt53f30"));
+        waterSourceTypes.setAll(optionSource.findOptions("zp4ec39"));
+        genders.setAll(optionSource.findOptions("xw39g10"));
+        educationLevels.setAll(optionSource.findOptions("ta2og93"));
+        computerKnowledgeLevels.setAll(optionSource.findOptions("nz2pr56"));
+        deviceOptions.setAll(optionSource.findOptions("ju6tz85"));
     }
 
     public ListProperty<Option> gendersProperty() {

@@ -3,7 +3,7 @@ package fr.civipol.civilio.entity;
 public enum FormType {
     FOSA("fosa"),
     CHIEFDOM("chefferie"),
-    CEC("csc");
+    CSC("csc");
 
     private final String formName;
 

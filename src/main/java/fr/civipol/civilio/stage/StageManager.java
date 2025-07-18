@@ -29,7 +29,6 @@ public class StageManager {
     private final ResourceBundle rbs = ResourceBundle.getBundle("messages");
     private final ViewLoader viewLoader;
     private final Lazy<SettingsControl> settingsControlProvider;
-    @org.jetbrains.annotations.NotNull
     private final EventBus eventBus;
     private final Lazy<ConfigManager> configManager;
     private NotificationPane notificationPane;
@@ -49,8 +48,8 @@ public class StageManager {
         this.configManager = configManager;
         eventBus.subscribe(StageReadyEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
-                onReady(e);
-            else Platform.runLater(() -> onReady(e));
+                onStageReady(e);
+            else Platform.runLater(() -> onStageReady(e));
         });
         eventBus.subscribe(SettingsUpdatedEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
@@ -88,7 +87,7 @@ public class StageManager {
         eventBus.publish(new RestartPendingEvent());
     }
 
-    private void onReady(StageReadyEvent event) {
+    private void onStageReady(StageReadyEvent event) {
         final var stage = event.getStage();
         notificationPane = new NotificationPane();
         notificationPane.setText(rbs.getString("msg.restart_notice"));

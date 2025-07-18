@@ -2,2185 +2,463 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.4 (Debian 17.4-1.pgdg120+2)
--- Dumped by pg_dump version 17.4 (Debian 17.4-1.pgdg120+2)
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.5
 
 SET statement_timeout = 0;
-
 SET lock_timeout = 0;
-
 SET idle_in_transaction_session_timeout = 0;
-
 SET transaction_timeout = 0;
-
 SET client_encoding = 'UTF8';
-
 SET standard_conforming_strings = on;
-
 SELECT pg_catalog.set_config('search_path', '', false);
-
 SET check_function_bodies = false;
-
 SET xmloption = content;
-
 SET client_min_messages = warning;
-
 SET row_security = off;
 
 --
--- Data for Name: choices; Type: TABLE DATA; Schema: civilio; Owner: postgres
+-- Data for Name: choices; Type: TABLE DATA; Schema: civilio; Owner: -
 --
 
-INSERT INTO civilio.choices
-VALUES ('11',
-        'BABADJOU',
-        '1',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Dans le domicile du chef', NULL, 'vo6qc48', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Autre (préciser)', NULL, 'vo6qc48', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'ix6zu13', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'ya4td74', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'ya4td74', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', '2e Degré', NULL, 'vb2qk85', 'chefferie.form.fields.degree.options.second_degree.title', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'wu5ky27', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'wu5ky27', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('oui', 'Oui', NULL, 'yesno', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('non', 'Non', NULL, 'yesno', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'sb2wy02', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'sb2wy02', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('oui', 'Oui', NULL, 'hh0oy20', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('non', 'Non', NULL, 'hh0oy20', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'on8vp92', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'on8vp92', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'CAMWATER', NULL, 'zp4ec39', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Puits aménagés / forage', NULL, 'zp4ec39', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Puits non aménagés/traditionnel', NULL, 'zp4ec39', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Cour d''eau', NULL, 'zp4ec39', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Autre (à préciser)', NULL, 'zp4ec39', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'vh7vc23', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'vh7vc23', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'vl4fn37', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'vl4fn37', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', '1ier Degré ou lamidat', NULL, 'vb2qk85', 'chefferie.form.fields.degree.options.first_degree.title', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', '2G', NULL, 'internet_types', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', '3G', NULL, 'internet_types', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', '4G', NULL, 'internet_types', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'ADSL (téléphone filaire)', NULL, 'internet_types', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Fibre optique', NULL, 'internet_types', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Moyen', NULL, 'nz2pr56', 'choices.nz2pr56.average', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Très bon', NULL, 'nz2pr56', 'choices.nz2pr56.v_good', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Bon', NULL, 'nz2pr56', 'choices.nz2pr56.good', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'nz2pr56', 'choices.nz2pr56.none', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Supérieur', NULL, 'ta2og93', 'choices.ed_level.advanced', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'ta2og93', 'choices.ed_level.none', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Secondaire', NULL, 'ta2og93', 'choices.ed_level.secondary', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Primaire', NULL, 'ta2og93', 'choices.ed_level.primary', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Homme', NULL, 'xw39g10', 'choices.gender.male', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Femme', NULL, 'xw39g10', 'choices.gender.female', 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'autre (préciser)', NULL, 'kr15v52', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Homme', NULL, 'xw39g10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Femme', NULL, 'xw39g10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'ta2og93', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Primaire', NULL, 'ta2og93', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Secondaire', NULL, 'ta2og93', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Supérieur', NULL, 'ta2og93', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'nz2pr56', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Moyen', NULL, 'nz2pr56', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Bon', NULL, 'nz2pr56', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Très bon', NULL, 'nz2pr56', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'BAMBOUTOS', '01', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'HAUT-NKAM', '02', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'HAUTS PLATEAUX', '02', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'KOUNG-KHI', '03', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'MENOUA', '04', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'MIFI', '05', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'NDE', '05', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('8', 'NOUN', '07', 'division', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('11', 'BABADJOU', '1', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('12', 'BATCHAM', '1', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('13', 'GALIM', '1', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('14', 'MBOUDA', '1', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('21', 'BAFANG', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('22', 'BAKOU', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('23', 'BANA', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('24', 'BANDJA', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('25', 'BANKA', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('26', 'BANWA', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('27', 'KEKEM', '2', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('31', 'BAHAM', '3', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('32', 'BAMENDJOU', '3', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('33', 'BANGOU', '3', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('34', 'BATIE', '3', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('41', 'BAYANGAM', '4', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('42', 'DJEBEM', '4', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('43', 'POUMOUGNE', '4', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('51', 'DSCHANG', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('52', 'FOKOUE', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('53', 'FONGO-TONGO', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('54', 'NKONG-NI', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('55', 'PENKA MICHEL', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('56', 'SANTCHOU', '5', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('61', 'BAFOUSSAM I', '6', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('62', 'BAFOUSSAM II', '6', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('63', 'BAFOUSSAM III', '6', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('71', 'BANGANGTE', '7', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('72', 'BASSAMBA', '7', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('73', 'BAZOU', '7', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('74', 'TONGA', '7', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('81', 'BANGOURAIN', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('82', 'FOUMBAN', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('83', 'FOUMBOT', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('84', 'KOUOPTAMO', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('85', 'KOUTABA', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('86', 'MAGBA', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('87', 'MALENTOUEN', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('88', 'MASSANGAM', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('89', 'NJIMOM', '8', 'commune', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui, officier d''état civil', NULL, 'tr2ph17', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Oui, le secrétaire d''état civil', NULL, 'tr2ph17', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Non', NULL, 'tr2ph17', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'hb0ui59', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'hb0ui59', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'ix6zu13', NULL, 'chefferie') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('86', 'MAGBA', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('87', 'MALENTOUEN', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('88', 'MASSANGAM', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('89', 'NJIMOM', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Principal', NULL, 'mx3gb95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Commune de ville', NULL, 'mx3gb95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Secondaire', NULL, 'mx3gb95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Spécialisé/avancé dans une formation sanitaire', NULL, 'mx3gb95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'of6tn57', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'of6tn57', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Supérieur/Sultanat', NULL, 'sl95o71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', '2e degré', NULL, 'sl95o71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', '3e degré', NULL, 'sl95o71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', '25 conseillers (moins de 50 000 hbts)', NULL, 'pq1hw83', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', '31 conseillers (entre 50 000 et 100 000 hbts)', NULL, 'pq1hw83', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', '35 conseillers (entre 100 001 et 200 000 hbts)', NULL, 'pq1hw83', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', '41 conseillers (entre 200 001 et 300 000)', NULL, 'pq1hw83', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', '61 conseillers Plus de 300 000 hbts)', NULL, 'pq1hw83', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Urbain', NULL, 'vb2qk85', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Rural', NULL, 'vb2qk85', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Indisponibilité de l’Officier ou du Secrétaire d’état Civil', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Absence de registre', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Absence du Code', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Attente de la prestation de serment', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Absence de bâtiment', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Autre (à préciser)', NULL, 'ti6lo46', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Depuis la création', NULL, 'kq18p63', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Depuis 3 mois', NULL, 'kq18p63', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Entre 3 et 6 mois', NULL, 'kq18p63', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Entre 7 et 12 mois', NULL, 'kq18p63', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Plus d’un an', NULL, 'kq18p63', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Route bitumée', NULL, 'tr2ph17', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Piste (route non bitumée)', NULL, 'tr2ph17', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Sentier', NULL, 'tr2ph17', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Cours d''eau', NULL, 'tr2ph17', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun obstacle', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Cours d’eau naturel', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Route impraticable', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Insécurité sur le parcours', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Transport difficile ou très coûteux', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Longue distance à parcourir', NULL, 'hb0ui59', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Moins de 1 Km', NULL, 'da2cb00', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'De 1 à 2 km', NULL, 'da2cb00', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'De 2 à 5 km', NULL, 'da2cb00', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Plus de 5 km', NULL, 'da2cb00', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Mairie/CV', NULL, 'stat_bat', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Bâtiment privé en location', NULL, 'stat_bat', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Bâtiment privé offert', NULL, 'stat_bat', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Résidence/Maison de l’officier ou Secrétaire', NULL, 'stat_bat', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Autre bâtiment public (à préciser)', NULL, 'stat_bat', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('groupe_electro', 'Groupe électrogène', NULL, 'wa8hl88', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('pann_sola', 'Panneaux solaires', NULL, 'wa8hl88', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('autre_precisez', 'Autre (à préciser)', NULL, 'wa8hl88', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucune', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'CAMWATER', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Forage', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Puit traditionnel', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Puit aménagé', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Cours d''eau', NULL, 'on8vp92', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'hy7qe58', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non, le dernier mile reste à couvrir', NULL, 'hy7qe58', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Non', NULL, 'hy7qe58', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Orange', NULL, 'hy3mz13', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'MTN', NULL, 'hy3mz13', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'CAMTEL', NULL, 'hy3mz13', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Autre (à préciser)', NULL, 'hy3mz13', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Un responsable', NULL, 'eb2cq25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Un projet d''appui au Centre', NULL, 'eb2cq25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'yesno', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'yesno', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'BAMBOUTOS', '01', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'HAUT-NKAM', '02', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'HAUTS PLATEAUX', '02', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'KOUNG-KHI', '03', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'MENOUA', '04', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'MIFI', '05', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'NDE', '05', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('8', 'NOUN', '07', 'division', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('11', 'BABADJOU', '1', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('12', 'BATCHAM', '1', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('13', 'GALIM', '1', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('14', 'MBOUDA', '1', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('21', 'BAFANG', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('22', 'BAKOU', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('23', 'BANA', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('24', 'BANDJA', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('25', 'BANKA', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('26', 'BANWA', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('27', 'KEKEM', '2', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('31', 'BAHAM', '3', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('32', 'BAMENDJOU', '3', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('33', 'BANGOU', '3', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('34', 'BATIE', '3', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('41', 'BAYANGAM', '4', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('42', 'DJEBEM', '4', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('43', 'POUMOUGNE', '4', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('51', 'DSCHANG', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('52', 'FOKOUE', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('53', 'FONGO-TONGO', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('54', 'NKONG-NI', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('55', 'PENKA MICHEL', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('56', 'SANTCHOU', '5', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('61', 'BAFOUSSAM I', '6', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('62', 'BAFOUSSAM II', '6', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('63', 'BAFOUSSAM III', '6', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('71', 'BANGANGTE', '7', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('72', 'BASSAMBA', '7', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('73', 'BAZOU', '7', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('74', 'TONGA', '7', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('81', 'BANGOURAIN', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('82', 'FOUMBAN', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('83', 'FOUMBOT', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('84', 'KOUOPTAMO', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('85', 'KOUTABA', '8', 'commune', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('11', 'BABADJOU', '1', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('12', 'BATCHAM', '1', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('13', 'GALIM', '1', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('14', 'MBOUDA', '1', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('21', 'BAFANG', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('22', 'BAKOU', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('23', 'BANA', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('24', 'BANDJA', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('25', 'BANKA', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('26', 'BANWA', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('27', 'KEKEM', '2', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('31', 'BAHAM', '3', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('32', 'BAMENDJOU', '3', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('33', 'BANGOU', '3', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('34', 'BATIE', '3', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('41', 'BAYANGAM', '4', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('42', 'DJEBEM', '4', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('43', 'POUMOUGNE', '4', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('51', 'DSCHANG', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('52', 'FOKOUE', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('53', 'FONGO-TONGO', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('54', 'NKONG-NI', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('55', 'PENKA MICHEL', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('56', 'SANTCHOU', '5', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('61', 'BAFOUSSAM I', '6', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('62', 'BAFOUSSAM II', '6', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('63', 'BAFOUSSAM III', '6', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('71', 'BANGANGTE', '7', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('72', 'BASSAMBA', '7', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('73', 'BAZOU', '7', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('74', 'TONGA', '7', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('81', 'BANGOURAIN', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('82', 'FOUMBAN', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('83', 'FOUMBOT', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('84', 'KOUOPTAMO', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('85', 'KOUTABA', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('86', 'MAGBA', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('87', 'MALENTOUEN', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('88', 'MASSANGAM', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('89', 'NJIMOM', '8', 'commune', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('10', 'Bafang', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('11', 'Baham', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('12', 'Bamendjou', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('13', 'Bandja', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('14', 'Bandjoun', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('15', 'Bangangté', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('16', 'Bangourain', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('17', 'Batcham', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('18', 'Dschang', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('19', 'Foumban', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('20', 'Foumbot', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('21', 'Galim', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('22', 'Kekem', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('23', 'Kouoptama', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('24', 'Malentouen', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('25', 'Massangam', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('26', 'Mbouda', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('27', 'Mifi', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('28', 'Penka Michel', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('29', 'Santchou', NULL, 'district', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1001', 'AS Baboate', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1002', 'AS Baboutcha-Fongam', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1003', 'AS Baboutcheu-Ngaleu', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1004', 'AS Bafang-Chefferie', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1005', 'AS Bakou', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1006', 'AS Bana', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1007', 'AS Manila', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1008', 'AS Mouankeu', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1009', 'AS Ndokovi', '10', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1101', 'AS Baham', '11', 'airesante', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Mon téléphone personnel', NULL, 'ju6tz85', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Un ordinateur/laptop du service', NULL, 'ju6tz85', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('tablette_de_l_enqu_teur', 'Tablette de l''enquêteur', NULL, 'ju6tz85', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'xc9ks68', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'xc9ks68', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Hôpital général et assimilés', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Hôpital central et assimilés', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Centre Hôpitalier de référence', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Hôpital régional et annexes', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Hôpital de disctrict', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Centre médical d''arrondissement', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'Centre de santé intégré', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('8', 'Clinique', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('10', 'Autre', NULL, 'pa9ii12', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Privé', NULL, 'qy7we33', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Public', NULL, 'qy7we33', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Confessionnel', NULL, 'qy7we33', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'pq1hw83', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'pq1hw83', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'co1xh15', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'co1xh15', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'tr2ph17', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'tr2ph17', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'hb0ui59', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'BAMBOUTOS', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'HAUT-NKAM', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'hb0ui59', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'vo6qc48', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'vo6qc48', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'ix6zu13', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'ix6zu13', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Sur le DHIS 2', NULL, 'ij2ql10', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Sur un système digital', NULL, 'ij2ql10', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Dans les registres/cahiers', NULL, 'ij2ql10', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'yesno', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'yesno', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'hh0oy20', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'hh0oy20', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Energie solaire', NULL, 'xt53f30', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Batterie', NULL, 'xt53f30', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Groupe électrogène', NULL, 'xt53f30', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'UPS', NULL, 'xt53f30', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Autre (spécifier)', NULL, 'xt53f30', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'sb2wy02', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'sb2wy02', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'on8vp92', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'on8vp92', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'CAMWATER', NULL, 'zp4ec39', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Puits aménagés / forage', NULL, 'zp4ec39', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Puits non aménagés/traditionnel', NULL, 'zp4ec39', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Cour d''eau', NULL, 'zp4ec39', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Autre (à préciser)', NULL, 'zp4ec39', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'vl4fn37', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'vl4fn37', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Urbain', NULL, 'vb2qk85', 'fosa.form.fields.environment.options.urban.title', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Rural', NULL, 'vb2qk85', 'fosa.form.fields.environment.options.rural.title', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('01', 'OUEST', NULL, 'region', 'choices.region.west', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'HAUTS PLATEAUX', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'KOUNG-KHI', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'MENOUA', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'MIFI', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'NDE', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('8', 'NOUN', '01', 'division', NULL, 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('10', 'SUD-OUEST', NULL, 'region', 'choices.region.south_west', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Secondaire', NULL, 'ta2og93', 'choices.ed_level.secondary', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Supérieur', NULL, 'ta2og93', 'choices.ed_level.advanced', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Primaire', NULL, 'ta2og93', 'choices.ed_level.primary', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'ta2og93', 'choices.ed_level.none', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Très bon', NULL, 'nz2pr56', 'choices.nz2pr56.v_good', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Moyen', NULL, 'nz2pr56', 'choices.nz2pr56.average', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Aucun', NULL, 'nz2pr56', 'choices.nz2pr56.none', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Bon', NULL, 'nz2pr56', 'choices.nz2pr56.good', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Femme', NULL, 'xw39g10', 'choices.gender.female', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Homme', NULL, 'xw39g10', 'choices.gender.male', 'fosa') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Le budget du Centre', NULL, 'eb2cq25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Bon, correct', NULL, 'hg4oe04', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Vétuste, dégradé, à rénover', NULL, 'hg4oe04', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Sol à reprendre', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Murs à reprendre', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Circuit électrique à changer', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Eclairage à changer', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Fenêtres à changer', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Plafond à refaire', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'Etancheité', NULL, 'se9tm32', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Initiative propre de la commune', NULL, 'pt2hk19', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'BUNEC (SIGEC)', NULL, 'pt2hk19', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'PAMEC GIZ (Cameroun CRVS)', NULL, 'pt2hk19', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Autre (à préciser)', NULL, 'pt2hk19', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Satisfait', NULL, 'ja3ja10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Plutôt satisfait', NULL, 'ja3ja10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Plutôt insatisfait', NULL, 'ja3ja10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Insatisfait', NULL, 'ja3ja10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Ne sait pas', NULL, 'ja3ja10', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'jk4rp06', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'jk4rp06', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Je ne sais pas', NULL, 'jk4rp06', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui', NULL, 'fv5nn38', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Non', NULL, 'fv5nn38', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Je ne sais pas', NULL, 'fv5nn38', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui, toutes', NULL, 'fw78n80', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Oui, pour partie', NULL, 'fw78n80', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Non', NULL, 'fw78n80', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Je ne sais pas', NULL, 'fw78n80', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2024', '2024', NULL, 'tw32q01', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2023', '2023', NULL, 'tw32q01', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2022', '2022', NULL, 'tw32q01', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2021', '2021', NULL, 'tw32q01', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('non', 'Non', NULL, 'tw32q01', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Etat/BUNEC', NULL, 'sl8yh95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Centre d''état civil (fonds propre)', NULL, 'sl8yh95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Partenaire/Bienfaiteur', NULL, 'sl8yh95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Autre (à préciser)', NULL, 'sl8yh95', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Electricité aux normes', NULL, 'hv1un42', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Electricité pas aux normes (risque de court circuit)', NULL, 'hv1un42', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'La salle n''est pas électrifiée', NULL, 'hv1un42', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Dans des armoires fermées', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Dans des armoires non fermées', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Sur des étagères / des rayonnages', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Sur des tables', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Dans des boîtes à archives', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'A même  le sol', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'Autres', NULL, 'xi0eq24', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Oui, tous les registres de la sous-préfecture ont été déposés au centre principal', NULL, 'gw85g70', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Seulement une partie des registres a été déposée', NULL, 'gw85g70', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Non, aucun registre n’a été déposé', NULL, 'gw85g70', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'La sous préfecture n''avait pas de registres', NULL, 'gw85g70', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2024', '2024', NULL, 'dj0uq71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2023', '2023', NULL, 'dj0uq71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2022', '2022', NULL, 'dj0uq71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2021', '2021', NULL, 'dj0uq71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2020', '2020', NULL, 'dj0uq71', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2024', '2024', NULL, 'ue0vo43', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2023', '2023', NULL, 'ue0vo43', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2022', '2022', NULL, 'ue0vo43', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2021', '2021', NULL, 'ue0vo43', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2020', '2020', NULL, 'ue0vo43', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Maire ou adjoint', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Chef de service', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Secrétaire de l''état civil assermenté', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Agent de l''état civil (non assermenté)', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('5', 'Archiviste ou agent d''archive', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('7', 'Officier d''état civil nommé', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('6', 'Autres (à préciser)', NULL, 'ts8cb25', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('1', 'Fonctionnaire', NULL, 'kr15v52', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('2', 'Décisionnaire (CDI),', NULL, 'kr15v52', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('3', 'Contractuel', NULL, 'kr15v52', NULL, 'csc') ON CONFLICT DO NOTHING;
+INSERT INTO civilio.choices VALUES ('4', 'Bénévole, Stagiaire', NULL, 'kr15v52', NULL, 'csc') ON CONFLICT DO NOTHING;
 
-INSERT INTO civilio.choices
-VALUES ('12',
-        'BATCHAM',
-        '1',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('13',
-        'GALIM',
-        '1',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('14',
-        'MBOUDA',
-        '1',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('21',
-        'BAFANG',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('22',
-        'BAKOU',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('23',
-        'BANA',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('24',
-        'BANDJA',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('25',
-        'BANKA',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('26',
-        'BANWA',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('27',
-        'KEKEM',
-        '2',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('31',
-        'BAHAM',
-        '3',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('32',
-        'BAMENDJOU',
-        '3',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('33',
-        'BANGOU',
-        '3',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('34',
-        'BATIE',
-        '3',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('41',
-        'BAYANGAM',
-        '4',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('42',
-        'DJEBEM',
-        '4',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('43',
-        'POUMOUGNE',
-        '4',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('51',
-        'DSCHANG',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('52',
-        'FOKOUE',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('53',
-        'FONGO-TONGO',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('54',
-        'NKONG-NI',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('55',
-        'PENKA MICHEL',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('56',
-        'SANTCHOU',
-        '5',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('61',
-        'BAFOUSSAM I',
-        '6',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('62',
-        'BAFOUSSAM II',
-        '6',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('63',
-        'BAFOUSSAM III',
-        '6',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('71',
-        'BANGANGTE',
-        '7',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('72',
-        'BASSAMBA',
-        '7',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('73',
-        'BAZOU',
-        '7',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('74',
-        'TONGA',
-        '7',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('81',
-        'BANGOURAIN',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('82',
-        'FOUMBAN',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('83',
-        'FOUMBOT',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('84',
-        'KOUOPTAMO',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('85',
-        'KOUTABA',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('86',
-        'MAGBA',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('87',
-        'MALENTOUEN',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('88',
-        'MASSANGAM',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('89',
-        'NJIMOM',
-        '8',
-        'commune',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('10',
-        'Bafang',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('11',
-        'Baham',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('12',
-        'Bamendjou',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('13',
-        'Bandja',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('14',
-        'Bandjoun',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('15',
-        'Bangangté',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('16',
-        'Bangourain',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('17',
-        'Batcham',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('18',
-        'Dschang',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('19',
-        'Foumban',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('20',
-        'Foumbot',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('21',
-        'Galim',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('22',
-        'Kekem',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('23',
-        'Kouoptama',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('24',
-        'Malentouen',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('25',
-        'Massangam',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('26',
-        'Mbouda',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('27',
-        'Mifi',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('28',
-        'Penka Michel',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('29',
-        'Santchou',
-        NULL,
-        'district',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1001',
-        'AS Baboate',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1002',
-        'AS Baboutcha-Fongam',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1003',
-        'AS Baboutcheu-Ngaleu',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1004',
-        'AS Bafang-Chefferie',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1005',
-        'AS Bakou',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1006',
-        'AS Bana',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1007',
-        'AS Manila',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1008',
-        'AS Mouankeu',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1009',
-        'AS Ndokovi',
-        '10',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1101',
-        'AS Baham',
-        '11',
-        'airesante',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Mon téléphone personnel',
-        NULL,
-        'ju6tz85',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Un ordinateur/laptop du service',
-        NULL,
-        'ju6tz85',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('tablette_de_l_enqu_teur',
-        'Tablette de l''enquêteur',
-        NULL,
-        'ju6tz85',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'xc9ks68',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'xc9ks68',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Hôpital général et assimilés',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Hôpital central et assimilés',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Centre Hôpitalier de référence',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Hôpital régional et annexes',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('5',
-        'Hôpital de disctrict',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('6',
-        'Centre médical d''arrondissement',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('7',
-        'Centre de santé intégré',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('8',
-        'Clinique',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('10',
-        'Autre',
-        NULL,
-        'pa9ii12',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Privé',
-        NULL,
-        'qy7we33',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Public',
-        NULL,
-        'qy7we33',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Confessionnel',
-        NULL,
-        'qy7we33',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'pq1hw83',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'pq1hw83',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'co1xh15',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'co1xh15',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'tr2ph17',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'tr2ph17',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'hb0ui59',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'BAMBOUTOS',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'HAUT-NKAM',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'hb0ui59',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'vo6qc48',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'vo6qc48',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'ix6zu13',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'ix6zu13',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Sur le DHIS 2',
-        NULL,
-        'ij2ql10',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Sur un système digital',
-        NULL,
-        'ij2ql10',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Dans les registres/cahiers',
-        NULL,
-        'ij2ql10',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'yesno',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'yesno',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'hh0oy20',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'hh0oy20',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Energie solaire',
-        NULL,
-        'xt53f30',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Batterie',
-        NULL,
-        'xt53f30',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Groupe électrogène',
-        NULL,
-        'xt53f30',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'UPS',
-        NULL,
-        'xt53f30',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('5',
-        'Autre (spécifier)',
-        NULL,
-        'xt53f30',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'sb2wy02',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'sb2wy02',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'on8vp92',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'on8vp92',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'CAMWATER',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Puits aménagés / forage',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Puits non aménagés/traditionnel',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Cour d''eau',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('6',
-        'Autre (à préciser)',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'vl4fn37',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'vl4fn37',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Urbain',
-        NULL,
-        'vb2qk85',
-        'fosa.form.fields.environment.options.urban.title',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Rural',
-        NULL,
-        'vb2qk85',
-        'fosa.form.fields.environment.options.rural.title',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('01',
-        'OUEST',
-        NULL,
-        'region',
-        'choices.region.west',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'HAUTS PLATEAUX',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'KOUNG-KHI',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('5',
-        'MENOUA',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('6',
-        'MIFI',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('7',
-        'NDE',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('8',
-        'NOUN',
-        '01',
-        'division',
-        NULL,
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('10',
-        'SUD-OUEST',
-        NULL,
-        'region',
-        'choices.region.south_west',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Secondaire',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.secondary',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Supérieur',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.advanced',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Primaire',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.primary',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Aucun',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.none',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Très bon',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.v_good',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Moyen',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.average',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Aucun',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.none',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Bon',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.good',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Femme',
-        NULL,
-        'xw39g10',
-        'choices.gender.female',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Homme',
-        NULL,
-        'xw39g10',
-        'choices.gender.male',
-        'am5nSncmYooy8nknSHzYaz')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'BAMBOUTOS',
-        '01',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'HAUT-NKAM',
-        '02',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'HAUTS PLATEAUX',
-        '02',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'KOUNG-KHI',
-        '03',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('5',
-        'MENOUA',
-        '04',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('6',
-        'MIFI',
-        '05',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('7',
-        'NDE',
-        '05',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('8',
-        'NOUN',
-        '07',
-        'division',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('11',
-        'BABADJOU',
-        '1',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('12',
-        'BATCHAM',
-        '1',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('13',
-        'GALIM',
-        '1',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('14',
-        'MBOUDA',
-        '1',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('21',
-        'BAFANG',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('22',
-        'BAKOU',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('23',
-        'BANA',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('24',
-        'BANDJA',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('25',
-        'BANKA',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('26',
-        'BANWA',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('27',
-        'KEKEM',
-        '2',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('31',
-        'BAHAM',
-        '3',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('32',
-        'BAMENDJOU',
-        '3',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('33',
-        'BANGOU',
-        '3',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('34',
-        'BATIE',
-        '3',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('41',
-        'BAYANGAM',
-        '4',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('42',
-        'DJEBEM',
-        '4',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('43',
-        'POUMOUGNE',
-        '4',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('51',
-        'DSCHANG',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('52',
-        'FOKOUE',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('53',
-        'FONGO-TONGO',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('54',
-        'NKONG-NI',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('55',
-        'PENKA MICHEL',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('56',
-        'SANTCHOU',
-        '5',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('61',
-        'BAFOUSSAM I',
-        '6',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('62',
-        'BAFOUSSAM II',
-        '6',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('63',
-        'BAFOUSSAM III',
-        '6',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('71',
-        'BANGANGTE',
-        '7',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('72',
-        'BASSAMBA',
-        '7',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('73',
-        'BAZOU',
-        '7',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('74',
-        'TONGA',
-        '7',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('81',
-        'BANGOURAIN',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('82',
-        'FOUMBAN',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('83',
-        'FOUMBOT',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('84',
-        'KOUOPTAMO',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('85',
-        'KOUTABA',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('86',
-        'MAGBA',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('87',
-        'MALENTOUEN',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('88',
-        'MASSANGAM',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('89',
-        'NJIMOM',
-        '8',
-        'commune',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui, officier d''état civil',
-        NULL,
-        'tr2ph17',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Oui, le secrétaire d''état civil',
-        NULL,
-        'tr2ph17',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Non',
-        NULL,
-        'tr2ph17',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'hb0ui59',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'hb0ui59',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Dans le domicile du chef',
-        NULL,
-        'vo6qc48',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Autre (préciser)',
-        NULL,
-        'vo6qc48',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'ix6zu13',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'ix6zu13',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'ya4td74',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'ya4td74',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        '2e Degré',
-        NULL,
-        'vb2qk85',
-        'chefferie.form.fields.degree.options.second_degree.title',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'wu5ky27',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'wu5ky27',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('oui',
-        'Oui',
-        NULL,
-        'yesno',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('non',
-        'Non',
-        NULL,
-        'yesno',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'sb2wy02',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'sb2wy02',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('oui',
-        'Oui',
-        NULL,
-        'hh0oy20',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('non',
-        'Non',
-        NULL,
-        'hh0oy20',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'on8vp92',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'on8vp92',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'CAMWATER',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Puits aménagés / forage',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Puits non aménagés/traditionnel',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Cour d''eau',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('6',
-        'Autre (à préciser)',
-        NULL,
-        'zp4ec39',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'vh7vc23',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'vh7vc23',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Oui',
-        NULL,
-        'vl4fn37',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Non',
-        NULL,
-        'vl4fn37',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        '1ier Degré ou lamidat',
-        NULL,
-        'vb2qk85',
-        'chefferie.form.fields.degree.options.first_degree.title',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        '2G',
-        NULL,
-        'internet_types',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        '3G',
-        NULL,
-        'internet_types',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        '4G',
-        NULL,
-        'internet_types',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'ADSL (téléphone filaire)',
-        NULL,
-        'internet_types',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('5',
-        'Fibre optique',
-        NULL,
-        'internet_types',
-        NULL,
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Moyen',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.average',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Très bon',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.v_good',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Bon',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.good',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Aucun',
-        NULL,
-        'nz2pr56',
-        'choices.nz2pr56.none',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('4',
-        'Supérieur',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.advanced',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Aucun',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.none',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('3',
-        'Secondaire',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.secondary',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Primaire',
-        NULL,
-        'ta2og93',
-        'choices.ed_level.primary',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('1',
-        'Homme',
-        NULL,
-        'xw39g10',
-        'choices.gender.male',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO civilio.choices
-VALUES ('2',
-        'Femme',
-        NULL,
-        'xw39g10',
-        'choices.gender.female',
-        'aPjiVm748hUWJnpF4pqKjY')
-ON CONFLICT DO NOTHING;
 
 --
 -- PostgreSQL database dump complete

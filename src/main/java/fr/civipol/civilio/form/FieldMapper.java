@@ -42,7 +42,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
         final var ts = new ResourceBundleService(ResourceBundle.getBundle("messages"));
         return PreferencesFx.of(this,
                         FieldKeys.fosaFieldSettingsCategory(this),
-                        FieldKeys.chefferieFieldSettingsCategory(this)
+                        FieldKeys.chiefdomFieldSettingsCategory(this)
                 ).i18n(ts)
                 .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("/img/Logo32x32.png"))))
                 .dialogTitle(ts.translate("field_mapper.title"))

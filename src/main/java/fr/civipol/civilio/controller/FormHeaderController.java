@@ -34,7 +34,7 @@ public class FormHeaderController implements AppController {
     private final Lazy<FieldMapper> fieldMapperProvider;
     private final BooleanProperty canGoNext = new SimpleBooleanProperty(this, "canGoNext", true);
     private final BooleanProperty canGoPrev = new SimpleBooleanProperty(this, "canGoNext", true);
-    private final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
+    private final StringProperty submissionIndex = new SimpleStringProperty(this, "submissionIndex");
     private final StringProperty index = new SimpleStringProperty(this, "index");
     private final StringProperty validationCode = new SimpleStringProperty(this, "validationCode");
     private final ObjectProperty<SubmissionRef> submissionRef = new SimpleObjectProperty<>();
@@ -53,8 +53,8 @@ public class FormHeaderController implements AppController {
     private TextField tfValidationCode;
     private boolean submissionIdUpdatedExternally;
 
-    public StringProperty submissionIdProperty() {
-        return submissionId;
+    public StringProperty submissionIndexProperty() {
+        return submissionIndex;
     }
 
     public StringProperty validationCodeProperty() {
@@ -73,15 +73,15 @@ public class FormHeaderController implements AppController {
                 .otherwise(Bindings.createStringBinding(() -> Optional.ofNullable(submissionRef.getValue())
                         .map(SubmissionRef::submissionDate)
                         .map(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)::format)
-                        .orElse(rb.getString("forms.header.date.new")), submissionId, submissionRef));
+                        .orElse(rb.getString("forms.header.date.new")), submissionIndex, submissionRef));
         lblSubmissionDate.textProperty().bind(lblSubmissionDateBinding);
         tfValidationCode.textProperty().bindBidirectional(validationCode);
         btnNext.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::next)
-                .ifPresent(submissionId::setValue));
+                .ifPresent(submissionIndex::setValue));
         btnPrev.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::prev)
-                .ifPresent(submissionId::setValue));
+                .ifPresent(submissionIndex::setValue));
         final var suggestions = FXCollections.<SubmissionRef>observableArrayList();
         final var binding = TextFields.bindAutoCompletion(tfIndexSearch, ignored -> suggestions);
         binding.setDelay(500);
@@ -113,7 +113,7 @@ public class FormHeaderController implements AppController {
                 .map(SubmissionRef::next)
                 .map(StringUtils::isBlank)
                 .orElse(true), submissionRef).or(canGoNext.not()));
-        submissionId.addListener((ob, ov, nv) -> {
+        submissionIndex.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
             executorService.submit(() -> {
                 try {

@@ -17,15 +17,18 @@ import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.FieldChange;
+import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FOSAFormDataManager;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.GeoPointField;
+import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.fxml.FXML;
@@ -51,14 +54,15 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class FOSAFormController extends FormController implements Initializable {
+public class FOSAFormController extends FormController implements Initializable, OptionSource {
+    private boolean optionsLoaded = false;
+    private final Map<String, Collection<Option>> allOptions = new HashMap<>();
+    private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
     private final FormService formService;
     private ResourceBundle resources;
-
-    private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
     @FXML
     private ScrollPane spCSERegContainer;
 
@@ -91,7 +95,6 @@ public class FOSAFormController extends FormController implements Initializable 
 
     @Getter(AccessLevel.PROTECTED)
     private FormDataManager model;
-
     @FXML
     @Getter(AccessLevel.PROTECTED)
     @SuppressWarnings("unused")
@@ -104,7 +107,7 @@ public class FOSAFormController extends FormController implements Initializable 
     @Override
     protected final void doSubmit() throws SQLException {
         formService.updateSubmission(
-                submissionId.getValue(),
+                submissionIndex.getValue(),
                 FormType.FOSA,
                 this::extractFieldKey,
                 model.getPendingUpdates().toArray(FieldChange[]::new));
@@ -119,14 +122,16 @@ public class FOSAFormController extends FormController implements Initializable 
                 this::findPersonnelInfo,
                 this::keyMaker,
                 this::extractFieldKey,
-                this::findOptions);
+                this
+        );
         initializeController();
-        model.trackFieldChanges();
         configureForms(ts);
         BooleanBinding canSubmit = Bindings.and(
-                respondentForm.validProperty().and(structureIdForm.validProperty())
+                respondentForm.validProperty()
+                        .and(structureIdForm.validProperty())
                         .and(eventRegistrationForm.validProperty())
-                        .and(equipmentForm.validProperty()).and(personnelForm.validProperty()),
+                        .and(equipmentForm.validProperty())
+                        .and(personnelForm.validProperty()),
                 Bindings.not(model.pristine())).and(submittingProperty().not());
         footerManagerController.canSubmitProperty().bind(canSubmit);
         footerManagerController.canDiscardProperty().bind(submittingProperty().not());
@@ -158,7 +163,7 @@ public class FOSAFormController extends FormController implements Initializable 
             final var isEmailField = id.equals(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL);
 
             final var stringValue = (String) submissionData.get(key);
-            if (StringUtils.isBlank(key)) return Collections.emptyList();
+            if (StringUtils.isBlank(stringValue)) return Collections.emptyList();
 
             if (stringValue.matches("^\\d+$") && isAgeField) {
                 entry.setAge(Integer.parseInt(stringValue));
@@ -189,7 +194,14 @@ public class FOSAFormController extends FormController implements Initializable 
     }
 
     protected final Map<String, String> loadSubmissionData() throws SQLException {
-        return formService.findSubmissionData(submissionId.get(), FormType.FOSA, this::keyMaker);
+        return formService.findSubmissionData(submissionIndex.get(), FormType.FOSA, this::keyMaker);
+    }
+
+    @Override
+    public Collection<Option> findOptions(String group, String parent) {
+        return allOptions.getOrDefault(group, Collections.emptyList()).stream()
+                .filter(o -> Objects.equals(o.parent(), parent))
+                .toList();
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -395,7 +407,6 @@ public class FOSAFormController extends FormController implements Initializable 
     }
 
 
-
     private void setStructureIdContainer(TranslationService ts) {
         final var model = (FOSAFormDataManager) this.model;
         final var form = Form.of(
@@ -550,5 +561,29 @@ public class FOSAFormController extends FormController implements Initializable 
         form.binding(BindingMode.CONTINUOUS);
         form.getFields().forEach(f -> f.editableProperty().bind(submittingProperty().not()));
         tRespondent.setUserData(form);
+    }
+
+    @Override
+    protected void loadOptions() {
+        if (optionsLoaded) {
+            log.debug("Options already loaded, skipping.");
+            return;
+        }
+        executorService.submit(() -> {
+            try {
+                final var options = formService.findFormOptions(FormType.FOSA);
+                if (options != null && !options.isEmpty()) {
+                    Platform.runLater(() -> {
+                        FOSAFormController.this.allOptions.clear();
+                        FOSAFormController.this.allOptions.putAll(options);
+                        log.debug("Loaded {} options", options.size());
+                    });
+                }
+            } catch (Throwable t) {
+                log.error("Could not load options", t);
+            }
+        });
+        optionsLoaded = true;
+        log.debug("Options loading initiated.");
     }
 }

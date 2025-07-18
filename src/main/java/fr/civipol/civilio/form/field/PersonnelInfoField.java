@@ -123,7 +123,6 @@ public class PersonnelInfoField extends DataField<ListProperty<PersonnelInfo>, L
     }
 
     public PersonnelInfoField bindGenders(ListProperty<Option> genders) {
-        genders.addListener((ListChangeListener<Option>) c -> System.out.println(genders));
         this.genderOptions.bindContent(genders);
         return this;
     }

@@ -18,6 +18,9 @@
       <graphic>
          <FontIcon iconLiteral="fth-sliders" />
       </graphic>
+      <cursor>
+         <Cursor fx:constant="HAND" />
+      </cursor>
    </Button>
     <BorderPane prefHeight="35.0" prefWidth="235.0">
         <left>

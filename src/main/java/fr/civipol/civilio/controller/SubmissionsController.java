@@ -118,7 +118,7 @@ public class SubmissionsController implements AppController, Initializable {
                 doLoadSubmissionData();
             });
 //            controller.setOnDiscard(__ -> dialog.close());
-            controller.setSubmissionId(submissionId);
+            controller.setSubmissionIndex(submissionId);
 
             dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));
             dialog.setScene(new Scene((Parent) view));

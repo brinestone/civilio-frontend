@@ -5,26 +5,22 @@ import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.field.Option;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static fr.civipol.civilio.form.FieldKeys.Chefferie.*;
+import static fr.civipol.civilio.form.FieldKeys.Chiefdom.*;
 
 @SuppressWarnings("DuplicatedCode")
 public class ChefferieFormDataManager extends FormDataManager {
-    private static final String FORM_ID = "aPjiVm748hUWJnpF4pqKjY";
     private final Map<String, Property<?>> valueProperties = new HashMap<>();
     private final Map<String, ListProperty<Option>> options = new HashMap<>();
 
@@ -87,16 +83,20 @@ public class ChefferieFormDataManager extends FormDataManager {
                 .ifPresent(v -> this.getPropertyFor(field).setValue(v));
     }
 
-    private boolean optionsLoaded = false, fieldsTracked = false;
+    private boolean fieldsTracked = false;
     private final ListProperty<PersonnelInfo> personnelInfo = new SimpleListProperty<>(
             FXCollections.observableArrayList());
-    private final Supplier<Collection<PersonnelInfo>> personnelInfoSupplier;
+    private final Supplier<Collection<PersonnelInfo>> personnelSource;
+    private final OptionSource optionSource;
 
     public ChefferieFormDataManager(Function<String, ?> valueSource,
-            BiFunction<String, Integer, String> keyMaker,
-            Function<String, String> keyExtractor, Supplier<Collection<PersonnelInfo>> personnelInfoSupplier) {
+                                    BiFunction<String, Integer, String> keyMaker,
+                                    Function<String, String> keyExtractor,
+                                    Supplier<Collection<PersonnelInfo>> personnelSource,
+                                    OptionSource optionSource) {
         super(valueSource, keyMaker, keyExtractor);
-        this.personnelInfoSupplier = personnelInfoSupplier;
+        this.personnelSource = personnelSource;
+        this.optionSource = optionSource;
         valueProperties.put(RESPONDENT_NAME, new SimpleStringProperty());
         valueProperties.put(POSITION, new SimpleStringProperty());
         valueProperties.put(PHONE, new SimpleStringProperty());
@@ -150,11 +150,11 @@ public class ChefferieFormDataManager extends FormDataManager {
         // options.put(RECEPTION_AREA, new
         // SimpleListProperty<>(FXCollections.observableArrayList()));
         options.put(INTERNET_TYPE, new SimpleListProperty<>(FXCollections.observableArrayList()));
-        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL,
+        options.put(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
                 new SimpleListProperty<>(FXCollections.observableArrayList()));
-        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL,
+        options.put(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
                 new SimpleListProperty<>(FXCollections.observableArrayList()));
-        options.put(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER,
+        options.put(FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
                 new SimpleListProperty<>(FXCollections.observableArrayList()));
     }
 
@@ -203,6 +203,21 @@ public class ChefferieFormDataManager extends FormDataManager {
     }
 
     @Override
+    public void loadInitialOptions() {
+        options.get(DIVISION).setAll(optionSource.findOptions("division"));
+        options.get(MUNICIPALITY).setAll(optionSource.findOptions("commune"));
+        options.get(CLASSIFICATION).setAll(optionSource.findOptions("vb2qk85"));
+        options.get(WATER_SOURCES).setAll(optionSource.findOptions("zp4ec39"));
+        options.get(IS_CHIEF_CS_OFFICER).setAll(optionSource.findOptions("tr2ph17"));
+        options.get(CS_REG_LOCATION).setAll(optionSource.findOptions("vo6qc48"));
+//        options.get(WAITING_ROOM).setAll(optionSource.get("division", null));
+        options.get(INTERNET_TYPE).setAll(optionSource.findOptions("internet_types"));
+        options.get(FieldKeys.PersonnelInfo.PERSONNEL_GENDER).setAll(optionSource.findOptions("xw39g10"));
+        options.get(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL).setAll(optionSource.findOptions("nz2pr56"));
+        options.get(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL).setAll(optionSource.findOptions("ta2og93"));
+    }
+
+    @Override
     public String getIndexFieldKey() {
         return INDEX;
     }
@@ -213,82 +228,36 @@ public class ChefferieFormDataManager extends FormDataManager {
     }
 
     @Override
-    public ListProperty<Option> getOptionsFor(String field) {
-        return options.get(field);
-    }
-
-    @Override
-    public void loadOptions(OptionSource optionSource, Runnable callback) {
-        if (optionsLoaded) {
-            if (callback != null)
-                callback.run();
-            return;
-        }
-
-        Function<ObservableList<Option>, Consumer<Collection<Option>>> consumerFactory = list -> values -> {
-            if (Platform.isFxApplicationThread())
-                list.setAll(values);
-            else
-                Platform.runLater(() -> list.setAll(values));
-        };
-
-        optionSource.get(FORM_ID, "division", null, consumerFactory.apply(options.get(DIVISION)));
-        optionSource.get(FORM_ID, "commune", null,
-                consumerFactory.apply(options.get(MUNICIPALITY)));
-        optionSource.get(FORM_ID, "vb2qk85", null,
-                consumerFactory.apply(options.get(CLASSIFICATION)));
-        optionSource.get(FORM_ID, "zp4ec39", null,
-                consumerFactory.apply(options.get(WATER_SOURCES)));
-        optionSource.get(FORM_ID, "tr2ph17", null,
-                consumerFactory.apply(options.get(IS_CHIEF_CS_OFFICER)));
-        optionSource.get(FORM_ID, "vo6qc48", null,
-                consumerFactory.apply(options.get(CS_REG_LOCATION)));
-        // optionSource.get(FORM_ID, "vo6qc48", null,
-        // consumerFactory.apply(options.get(WAITING_ROOM)));
-        optionSource.get(FORM_ID, "internet_types", null,
-                consumerFactory.apply(options.get(INTERNET_TYPE)));
-        optionSource.get(FORM_ID, "xw39g10", null,
-                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_GENDER)));
-        optionSource.get(FORM_ID, "nz2pr56", null,
-                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_COMPUTER_LEVEL)));
-        optionSource.get(FORM_ID, "ta2og93", null,
-                consumerFactory.apply(options.get(FieldKeys.PersonnelInfo.Chefferie.PERSONNEL_ED_LEVEL)));
-
-        optionsLoaded = true;
-        if (callback != null)
-            callback.run();
-    }
-
-    @Override
     protected Class<?> getPropertyTypeFor(String id) {
         return switch (id) {
             case RESPONDENT_NAME, POSITION,
                     PHONE, EMAIL, FACILITY_NAME,
                     QUARTER, OTHER_CS_REG_LOCATION,
-                    OTHER_INTERNET_TYPE, OTHER_WATER_SOURCE ->
-                String.class;
+                    OTHER_INTERNET_TYPE, OTHER_WATER_SOURCE -> String.class;
             case DIVISION, MUNICIPALITY, CLASSIFICATION,
-                    IS_CHIEF_CS_OFFICER, CS_REG_LOCATION ->
-                Option.class;
+                    IS_CHIEF_CS_OFFICER, CS_REG_LOCATION -> Option.class;
             case WATER_SOURCES, INTERNET_TYPE -> List.class;
             case CREATION_DATE -> LocalDate.class;
             case HEALTH_CENTER_PROXIMITY, PC_COUNT,
                     PRINTER_COUNT, TABLET_COUNT, BIKE_COUNT,
-                    EMPLOYEE_COUNT, CAR_COUNT ->
-                Integer.class;
+                    EMPLOYEE_COUNT, CAR_COUNT -> Integer.class;
             case CHIEF_OATH, HAS_ENEO_CONNECTION,
                     TOILETS_ACCESSIBLE, HAS_EXTINGUISHER,
                     WATER_ACCESS, CS_OFFICER_TRAINED,
                     WAITING_ROOM, HAS_INTERNET,
-                    IS_CHIEFDOM_CHIEF_RESIDENCE ->
-                Boolean.class;
+                    IS_CHIEFDOM_CHIEF_RESIDENCE -> Boolean.class;
             case GPS_COORDS -> GeoPoint.class;
             default -> super.getPropertyTypeFor(id);
         };
     }
 
     @Override
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public ListProperty<Option> getOptionsFor(String field) {
+        return options.get(field);
+    }
+
+    @Override
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Property getPropertyFor(String id) {
         return Optional.of(id)
                 .filter(StringUtils::isNotBlank)
@@ -368,8 +337,8 @@ public class ChefferieFormDataManager extends FormDataManager {
         final var waterSourcesProperty = (ListProperty<Option>) getPropertyFor(WATER_SOURCES);
         final var otherWaterSourceProperty = (StringProperty) getPropertyFor(OTHER_WATER_SOURCE);
         final var binding = Bindings.createBooleanBinding(() -> Optional.ofNullable(waterSourcesProperty.getValue())
-                .filter(l -> l.stream().anyMatch(o -> "5".equals(o.value())))
-                .isPresent(),
+                        .filter(l -> l.stream().anyMatch(o -> "5".equals(o.value())))
+                        .isPresent(),
                 waterSourcesProperty);
         binding.addListener((ob, ov, nv) -> {
             if (!nv) {
@@ -388,7 +357,7 @@ public class ChefferieFormDataManager extends FormDataManager {
     }
 
     private void loadPersonnelInfo() {
-        final var allPersonnel = personnelInfoSupplier.get();
+        final var allPersonnel = personnelSource.get();
         personnelInfo.clear();
         personnelInfo.addAll(allPersonnel);
     }

@@ -62,6 +62,8 @@ public abstract class FormDataManager {
         return Arrays.asList(sortedChanges);
     }
 
+    public abstract void loadInitialOptions();
+
     public abstract void trackFieldChanges();
 
     /**
@@ -204,7 +206,6 @@ public abstract class FormDataManager {
     }
 
     public abstract ListProperty<Option> getOptionsFor(String field);
-    public abstract void loadOptions(OptionSource optionSource, Runnable callback);
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     protected void trackUpdatesForField(String field) {

@@ -3,7 +3,6 @@ package fr.civipol.civilio.controller;
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
-import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormType;
@@ -45,7 +44,7 @@ public abstract class FormController implements AppController {
     protected Consumer<String> onSubmit;
     @Setter
     protected Consumer<Void> onDiscard;
-    protected final StringProperty submissionId = new SimpleStringProperty(this, "submissionId");
+    protected final StringProperty submissionIndex = new SimpleStringProperty(this, "submissionIndex");
     protected final ObservableMap<String, Object> submissionData = FXCollections.observableHashMap();
 
     protected void setSubmitting(boolean v) {
@@ -58,15 +57,20 @@ public abstract class FormController implements AppController {
 
     protected abstract FormDataManager getModel();
 
-    public void setSubmissionId(String submissionId) {
-        this.submissionId.set(submissionId);
+    public void setSubmissionIndex(String submissionIndex) {
+        this.submissionIndex.set(submissionIndex);
     }
 
     protected abstract FormHeaderController getHeaderManagerController();
 
+    protected abstract void loadOptions();
+
     protected FormController() {
-        submissionId.addListener((ob, ov, nv) -> {
-            if (StringUtils.isBlank(nv)) return;
+        submissionIndex.addListener((ob, ov, nv) -> {
+            if (StringUtils.isBlank(nv)) {
+                getModel().trackFieldChanges();
+                return;
+            }
             updateFormValues();
         });
     }
@@ -97,7 +101,7 @@ public abstract class FormController implements AppController {
     protected void initializeController() {
         getHeaderManagerController().indexProperty().bindBidirectional(getModel().indexProperty());
         getHeaderManagerController().validationCodeProperty().bindBidirectional(getModel().validationCodeProperty());
-        getHeaderManagerController().submissionIdProperty().bindBidirectional(submissionId);
+        getHeaderManagerController().submissionIndexProperty().bindBidirectional(submissionIndex);
         getHeaderManagerController().indexFieldNameProperty().setValue(getModel().getIndexFieldKey());
     }
 
@@ -119,28 +123,14 @@ public abstract class FormController implements AppController {
         getModel().resetChanges();
         getExecutorService().submit(() -> {
             try {
-                OptionSource optionSource = (form, group, parent, callback) -> {
-                    try {
-                        log.debug("loading options for group: " + group);
-                        final var result = getFormService().findOptionsFor(group, parent, form);
-                        callback.accept(result);
-                    } catch (Throwable t) {
-                        log.error("error while loading options list", t);
-                        showErrorAlert(t.getLocalizedMessage());
-                    }
-                };
-                Runnable callback = () -> Optional.ofNullable(submissionId.get())
-                        .filter(StringUtils::isNotBlank)
-                        .ifPresent(__ -> {
-                            try {
-                                doLoadSubmissionData();
-                            } catch (Throwable e) {
-                                log.error("error while loading submission data", e);
-                                showErrorAlert(e.getLocalizedMessage());
-                            }
-                        });
-                getModel().loadOptions(optionSource, callback);
-
+                loadOptions();
+                doLoadSubmissionData();
+                Platform.runLater(() -> {
+                    getModel().loadInitialOptions();
+                    getModel().loadValues();
+                    getModel().markAsPristine();
+                    getModel().trackFieldChanges();
+                });
             } catch (Throwable t) {
                 log.error("error while loading submission data", t);
                 Platform.runLater(() -> {
@@ -171,26 +161,13 @@ public abstract class FormController implements AppController {
 
     protected abstract FormService getFormService();
 
-    protected void findOptions(String form, String group, String parent, Consumer<Collection<Option>> callback) {
-        getExecutorService().submit(() -> {
-            try {
-                log.debug("loading options for group: " + group);
-                final var result = getFormService().findOptionsFor(group, parent, form);
-                Platform.runLater(() -> callback.accept(result));
-            } catch (Throwable t) {
-                log.error("error while loading options list", t);
-                showErrorAlert(t.getLocalizedMessage());
-            }
-        });
-    }
-
     protected void handleSubmitEvent(ActionEvent ignored) {
         setSubmitting(true);
         getExecutorService().submit(() -> {
             try {
                 doSubmit();
                 Platform.runLater(() -> Optional.ofNullable(onSubmit)
-                        .ifPresent(c -> c.accept(submissionId.get())));
+                        .ifPresent(c -> c.accept(submissionIndex.get())));
                 doLoadSubmissionData();
             } catch (Throwable t) {
                 log.error("error while submitting form", t);
@@ -249,10 +226,6 @@ public abstract class FormController implements AppController {
                     submissionData.clear();
                     submissionData.putAll(data);
                 }));
-        Platform.runLater(() -> {
-            getModel().loadValues();
-            getModel().markAsPristine();
-        });
     }
 
     protected <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {

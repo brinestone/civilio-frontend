@@ -5,6 +5,6 @@ create table if not exists civilio.choices
     parent   text,
     "group"  text not null,
     i18n_key text,
-    version  text not null,
+    version  civilio.form_types not null,
     primary key (name, "group", version)
 );

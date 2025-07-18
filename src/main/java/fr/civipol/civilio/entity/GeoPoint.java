@@ -11,9 +11,9 @@ import java.util.Locale;
 @Jacksonized
 public class GeoPoint {
     @Builder.Default
-    private Float latitude = 3.8542679f;
+    private Float latitude = 5.483401f;
     @Builder.Default
-    private Float longitude = 11.4661458f;
+    private Float longitude = 47.88104f;
     private Float accuracy, altitude;
 
     public String toString() {
