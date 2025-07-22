@@ -20,9 +20,9 @@ import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.form.FOSAFormDataManager;
+import fr.civipol.civilio.form.FOSAFormModel;
 import fr.civipol.civilio.form.FieldKeys;
-import fr.civipol.civilio.form.FormDataManager;
+import fr.civipol.civilio.form.FormModel;
 import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
@@ -94,7 +94,7 @@ public class FOSAFormController extends FormController implements Initializable,
     private Tab tRespondent;
 
     @Getter(AccessLevel.PROTECTED)
-    private FormDataManager model;
+    private FormModel model;
     @FXML
     @Getter(AccessLevel.PROTECTED)
     @SuppressWarnings("unused")
@@ -117,7 +117,7 @@ public class FOSAFormController extends FormController implements Initializable,
     public void initialize(URL location, ResourceBundle resources) {
         this.resources = resources;
         final var ts = new ResourceBundleService(resources);
-        model = new FOSAFormDataManager(
+        model = new FOSAFormModel(
                 this::valueLoader,
                 this::findPersonnelInfo,
                 this::keyMaker,
@@ -234,11 +234,11 @@ public class FOSAFormController extends FormController implements Initializable,
     }
 
     private void setPersonnelStatusContainer(TranslationService ts) {
-        final var model = (FOSAFormDataManager) this.model;
+        final var model = (FOSAFormModel) this.model;
         final var form = Form.of(Group.of(
                         Field.ofIntegerType(model.personnelCountProperty())
                                 .label("fosa.form.fields.key_personnel_count.title")
-                                .tooltip("fosa.form.fields.key_personnel_count.description")
+                                .valueDescription("fosa.form.fields.key_personnel_count.description")
                                 .validate(IntegerRangeValidator.atLeast(0,
                                         "fosa.form.msg.value_out_of_range"))
                                 .span(ColSpan.THIRD),
@@ -258,7 +258,7 @@ public class FOSAFormController extends FormController implements Initializable,
     }
 
     private void setEquipmentContainer(TranslationService ts) {
-        final var model = (FOSAFormDataManager) this.model;
+        final var model = (FOSAFormModel) this.model;
         final var emergencyPowerSource = Field
                 .ofMultiSelectionType(model.emergencyPowerSourceTypesProperty(),
                         model.emergencyPowerSourcesProperty())
@@ -273,13 +273,13 @@ public class FOSAFormController extends FormController implements Initializable,
         final var form = Form.of(Group.of(
                                 Field.ofBooleanType(model.toiletAvailableProperty())
                                         .label("fosa.form.fields.toilet_present.title")
-                                        .tooltip("fosa.form.fields.toilet_resent.description"),
+                                        .valueDescription("fosa.form.fields.toilet_resent.description"),
                                 Field.ofBooleanType(model.eneoConnectionProperty())
                                         .label("fosa.form.fields.has_eneo_connection.title")
-                                        .tooltip("fosa.form.fields.has_eneo_connection.description"),
+                                        .valueDescription("fosa.form.fields.has_eneo_connection.description"),
                                 Field.ofBooleanType(model.emergencyPowerSourceAvailableProperty())
                                         .label("fosa.form.fields.has_power_source.title")
-                                        .tooltip("fosa.form.fields.has_power_source.description"),
+                                        .valueDescription("fosa.form.fields.has_power_source.description"),
                                 emergencyPowerSource,
                                 Field.ofBooleanType(model.internetConnectionAvailableProperty())
                                         .label("fosa.form.fields.internet_conn.title"),
@@ -326,30 +326,30 @@ public class FOSAFormController extends FormController implements Initializable,
     }
 
     private void setCSERegContainer(TranslationService ts) {
-        final var model = (FOSAFormDataManager) this.model;
+        final var model = (FOSAFormModel) this.model;
         final var form = Form.of(Group.of(
                                 Field.ofBooleanType(model.dhis2UsageProperty())
                                         .label("fosa.form.fields.dhis2_usage.title")
-                                        .tooltip("fosa.form.fields.dhis2_usage.description")
+                                        .valueDescription("fosa.form.fields.dhis2_usage.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.bunecBirthFormUsageProperty())
                                         .label("fosa.form.fields.uses_bunec_birth_form.title")
-                                        .tooltip("fosa.form.fields.uses_bunec_birth_form.description")
+                                        .valueDescription("fosa.form.fields.uses_bunec_birth_form.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.dhis2FormUsageProperty())
                                         .label("fosa.form.fields.uses_dhis2_form.title")
-                                        .tooltip("fosa.form.fields.uses_dhis2_form.description")
+                                        .valueDescription("fosa.form.fields.uses_dhis2_form.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.birthDeclarationToCscProperty())
                                         .label("fosa.form.fields.birth_declaration_transmission_to_csc.title")
-                                        .tooltip("fosa.form.fields.birth_declaration_transmission_to_csc.description")
+                                        .valueDescription("fosa.form.fields.birth_declaration_transmission_to_csc.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofMultiSelectionType(
                                                 model.eventRegistrationTypesProperty(),
                                                 model.registeredEventTypesProperty())
                                         .render(createMultiOptionComboBox(ts, model.eventRegistrationTypesProperty()))
                                         .label("fosa.form.fields.csc_event_reg_type.title")
-                                        .tooltip("fosa.form.fields.csc_event_reg_type.description")
+                                        .valueDescription("fosa.form.fields.csc_event_reg_type.description")
                                         .span(ColSpan.TWO_THIRD),
                                 Field.ofIntegerType(model.statsYear1Property())
                                         .label(FieldKeys.Fosa.STATS_YEAR_1)
@@ -408,13 +408,13 @@ public class FOSAFormController extends FormController implements Initializable,
 
 
     private void setStructureIdContainer(TranslationService ts) {
-        final var model = (FOSAFormDataManager) this.model;
+        final var model = (FOSAFormModel) this.model;
         final var form = Form.of(
                         Section.of(
                                         Field.ofSingleSelectionType(model.divisionsProperty(),
                                                         model.divisionProperty())
                                                 .label("fosa.form.fields.department.title")
-                                                .tooltip("fosa.form.fields.department.description")
+                                                .valueDescription("fosa.form.fields.department.description")
                                                 .render(createOptionComboBox(ts, model
                                                         .divisionsProperty()))
                                                 .span(ColSpan.HALF),
@@ -428,22 +428,22 @@ public class FOSAFormController extends FormController implements Initializable,
                                                 .label("fosa.form.fields.quarter.title")
                                                 .render(bindAutoCompletionWrapper(
                                                         FieldKeys.Fosa.QUARTER,
-                                                        String::valueOf))
+                                                        FormType.FOSA))
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.localityProperty())
                                                 .render(bindAutoCompletionWrapper(
                                                         FieldKeys.Fosa.LOCALITY,
-                                                        String::valueOf))
+                                                        FormType.FOSA))
                                                 .label("fosa.form.fields.locality.title")
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.officeNameProperty())
                                                 .label("fosa.form.fields.fosa_name.title")
-                                                .tooltip("fosa.form.fields.fosa_name.description")
+                                                .valueDescription("fosa.form.fields.fosa_name.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(model.districtsProperty(),
                                                         model.districtProperty())
                                                 .label("fosa.form.fields.district.title")
-                                                .tooltip("fosa.form.fields.district.description")
+                                                .valueDescription("fosa.form.fields.district.description")
                                                 .span(ColSpan.HALF)
                                                 .render(createOptionComboBox(ts, model
                                                         .districtsProperty())),
@@ -473,18 +473,18 @@ public class FOSAFormController extends FormController implements Initializable,
                                                 .span(ColSpan.HALF),
                                         Field.ofBooleanType(model.maternityAvailableProperty())
                                                 .label("fosa.form.fields.has_maternity.title")
-                                                .tooltip("fosa.form.fields.has_maternity.description")
+                                                .valueDescription("fosa.form.fields.has_maternity.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofStringType(model.attachedCscProperty())
                                                 .render(bindAutoCompletionWrapper(
                                                         FieldKeys.Fosa.ATTACHED_CSC,
-                                                        String::valueOf))
+                                                        FormType.FOSA))
                                                 .label("fosa.form.fields.csc_reg.title")
-                                                .tooltip("fosa.form.fields.csc_reg.description")
+                                                .valueDescription("fosa.form.fields.csc_reg.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofDoubleType(model.cscDistanceProperty())
                                                 .label("fosa.form.fields.distance_csc.title")
-                                                .tooltip("fosa.form.fields.distance_csc.description")
+                                                .valueDescription("fosa.form.fields.distance_csc.description")
                                                 .span(ColSpan.HALF))
                                 .title("fosa.form.sections.structure_identification.title")
                                 .collapse(false),
@@ -502,7 +502,7 @@ public class FOSAFormController extends FormController implements Initializable,
     }
 
     private void setRespondentSection(TranslationService ts) {
-        final var model = (FOSAFormDataManager) this.model;
+        final var model = (FOSAFormModel) this.model;
         final var today = LocalDate.now();
         final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
@@ -520,24 +520,24 @@ public class FOSAFormController extends FormController implements Initializable,
                                         .required("settings.msg.value_required")
                                         .render(bindAutoCompletionWrapper(
                                                 FieldKeys.Fosa.POSITION,
-                                                String::valueOf))
-                                        .tooltip("fosa.form.fields.position.description")
+                                                FormType.FOSA))
+                                        .valueDescription("fosa.form.fields.position.description")
                                         .label("fosa.form.fields.position.title"),
                                 Field.ofStringType(model.phoneProperty())
                                         .span(ColSpan.HALF)
                                         .required("settings.msg.value_required")
                                         .validate(RegexValidator.forPattern(
                                                 "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
-                                                "fosa.form.msg.invalid_value"))
+                                                "forms.msg.invalid_value"))
                                         .label("fosa.form.fields.phone.title")
-                                        .tooltip("fosa.form.fields.phone.description"),
+                                        .valueDescription("fosa.form.fields.phone.description"),
                                 Field.ofStringType(model.emailProperty())
                                         .span(ColSpan.HALF)
                                         .validate(RegexValidator.forPattern(
                                                 "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
-                                                "fosa.form.msg.invalid_value"))
+                                                "forms.msg.invalid_value"))
                                         .label("fosa.form.fields.email.title")
-                                        .tooltip("fosa.form.fields.email.description"),
+                                        .valueDescription("fosa.form.fields.email.description"),
                                 Field.ofDate(model.creationDateProperty())
                                         .label("fosa.form.fields.creation_date.title")
                                         .validate(CustomValidator.forPredicate(
@@ -545,7 +545,7 @@ public class FOSAFormController extends FormController implements Initializable,
                                                      || today.isAfter(d),
                                                 "fosa.form.msg.value_out_of_range"))
                                         .format(localDateStringConverter,
-                                                "fosa.form.msg.invalid_value")
+                                                "forms.msg.invalid_value")
                                         .render(new SimpleDateControl() {
                                             @Override
                                             public void initializeParts() {

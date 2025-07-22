@@ -1,7 +1,6 @@
 package fr.civipol.civilio.form;
 
 import fr.civipol.civilio.domain.FieldChange;
-import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.form.field.Option;
 import javafx.application.Platform;
@@ -24,13 +23,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("rawtypes")
-public abstract class FormDataManager {
+public abstract class FormModel {
     protected static final String DELIMITER_TOKEN_PATTERN = "[, ]";
     protected final ObservableMap<String, FieldChange> changes = FXCollections.observableHashMap();
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
 
-    public FormDataManager(
+    public FormModel(
             Function<String, ?> valueSource,
             BiFunction<String, Integer, String> keyMaker,
             Function<String, String> keyExtractor

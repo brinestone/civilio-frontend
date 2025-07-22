@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @SuppressWarnings("unchecked")
-public class FOSAFormDataManager extends FormDataManager {
+public class FOSAFormModel extends FormModel {
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
@@ -63,7 +63,7 @@ public class FOSAFormDataManager extends FormDataManager {
     private final OptionSource optionSource;
     private boolean trackingUpdates = false;
 
-    public FOSAFormDataManager(
+    public FOSAFormModel(
             Function<String, ?> valueExtractor,
             Supplier<Collection<PersonnelInfo>> personnelSource,
             BiFunction<String, Integer, String> keyMaker,
@@ -395,7 +395,7 @@ public class FOSAFormDataManager extends FormDataManager {
     }
 
     @Override
-    public Class<?> getPropertyTypeFor(String id) {
+    protected Class<?> getPropertyTypeFor(String id) {
         if (Arrays.stream(FieldKeys.PersonnelInfo.ALL_FIELDS).anyMatch(id::startsWith))
             return PersonnelInfo.class;
         return switch (id) {

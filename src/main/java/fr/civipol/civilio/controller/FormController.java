@@ -6,7 +6,7 @@ import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormType;
-import fr.civipol.civilio.form.FormDataManager;
+import fr.civipol.civilio.form.FormModel;
 import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
@@ -55,7 +55,7 @@ public abstract class FormController implements AppController {
         return submitting;
     }
 
-    protected abstract FormDataManager getModel();
+    protected abstract FormModel getModel();
 
     public void setSubmissionIndex(String submissionIndex) {
         this.submissionIndex.set(submissionIndex);
@@ -228,7 +228,11 @@ public abstract class FormController implements AppController {
                 }));
     }
 
-    protected <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, Function<String, T> deserializer) {
+    protected SimpleTextControl bindAutoCompletionWrapper(String targetField, FormType formType) {
+        return bindAutoCompletionWrapper(targetField, formType, String::valueOf);
+    }
+
+    protected <T> SimpleTextControl bindAutoCompletionWrapper(String targetField, FormType formType, Function<String, T> deserializer) {
         return new SimpleTextControl() {
             private final ObservableList<T> suggestions = FXCollections.observableArrayList();
 
@@ -247,18 +251,18 @@ public abstract class FormController implements AppController {
                         suggestions.clear();
                         return;
                     }
-                    populateAutoCompletionOptions(targetField, nv.trim(), deserializer,
+                    populateAutoCompletionOptions(formType, targetField, nv.trim(), deserializer,
                             suggestions);
                 });
             }
         };
     }
 
-    private <T> void populateAutoCompletionOptions(String field, String query, Function<String, T> deserializer,
+    private <T> void populateAutoCompletionOptions(FormType formType, String field, String query, Function<String, T> deserializer,
                                                    ObservableList<T> destination) {
         getExecutorService().submit(() -> {
             try {
-                final var result = getFormService().findAutoCompletionValuesFor(field, FormType.FOSA, query, 5,
+                final var result = getFormService().findAutoCompletionValuesFor(field, formType, query, 5,
                         deserializer);
                 Platform.runLater(() -> destination.setAll(result));
             } catch (Throwable t) {

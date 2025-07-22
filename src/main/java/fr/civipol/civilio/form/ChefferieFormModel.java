@@ -9,6 +9,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -19,8 +20,9 @@ import java.util.function.Supplier;
 
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.*;
 
+@Slf4j
 @SuppressWarnings("DuplicatedCode")
-public class ChefferieFormDataManager extends FormDataManager {
+public class ChefferieFormModel extends FormModel {
     private final Map<String, Property<?>> valueProperties = new HashMap<>();
     private final Map<String, ListProperty<Option>> options = new HashMap<>();
 
@@ -89,11 +91,11 @@ public class ChefferieFormDataManager extends FormDataManager {
     private final Supplier<Collection<PersonnelInfo>> personnelSource;
     private final OptionSource optionSource;
 
-    public ChefferieFormDataManager(Function<String, ?> valueSource,
-                                    BiFunction<String, Integer, String> keyMaker,
-                                    Function<String, String> keyExtractor,
-                                    Supplier<Collection<PersonnelInfo>> personnelSource,
-                                    OptionSource optionSource) {
+    public ChefferieFormModel(Function<String, ?> valueSource,
+                              BiFunction<String, Integer, String> keyMaker,
+                              Function<String, String> keyExtractor,
+                              Supplier<Collection<PersonnelInfo>> personnelSource,
+                              OptionSource optionSource) {
         super(valueSource, keyMaker, keyExtractor);
         this.personnelSource = personnelSource;
         this.optionSource = optionSource;
@@ -160,8 +162,10 @@ public class ChefferieFormDataManager extends FormDataManager {
 
     @Override
     public void trackFieldChanges() {
-        if (fieldsTracked)
+        if (fieldsTracked) {
+            log.debug("Already tracking fields, skipping.");
             return;
+        }
         trackUpdatesForField(RESPONDENT_NAME);
         trackUpdatesForField(POSITION);
         trackUpdatesForField(EMAIL);
@@ -200,11 +204,12 @@ public class ChefferieFormDataManager extends FormDataManager {
         trackUpdatesForField(EMPLOYEE_COUNT);
         trackUpdatesForField(EXTRA_INFO);
         fieldsTracked = true;
+        log.debug("Tracking field changes");
     }
 
     @Override
     public void loadInitialOptions() {
-        options.get(DIVISION).setAll(optionSource.findOptions("division"));
+        options.get(DIVISION).setAll(optionSource.findOptions("division", "01"));
         options.get(MUNICIPALITY).setAll(optionSource.findOptions("commune"));
         options.get(CLASSIFICATION).setAll(optionSource.findOptions("vb2qk85"));
         options.get(WATER_SOURCES).setAll(optionSource.findOptions("zp4ec39"));

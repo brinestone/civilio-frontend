@@ -79,14 +79,14 @@ public class FormService implements AppService {
                 if (field.startsWith(PERSONNEL_INFO_TABLE))
                     tableName = PERSONNEL_INFO_TABLE;
                 else if (form.equals(FormType.CSC)) {
-                    final var temp = field.substring(0, field.indexOf("."));
-                    tableName = switch (temp) {
-                        case VILLAGES_TABLE -> VILLAGES_TABLE;
-                        case PIECES_TABLE -> PIECES_TABLE;
-                        case STATISTICS_TABLE -> STATISTICS_TABLE;
-                        default ->
-                                throw new IllegalArgumentException("Could not determine the table for field: " + field);
-                    };
+                    if (field.contains("sub_forms.villages"))
+                        tableName = VILLAGES_TABLE;
+                    else if (field.contains("sub_forms.rooms"))
+                        tableName = PIECES_TABLE;
+                    else if (field.contains("sub_forms.indexing"))
+                        tableName = STATISTICS_TABLE;
+                    else if (field.contains("sub_forms.officers"))
+                        tableName = PERSONNEL_INFO_TABLE;
                 } else {
                     tableName = DATA_TABLE;
                 }
@@ -545,10 +545,14 @@ public class FormService implements AppService {
         return result;
     }
 
-    public Optional<SubmissionRef> findSubmissionRefById(String index, FormType form) throws SQLException {
+    public Optional<SubmissionRef> findSubmissionRefByIndex(String index, FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
         final var schema = form.toString();
         try (final var connection = ds.getConnection()) {
+            String validationCodeColumn = "q14_02_validation_code";
+            if (form == FormType.CSC)
+                validationCodeColumn = "code_de_validation";
+
             try (final var st = connection.prepareStatement("""
                     select d._id::TEXT,
                            d._submission_time::date,
@@ -560,14 +564,14 @@ public class FormService implements AppService {
                             select  _id,
                                     _submission_time,
                                     _index,
-                                    q14_02_validation_code,
+                                    %s as q14_02_validation_code,
                                     lead(_index) over (order by _index) as next,
                                     lag(_index) over (order by _index)  as prev
                             from
                                     %s.data
                          ) as d
                     where d._index = CAST(? as integer);
-                    """.formatted(schema))) {
+                    """.formatted(validationCodeColumn, schema))) {
                 st.setString(1, index);
                 try (final var rs = st.executeQuery()) {
                     if (!rs.next())

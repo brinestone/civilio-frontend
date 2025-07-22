@@ -1,25 +1,6 @@
 package fr.civipol.civilio.form;
 
-import com.dlsc.formsfx.model.structure.Field;
-import com.dlsc.formsfx.model.validators.CustomValidator;
-import com.dlsc.preferencesfx.formsfx.view.controls.SimpleTextControl;
-import com.dlsc.preferencesfx.model.Category;
-import com.dlsc.preferencesfx.model.Group;
-import com.dlsc.preferencesfx.model.Setting;
-import fr.civipol.civilio.domain.FieldMappingSource;
-import fr.civipol.civilio.entity.FormType;
-import javafx.beans.property.Property;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.transformation.FilteredList;
-import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.textfield.TextFields;
-
-import java.util.Objects;
-import java.util.function.Function;
-
-@SuppressWarnings({"DuplicatedCode"})
+@SuppressWarnings({ "DuplicatedCode" })
 public class FieldKeys {
     public static final class Fosa {
         public static final String RESPONDING_DEVICE = "fosa.form.fields.responding_device.title";
@@ -95,9 +76,9 @@ public class FieldKeys {
         public static final String HAS_COMPUTER_TRAINING = "data_personnel.columns.has_pc_training.title";
         public static final String ARCHIVING_TRAINING = "data_personnel.columns.archiving_training.title";
         public static final String MONTHLY_REVENUE = "data_personnel.columns.monthly_revenue.title";
-        public static final String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE,
+        public static final String[] ALL_FIELDS = { PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE,
                 PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL,
-                PERSONNEL_POSITION};
+                PERSONNEL_POSITION };
     }
 
     public static final class Chiefdom {
@@ -114,8 +95,10 @@ public class FieldKeys {
         public static final String HEALTH_CENTER_PROXIMITY = "chefferie.form.fields.distance.title";
         public static final String GPS_COORDS = "chefferie.form.sections.geo_point.title";
         public static final String FUNCTION = "chefferie.form.fields.fonction.title";
-        //        public static final String RECEPTION_AREA = "chefferie.form.fields.reception.title";
-//        public static final String OTHER_RECEPTION_AREA = "chefferie.form.fields.other_recep.title";
+        // public static final String RECEPTION_AREA =
+        // "chefferie.form.fields.reception.title";
+        // public static final String OTHER_RECEPTION_AREA =
+        // "chefferie.form.fields.other_recep.title";
         public static final String CONSERVATION_PLACE = "chefferie.form.fields.conservation_place.title";
         public static final String CS_OFFICER_TRAINED = "chefferie.form.fields.training.title";
         public static final String WAITING_ROOM = "chefferie.form.fields.waiting_room.title";
@@ -146,32 +129,222 @@ public class FieldKeys {
     }
 
     public static final class CSC {
+        public static final String INDEX = "csc.form.fields.index.title";
+        public static final String VALIDATION_CODE = "csc.form.fields.validation_code.title";
+        public static final String[] TRACKABLE_FIELDS = {
+                INDEX,
+                VALIDATION_CODE,
+                Identification.FACILITY_NAME,
+                Identification.CATEGORY,
+                Identification.TOWN_SIZE,
+                Identification.MILIEU,
+                Identification.ATTACHED_CENTERS,
+                Identification.LOCALITY,
+                Identification.CREATION_DATE,
+                Identification.IS_FUNCTIONAL,
+                Identification.NON_FUNCTION_REASON,
+                Identification.CHIEFDOM_DEGREE,
+                Identification.OTHER_NON_FUNCTION_REASON,
+                Identification.IS_CHIEFDOM,
+                Identification.NON_FUNCTION_DURATION,
+                Identification.SECONDARY_CREATION_ORDER,
+                Identification.OFFICER_APPOINTMENT_ORDER,
+                Identification.IS_OFFICER_APPOINTED,
+                Identification.PHOTO_URL,
+                Identification.GPS_COORDS,
+                Identification.QUARTER,
+                Identification.DIVISION,
+                Identification.MUNICIPALITY,
+                Respondent.CREATION_DATE,
+                Respondent.KNOWS_CREATION_DATE,
+                Respondent.NAME,
+                Respondent.POSITION,
+                Respondent.PHONE,
+                Respondent.EMAIL,
+                Accessibility.ROAD_TYPE,
+                Accessibility.DOES_ROAD_DETERIORATE,
+                Accessibility.ROAD_OBSTACLE,
+                Accessibility.ATTACHED_VILLAGES_NUMBER,
+                Accessibility.COVER_RADIUS,
+                Accessibility.Villages.NAME,
+                Accessibility.Villages.DISTANCE,
+                Accessibility.Villages.OBSERVATIONS,
+                Infrastructure.STATUS,
+                Infrastructure.OTHER_BUILDING,
+                Infrastructure.ENEO_CONNECTION,
+                Infrastructure.POWER_OUTAGES,
+                Infrastructure.STABLE_POWER,
+                Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE,
+                Infrastructure.BACKUP_POWER_SOURCES,
+                Infrastructure.OTHER_POWER_SOURCE,
+                Infrastructure.WATER_SOURCES,
+                Infrastructure.TOILETS_AVAILABLE,
+                Infrastructure.SEPARATE_TOILETS_AVAILABLE,
+                Infrastructure.NETWORK_TYPE,
+                Infrastructure.HAS_FIBER_CONNECTION,
+                Infrastructure.OTHER_NETWORK_TYPE,
+                Infrastructure.HAS_INTERNET,
+                Infrastructure.INTERNET_TYPE,
+                Infrastructure.OTHER_INTERNET_TYPE,
+                Infrastructure.INTERNET_SPONSOR,
+                Areas.OFFICE_COUNT,
+                Areas.DEDICATED_CS_ROOMS,
+                Areas.MOVING,
+//                Areas.RENOVATION_DUE,
+                Areas.Rooms.NUMBER,
+                Areas.Rooms.NAME,
+                Areas.Rooms.CONDITION,
+                Areas.Rooms.AREA,
+                Areas.Rooms.RENOVATION_NATURE,
+                Equipment.COMPUTER_COUNT,
+                Equipment.SERVER_COUNT,
+                Equipment.PRINTER_COUNT,
+                Equipment.SCANNER_COUNT,
+                Equipment.INVERTERS_COUNT,
+                Equipment.AIR_CONDITIONER_COUNT,
+                Equipment.FAN_COUNT,
+                Equipment.PROJECTOR_COUNT,
+                Equipment.OFFICE_TABLE_COUNT,
+                Equipment.CHAIR_COUNT,
+                Equipment.CAR_COUNT,
+                Equipment.BIKE_COUNT,
+                Equipment.TABLET_COUNT,
+                Digitization.EXTERNAL_SERVICE_FROM_CR,
+                Digitization.EXTERNAL_CR_USES_INTERNET,
+                Digitization.HAS_CS_SOFTWARE,
+                Digitization.CS_SOFTWARE_NAME,
+                Digitization.CS_SOFTWARE_LICENSE_SPONSOR,
+                Digitization.USERS_RECEIVE_DIGITAL_ACTS,
+                Digitization.SOFTWARE_ACTIVATION_DATE,
+                Digitization.SOFTWARE_FEEDBACK,
+                Digitization.SOFTWARE_TRAINED_USER_COUNT,
+                Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT,
+                Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT,
+                Digitization.SOFTWARE_RECORDED_DEATH_COUNT,
+                Digitization.SOFTWARE_IS_WORKING,
+                Digitization.SOFTWARE_DYSFUNCTION_REASON,
+                RecordIndexing.RECORDS_SCANNED,
+                RecordIndexing.STAFF_TRAINED,
+                RecordIndexing.DOCUMENT_SCAN_START_DATE,
+                RecordIndexing.DATA_INDEXED,
+                RecordIndexing.MARRIAGES_INDEXED,
+                RecordIndexing.DEATHS_INDEXED,
+                RecordIndexing.BIRTHS_INDEXED,
+                RecordIndexing.MARRIAGES_SCANNED,
+                RecordIndexing.BIRTHS_SCANNED,
+                RecordIndexing.DEATHS_SCANNED,
+                RecordIndexing.IS_DATA_USED_BY_CSC,
+                RecordIndexing.DATA_USAGE,
+                RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS,
+                RecordProcurement.RECORDS_PROVIDER,
+                RecordProcurement.OTHER_RECORDS_PROVIDER,
+                RecordProcurement.NON_COMPLIANT_REGISTERS_USED,
+                RecordProcurement.BLANK_REGISTRIES_COUNT,
+                RecordProcurement.BLANK_MARRIAGES,
+                RecordProcurement.BLANK_BIRTHS,
+                RecordProcurement.BLANK_DEATHS,
+                VitalStats.BIRTH_CERT_COST,
+                VitalStats.BIRTH_CERT_COPY_COST,
+                VitalStats.MARRIAGE_CERT_COPY_COST,
+                VitalStats.DEATH_CERT_COPY_COST,
+                VitalStats.CELIBACY_CERT_COPY_COST,
+                VitalStats.NON_REGISTERED_CERTS,
+                VitalStats.RATES_UNDER_DELIBERATION,
+                VitalStats.PRICES_DISPLAYED,
+                VitalStats.MUNICIPALITY_BUDGET_2024,
+                VitalStats.CS_BUDGET_2024,
+                VitalStats.CS_REVENUE_2024,
+                Archiving.HAS_ARCHIVING_ROOM,
+                Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION,
+                Archiving.HAS_FIRE_EXTINGUISHERS,
+                Archiving.LOCKED_DOOR,
+                Archiving.IS_ARCHIVE_ROOM_ACCESS_LIMITED,
+                Archiving.ROOM_HAS_HUMIDITY,
+                Archiving.REGISTER_ARCHIVING_TYPE,
+                Archiving.OTHER_ARCHIVING_TYPE,
+                Archiving.WRITTEN_ARCHIVING_PLAN,
+                Archiving.REGISTERS_DEPOSITED,
+                Archiving.REGISTERS_DEPOSITED_SYSTEMATICALLY,
+                Archiving.VANDALIZED,
+                Archiving.VANDALIZED_DATE,
+                Comments.RELEVANT_INFO,
+                Deeds.YEAR,
+                Deeds.BIRTH_CERT_DRAWN,
+                Deeds.BIRTH_CERT_NOT_DRAWN,
+                Deeds.MARRIAGE_CERT_DRAWN,
+                Deeds.MARRIAGE_CERT_NOT_DRAWN,
+                Deeds.DEATH_CERT_DRAWN,
+                Deeds.DEATH_CERT_NOT_DRAWN,
+                StatusOfArchivedRecords.YEAR,
+                StatusOfArchivedRecords.BIRTH_COUNT,
+                StatusOfArchivedRecords.MARRIAGE_COUNT,
+                StatusOfArchivedRecords.DEATH_COUNT,
+                PersonnelInfo.MALE_COUNT,
+                PersonnelInfo.FEMALE_COUNT,
+                PersonnelInfo.NON_OFFICER_MALE_COUNT,
+                PersonnelInfo.NON_OFFICER_FEMALE_COUNT,
+                PersonnelInfo.Officers.OTHER_POSITION,
+                PersonnelInfo.Officers.STATUS,
+                PersonnelInfo.Officers.OTHER_STATUS,
+                PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022,
+                PersonnelInfo.Officers.TOTAL_REVENUE_2022,
+                PersonnelInfo.Officers.ARCHIVING_TRAINING,
+                PersonnelInfo.Officers.CS_SENIORITY,
+                FieldKeys.PersonnelInfo.PERSONNEL_NAME,
+                FieldKeys.PersonnelInfo.PERSONNEL_AGE,
+                FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
+                FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
+                FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
+                FieldKeys.PersonnelInfo.PERSONNEL_EMAIL,
+                FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
+                FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+                FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING
+        };
+
         public static final class Respondent {
             public static final String NAME = "csc.form.sections.respondent.fields.name.title";
             public static final String POSITION = "csc.form.sections.respondent.fields.position.title";
             public static final String PHONE = "csc.form.sections.respondent.fields.phone.title";
             public static final String EMAIL = "csc.form.sections.respondent.fields.email.title";
+            public static final String KNOWS_CREATION_DATE = "csc.form.sections.respondent.fields.knows_creation_date.title";
+            public static final String CREATION_DATE = "csc.form.sections.respondent.fields.creation_date.title";
+            public static final String[] ALL_FIELDS = {
+                    NAME, POSITION, PHONE, EMAIL, KNOWS_CREATION_DATE, CREATION_DATE
+            };
         }
+
         public static final class Identification {
-            public static final String DEPARTMENT = "csc.form.sections.identification.fields.division.title";
+            public static final String DIVISION = "csc.form.sections.identification.fields.division.title";
             public static final String MUNICIPALITY = "csc.form.sections.identification.fields.municipality.title";
             public static final String QUARTER = "csc.form.sections.identification.fields.quarter.title";
             public static final String FACILITY_NAME = "csc.form.sections.identification.fields.facility.title";
             public static final String CATEGORY = "csc.form.sections.identification.fields.category.title";
-            public static final String COUNCIL_SIZE = "csc.form.sections.identification.fields.council_size.title";
+            public static final String TOWN_SIZE = "csc.form.sections.identification.fields.council_size.title";
             public static final String MILIEU = "csc.form.sections.identification.fields.milieu.title";
-            public static final String ATTACHED_CENTERS = "csc.form.sections.identification.fields.milieu.title";
+            public static final String ATTACHED_CENTERS = "csc.form.sections.identification.fields.attached_centers.title";
             public static final String LOCALITY = "csc.form.sections.identification.fields.locality.title";
-            public static final String CREATION_DATE = "csc.form.sections.identification.fields.creation.title";
+            public static final String CREATION_DATE = "csc.form.sections.identification.fields.creation_date.title";
             public static final String IS_FUNCTIONAL = "csc.form.sections.identification.fields.functional.title";
             public static final String NON_FUNCTION_REASON = "csc.form.sections.identification.fields.non_function_reason.title";
+            public static final String CHIEFDOM_DEGREE = "csc.form.sections.identification.fields.chiefdom_degree.title";
             public static final String OTHER_NON_FUNCTION_REASON = "csc.form.sections.identification.fields.other_non_function_reason.title";
+            public static final String IS_CHIEFDOM = "csc.form.sections.identification.fields.fields.is_chiefdom.title";
             public static final String NON_FUNCTION_DURATION = "csc.form.sections.identification.fields.non_function_duration.title";
             public static final String SECONDARY_CREATION_ORDER = "csc.form.sections.identification.fields.sec_creation_order.title";
             public static final String OFFICER_APPOINTMENT_ORDER = "csc.form.sections.identification.fields.officer_appointment_order.title";
+            public static final String IS_OFFICER_APPOINTED = "csc.form.sections.identification.fields.officer_appointed.title";
             public static final String PHOTO_URL = "csc.form.sections.identification.fields.photo_url.title";
             public static final String GPS_COORDS = "csc.form.sections.identification.fields.gps_coords.title";
+            public static final String[] ALL_FIELDS = {
+                    DIVISION, MUNICIPALITY, QUARTER, FACILITY_NAME, CATEGORY, TOWN_SIZE, MILIEU, ATTACHED_CENTERS,
+                    LOCALITY,
+                    CREATION_DATE, IS_FUNCTIONAL, NON_FUNCTION_REASON, CHIEFDOM_DEGREE, OTHER_NON_FUNCTION_REASON,
+                    IS_CHIEFDOM,
+                    NON_FUNCTION_DURATION, SECONDARY_CREATION_ORDER, OFFICER_APPOINTMENT_ORDER, IS_OFFICER_APPOINTED,
+                    PHOTO_URL, GPS_COORDS
+            };
         }
+
         public static final class Accessibility {
             public static final String ROAD_TYPE = "csc.form.sections.accessibility.fields.road_type.title";
             public static final String DOES_ROAD_DETERIORATE = "csc.form.sections.accessibility.fields.road_deteriorates.title";
@@ -179,43 +352,71 @@ public class FieldKeys {
             public static final String ATTACHED_VILLAGES_NUMBER = "csc.form.sections.accessibility.fields.attached_villages_num.title";
             public static final String ATTACHED_VILLAGES_LIST = "csc.form.sections.accessibility.sub_forms.attached_villages_list.title";
             public static final String COVER_RADIUS = "csc.form.sections.accessibility.fields.cover_radius.title";
+            public static final String[] ALL_FIELDS = {
+                    ROAD_TYPE, DOES_ROAD_DETERIORATE, ROAD_OBSTACLE, ATTACHED_VILLAGES_NUMBER,
+                    COVER_RADIUS
+            };
 
             public static final class Villages {
                 public static final String NAME = "csc.form.sections.accessibility.sub_forms.villages.fields.name.title";
                 public static final String DISTANCE = "csc.form.sections.accessibility.sub_forms.villages.fields.avg_distance.title";
                 public static final String OBSERVATIONS = "csc.form.section.accessibility.sub_forms.villages.fields.observations.title";
-
+                public static final String[] ALL_FIELDS = {
+                        NAME, DISTANCE, OBSERVATIONS
+                };
             }
         }
+
         public static final class Infrastructure {
             public static final String STATUS = "csc.form.sections.infra.fields.occupancy_status.title";
+            public static final String OTHER_BUILDING = "csc.form.sections.infra.fields.other_building.title";
             public static final String ENEO_CONNECTION = "csc.form.sections.infra.fields.eneo_connection.title";
             public static final String POWER_OUTAGES = "csc.form.sections.infra.fields.power_outages.title";
             public static final String STABLE_POWER = "csc.form.sections.infra.fields.stable_power.title";
             public static final String BACKUP_POWER_SOURCES_AVAILABLE = "csc.form.sections.infra.fields.backup_power_available.title";
             public static final String BACKUP_POWER_SOURCES = "csc.form.sections.infra.fields.backup_power.title";
+            public static final String OTHER_POWER_SOURCE = "csc.form.sections.infra.fields.other_backup_power.title";
             public static final String WATER_SOURCES = "csc.form.sections.infra.fields.water_sources.title";
             public static final String TOILETS_AVAILABLE = "csc.form.sections.infra.fields.toilets_available.title";
+            public static final String SEPARATE_TOILETS_AVAILABLE = "csc.form.sections.infra.fields.separate_toilets_available.title";
             public static final String NETWORK_TYPE = "csc.form.sections.infra.fields.zone_operators.title";
+            public static final String HAS_FIBER_CONNECTION = "csc.form.sections.infra.fields.has_fiber.title";
             public static final String OTHER_NETWORK_TYPE = "csc.form.sections.infra.fields.other_zone_operators.title";
             public static final String HAS_INTERNET = "csc.form.sections.infra.fields.has_internet.title";
             public static final String INTERNET_TYPE = "csc.form.sections.infra.fields.internet_type.title";
             public static final String OTHER_INTERNET_TYPE = "csc.form.sections.infra.fields.other_internet_type.title";
-            public static final String INTERNET_SPONSOR = "csc.form.sections.infra.fields.internet_sponsor.title";
+            public static final String INTERNET_SPONSOR = "csc.form.sections.infra.fields.internet_sponsorer.title";
+            public static final String[] ALL_FIELDS = {
+                    STATUS, OTHER_BUILDING, ENEO_CONNECTION, POWER_OUTAGES, STABLE_POWER,
+                    BACKUP_POWER_SOURCES_AVAILABLE,
+                    BACKUP_POWER_SOURCES, OTHER_POWER_SOURCE, WATER_SOURCES, TOILETS_AVAILABLE,
+                    SEPARATE_TOILETS_AVAILABLE,
+                    NETWORK_TYPE, HAS_FIBER_CONNECTION, OTHER_NETWORK_TYPE, HAS_INTERNET, INTERNET_TYPE,
+                    OTHER_INTERNET_TYPE, INTERNET_SPONSOR
+            };
         }
+
         public static final class Areas {
             public static final String OFFICE_COUNT = "csc.form.sections.areas.fields.office_count.title";
             public static final String DEDICATED_CS_ROOMS = "csc.form.sections.areas.fields.dedicated_cs_rooms.title";
             public static final String MOVING = "csc.form.sections.areas.fields.moving.title";
-            public static final String RENOVATION_DUE = "csc.form.sections.areas.fields.renovation_due.title";
+//            public static final String RENOVATION_DUE = "csc.form.sections.areas.fields.renovation_due.title";
+            public static final String[] ALL_FIELDS = {
+                    OFFICE_COUNT, DEDICATED_CS_ROOMS, MOVING/*, RENOVATION_DUE*/
+            };
 
             public static final class Rooms {
+                public static final String NUMBER = "csc.form.sections.areas.sub_forms.rooms.fields.number.title";
                 public static final String NAME = "csc.form.sections.areas.sub_forms.rooms.fields.name.title";
                 public static final String CONDITION = "csc.form.sections.areas.sub_forms.rooms.fields.condition.title";
-                public static final String DIMENSION = "csc.form.sections.areas.sub_forms.rooms.fields.dimension.title";
+                public static final String AREA = "csc.form.sections.areas.sub_forms.rooms.fields.dimension.title";
                 public static final String RENOVATION_NATURE = "csc.form.sections.areas.sub_forms.rooms.fields.renovation.title";
+                public static final String[] ALL_FIELDS = {
+                        NUMBER, NAME, CONDITION, AREA, RENOVATION_NATURE
+                };
             }
         }
+
         public static final class Equipment {
             public static final String COMPUTER_COUNT = "csc.form.sections.equipment.fields.pc_count.title";
             public static final String SERVER_COUNT = "csc.form.sections.equipment.fields.server_count.title";
@@ -230,7 +431,12 @@ public class FieldKeys {
             public static final String CAR_COUNT = "csc.form.sections.equipment.fields.cars.title";
             public static final String BIKE_COUNT = "csc.form.sections.equipment.fields.bikes.title";
             public static final String TABLET_COUNT = "csc.form.sections.equipment.fields.tablets.title";
+            public static final String[] ALL_FIELDS = {
+                    COMPUTER_COUNT, SERVER_COUNT, PRINTER_COUNT, SCANNER_COUNT, INVERTERS_COUNT, AIR_CONDITIONER_COUNT,
+                    FAN_COUNT, PROJECTOR_COUNT, OFFICE_TABLE_COUNT, CHAIR_COUNT, CAR_COUNT, BIKE_COUNT, TABLET_COUNT
+            };
         }
+
         public static final class Digitization {
             public static final String EXTERNAL_SERVICE_FROM_CR = "csc.form.sections.digitization.fields.using_info_sys_outside_cs.title";
             public static final String EXTERNAL_CR_USES_INTERNET = "csc.form.sections.digitization.fields.external_cr_uses_internet.title";
@@ -246,31 +452,52 @@ public class FieldKeys {
             public static final String SOFTWARE_RECORDED_DEATH_COUNT = "csc.form.sections.digitization.fields.software_recorded_death_count.title";
             public static final String SOFTWARE_IS_WORKING = "csc.form.sections.digitization.fields.software_is_functional.title";
             public static final String SOFTWARE_DYSFUNCTION_REASON = "csc.form.sections.digitization.fields.software_dysfunction_reason.title";
-
-            public static final class RecordIndexing {
-                public static final String RECORDS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.records_indexed.title";
-                public static final String STAFF_TRAINED = "csc.form.sections.digitization.sub_forms.indexing.fields.staff_trained.title";
-                public static final String INDEXING_DATE = "csc.form.sections.digitization.sub_forms.indexing.fields.index_date.title";
-                public static final String DATA_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_indexed.title";
-                public static final String MARRIAGES_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_indexed.title";
-                public static final String DEATHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_indexed.title";
-                public static final String BIRTHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_indexed.title";
-                public static final String MARRIAGES_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_scanned.title";
-                public static final String BIRTHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_scanned.title";
-                public static final String DEATHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_scanned.title";
-                public static final String IS_DATA_USED_BY_CSC = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_in_use.title";
-                public static final String DATA_USAGE = "csc.form.sections.digitization.sub_forms.indexing.fields.data_usage.title";
-            }
+            public static final String[] ALL_FIELDS = {
+                    EXTERNAL_SERVICE_FROM_CR, EXTERNAL_CR_USES_INTERNET, HAS_CS_SOFTWARE, CS_SOFTWARE_NAME,
+                    CS_SOFTWARE_LICENSE_SPONSOR,
+                    USERS_RECEIVE_DIGITAL_ACTS, SOFTWARE_ACTIVATION_DATE, SOFTWARE_FEEDBACK,
+                    SOFTWARE_TRAINED_USER_COUNT,
+                    SOFTWARE_RECORDED_MARRIAGE_COUNT, SOFTWARE_RECORDED_BIRTHS_COUNT, SOFTWARE_RECORDED_DEATH_COUNT,
+                    SOFTWARE_IS_WORKING, SOFTWARE_DYSFUNCTION_REASON
+            };
         }
+
+        public static final class RecordIndexing {
+            public static final String RECORDS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.records_scanned.title";
+            public static final String STAFF_TRAINED = "csc.form.sections.digitization.sub_forms.indexing.fields.staff_trained.title";
+            public static final String DOCUMENT_SCAN_START_DATE = "csc.form.sections.digitization.sub_forms.indexing.fields.document_scan_start_date.title";
+            public static final String DATA_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_indexed.title";
+            public static final String MARRIAGES_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_indexed.title";
+            public static final String DEATHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_indexed.title";
+            public static final String BIRTHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_indexed.title";
+            public static final String MARRIAGES_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_scanned.title";
+            public static final String BIRTHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_scanned.title";
+            public static final String DEATHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_scanned.title";
+            public static final String IS_DATA_USED_BY_CSC = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_in_use.title";
+            public static final String DATA_USAGE = "csc.form.sections.digitization.sub_forms.indexing.fields.data_usage.title";
+            public static final String[] ALL_FIELDS = {
+                    RECORDS_SCANNED, STAFF_TRAINED, DOCUMENT_SCAN_START_DATE, DATA_INDEXED, MARRIAGES_INDEXED,
+                    DEATHS_INDEXED,
+                    BIRTHS_INDEXED, MARRIAGES_SCANNED, BIRTHS_SCANNED, DEATHS_SCANNED, IS_DATA_USED_BY_CSC, DATA_USAGE
+            };
+        }
+
         public static final class RecordProcurement {
             public static final String HAS_THERE_BEEN_LACK_OF_REGISTERS = "csc.form.sections.record_procurement.fields.lack_of_registers.title";
             public static final String RECORDS_PROVIDER = "csc.form.sections.record_procurement.fields.records_provider.title";
+            public static final String OTHER_RECORDS_PROVIDER = "csc.form.sections.record_procurement.fields.other_records_provider.title";
             public static final String NON_COMPLIANT_REGISTERS_USED = "csc.form.sections.record_procurement.fields.non_compliant_registers_used.title";
             public static final String BLANK_REGISTRIES_COUNT = "csc.form.sections.record_procurement.fields.blank_registries.title";
             public static final String BLANK_MARRIAGES = "csc.form.sections.record_procurement.fields.blank_marriages.title";
             public static final String BLANK_BIRTHS = "csc.form.sections.record_procurement.fields.blank_births.title";
             public static final String BLANK_DEATHS = "csc.form.sections.record_procurement.fields.blank_deaths.title";
+            public static final String[] ALL_FIELDS = {
+                    HAS_THERE_BEEN_LACK_OF_REGISTERS, RECORDS_PROVIDER, OTHER_RECORDS_PROVIDER,
+                    NON_COMPLIANT_REGISTERS_USED,
+                    BLANK_REGISTRIES_COUNT, BLANK_MARRIAGES, BLANK_BIRTHS, BLANK_DEATHS
+            };
         }
+
         public static final class VitalStats {
             public static final String BIRTH_CERT_COST = "csc.form.sections.vital_stats.fields.birth_cert_cost.title";
             public static final String BIRTH_CERT_COPY_COST = "csc.form.sections.vital_stats.fields.birth_cert_copy_cost.title";
@@ -283,7 +510,14 @@ public class FieldKeys {
             public static final String MUNICIPALITY_BUDGET_2024 = "csc.form.sections.vital_stats.fields.municipality_budget.title";
             public static final String CS_BUDGET_2024 = "csc.form.sections.vital_stats.fields.cs_budget.title";
             public static final String CS_REVENUE_2024 = "csc.form.sections.vital_stats.fields.cs_revenue.title";
+            public static final String[] ALL_FIELDS = {
+                    BIRTH_CERT_COST, BIRTH_CERT_COPY_COST, MARRIAGE_CERT_COPY_COST, DEATH_CERT_COPY_COST,
+                    CELIBACY_CERT_COPY_COST,
+                    NON_REGISTERED_CERTS, RATES_UNDER_DELIBERATION, PRICES_DISPLAYED, MUNICIPALITY_BUDGET_2024,
+                    CS_BUDGET_2024, CS_REVENUE_2024
+            };
         }
+
         public static final class Archiving {
             public static final String HAS_ARCHIVING_ROOM = "csc.form.sections.archiving.fields.archiving_room.title";
             public static final String ARCHIVE_ROOM_ELECTRIC_CONDITION = "csc.form.sections.archiving.fields.archiving_room_electric_condition.title";
@@ -292,12 +526,25 @@ public class FieldKeys {
             public static final String IS_ARCHIVE_ROOM_ACCESS_LIMITED = "csc.form.sections.archiving.fields.access_limited.title";
             public static final String ROOM_HAS_HUMIDITY = "csc.form.sections.archiving.fields.room_has_humidity.title";
             public static final String REGISTER_ARCHIVING_TYPE = "csc.form.sections.archiving.fields.register_archiving_type.title";
+            public static final String OTHER_ARCHIVING_TYPE = "csc.form.sections.archiving.fields.other_register_archiving_type.title";
             public static final String WRITTEN_ARCHIVING_PLAN = "csc.form.sections.archiving.fields.written_archiving_plan.title";
             public static final String REGISTERS_DEPOSITED = "csc.form.sections.archiving.fields.registers_deposited.title";
             public static final String REGISTERS_DEPOSITED_SYSTEMATICALLY = "csc.form.sections.archiving.fields.registers_deposited_systematically.title";
             public static final String VANDALIZED = "csc.form.sections.archiving.fields.vandalized.title";
             public static final String VANDALIZED_DATE = "csc.form.sections.archiving.fields.vandalized_date.title";
+            public static final String[] ALL_FIELDS = {
+                    HAS_ARCHIVING_ROOM, ARCHIVE_ROOM_ELECTRIC_CONDITION, HAS_FIRE_EXTINGUISHERS, LOCKED_DOOR,
+                    IS_ARCHIVE_ROOM_ACCESS_LIMITED, ROOM_HAS_HUMIDITY, REGISTER_ARCHIVING_TYPE, OTHER_ARCHIVING_TYPE,
+                    WRITTEN_ARCHIVING_PLAN, REGISTERS_DEPOSITED, REGISTERS_DEPOSITED_SYSTEMATICALLY, VANDALIZED,
+                    VANDALIZED_DATE
+            };
         }
+
+        public static final class Comments {
+            public static final String RELEVANT_INFO = "csc.form.sections.comments.fields.relevant_info.title";
+            public static final String[] ALL_FIELDS = { RELEVANT_INFO };
+        }
+
         public static final class Deeds {
             public static final String YEAR = "csc.form.sections.deeds.fields.year.title";
             public static final String BIRTH_CERT_DRAWN = "csc.form.sections.deeds.fields.birth_certs_drawn.title";
@@ -306,258 +553,44 @@ public class FieldKeys {
             public static final String MARRIAGE_CERT_NOT_DRAWN = "csc.form.sections.deeds.fields.marriage_certs_not_withdrawn.title";
             public static final String DEATH_CERT_DRAWN = "csc.form.sections.deeds.fields.death_certs_drawn.title";
             public static final String DEATH_CERT_NOT_DRAWN = "csc.form.sections.deeds.fields.death_certs_not_withdrawn.title";
+            public static final String[] ALL_FIELDS = {
+                    YEAR, BIRTH_CERT_DRAWN, BIRTH_CERT_NOT_DRAWN, MARRIAGE_CERT_DRAWN, MARRIAGE_CERT_NOT_DRAWN,
+                    DEATH_CERT_DRAWN, DEATH_CERT_NOT_DRAWN
+            };
         }
+
         public static final class StatusOfArchivedRecords {
             public static final String YEAR = "csc.form.sections.archive_stats.fields.year.title";
-            public static final String TYPE = "csc.form.sections.archive_stats.fields.type.title";
-            public static final String TOTAL_REGISTERED = "csc.form.sections.archive_stats.fields.total_registered.title";
-            public static final String TO_BE_RESTORED = "csc.form.sections.archive_stats.fields.to_be_restored.title";
-            public static final String TO_BE_RECONSTITUTED = "csc.form.sections.archive_stats.fields.to_be_reconstituted.title";
-            public static final String OBSERVATIONS = "csc.form.sections.archive_stats.fields.observations.title";
+            public static final String BIRTH_COUNT = "csc.form.sections.archive_stats.fields.birth_count.title";
+            public static final String MARRIAGE_COUNT = "csc.form.sections.archive_stats.fields.marriage_count.title";
+            public static final String DEATH_COUNT = "csc.form.sections.archive_stats.fields.death_count.title";
+            public static final String[] ALL_FIELDS = {
+                    YEAR, BIRTH_COUNT, MARRIAGE_COUNT, DEATH_COUNT
+            };
         }
+
         public static final class PersonnelInfo {
             public static final String MALE_COUNT = "csc.form.sections.personnel_info.fields.male_count.title";
             public static final String FEMALE_COUNT = "csc.form.sections.personnel_info.fields.female_count.title";
+            public static final String NON_OFFICER_MALE_COUNT = "csc.form.sections.personnel_info.fields.non_officer_male_count.title";
+            public static final String NON_OFFICER_FEMALE_COUNT = "csc.form.sections.personnel_info.fields.non_officer_female_count.title";
+            public static final String[] ALL_FIELDS = {
+                    MALE_COUNT, FEMALE_COUNT, NON_OFFICER_MALE_COUNT, NON_OFFICER_FEMALE_COUNT
+            };
 
             public static final class Officers {
-                public static final String NAME = "csc.form.sections.personnel_info.sub_forms.fields.name.title";
-                public static final String STATUS = "csc.form.sections.personnel_info.sub_forms.fields.status.title";
-                public static final String PHONE = "csc.form.sections.personnel_info.sub_forms.fields.phone.title";
-                public static final String EMAIL = "csc.form.sections.personnel_info.sub_forms.fields.email.title";
-                public static final String TOTAL_ALLOWANCE_2022 = "csc.form.sections.personnel_info.sub_forms.fields.allowance_2022.title";
-                public static final String TOTAL_REVENUE_2022 = "csc.form.sections.personnel_info.sub_forms.fields.revenue_2022.title";
-                public static final String CS_TRAINING = "csc.form.sections.personnel_info.sub_forms.fields.cs_training.title";
+                public static final String OTHER_POSITION = "csc.form.sections.personnel_info.sub_forms.officers.fields.other_position.title";
+                public static final String STATUS = "csc.form.sections.personnel_info.sub_forms.officers.fields.status.title";
+                public static final String OTHER_STATUS = "csc.form.sections.personnel_info.sub_forms.officers.fields.other_status.title";
+                public static final String TOTAL_ALLOWANCE_2022 = "csc.form.sections.personnel_info.sub_forms.officers.fields.allowance_2022.title";
+                public static final String TOTAL_REVENUE_2022 = "csc.form.sections.personnel_info.sub_forms.officers.fields.revenue_2022.title";
+                public static final String ARCHIVING_TRAINING = "csc.form.sections.personnel_info.sub_forms.officers.fields.archiving_training.title";
+                public static final String CS_SENIORITY = "csc.form.sections.personnel_info.sub_forms.officers.fields.seniority.title";
+                public static final String[] ALL_FIELDS = {
+                        OTHER_POSITION, STATUS, OTHER_STATUS, TOTAL_ALLOWANCE_2022, TOTAL_REVENUE_2022,
+                        ARCHIVING_TRAINING, CS_SENIORITY
+                };
             }
         }
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static Category chiefdomFieldSettingsCategory(FieldMappingSource fieldMappingSource) {
-        final var fieldMap = FXCollections.<String, Property>observableHashMap();
-        final var allFields = FXCollections.<String>observableArrayList();
-        fieldMappingSource.findAllDbColumns(FormType.CHIEFDOM, allFields::setAll);
-        Function<String, Setting> settingFactory = k -> Setting.of(k,
-                Field.ofStringType((StringProperty) fieldMap.computeIfAbsent(k, kk -> new SimpleStringProperty()))
-                        .validate(CustomValidator.forPredicate(v -> allFields.stream().anyMatch(s -> s.equals(v)),
-                                "fosa.form.msg.invalid_value"))
-                        .render(new SimpleTextControl() {
-                            private final FilteredList<String> suggestions = allFields
-                                    .filtered(StringUtils::isNotBlank);
-
-                            @Override
-                            public void initializeParts() {
-                                super.initializeParts();
-                                TextFields.bindAutoCompletion(editableField, param -> suggestions);
-                            }
-
-                            @Override
-                            public void setupValueChangedListeners() {
-                                super.setupValueChangedListeners();
-                                editableField.textProperty().addListener((ob, ov, nv) -> {
-                                    if (StringUtils.isBlank(nv)) {
-                                        suggestions.setPredicate(__ -> false);
-                                    } else {
-                                        suggestions.setPredicate(f -> {
-                                            for (var entry : fieldMap.entrySet()) {
-                                                if (entry.getKey().equals(k) || entry.getValue() == null)
-                                                    continue;
-                                                final var otherProperty = entry.getValue();
-                                                if (otherProperty.getValue() instanceof String s) {
-                                                    if (s.equalsIgnoreCase(f))
-                                                        return false;
-                                                } else if (Objects.equals(otherProperty.getValue(), f))
-                                                    return false;
-                                            }
-                                            return f.toLowerCase().contains(nv.toLowerCase());
-                                        });
-                                    }
-                                });
-                            }
-                        }),
-                fieldMap.get(k));
-        return Category.of("shell.menu.forms.chefferie",
-                        Group.of(
-                                "mapper.categories.forms.chefferie.base_fields.title",
-                                settingFactory.apply(Chiefdom.INDEX),
-                                settingFactory.apply(Chiefdom.VALIDATION_CODE),
-                                settingFactory.apply(Chiefdom.RESPONDENT_NAME),
-                                settingFactory.apply(Chiefdom.POSITION),
-                                settingFactory.apply(Chiefdom.PHONE),
-                                settingFactory.apply(Chiefdom.EMAIL),
-//                                settingFactory.apply(Chefferie.CREATION_DATE),
-                                settingFactory.apply(Chiefdom.DIVISION),
-                                settingFactory.apply(Chiefdom.MUNICIPALITY),
-                                settingFactory.apply(Chiefdom.QUARTER),
-                                settingFactory.apply(Chiefdom.FACILITY_NAME),
-                                settingFactory.apply(Chiefdom.CLASSIFICATION),
-                                settingFactory.apply(Chiefdom.HEALTH_CENTER_PROXIMITY),
-                                settingFactory.apply(Chiefdom.GPS_COORDS),
-                                settingFactory.apply(Chiefdom.CHIEF_OATH),
-//                                settingFactory.apply(Chefferie.OTHER_RECEPTION_AREA),
-                                settingFactory.apply(Chiefdom.IS_CHIEF_CS_OFFICER),
-                                settingFactory.apply(Chiefdom.CS_REG_LOCATION),
-                                settingFactory.apply(Chiefdom.OTHER_CS_REG_LOCATION),
-                                settingFactory.apply(Chiefdom.CS_OFFICER_TRAINED),
-                                settingFactory.apply(Chiefdom.WAITING_ROOM),
-                                settingFactory.apply(Chiefdom.OTHER_WAITING_ROOM),
-//                                settingFactory.apply(Chefferie.RECEPTION_AREA),
-                                settingFactory.apply(Chiefdom.TOILETS_ACCESSIBLE),
-                                settingFactory.apply(Chiefdom.INTERNET_TYPE),
-                                settingFactory.apply(Chiefdom.WATER_SOURCES),
-                                settingFactory.apply(Chiefdom.OTHER_WATER_SOURCE),
-                                settingFactory.apply(Chiefdom.PC_COUNT),
-                                settingFactory.apply(Chiefdom.TABLET_COUNT),
-                                settingFactory.apply(Chiefdom.PRINTER_COUNT),
-                                settingFactory.apply(Chiefdom.CAR_COUNT),
-                                settingFactory.apply(Chiefdom.BIKE_COUNT),
-                                settingFactory.apply(Chiefdom.IS_CHIEFDOM_CHIEF_RESIDENCE),
-                                settingFactory.apply(Chiefdom.HAS_INTERNET),
-                                settingFactory.apply(Chiefdom.HAS_ENEO_CONNECTION),
-                                settingFactory.apply(Chiefdom.WATER_ACCESS),
-                                settingFactory.apply(Chiefdom.HAS_EXTINGUISHER),
-                                settingFactory.apply(Chiefdom.EMPLOYEE_COUNT),
-                                settingFactory.apply(Chiefdom.EXTRA_INFO)
-                        )
-                )
-                .subCategories(
-                        Category.of("mapper.categories.forms.chefferie.sub_forms.data_personnel.title",
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_NAME),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_POSITION),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_GENDER),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_PHONE),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_EMAIL),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_AGE),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_CS_TRAINING),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_ED_LEVEL),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_COMPUTER_LEVEL))));
-    }
-
-    @SuppressWarnings("rawtypes")
-    public static Category fosaFieldSettingsCategory(FieldMappingSource fieldMappingSource) {
-        final var fieldMap = FXCollections.<String, Property>observableHashMap();
-        final var allFields = FXCollections.<String>observableArrayList();
-        fieldMappingSource.findAllDbColumns(FormType.FOSA, allFields::setAll);
-
-        Function<String, Setting> settingFactory = k -> Setting.of(k,
-                Field.ofStringType((StringProperty) fieldMap.computeIfAbsent(k, kk -> new SimpleStringProperty()))
-                        .validate(CustomValidator.forPredicate(v -> allFields.stream().anyMatch(s -> s.equals(v)),
-                                "fosa.form.msg.invalid_value"))
-                        .render(new SimpleTextControl() {
-                            private final FilteredList<String> suggestions = allFields
-                                    .filtered(StringUtils::isNotBlank);
-
-                            @Override
-                            public void initializeParts() {
-                                super.initializeParts();
-                                TextFields.bindAutoCompletion(editableField, param -> suggestions);
-                            }
-
-                            @Override
-                            public void setupValueChangedListeners() {
-                                super.setupValueChangedListeners();
-                                editableField.textProperty().addListener((ob, ov, nv) -> {
-                                    if (StringUtils.isBlank(nv)) {
-                                        suggestions.setPredicate(__ -> false);
-                                    } else {
-                                        suggestions.setPredicate(f -> {
-                                            for (var entry : fieldMap.entrySet()) {
-                                                if (entry.getKey().equals(k) || entry.getValue() == null)
-                                                    continue;
-                                                final var otherProperty = entry.getValue();
-                                                if (otherProperty.getValue() instanceof String s) {
-                                                    if (s.equalsIgnoreCase(f))
-                                                        return false;
-                                                } else if (Objects.equals(otherProperty.getValue(), f))
-                                                    return false;
-                                            }
-                                            return f.toLowerCase().contains(nv.toLowerCase());
-                                        });
-                                    }
-                                });
-                            }
-                        }),
-                fieldMap.get(k));
-        return Category.of("shell.menu.forms.fosa",
-                        Group.of("mapper.categories.forms.fosa.base_fields.title",
-                                settingFactory.apply(Fosa.INDEX),
-                                settingFactory.apply(Fosa.VALIDATION_CODE),
-                                settingFactory.apply(Fosa.RESPONDING_DEVICE),
-                                settingFactory.apply(Fosa.RESPONDENT_NAME),
-                                settingFactory.apply(Fosa.POSITION),
-                                settingFactory.apply(Fosa.PHONE),
-                                settingFactory.apply(Fosa.MAIL),
-                                settingFactory.apply(Fosa.CREATION_DATE),
-                                settingFactory.apply(Fosa.DIVISION),
-                                settingFactory.apply(Fosa.MUNICIPALITY),
-                                settingFactory.apply(Fosa.QUARTER),
-                                settingFactory.apply(Fosa.LOCALITY),
-                                settingFactory.apply(Fosa.OFFICE_NAME),
-                                settingFactory.apply(Fosa.DISTRICT),
-                                settingFactory.apply(Fosa.HEALTH_AREA),
-                                settingFactory.apply(Fosa.ENVIRONMENT_TYPE),
-                                settingFactory.apply(Fosa.FACILITY_TYPE),
-                                settingFactory.apply(Fosa.STATUS),
-                                settingFactory.apply(Fosa.HAS_MATERNITY),
-                                settingFactory.apply(Fosa.ATTACHED_CSC),
-                                settingFactory.apply(Fosa.CSC_DISTANCE),
-                                settingFactory.apply(Fosa.GEO_POINT),
-                                settingFactory.apply(Fosa.USES_DHIS),
-                                settingFactory.apply(Fosa.USES_BUNEC_BIRTH_FORM),
-                                settingFactory.apply(Fosa.USES_DHIS_FORMS),
-                                settingFactory.apply(Fosa.SEND_BIRTH_DECLARATIONS_TO_CSC),
-                                settingFactory.apply(Fosa.CSC_EVENT_REGISTRATIONS),
-                                settingFactory.apply(Fosa.HAS_TOILET_FIELD),
-                                settingFactory.apply(Fosa.HAS_ENEO_CONNECTION),
-                                settingFactory.apply(Fosa.HAS_BACKUP_POWER_SOURCE),
-                                settingFactory.apply(Fosa.BACKUP_POWER_SOURCES),
-                                settingFactory.apply(Fosa.HAS_INTERNET_CONNECTION),
-                                settingFactory.apply(Fosa.HAS_WATER_SOURCES),
-                                settingFactory.apply(Fosa.WATER_SOURCES),
-                                settingFactory.apply(Fosa.PC_COUNT),
-                                settingFactory.apply(Fosa.PRINTER_COUNT),
-                                settingFactory.apply(Fosa.TABLET_COUNT),
-                                settingFactory.apply(Fosa.CAR_COUNT),
-                                settingFactory.apply(Fosa.BIKE_COUNT),
-                                settingFactory.apply(Fosa.PERSONNEL_COUNT)))
-                .subCategories(
-                        Category.of("mapper.categories.forms.fosa.sub_forms.title",
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_NAME),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_POSITION),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_GENDER),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_PHONE),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_EMAIL),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_AGE),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_CS_TRAINING),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_ED_LEVEL),
-                                        settingFactory.apply(PersonnelInfo.PERSONNEL_COMPUTER_LEVEL)),
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats_0.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR_1),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_1),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_1)),
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats_1.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR_2),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_2),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_2)),
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats_2.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR_3),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_3),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_3)),
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats_3.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR_4),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_4),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_4)),
-                                Group.of(
-                                        "mapper.categories.forms.fosa.sub_forms.stats_4.title",
-                                        settingFactory.apply(Fosa.STATS_YEAR_5),
-                                        settingFactory.apply(Fosa.STATS_BIRTH_COUNT_5),
-                                        settingFactory.apply(Fosa.STATS_DEATH_COUNT_5))));
     }
 }

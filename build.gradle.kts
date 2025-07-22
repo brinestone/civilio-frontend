@@ -61,9 +61,13 @@ dependencies {
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
     implementation("org.kordamp.ikonli:ikonli-feather-pack:12.4.0")
 
-    implementation("com.dlsc.formsfx:formsfx-core:11.6.0")
+    implementation(
+        files("libs/formsfx-core-11.6.0.jar")
+    )
 
-    implementation("com.dlsc.preferencesfx:preferencesfx-core:11.17.0")
+    implementation("com.dlsc.preferencesfx:preferencesfx-core:11.17.0") {
+        exclude(group = "com.dlsc.formsfx", module = "formsfx-core")
+    }
 
     implementation("org.apache.commons:commons-lang3:3.17.0")
 

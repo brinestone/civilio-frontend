@@ -117,7 +117,7 @@ public class FormHeaderController implements AppController {
             if (StringUtils.isBlank(nv)) return;
             executorService.submit(() -> {
                 try {
-                    formService.findSubmissionRefById(nv, formType.getValue())
+                    formService.findSubmissionRefByIndex(nv, formType.getValue())
                             .ifPresentOrElse(v -> Platform.runLater(() -> {
                                 submissionRef.setValue(v);
                                 submissionIdUpdatedExternally = true;

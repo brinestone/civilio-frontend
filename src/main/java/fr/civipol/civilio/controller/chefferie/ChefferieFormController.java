@@ -27,6 +27,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.form.ChefferieFormModel;
+import fr.civipol.civilio.form.FormModel;
 import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 
@@ -52,9 +54,7 @@ import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
-import fr.civipol.civilio.form.ChefferieFormDataManager;
 import fr.civipol.civilio.form.FieldKeys;
-import fr.civipol.civilio.form.FormDataManager;
 import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
@@ -95,7 +95,7 @@ public class ChefferieFormController extends FormController implements Initializ
     public ScrollPane spRespondentContainer;
     public ScrollPane spExtra;
     @Getter(AccessLevel.PROTECTED)
-    private FormDataManager model;
+    private FormModel model;
     @FXML
     @SuppressWarnings("unused")
     @Getter(AccessLevel.PROTECTED)
@@ -157,8 +157,7 @@ public class ChefferieFormController extends FormController implements Initializ
 
     @Override
     public Collection<Option> findOptions(String group, String parent) {
-        if (optionsCache.containsKey(group)) return Collections.emptyList();
-        return optionsCache.get(group).stream()
+        return optionsCache.getOrDefault(group, Collections.emptyList()).stream()
                 .filter(o -> Objects.equals(o.parent(), parent))
                 .toList();
     }
@@ -217,7 +216,7 @@ public class ChefferieFormController extends FormController implements Initializ
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.resources = resourceBundle;
         final var ts = new ResourceBundleService(resourceBundle);
-        model = new ChefferieFormDataManager(
+        model = new ChefferieFormModel(
                 this::valueLoader,
                 this::keyMaker,
                 this::extractFieldKey,
@@ -269,8 +268,6 @@ public class ChefferieFormController extends FormController implements Initializ
                     form.validProperty().addListener((ob, ov, nv) -> tab
                             .setGraphic(nv ? null : graphicProvider.get()));
                     tab.setGraphic(form.isValid() ? null : graphicProvider.get());
-                    form.getFields().forEach(f -> f.validProperty().addListener((ob, ov, nv) -> log
-                            .debug("Field: {} is valid = {}", f.getLabel(), nv)));
                 });
     }
 
@@ -280,7 +277,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                 Field.ofStringType((StringProperty) model.getPropertyFor(EXTRA_INFO))
                                         .label(EXTRA_INFO)
                                         .multiline(true)
-                                        .tooltip("chefferie.form.fields.extra_info.description")))
+                                        .valueDescription("chefferie.form.fields.extra_info.description")))
                 .i18n(ts);
 
         extrasForm = form;
@@ -305,24 +302,24 @@ public class ChefferieFormController extends FormController implements Initializ
                                                 .getPropertyFor(FieldKeys.Chiefdom.POSITION))
                                         .span(ColSpan.HALF)
                                         .required("forms.validation.msg.field_required")
-                                        .tooltip("chefferie.form.fields.position.description")
+                                        .valueDescription("chefferie.form.fields.position.description")
                                         .label(FieldKeys.Chiefdom.POSITION),
                                 Field.ofStringType((StringProperty) model
                                                 .getPropertyFor(FieldKeys.Chiefdom.PHONE))
                                         .span(ColSpan.HALF)
                                         .label(FieldKeys.Chiefdom.PHONE)
-                                        .tooltip("chefferie.form.fields.phone.description")
+                                        .valueDescription("chefferie.form.fields.phone.description")
                                         .validate(RegexValidator.forPattern(
                                                 "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
-                                                "fosa.form.msg.invalid_value")),
+                                                "forms.msg.invalid_value")),
                                 Field.ofStringType((StringProperty) model
                                                 .getPropertyFor(FieldKeys.Chiefdom.EMAIL))
                                         .span(ColSpan.HALF)
                                         .label(FieldKeys.Chiefdom.EMAIL)
                                         .validate(RegexValidator.forPattern(
                                                 "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
-                                                "fosa.form.msg.invalid_value"))
-                                        .tooltip("chefferie.form.fields.email.description")
+                                                "forms.msg.invalid_value"))
+                                        .valueDescription("chefferie.form.fields.email.description")
                                 // Field.ofDate((ObjectProperty<LocalDate>)
                                 // model.getPropertyFor(FieldKeys.Chefferie.CREATION_DATE))
                                 // .label("fosa.form.fields.creation_date.title")
@@ -332,7 +329,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                 // || today.isAfter(d),
                                 // "fosa.form.msg.value_out_of_range"))
                                 // .format(localDateStringConverter,
-                                // "fosa.form.msg.invalid_value")
+                                // "forms.msg.invalid_value")
                                 // .render(new SimpleDateControl() {
                                 // @Override
                                 // public void initializeParts() {
@@ -353,7 +350,7 @@ public class ChefferieFormController extends FormController implements Initializ
 
     @SuppressWarnings("unchecked")
     private void configureStructureIdContainer(TranslationService ts) {
-        final var model = (ChefferieFormDataManager) this.model;
+        final var model = (ChefferieFormModel) this.model;
         final var form = Form.of(
                         Section.of(
                                         Field.ofSingleSelectionType(
@@ -364,7 +361,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                 .render(createOptionComboBox(ts,
                                                         model.getOptionsFor(DIVISION)))
                                                 .required("forms.validation.msg.field_required")
-                                                .tooltip("chefferie.form.fields.department.description")
+                                                .valueDescription("chefferie.form.fields.department.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofSingleSelectionType(
                                                         model.getOptionsFor(FieldKeys.Chiefdom.MUNICIPALITY),
@@ -393,7 +390,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                 .render(createOptionComboBox(ts,
                                                         model.getOptionsFor(CLASSIFICATION)))
                                                 .required("forms.validation.msg.field_required")
-                                                .tooltip("chefferie.form.fields.classification.description")
+                                                .valueDescription("chefferie.form.fields.classification.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofIntegerType((IntegerProperty) model.getPropertyFor(
                                                         FieldKeys.Chiefdom.HEALTH_CENTER_PROXIMITY))
@@ -420,7 +417,7 @@ public class ChefferieFormController extends FormController implements Initializ
 
     @SuppressWarnings("unchecked")
     private void spServiceContainer(TranslationService ts) {
-        final var model = (ChefferieFormDataManager) this.model;
+        final var model = (ChefferieFormModel) this.model;
         final var oathAvailable = model.oathAvailable();
         final var otherCsRegLocationAvailable = model.otherCsRegLocationAvailable();
         // final var otherReceptionAreaAvailable =
@@ -429,7 +426,7 @@ public class ChefferieFormController extends FormController implements Initializ
         BooleanField oathControl = Field
                 .ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.Chiefdom.CHIEF_OATH))
                 .label(FieldKeys.Chiefdom.CHIEF_OATH)
-                .tooltip("chefferie.form.fields.benefit.description");
+                .valueDescription("chefferie.form.fields.benefit.description");
         oathControl.editableProperty().bind(oathAvailable);
         oathAvailable.addListener((ob, ov, nv) -> oathControl
                 .required(nv ? "forms.validation.msg.field_required" : null));
@@ -464,7 +461,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                 model.getOptionsFor(
                                                         IS_CHIEF_CS_OFFICER)))
                                         .required("forms.validation.msg.field_required")
-                                        .tooltip("chefferie.form.fields.fonction.description"),
+                                        .valueDescription("chefferie.form.fields.fonction.description"),
                                 oathControl,
                                 Field.ofSingleSelectionType(
                                                 model.getOptionsFor(FieldKeys.Chiefdom.CS_REG_LOCATION),
@@ -474,30 +471,30 @@ public class ChefferieFormController extends FormController implements Initializ
                                         .label(FieldKeys.Chiefdom.CS_REG_LOCATION)
                                         .render(createOptionComboBox(ts,
                                                 model.getOptionsFor(CS_REG_LOCATION)))
-                                        .tooltip("chefferie.form.fields.conservation_place.description"),
+                                        .valueDescription("chefferie.form.fields.conservation_place.description"),
                                 otherCsRegLocationControl,
                                 Field.ofBooleanType((BooleanProperty) model
                                                 .getPropertyFor(FieldKeys.Chiefdom.CS_OFFICER_TRAINED))
                                         .label(FieldKeys.Chiefdom.CS_OFFICER_TRAINED)
-                                        .tooltip("chefferie.form.fields.training.description"),
+                                        .valueDescription("chefferie.form.fields.training.description"),
                                 Field.ofBooleanType((BooleanProperty) model
                                                 .getPropertyFor(FieldKeys.Chiefdom.WAITING_ROOM))
                                         .label(FieldKeys.Chiefdom.WAITING_ROOM)
-                                        .tooltip("chefferie.form.fields.waiting_room.description"),
+                                        .valueDescription("chefferie.form.fields.waiting_room.description"),
                                 // Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA),
                                 // (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
                                 // .label(RECEPTION_AREA)
                                 // .render(createOptionComboBox(ts,
                                 // model.getOptionsFor(RECEPTION_AREA)))
                                 // .required("forms.validation.msg.field_required")
-                                // .tooltip("chefferie.form.fields.reception_location.description")
+                                // .valueDescription("chefferie.form.fields.reception_location.description")
                                 // .span(ColSpan.HALF),
                                 // otherReceptionArea,
                                 Field.ofBooleanType((BooleanProperty) model
                                                 .getPropertyFor(FieldKeys.Chiefdom.TOILETS_ACCESSIBLE))
                                         .label(FieldKeys.Chiefdom.TOILETS_ACCESSIBLE)
                                         // .required("forms.validation.msg.field_required")
-                                        .tooltip("chefferie.form.fields.toilets_accessible.description")))
+                                        .valueDescription("chefferie.form.fields.toilets_accessible.description")))
                 .i18n(ts);
         spServiceContainer.setContent(new FormRenderer(form));
         serviceForm = form;
@@ -508,7 +505,7 @@ public class ChefferieFormController extends FormController implements Initializ
 
     @SuppressWarnings("unchecked")
     private void spEquipmentContainer(TranslationService ts) {
-        final var model = (ChefferieFormDataManager) this.model;
+        final var model = (ChefferieFormModel) this.model;
         final var internetTypeAvailable = model.internetTypeAvailable();
         final var waterSourcesAvailable = model.waterSourcesAvailable();
         final var otherWaterSourceAvailable = model.otherWaterSourceAvailable();
@@ -520,7 +517,7 @@ public class ChefferieFormController extends FormController implements Initializ
                         (ListProperty<Option>) model.getPropertyFor(INTERNET_TYPE))
                 .label(INTERNET_TYPE)
                 .render(createMultiOptionComboBox(ts, model.getOptionsFor(INTERNET_TYPE)))
-                .tooltip("chefferie.form.fields.typeConnexion.description")
+                .valueDescription("chefferie.form.fields.typeConnexion.description")
                 .span(ColSpan.HALF);
         internetTypeAvailable.addListener((ob, ov, nv) -> internetTypeControl
                 .required(nv ? "forms.validation.msg.field_required" : null));
@@ -530,7 +527,7 @@ public class ChefferieFormController extends FormController implements Initializ
                         model.getOptionsFor(WATER_SOURCES),
                         (ListProperty<Option>) model.getPropertyFor(WATER_SOURCES))
                 .label(WATER_SOURCES)
-                .tooltip("chefferie.form.fields.waterType.description")
+                .valueDescription("chefferie.form.fields.waterType.description")
                 .render(createMultiOptionComboBox(ts, model.getOptionsFor(WATER_SOURCES)))
                 .span(ColSpan.THIRD);
 
@@ -547,26 +544,26 @@ public class ChefferieFormController extends FormController implements Initializ
                                         Field.ofIntegerType((IntegerProperty) model
                                                         .getPropertyFor(FieldKeys.Chiefdom.PC_COUNT))
                                                 .label(FieldKeys.Chiefdom.PC_COUNT)
-                                                .tooltip("chefferie.form.fields.equipment_quantity.computers.description")
+                                                .valueDescription("chefferie.form.fields.equipment_quantity.computers.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofIntegerType((IntegerProperty) model
                                                         .getPropertyFor(FieldKeys.Chiefdom.TABLET_COUNT))
                                                 .label(FieldKeys.Chiefdom.TABLET_COUNT)
-                                                .tooltip("chefferie.form.fields.equipment_quantity.tablets.description")
+                                                .valueDescription("chefferie.form.fields.equipment_quantity.tablets.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofIntegerType(
                                                         (IntegerProperty) model.getPropertyFor(PRINTER_COUNT))
                                                 .label(PRINTER_COUNT)
-                                                .tooltip("chefferie.form.fields.equipment_quantity.printers.description")
+                                                .valueDescription("chefferie.form.fields.equipment_quantity.printers.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofIntegerType((IntegerProperty) model.getPropertyFor(CAR_COUNT))
                                                 .label(CAR_COUNT)
                                                 .validate(naturalNumberValidator)
-                                                .tooltip("chefferie.form.fields.equipment_quantity.cars.description")
+                                                .valueDescription("chefferie.form.fields.equipment_quantity.cars.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofIntegerType((IntegerProperty) model.getPropertyFor(BIKE_COUNT))
                                                 .label(BIKE_COUNT)
-                                                .tooltip("chefferie.form.fields.equipment_quantity.motorcycles.description")
+                                                .valueDescription("chefferie.form.fields.equipment_quantity.motorcycles.description")
                                                 .span(ColSpan.HALF))
                                 .collapsible(false)
                                 .title("chefferie.form.sections.equipment.sections.equipment.title"),
@@ -574,30 +571,30 @@ public class ChefferieFormController extends FormController implements Initializ
                                         Field.ofBooleanType((BooleanProperty) model
                                                         .getPropertyFor(IS_CHIEFDOM_CHIEF_RESIDENCE))
                                                 .label(IS_CHIEFDOM_CHIEF_RESIDENCE)
-                                                // .tooltip("chefferie.form.fields.structure.description")
+                                                // .valueDescription("chefferie.form.fields.structure.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofBooleanType(
                                                         (BooleanProperty) model.getPropertyFor(HAS_INTERNET))
                                                 .label(HAS_INTERNET)
-                                                .tooltip("chefferie.form.fields.connexion.description")
+                                                .valueDescription("chefferie.form.fields.connexion.description")
                                                 .span(ColSpan.HALF),
                                         internetTypeControl,
                                         Field.ofBooleanType((BooleanProperty) model
                                                         .getPropertyFor(HAS_ENEO_CONNECTION))
                                                 .label("chefferie.form.fields.eneoConnexion.title")
-                                                .tooltip("chefferie.form.fields.eneoConnexion.description")
+                                                .valueDescription("chefferie.form.fields.eneoConnexion.description")
                                                 .span(ColSpan.HALF),
                                         Field.ofBooleanType(
                                                         (BooleanProperty) model.getPropertyFor(WATER_ACCESS))
                                                 .label(WATER_ACCESS)
-                                                .tooltip("chefferie.form.fields.waterAcces.description")
+                                                .valueDescription("chefferie.form.fields.waterAcces.description")
                                                 .span(ColSpan.THIRD),
                                         waterSourcesControl,
                                         otherWaterSourceControl,
                                         Field.ofBooleanType((BooleanProperty) model
                                                         .getPropertyFor(HAS_EXTINGUISHER))
                                                 .label(HAS_EXTINGUISHER)
-                                                .tooltip("chefferie.form.fields.extinguisher.description")
+                                                .valueDescription("chefferie.form.fields.extinguisher.description")
                                                 .span(ColSpan.HALF))
                                 .collapsible(false)
                                 .title("chefferie.form.sections.equipment.structure_info.title"))
@@ -610,13 +607,13 @@ public class ChefferieFormController extends FormController implements Initializ
     }
 
     private void spPersonalStatusContainer(TranslationService ts) {
-        final var model = (ChefferieFormDataManager) this.model;
+        final var model = (ChefferieFormModel) this.model;
         final var form = Form.of(
                 Group.of(
                         Field.ofIntegerType(
                                         (IntegerProperty) model.getPropertyFor(EMPLOYEE_COUNT))
                                 .label(EMPLOYEE_COUNT)
-                                .tooltip("chefferie.form.fields.employer.description")
+                                .valueDescription("chefferie.form.fields.employer.description")
                                 .span(ColSpan.HALF),
                         PersonnelInfoField
                                 .personnelInfoField(model.personnelInfoProperty(), ts,
