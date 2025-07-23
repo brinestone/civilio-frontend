@@ -10,10 +10,7 @@ import javafx.collections.FXCollections;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -150,7 +147,7 @@ public class CSCFormModel extends FormModel {
     @Override
     protected Class<?> getPropertyTypeFor(String id) {
         return switch (id) {
-            case FieldKeys.PersonnelInfo.PERSONNEL_NAME, FieldKeys.CSC.Respondent.POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS, FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS, FieldKeys.CSC.Accessibility.Villages.NAME, FieldKeys.CSC.Identification.OTHER_NON_FUNCTION_REASON, FieldKeys.CSC.Respondent.NAME, FieldKeys.CSC.Respondent.PHONE, FieldKeys.CSC.Respondent.EMAIL, FieldKeys.CSC.Identification.QUARTER, FieldKeys.CSC.Identification.FACILITY_NAME, FieldKeys.CSC.Identification.LOCALITY, FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER, FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER, FieldKeys.CSC.Identification.PHOTO_URL, FieldKeys.CSC.Infrastructure.OTHER_BUILDING, FieldKeys.CSC.Infrastructure.OTHER_POWER_SOURCE, FieldKeys.CSC.Infrastructure.OTHER_NETWORK_TYPE, FieldKeys.CSC.Infrastructure.OTHER_INTERNET_TYPE, FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME, FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON, FieldKeys.CSC.RecordIndexing.DATA_USAGE, FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER, FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE, FieldKeys.PersonnelInfo.PERSONNEL_PHONE, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.CSC.Comments.RELEVANT_INFO, FieldKeys.CSC.Areas.Rooms.NAME ->
+            case FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.PersonnelInfo.PERSONNEL_NAME, FieldKeys.CSC.Respondent.POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS, FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS, FieldKeys.CSC.Accessibility.Villages.NAME, FieldKeys.CSC.Identification.OTHER_NON_FUNCTION_REASON, FieldKeys.CSC.Respondent.NAME, FieldKeys.CSC.Respondent.PHONE, FieldKeys.CSC.Respondent.EMAIL, FieldKeys.CSC.Identification.QUARTER, FieldKeys.CSC.Identification.FACILITY_NAME, FieldKeys.CSC.Identification.LOCALITY, FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER, FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER, FieldKeys.CSC.Identification.PHOTO_URL, FieldKeys.CSC.Infrastructure.OTHER_BUILDING, FieldKeys.CSC.Infrastructure.OTHER_POWER_SOURCE, FieldKeys.CSC.Infrastructure.OTHER_NETWORK_TYPE, FieldKeys.CSC.Infrastructure.OTHER_INTERNET_TYPE, FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME, FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON, FieldKeys.CSC.RecordIndexing.DATA_USAGE, FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER, FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE, FieldKeys.PersonnelInfo.PERSONNEL_PHONE, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.CSC.Comments.RELEVANT_INFO, FieldKeys.CSC.Areas.Rooms.NAME ->
                     String.class;
             case FieldKeys.CSC.Identification.CHIEFDOM_DEGREE, FieldKeys.CSC.Identification.DIVISION, FieldKeys.CSC.Identification.MUNICIPALITY, FieldKeys.CSC.Identification.CATEGORY, FieldKeys.CSC.Identification.TOWN_SIZE, FieldKeys.CSC.Identification.NON_FUNCTION_DURATION, FieldKeys.CSC.Identification.MILIEU, FieldKeys.CSC.Accessibility.ROAD_OBSTACLE, FieldKeys.CSC.RecordIndexing.DATA_INDEXED, FieldKeys.CSC.Accessibility.ROAD_TYPE, FieldKeys.CSC.Accessibility.COVER_RADIUS, FieldKeys.CSC.Infrastructure.STATUS, FieldKeys.CSC.Infrastructure.WATER_SOURCES, FieldKeys.CSC.Infrastructure.HAS_FIBER_CONNECTION, FieldKeys.CSC.Infrastructure.INTERNET_SPONSOR, FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS, FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK, FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION, FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION, FieldKeys.PersonnelInfo.PERSONNEL_GENDER, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL, FieldKeys.CSC.PersonnelInfo.Officers.STATUS, FieldKeys.CSC.Deeds.YEAR, FieldKeys.CSC.Areas.Rooms.CONDITION, FieldKeys.CSC.StatusOfArchivedRecords.YEAR ->
                     Option.class;
@@ -168,6 +165,14 @@ public class CSCFormModel extends FormModel {
         };
     }
 
+    public void updateGpsCoords() {
+
+    }
+
+    public ObservableBooleanValue structureIsChiefdom() {
+        return (BooleanProperty) getPropertyFor(FieldKeys.CSC.Identification.IS_CHIEFDOM);
+    }
+
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue nonFunctionalReasonIsUnknown() {
         final var reasonProperty = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.NON_FUNCTION_REASON);
@@ -178,29 +183,33 @@ public class CSCFormModel extends FormModel {
         );
     }
 
+    public ObservableBooleanValue structureOfficerAppointed() {
+        return ((BooleanProperty) getPropertyFor(FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED));
+    }
+
+    public ObservableBooleanValue structureIsSpecialized() {
+        return structureIsIn("4");
+    }
+
     public ObservableBooleanValue structureIsNonFunctional() {
         return ((BooleanProperty) getPropertyFor(FieldKeys.CSC.Identification.IS_FUNCTIONAL)).not();
     }
 
-    @SuppressWarnings("unchecked")
     public ObservableBooleanValue isStructurePrimary() {
-        final var categoryProperty = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.CATEGORY);
-        return Bindings.createBooleanBinding(() -> Optional.ofNullable(categoryProperty.getValue())
-                        .map(Option::value)
-                        .filter("1"::equals)
-                        .isPresent(),
-                categoryProperty
-        );
+        return structureIsIn("1");
+    }
+
+    public ObservableBooleanValue isStructureSecondary() {
+        return structureIsIn("3");
     }
 
     @SuppressWarnings("unchecked")
-    public ObservableBooleanValue isStructureSecondary() {
+    private ObservableBooleanValue structureIsIn(String... options) {
         final var categoryProperty = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.CATEGORY);
-        return Bindings.createBooleanBinding(() -> Optional.ofNullable(categoryProperty.getValue())
-                        .map(Option::value)
-                        .filter("3"::equals)
-                        .isPresent(),
-                categoryProperty
-        );
+        return Bindings.createBooleanBinding(() -> {
+            final var wrapper = Optional.ofNullable(categoryProperty.getValue());
+            return wrapper.isPresent() && Arrays.stream(options)
+                    .anyMatch(v -> v.equals(wrapper.get().value()));
+        }, categoryProperty);
     }
 }

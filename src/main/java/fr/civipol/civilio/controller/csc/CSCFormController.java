@@ -3,6 +3,7 @@ package fr.civipol.civilio.controller.csc;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.structure.Form;
 import com.dlsc.formsfx.model.structure.Group;
+import com.dlsc.formsfx.model.structure.Section;
 import com.dlsc.formsfx.model.util.BindingMode;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
@@ -17,9 +18,11 @@ import fr.civipol.civilio.controller.FormHeaderController;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.entity.FormType;
+import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.form.CSCFormModel;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormModel;
+import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.renderer.FormRenderer;
 import fr.civipol.civilio.services.FormService;
@@ -212,26 +215,33 @@ public class CSCFormController extends FormController implements Initializable, 
     @SuppressWarnings("unchecked")
     private void setupIdentification(TranslationService ts) {
         final var model = (CSCFormModel) this.model;
-        final var secondaryStructure = model.isStructureSecondary();
+        final var structureIsSecondary = model.isStructureSecondary();
         final var primaryStructure = model.isStructurePrimary();
         final var nonFunctionalStructure = model.structureIsNonFunctional();
         final var nonFunctionReasonIsUnknown = Bindings.and(model.nonFunctionalReasonIsUnknown(), nonFunctionalStructure);
+        final var isChiefdom = model.structureIsChiefdom();
+        final var structureIsSpecialized = model.structureIsSpecialized();
+        final var structureIsOrdered = Bindings.or(structureIsSpecialized, structureIsSecondary);
+        final var structureHasAppointedOfficer = model.structureOfficerAppointed();
+
         final var form = Form.of(
                 Group.of(
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.CSC.Identification.DIVISION), (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Identification.DIVISION))
                                 .required("forms.validation.msg.field_required")
                                 .label(FieldKeys.CSC.Identification.DIVISION)
-                                .span(ColSpan.HALF)
+                                .valueDescription("csc.form.sections.identification.fields.division.description")
+//                                .span(ColSpan.HALF)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(FieldKeys.CSC.Identification.DIVISION))),
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.CSC.Identification.MUNICIPALITY), (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Identification.MUNICIPALITY))
                                 .required("forms.validation.msg.field_required")
                                 .label(FieldKeys.CSC.Identification.MUNICIPALITY)
-                                .span(ColSpan.HALF)
+                                .valueDescription("csc.form.sections.identification.fields.municipality.description")
+//                                .span(ColSpan.HALF)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(FieldKeys.CSC.Identification.MUNICIPALITY))),
                         Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.QUARTER))
                                 .required("forms.validation.msg.field_required")
                                 .label(FieldKeys.CSC.Identification.QUARTER)
-                                .span(ColSpan.THIRD)
+//                                .span(ColSpan.THIRD)
                                 .render(bindAutoCompletionWrapper(FieldKeys.CSC.Identification.QUARTER, FormType.CSC)),
                         Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.FACILITY_NAME))
                                 .required("forms.validation.msg.field_required")
@@ -239,19 +249,19 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .span(ColSpan.TWO_THIRD),
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.CSC.Identification.CATEGORY), (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Identification.CATEGORY))
                                 .required("forms.validation.msg.field_required")
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.THIRD)
                                 .label(FieldKeys.CSC.Identification.CATEGORY)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(FieldKeys.CSC.Identification.CATEGORY))),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Identification.IS_CHIEFDOM))
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.THIRD)
                                 .required("forms.validation.msg.field_required")
-                                .visibility(secondaryStructure)
+                                .visibility(structureIsSecondary, false)
                                 .label(FieldKeys.CSC.Identification.IS_CHIEFDOM),
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.CSC.Identification.CHIEFDOM_DEGREE), (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Identification.CHIEFDOM_DEGREE))
 //                                .required("forms.validation.msg.field_required")
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.TWO_THIRD)
                                 .render(createOptionComboBox(ts, model.getOptionsFor(FieldKeys.CSC.Identification.CHIEFDOM_DEGREE)))
-                                .visibility((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Identification.IS_CHIEFDOM))
+                                .visibility(isChiefdom)
                                 .label(FieldKeys.CSC.Identification.CHIEFDOM_DEGREE),
                         Field.ofSingleSelectionType(model.getOptionsFor(FieldKeys.CSC.Identification.TOWN_SIZE), (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Identification.TOWN_SIZE))
                                 .required("forms.validation.msg.field_required")
@@ -290,8 +300,27 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .required("forms.validation.msg.field_required")
                                 .label(FieldKeys.CSC.Identification.NON_FUNCTION_DURATION)
                                 .span(ColSpan.TWO_THIRD)
-                                .visibility(nonFunctionalStructure)
-                )
+                                .render(createOptionComboBox(ts, model.getOptionsFor(FieldKeys.CSC.Identification.NON_FUNCTION_REASON)))
+                                .visibility(nonFunctionalStructure),
+                        Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER))
+                                .label(FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER)
+//                                .required("forms.validation.msg.field_required")
+                                .span(ColSpan.TWO_THIRD)
+                                .visibility(structureIsOrdered),
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED))
+                                .label(FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED)
+                                .required("forms.validation.msg.field_required")
+                                .span(ColSpan.THIRD)
+                                .visibility(structureIsOrdered, false),
+                        Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER))
+                                .label(FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER)
+                                .visibility(structureHasAppointedOfficer)
+                        // TODO: Add photo upload control here
+                ),
+                Section.of(
+                        GeoPointField.gpsField((ObjectProperty<GeoPoint>) model.getPropertyFor(FieldKeys.CSC.Identification.GPS_COORDS), model::updateGpsCoords)
+                                .label(FieldKeys.CSC.Identification.GPS_COORDS)
+                ).title("csc.form.sections.identification.fields.gps.section.title")
         ).i18n(ts);
         form.binding(BindingMode.CONTINUOUS);
         identificationForm = form;
@@ -330,6 +359,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                         "forms.msg.invalid_value")),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE))
                                 .label(FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE)
+                                .valueDescription("csc.form.sections.respondent.fields.knows_creation_date.description")
                                 .span(ColSpan.THIRD),
                         Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(FieldKeys.CSC.Respondent.CREATION_DATE))
                                 .label(FieldKeys.CSC.Respondent.CREATION_DATE)

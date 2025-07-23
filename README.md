@@ -24,3 +24,16 @@ gradle jpackage
 ```
 > **NOTE**: For Windows users, you must have the [WixToolset](https://github.com/wixtoolset/wix3/releases/tag/wix3141rtm) installed on your
 > system.
+
+## Translation
+Translation can be automatically done using the `translate.mjs` file, to generate localized strings (translations) in other languages.
+### Examples
+- Translating to french
+    ```bash
+    node translate.mjs fr
+    ```
+- Translating to french and spanish
+    ```bash
+    node translate.mjs fr es
+    ```
+> **NOTE**: The locale must be in **ISO 639** format

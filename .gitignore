@@ -41,3 +41,5 @@ bin/
 
 logs/
 *.log
+*.tar
+node_modules
