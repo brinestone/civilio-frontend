@@ -1,6 +1,7 @@
 package fr.civipol.civilio.services;
 
 import dagger.Lazy;
+import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.PageResult;
 import fr.civipol.civilio.domain.filter.FilterManager;
@@ -813,5 +814,14 @@ public class FormService implements AppService {
                 return rs.next() && rs.getBoolean(1);
             }
         }
+    }
+
+    @Override
+    public boolean isConfigured(ConfigManager cm) {
+        return Stream.of(
+                Constants.DB_HOST_KEY,
+                Constants.DB_NAME_KEY,
+                Constants.DB_USER_KEY
+        ).allMatch(cm::isConfigured);
     }
 }

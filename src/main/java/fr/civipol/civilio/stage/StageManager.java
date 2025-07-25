@@ -88,7 +88,7 @@ public class StageManager {
     }
 
     private void onStageReady(StageReadyEvent event) {
-        final var stage = event.getStage();
+        final var stage = event.stage();
         notificationPane = new NotificationPane();
         notificationPane.setText(rbs.getString("msg.restart_notice"));
         notificationPane.setCloseButtonVisible(false);
@@ -96,7 +96,7 @@ public class StageManager {
         notificationPane.getActions().setAll(restartAction);
 
         try {
-            if (!configurationValid()) {
+            if (event.forceConfig()) {
                 final var settingsControl = settingsControlProvider.get();
                 final var form = settingsControl.makePreferencesForm();
                 form.getView().getScene().getWindow().setOnHidden(this::onSettingsConfigured);
@@ -120,21 +120,6 @@ public class StageManager {
 
     private void onSettingsConfigured(WindowEvent ignored) {
         eventBus.publish(new RestartEvent());
-    }
-
-    private boolean configurationValid() {
-        final var configManager = this.configManager.get();
-        return Stream.of(
-                        configManager.loadObject(Constants.DB_HOST_KEY, String.class),
-                        configManager.loadObject(Constants.DB_PORT_KEY, String.class),
-                        configManager.loadObject(Constants.DB_NAME_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
-                        configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class))
-                .map(o -> o.filter(StringUtils::isNotBlank))
-                .allMatch(Optional::isPresent);
     }
 
     private void onRestartButtonClicked(ActionEvent ignored) {

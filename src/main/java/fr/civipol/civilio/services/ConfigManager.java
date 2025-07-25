@@ -58,8 +58,9 @@ public class ConfigManager {
                 hexString.append(hex);
             }
             final var temp = hexString.toString();
-            if (!temp.equalsIgnoreCase(stateHash) && stateHash.length() > 0)
+            if (!temp.equalsIgnoreCase(stateHash) && !stateHash.isEmpty()) {
                 bus.publish(new SettingsUpdatedEvent());
+            }
             stateHash = temp;
         } catch (BackingStoreException | NoSuchAlgorithmException ignore) {
         }
@@ -94,6 +95,10 @@ public class ConfigManager {
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public boolean isConfigured(String key) {
+        return loadObject(key).isPresent();
     }
 
     public Optional<Object> loadObject(String key) {
