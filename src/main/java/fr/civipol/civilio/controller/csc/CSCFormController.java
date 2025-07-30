@@ -24,6 +24,7 @@ import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormModel;
 import fr.civipol.civilio.form.field.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
+import fr.civipol.civilio.form.field.PhotoField;
 import fr.civipol.civilio.form.renderer.FormRenderer;
 import fr.civipol.civilio.services.FormService;
 import jakarta.inject.Inject;
@@ -314,8 +315,9 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .visibility(structureIsOrdered, false),
                         Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER))
                                 .label(FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER)
-                                .visibility(structureHasAppointedOfficer)
-                        // TODO: Add photo upload control here
+                                .visibility(structureHasAppointedOfficer),
+                        PhotoField.create((StringProperty) model.getPropertyFor(FieldKeys.CSC.Identification.PHOTO_URL))
+                                .label(FieldKeys.CSC.Identification.PHOTO_URL)
                 ),
                 Section.of(
                         GeoPointField.gpsField((ObjectProperty<GeoPoint>) model.getPropertyFor(FieldKeys.CSC.Identification.GPS_COORDS), model::updateGpsCoords)

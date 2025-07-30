@@ -5,7 +5,7 @@ import com.dlsc.formsfx.model.util.TranslationService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
-public class FilePickerField extends StringField {
+public class PhotoField extends StringField {
     protected final StringProperty placeholderText = new SimpleStringProperty("controls.file_picker.placeholder.txt");
     protected final StringProperty pickFileText = new SimpleStringProperty("controls.file_picker.actions.pick_file.txt");
     protected final StringProperty removeFileText = new SimpleStringProperty("controls.file_picker.actions.remove_file.txt");
@@ -21,21 +21,20 @@ public class FilePickerField extends StringField {
         service.translate(removeFileText.getValueSafe());
     }
 
-    protected FilePickerField(SimpleStringProperty valueProperty, SimpleStringProperty persistentValueProperty) {
+    protected PhotoField(SimpleStringProperty valueProperty, SimpleStringProperty persistentValueProperty) {
         super(valueProperty, persistentValueProperty);
     }
 
-    public FilePickerField placeholderText(String placeholderText) {
+    public static PhotoField create(StringProperty valueProperty) {
+        return new PhotoField(new SimpleStringProperty(valueProperty.get()), new SimpleStringProperty(valueProperty.get()));
+    }
+
+    public PhotoField placeholderText(String placeholderText) {
         this.placeholderText.set(placeholderText);
         return this;
     }
 
-    public FilePickerField filePath(String filePath) {
-        this.filePath.set(filePath);
-        return this;
-    }
-
-    public FilePickerField title(String title) {
+    public PhotoField title(String title) {
         this.title.set(title);
         return this;
     }

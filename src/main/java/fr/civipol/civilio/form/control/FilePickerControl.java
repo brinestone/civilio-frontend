@@ -3,7 +3,7 @@ package fr.civipol.civilio.form.control;
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import fr.civipol.civilio.domain.StorageHandler;
 import fr.civipol.civilio.domain.UploadTask;
-import fr.civipol.civilio.form.field.FilePickerField;
+import fr.civipol.civilio.form.field.PhotoField;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,7 +26,7 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-public class FilePickerControl extends SimpleControl<FilePickerField> {
+public class FilePickerControl extends SimpleControl<PhotoField> {
     private Label fileNameLabel, invalidFeedback, placeholderLabel;
     private FontIcon placeholderIcon;
     private Button pickFileButton, removeFileButton;
