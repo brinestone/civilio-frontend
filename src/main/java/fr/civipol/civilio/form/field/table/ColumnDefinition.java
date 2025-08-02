@@ -8,84 +8,87 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
-import javafx.util.converter.DefaultStringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ColumnDefinition<V, R> {
+public class ColumnDefinition<T, V> {
     @Getter(AccessLevel.PACKAGE)
-    private final String titleKey;
+    private final String titleKey, fieldKey;
     @Getter
-    private final Supplier<TableCell<V, R>> cellSupplier;
+    private Supplier<TableCell<T, V>> cellSupplier;
     @Getter(AccessLevel.PACKAGE)
-    private final TableColumn<V, R> tableColumn = new TableColumn<>();
+    private final TableColumn<T, V> tableColumn = new TableColumn<>();
     private final BooleanProperty editable = new SimpleBooleanProperty(true);
-    private final ObjectProperty<Function<V, Property<R>>> valueProvider = new SimpleObjectProperty<>();
-    private final ObjectProperty<Predicate<R>> validator = new SimpleObjectProperty<>();
-    private final ObjectProperty<StringConverter<R>> converter = new SimpleObjectProperty<>();
+    private final ObjectProperty<BiFunction<String, Integer, Property<V>>> valueProvider = new SimpleObjectProperty<>();
+    private final ObjectProperty<Predicate<V>> validator = new SimpleObjectProperty<>();
+    private final ObjectProperty<StringConverter<V>> converter = new SimpleObjectProperty<>();
     private final StringProperty title = new SimpleStringProperty();
 
-    public ColumnDefinition<V, R> withValidator(Predicate<R> predicate) {
+    public ColumnDefinition<T, V> withValidator(Predicate<V> predicate) {
         this.validator.set(predicate);
         return this;
     }
 
-    public ColumnDefinition<V, R> withValueProvider(Function<V, Property<R>> valueProvider) {
-        this.valueProvider.set(valueProvider);
+    public ColumnDefinition<T, V> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
+        this.valueProvider.set(provider);
         return this;
     }
 
-    public ColumnDefinition<V, R> withConverter(StringConverter<R> converter) {
+    public ColumnDefinition<T, V> withConverter(StringConverter<V> converter) {
         this.converter.set(converter);
         return this;
     }
 
-    public  ColumnDefinition<V, R> editable(boolean editable) {
+    public ColumnDefinition<T, V> editable(boolean editable) {
         this.editable.set(editable);
         return this;
     }
 
-    private ColumnDefinition(String titleKey,
-                             Supplier<TableCell<V, R>> cellSupplier
-    ) {
+    public ColumnDefinition<T, V> width(double width) {
+        this.tableColumn.setPrefWidth(width);
+        return this;
+    }
+
+    ColumnDefinition(String titleKey, String fieldKey, Supplier<TableCell<T, V>> cellSupplier) {
         this.cellSupplier = cellSupplier;
+        this.fieldKey = fieldKey;
         this.titleKey = titleKey;
         setupTableColumn();
     }
 
     private void setupTableColumn() {
         tableColumn.textProperty().bind(title);
-        tableColumn.setCellValueFactory(param -> valueProvider.get().apply(param.getValue()));
+        tableColumn.setCellValueFactory(param -> {
+            final var index = param.getTableView().getItems().indexOf(param.getValue());
+            return valueProvider.get().apply(fieldKey, index);
+        });
+        tableColumn.setCellFactory(param -> cellSupplier.get());
     }
 
-    public static <V extends Comparable<V>> ColumnDefinition<V, String> ofStringType(String titleKey) {
+    public static <V> ColumnDefinition<V, String> ofStringType(String titleKey, String fieldKey) {
         Supplier<TableCell<V, String>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, supplier);
+        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
     }
 
-    public static <V extends Comparable<V>, R> ColumnDefinition<V, R> ofSelectionType(String titleKey, Collection<R> options) {
+    public static <V, R> ColumnDefinition<V, R> ofSelectionType(Collection<R> options, String titleKey, String fieldKey) {
         Supplier<TableCell<V, R>> supplier = () -> new ComboBoxTableCell<>(FXCollections.observableArrayList(options));
-        return new ColumnDefinition<>(titleKey, supplier);
+        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
     }
 
-    public static <V extends Comparable<V>> ColumnDefinition<V, Boolean> ofBooleanType(String titleKey) {
-        Supplier<TableCell<V, Boolean>> supplier = CheckBoxTableCell::new;
-        return new ColumnDefinition<>(titleKey, supplier);
+    public static <V> ColumnDefinition<V, Boolean> ofBooleanType(String titleKey, String fieldKey) {
+        final var definition = new ColumnDefinition<V, Boolean>(titleKey, fieldKey, null);
+        definition.cellSupplier = () -> new CheckBoxTableCell<>(index -> definition.valueProvider.get().apply(fieldKey, index));
+        return definition;
     }
 
-    public static <V extends Comparable<V>> ColumnDefinition<V, Integer> ofIntegerType(String titleKey) {
+    public static <V> ColumnDefinition<V, Integer> ofIntegerType(String titleKey, String fieldKey) {
         Supplier<TableCell<V, Integer>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, supplier);
-    }
-
-    public static <V extends Comparable<V>> ColumnDefinition<V, Float> ofFloatType(String titleKey) {
-        Supplier<TableCell<V, Float>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, supplier);
+        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
     }
 
     public boolean isEditable() {
@@ -96,15 +99,7 @@ public class ColumnDefinition<V, R> {
         return title;
     }
 
-    public StringConverter<R> getConverter() {
-        return converter.get();
-    }
-
-    public void setConverter(StringConverter<R> converter) {
-        this.converter.setValue(converter);
-    }
-
-    public ObjectProperty<StringConverter<R>> converterProperty() {
+    public ObjectProperty<StringConverter<V>> converterProperty() {
         return converter;
     }
 }

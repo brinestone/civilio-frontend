@@ -12,7 +12,7 @@ import com.dlsc.preferencesfx.model.Group;
 import com.dlsc.preferencesfx.model.Setting;
 import com.dlsc.preferencesfx.util.StorageHandler;
 import fr.civipol.civilio.Constants;
-import fr.civipol.civilio.services.ConfigManager;
+import fr.civipol.civilio.services.ConfigService;
 import jakarta.inject.Inject;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -62,7 +62,7 @@ public class SettingsControl implements AppControl, StorageHandler {
     private final StringProperty dbNameProperty = new SimpleStringProperty(this, "dbName", "");
     private final BooleanProperty useDbSslProperty = new SimpleBooleanProperty(this, "useSsl", false);
     private final StringProperty dbPwdProperty = new SimpleStringProperty(this, "dbPwd", "");
-    private final ConfigManager configManager;
+    private final ConfigService configManager;
 
     public PreferencesFx makePreferencesForm() {
         final var rbs = ResourceBundle.getBundle("messages");

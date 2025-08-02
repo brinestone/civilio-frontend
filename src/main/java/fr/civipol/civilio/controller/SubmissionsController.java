@@ -123,6 +123,7 @@ public class SubmissionsController implements AppController, Initializable {
             dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));
             dialog.setScene(new Scene((Parent) view));
             dialog.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
+            dialog.setOnCloseRequest(__ -> controller.onClose());
             dialog.showAndWait();
         } catch (IOException | NullPointerException ex) {
             log.error("failed to load " + cbFormType.getValue().toString().toUpperCase() + " form view", ex);

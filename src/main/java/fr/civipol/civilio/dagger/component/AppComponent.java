@@ -4,7 +4,7 @@ import dagger.Component;
 import fr.civipol.civilio.dagger.module.UIModule;
 import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.services.AppService;
-import fr.civipol.civilio.services.ConfigManager;
+import fr.civipol.civilio.services.ConfigService;
 import fr.civipol.civilio.stage.StageManager;
 import jakarta.inject.Singleton;
 
@@ -18,7 +18,7 @@ public interface AppComponent {
 
     ExecutorService executorService();
 
-    ConfigManager configManager();
+    ConfigService configManager();
 
     EventBus eventBus();
 

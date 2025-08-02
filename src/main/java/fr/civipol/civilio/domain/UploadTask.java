@@ -2,6 +2,7 @@ package fr.civipol.civilio.domain;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import lombok.Getter;
 
 import java.io.File;
 
@@ -13,9 +14,12 @@ public class UploadTask {
         PENDING
     }
 
+    @Getter
+    private Throwable failureReason;
     private final SimpleStringProperty url = new SimpleStringProperty();
     private final FloatProperty progress = new SimpleFloatProperty(-1f);
     private final ReadOnlyObjectWrapper<TaskStatus> status = new ReadOnlyObjectWrapper<>(TaskStatus.PENDING);
+    @Getter
     private final File file;
 
     public UploadTask(File file) {
@@ -34,7 +38,8 @@ public class UploadTask {
         );
     }
 
-    public void cancel() {
+    public void fail(Throwable t) {
+        failureReason = t;
         status.unbind();
         status.set(TaskStatus.FAILED);
         setProgress(-1f);
@@ -60,7 +65,8 @@ public class UploadTask {
         return url;
     }
 
-    public File getFile() {
-        return file;
+    public void setUrl(String url) {
+        this.url.set(url);
     }
+
 }

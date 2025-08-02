@@ -196,12 +196,13 @@ public abstract class FormController implements AppController {
         }));
     }
 
-    protected SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts, ObservableList<Option> options) {
+    protected SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts) {
         return new SimpleComboBoxControl<>() {
+            @SuppressWarnings("unchecked")
             @Override
             public void initializeParts() {
                 super.initializeParts();
-                comboBox.setConverter(new OptionConverter(ts, v -> Optional.ofNullable(options)
+                comboBox.setConverter(new OptionConverter(ts, v -> Optional.ofNullable((Collection<Option>) field.getItems())
                         .stream()
                         .flatMap(Collection::stream)
                         .filter(o -> o.value().equals(v))
@@ -269,5 +270,8 @@ public abstract class FormController implements AppController {
                 log.error("error while loading auto-completion options", t);
             }
         });
+    }
+
+    public void onClose() {
     }
 }

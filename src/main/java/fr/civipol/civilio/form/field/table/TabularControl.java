@@ -2,14 +2,17 @@ package fr.civipol.civilio.form.field.table;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -30,6 +33,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         final var columns = field.getSpan();
         final var actionsContainer = new HBox(btnRemoveSelection, btnAdd);
         actionsContainer.setAlignment(Pos.CENTER_LEFT);
+        actionsContainer.setPadding(new Insets(2, 0, 2, 0));
         actionsContainer.setSpacing(5.0);
         add(lblMain, 0, 0, 2, 1);
         add(actionsContainer, columns - 2, 0, 2, 1);
@@ -50,7 +54,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
             }
         });
 
-        field.getColumnDefinitions().addListener((ListChangeListener<ColumnDefinition>) c -> {
+        field.getColumnDefinitions().addListener((ListChangeListener<ColumnDefinition<V, ?>>) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
                     int end = c.getFrom() + c.getRemovedSize();
@@ -71,7 +75,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
                     }
                 } else if (c.wasRemoved()) {
                     for (var i = c.getFrom(); i < c.getTo(); i++) {
-                        final var column = table.getColumns().remove(i + 1);
+                        final var column = (TableColumn) table.getColumns().remove(i + 1);
                         column.editableProperty().unbind();
                     }
                 }
@@ -85,7 +89,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
                 cbSelectAll.setSelected(true);
             else cbSelectAll.setIndeterminate(true);
         });
-        field.valueProperty().addListener((ListChangeListener<V>) c -> {
+        field.valueProperty().addListener((ListChangeListener) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
                     for (var i = c.getFrom(); i < c.getTo(); i++) {
@@ -96,6 +100,12 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
                 }
             }
         });
+
+        btnAdd.setOnAction(e -> field.valueProperty().add(field.getValueSupplier().get()));
+        btnRemoveSelection.setOnAction(e -> {
+            field.valueProperty().removeAll(selection);
+            selection.clear();
+        });
     }
 
     @Override
@@ -103,12 +113,15 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         super.setupBindings();
         lblMain.textProperty().bind(field.labelProperty());
         btnAdd.textProperty().bind(field.addActionTextProperty());
+        table.prefHeightProperty().bind(field.heightProperty());
         btnRemoveSelection.textProperty().bind(field.removeActionTextProperty());
-        btnRemoveSelection.disableProperty().bind(Bindings.isEmpty(selection));
+        final var selectionEmpty = Bindings.isEmpty(selection);
+        btnRemoveSelection.disableProperty().bind(selectionEmpty);
         table.editableProperty().bind(field.editableProperty());
         btnAdd.visibleProperty().bind(field.editableProperty());
         btnRemoveSelection.visibleProperty().bind(field.editableProperty());
         cbSelectAll.visibleProperty().bind(field.editableProperty());
+        cbSelectAll.disableProperty().bind(selectionEmpty);
         tcSelection.editableProperty().bind(field.editableProperty());
     }
 
@@ -117,6 +130,13 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         super.initializeParts();
         tcSelection.setGraphic(cbSelectAll);
         tcSelection.setCellFactory(param -> new CheckBoxTableCell<>(selection::get));
+        table.getColumns().add(tcSelection);
+        field.getColumnDefinitions().stream()
+                .map(ColumnDefinition::getTableColumn)
+                .forEach(table.getColumns()::add);
+        tcSelection.setPrefWidth(50);
+        btnAdd.setCursor(Cursor.HAND);
+        btnRemoveSelection.setCursor(Cursor.HAND);
     }
 
     @Override

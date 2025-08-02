@@ -4,7 +4,7 @@ public interface AppService {
     default void initialize() throws Exception {
     }
 
-    default boolean isConfigured(ConfigManager cm) {
+    default boolean isConfigured(ConfigService cm) throws Exception {
         return true;
     }
 }

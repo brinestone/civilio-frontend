@@ -105,14 +105,20 @@ public class FormHeaderController implements AppController {
         });
 
         binding.setOnAutoCompleted(e -> submissionRef.setValue(e.getCompletion()));
-        btnPrev.disableProperty().bind(Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
-                .map(SubmissionRef::prev)
-                .map(StringUtils::isBlank)
-                .orElse(true), submissionRef).or(canGoPrev.not()));
-        btnNext.disableProperty().bind(Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
-                .map(SubmissionRef::next)
-                .map(StringUtils::isBlank)
-                .orElse(true), submissionRef).or(canGoNext.not()));
+        btnPrev.disableProperty().bind(Bindings.or(
+                Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
+                        .map(SubmissionRef::prev)
+                        .map(StringUtils::isBlank)
+                        .orElse(true), submissionRef).or(canGoPrev.not()),
+                loading
+        ));
+        btnNext.disableProperty().bind(Bindings.or(
+                Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
+                        .map(SubmissionRef::next)
+                        .map(StringUtils::isBlank)
+                        .orElse(true), submissionRef).or(canGoNext.not()),
+                loading
+        ));
         submissionIndex.addListener((ob, ov, nv) -> {
             if (StringUtils.isBlank(nv)) return;
             executorService.submit(() -> {

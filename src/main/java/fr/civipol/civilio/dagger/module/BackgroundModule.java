@@ -38,7 +38,7 @@ public class BackgroundModule {
     @Provides
     @Singleton
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public HikariConfig hikariConfig(ConfigManager cm) {
+    public HikariConfig hikariConfig(ConfigService cm) {
         final var host = cm.loadObject(Constants.DB_HOST_KEY, String.class);
         final var port = cm.loadObject(Constants.DB_PORT_KEY, Integer.class);
         final var dbName = cm.loadObject(Constants.DB_NAME_KEY, String.class);
@@ -65,7 +65,7 @@ public class BackgroundModule {
 
     @Provides
     @Singleton
-    public MinioClient minioClient(ConfigManager cm) {
+    public MinioClient minioClient(ConfigService cm) {
         try {
             final var accessKey = cm.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class);
             final var secretKey = cm.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class);
@@ -83,8 +83,8 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService, PingService pingService) {
-        return Set.of(authService, formService, userService, pingService);
+    public Set<AppService> authService(StorageService storageService, AuthService authService, FormService formService, UserService userService, PingService pingService) {
+        return Set.of(authService, formService, userService, pingService, storageService);
     }
 
     @Provides

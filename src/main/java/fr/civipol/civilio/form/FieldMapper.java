@@ -246,7 +246,10 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.deeds.title", FieldKeys.CSC.Deeds.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.records.title", FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.comments.title", FieldKeys.CSC.Comments.ALL_FIELDS)
-                );
+        ).subCategories(
+                Category.of("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", FieldKeys.CSC.Accessibility.Villages.ALL_FIELDS)),
+                Category.of("mapper.categories.forms.csc.base_fields.sections.areas.sub_forms.rooms.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.areas.sub_forms.rooms.title", FieldKeys.CSC.Areas.Rooms.ALL_FIELDS))
+        );
     }
 
     @SuppressWarnings("rawtypes")
@@ -404,7 +407,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                                 settingFactory.apply(FieldKeys.Fosa.BIKE_COUNT),
                                 settingFactory.apply(FieldKeys.Fosa.PERSONNEL_COUNT)))
                 .subCategories(
-                        Category.of("mapper.categories.forms.FieldKeys.Fosa.sub_forms.title",
+                        Category.of("mapper.categories.forms.fosa.sub_forms.title",
                                 Group.of(
                                         "mapper.categories.forms.FieldKeys.Fosa.sub_forms.data_personnel.title",
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_NAME),
@@ -417,27 +420,27 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL)),
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.stats_0.title",
+                                        "mapper.categories.forms.fosa.sub_forms.stats_0.title",
                                         settingFactory.apply(FieldKeys.Fosa.STATS_YEAR_1),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_BIRTH_COUNT_1),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_DEATH_COUNT_1)),
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.stats_1.title",
+                                        "mapper.categories.forms.fosa.sub_forms.stats_1.title",
                                         settingFactory.apply(FieldKeys.Fosa.STATS_YEAR_2),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_BIRTH_COUNT_2),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_DEATH_COUNT_2)),
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.stats_2.title",
+                                        "mapper.categories.forms.fosa.sub_forms.stats_2.title",
                                         settingFactory.apply(FieldKeys.Fosa.STATS_YEAR_3),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_BIRTH_COUNT_3),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_DEATH_COUNT_3)),
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.stats_3.title",
+                                        "mapper.categories.forms.fosa.sub_forms.stats_3.title",
                                         settingFactory.apply(FieldKeys.Fosa.STATS_YEAR_4),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_BIRTH_COUNT_4),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_DEATH_COUNT_4)),
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.stats_4.title",
+                                        "mapper.categories.forms.fosa.sub_forms.stats_4.title",
                                         settingFactory.apply(FieldKeys.Fosa.STATS_YEAR_5),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_BIRTH_COUNT_5),
                                         settingFactory.apply(FieldKeys.Fosa.STATS_DEATH_COUNT_5))));

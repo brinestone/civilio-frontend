@@ -1,25 +1,38 @@
 package fr.civipol.civilio.form.field.table;
 
 import com.dlsc.formsfx.model.structure.DataField;
-import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import lombok.AccessLevel;
+import lombok.Getter;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
-public class TabularField<V> extends DataField<ListProperty<V>, List<V>, TabularField<V>> {
+@SuppressWarnings("rawtypes")
+public class TabularField<V> extends DataField<ListProperty, List, TabularField<V>> {
     private static final String ADD_ACTION_TEXT = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_ACTION_TEXT = "controls.stats_collector.actions.remove_selection";
+    @Getter
     private final ObservableList<ColumnDefinition<V, ?>> columnDefinitions = FXCollections.observableArrayList();
     private final StringProperty addActionText = new SimpleStringProperty(), removeActionText = new SimpleStringProperty();
+    private final DoubleProperty height = new SimpleDoubleProperty(this, "height", 300);
+    @Getter(AccessLevel.PACKAGE)
+    private final Supplier<V> valueSupplier;
 
-    public ObservableList<ColumnDefinition<V, ?>> getColumnDefinitions() {
-        return columnDefinitions;
+    protected TabularField(ListProperty valueProperty, ListProperty persistentValueProperty, Supplier<V> valueSupplier) {
+        super(valueProperty, persistentValueProperty);
+        this.valueSupplier = valueSupplier;
+    }
+
+    public TabularField<V> withColumn(ColumnDefinition<V, ?> definition) {
+        columnDefinitions.add(definition);
+        return this;
     }
 
     @Override
@@ -27,24 +40,13 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
         super.translate(service);
         addActionText.setValue(service.translate(ADD_ACTION_TEXT));
         removeActionText.setValue(service.translate(REMOVE_ACTION_TEXT));
-        columnDefinitions.forEach(columnDefinition -> {
-            if (columnDefinition == null) return;
-            columnDefinition.titleProperty().set(service.translate(columnDefinition.getTitleKey()));
-        });
-    }
-
-    public <R extends Field<R>> TabularField<V> withColumn(ColumnDefinition<V, R> definition) {
-        columnDefinitions.add(definition);
-        return this;
-    }
-
-    protected TabularField(ListProperty<V> valueProperty, ListProperty<V> persistentValueProperty) {
-        super(valueProperty, persistentValueProperty);
         rendererSupplier = TabularControl::new;
+        columnDefinitions
+                .forEach(cd -> cd.titleProperty().setValue(service.translate(cd.getTitleKey())));
     }
 
-    public static <V> TabularField<V> create(ListProperty<V> list) {
-        return new TabularField<>(new SimpleListProperty<>(list), new SimpleListProperty<>(list));
+    public static <V> TabularField<V> create(Collection<V> data, Supplier<V> valueSupplier) {
+        return new TabularField<V>(new SimpleListProperty<>(FXCollections.observableArrayList(data)), new SimpleListProperty<>(FXCollections.observableArrayList(data)), valueSupplier);
     }
 
     public StringProperty removeActionTextProperty() {
@@ -53,5 +55,9 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
 
     public StringProperty addActionTextProperty() {
         return addActionText;
+    }
+
+    public DoubleProperty heightProperty() {
+        return height;
     }
 }

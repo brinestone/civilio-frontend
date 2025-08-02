@@ -1,36 +1,51 @@
 package fr.civipol.civilio.form.field;
 
-import com.dlsc.formsfx.model.structure.StringField;
+import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.util.TranslationService;
+import fr.civipol.civilio.domain.StorageHandler;
+import fr.civipol.civilio.form.control.PhotoPickerControl;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import org.apache.commons.lang3.StringUtils;
 
-public class PhotoField extends StringField {
-    protected final StringProperty placeholderText = new SimpleStringProperty("controls.file_picker.placeholder.txt");
-    protected final StringProperty pickFileText = new SimpleStringProperty("controls.file_picker.actions.pick_file.txt");
-    protected final StringProperty removeFileText = new SimpleStringProperty("controls.file_picker.actions.remove_file.txt");
+import java.util.Optional;
+
+public class PhotoField extends DataField<StringProperty, String, PhotoField> {
+    private static final String PLACEHOLDER_LABEL_KEY = "controls.file_picker.placeholder.txt";
+    private static final String PICK_FILE_LABEL_KEY = "controls.file_picker.actions.pick_file.txt";
+    private static final String REMOVE_FILE_LABEL_KEY = "controls.file_picker.actions.remove_file.txt";
+    private static final String PICKER_TITLE_LABEL_KEY = "controls.file_picker.title.txt";
+    protected final StringProperty placeholderText = new SimpleStringProperty(PLACEHOLDER_LABEL_KEY);
+    protected final StringProperty pickFileText = new SimpleStringProperty(PICK_FILE_LABEL_KEY);
+    protected final StringProperty removeFileText = new SimpleStringProperty(REMOVE_FILE_LABEL_KEY);
     protected final StringProperty filePath = new SimpleStringProperty();
-    protected final StringProperty title = new SimpleStringProperty("controls.file_picker.title.txt");
+    protected final StringProperty title = new SimpleStringProperty(PICKER_TITLE_LABEL_KEY);
 
     @Override
     public void translate(TranslationService service) {
         super.translate(service);
-        service.translate(placeholderText.getValueSafe());
-        service.translate(pickFileText.getValueSafe());
-        service.translate(title.getValueSafe());
-        service.translate(removeFileText.getValueSafe());
+        placeholderText.setValue(service.translate(PLACEHOLDER_LABEL_KEY));
+        pickFileText.setValue(service.translate(PICK_FILE_LABEL_KEY));
+        title.setValue(service.translate(PICKER_TITLE_LABEL_KEY));
+        removeFileText.setValue(service.translate(REMOVE_FILE_LABEL_KEY));
     }
 
-    protected PhotoField(SimpleStringProperty valueProperty, SimpleStringProperty persistentValueProperty) {
+    protected PhotoField(SimpleStringProperty valueProperty, SimpleStringProperty persistentValueProperty, StorageHandler storageHandler) {
         super(valueProperty, persistentValueProperty);
-    }
-
-    public static PhotoField create(StringProperty valueProperty) {
-        return new PhotoField(new SimpleStringProperty(valueProperty.get()), new SimpleStringProperty(valueProperty.get()));
+        rendererSupplier = () -> new PhotoPickerControl(storageHandler);
     }
 
     public PhotoField placeholderText(String placeholderText) {
-        this.placeholderText.set(placeholderText);
+        this.placeholderText.set(
+                Optional.ofNullable(placeholderText)
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(PLACEHOLDER_LABEL_KEY)
+        );
+        return this;
+    }
+
+    public PhotoField filePath(String filePath) {
+        this.filePath.set(filePath);
         return this;
     }
 
@@ -57,5 +72,9 @@ public class PhotoField extends StringField {
 
     public StringProperty titleProperty() {
         return title;
+    }
+
+    public static PhotoField create(StringProperty binding, StorageHandler storageHandler) {
+        return new PhotoField(new SimpleStringProperty(binding.getValue()), new SimpleStringProperty(binding.getValue()), storageHandler).bind(binding);
     }
 }

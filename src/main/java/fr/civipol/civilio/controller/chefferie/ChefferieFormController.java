@@ -2,9 +2,6 @@ package fr.civipol.civilio.controller.chefferie;
 
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.BIKE_COUNT;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.CAR_COUNT;
-import static fr.civipol.civilio.form.FieldKeys.Chiefdom.CLASSIFICATION;
-import static fr.civipol.civilio.form.FieldKeys.Chiefdom.CS_REG_LOCATION;
-import static fr.civipol.civilio.form.FieldKeys.Chiefdom.DIVISION;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.EMPLOYEE_COUNT;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.EXTRA_INFO;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.GPS_COORDS;
@@ -13,8 +10,6 @@ import static fr.civipol.civilio.form.FieldKeys.Chiefdom.HAS_EXTINGUISHER;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.HAS_INTERNET;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.INTERNET_TYPE;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.IS_CHIEFDOM_CHIEF_RESIDENCE;
-import static fr.civipol.civilio.form.FieldKeys.Chiefdom.IS_CHIEF_CS_OFFICER;
-import static fr.civipol.civilio.form.FieldKeys.Chiefdom.MUNICIPALITY;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.OTHER_WATER_SOURCE;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.PRINTER_COUNT;
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.WATER_ACCESS;
@@ -55,7 +50,7 @@ import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FieldKeys;
-import fr.civipol.civilio.form.field.GeoPointField;
+import fr.civipol.civilio.form.field.gps.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
@@ -358,8 +353,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                         (ObjectProperty<Option>) model.getPropertyFor(
                                                                 FieldKeys.Chiefdom.DIVISION))
                                                 .label(FieldKeys.Chiefdom.DIVISION)
-                                                .render(createOptionComboBox(ts,
-                                                        model.getOptionsFor(DIVISION)))
+                                                .render(createOptionComboBox(ts))
                                                 .required("forms.validation.msg.field_required")
                                                 .valueDescription("chefferie.form.fields.department.description")
                                                 .span(ColSpan.HALF),
@@ -367,8 +361,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                         model.getOptionsFor(FieldKeys.Chiefdom.MUNICIPALITY),
                                                         (ObjectProperty<Option>) model.getPropertyFor(
                                                                 FieldKeys.Chiefdom.MUNICIPALITY))
-                                                .render(createOptionComboBox(ts,
-                                                        model.getOptionsFor(MUNICIPALITY)))
+                                                .render(createOptionComboBox(ts))
                                                 .label(FieldKeys.Chiefdom.MUNICIPALITY)
                                                 .required("forms.validation.msg.field_required")
                                                 .span(ColSpan.HALF),
@@ -387,8 +380,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                         (ObjectProperty<Option>) model.getPropertyFor(
                                                                 FieldKeys.Chiefdom.CLASSIFICATION))
                                                 .label(FieldKeys.Chiefdom.CLASSIFICATION)
-                                                .render(createOptionComboBox(ts,
-                                                        model.getOptionsFor(CLASSIFICATION)))
+                                                .render(createOptionComboBox(ts))
                                                 .required("forms.validation.msg.field_required")
                                                 .valueDescription("chefferie.form.fields.classification.description")
                                                 .span(ColSpan.HALF),
@@ -401,7 +393,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                 ).title("chefferie.form.sections.structure_identification.title")
                                 .collapse(false),
                         Section.of(
-                                        GeoPointField.gpsField(
+                                        GeoPointField.create(
                                                 (ObjectProperty<GeoPoint>) model
                                                         .getPropertyFor(GPS_COORDS),
                                                 model::updateGeoPointUpdates))
@@ -457,9 +449,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                 (ObjectProperty<Option>) model.getPropertyFor(
                                                         FieldKeys.Chiefdom.IS_CHIEF_CS_OFFICER))
                                         .label(FieldKeys.Chiefdom.IS_CHIEF_CS_OFFICER)
-                                        .render(createOptionComboBox(ts,
-                                                model.getOptionsFor(
-                                                        IS_CHIEF_CS_OFFICER)))
+                                        .render(createOptionComboBox(ts))
                                         .required("forms.validation.msg.field_required")
                                         .valueDescription("chefferie.form.fields.fonction.description"),
                                 oathControl,
@@ -469,8 +459,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                                         FieldKeys.Chiefdom.CS_REG_LOCATION))
                                         .required("forms.validation.msg.field_required")
                                         .label(FieldKeys.Chiefdom.CS_REG_LOCATION)
-                                        .render(createOptionComboBox(ts,
-                                                model.getOptionsFor(CS_REG_LOCATION)))
+                                        .render(createOptionComboBox(ts))
                                         .valueDescription("chefferie.form.fields.conservation_place.description"),
                                 otherCsRegLocationControl,
                                 Field.ofBooleanType((BooleanProperty) model
@@ -484,8 +473,7 @@ public class ChefferieFormController extends FormController implements Initializ
                                 // Field.ofSingleSelectionType(model.getOptionsFor(RECEPTION_AREA),
                                 // (ObjectProperty<Option>) model.getPropertyFor(RECEPTION_AREA))
                                 // .label(RECEPTION_AREA)
-                                // .render(createOptionComboBox(ts,
-                                // model.getOptionsFor(RECEPTION_AREA)))
+                                // .render(createOptionComboBox(ts))
                                 // .required("forms.validation.msg.field_required")
                                 // .valueDescription("chefferie.form.fields.reception_location.description")
                                 // .span(ColSpan.HALF),

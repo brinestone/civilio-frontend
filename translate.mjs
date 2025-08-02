@@ -1,11 +1,13 @@
-import { readFile, writeFile } from 'fs/promises';
-import { existsSync } from 'node:fs';
-import { open, rename } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { writeFile, rename, appendFile } from 'node:fs/promises';
+import { createInterface } from 'node:readline';
+import { dirname, join, sep } from 'node:path';
+import { createReadStream, existsSync } from 'node:fs';
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+const url = new URL('/translate', 'https://ftapi.pythonanywhere.com');
 
 async function translateValue(value, sourceLocale, targetLocales) {
     const result = new Map();
@@ -16,9 +18,8 @@ async function translateValue(value, sourceLocale, targetLocales) {
             continue;
         }
         try {
-            const url = new URL('/translate', 'https://ftapi.pythonanywhere.com');
-            url.searchParams.append('text', value);
-            url.searchParams.append('dl', targetLocale);
+            url.searchParams.set('text', value);
+            url.searchParams.set('dl', targetLocale);
 
             const response = await fetch(url).then(res => res.json());
             let translatedText;
@@ -33,22 +34,24 @@ async function translateValue(value, sourceLocale, targetLocales) {
         } catch (e) {
             console.error(`Error translating value "${value}" from ${sourceLocale} to ${targetLocale}:`, e);
             result.set(targetLocale, '');
-            continue;
         }
     }
     return result;
 }
 
-async function writeTranslationsTofile(filePath, translations, backupExisting = true) {
+async function clearFile(filePath) {
     try {
-        const fileContent = translations;
-        if (existsSync(filePath) && backupExisting) {
-            const backupFilePath = filePath + '.' + Date.now() + '.bak';
-            await rename(filePath, backupFilePath)
-                .then(() => console.log(`Backup created at ${backupFilePath}`));
+        if (existsSync(filePath)) {
+            await rm(filePath, { force: true });
+            await writeFile(filePath, '', 'utf-8');
+            console.log(`Cleared file ${filePath}`);
         }
-        await writeFile(filePath, fileContent, 'utf-8');
-        console.log(`${translations.length} translations written to ${filePath}`);
+    } catch (e) { }
+}
+
+async function appendTranslationsToFile(filePath, translations) {
+    try {
+        await appendFile(filePath, translations, 'utf-8');
     } catch (e) {
         console.error(e);
     }
@@ -56,57 +59,82 @@ async function writeTranslationsTofile(filePath, translations, backupExisting = 
 
 async function translateFile(filePath, sourceLocale, targetLocales) {
     targetLocales = targetLocales.filter(l => l !== sourceLocale);
+    const segments = filePath.split(sep);
+    const fileName = segments[segments.length - 1];
+    const prefix = fileName.substring(0, fileName.indexOf('.'));
+    const suffix = fileName.substring(fileName.indexOf('.'));
     try {
-        const fileContent = await readFile(filePath);
-        const content = fileContent.toString('utf-8').split('\n').filter(l => l.trim().length > 0 && !l.startsWith('#'));
-        const translations = content.map(line => {
-            const [key, value] = line.split('=');
-            return { key: key.trim(), value: value ? value.trim() : '' };
-        }).filter(({ value }) => value.length > 0);
-
-        const translationsMap = new Map(translations.map(({ key, value }) => [key, value]));
-        const resultMap = new Map();
-        for (const [key, value] of translationsMap.entries()) {
-            const translatedValues = await translateValue(value, sourceLocale, targetLocales);
-            for (const [targetLocale, translatedValue] of translatedValues.entries()) {
-                const entry = `${key}=${translatedValue}`;
-                if (!resultMap.has(targetLocale)) {
-                    resultMap.set(targetLocale, []);
-                }
-                resultMap.get(targetLocale).push(entry);
+        if (!existsSync(filePath)) {
+            console.error(`File ${filePath} does not exist.`);
+            process.exit(1);
+        }
+        console.log(`Translating file ${filePath} from ${sourceLocale} to ${targetLocales.join(', ')}`);
+        for (const targetLocale of targetLocales) {
+            const targetFilePath = join(dirname(filePath), `${prefix}_${targetLocale}${suffix}`);
+            if (existsSync(targetFilePath)) {
+                console.log(`Backing up existing translation file for target locale: ${targetLocale}`)
+                const backupFilePath = targetFilePath + '.' + Date.now() + '.bak';
+                await rename(targetFilePath, backupFilePath)
+                    .then(() => console.log(`Backup created at ${backupFilePath}`));
+                await clearFile(targetFilePath);
+                console.log(`Cleared existing translation files for target locales: ${targetLocales.join(', ')}`);
             }
         }
-
-        for (const [key, value] of resultMap.entries()) {
-            await writeTranslationsTofile(join(dirname(filePath), `messages_${key}.properties`), value.join('\n'));
+        for await (const line of streamLines(filePath)) {
+            const [key, value] = line.split('=');
+            if (!key || !value) {
+                console.warn(`Skipping invalid line: ${line}`);
+                continue;
+            }
+            const trimmedKey = key.trim();
+            const trimmedValue = value.trim();
+            const translatedValues = await translateValue(trimmedValue, sourceLocale, targetLocales);
+            for (const [targetLocale, translatedValue] of translatedValues.entries()) {
+                const entry = `${trimmedKey}=${translatedValue}`;
+                await appendTranslationsToFile(join(dirname(filePath), `${prefix}_${targetLocale}.properties`), entry + '\n');
+            }
         }
+        console.log('Translation completed successfully.');
     } catch (e) {
         console.error(`Error reading file ${filePath}:`, e);
-        return;
     }
 }
 
-async function openFile(filePath) {
-    let cursor = 0;
-    let buffer = Buffer.alloc(1024);
+async function* streamLines(filePath) {
+    let stream, reader;
     try {
-        const handle = await open(filePath);
-        return async function* () {
-            handle.readFile({})
+        stream = createReadStream(filePath, { encoding: 'utf-8' });
+        reader = createInterface({
+            input: stream,
+            crlfDelay: Infinity,
+        });
+
+        for await (const line of reader) {
+            if (line.trim().length === 0 || line.startsWith('#')) {
+                continue; // Skip empty lines and comments
+            }
+            yield line;
         }
     } catch (e) {
         console.error(`Error opening file ${filePath}:`, e);
         throw e;
+    } finally {
+        if (reader) {
+            reader.close();
+        }
+        if (stream) {
+            stream.close();
+        }
     }
 }
 
 const args = process.argv.slice(2);
-if (args.length < 1) {
-    console.error('Usage: translate.mjs <target_locale1> [<target_locale2> ...]');
+if (args.length < 2) {
+    console.error('Usage: translate.mjs <source_locale> <target_locale1> [<target_locale2> ...]');
     process.exit(1);
 }
 
-const [...targetLocales] = args;
+const [srcLocale, ...targetLocales] = args.slice();
 if (targetLocales.length === 0) {
     console.error('No target locales provided.');
     process.exit(1);
@@ -117,9 +145,14 @@ function isValidLocale(locale) {
     return /^[a-z]{2}(-[A-Z]{2})?$/.test(locale);
 }
 
-const invalidLocales = targetLocales.filter(l => !isValidLocale(l));
+const invalidLocales = args.filter(l => !isValidLocale(l));
 if (invalidLocales.length > 0) {
     console.error(`Invalid locale(s) detected: ${invalidLocales.join(', ')}. Locales must be in ISO 639 format (e.g., "en", "fr", "es", "de", "en-US").`);
     process.exit(1);
 }
-translateFile(join(import.meta.dirname, 'src', 'main', 'resources', 'messages.properties'), 'en', targetLocales);
+
+let fileName = 'messages.properties';
+if (!srcLocale.startsWith('en')) {
+    fileName = `messages_${srcLocale}.properties`;
+}
+translateFile(join(import.meta.dirname, 'src', 'main', 'resources', fileName), srcLocale, targetLocales);

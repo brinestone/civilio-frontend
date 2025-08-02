@@ -5,7 +5,7 @@ import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.controls.SettingsControl;
 import fr.civipol.civilio.event.*;
 import fr.civipol.civilio.services.AuthService;
-import fr.civipol.civilio.services.ConfigManager;
+import fr.civipol.civilio.services.ConfigService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -30,7 +30,7 @@ public class StageManager {
     private final ViewLoader viewLoader;
     private final Lazy<SettingsControl> settingsControlProvider;
     private final EventBus eventBus;
-    private final Lazy<ConfigManager> configManager;
+    private final Lazy<ConfigService> configManager;
     private NotificationPane notificationPane;
     private final Action restartAction = new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked);
 
@@ -40,7 +40,7 @@ public class StageManager {
             ViewLoader viewLoader,
             EventBus eventBus,
             Lazy<SettingsControl> settingsControlProvider,
-            Lazy<ConfigManager> configManager) {
+            Lazy<ConfigService> configManager) {
         this.settingsControlProvider = settingsControlProvider;
         this.authService = authService;
         this.viewLoader = viewLoader;
@@ -88,7 +88,7 @@ public class StageManager {
     }
 
     private void onStageReady(StageReadyEvent event) {
-        final var stage = event.getStage();
+        final var stage = event.stage();
         notificationPane = new NotificationPane();
         notificationPane.setText(rbs.getString("msg.restart_notice"));
         notificationPane.setCloseButtonVisible(false);
@@ -96,7 +96,7 @@ public class StageManager {
         notificationPane.getActions().setAll(restartAction);
 
         try {
-            if (!configurationValid()) {
+            if (!configurationValid() || event.forceConfiguration()) {
                 final var settingsControl = settingsControlProvider.get();
                 final var form = settingsControl.makePreferencesForm();
                 form.getView().getScene().getWindow().setOnHidden(this::onSettingsConfigured);

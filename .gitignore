@@ -43,3 +43,4 @@ logs/
 *.log
 *.tar
 node_modules
+*.bak

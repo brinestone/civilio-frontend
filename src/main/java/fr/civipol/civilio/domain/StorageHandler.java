@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 public interface StorageHandler {
-    UploadTask upload(File file);
+    void upload(File file, Consumer<UploadTask> callback);
 
     void delete(String url);
 }
