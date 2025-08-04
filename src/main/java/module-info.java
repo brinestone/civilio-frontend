@@ -15,11 +15,11 @@ module fr.civipol.civilio {
     requires jakarta.cdi;
     requires com.fasterxml.jackson.databind;
     requires minio;
+    requires transitive org.apache.commons.compress;
     requires com.google.common;
     requires org.controlsfx.controls;
     requires javafx.web;
     requires jdk.jsobject;
-    requires annotations;
     requires java.sql;
     requires com.zaxxer.hikari;
     requires java.management;
@@ -40,7 +40,6 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.form to javafx.fxml;
     opens fr.civipol.civilio.controller.chefferie to javafx.fxml;
     opens fr.civipol.civilio.controller.csc to javafx.fxml;
-    opens fr.civipol.civilio.form.renderer to javafx.fxml;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -63,5 +62,6 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.form;
     exports fr.civipol.civilio.domain.converter;
     exports fr.civipol.civilio.util;
-    exports fr.civipol.civilio.form.renderer;
+    exports fr.civipol.civilio.form.field.gps;
+    opens fr.civipol.civilio.form.field.gps to javafx.fxml, javafx.web;
 }

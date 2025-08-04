@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Singleton
-public class ConfigManager {
+public class ConfigService {
     private static final String ALG = "AES";
     private static final String AES_KEY = "b7OAdC1xaoxiyumkbqY6cSr2rVS14rsaTLTT1Uqe9e4OYKVa5WK6YMDbziwIBr3RKJjMjWOjCoEcucQzdKkkzvFya3bp9k3bxuC6hofWQXFsdLvWYmmkWBiqqF8ScD9F";
     private static SecretKeySpec keyRef;
@@ -36,7 +36,7 @@ public class ConfigManager {
     private String stateHash = "";
 
     @Inject
-    public ConfigManager(EventBus eventBus) {
+    public ConfigService(EventBus eventBus) {
         this.bus = eventBus;
         updateStateHash();
         settings.addPreferenceChangeListener(evt -> updateStateHash());

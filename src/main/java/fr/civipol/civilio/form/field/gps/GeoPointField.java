@@ -1,22 +1,21 @@
-package fr.civipol.civilio.form.field;
+package fr.civipol.civilio.form.field.gps;
 
 import com.dlsc.formsfx.model.structure.DataField;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.TranslationService;
 import fr.civipol.civilio.entity.GeoPoint;
-import fr.civipol.civilio.form.control.GeoPointPickerControl;
 import fr.civipol.civilio.util.NotifyCallback;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableBooleanValue;
 
 public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint, GeoPointField> {
     private static final String LAT_LABEL = "controls.gps.lat";
     private static final String LON_LABEL = "controls.gps.lon";
     private static final String ACC_LABEL = "controls.gps.acc";
     private static final String ALTITUDE_LABEL = "controls.gps.alt";
-    private final StringProperty latitudeLabel, longitudeLabel, accuracyLabel, altitude;
+    private static final String CONNECTIVITY_NOTICE = "controls.gps.conn_notice";
+    private final StringProperty latitudeLabel, longitudeLabel, accuracyLabel, altitude, connectivityNoticeText;
+    private final BooleanProperty connectionAvailable = new SimpleBooleanProperty(true);
 
     /**
      * Internal constructor for the {@code DataField} class. To create new
@@ -31,12 +30,14 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
      * @see Field::ofDoubleType
      * @see Field::ofBooleanType
      */
-    protected GeoPointField(ObjectProperty<GeoPoint> valueProperty, ObjectProperty<GeoPoint> persistentValueProperty) {
+    protected GeoPointField(ObjectProperty<GeoPoint> valueProperty, ObjectProperty<GeoPoint> persistentValueProperty, NotifyCallback callback) {
         super(valueProperty, persistentValueProperty);
         latitudeLabel = new SimpleStringProperty(this, "latLabel", LAT_LABEL);
         longitudeLabel = new SimpleStringProperty(this, "lonLabel", LON_LABEL);
         accuracyLabel = new SimpleStringProperty(this, "accLabel", ACC_LABEL);
         altitude = new SimpleStringProperty(this, "altLabel", ALTITUDE_LABEL);
+        connectivityNoticeText = new SimpleStringProperty(CONNECTIVITY_NOTICE);
+        rendererSupplier = () -> new GeoPointPickerControl(callback);
     }
 
 
@@ -47,29 +48,30 @@ public class GeoPointField extends DataField<ObjectProperty<GeoPoint>, GeoPoint,
         longitudeLabel.set(service.translate(LON_LABEL));
         accuracyLabel.set(service.translate(ACC_LABEL));
         altitude.set(service.translate(ALTITUDE_LABEL));
+        connectivityNoticeText.set(service.translate(CONNECTIVITY_NOTICE));
     }
 
-    public StringProperty latitudeLabelProperty() {
-        return latitudeLabel;
-    }
-
-    public StringProperty longitudeLabelProperty() {
-        return longitudeLabel;
-    }
-
-    public StringProperty accuracyLabelProperty() {
-        return accuracyLabel;
-    }
-
-    public StringProperty altitudeProperty() {
-        return altitude;
-    }
-
-    public static Field<GeoPointField> gpsField(ObjectProperty<GeoPoint> binding, NotifyCallback callback) {
+    public static Field<GeoPointField> create(ObjectProperty<GeoPoint> binding, NotifyCallback callback) {
         final var prop = new SimpleObjectProperty<>(binding.getValue());
         binding.addListener((ob, ov, nv) -> prop.setValue(nv));
+        return new GeoPointField(prop, binding, callback);
+    }
 
-        return new GeoPointField(prop, binding)
-                .render(new GeoPointPickerControl(callback));
+    public StringProperty connectivityNoticeTextProperty() {
+        return connectivityNoticeText;
+    }
+
+    public GeoPointField withConnectivityBinding(ObservableBooleanValue binding) {
+        if (binding == null) {
+            if (connectionAvailable.isBound()) connectionAvailable.unbind();
+            connectionAvailable.set(true);
+        } else {
+            this.connectionAvailable.bind(binding);
+        }
+        return this;
+    }
+
+    BooleanProperty connectionAvailableProperty() {
+        return connectionAvailable;
     }
 }

@@ -23,14 +23,16 @@ import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FOSAFormModel;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormModel;
-import fr.civipol.civilio.form.field.GeoPointField;
+import fr.civipol.civilio.form.field.gps.GeoPointField;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.PingService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ScrollPane;
@@ -55,6 +57,7 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class FOSAFormController extends FormController implements Initializable, OptionSource {
+    private static final String PING_DOMAIN = "tile.openstreetmap.org";
     private boolean optionsLoaded = false;
     private final Map<String, Collection<Option>> allOptions = new HashMap<>();
     private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
@@ -62,6 +65,7 @@ public class FOSAFormController extends FormController implements Initializable,
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
     private final FormService formService;
+    private final PingService pingService;
     private ResourceBundle resources;
     @FXML
     private ScrollPane spCSERegContainer;
@@ -409,91 +413,80 @@ public class FOSAFormController extends FormController implements Initializable,
 
     private void setStructureIdContainer(TranslationService ts) {
         final var model = (FOSAFormModel) this.model;
+        final var connectionAvailable = new SimpleBooleanProperty(true);
+        pingService.observe(PING_DOMAIN, v -> Platform.runLater(() -> connectionAvailable.setValue(v)));
         final var form = Form.of(
-                        Section.of(
-                                        Field.ofSingleSelectionType(model.divisionsProperty(),
-                                                        model.divisionProperty())
-                                                .label("fosa.form.fields.department.title")
-                                                .valueDescription("fosa.form.fields.department.description")
-                                                .render(createOptionComboBox(ts, model
-                                                        .divisionsProperty()))
-                                                .span(ColSpan.HALF),
-                                        Field.ofSingleSelectionType(model.municipalitiesProperty(),
-                                                        model.municipalityProperty())
-                                                .label("fosa.form.fields.communes.title")
-                                                .render(createOptionComboBox(ts, model
-                                                        .municipalitiesProperty()))
-                                                .span(ColSpan.HALF),
-                                        Field.ofStringType(model.quarterProperty())
-                                                .label("fosa.form.fields.quarter.title")
-                                                .render(bindAutoCompletionWrapper(
-                                                        FieldKeys.Fosa.QUARTER,
-                                                        FormType.FOSA))
-                                                .span(ColSpan.HALF),
-                                        Field.ofStringType(model.localityProperty())
-                                                .render(bindAutoCompletionWrapper(
-                                                        FieldKeys.Fosa.LOCALITY,
-                                                        FormType.FOSA))
-                                                .label("fosa.form.fields.locality.title")
-                                                .span(ColSpan.HALF),
-                                        Field.ofStringType(model.officeNameProperty())
-                                                .label("fosa.form.fields.fosa_name.title")
-                                                .valueDescription("fosa.form.fields.fosa_name.description")
-                                                .span(ColSpan.HALF),
-                                        Field.ofSingleSelectionType(model.districtsProperty(),
-                                                        model.districtProperty())
-                                                .label("fosa.form.fields.district.title")
-                                                .valueDescription("fosa.form.fields.district.description")
-                                                .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, model
-                                                        .districtsProperty())),
-                                        Field.ofSingleSelectionType(model.healthAreasProperty(),
-                                                        model.healthAreaProperty())
-                                                .label("fosa.form.fields.health_area.title")
-                                                .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, model
-                                                        .healthAreasProperty())),
-                                        Field.ofSingleSelectionType(model.environmentTypesProperty(),
-                                                        model.environmentTypeProperty())
-                                                .label("fosa.form.fields.environment.title")
-                                                .span(ColSpan.HALF)
-                                                .render(createOptionComboBox(ts, model
-                                                        .environmentTypesProperty())),
-                                        Field.ofSingleSelectionType(model.fosaTypesProperty(),
-                                                        model.fosaTypeProperty())
-                                                .label("fosa.form.fields.fosa_type.title")
-                                                .render(createOptionComboBox(ts, model
-                                                        .fosaTypesProperty()))
-                                                .span(ColSpan.HALF),
-                                        Field.ofSingleSelectionType(model.fosaStatusTypesProperty(),
-                                                        model.fosaStatusTypeProperty())
-                                                .render(createOptionComboBox(ts, model
-                                                        .fosaStatusTypesProperty()))
-                                                .label("fosa.form.fields.fosa_status.title")
-                                                .span(ColSpan.HALF),
-                                        Field.ofBooleanType(model.maternityAvailableProperty())
-                                                .label("fosa.form.fields.has_maternity.title")
-                                                .valueDescription("fosa.form.fields.has_maternity.description")
-                                                .span(ColSpan.HALF),
-                                        Field.ofStringType(model.attachedCscProperty())
-                                                .render(bindAutoCompletionWrapper(
-                                                        FieldKeys.Fosa.ATTACHED_CSC,
-                                                        FormType.FOSA))
-                                                .label("fosa.form.fields.csc_reg.title")
-                                                .valueDescription("fosa.form.fields.csc_reg.description")
-                                                .span(ColSpan.HALF),
-                                        Field.ofDoubleType(model.cscDistanceProperty())
-                                                .label("fosa.form.fields.distance_csc.title")
-                                                .valueDescription("fosa.form.fields.distance_csc.description")
-                                                .span(ColSpan.HALF))
-                                .title("fosa.form.sections.structure_identification.title")
-                                .collapse(false),
-                        Section.of(
-                                        GeoPointField.gpsField(model.geoPointProperty(),
-                                                model::updateGeoPointUpdates))
-                                .title("fosa.form.sections.geo_point.title")
-                                .collapse(true))
-                .i18n(ts);
+                Group.of(
+                        Field.ofSingleSelectionType(model.divisionsProperty(),
+                                        model.divisionProperty())
+                                .label("fosa.form.fields.department.title")
+                                .valueDescription("fosa.form.fields.department.description")
+                                .render(createOptionComboBox(ts))
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(model.municipalitiesProperty(),
+                                        model.municipalityProperty())
+                                .label("fosa.form.fields.communes.title")
+                                .render(createOptionComboBox(ts))
+                                .span(ColSpan.HALF),
+                        Field.ofStringType(model.quarterProperty())
+                                .label("fosa.form.fields.quarter.title")
+                                .render(bindAutoCompletionWrapper(
+                                        FieldKeys.Fosa.QUARTER,
+                                        FormType.FOSA))
+                                .span(ColSpan.HALF),
+                        Field.ofStringType(model.localityProperty())
+                                .render(bindAutoCompletionWrapper(
+                                        FieldKeys.Fosa.LOCALITY,
+                                        FormType.FOSA))
+                                .label("fosa.form.fields.locality.title")
+                                .span(ColSpan.HALF),
+                        Field.ofStringType(model.officeNameProperty())
+                                .label("fosa.form.fields.fosa_name.title")
+                                .valueDescription("fosa.form.fields.fosa_name.description")
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(model.districtsProperty(),
+                                        model.districtProperty())
+                                .label("fosa.form.fields.district.title")
+                                .valueDescription("fosa.form.fields.district.description")
+                                .span(ColSpan.HALF)
+                                .render(createOptionComboBox(ts)),
+                        Field.ofSingleSelectionType(model.healthAreasProperty(),
+                                        model.healthAreaProperty())
+                                .label("fosa.form.fields.health_area.title")
+                                .span(ColSpan.HALF)
+                                .render(createOptionComboBox(ts)),
+                        Field.ofSingleSelectionType(model.environmentTypesProperty(),
+                                        model.environmentTypeProperty())
+                                .label("fosa.form.fields.environment.title")
+                                .span(ColSpan.HALF)
+                                .render(createOptionComboBox(ts)),
+                        Field.ofSingleSelectionType(model.fosaTypesProperty(),
+                                        model.fosaTypeProperty())
+                                .label("fosa.form.fields.fosa_type.title")
+                                .render(createOptionComboBox(ts))
+                                .span(ColSpan.HALF),
+                        Field.ofSingleSelectionType(model.fosaStatusTypesProperty(),
+                                        model.fosaStatusTypeProperty())
+                                .render(createOptionComboBox(ts))
+                                .label("fosa.form.fields.fosa_status.title")
+                                .span(ColSpan.HALF),
+                        Field.ofBooleanType(model.maternityAvailableProperty())
+                                .label("fosa.form.fields.has_maternity.title")
+                                .valueDescription("fosa.form.fields.has_maternity.description")
+                                .span(ColSpan.HALF),
+                        Field.ofStringType(model.attachedCscProperty())
+                                .render(bindAutoCompletionWrapper(
+                                        FieldKeys.Fosa.ATTACHED_CSC,
+                                        FormType.FOSA))
+                                .label("fosa.form.fields.csc_reg.title")
+                                .valueDescription("fosa.form.fields.csc_reg.description")
+                                .span(ColSpan.HALF),
+                        Field.ofDoubleType(model.cscDistanceProperty())
+                                .label("fosa.form.fields.distance_csc.title")
+                                .valueDescription("fosa.form.fields.distance_csc.description")
+                                .span(ColSpan.HALF))
+
+        ).i18n(ts);
         spStructureIdContainer.setContent(new FormRenderer(form));
         structureIdForm = form;
         form.binding(BindingMode.CONTINUOUS);
@@ -509,8 +502,7 @@ public class FOSAFormController extends FormController implements Initializable,
                         Group.of(
                                 Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
                                         .label(FieldKeys.Fosa.RESPONDING_DEVICE)
-                                        .render(createOptionComboBox(ts, model
-                                                .deviceOptionsProperty()))
+                                        .render(createOptionComboBox(ts))
                                         .required("settings.msg.value_required"),
                                 Field.ofStringType(model.respondentNamesProperty())
                                         .label(FieldKeys.Fosa.RESPONDENT_NAME)
@@ -542,7 +534,7 @@ public class FOSAFormController extends FormController implements Initializable,
                                         .label("fosa.form.fields.creation_date.title")
                                         .validate(CustomValidator.forPredicate(
                                                 d -> d == null || today.isEqual(d)
-                                                     || today.isAfter(d),
+                                                        || today.isAfter(d),
                                                 "fosa.form.msg.value_out_of_range"))
                                         .format(localDateStringConverter,
                                                 "forms.msg.invalid_value")
@@ -585,5 +577,10 @@ public class FOSAFormController extends FormController implements Initializable,
         });
         optionsLoaded = true;
         log.debug("Options loading initiated.");
+    }
+
+    @Override
+    public void onClose() {
+        pingService.unobserve(PING_DOMAIN);
     }
 }

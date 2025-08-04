@@ -162,18 +162,18 @@ public abstract class FormModel {
             else
                 return 0;
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(GeoPoint.class::equals).isPresent()) {
-            if (raw instanceof String s) {
+            if (raw instanceof String s && !s.isBlank()) {
                 final var segments = s.split(DELIMITER_TOKEN_PATTERN);
                 final var lat = segments[0];
                 final var lon = segments[1];
                 final var altitude = segments[2];
-                final var accuracy = segments[3];
+//                final var accuracy = segments[3];
 
                 return GeoPoint.builder()
                         .latitude(Float.valueOf(lat))
                         .longitude(Float.valueOf(lon))
                         .altitude(Float.valueOf(altitude))
-                        .accuracy(Float.valueOf(accuracy))
+                        .accuracy(0f)
                         .build();
             }
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(String.class::equals).isPresent()) {

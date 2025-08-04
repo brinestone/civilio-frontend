@@ -443,6 +443,7 @@ public class FieldKeys {
             public static final String HAS_CS_SOFTWARE = "csc.form.sections.digitization.fields.has_cs_software.title";
             public static final String CS_SOFTWARE_NAME = "csc.form.sections.digitization.fields.cs_software_name.title";
             public static final String CS_SOFTWARE_LICENSE_SPONSOR = "csc.form.sections.digitization.fields.cs_software_license_sponsor.title";
+            public static final String OTHER_CS_SOFTWARE_LICENSE_SPONSOR = "csc.form.sections.digitization.fields.other_cs_software_license_sponsor.title";
             public static final String USERS_RECEIVE_DIGITAL_ACTS = "csc.form.sections.digitization.fields.users_receive_digital_acts.title";
             public static final String SOFTWARE_ACTIVATION_DATE = "csc.form.sections.digitization.fields.software_activation_date.title";
             public static final String SOFTWARE_FEEDBACK = "csc.form.sections.digitization.fields.software_feedback.title";

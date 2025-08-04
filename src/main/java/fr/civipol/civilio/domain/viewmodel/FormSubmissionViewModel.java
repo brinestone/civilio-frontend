@@ -4,7 +4,6 @@ import fr.civipol.civilio.entity.FormSubmission;
 import javafx.beans.property.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.Optional;
@@ -71,7 +70,7 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
     }
 
     @Override
-    public int compareTo(@NotNull FormSubmissionViewModel o) {
+    public int compareTo(FormSubmissionViewModel o) {
         return submission.compareTo(o.getSubmission());
     }
 

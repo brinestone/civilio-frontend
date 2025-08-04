@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.jackson.Jacksonized;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
@@ -29,7 +28,7 @@ public class FormSubmission implements Comparable<FormSubmission> {
     private String facilityName;
 
     @Override
-    public int compareTo(@NotNull FormSubmission o) {
+    public int compareTo(FormSubmission o) {
         return Integer.compare(Integer.parseInt(o.getIndex()), Integer.parseInt(getIndex()));
     }
 }

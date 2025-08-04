@@ -48,6 +48,8 @@ val daggerVersion = "2.56"
 val geoToolsVersion = "28.1"
 
 dependencies {
+    implementation("com.yegor256:jping:0.0.3")
+
     // HikariCP
     implementation("com.zaxxer:HikariCP:6.3.0")
     runtimeOnly("org.postgresql:postgresql:42.7.5")
@@ -56,30 +58,41 @@ dependencies {
     implementation("org.controlsfx:controlsfx:11.2.2")
 
     // MinIO Client
-    implementation("io.minio:minio:8.5.7")
+    implementation("io.minio:minio:7.1.4") {
+        exclude("org.apache.commons", module="commons-compress")
+    }
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+    implementation("org.apache.commons:commons-compress:1.27.1")
 
+    // Ikonli icons
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
     implementation("org.kordamp.ikonli:ikonli-feather-pack:12.4.0")
 
+    // FormsFX
     implementation(
         files("libs/formsfx-core-11.6.0.jar")
     )
 
+    // PreferencesFX
     implementation("com.dlsc.preferencesfx:preferencesfx-core:11.17.0") {
         exclude(group = "com.dlsc.formsfx", module = "formsfx-core")
     }
 
+    // Apache Commons
     implementation("org.apache.commons:commons-lang3:3.17.0")
 
+    // Lombok
     implementation("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")
     testAnnotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
+    // Dagger
     implementation("com.google.dagger:dagger:$daggerVersion")
     annotationProcessor("com.google.dagger:dagger-compiler:$daggerVersion")
     implementation("jakarta.inject:jakarta.inject-api:2.0.1")
     implementation("jakarta.enterprise:jakarta.enterprise.cdi-api:4.0.1")
 
+    // SLF4J
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("ch.qos.logback:logback-classic:1.4.12")
 

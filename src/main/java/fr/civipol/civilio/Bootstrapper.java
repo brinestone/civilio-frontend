@@ -19,6 +19,7 @@ import java.util.Properties;
 @Slf4j
 public class Bootstrapper extends Application {
     private AppComponent appComponent;
+    private boolean configurationRequired;
 
     @Override
     public void start(Stage primaryStage) {
@@ -27,7 +28,7 @@ public class Bootstrapper extends Application {
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
         var ignored = appComponent.stageManager();
-        appComponent.eventBus().publish(new StageReadyEvent(primaryStage));
+        appComponent.eventBus().publish(new StageReadyEvent(primaryStage, configurationRequired));
         appComponent.eventBus().subscribe(RestartEvent.class, this::onRestartRequested);
     }
 
@@ -46,6 +47,11 @@ public class Bootstrapper extends Application {
         for (var service : services) {
             if (service.isConfigured(cm))
                 service.initialize();
+            else {
+                log.warn("{} requires configuration", service.getClass().getSimpleName());
+                configurationRequired = true;
+                return;
+            }
         }
     }
 

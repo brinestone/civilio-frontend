@@ -1,6 +1,7 @@
 package fr.civipol.civilio;
 
 public final class Constants {
+    public static final String UPLOADS_BUCKET = "uploads";
     public static final String ROOT_PREFS_KEY_PATH = System.getProperty("app.id");
     public static final String SETTINGS_PREFS_NODE_PATH = String.format("%s/settings", ROOT_PREFS_KEY_PATH);
     public static final String FIELD_MAPPER_PREFS_NODE_PATH = "%s/field_mapping".formatted(ROOT_PREFS_KEY_PATH);

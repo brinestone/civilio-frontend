@@ -1,8 +1,8 @@
 package fr.civipol.civilio.domain.viewmodel;
 
 import fr.civipol.civilio.entity.GeoPoint;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import lombok.Getter;
 
 import java.util.Optional;
@@ -10,32 +10,20 @@ import java.util.Optional;
 public class GeoPointViewModel {
     @Getter
     private final GeoPoint location;
-    private final ObjectProperty<Float> latitude, longitude, accuracy, altitude;
+    private final FloatProperty latitude, longitude;
 
     public GeoPointViewModel(GeoPoint location) {
         this.location = location;
-        latitude = new SimpleObjectProperty<>(location, "latitude",
+        latitude = new SimpleFloatProperty(location, "latitude",
                 Optional.ofNullable(location)
                         .map(GeoPoint::getLatitude)
-                        .orElse(0.0f));
-        longitude = new SimpleObjectProperty<>(location, "longitude", Optional.ofNullable(location)
+                        .orElse(5.4811225f));
+        longitude = new SimpleFloatProperty(location, "longitude", Optional.ofNullable(location)
                 .map(GeoPoint::getLongitude)
-                .orElse(0.0f));
-        accuracy = new SimpleObjectProperty<>(location, "accuracy", Optional.ofNullable(location)
-                .map(GeoPoint::getAccuracy)
-                .orElse(0.0f));
-        altitude = new SimpleObjectProperty<>(location, "altitude", Optional.ofNullable(location)
-                .map(GeoPoint::getAltitude)
-                .orElse(0.0f));
+                .orElse(10.4087592f));
 
-        latitude.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setLatitude(nv)));
-        longitude.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setLongitude(nv)));
-        accuracy.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setAccuracy(nv)));
-        altitude.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setAltitude(nv)));
-    }
-
-    public Float getAltitude() {
-        return altitude.get();
+        latitude.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setLatitude(nv.floatValue())));
+        longitude.addListener((ob, ov, nv) -> Optional.ofNullable(location).ifPresent(l -> l.setLongitude(nv.floatValue())));
     }
 
     public Float getLongitude() {
@@ -46,27 +34,19 @@ public class GeoPointViewModel {
         return latitude.get();
     }
 
-    public void setLongitude(float lon) {
-        longitude.set(lon);
+    public void setLatitude(float v) {
+        latitude.set(v);
     }
 
-    public void setLatitude(float lat) {
-        latitude.set(lat);
+    public void setLongitude(float v) {
+        longitude.set(v);
     }
 
-    public ObjectProperty<Float> altitudeProperty() {
-        return altitude;
-    }
-
-    public ObjectProperty<Float> longitudeProperty() {
-        return longitude;
-    }
-
-    public ObjectProperty<Float> accuracyProperty() {
-        return accuracy;
-    }
-
-    public ObjectProperty<Float> latitudeProperty() {
+    public FloatProperty latitudeProperty() {
         return latitude;
+    }
+
+    public FloatProperty longitudeProperty() {
+        return longitude;
     }
 }

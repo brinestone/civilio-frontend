@@ -8,11 +8,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V>> {
     private Tooltip tooltip;
@@ -20,6 +22,7 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
     private boolean updatesFromField = false;
     private CheckComboBox<V> comboBox;
     private Label fieldLabel;
+    private Label readonlyLabel;
     private final ObjectProperty<StringConverter<V>> converter = new SimpleObjectProperty<>(this, "converter");
 
     public MultiComboBoxControl(StringConverter<V> converter) {
@@ -34,9 +37,12 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
     @Override
     public void layoutParts() {
         super.layoutParts();
+        final var columns = field.getSpan();
+        final var stack = new StackPane();
+        stack.getChildren().addAll(comboBox, readonlyLabel);
         comboBox.setPrefWidth(USE_COMPUTED_SIZE);
         add(fieldLabel, 0, 0, 2, 1);
-        add(comboBox, 2, 0, REMAINING, 1);
+        add(stack, 2, 0, columns - 2, 1);
         setHgap(5.0);
     }
 
@@ -45,12 +51,16 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
         super.setupBindings();
         fieldLabel.textProperty().bind(field.labelProperty());
         comboBox.converterProperty().bind(converter);
-        comboBox.disableProperty().bind(field.editableProperty().not());
+        comboBox.visibleProperty().bind(field.editableProperty());
         tooltip.textProperty().bind(Bindings.when(field.validProperty()).then(field.tooltipProperty()).otherwise(Bindings.createStringBinding(() -> String.join("\n", field.getErrorMessages()), field.errorMessagesProperty())));
-        final var defaultLabelStyle = fieldLabel.getStyle();
-        fieldLabel.styleProperty().bind(Bindings.when(field.validProperty()).then(defaultLabelStyle).otherwise("""
-                -fx-text-fill: red;
-                """));
+//        final var defaultLabelStyle = fieldLabel.getStyle();
+//        fieldLabel.styleProperty().bind(Bindings.when(field.validProperty()).then(defaultLabelStyle).otherwise("""
+//                -fx-text-fill: red;
+//                """));
+        readonlyLabel.textProperty().bind(Bindings.createStringBinding(() -> comboBox.getCheckModel().getCheckedItems().stream()
+                .map(comboBox.getConverter()::toString)
+                .collect(Collectors.joining(", ")), comboBox.getCheckModel().getCheckedItems()));
+        readonlyLabel.visibleProperty().bind(field.editableProperty().not());
     }
 
     @Override
@@ -83,12 +93,14 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
         comboBox = new CheckComboBox<>();
         tooltip = new Tooltip();
         fieldLabel = new Label();
+        readonlyLabel = new Label();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void initializeParts() {
         super.initializeParts();
+        getStyleClass().add("simple-select-control");
         comboBox.getItems().setAll(field.getItems());
         field.getSelection().forEach(comboBox.getCheckModel()::check);
         updateTooltip();
