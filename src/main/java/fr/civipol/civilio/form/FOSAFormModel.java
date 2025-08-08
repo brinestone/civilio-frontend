@@ -18,10 +18,14 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 @Slf4j
 @SuppressWarnings("unchecked")
 public class FOSAFormModel extends FormModel {
+    private static final String[] REGION_IDS = IntStream.rangeClosed(1, 7)
+            .mapToObj("%02d"::formatted)
+            .toArray(String[]::new);
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
@@ -446,7 +450,7 @@ public class FOSAFormModel extends FormModel {
     }
 
     public void loadInitialOptions() {
-        divisions.setAll(optionSource.findOptions("division", "01"));
+        divisions.setAll(optionSource.findOptions("division", REGION_IDS));
         environmentTypes.setAll(optionSource.findOptions("vb2qk85"));
         districts.setAll(optionSource.findOptions("district"));
         fosaTypes.setAll(optionSource.findOptions("pa9ii12"));

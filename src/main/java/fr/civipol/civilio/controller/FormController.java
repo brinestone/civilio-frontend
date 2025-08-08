@@ -3,6 +3,7 @@ package fr.civipol.civilio.controller;
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
+import fr.civipol.civilio.domain.OptionSource;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormType;
@@ -26,9 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.textfield.TextFields;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,7 +37,8 @@ import java.util.stream.Stream;
  * Represents a base form capable of submitting data and loading existing submission data.
  */
 @Slf4j
-public abstract class FormController implements AppController {
+public abstract class FormController implements AppController, OptionSource {
+    protected Map<String, Collection<Option>> allOptions = new HashMap<>();
     private final BooleanProperty submitting = new SimpleBooleanProperty(this, "submitting", false);
     @Setter
     protected Consumer<String> onSubmit;
@@ -64,6 +64,13 @@ public abstract class FormController implements AppController {
     protected abstract FormHeaderController getHeaderManagerController();
 
     protected abstract void loadOptions();
+
+    @Override
+    public Collection<Option> findOptions(String group, String... parent) {
+        return allOptions.getOrDefault(group, Collections.emptyList()).stream()
+                .filter(o -> parent.length == 0 || Stream.of(parent).anyMatch(p -> p.equals(o.parent())))
+                .toList();
+    }
 
     protected FormController() {
         submissionIndex.addListener((ob, ov, nv) -> {
@@ -212,8 +219,9 @@ public abstract class FormController implements AppController {
         };
     }
 
-    protected MultiComboBoxControl<Option> createMultiOptionComboBox(TranslationService ts, ObservableList<Option> options) {
-        return new MultiComboBoxControl<>(new OptionConverter(ts, v -> Optional.ofNullable(options)
+    @SuppressWarnings("unchecked")
+    protected MultiComboBoxControl<Option> createMultiOptionComboBox(TranslationService ts) {
+        return new MultiComboBoxControl<>(field -> new OptionConverter(ts, v -> Optional.ofNullable((Collection<Option>) field.getItems())
                 .stream()
                 .flatMap(Collection::stream)
                 .filter(o -> o.value().equals(v))

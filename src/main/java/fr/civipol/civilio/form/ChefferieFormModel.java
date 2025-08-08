@@ -17,12 +17,16 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.*;
 
 @Slf4j
 @SuppressWarnings("DuplicatedCode")
 public class ChefferieFormModel extends FormModel {
+    private static final String[] REGION_IDS = IntStream.rangeClosed(1, 7)
+            .mapToObj("%02d"::formatted)
+            .toArray(String[]::new);
     private final Map<String, Property<?>> valueProperties = new HashMap<>();
     private final Map<String, ListProperty<Option>> options = new HashMap<>();
 
@@ -209,7 +213,7 @@ public class ChefferieFormModel extends FormModel {
 
     @Override
     public void loadInitialOptions() {
-        options.get(DIVISION).setAll(optionSource.findOptions("division", "01"));
+        options.get(DIVISION).setAll(optionSource.findOptions("division", REGION_IDS));
         options.get(MUNICIPALITY).setAll(optionSource.findOptions("commune"));
         options.get(CLASSIFICATION).setAll(optionSource.findOptions("vb2qk85"));
         options.get(WATER_SOURCES).setAll(optionSource.findOptions("zp4ec39"));

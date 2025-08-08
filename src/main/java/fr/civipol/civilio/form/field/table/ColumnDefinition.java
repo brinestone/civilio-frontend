@@ -1,7 +1,10 @@
 package fr.civipol.civilio.form.field.table;
 
+import com.dlsc.formsfx.model.util.TranslationService;
+import fr.civipol.civilio.domain.converter.OptionConverter;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -12,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -19,7 +23,7 @@ import java.util.function.Supplier;
 public class ColumnDefinition<T, V> {
     @Getter(AccessLevel.PACKAGE)
     private final String titleKey, fieldKey;
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private Supplier<TableCell<T, V>> cellSupplier;
     @Getter(AccessLevel.PACKAGE)
     private final TableColumn<T, V> tableColumn = new TableColumn<>();
@@ -70,14 +74,17 @@ public class ColumnDefinition<T, V> {
         tableColumn.setCellFactory(param -> cellSupplier.get());
     }
 
-    public static <V> ColumnDefinition<V, String> ofStringType(String titleKey, String fieldKey) {
+    public static <V> StringColumnDefinition<V> ofStringType(String titleKey, String fieldKey) {
         Supplier<TableCell<V, String>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+        return new StringColumnDefinition<>(titleKey, fieldKey);
     }
 
-    public static <V, R> ColumnDefinition<V, R> ofSelectionType(Collection<R> options, String titleKey, String fieldKey) {
-        Supplier<TableCell<V, R>> supplier = () -> new ComboBoxTableCell<>(FXCollections.observableArrayList(options));
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+    public static <V, R> SingleSelectionColumnDefinition<V, R> ofSingleSelectionType(StringConverter<R> converter, ObservableList<R> options, String titleKey, String fieldKey) {
+        return new SingleSelectionColumnDefinition<>(titleKey, fieldKey, options, converter);
+    }
+
+    public static <V, R> MultiSelectionColumnDefinition<V, R> ofMultiSelectionType(String titleKey, String fieldKey, ObservableList<R> options, StringConverter<R> converter) {
+        return new MultiSelectionColumnDefinition<>(titleKey, fieldKey, options, converter);
     }
 
     public static <V> ColumnDefinition<V, Boolean> ofBooleanType(String titleKey, String fieldKey) {
@@ -86,9 +93,12 @@ public class ColumnDefinition<T, V> {
         return definition;
     }
 
-    public static <V> ColumnDefinition<V, Integer> ofIntegerType(String titleKey, String fieldKey) {
-        Supplier<TableCell<V, Integer>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+    public static <V> SpinnerColumnDefinition<V, Float> ofFloatType(String titleKey, String fieldKey) {
+        return SpinnerColumnDefinition.ofFloatType(titleKey, fieldKey);
+    }
+
+    public static <V> SpinnerColumnDefinition<V, Integer> ofIntegerType(String titleKey, String fieldKey) {
+        return SpinnerColumnDefinition.ofIntegerType(titleKey, fieldKey);
     }
 
     public boolean isEditable() {

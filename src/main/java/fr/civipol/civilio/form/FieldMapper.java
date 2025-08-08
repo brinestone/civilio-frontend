@@ -407,9 +407,9 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                                 settingFactory.apply(FieldKeys.Fosa.BIKE_COUNT),
                                 settingFactory.apply(FieldKeys.Fosa.PERSONNEL_COUNT)))
                 .subCategories(
-                        Category.of("mapper.categories.forms.fosa.sub_forms.title",
+                        Category.of("mapper.categories.forms.any.sub_forms.title",
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.data_personnel.title",
+                                        "fosa.form.sections.personnel_status.title",
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_NAME),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_POSITION),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_GENDER),

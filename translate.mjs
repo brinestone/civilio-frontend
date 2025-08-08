@@ -1,7 +1,7 @@
-import { writeFile, rename, appendFile } from 'node:fs/promises';
-import { createInterface } from 'node:readline';
-import { dirname, join, sep } from 'node:path';
-import { createReadStream, existsSync } from 'node:fs';
+import {writeFile, rename, appendFile} from 'node:fs/promises';
+import {createInterface} from 'node:readline';
+import {dirname, join, sep} from 'node:path';
+import {createReadStream, existsSync} from 'node:fs';
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,11 +42,12 @@ async function translateValue(value, sourceLocale, targetLocales) {
 async function clearFile(filePath) {
     try {
         if (existsSync(filePath)) {
-            await rm(filePath, { force: true });
+            await rm(filePath, {force: true});
             await writeFile(filePath, '', 'utf-8');
             console.log(`Cleared file ${filePath}`);
         }
-    } catch (e) { }
+    } catch (e) {
+    }
 }
 
 async function appendTranslationsToFile(filePath, translations) {
@@ -81,7 +82,7 @@ async function translateFile(filePath, sourceLocale, targetLocales) {
             }
         }
         for await (const line of streamLines(filePath)) {
-            const [key, value] = line.split('=');
+            const [key, value] = line.split('=', 2);
             if (!key || !value) {
                 console.warn(`Skipping invalid line: ${line}`);
                 continue;
@@ -103,7 +104,7 @@ async function translateFile(filePath, sourceLocale, targetLocales) {
 async function* streamLines(filePath) {
     let stream, reader;
     try {
-        stream = createReadStream(filePath, { encoding: 'utf-8' });
+        stream = createReadStream(filePath, {encoding: 'utf-8'});
         reader = createInterface({
             input: stream,
             crlfDelay: Infinity,
@@ -155,4 +156,5 @@ let fileName = 'messages.properties';
 if (!srcLocale.startsWith('en')) {
     fileName = `messages_${srcLocale}.properties`;
 }
-translateFile(join(import.meta.dirname, 'src', 'main', 'resources', fileName), srcLocale, targetLocales);
+translateFile(join(import.meta.dirname, 'src', 'main', 'resources', fileName), srcLocale, targetLocales)
+    .catch(e => console.error(e));

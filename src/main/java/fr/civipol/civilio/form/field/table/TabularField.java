@@ -5,8 +5,6 @@ import com.dlsc.formsfx.model.util.TranslationService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -14,8 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-@SuppressWarnings("rawtypes")
-public class TabularField<V> extends DataField<ListProperty, List, TabularField<V>> {
+public class TabularField<V> extends DataField<ListProperty<V>, List<V>, TabularField<V>> {
     private static final String ADD_ACTION_TEXT = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_ACTION_TEXT = "controls.stats_collector.actions.remove_selection";
     @Getter
@@ -25,13 +22,14 @@ public class TabularField<V> extends DataField<ListProperty, List, TabularField<
     @Getter(AccessLevel.PACKAGE)
     private final Supplier<V> valueSupplier;
 
-    protected TabularField(ListProperty valueProperty, ListProperty persistentValueProperty, Supplier<V> valueSupplier) {
+    protected TabularField(ListProperty<V> valueProperty, ListProperty<V> persistentValueProperty, Supplier<V> valueSupplier) {
         super(valueProperty, persistentValueProperty);
         this.valueSupplier = valueSupplier;
     }
 
-    public TabularField<V> withColumn(ColumnDefinition<V, ?> definition) {
-        columnDefinitions.add(definition);
+    @SafeVarargs
+    public final TabularField<V> withColumns(ColumnDefinition<V, ?>... definition) {
+        columnDefinitions.setAll(definition);
         return this;
     }
 

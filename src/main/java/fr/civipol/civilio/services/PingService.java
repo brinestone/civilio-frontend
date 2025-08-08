@@ -30,7 +30,7 @@ public class PingService implements AppService {
                 final var domains = callbackRegistry.keySet();
                 if (domains.size() == 0)
                     return;
-                log.debug("tick - Pinging {} domains", domains.size());
+                log.debug("tick - Pinging {} domain(s)", domains.size());
                 for (var domain : domains) {
                     if (busySet.contains(domain)) {
                         log.debug("skipping busy domain: {}", domain);

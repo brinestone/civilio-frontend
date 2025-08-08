@@ -35,7 +35,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         actionsContainer.setAlignment(Pos.CENTER_LEFT);
         actionsContainer.setPadding(new Insets(2, 0, 2, 0));
         actionsContainer.setSpacing(5.0);
-        add(lblMain, 0, 0, 2, 1);
+        add(lblMain, 0, 0, columns / 2, 1);
         add(actionsContainer, columns - 2, 0, 2, 1);
         add(table, 0, 1, columns, REMAINING);
         GridPane.setValignment(actionsContainer, VPos.CENTER);

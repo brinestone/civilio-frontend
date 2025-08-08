@@ -614,22 +614,31 @@ public class FormService implements AppService {
                                 _id,
                                 _submission_time,
                                 _index,
-                                q14_02_validation_code,
+                                %I as q14_02_validation_code,
                                 lead(_index) over (order by _index) as next,
                                 lag(_index) over (order by _index)  as prev
                             FROM
                                 %I.data
                             ) as d
                         WHERE
-                            d._index LIKE %L OR LOWER(d.%I) LIKE LOWER(%L)
+                            d._index::TEXT LIKE %L OR LOWER(d.%I::TEXT) LIKE LOWER(%L)
                         LIMIT 10;
-                    ', ?, ?, ?, ?);
+                    ', ?, ?, ?, ?, ?);
                                         """)) {
-                st.setString(1, schema);
-                st.setString(2, "%%%s%%".formatted(query));
-                st.setString(3, mapping.dbColumn());
-                st.setString(4, "%%%s%%".formatted(query));
+                var validationCodeColumn = "q14_02_validation_code";
+                if (form == FormType.CSC)
+                    validationCodeColumn = "code_de_validation";
+                st.setString(1, validationCodeColumn);
+                st.setString(2, schema);
+                st.setString(3, "%%%s%%".formatted(query));
+                st.setString(4, mapping.dbColumn());
+                st.setString(5, "%%%s%%".formatted(query));
+                String sql;
                 try (final var rs = st.executeQuery()) {
+                    if (!rs.next()) throw new IllegalStateException("Could not generate dynamic query");
+                    sql = rs.getString(1);
+                }
+                try (final var rs = conn.createStatement().executeQuery(sql)) {
                     final var builder = Stream.<SubmissionRef>builder();
                     while (rs.next()) {
                         builder.add(new SubmissionRef(

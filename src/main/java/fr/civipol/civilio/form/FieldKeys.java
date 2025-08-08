@@ -337,8 +337,7 @@ public class FieldKeys {
             public static final String GPS_COORDS = "csc.form.sections.identification.fields.gps_coords.title";
             public static final String[] ALL_FIELDS = {
                     DIVISION, MUNICIPALITY, QUARTER, FACILITY_NAME, CATEGORY, TOWN_SIZE, MILIEU, ATTACHED_CENTERS,
-                    LOCALITY,
-                    CREATION_DATE, IS_FUNCTIONAL, NON_FUNCTION_REASON, CHIEFDOM_DEGREE, OTHER_NON_FUNCTION_REASON,
+                    IS_FUNCTIONAL, NON_FUNCTION_REASON, CHIEFDOM_DEGREE, OTHER_NON_FUNCTION_REASON,
                     IS_CHIEFDOM,
                     NON_FUNCTION_DURATION, SECONDARY_CREATION_ORDER, OFFICER_APPOINTMENT_ORDER, IS_OFFICER_APPOINTED,
                     PHOTO_URL, GPS_COORDS
