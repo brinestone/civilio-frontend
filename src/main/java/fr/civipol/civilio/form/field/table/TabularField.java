@@ -16,7 +16,7 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
     private static final String ADD_ACTION_TEXT = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_ACTION_TEXT = "controls.stats_collector.actions.remove_selection";
     @Getter
-    private final ObservableList<ColumnDefinition<V, ?>> columnDefinitions = FXCollections.observableArrayList();
+    private final ObservableList<ColumnDefinition> columnDefinitions = FXCollections.observableArrayList();
     private final StringProperty addActionText = new SimpleStringProperty(), removeActionText = new SimpleStringProperty();
     private final DoubleProperty height = new SimpleDoubleProperty(this, "height", 300);
     @Getter(AccessLevel.PACKAGE)
@@ -28,7 +28,8 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
     }
 
     @SafeVarargs
-    public final TabularField<V> withColumns(ColumnDefinition<V, ?>... definition) {
+    @SuppressWarnings("rawtypes")
+    public final TabularField<V> withColumns(ColumnDefinition... definition) {
         columnDefinitions.setAll(definition);
         return this;
     }

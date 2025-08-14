@@ -1,9 +1,6 @@
 package fr.civipol.civilio.controller.csc;
 
-import com.dlsc.formsfx.model.structure.Field;
-import com.dlsc.formsfx.model.structure.Form;
-import com.dlsc.formsfx.model.structure.Group;
-import com.dlsc.formsfx.model.structure.IntegerField;
+import com.dlsc.formsfx.model.structure.*;
 import com.dlsc.formsfx.model.util.BindingMode;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.util.TranslationService;
@@ -17,7 +14,10 @@ import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
-import fr.civipol.civilio.domain.*;
+import fr.civipol.civilio.domain.FieldChange;
+import fr.civipol.civilio.domain.ProgressInputStream;
+import fr.civipol.civilio.domain.StorageHandler;
+import fr.civipol.civilio.domain.UploadTask;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
@@ -67,7 +67,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class CSCFormController extends FormController implements Initializable, OptionSource, StorageHandler {
+public class CSCFormController extends FormController implements Initializable, StorageHandler {
     private static final String PING_DOMAIN = "tile.openstreetmap.org";
     private boolean optionsLoaded = false;
     private final StorageService storageService;
@@ -79,14 +79,18 @@ public class CSCFormController extends FormController implements Initializable, 
     private FormModel model;
     private final PingService pingService;
     private ResourceBundle resources;
-    private Form vitalStatsForm, respondentForm, identificationForm, accessibilityForm, infrastructureForm,
-            areasForm, equipmentForm, digitizationForm, recordProcurementForm, archivingForm, deedForm,
-            statusOfArchivedRecordsForm, personnelInfoForm;
+    private Form financialStatsForm, respondentForm, identificationForm, accessibilityForm, infrastructureForm,
+            areasForm, scanningForm, equipmentForm, digitizationForm, recordProcurementForm, archivingForm,
+            deedForm,
+            staffForm,
+            villagesForm,
+            statusOfArchivedRecordsForm, personnelInfoForm, commentsForm;
     @FXML
     private TabPane tabPane;
     @FXML
     private Tab tRespondent,
             tIdentification,
+            tArchiving,
             tAccessibility,
             tInfra,
             tAreas,
@@ -95,9 +99,15 @@ public class CSCFormController extends FormController implements Initializable, 
             tScanning,
             tProcurement,
             tStats,
+            tArchivingParent,
             tDeeds,
             tStatusOfArchives,
-            tEmployees;
+            tAccessibilityParent,
+            tVillages,
+            tComments,
+            tPersonnelParent,
+            tStaff,
+            tPersonnel;
 
     @FXML
     @Getter(AccessLevel.PROTECTED)
@@ -108,7 +118,6 @@ public class CSCFormController extends FormController implements Initializable, 
     @Getter(AccessLevel.PROTECTED)
     @SuppressWarnings("unused")
     private FormFooterController footerManagerController;
-    private final Map<Tab, Integer> optionalTabMap = new HashMap<Tab, Integer>();
 
     @Override
     protected void loadOptions() {
@@ -173,12 +182,16 @@ public class CSCFormController extends FormController implements Initializable, 
                         .and(areasForm.validProperty())
                         .and(equipmentForm.validProperty())
                         .and(digitizationForm.validProperty())
-                // .and(recordProcurementForm.validProperty())
-                // .and(vitalStatsForm.validProperty())
-                // .and(archivingForm.validProperty())
-                // .and(deedForm.validProperty())
-                // .and(statusOfArchivedRecordsForm.validProperty())
-                // .and(personnelInfoForm.validProperty()),
+                        .and(scanningForm.validProperty())
+                        .and(recordProcurementForm.validProperty())
+                        .and(financialStatsForm.validProperty())
+                        .and(archivingForm.validProperty())
+                        .and(deedForm.validProperty())
+                        .and(statusOfArchivedRecordsForm.validProperty())
+                        .and(villagesForm.validProperty())
+                        .and(personnelInfoForm.validProperty())
+                        .and(commentsForm.validProperty())
+                        .and(staffForm.validProperty())
                 , Bindings.not(model.pristine())).and(submittingProperty().not());
         footerManagerController.canSubmitProperty().bind(canSubmit);
         footerManagerController.canDiscardProperty().bind(submittingProperty().not());
@@ -204,32 +217,36 @@ public class CSCFormController extends FormController implements Initializable, 
         setupAreas(ts);
         setupEquipment(ts);
         setupDigitization(ts);
-        final var functionalBasedOptionalTabs = new Tab[]{tEmployees, tInfra, tAreas, tEquipment,
-                tDigitization, tScanning, tProcurement};
+        setupScanning(ts);
+        setupRecordProcurement(ts);
+        setupFinancialStats(ts);
+        setupArchiving(ts);
+        setupStaff(ts);
+        setupComments(ts);
+        final var functionalBasedOptionalTabs = new Tab[]{
+                tPersonnelParent, tInfra, tAreas, tEquipment,
+                tDigitization, tScanning, tProcurement, tArchivingParent, tAccessibilityParent
+        };
         final var statsBasedOptionalTabs = new Tab[]{tStats};
         prepareConditionalRendering(model.structureIsFunctional(), functionalBasedOptionalTabs);
         prepareConditionalRendering(model.centerCanHaveStats(), statsBasedOptionalTabs);
-        if (!model.structureIsFunctional().get())
-            for (var tab : functionalBasedOptionalTabs) {
-                tabPane.getTabs().remove(tab);
-            }
-        if (!model.centerCanHaveStats().get())
-            for (var tab : statsBasedOptionalTabs)
-                tabPane.getTabs().remove(tab);
 
         Stream.of(tRespondent,
                 tAccessibility,
                 tIdentification,
                 tAccessibility,
+                tVillages,
                 tInfra,
                 tAreas,
                 tEquipment,
+                tArchiving,
                 tDigitization,
                 tProcurement,
                 tStats,
                 tDeeds,
+                tStaff,
                 tStatusOfArchives,
-                tEmployees).forEach(tab -> {
+                tPersonnel).forEach(tab -> {
             final var form = (Form) tab.getUserData();
             if (form == null)
                 return;
@@ -241,7 +258,376 @@ public class CSCFormController extends FormController implements Initializable, 
             form.validProperty().addListener((ob, ov, nv) -> tab
                     .setGraphic(nv ? null : graphicProvider.get()));
             tab.setGraphic(form.isValid() ? null : graphicProvider.get());
+            form.getFields().forEach(f -> f.validProperty().addListener((ob, ov, nv) -> {
+                if (nv == ov)
+                    return;
+                if (nv)
+                    log.debug("\"{}\" is now valid", f.getLabel());
+                else if (!ov)
+                    log.debug("\"{}\" is now invalid", f.getLabel());
+            }));
         });
+    }
+
+    private void setupComments(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var form = Form.of(Group.of(
+                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Comments.RELEVANT_INFO))
+                        .label(FieldKeys.CSC.Comments.RELEVANT_INFO)
+                        .multiline(true)
+        )).binding(BindingMode.CONTINUOUS).i18n(ts);
+        tComments.setContent(wrapForm(form));
+        tComments.setUserData(form);
+        commentsForm = form;
+    }
+
+    private void setupStaff(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final Function<String, IntegerField> integerFieldFactory = k -> Field.ofIntegerType((IntegerProperty) model.getPropertyFor(k))
+                .label(k)
+                .required("forms.validation.msg.field_required")
+                .span(ColSpan.QUARTER)
+                .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"));
+        final var form = Form.of(Group.of(
+                integerFieldFactory.apply(FieldKeys.CSC.PersonnelInfo.NON_OFFICER_MALE_COUNT),
+                integerFieldFactory.apply(FieldKeys.CSC.PersonnelInfo.NON_OFFICER_FEMALE_COUNT),
+                integerFieldFactory.apply(FieldKeys.CSC.PersonnelInfo.MALE_COUNT),
+                integerFieldFactory.apply(FieldKeys.CSC.PersonnelInfo.FEMALE_COUNT)
+        )).binding(BindingMode.CONTINUOUS).i18n(ts);
+        tPersonnel.setContent(wrapForm(form));
+        tPersonnel.setUserData(form);
+        personnelInfoForm = form;
+        setupPersonnel(ts);
+    }
+
+    private void setupPersonnel(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        ListProperty<Option> personnelRoles = model.getOptionsFor(FieldKeys.PersonnelInfo.PERSONNEL_POSITION);
+        final var statusOptions = model.getOptionsFor(FieldKeys.CSC.PersonnelInfo.Officers.STATUS);
+        final var genders = model.getOptionsFor(FieldKeys.PersonnelInfo.PERSONNEL_GENDER);
+        final var educationLevels = model.getOptionsFor(FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL);
+        final var computerKnowledgeLevels = model.getOptionsFor(FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL);
+        final var form = Form.of(Group.of(
+                TabularField.create(
+                                getSubFormData(
+                                        FieldKeys.CSC.PersonnelInfo.ALL_FIELDS
+                                ),
+                                HashMap::new
+                        ).label("csc.form.sections.personnel_info.title")
+                        .withColumns(
+                                ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_NAME, FieldKeys.PersonnelInfo.PERSONNEL_NAME),
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(personnelRoles), personnelRoles, FieldKeys.PersonnelInfo.PERSONNEL_POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION),
+                                ColumnDefinition.ofStringType(FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION),
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(statusOptions), personnelRoles, FieldKeys.CSC.PersonnelInfo.Officers.STATUS, FieldKeys.CSC.PersonnelInfo.Officers.STATUS),
+                                ColumnDefinition.ofStringType(FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS),
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(genders), personnelRoles, FieldKeys.PersonnelInfo.PERSONNEL_GENDER, FieldKeys.PersonnelInfo.PERSONNEL_GENDER),
+                                ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_PHONE, FieldKeys.PersonnelInfo.PERSONNEL_PHONE),
+                                ColumnDefinition.ofIntegerType(FieldKeys.PersonnelInfo.PERSONNEL_AGE, FieldKeys.PersonnelInfo.PERSONNEL_AGE),
+                                ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL),
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(educationLevels), educationLevels, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL),
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(computerKnowledgeLevels), computerKnowledgeLevels, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL),
+                                ColumnDefinition.ofBooleanType(FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING, FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING),
+                                ColumnDefinition.ofBooleanType(FieldKeys.PersonnelInfo.ARCHIVING_TRAINING, FieldKeys.PersonnelInfo.ARCHIVING_TRAINING),
+                                ColumnDefinition.ofBooleanType(FieldKeys.PersonnelInfo.HAS_COMPUTER_TRAINING, FieldKeys.PersonnelInfo.HAS_COMPUTER_TRAINING),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.PersonnelInfo.Officers.CS_SENIORITY, FieldKeys.CSC.PersonnelInfo.Officers.CS_SENIORITY),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022, FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022)
+                        )
+        )).binding(BindingMode.CONTINUOUS).i18n(ts);
+        tStaff.setContent(wrapForm(form));
+        tStaff.setUserData(form);
+        staffForm = form;
+    }
+
+    private void setupArchiveStatus(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var width = 250;
+        ListProperty<Option> yearOptions = model.getOptionsFor(FieldKeys.CSC.StatusOfArchivedRecords.YEAR);
+        final var form = Form.of(Group.of(
+                TabularField.create(getSubFormData(FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS), HashMap::new)
+                        .withColumns(
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(yearOptions), yearOptions, FieldKeys.CSC.StatusOfArchivedRecords.YEAR, FieldKeys.CSC.StatusOfArchivedRecords.YEAR).width(75),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.StatusOfArchivedRecords.BIRTH_COUNT, FieldKeys.CSC.StatusOfArchivedRecords.BIRTH_COUNT).width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.StatusOfArchivedRecords.MARRIAGE_COUNT, FieldKeys.CSC.StatusOfArchivedRecords.MARRIAGE_COUNT).width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.StatusOfArchivedRecords.DEATH_COUNT, FieldKeys.CSC.StatusOfArchivedRecords.DEATH_COUNT).width(width)
+                        ).label("csc.form.sections.status_of_archived_records.title")
+        )).binding(BindingMode.CONTINUOUS).i18n(ts);
+        tStatusOfArchives.setContent(wrapForm(form));
+        tStatusOfArchives.setUserData(form);
+        statusOfArchivedRecordsForm = form;
+    }
+
+    private void setupDeeds(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        ListProperty<Option> yearOptions = model.getOptionsFor(FieldKeys.CSC.Deeds.YEAR);
+        final var width = 150;
+        final var form = Form.of(Group.of(
+                TabularField.create(getSubFormData(
+                                FieldKeys.CSC.Deeds.YEAR,
+                                FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN,
+                                FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN,
+                                FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN,
+                                FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN,
+                                FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN,
+                                FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN
+                        ), HashMap::new)
+                        .withColumns(
+                                ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(yearOptions), yearOptions, FieldKeys.CSC.Deeds.YEAR, FieldKeys.CSC.Deeds.YEAR)
+                                        .width(75),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN, FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN)
+                                        .width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN)
+                                        .width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN, FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN)
+                                        .width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN)
+                                        .width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN, FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN)
+                                        .width(width),
+                                ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN)
+                                        .width(width)
+                        ).label("csc.form.sections.deeds.title")
+        )).i18n(ts).binding(BindingMode.CONTINUOUS);
+        tDeeds.setContent(wrapForm(form));
+        tDeeds.setUserData(form);
+        deedForm = form;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setupArchiving(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var structureIsPrimaryOrSecondary = model.structureIsPrimaryOrSecondary();
+        final var centerUsesCustomArchivingType = model.centerUsesCustomArchivingType();
+        final var centerIsNeitherPrimaryNorSecondary = model.centerIsNeitherPrimaryNorSecondary();
+        final var centerHasBeenVandalized = model.centerHasBeenVandalized();
+        final Function<String, BooleanField> booleanFieldFactory = k -> Field.ofBooleanType((BooleanProperty) model.getPropertyFor(k))
+                .label(k)
+                .span(ColSpan.QUARTER)
+                .blockedLabel(true)
+                .visibility(structureIsPrimaryOrSecondary);
+        final var form = Form.of(Group.of(
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.HAS_ARCHIVING_ROOM),
+                Field.ofSingleSelectionType(
+                                model.getOptionsFor(FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION),
+                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION)
+                        ).label(FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION)
+                        .required("forms.validation.msg.field_required")
+                        .visibility(structureIsPrimaryOrSecondary)
+                        .render(createOptionComboBox(ts))
+                        .span(9),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.HAS_FIRE_EXTINGUISHERS),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.LOCKED_DOOR),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.IS_ARCHIVE_ROOM_ACCESS_LIMITED),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.ROOM_HAS_HUMIDITY)
+                        .span(ColSpan.HALF)
+                        .valueDescription("csc.form.sections.archiving.fields.room_has_humidity.description"),
+                Field.ofMultiSelectionType(
+                                model.getOptionsFor(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE),
+                                (ListProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE)
+                        ).label(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE)
+                        .required("forms.validation.msg.field_required")
+                        .span(ColSpan.HALF)
+                        .render(createMultiOptionComboBox(ts))
+                        .visibility(structureIsPrimaryOrSecondary),
+                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE))
+                        .required("forms.validation.msg.field_required")
+                        .span(9)
+                        .visibility(centerUsesCustomArchivingType)
+                        .label(FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.WRITTEN_ARCHIVING_PLAN),
+                Field.ofSingleSelectionType(
+                                model.getOptionsFor(FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED),
+                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED)
+                        ).label(FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED)
+                        .span(ColSpan.QUARTER)
+                        .render(createOptionComboBox(ts))
+                        .required("forms.validation.msg.field_required")
+                        .visibility(structureIsPrimaryOrSecondary),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED_SYSTEMATICALLY)
+                        .visibility(centerIsNeitherPrimaryNorSecondary),
+                booleanFieldFactory.apply(FieldKeys.CSC.Archiving.VANDALIZED)
+                        .span(ColSpan.THIRD)
+                        .valueDescription("csc.form.sections.archiving.fields.vandalized.description"),
+                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Archiving.VANDALIZED_DATE))
+                        .label(FieldKeys.CSC.Archiving.VANDALIZED_DATE)
+                        .span(ColSpan.HALF)
+                        .required("forms.validation.msg.field_required")
+                        .visibility(centerHasBeenVandalized)
+        )).i18n(ts).binding(BindingMode.CONTINUOUS);
+        archivingForm = form;
+        tArchiving.setUserData(form);
+        tArchiving.setContent(wrapForm(form));
+
+        setupDeeds(ts);
+        setupArchiveStatus(ts);
+
+        tArchivingParent.graphicProperty().bind(
+                Bindings.createObjectBinding(() -> {
+                    final var archivingGraphic = tArchiving.getGraphic();
+                    final var deedGraphic = tDeeds.getGraphic();
+                    final var archivingStatusGraphic = tStatusOfArchives.getGraphic();
+                    return Stream.of(archivingGraphic, deedGraphic, archivingStatusGraphic)
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .map(FontIcon.class::cast)
+                            .map(n -> {
+                                final var clone = new FontIcon();
+                                clone.setIconCode(n.getIconCode());
+                                clone.setIconColor(n.getIconColor());
+                                return clone;
+                            }).orElse(null);
+                }, tArchiving.graphicProperty(), tDeeds.graphicProperty(), tStatusOfArchives.graphicProperty())
+        );
+    }
+
+    private void setupFinancialStats(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final Function<String, IntegerField> integerFieldFactory = k -> Field.ofIntegerType((IntegerProperty) model.getPropertyFor(k))
+                .label(k)
+                .required("forms.validation.msg.field_required")
+                .span(ColSpan.THIRD)
+                .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"));
+        final var form = Form.of(Group.of(
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.BIRTH_CERT_COST),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.BIRTH_CERT_COPY_COST),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.MARRIAGE_CERT_COPY_COST),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.DEATH_CERT_COPY_COST),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.CELIBACY_CERT_COPY_COST),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.NON_REGISTERED_CERTS),
+                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.FinancialStats.RATES_UNDER_DELIBERATION))
+                        .label(FieldKeys.CSC.FinancialStats.RATES_UNDER_DELIBERATION)
+                        .span(ColSpan.THIRD),
+                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.FinancialStats.PRICES_DISPLAYED))
+                        .label(FieldKeys.CSC.FinancialStats.PRICES_DISPLAYED)
+                        .span(ColSpan.THIRD),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.MUNICIPALITY_BUDGET_2024),
+                integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.CS_BUDGET_2024)
+        )).i18n(ts);
+        tStats.setUserData(form);
+        tStats.setContent(wrapForm(form));
+        form.binding(BindingMode.CONTINUOUS);
+        financialStatsForm = form;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setupRecordProcurement(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var centerHasCustomRecordsProvider = model.centerHasCustomRecordsProvider();
+        final Function<String, IntegerField> integerFieldFactory = k -> Field.ofIntegerType((IntegerProperty) model.getPropertyFor(k))
+                .label(k)
+                .span(ColSpan.THIRD)
+                .required("forms.validation.msg.field_required")
+                .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"));
+        final var form = Form.of(Group.of(
+                Field.ofMultiSelectionType(
+                                model.getOptionsFor(FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS),
+                                (ListProperty<Option>) model.getPropertyFor(FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS)
+                        ).label(FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS)
+                        .required("forms.validation.msg.field_required")
+                        .render(createMultiOptionComboBox(ts))
+                        .span(ColSpan.HALF),
+                Field.ofMultiSelectionType(
+                                model.getOptionsFor(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER),
+                                (ListProperty<Option>) model.getPropertyFor(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER)
+                        ).label(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER)
+                        .required("forms.validation.msg.field_required")
+                        .render(createMultiOptionComboBox(ts))
+                        .span(ColSpan.HALF),
+                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER))
+                        .label(FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER)
+                        .required("forms.validation.msg.field_required")
+                        .span(ColSpan.HALF)
+                        .visibility(centerHasCustomRecordsProvider),
+                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.RecordProcurement.NON_COMPLIANT_REGISTERS_USED))
+                        .blockedLabel(true)
+                        .label(FieldKeys.CSC.RecordProcurement.NON_COMPLIANT_REGISTERS_USED)
+                        .span(ColSpan.THIRD),
+                integerFieldFactory.apply(FieldKeys.CSC.RecordProcurement.BLANK_REGISTRIES_COUNT),
+                integerFieldFactory.apply(FieldKeys.CSC.RecordProcurement.BLANK_BIRTHS),
+                integerFieldFactory.apply(FieldKeys.CSC.RecordProcurement.BLANK_MARRIAGES),
+                integerFieldFactory.apply(FieldKeys.CSC.RecordProcurement.BLANK_DEATHS)
+        )).i18n(ts);
+        recordProcurementForm = form;
+        form.binding(BindingMode.CONTINUOUS);
+        tProcurement.setContent(wrapForm(form));
+        tProcurement.setUserData(form);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setupScanning(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var centerHasScannedDocuments = model.centerHasScannedDocuments();
+        final var currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        final var centerIndexesData = model.centerIndexesData();
+        final var centerUsesIndexedData = model.centerUsesIndexedData();
+        final Function<String, IntegerField> integerFieldGenerator = k -> Field
+                .ofIntegerType((IntegerProperty) model.getPropertyFor(k))
+                .label(k)
+                .visibility(centerHasScannedDocuments)
+                .span(ColSpan.THIRD)
+                .required("forms.validation.msg.field_required");
+        final var form = Form.of(
+                Group.of(
+                        Field.ofBooleanType(
+                                        (BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.RecordIndexing.RECORDS_SCANNED))
+                                .label(FieldKeys.CSC.RecordIndexing.RECORDS_SCANNED)
+                                .blockedLabel(true)
+                                .span(ColSpan.THIRD),
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                        FieldKeys.CSC.RecordIndexing.STAFF_TRAINED))
+                                .label(FieldKeys.CSC.RecordIndexing.STAFF_TRAINED)
+                                .blockedLabel(true)
+                                .span(ColSpan.THIRD),
+                        Field.ofIntegerType(
+                                        (IntegerProperty) model.getPropertyFor(FieldKeys.CSC.RecordIndexing.DOCUMENT_SCAN_START_DATE)
+                                )
+                                .required("forms.validation.msg.field_required")
+                                .visibility(centerHasScannedDocuments)
+                                .label(FieldKeys.CSC.RecordIndexing.DOCUMENT_SCAN_START_DATE)
+                                .valueDescription("range_1980_current_year")
+                                .validate(IntegerRangeValidator.between(1980,
+                                        currentYear,
+                                        "fosa.form.msg.value_out_of_range"))
+                                .span(ColSpan.THIRD),
+                        Field.ofSingleSelectionType(
+                                        model.getOptionsFor(
+                                                FieldKeys.CSC.RecordIndexing.DATA_INDEXED),
+                                        (ObjectProperty<Option>) model.getPropertyFor(
+                                                FieldKeys.CSC.RecordIndexing.DATA_INDEXED))
+                                .label(FieldKeys.CSC.RecordIndexing.DATA_INDEXED)
+                                .required("forms.validation.msg.field_required")
+                                .span(ColSpan.HALF)
+                                .render(createOptionComboBox(ts))
+                                .visibility(centerHasScannedDocuments),
+                        integerFieldGenerator
+                                .apply(FieldKeys.CSC.RecordIndexing.BIRTHS_SCANNED),
+                        integerFieldGenerator
+                                .apply(FieldKeys.CSC.RecordIndexing.MARRIAGES_SCANNED),
+                        integerFieldGenerator
+                                .apply(FieldKeys.CSC.RecordIndexing.DEATHS_SCANNED),
+                        integerFieldGenerator.apply(FieldKeys.CSC.RecordIndexing.BIRTHS_INDEXED)
+                                .visibility(centerIndexesData),
+                        integerFieldGenerator
+                                .apply(FieldKeys.CSC.RecordIndexing.MARRIAGES_INDEXED)
+                                .visibility(centerIndexesData),
+                        integerFieldGenerator.apply(FieldKeys.CSC.RecordIndexing.DEATHS_INDEXED)
+                                .visibility(centerIndexesData),
+                        Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.RecordIndexing.IS_DATA_USED_BY_CSC))
+                                .label(FieldKeys.CSC.RecordIndexing.IS_DATA_USED_BY_CSC)
+                                .visibility(centerHasScannedDocuments)
+                                .blockedLabel(true)
+                                .span(ColSpan.THIRD),
+                        Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.RecordIndexing.DATA_USAGE))
+                                .label(FieldKeys.CSC.RecordIndexing.DATA_USAGE)
+                                .visibility(centerUsesIndexedData)
+                                .required("forms.validation.msg.field_required")
+                                .span(ColSpan.TWO_THIRD)
+                )
+        ).i18n(ts);
+        tScanning.setContent(wrapForm(form));
+        form.binding(BindingMode.CONTINUOUS);
+        scanningForm = form;
+        tScanning.setUserData(form);
     }
 
     @SuppressWarnings("unchecked")
@@ -255,43 +641,55 @@ public class CSCFormController extends FormController implements Initializable, 
         final var centerUsesCustomSponsor = model.centerUsesCustomSponsor();
         final var form = Form.of(
                         Group.of(
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR))
-                                        .label(FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR)
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR))
+                                        .label(FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR).blockedLabel(true)
                                         .span(ColSpan.THIRD),
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET))
-                                        .label(FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET)
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET))
+                                        .label(FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET).blockedLabel(true)
                                         .visibility(centerUsesComputerizedSystem)
                                         .span(ColSpan.THIRD),
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE))
-                                        .label(FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE)
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE))
+                                        .label(FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE).blockedLabel(true)
                                         .span(ColSpan.THIRD),
-                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME))
+                                Field.ofStringType((StringProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME))
                                         .label(FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME)
                                         .visibility(centerIsEquippedWithCSSoftware)
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF),
                                 Field.ofSingleSelectionType(
-                                                model.getOptionsFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR),
-                                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR)
-                                        ).label(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR)
+                                                model.getOptionsFor(
+                                                        FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR),
+                                                (ObjectProperty<Option>) model.getPropertyFor(
+                                                        FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR))
+                                        .label(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR)
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerIsEquippedWithCSSoftware)
                                         .render(createOptionComboBox(ts)),
-                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR))
+                                Field.ofStringType((StringProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR))
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerUsesCustomSponsor)
                                         .label(FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR),
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS))
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS))
                                         .label(FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS)
-                                        .visibility(centerIsEquippedWithCSSoftware)
+                                        .visibility(centerIsEquippedWithCSSoftware).blockedLabel(true)
                                         .span(ColSpan.THIRD),
-                                Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_ACTIVATION_DATE))
+                                Field.ofDate((ObjectProperty<LocalDate>) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_ACTIVATION_DATE))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_ACTIVATION_DATE)
                                         .span(ColSpan.THIRD)
                                         .visibility(centerIsEquippedWithCSSoftware)
-                                        .validate(CustomValidator.forPredicate(d -> d == null || today.isEqual(d) || today.isAfter(d), "fosa.form.msg.value_out_of_range"))
+                                        .validate(CustomValidator.forPredicate(
+                                                d -> d == null || today.isEqual(d)
+                                                        || today.isAfter(d),
+                                                "fosa.form.msg.value_out_of_range"))
                                         .format(converter, "forms.msg.invalid_value")
                                         .render(new SimpleDateControl() {
                                             @Override
@@ -301,48 +699,58 @@ public class CSCFormController extends FormController implements Initializable, 
                                             }
                                         }),
                                 Field.ofSingleSelectionType(
-                                                model.getOptionsFor(FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK),
-                                                (ObjectProperty<Option>) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK)
-                                        ).label(FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK)
+                                                model.getOptionsFor(
+                                                        FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK),
+                                                (ObjectProperty<Option>) model.getPropertyFor(
+                                                        FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK))
+                                        .label(FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK)
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.THIRD)
                                         .visibility(centerIsEquippedWithCSSoftware)
                                         .render(createOptionComboBox(ts)),
-                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_TRAINED_USER_COUNT))
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_TRAINED_USER_COUNT))
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerIsEquippedWithCSSoftware)
-                                        .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
+                                        .validate(IntegerRangeValidator.atLeast(0,
+                                                "fosa.form.msg.value_out_of_range"))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_TRAINED_USER_COUNT),
-                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT))
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT))
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerIsEquippedWithCSSoftware)
-                                        .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
+                                        .validate(IntegerRangeValidator.atLeast(0,
+                                                "fosa.form.msg.value_out_of_range"))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT),
-                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT))
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT))
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerIsEquippedWithCSSoftware)
-                                        .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
+                                        .validate(IntegerRangeValidator.atLeast(0,
+                                                "fosa.form.msg.value_out_of_range"))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT),
-                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_DEATH_COUNT))
+                                Field.ofIntegerType((IntegerProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_DEATH_COUNT))
                                         .required("forms.validation.msg.field_required")
                                         .span(ColSpan.HALF)
                                         .visibility(centerIsEquippedWithCSSoftware)
-                                        .validate(IntegerRangeValidator.atLeast(0, "fosa.form.msg.value_out_of_range"))
+                                        .validate(IntegerRangeValidator.atLeast(0,
+                                                "fosa.form.msg.value_out_of_range"))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_DEATH_COUNT),
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING))
+                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING))
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING)
-                                        .visibility(centerIsEquippedWithCSSoftware)
+                                        .visibility(centerIsEquippedWithCSSoftware).blockedLabel(true)
                                         .span(ColSpan.THIRD),
-                                Field.ofStringType((StringProperty) model.getPropertyFor(FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON))
+                                Field.ofStringType((StringProperty) model.getPropertyFor(
+                                                FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON))
                                         .required("forms.validation.msg.field_required")
                                         .label(FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON)
                                         .visibility(centerSoftwareIsNotFunctional)
-                                        .span(ColSpan.THIRD)
-                        )
-                )
+                                        .span(ColSpan.THIRD)))
                 .i18n(ts);
         tDigitization.setContent(wrapForm(form));
         digitizationForm = form;
@@ -351,7 +759,8 @@ public class CSCFormController extends FormController implements Initializable, 
     }
 
     private void setupEquipment(TranslationService ts) {
-        final Function<String, IntegerField> fieldFactory = k -> Field.ofIntegerType((IntegerProperty) model.getPropertyFor(k))
+        final Function<String, IntegerField> fieldFactory = k -> Field
+                .ofIntegerType((IntegerProperty) model.getPropertyFor(k))
                 .label(k)
                 .span(ColSpan.THIRD)
                 .required("forms.validation.msg.field_required")
@@ -370,9 +779,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                 fieldFactory.apply(FieldKeys.CSC.Equipment.TABLET_COUNT),
                                 fieldFactory.apply(FieldKeys.CSC.Equipment.AIR_CONDITIONER_COUNT),
                                 fieldFactory.apply(FieldKeys.CSC.Equipment.CAR_COUNT),
-                                fieldFactory.apply(FieldKeys.CSC.Equipment.BIKE_COUNT)
-                        )
-                )
+                                fieldFactory.apply(FieldKeys.CSC.Equipment.BIKE_COUNT)))
                 .i18n(ts);
         tEquipment.setContent(wrapForm(form));
         equipmentForm = form;
@@ -381,74 +788,62 @@ public class CSCFormController extends FormController implements Initializable, 
     }
 
     private void prepareConditionalRendering(ObservableBooleanValue condition, Tab... tabs) {
-        Arrays.sort(tabs, (o1, o2) -> Integer.compare(tabPane.getTabs().indexOf(o1), tabPane.getTabs().indexOf(o2)));
         for (var tab : tabs) {
-            optionalTabMap.put(tab, tabPane.getTabs().indexOf(tab));
+            tab.disableProperty().bind(Bindings.not(condition));
         }
-        condition.addListener((ob, ov, nv) -> {
-            if (!nv) {
-                for (var tab : tabs) {
-                    tabPane.getTabs().remove(tab);
-                }
-            } else {
-                for (var tab : tabs) {
-                    final var index = optionalTabMap.get(tab);
-                    if (index >= tabPane.getTabs().size()) {
-                        tabPane.getTabs().add(tab);
-                        optionalTabMap.put(tab, tabPane.getTabs().indexOf(tab));
-                    } else
-                        tabPane.getTabs().add(optionalTabMap.get(tab), tab);
-                }
-            }
-        });
     }
 
     private void setupAreas(TranslationService ts) {
         final var model = (CSCFormModel) this.model;
         final var centerHasDedicatedRooms = model.centerHasDedicatedRooms();
-        final Function<ObservableList<Option>, OptionConverter> optionConverterProvider = list -> new OptionConverter(ts, v -> list.stream().filter(o -> v.equals(o.value())).findFirst().orElse(null));
+        final Function<ObservableList<Option>, OptionConverter> optionConverterProvider = list -> OptionConverter.usingOptions(ts, list);
         int columnWidth = 150;
         final var form = Form.of(
                         Group.of(
                                 Field.ofBooleanType(
-                                                (BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Areas.DEDICATED_CS_ROOMS))
+                                                (BooleanProperty) model.getPropertyFor(
+                                                        FieldKeys.CSC.Areas.DEDICATED_CS_ROOMS))
                                         .label(FieldKeys.CSC.Areas.DEDICATED_CS_ROOMS)
-                                        .span(ColSpan.THIRD)
+                                        .span(ColSpan.THIRD).blockedLabel(true)
                                         .tooltip("csc.form.sections.areas.fields.office_count.description"),
-                                Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.Areas.MOVING))
+                                Field.ofBooleanType((BooleanProperty) model
+                                                .getPropertyFor(FieldKeys.CSC.Areas.MOVING))
                                         .label(FieldKeys.CSC.Areas.MOVING)
-                                        .span(ColSpan.THIRD)
+                                        .span(ColSpan.THIRD).blockedLabel(true)
                                         .visibility(centerHasDedicatedRooms),
                                 TabularField.create(model.getRoomData(), HashMap::new)
                                         .label("csc.form.base_fields.sections.areas.sub_forms.rooms.title")
                                         .withColumns(
                                                 ColumnDefinition.<Map<String, Object>>ofIntegerType(
-                                                        FieldKeys.CSC.Areas.Rooms.NUMBER,
-                                                        FieldKeys.CSC.Areas.Rooms.NUMBER
-                                                ).width(columnWidth),
+                                                                FieldKeys.CSC.Areas.Rooms.NUMBER,
+                                                                FieldKeys.CSC.Areas.Rooms.NUMBER)
+                                                        .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>>ofStringType(
-                                                        FieldKeys.CSC.Areas.Rooms.NAME,
-                                                        FieldKeys.CSC.Areas.Rooms.NAME
-                                                ).width(columnWidth),
+                                                                FieldKeys.CSC.Areas.Rooms.NAME,
+                                                                FieldKeys.CSC.Areas.Rooms.NAME)
+                                                        .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>, Option>ofSingleSelectionType(
-                                                        optionConverterProvider.apply(model.getOptionsFor(FieldKeys.CSC.Areas.Rooms.CONDITION)),
-                                                        model.getOptionsFor(FieldKeys.CSC.Areas.Rooms.CONDITION),
-                                                        FieldKeys.CSC.Areas.Rooms.CONDITION,
-                                                        FieldKeys.CSC.Areas.Rooms.CONDITION
-                                                ).width(columnWidth),
+                                                                optionConverterProvider
+                                                                        .apply(model.getOptionsFor(
+                                                                                FieldKeys.CSC.Areas.Rooms.CONDITION)),
+                                                                model.getOptionsFor(
+                                                                        FieldKeys.CSC.Areas.Rooms.CONDITION),
+                                                                FieldKeys.CSC.Areas.Rooms.CONDITION,
+                                                                FieldKeys.CSC.Areas.Rooms.CONDITION)
+                                                        .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>>ofFloatType(
-                                                        FieldKeys.CSC.Areas.Rooms.AREA,
-                                                        FieldKeys.CSC.Areas.Rooms.AREA
-                                                ).width(columnWidth),
+                                                                FieldKeys.CSC.Areas.Rooms.AREA,
+                                                                FieldKeys.CSC.Areas.Rooms.AREA)
+                                                        .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>, Option>ofMultiSelectionType(
-                                                        FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE,
-                                                        FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE,
-                                                        model.getOptionsFor(FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE),
-                                                        optionConverterProvider.apply(model.getOptionsFor(FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE))
-                                                ).width(columnWidth)
-                                        )
-                        )
-                )
+                                                                FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE,
+                                                                FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE,
+                                                                model.getOptionsFor(
+                                                                        FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE),
+                                                                optionConverterProvider
+                                                                        .apply(model.getOptionsFor(
+                                                                                FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE)))
+                                                        .width(columnWidth))))
                 .i18n(ts);
         areasForm = form;
         form.binding(BindingMode.CONTINUOUS);
@@ -463,12 +858,9 @@ public class CSCFormController extends FormController implements Initializable, 
         final var centerHasBackupPower = model.centerHasBackupPower();
         final var centerHasOtherBackupPower = model.centerHasOtherBackupPower();
         final var centerHasOtherNetworkType = model.centerHasOtherNetworkType();
-        final var structureIsFunctional = (BooleanProperty) model
-                .getPropertyFor(FieldKeys.CSC.Identification.IS_FUNCTIONAL);
         final var centerHasToilets = model.centerHasToilets();
         final var centerHasOtherInternetType = model.centerHasOtherInternetType();
         final var centerHasInternetConnection = model.centerHasInternetConnection();
-        structureIsFunctional.addListener((ob, ov, nv) -> log.debug("structure is functional = {}", nv));
         final var form = Form.of(
                         Group.of(
                                 Field.ofSingleSelectionType(
@@ -484,21 +876,21 @@ public class CSCFormController extends FormController implements Initializable, 
                                         .render(createOptionComboBox(ts)),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.ENEO_CONNECTION))
-                                        .label(FieldKeys.CSC.Infrastructure.ENEO_CONNECTION)
+                                        .label(FieldKeys.CSC.Infrastructure.ENEO_CONNECTION).blockedLabel(true)
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.POWER_OUTAGES))
                                         .label(FieldKeys.CSC.Infrastructure.POWER_OUTAGES)
-                                        .span(ColSpan.THIRD)
+                                        .span(ColSpan.THIRD).blockedLabel(true)
                                         .visibility(centerHasEneoConnection),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.STABLE_POWER))
-                                        .label(FieldKeys.CSC.Infrastructure.STABLE_POWER)
+                                        .label(FieldKeys.CSC.Infrastructure.STABLE_POWER).blockedLabel(true)
                                         .span(ColSpan.THIRD)
                                         .visibility(centerHasEneoConnection),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE))
-                                        .label(FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE)
+                                        .label(FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE).blockedLabel(true)
                                         .span(ColSpan.THIRD),
                                 Field.ofMultiSelectionType(
                                                 model.getOptionsFor(
@@ -527,11 +919,11 @@ public class CSCFormController extends FormController implements Initializable, 
                                         .required("forms.validation.msg.field_required"),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.TOILETS_AVAILABLE))
-                                        .label(FieldKeys.CSC.Infrastructure.TOILETS_AVAILABLE)
+                                        .label(FieldKeys.CSC.Infrastructure.TOILETS_AVAILABLE).blockedLabel(true)
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.SEPARATE_TOILETS_AVAILABLE))
-                                        .label(FieldKeys.CSC.Infrastructure.SEPARATE_TOILETS_AVAILABLE)
+                                        .label(FieldKeys.CSC.Infrastructure.SEPARATE_TOILETS_AVAILABLE).blockedLabel(true)
                                         .span(ColSpan.THIRD)
                                         .visibility(centerHasToilets),
                                 Field.ofSingleSelectionType(
@@ -559,7 +951,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                         .visibility(centerHasOtherNetworkType),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Infrastructure.HAS_INTERNET))
-                                        .label(FieldKeys.CSC.Infrastructure.HAS_INTERNET)
+                                        .label(FieldKeys.CSC.Infrastructure.HAS_INTERNET).blockedLabel(true)
                                         .span(ColSpan.THIRD),
                                 Field.ofMultiSelectionType(
                                                 model.getOptionsFor(
@@ -622,7 +1014,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .render(createOptionComboBox(ts)),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                         FieldKeys.CSC.Accessibility.DOES_ROAD_DETERIORATE))
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.HALF).blockedLabel(true)
                                 .label(FieldKeys.CSC.Accessibility.DOES_ROAD_DETERIORATE),
                         Field.ofDoubleType((DoubleProperty) model.getPropertyFor(
                                         FieldKeys.CSC.Accessibility.ATTACHED_VILLAGES_NUMBER))
@@ -640,56 +1032,75 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .required("forms.validation.msg.field_required")
                                 .render(createOptionComboBox(ts))
                                 .label(FieldKeys.CSC.Accessibility.COVER_RADIUS)
-                                .span(ColSpan.HALF),
-                        TabularField.create(
-                                        model.getVillageData(),
-                                        HashMap::new
-                                ).label("csc.form.base_fields.sections.accessibility.sub_forms.villages.title")
-                                .withColumns(
-                                        ColumnDefinition.<Map<String, Object>>ofStringType(
-                                                        FieldKeys.CSC.Accessibility.Villages.NAME,
-                                                        FieldKeys.CSC.Accessibility.Villages.NAME)
-                                                .width(150),
-                                        ColumnDefinition.<Map<String, Object>>ofIntegerType(
-                                                        FieldKeys.CSC.Accessibility.Villages.DISTANCE,
-                                                        FieldKeys.CSC.Accessibility.Villages.DISTANCE)
-                                                .width(350),
-                                        ColumnDefinition.<Map<String, Object>>ofStringType(
-                                                        FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS,
-                                                        FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS)
-                                                .width(150)
-                                )
-
-                )).i18n(ts);
+                                .span(ColSpan.HALF)
+                )
+        ).i18n(ts);
         form.binding(BindingMode.CONTINUOUS);
         accessibilityForm = form;
         tAccessibility.setUserData(form);
         tAccessibility.setContent(wrapForm(form));
+        setupVillages(ts);
+        tAccessibilityParent.graphicProperty().bind(Bindings.createObjectBinding(() -> Stream.of(tAccessibility.getGraphic(), tVillages.getGraphic())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .map(FontIcon.class::cast)
+                .map(n -> {
+                    final var clone = new FontIcon();
+                    clone.setIconCode(n.getIconCode());
+                    clone.setIconColor(n.getIconColor());
+                    return clone;
+                }).orElse(null), tAccessibility.graphicProperty(), tVillages.graphicProperty()));
+    }
+
+    private void setupVillages(TranslationService ts) {
+        final var model = (CSCFormModel) this.model;
+        final var form = Form.of(Group.of(TabularField.create(
+                        model.getVillageData(),
+                        HashMap::new)
+                .label("csc.form.base_fields.sections.accessibility.sub_forms.villages.title")
+                .withColumns(
+                        ColumnDefinition.<Map<String, Object>>ofStringType(
+                                        FieldKeys.CSC.Accessibility.Villages.NAME,
+                                        FieldKeys.CSC.Accessibility.Villages.NAME)
+                                .width(150),
+                        ColumnDefinition.<Map<String, Object>>ofIntegerType(
+                                        FieldKeys.CSC.Accessibility.Villages.DISTANCE,
+                                        FieldKeys.CSC.Accessibility.Villages.DISTANCE)
+                                .width(350),
+                        ColumnDefinition.<Map<String, Object>>ofStringType(
+                                        FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS,
+                                        FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS)
+                                .width(150)
+                ))).i18n(ts).binding(BindingMode.CONTINUOUS);
+        villagesForm = form;
+        tVillages.setContent(wrapForm(form));
+        tVillages.setUserData(form);
     }
 
     private Collection<Map<String, Object>> getSubFormData(String... fieldKeys) {
         final var result = new ArrayList<Map<String, Object>>();
-        Arrays.stream(fieldKeys).forEach(k -> submissionData.keySet().stream()
-                .filter(kk -> extractFieldKey(kk).equals(k))
-                .forEach(kk -> {
-                    Map<String, Object> map;
-                    final var ordinal = Integer.parseInt(extractFieldIdentifiers(kk)[0]);
-                    try {
-                        map = result.get(ordinal);
-                    } catch (IndexOutOfBoundsException ignored) {
-                        int offset;
-                        if (result.isEmpty()) {
-                            offset = 0;
-                        } else {
-                            offset = result.size() - 1;
-                        }
-                        for (var i = offset; i < ordinal; i++) {
-                            result.add(i, new HashMap<>());
-                        }
-                        map = result.get(ordinal);
-                    }
-                    map.put(k, submissionData.get(kk));
-                }));
+        Arrays.stream(fieldKeys)
+                .forEach(k -> submissionData.keySet().stream()
+                        .filter(kk -> extractFieldKey(kk).equals(k))
+                        .forEach(kk -> {
+                            Map<String, Object> map;
+                            final var ordinal = Integer.parseInt(extractFieldIdentifiers(kk)[0]);
+                            try {
+                                map = result.get(ordinal);
+                            } catch (IndexOutOfBoundsException ignored) {
+                                int offset;
+                                if (result.isEmpty()) {
+                                    offset = 0;
+                                } else {
+                                    offset = result.size() - 1;
+                                }
+                                for (var i = offset; i <= ordinal; i++) {
+                                    result.add(i, new HashMap<>());
+                                }
+                                map = result.get(ordinal);
+                            }
+                            map.put(k, submissionData.get(kk));
+                        }));
         return result;
     }
 
@@ -699,13 +1110,20 @@ public class CSCFormController extends FormController implements Initializable, 
         final var structureIsSecondary = model.isStructureSecondary();
         final var primaryStructure = model.isStructurePrimary();
         final var nonFunctionalStructure = model.structureIsNonFunctional();
-        final var nonFunctionReasonIsUnknown = Bindings.and(model.nonFunctionalReasonIsUnknown(), nonFunctionalStructure);
+        final var nonFunctionReasonIsUnknown = Bindings.and(model.nonFunctionalReasonIsUnknown(),
+                nonFunctionalStructure);
         final var isChiefdom = model.structureIsChiefdom();
         final var structureIsSpecialized = model.structureIsSpecialized();
         final var structureIsOrdered = Bindings.or(structureIsSpecialized, structureIsSecondary);
         final var structureHasAppointedOfficer = model.structureOfficerAppointed();
         final var connectionAvailable = new SimpleBooleanProperty(true);
-        pingService.observe(PING_DOMAIN, v -> Platform.runLater(() -> connectionAvailable.setValue(v)));
+        tabPane.getSelectionModel().selectedItemProperty().addListener((ob, ov, nv) -> {
+            if (tIdentification.equals(nv)) {
+                pingService.observe(PING_DOMAIN, v -> Platform.runLater(() -> connectionAvailable.setValue(v)));
+            } else {
+                pingService.unobserve(PING_DOMAIN);
+            }
+        });
 
         final var form = Form.of(
                 Group.of(
@@ -754,7 +1172,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .render(createOptionComboBox(ts)),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                         FieldKeys.CSC.Identification.IS_CHIEFDOM))
-                                .span(ColSpan.HALF)
+                                .span(ColSpan.HALF).blockedLabel(true)
                                 // .required("forms.validation.msg.field_required")
                                 .visibility(structureIsSecondary)
                                 .label(FieldKeys.CSC.Identification.IS_CHIEFDOM),
@@ -796,7 +1214,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                         "fosa.form.msg.value_out_of_range"))
                                 .valueDescription("range_1_50"),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
-                                        FieldKeys.CSC.Identification.IS_FUNCTIONAL))
+                                        FieldKeys.CSC.Identification.IS_FUNCTIONAL)).blockedLabel(true)
                                 // .required("forms.validation.msg.field_required")
                                 .label(FieldKeys.CSC.Identification.IS_FUNCTIONAL)
                                 .span(ColSpan.THIRD),
@@ -832,8 +1250,8 @@ public class CSCFormController extends FormController implements Initializable, 
                                 .visibility(structureIsOrdered),
                         Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                         FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED))
-                                .label(FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED)
-                                .required("forms.validation.msg.field_required")
+                                .label(FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED).blockedLabel(true)
+//                                .required("forms.validation.msg.field_required")
                                 .span(ColSpan.THIRD)
                                 .visibility(structureIsOrdered),
                         Field.ofStringType((StringProperty) model.getPropertyFor(
@@ -846,7 +1264,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                         model::updateGpsCoords)
                                 .label(FieldKeys.CSC.Identification.GPS_COORDS)
                                 .withConnectivityBinding(connectionAvailable)
-                                .span(ColSpan.TWO_THIRD)
+//                                .span(ColSpan.TWO_THIRD)
                         /*
                          * ,
                          * PhotoField.create((
@@ -867,15 +1285,6 @@ public class CSCFormController extends FormController implements Initializable, 
         identificationForm = form;
         tIdentification.setUserData(form);
         tIdentification.setContent(wrapForm(form));
-        form.getFields().forEach(f -> {
-            f.validProperty().addListener((ob, ov, nv) -> {
-                if (nv == ov) return;
-                if (nv)
-                    log.debug("\"{}\" is now valid", f.getLabel());
-                else if (!ov)
-                    log.debug("\"{}\" is now invalid", f.getLabel());
-            });
-        });
     }
 
     @SuppressWarnings("unchecked")
@@ -919,8 +1328,8 @@ public class CSCFormController extends FormController implements Initializable, 
                                                 "forms.msg.invalid_value")),
                                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(
                                                 FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE))
-                                        .label(FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE)
-                                        .labelDescription(
+                                        .label(FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE).blockedLabel(true)
+                                        .valueDescription(
                                                 "csc.form.sections.respondent.fields.knows_creation_date.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofDate((ObjectProperty<LocalDate>) model
@@ -929,7 +1338,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                         .visibility(respondentKnowsCreationDate)
                                         .validate(CustomValidator.forPredicate(
                                                 d -> d == null || today.isEqual(d)
-                                                     || today.isAfter(d),
+                                                        || today.isAfter(d),
                                                 "fosa.form.msg.value_out_of_range"))
                                         .format(localDateStringConverter,
                                                 "forms.msg.invalid_value")
@@ -941,9 +1350,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                                         localDateStringConverter);
                                             }
                                         })
-                                        .span(ColSpan.THIRD)
-                        )
-                )
+                                        .span(ColSpan.THIRD)))
                 .i18n(ts);
 
         respondentForm = form;
@@ -957,6 +1364,23 @@ public class CSCFormController extends FormController implements Initializable, 
         container.setFitToWidth(true);
         return container;
     }
+
+//    private ScrollPane wrapForm(Form form, TranslationService ts, ObservableMap<String, ObservableStringValue> metadata) {
+//        final var box = new FlowPane(Orientation.HORIZONTAL, 5, 5);
+//        VBox content = new VBox(10, new FormRenderer(form), box);
+//        final var container = new ScrollPane(content);
+//        metadata.addListener(new MapChangeListener<String, ObservableStringValue>() {
+//            @Override
+//            public void onChanged(Change<? extends String, ? extends ObservableStringValue> change) {
+//                if (change.wasAdded()) {
+//                    final var keyLabel = new Label(ts.translate(change.getKey()));
+//                    final var valueLabel = new Label();
+//                    valueLabel.textProperty().bind(change.getValueAdded());
+//                }
+//            }
+//        });
+//        return container;
+//    }
 
     @Override
     public void upload(File file, Consumer<UploadTask> callback) {

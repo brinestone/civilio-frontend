@@ -1,5 +1,6 @@
 package fr.civipol.civilio.controller;
 
+import com.dlsc.formsfx.model.structure.SelectionField;
 import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
@@ -205,28 +206,18 @@ public abstract class FormController implements AppController, OptionSource {
 
     protected SimpleComboBoxControl<Option> createOptionComboBox(TranslationService ts) {
         return new SimpleComboBoxControl<>() {
-            @SuppressWarnings("unchecked")
             @Override
+            @SuppressWarnings("unchecked")
             public void initializeParts() {
                 super.initializeParts();
-                comboBox.setConverter(new OptionConverter(ts, v -> Optional.ofNullable((Collection<Option>) field.getItems())
-                        .stream()
-                        .flatMap(Collection::stream)
-                        .filter(o -> o.value().equals(v))
-                        .findFirst()
-                        .orElse(null)));
+                comboBox.setConverter(OptionConverter.usingOptions(ts, field.getItems()));
             }
         };
     }
 
     @SuppressWarnings("unchecked")
     protected MultiComboBoxControl<Option> createMultiOptionComboBox(TranslationService ts) {
-        return new MultiComboBoxControl<>(field -> new OptionConverter(ts, v -> Optional.ofNullable((Collection<Option>) field.getItems())
-                .stream()
-                .flatMap(Collection::stream)
-                .filter(o -> o.value().equals(v))
-                .findFirst()
-                .orElse(null)));
+        return new MultiComboBoxControl<>(field -> OptionConverter.usingOptions(ts, Optional.ofNullable(field).map(SelectionField::getItems).orElse(FXCollections.observableArrayList())));
     }
 
     private void doLoadSubmissionData() throws Exception {

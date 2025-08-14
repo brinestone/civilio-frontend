@@ -4,7 +4,7 @@ import javafx.scene.control.TableCell;
 
 import java.util.function.Supplier;
 
-public class SpinnerColumnDefinition<V, T extends Number> extends ColumnDefinition<V, T> {
+public class SpinnerColumnDefinition<V, T extends Number> extends ColumnDefinition<V, T, SpinnerColumnDefinition<V, T>> {
     private static <V> Supplier<TableCell<V, Integer>> integerSupplier(int step) {
         return () -> SpinnerTableCell.ofIntegerType(step);
     }

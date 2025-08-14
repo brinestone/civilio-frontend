@@ -40,6 +40,7 @@ module fr.civipol.civilio {
     opens fr.civipol.civilio.form to javafx.fxml;
     opens fr.civipol.civilio.controller.chefferie to javafx.fxml;
     opens fr.civipol.civilio.controller.csc to javafx.fxml;
+    opens fr.civipol.civilio.form.field.gps to javafx.fxml, javafx.web;
 
     exports fr.civipol.civilio.controls;
     exports fr.civipol.civilio;
@@ -63,5 +64,4 @@ module fr.civipol.civilio {
     exports fr.civipol.civilio.domain.converter;
     exports fr.civipol.civilio.util;
     exports fr.civipol.civilio.form.field.gps;
-    opens fr.civipol.civilio.form.field.gps to javafx.fxml, javafx.web;
 }

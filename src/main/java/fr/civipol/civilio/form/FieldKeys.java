@@ -166,9 +166,9 @@ public class FieldKeys {
                 Accessibility.ROAD_OBSTACLE,
                 Accessibility.ATTACHED_VILLAGES_NUMBER,
                 Accessibility.COVER_RADIUS,
-                Accessibility.Villages.NAME,
-                Accessibility.Villages.DISTANCE,
-                Accessibility.Villages.OBSERVATIONS,
+//                Accessibility.Villages.NAME,
+//                Accessibility.Villages.DISTANCE,
+//                Accessibility.Villages.OBSERVATIONS,
                 Infrastructure.STATUS,
                 Infrastructure.OTHER_BUILDING,
                 Infrastructure.ENEO_CONNECTION,
@@ -191,11 +191,11 @@ public class FieldKeys {
                 Areas.DEDICATED_CS_ROOMS,
                 Areas.MOVING,
 //                Areas.RENOVATION_DUE,
-                Areas.Rooms.NUMBER,
-                Areas.Rooms.NAME,
-                Areas.Rooms.CONDITION,
-                Areas.Rooms.AREA,
-                Areas.Rooms.RENOVATION_NATURE,
+//                Areas.Rooms.NUMBER,
+//                Areas.Rooms.NAME,
+//                Areas.Rooms.CONDITION,
+//                Areas.Rooms.AREA,
+//                Areas.Rooms.RENOVATION_NATURE,
                 Equipment.COMPUTER_COUNT,
                 Equipment.SERVER_COUNT,
                 Equipment.PRINTER_COUNT,
@@ -243,17 +243,17 @@ public class FieldKeys {
                 RecordProcurement.BLANK_MARRIAGES,
                 RecordProcurement.BLANK_BIRTHS,
                 RecordProcurement.BLANK_DEATHS,
-                VitalStats.BIRTH_CERT_COST,
-                VitalStats.BIRTH_CERT_COPY_COST,
-                VitalStats.MARRIAGE_CERT_COPY_COST,
-                VitalStats.DEATH_CERT_COPY_COST,
-                VitalStats.CELIBACY_CERT_COPY_COST,
-                VitalStats.NON_REGISTERED_CERTS,
-                VitalStats.RATES_UNDER_DELIBERATION,
-                VitalStats.PRICES_DISPLAYED,
-                VitalStats.MUNICIPALITY_BUDGET_2024,
-                VitalStats.CS_BUDGET_2024,
-                VitalStats.CS_REVENUE_2024,
+                FinancialStats.BIRTH_CERT_COST,
+                FinancialStats.BIRTH_CERT_COPY_COST,
+                FinancialStats.MARRIAGE_CERT_COPY_COST,
+                FinancialStats.DEATH_CERT_COPY_COST,
+                FinancialStats.CELIBACY_CERT_COPY_COST,
+                FinancialStats.NON_REGISTERED_CERTS,
+                FinancialStats.RATES_UNDER_DELIBERATION,
+                FinancialStats.PRICES_DISPLAYED,
+                FinancialStats.MUNICIPALITY_BUDGET_2024,
+                FinancialStats.CS_BUDGET_2024,
+//                FinancialStats.CS_REVENUE_2024,
                 Archiving.HAS_ARCHIVING_ROOM,
                 Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION,
                 Archiving.HAS_FIRE_EXTINGUISHERS,
@@ -275,30 +275,30 @@ public class FieldKeys {
                 Deeds.MARRIAGE_CERT_NOT_DRAWN,
                 Deeds.DEATH_CERT_DRAWN,
                 Deeds.DEATH_CERT_NOT_DRAWN,
-                StatusOfArchivedRecords.YEAR,
-                StatusOfArchivedRecords.BIRTH_COUNT,
-                StatusOfArchivedRecords.MARRIAGE_COUNT,
-                StatusOfArchivedRecords.DEATH_COUNT,
-                PersonnelInfo.MALE_COUNT,
-                PersonnelInfo.FEMALE_COUNT,
-                PersonnelInfo.NON_OFFICER_MALE_COUNT,
-                PersonnelInfo.NON_OFFICER_FEMALE_COUNT,
-                PersonnelInfo.Officers.OTHER_POSITION,
-                PersonnelInfo.Officers.STATUS,
-                PersonnelInfo.Officers.OTHER_STATUS,
-                PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022,
-                PersonnelInfo.Officers.TOTAL_REVENUE_2022,
-                PersonnelInfo.Officers.ARCHIVING_TRAINING,
-                PersonnelInfo.Officers.CS_SENIORITY,
-                FieldKeys.PersonnelInfo.PERSONNEL_NAME,
-                FieldKeys.PersonnelInfo.PERSONNEL_AGE,
-                FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
-                FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
-                FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
-                FieldKeys.PersonnelInfo.PERSONNEL_EMAIL,
-                FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
-                FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
-                FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING
+//                StatusOfArchivedRecords.YEAR,
+//                StatusOfArchivedRecords.BIRTH_COUNT,
+//                StatusOfArchivedRecords.MARRIAGE_COUNT,
+//                StatusOfArchivedRecords.DEATH_COUNT,
+//                PersonnelInfo.MALE_COUNT,
+//                PersonnelInfo.FEMALE_COUNT,
+//                PersonnelInfo.NON_OFFICER_MALE_COUNT,
+//                PersonnelInfo.NON_OFFICER_FEMALE_COUNT,
+//                PersonnelInfo.Officers.OTHER_POSITION,
+//                PersonnelInfo.Officers.STATUS,
+//                PersonnelInfo.Officers.OTHER_STATUS,
+//                PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022,
+//                PersonnelInfo.Officers.TOTAL_REVENUE_2022,
+//                PersonnelInfo.Officers.ARCHIVING_TRAINING,
+//                PersonnelInfo.Officers.CS_SENIORITY,
+//                FieldKeys.PersonnelInfo.PERSONNEL_NAME,
+//                FieldKeys.PersonnelInfo.PERSONNEL_AGE,
+//                FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
+//                FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
+//                FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
+//                FieldKeys.PersonnelInfo.PERSONNEL_EMAIL,
+//                FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
+//                FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+//                FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING
         };
 
         public static final class Respondent {
@@ -384,7 +384,7 @@ public class FieldKeys {
             public static final String HAS_INTERNET = "csc.form.sections.infra.fields.has_internet.title";
             public static final String INTERNET_TYPE = "csc.form.sections.infra.fields.internet_type.title";
             public static final String OTHER_INTERNET_TYPE = "csc.form.sections.infra.fields.other_internet_type.title";
-            public static final String INTERNET_SPONSOR = "csc.form.sections.infra.fields.internet_sponsorer.title";
+            public static final String INTERNET_SPONSOR = "csc.form.sections.infra.fields.internet_sponsor.title";
             public static final String[] ALL_FIELDS = {
                     STATUS, OTHER_BUILDING, ENEO_CONNECTION, POWER_OUTAGES, STABLE_POWER,
                     BACKUP_POWER_SOURCES_AVAILABLE,
@@ -463,18 +463,18 @@ public class FieldKeys {
         }
 
         public static final class RecordIndexing {
-            public static final String RECORDS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.records_scanned.title";
-            public static final String STAFF_TRAINED = "csc.form.sections.digitization.sub_forms.indexing.fields.staff_trained.title";
-            public static final String DOCUMENT_SCAN_START_DATE = "csc.form.sections.digitization.sub_forms.indexing.fields.document_scan_start_date.title";
-            public static final String DATA_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_indexed.title";
-            public static final String MARRIAGES_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_indexed.title";
-            public static final String DEATHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_indexed.title";
-            public static final String BIRTHS_INDEXED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_indexed.title";
-            public static final String MARRIAGES_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.marriages_scanned.title";
-            public static final String BIRTHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.births_scanned.title";
-            public static final String DEATHS_SCANNED = "csc.form.sections.digitization.sub_forms.indexing.fields.deaths_scanned.title";
-            public static final String IS_DATA_USED_BY_CSC = "csc.form.sections.digitization.sub_forms.indexing.fields.is_data_in_use.title";
-            public static final String DATA_USAGE = "csc.form.sections.digitization.sub_forms.indexing.fields.data_usage.title";
+            public static final String RECORDS_SCANNED = "csc.form.sections.indexing.fields.records_scanned.title";
+            public static final String STAFF_TRAINED = "csc.form.sections.indexing.fields.staff_trained.title";
+            public static final String DOCUMENT_SCAN_START_DATE = "csc.form.sections.indexing.fields.document_scan_start_date.title";
+            public static final String DATA_INDEXED = "csc.form.sections.indexing.fields.is_data_indexed.title";
+            public static final String MARRIAGES_INDEXED = "csc.form.sections.indexing.fields.marriages_indexed.title";
+            public static final String DEATHS_INDEXED = "csc.form.sections.indexing.fields.deaths_indexed.title";
+            public static final String BIRTHS_INDEXED = "csc.form.sections.indexing.fields.births_indexed.title";
+            public static final String MARRIAGES_SCANNED = "csc.form.sections.indexing.fields.marriages_scanned.title";
+            public static final String BIRTHS_SCANNED = "csc.form.sections.indexing.fields.births_scanned.title";
+            public static final String DEATHS_SCANNED = "csc.form.sections.indexing.fields.deaths_scanned.title";
+            public static final String IS_DATA_USED_BY_CSC = "csc.form.sections.indexing.fields.is_data_in_use.title";
+            public static final String DATA_USAGE = "csc.form.sections.indexing.fields.data_usage.title";
             public static final String[] ALL_FIELDS = {
                     RECORDS_SCANNED, STAFF_TRAINED, DOCUMENT_SCAN_START_DATE, DATA_INDEXED, MARRIAGES_INDEXED,
                     DEATHS_INDEXED,
@@ -498,7 +498,7 @@ public class FieldKeys {
             };
         }
 
-        public static final class VitalStats {
+        public static final class FinancialStats {
             public static final String BIRTH_CERT_COST = "csc.form.sections.vital_stats.fields.birth_cert_cost.title";
             public static final String BIRTH_CERT_COPY_COST = "csc.form.sections.vital_stats.fields.birth_cert_copy_cost.title";
             public static final String MARRIAGE_CERT_COPY_COST = "csc.form.sections.vital_stats.fields.marriage_cert_copy_cost.title";
@@ -509,12 +509,12 @@ public class FieldKeys {
             public static final String PRICES_DISPLAYED = "csc.form.sections.vital_stats.fields.prices_displayed.title";
             public static final String MUNICIPALITY_BUDGET_2024 = "csc.form.sections.vital_stats.fields.municipality_budget.title";
             public static final String CS_BUDGET_2024 = "csc.form.sections.vital_stats.fields.cs_budget.title";
-            public static final String CS_REVENUE_2024 = "csc.form.sections.vital_stats.fields.cs_revenue.title";
+//            public static final String CS_REVENUE_2024 = "csc.form.sections.vital_stats.fields.cs_revenue.title";
             public static final String[] ALL_FIELDS = {
                     BIRTH_CERT_COST, BIRTH_CERT_COPY_COST, MARRIAGE_CERT_COPY_COST, DEATH_CERT_COPY_COST,
                     CELIBACY_CERT_COPY_COST,
                     NON_REGISTERED_CERTS, RATES_UNDER_DELIBERATION, PRICES_DISPLAYED, MUNICIPALITY_BUDGET_2024,
-                    CS_BUDGET_2024, CS_REVENUE_2024
+                    CS_BUDGET_2024 /*CS_REVENUE_2024*/
             };
         }
 

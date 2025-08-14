@@ -7,7 +7,7 @@ import javafx.util.StringConverter;
 
 import java.util.function.Supplier;
 
-public class SingleSelectionColumnDefinition<V, R> extends ColumnDefinition<V, R> {
+public class SingleSelectionColumnDefinition<V, R> extends ColumnDefinition<V, R, SingleSelectionColumnDefinition<V, R>> {
     private static <V, R> Supplier<TableCell<V, R>> defaultSupplier(ObservableList<R> options, StringConverter<R> stringConverter) {
         return () -> new ComboBoxTableCell<>(stringConverter, options);
     }

@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
@@ -41,6 +42,8 @@ public class FormService implements AppService {
     private static final String PIECES_TABLE = "data_pieces";
     private static final String VILLAGES_TABLE = "data_villages";
     private final Lazy<DataSource> dataSourceProvider;
+    private final Map<String, Connection> batchConnections = new ConcurrentHashMap<>();
+    private final Map<String, Set<PreparedStatement>> batchQueries = new ConcurrentHashMap<>();
 
     public Collection<FieldMapping> findFieldMappings(FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
@@ -56,72 +59,92 @@ public class FormService implements AppService {
         }
     }
 
-    public void updateFieldMapping(FormType form, String field, String i18nKey, String dbColumn) throws SQLException {
+    public String startBatchOperation() throws SQLException {
         final var ds = dataSourceProvider.get();
-        String tableName = DATA_TABLE;
-        try (final var connection = ds.getConnection()) {
-            connection.setAutoCommit(false);
-            PreparedStatement st;
-            String sql;
-            if (dbColumn != null) {
-                sql = """
-                        INSERT INTO
-                            civilio.form_field_mappings(field, i18n_key, db_column, db_table, form, db_column_type)
-                        VALUES (?, ?, ?, ?, CAST(? as civilio.form_types),
-                        (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? AND c.table_schema = ? LIMIT 1))
-                        ON CONFLICT (field, form) DO UPDATE
-                        SET
-                            db_column = EXCLUDED.db_column,
-                            db_table = EXCLUDED.db_table,
-                            i18n_key = EXCLUDED.i18n_key,
-                            db_column_type = EXCLUDED.db_column_type;
-                        """;
-                if (field.startsWith(PERSONNEL_INFO_TABLE))
-                    tableName = PERSONNEL_INFO_TABLE;
-                else if (form.equals(FormType.CSC)) {
-                    if (field.contains("sub_forms.villages"))
-                        tableName = VILLAGES_TABLE;
-                    else if (field.contains("sub_forms.rooms"))
-                        tableName = PIECES_TABLE;
-                    else if (field.contains("sub_forms.indexing"))
-                        tableName = STATISTICS_TABLE;
-                    else if (field.contains("sub_forms.officers"))
-                        tableName = PERSONNEL_INFO_TABLE;
-                } else {
-                    tableName = DATA_TABLE;
+        final var batchKey = "%d".formatted(System.currentTimeMillis());
+        batchConnections.put(batchKey, ds.getConnection());
+        batchQueries.put(batchKey, new HashSet<>());
+        return batchKey;
+    }
+
+    public void completeBatchOperation(String id) throws SQLException {
+        if (Optional.ofNullable(id).filter(StringUtils::isNotBlank).filter(batchConnections::containsKey).isEmpty())
+            throw new IllegalArgumentException("id parameter is unknown");
+        try (final var conn = batchConnections.get(id)) {
+            conn.setAutoCommit(false);
+            final var statements = batchQueries.get(id);
+            if (statements.isEmpty()) {
+                return;
+            }
+            for (var st : statements) {
+                try (st) {
+                    st.executeUpdate();
                 }
-                st = connection.prepareStatement(sql);
-                st.setString(1, field);
-                st.setString(2, i18nKey);
-                st.setObject(3, dbColumn);
-                st.setString(4, tableName);
-                st.setString(5, form.toString());
-                st.setObject(6, dbColumn);
-                st.setString(7, tableName);
-                st.setString(8, form.toString());
-            } else {
-                sql = """
-                        DELETE FROM
-                            civilio.form_field_mappings
-                        WHERE
-                            field = ? AND form = CAST(? as civilio.form_types);
-                        """;
-                st = connection.prepareStatement(sql);
-                st.setString(1, field);
-                st.setString(2, form.toString());
             }
-
-            try (st) {
-                st.executeUpdate();
-                if (dbColumn != null)
-                    log.debug("Updated mapping for field: {} -> table={}, column={}", field, tableName, dbColumn);
-            } catch (SQLException ex) {
-                log.error("error while updating field mapping for form: {}, and field : {}", form, field, ex);
-                throw ex;
-            }
-
-            connection.commit();
+            conn.commit();
+        } finally {
+            batchConnections.remove(id);
+            batchQueries.remove(id);
         }
+    }
+
+    public void updateFieldMapping(FormType form, String field, String i18nKey, String dbColumn, String batchKey) throws SQLException {
+        String tableName = DATA_TABLE;
+        final var connection = batchConnections.get(batchKey);
+        connection.setAutoCommit(false);
+        PreparedStatement st;
+        String sql;
+        if (dbColumn != null) {
+            sql = """
+                    INSERT INTO
+                        civilio.form_field_mappings(field, i18n_key, db_column, db_table, form, db_column_type)
+                    VALUES (?, ?, ?, ?, CAST(? as civilio.form_types),
+                    (SELECT c.data_type from information_schema.columns c WHERE c.column_name = ? AND c.table_name = ? AND c.table_schema = ? LIMIT 1))
+                    ON CONFLICT (field, form) DO UPDATE
+                    SET
+                        db_column = EXCLUDED.db_column,
+                        db_table = EXCLUDED.db_table,
+                        i18n_key = EXCLUDED.i18n_key,
+                        db_column_type = EXCLUDED.db_column_type;
+                    """;
+            if (field.startsWith(PERSONNEL_INFO_TABLE))
+                tableName = PERSONNEL_INFO_TABLE;
+            else if (form.equals(FormType.CSC)) {
+                if (field.contains("sub_forms.villages"))
+                    tableName = VILLAGES_TABLE;
+                else if (field.contains("sub_forms.rooms"))
+                    tableName = PIECES_TABLE;
+                else if (field.contains("sub_forms.indexing"))
+                    tableName = STATISTICS_TABLE;
+                else if (field.contains("sub_forms.officers"))
+                    tableName = PERSONNEL_INFO_TABLE;
+            } else {
+                tableName = DATA_TABLE;
+            }
+            final var schema = form.toString();
+            st = connection.prepareStatement(sql);
+            st.setString(1, field);
+            st.setString(2, i18nKey);
+            st.setObject(3, dbColumn);
+            st.setString(4, tableName);
+            st.setString(5, form.toString());
+            st.setObject(6, dbColumn);
+            st.setString(7, tableName);
+            st.setString(8, schema);
+        } else {
+            sql = """
+                    DELETE FROM
+                        civilio.form_field_mappings
+                    WHERE
+                        field = ? AND form = CAST(? as civilio.form_types);
+                    """;
+            st = connection.prepareStatement(sql);
+            st.setString(1, field);
+            st.setString(2, form.toString());
+        }
+        final var queryEntry = batchQueries.get(batchKey);
+        queryEntry.add(st);
+        log.debug("{} now has {} batched queries", batchKey, queryEntry.size());
     }
 
     public Collection<String> getFormColumnNames(FormType form) throws SQLException {

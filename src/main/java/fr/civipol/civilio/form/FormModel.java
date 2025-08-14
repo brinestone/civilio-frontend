@@ -156,7 +156,7 @@ public abstract class FormModel {
                 return 0.0;
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
             if (raw instanceof String s && StringUtils.isNotBlank(s))
-                return Double.valueOf(Math.max(Integer.parseInt(s), 0.0)).intValue();
+                return Double.valueOf(Math.max(Double.parseDouble(s), 0.0)).intValue();
             else if (raw instanceof Double d)
                 return d.intValue();
             else

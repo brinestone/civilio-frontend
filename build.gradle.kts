@@ -48,18 +48,17 @@ val daggerVersion = "2.56"
 val geoToolsVersion = "28.1"
 
 dependencies {
-    implementation("com.yegor256:jping:0.0.3")
 
     // HikariCP
     implementation("com.zaxxer:HikariCP:6.3.0")
-    runtimeOnly("org.postgresql:postgresql:42.7.5")
+    runtimeOnly("org.postgresql:postgresql:42.7.7")
 
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 
     // MinIO Client
     implementation("io.minio:minio:7.1.4") {
-        exclude("org.apache.commons", module="commons-compress")
+        exclude("org.apache.commons", module = "commons-compress")
     }
 //    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("org.apache.commons:commons-compress:1.27.1")
@@ -70,7 +69,9 @@ dependencies {
 
     // FormsFX
     implementation(
-        files("libs/formsfx-core-11.6.0.jar")
+            files(
+                    "libs/formsfx-core-11.6.0.jar"
+            )
     )
 
     // PreferencesFX
@@ -236,7 +237,3 @@ tasks.named<Jar>("jar") {
         into("resources")
     }
 }
-
-//tasks.withType<JavaExec> {
-//    jvmArgs = listOf("-Dprism.forceGPU=true", "-Dprism.lcdtext=false")
-//}

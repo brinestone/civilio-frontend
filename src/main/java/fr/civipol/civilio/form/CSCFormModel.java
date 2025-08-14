@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -54,7 +55,8 @@ public class CSCFormModel extends FormModel {
     private void setupChangeListeners() {
         final var divisionProperty = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.DIVISION);
         final var municipalityOptions = getOptionsFor(FieldKeys.CSC.Identification.MUNICIPALITY);
-        final var municipalityProperty = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.MUNICIPALITY);
+        final var municipalityProperty = (ObjectProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Identification.MUNICIPALITY);
         divisionProperty.addListener((ob, ov, nv) -> {
             if (nv == null) {
                 municipalityOptions.clear();
@@ -67,6 +69,8 @@ public class CSCFormModel extends FormModel {
 
     @Override
     public void loadInitialOptions() {
+        getOptionsFor(FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS).setAll(optionSource.findOptions("tw32q01"));
+        getOptionsFor(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER).setAll(optionSource.findOptions("sl8yh95"));
         getOptionsFor(FieldKeys.CSC.Identification.DIVISION).setAll(optionSource.findOptions("division", REGION_IDS));
         getOptionsFor(FieldKeys.CSC.Identification.MUNICIPALITY).setAll(optionSource.findOptions("commune"));
         getOptionsFor(FieldKeys.CSC.Identification.CATEGORY).setAll(optionSource.findOptions("mx3gb95"));
@@ -86,11 +90,13 @@ public class CSCFormModel extends FormModel {
         getOptionsFor(FieldKeys.CSC.Infrastructure.INTERNET_SPONSOR).setAll(optionSource.findOptions("eb2cq25"));
         getOptionsFor(FieldKeys.CSC.Areas.Rooms.CONDITION).setAll(optionSource.findOptions("hg4oe04"));
         getOptionsFor(FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE).setAll(optionSource.findOptions("se9tm32"));
-        getOptionsFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR).setAll(optionSource.findOptions("pt2hk19"));
+        getOptionsFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR)
+                .setAll(optionSource.findOptions("pt2hk19"));
         getOptionsFor(FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK).setAll(optionSource.findOptions("ja3ja10"));
         getOptionsFor(FieldKeys.CSC.RecordIndexing.STAFF_TRAINED).setAll(optionSource.findOptions("fv5nn38"));
         getOptionsFor(FieldKeys.CSC.RecordIndexing.DATA_INDEXED).setAll(optionSource.findOptions("fw78n80"));
-        getOptionsFor(FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION).setAll(optionSource.findOptions("hv1un42"));
+        getOptionsFor(FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION)
+                .setAll(optionSource.findOptions("hv1un42"));
         getOptionsFor(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE).setAll(optionSource.findOptions("xi0eq24"));
         getOptionsFor(FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED).setAll(optionSource.findOptions("gw85g70"));
         getOptionsFor(FieldKeys.CSC.Deeds.YEAR).setAll(optionSource.findOptions("dj0uq71"));
@@ -142,8 +148,8 @@ public class CSCFormModel extends FormModel {
         villageData.addAll(subFormDataLoader.loadSubFormData(
                 FieldKeys.CSC.Accessibility.Villages.NAME,
                 FieldKeys.CSC.Accessibility.Villages.DISTANCE,
-                FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS
-        ));
+                FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS)
+        );
     }
 
     @Override
@@ -172,8 +178,10 @@ public class CSCFormModel extends FormModel {
     private Property createValueProperty(String id) {
         final var key = keyExtractor.apply(id);
         final var targetType = getPropertyTypeFor(key);
-        if (targetType.equals(String.class)) return new SimpleStringProperty();
-        else if (targetType.equals(Option.class)) return new SimpleObjectProperty<Option>();
+        if (targetType.equals(String.class))
+            return new SimpleStringProperty();
+        else if (targetType.equals(Option.class))
+            return new SimpleObjectProperty<Option>();
         else if (Double.class.equals(targetType))
             return new SimpleDoubleProperty();
         else if (Float.class.equals(targetType))
@@ -194,33 +202,124 @@ public class CSCFormModel extends FormModel {
     private Object getDefaultValueFor(String id) {
         final var key = keyExtractor.apply(id);
         final var targetType = getPropertyTypeFor(key);
-        if (String.class.equals(targetType)) return "";
-        else if (Float.class.equals(targetType)) return 0f;
-        else if (Boolean.class.equals(targetType)) return false;
-        else if (Integer.class.equals(targetType)) return 0;
-        else if (List.class.equals(targetType)) return FXCollections.observableArrayList();
-        else if (GeoPoint.class.equals(targetType)) return GeoPoint.builder().build();
+        if (String.class.equals(targetType))
+            return "";
+        else if (Float.class.equals(targetType))
+            return 0f;
+        else if (Boolean.class.equals(targetType))
+            return false;
+        else if (Integer.class.equals(targetType))
+            return 0;
+        else if (List.class.equals(targetType))
+            return FXCollections.observableArrayList();
+        else if (GeoPoint.class.equals(targetType))
+            return GeoPoint.builder().build();
         return null;
     }
 
     @Override
     protected Class<?> getPropertyTypeFor(String id) {
         return switch (id) {
-            case FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.PersonnelInfo.PERSONNEL_NAME, FieldKeys.CSC.Respondent.POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS, FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS, FieldKeys.CSC.Accessibility.Villages.NAME, FieldKeys.CSC.Identification.OTHER_NON_FUNCTION_REASON, FieldKeys.CSC.Respondent.NAME, FieldKeys.CSC.Respondent.PHONE, FieldKeys.CSC.Respondent.EMAIL, FieldKeys.CSC.Identification.QUARTER, FieldKeys.CSC.Identification.FACILITY_NAME, FieldKeys.CSC.Identification.LOCALITY, FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER, FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER, FieldKeys.CSC.Identification.PHOTO_URL, FieldKeys.CSC.Infrastructure.OTHER_BUILDING, FieldKeys.CSC.Infrastructure.OTHER_POWER_SOURCE, FieldKeys.CSC.Infrastructure.OTHER_NETWORK_TYPE, FieldKeys.CSC.Infrastructure.OTHER_INTERNET_TYPE, FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME, FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON, FieldKeys.CSC.RecordIndexing.DATA_USAGE, FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER, FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE, FieldKeys.PersonnelInfo.PERSONNEL_PHONE, FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.CSC.Comments.RELEVANT_INFO, FieldKeys.CSC.Areas.Rooms.NAME ->
-                    String.class;
-            case FieldKeys.CSC.Identification.CHIEFDOM_DEGREE, FieldKeys.CSC.Identification.DIVISION, FieldKeys.CSC.Identification.MUNICIPALITY, FieldKeys.CSC.Identification.CATEGORY, FieldKeys.CSC.Identification.TOWN_SIZE, FieldKeys.CSC.Identification.NON_FUNCTION_DURATION, FieldKeys.CSC.Identification.MILIEU, FieldKeys.CSC.Accessibility.ROAD_OBSTACLE, FieldKeys.CSC.RecordIndexing.DATA_INDEXED, FieldKeys.CSC.Accessibility.ROAD_TYPE, FieldKeys.CSC.Accessibility.COVER_RADIUS, FieldKeys.CSC.Infrastructure.STATUS, FieldKeys.CSC.Infrastructure.WATER_SOURCES, FieldKeys.CSC.Infrastructure.HAS_FIBER_CONNECTION, FieldKeys.CSC.Infrastructure.INTERNET_SPONSOR, FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK, FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION, FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION, FieldKeys.PersonnelInfo.PERSONNEL_GENDER, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL, FieldKeys.CSC.PersonnelInfo.Officers.STATUS, FieldKeys.CSC.Deeds.YEAR, FieldKeys.CSC.Areas.Rooms.CONDITION, FieldKeys.CSC.StatusOfArchivedRecords.YEAR ->
-                    Option.class;
-            case FieldKeys.CSC.Areas.Rooms.AREA, FieldKeys.CSC.Accessibility.Villages.DISTANCE, FieldKeys.CSC.Accessibility.ATTACHED_VILLAGES_NUMBER ->
-                    Double.class;
-            case FieldKeys.CSC.Identification.CREATION_DATE, FieldKeys.CSC.Respondent.CREATION_DATE, FieldKeys.CSC.Digitization.SOFTWARE_ACTIVATION_DATE, FieldKeys.CSC.RecordIndexing.DOCUMENT_SCAN_START_DATE, FieldKeys.CSC.Archiving.VANDALIZED_DATE ->
-                    LocalDate.class;
+            case FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.PersonnelInfo.PERSONNEL_NAME,
+                    FieldKeys.CSC.Respondent.POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+                    FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS,
+                    FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS, FieldKeys.CSC.Accessibility.Villages.NAME,
+                    FieldKeys.CSC.Identification.OTHER_NON_FUNCTION_REASON, FieldKeys.CSC.Respondent.NAME,
+                    FieldKeys.CSC.Respondent.PHONE, FieldKeys.CSC.Respondent.EMAIL,
+                    FieldKeys.CSC.Identification.QUARTER, FieldKeys.CSC.Identification.FACILITY_NAME,
+                    FieldKeys.CSC.Identification.LOCALITY, FieldKeys.CSC.Identification.SECONDARY_CREATION_ORDER,
+                    FieldKeys.CSC.Identification.OFFICER_APPOINTMENT_ORDER, FieldKeys.CSC.Identification.PHOTO_URL,
+                    FieldKeys.CSC.Infrastructure.OTHER_BUILDING, FieldKeys.CSC.Infrastructure.OTHER_POWER_SOURCE,
+                    FieldKeys.CSC.Infrastructure.OTHER_NETWORK_TYPE, FieldKeys.CSC.Infrastructure.OTHER_INTERNET_TYPE,
+                    FieldKeys.CSC.Digitization.CS_SOFTWARE_NAME, FieldKeys.CSC.Digitization.SOFTWARE_DYSFUNCTION_REASON,
+                    FieldKeys.CSC.RecordIndexing.DATA_USAGE, FieldKeys.CSC.RecordProcurement.OTHER_RECORDS_PROVIDER,
+                    FieldKeys.CSC.Archiving.OTHER_ARCHIVING_TYPE, FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
+                    FieldKeys.PersonnelInfo.PERSONNEL_EMAIL, FieldKeys.CSC.Comments.RELEVANT_INFO,
+                    FieldKeys.CSC.Archiving.VANDALIZED_DATE,
+                    FieldKeys.CSC.Areas.Rooms.NAME -> String.class;
+            case FieldKeys.CSC.Identification.CHIEFDOM_DEGREE, FieldKeys.CSC.Identification.DIVISION,
+                    FieldKeys.CSC.Identification.MUNICIPALITY, FieldKeys.CSC.Identification.CATEGORY,
+                    FieldKeys.CSC.Identification.TOWN_SIZE, FieldKeys.CSC.Identification.NON_FUNCTION_DURATION,
+                    FieldKeys.CSC.Identification.MILIEU, FieldKeys.CSC.Accessibility.ROAD_OBSTACLE,
+                    FieldKeys.CSC.RecordIndexing.DATA_INDEXED, FieldKeys.CSC.Accessibility.ROAD_TYPE,
+                    FieldKeys.CSC.Accessibility.COVER_RADIUS, FieldKeys.CSC.Infrastructure.STATUS,
+                    FieldKeys.CSC.Infrastructure.WATER_SOURCES, FieldKeys.CSC.Infrastructure.HAS_FIBER_CONNECTION,
+                    FieldKeys.CSC.Infrastructure.INTERNET_SPONSOR,
+                    FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR,
+                    FieldKeys.CSC.Digitization.SOFTWARE_FEEDBACK,
+                    FieldKeys.CSC.Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION,
+                    FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED, FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION,
+                    FieldKeys.PersonnelInfo.PERSONNEL_GENDER, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
+                    FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL, FieldKeys.CSC.PersonnelInfo.Officers.STATUS,
+                    FieldKeys.CSC.Deeds.YEAR, FieldKeys.CSC.Areas.Rooms.CONDITION,
+                    FieldKeys.CSC.StatusOfArchivedRecords.YEAR -> Option.class;
+            case FieldKeys.CSC.Areas.Rooms.AREA, FieldKeys.CSC.Accessibility.Villages.DISTANCE,
+                    FieldKeys.CSC.Accessibility.ATTACHED_VILLAGES_NUMBER -> Double.class;
+            case FieldKeys.CSC.Identification.CREATION_DATE, FieldKeys.CSC.Respondent.CREATION_DATE,
+                    FieldKeys.CSC.Digitization.SOFTWARE_ACTIVATION_DATE -> LocalDate.class;
             case FieldKeys.CSC.Identification.GPS_COORDS -> GeoPoint.class;
-            case FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS, FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE, FieldKeys.CSC.Identification.IS_CHIEFDOM, FieldKeys.CSC.Identification.IS_FUNCTIONAL, FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED, FieldKeys.CSC.Accessibility.DOES_ROAD_DETERIORATE, FieldKeys.CSC.Infrastructure.ENEO_CONNECTION, FieldKeys.CSC.Infrastructure.POWER_OUTAGES, FieldKeys.CSC.Infrastructure.STABLE_POWER, FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE, FieldKeys.CSC.Infrastructure.TOILETS_AVAILABLE, FieldKeys.CSC.Infrastructure.SEPARATE_TOILETS_AVAILABLE, FieldKeys.CSC.Infrastructure.HAS_INTERNET, FieldKeys.CSC.Areas.DEDICATED_CS_ROOMS, FieldKeys.CSC.Areas.MOVING, FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET, FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR, FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE, FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING, FieldKeys.CSC.RecordIndexing.RECORDS_SCANNED, FieldKeys.CSC.RecordIndexing.STAFF_TRAINED, FieldKeys.CSC.RecordIndexing.IS_DATA_USED_BY_CSC, FieldKeys.CSC.RecordProcurement.NON_COMPLIANT_REGISTERS_USED, FieldKeys.CSC.VitalStats.RATES_UNDER_DELIBERATION, FieldKeys.CSC.VitalStats.PRICES_DISPLAYED, FieldKeys.CSC.Archiving.HAS_ARCHIVING_ROOM, FieldKeys.CSC.Archiving.HAS_FIRE_EXTINGUISHERS, FieldKeys.CSC.Archiving.LOCKED_DOOR, FieldKeys.CSC.Archiving.IS_ARCHIVE_ROOM_ACCESS_LIMITED, FieldKeys.CSC.Archiving.ROOM_HAS_HUMIDITY, FieldKeys.CSC.Archiving.WRITTEN_ARCHIVING_PLAN, FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED_SYSTEMATICALLY, FieldKeys.CSC.Archiving.VANDALIZED, FieldKeys.PersonnelInfo.HAS_COMPUTER_TRAINING, FieldKeys.CSC.PersonnelInfo.Officers.ARCHIVING_TRAINING, FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING ->
-                    Boolean.class;
-            case FieldKeys.CSC.Identification.NON_FUNCTION_REASON, FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES, FieldKeys.CSC.Infrastructure.NETWORK_TYPE, FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS, FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER, FieldKeys.CSC.Infrastructure.INTERNET_TYPE, FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE, FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE ->
+            case FieldKeys.CSC.Digitization.USERS_RECEIVE_DIGITAL_ACTS, FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE,
+                    FieldKeys.CSC.Identification.IS_CHIEFDOM, FieldKeys.CSC.Identification.IS_FUNCTIONAL,
+                    FieldKeys.CSC.Identification.IS_OFFICER_APPOINTED,
+                    FieldKeys.CSC.Accessibility.DOES_ROAD_DETERIORATE, FieldKeys.CSC.Infrastructure.ENEO_CONNECTION,
+                    FieldKeys.CSC.Infrastructure.POWER_OUTAGES, FieldKeys.CSC.Infrastructure.STABLE_POWER,
+                    FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES_AVAILABLE,
+                    FieldKeys.CSC.Infrastructure.TOILETS_AVAILABLE,
+                    FieldKeys.CSC.Infrastructure.SEPARATE_TOILETS_AVAILABLE, FieldKeys.CSC.Infrastructure.HAS_INTERNET,
+                    FieldKeys.CSC.Areas.DEDICATED_CS_ROOMS, FieldKeys.CSC.Areas.MOVING,
+                    FieldKeys.CSC.Digitization.EXTERNAL_CR_USES_INTERNET,
+                    FieldKeys.CSC.Digitization.EXTERNAL_SERVICE_FROM_CR, FieldKeys.CSC.Digitization.HAS_CS_SOFTWARE,
+                    FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING, FieldKeys.CSC.RecordIndexing.RECORDS_SCANNED,
+                    FieldKeys.CSC.RecordIndexing.STAFF_TRAINED, FieldKeys.CSC.RecordIndexing.IS_DATA_USED_BY_CSC,
+                    FieldKeys.CSC.RecordProcurement.NON_COMPLIANT_REGISTERS_USED,
+                    FieldKeys.CSC.FinancialStats.RATES_UNDER_DELIBERATION, FieldKeys.CSC.FinancialStats.PRICES_DISPLAYED,
+                    FieldKeys.CSC.Archiving.HAS_ARCHIVING_ROOM, FieldKeys.CSC.Archiving.HAS_FIRE_EXTINGUISHERS,
+                    FieldKeys.CSC.Archiving.LOCKED_DOOR, FieldKeys.CSC.Archiving.IS_ARCHIVE_ROOM_ACCESS_LIMITED,
+                    FieldKeys.CSC.Archiving.ROOM_HAS_HUMIDITY, FieldKeys.CSC.Archiving.WRITTEN_ARCHIVING_PLAN,
+                    FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED_SYSTEMATICALLY, FieldKeys.CSC.Archiving.VANDALIZED,
+                    FieldKeys.PersonnelInfo.HAS_COMPUTER_TRAINING,
+                    FieldKeys.CSC.PersonnelInfo.Officers.ARCHIVING_TRAINING,
+                    FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING -> Boolean.class;
+            case FieldKeys.CSC.Identification.NON_FUNCTION_REASON, FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES,
+                    FieldKeys.CSC.Infrastructure.NETWORK_TYPE,
+                    FieldKeys.CSC.RecordProcurement.HAS_THERE_BEEN_LACK_OF_REGISTERS,
+                    FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER, FieldKeys.CSC.Infrastructure.INTERNET_TYPE,
+                    FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE, FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE ->
                     List.class;
-            case FieldKeys.CSC.Identification.ATTACHED_CENTERS, FieldKeys.CSC.Areas.OFFICE_COUNT, FieldKeys.CSC.Equipment.COMPUTER_COUNT, FieldKeys.CSC.Equipment.SERVER_COUNT, FieldKeys.CSC.Equipment.PRINTER_COUNT, FieldKeys.CSC.Equipment.SCANNER_COUNT, FieldKeys.CSC.Equipment.INVERTERS_COUNT, FieldKeys.CSC.Equipment.AIR_CONDITIONER_COUNT, FieldKeys.CSC.Equipment.FAN_COUNT, FieldKeys.CSC.Equipment.PROJECTOR_COUNT, FieldKeys.CSC.Equipment.OFFICE_TABLE_COUNT, FieldKeys.CSC.Equipment.CHAIR_COUNT, FieldKeys.CSC.Equipment.BIKE_COUNT, FieldKeys.CSC.Equipment.TABLET_COUNT, FieldKeys.CSC.Equipment.CAR_COUNT, FieldKeys.CSC.Digitization.SOFTWARE_TRAINED_USER_COUNT, FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT, FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT, FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_DEATH_COUNT, FieldKeys.CSC.RecordIndexing.BIRTHS_SCANNED, FieldKeys.CSC.RecordIndexing.BIRTHS_INDEXED, FieldKeys.CSC.RecordIndexing.DEATHS_INDEXED, FieldKeys.CSC.RecordIndexing.DEATHS_SCANNED, FieldKeys.CSC.RecordIndexing.MARRIAGES_INDEXED, FieldKeys.CSC.RecordIndexing.MARRIAGES_SCANNED, FieldKeys.CSC.RecordProcurement.BLANK_REGISTRIES_COUNT, FieldKeys.CSC.RecordProcurement.BLANK_MARRIAGES, FieldKeys.CSC.RecordProcurement.BLANK_BIRTHS, FieldKeys.CSC.RecordProcurement.BLANK_DEATHS, FieldKeys.CSC.VitalStats.BIRTH_CERT_COST, FieldKeys.CSC.VitalStats.BIRTH_CERT_COPY_COST, FieldKeys.CSC.VitalStats.MARRIAGE_CERT_COPY_COST, FieldKeys.CSC.VitalStats.DEATH_CERT_COPY_COST, FieldKeys.CSC.VitalStats.CELIBACY_CERT_COPY_COST, FieldKeys.CSC.VitalStats.NON_REGISTERED_CERTS, FieldKeys.CSC.VitalStats.MUNICIPALITY_BUDGET_2024, FieldKeys.CSC.VitalStats.CS_BUDGET_2024, FieldKeys.CSC.VitalStats.CS_REVENUE_2024, FieldKeys.CSC.PersonnelInfo.FEMALE_COUNT, FieldKeys.CSC.PersonnelInfo.MALE_COUNT, FieldKeys.CSC.PersonnelInfo.NON_OFFICER_MALE_COUNT, FieldKeys.CSC.PersonnelInfo.NON_OFFICER_FEMALE_COUNT, FieldKeys.PersonnelInfo.PERSONNEL_AGE, FieldKeys.CSC.PersonnelInfo.Officers.CS_SENIORITY, FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022, FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_REVENUE_2022, FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN, FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN, FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN, FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN, FieldKeys.CSC.Areas.Rooms.NUMBER, FieldKeys.CSC.StatusOfArchivedRecords.BIRTH_COUNT, FieldKeys.CSC.StatusOfArchivedRecords.MARRIAGE_COUNT, FieldKeys.CSC.StatusOfArchivedRecords.DEATH_COUNT ->
-                    Integer.class;
+            case FieldKeys.CSC.Identification.ATTACHED_CENTERS, FieldKeys.CSC.Areas.OFFICE_COUNT,
+                    FieldKeys.CSC.Equipment.COMPUTER_COUNT, FieldKeys.CSC.Equipment.SERVER_COUNT,
+                    FieldKeys.CSC.Equipment.PRINTER_COUNT, FieldKeys.CSC.Equipment.SCANNER_COUNT,
+                    FieldKeys.CSC.Equipment.INVERTERS_COUNT, FieldKeys.CSC.Equipment.AIR_CONDITIONER_COUNT,
+                    FieldKeys.CSC.Equipment.FAN_COUNT, FieldKeys.CSC.Equipment.PROJECTOR_COUNT,
+                    FieldKeys.CSC.Equipment.OFFICE_TABLE_COUNT, FieldKeys.CSC.Equipment.CHAIR_COUNT,
+                    FieldKeys.CSC.Equipment.BIKE_COUNT, FieldKeys.CSC.Equipment.TABLET_COUNT,
+                    FieldKeys.CSC.Equipment.CAR_COUNT, FieldKeys.CSC.Digitization.SOFTWARE_TRAINED_USER_COUNT,
+                    FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_MARRIAGE_COUNT,
+                    FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_BIRTHS_COUNT,
+                    FieldKeys.CSC.Digitization.SOFTWARE_RECORDED_DEATH_COUNT,
+                    FieldKeys.CSC.RecordIndexing.BIRTHS_SCANNED, FieldKeys.CSC.RecordIndexing.BIRTHS_INDEXED,
+                    FieldKeys.CSC.RecordIndexing.DEATHS_INDEXED, FieldKeys.CSC.RecordIndexing.DEATHS_SCANNED,
+                    FieldKeys.CSC.RecordIndexing.MARRIAGES_INDEXED, FieldKeys.CSC.RecordIndexing.MARRIAGES_SCANNED,
+                    FieldKeys.CSC.RecordProcurement.BLANK_REGISTRIES_COUNT,
+                    FieldKeys.CSC.RecordProcurement.BLANK_MARRIAGES, FieldKeys.CSC.RecordProcurement.BLANK_BIRTHS,
+                    FieldKeys.CSC.RecordProcurement.BLANK_DEATHS, FieldKeys.CSC.FinancialStats.BIRTH_CERT_COST,
+                    FieldKeys.CSC.FinancialStats.BIRTH_CERT_COPY_COST, FieldKeys.CSC.FinancialStats.MARRIAGE_CERT_COPY_COST,
+                    FieldKeys.CSC.FinancialStats.DEATH_CERT_COPY_COST, FieldKeys.CSC.FinancialStats.CELIBACY_CERT_COPY_COST,
+                    FieldKeys.CSC.FinancialStats.NON_REGISTERED_CERTS, FieldKeys.CSC.FinancialStats.MUNICIPALITY_BUDGET_2024,
+                    FieldKeys.CSC.FinancialStats.CS_BUDGET_2024/*, FieldKeys.CSC.FinancialStats.CS_REVENUE_2024*/,
+                    FieldKeys.CSC.PersonnelInfo.FEMALE_COUNT, FieldKeys.CSC.PersonnelInfo.MALE_COUNT,
+                    FieldKeys.CSC.PersonnelInfo.NON_OFFICER_MALE_COUNT,
+                    FieldKeys.CSC.PersonnelInfo.NON_OFFICER_FEMALE_COUNT, FieldKeys.PersonnelInfo.PERSONNEL_AGE,
+                    FieldKeys.CSC.PersonnelInfo.Officers.CS_SENIORITY,
+                    FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022,
+                    FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_REVENUE_2022, FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN,
+                    FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN,
+                    FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN, FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN,
+                    FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN, FieldKeys.CSC.Areas.Rooms.NUMBER,
+                    FieldKeys.CSC.StatusOfArchivedRecords.BIRTH_COUNT,
+                    FieldKeys.CSC.StatusOfArchivedRecords.MARRIAGE_COUNT,
+                    FieldKeys.CSC.RecordIndexing.DOCUMENT_SCAN_START_DATE,
+                    FieldKeys.CSC.StatusOfArchivedRecords.DEATH_COUNT -> Integer.class;
             default -> super.getPropertyTypeFor(id);
         };
     }
@@ -229,12 +328,70 @@ public class CSCFormModel extends FormModel {
 
     }
 
+    public ObservableBooleanValue centerHasBeenVandalized() {
+        return (BooleanProperty) getPropertyFor(FieldKeys.CSC.Archiving.VANDALIZED);
+    }
+
+    public ObservableBooleanValue centerIsNeitherPrimaryNorSecondary() {
+        final var binding = structureIsPrimaryOrSecondary();
+        return bindings.computeIfAbsent("!structureIsPrimaryOrSecondary", __ -> Bindings.not(binding));
+    }
+
+    @SuppressWarnings("unchecked")
+    public ObservableBooleanValue centerUsesCustomArchivingType() {
+        final var archivingType = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE);
+        final var targetValue = "7";
+        return bindings.computeIfAbsent("%s=%s".formatted(FieldKeys.CSC.Archiving.REGISTER_ARCHIVING_TYPE, targetValue), __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(archivingType.getValue())
+                        .map(Collection::stream)
+                        .stream()
+                        .flatMap(Function.identity())
+                        .map(Option::value)
+                        .anyMatch(targetValue::equals),
+                archivingType));
+    }
+
+    public ObservableBooleanValue structureIsPrimaryOrSecondary() {
+        return structureCategoryIsIn("1", "2");
+    }
+
+    @SuppressWarnings("unchecked")
+    public ObservableBooleanValue centerHasCustomRecordsProvider() {
+        final var providers = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER);
+        final var targetValue = "4";
+        return bindings.computeIfAbsent("%s=%s".formatted(FieldKeys.CSC.RecordProcurement.RECORDS_PROVIDER, targetValue), __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(providers.getValue())
+                .filter(Predicate.not(Collection::isEmpty))
+                .stream()
+                .flatMap(Collection::stream)
+                .map(Option::value)
+                .anyMatch(targetValue::equals), providers));
+    }
+
+    public ObservableBooleanValue centerUsesIndexedData() {
+        return (BooleanProperty) getPropertyFor(FieldKeys.CSC.RecordIndexing.IS_DATA_USED_BY_CSC);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ObservableBooleanValue centerIndexesData() {
+        final var indexing = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.RecordIndexing.DATA_INDEXED);
+        return bindings.computeIfAbsent("%s=1||%s=2".formatted(FieldKeys.CSC.RecordIndexing.DATA_INDEXED,
+                        FieldKeys.CSC.RecordIndexing.DATA_INDEXED),
+                __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(indexing.getValue())
+                        .map(Option::value)
+                        .filter(v -> "1".equals(v) || "2".equals(v))
+                        .isPresent(), indexing));
+    }
+
+    public ObservableBooleanValue centerHasScannedDocuments() {
+        return (BooleanProperty) getPropertyFor(FieldKeys.CSC.RecordIndexing.RECORDS_SCANNED);
+    }
+
     public ObservableBooleanValue respondentKnowsCreationDate() {
         return (BooleanProperty) getPropertyFor(FieldKeys.CSC.Respondent.KNOWS_CREATION_DATE);
     }
 
     public ObservableBooleanValue centerSoftwareIsNotFunctional() {
-        return bindings.computeIfAbsent("%s=false".formatted(FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING), __ -> Bindings.not(centerSoftwareIsFunctioning()).and(centerIsEquippedWithCSSoftware()));
+        return bindings.computeIfAbsent("%s=false".formatted(FieldKeys.CSC.Digitization.SOFTWARE_IS_WORKING),
+                __ -> Bindings.not(centerSoftwareIsFunctioning()).and(centerIsEquippedWithCSSoftware()));
     }
 
     public ObservableBooleanValue centerSoftwareIsFunctioning() {
@@ -243,11 +400,13 @@ public class CSCFormModel extends FormModel {
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue centerUsesCustomSponsor() {
-        final var sponsor = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR);
-        return bindings.computeIfAbsent("%s=4".formatted(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR), __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(sponsor.getValue())
-                .map(Option::value)
-                .filter("4"::equals)
-                .isPresent(), sponsor));
+        final var sponsor = (ObjectProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR);
+        return bindings.computeIfAbsent("%s=4".formatted(FieldKeys.CSC.Digitization.CS_SOFTWARE_LICENSE_SPONSOR),
+                __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(sponsor.getValue())
+                        .map(Option::value)
+                        .filter("4"::equals)
+                        .isPresent(), sponsor));
     }
 
     public ObservableBooleanValue centerIsEquippedWithCSSoftware() {
@@ -263,12 +422,9 @@ public class CSCFormModel extends FormModel {
     }
 
     public ObservableBooleanValue centerCanHaveStats() {
-        return bindings.computeIfAbsent("center_can_have_stats", __ ->
-                Bindings.and(
-                        structureIsFunctional(),
-                        structureCategoryIsIn("1", "2")
-                )
-        );
+        ObservableBooleanValue categoryCheck = structureIsPrimaryOrSecondary();
+        ObservableBooleanValue functional = structureIsFunctional();
+        return bindings.computeIfAbsent("center_can_have_stats", __ -> Bindings.and(functional, categoryCheck));
     }
 
     public ObservableBooleanValue centerHasInternetConnection() {
@@ -277,18 +433,22 @@ public class CSCFormModel extends FormModel {
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue centerHasOtherInternetType() {
-        final var internetTypeProperty = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Infrastructure.INTERNET_TYPE);
-        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.INTERNET_TYPE, __ -> Bindings.createBooleanBinding(() -> internetTypeProperty.stream()
-                .map(Option::value)
-                .anyMatch("4"::equals), internetTypeProperty));
+        final var internetTypeProperty = (ListProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Infrastructure.INTERNET_TYPE);
+        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.INTERNET_TYPE,
+                __ -> Bindings.createBooleanBinding(() -> internetTypeProperty.stream()
+                        .map(Option::value)
+                        .anyMatch("4"::equals), internetTypeProperty));
     }
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue centerHasOtherNetworkType() {
-        final var networkTypeProperty = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Infrastructure.NETWORK_TYPE);
-        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.NETWORK_TYPE, __ -> Bindings.createBooleanBinding(() -> networkTypeProperty.stream()
-                .map(Option::value)
-                .anyMatch("4"::equals), networkTypeProperty));
+        final var networkTypeProperty = (ListProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Infrastructure.NETWORK_TYPE);
+        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.NETWORK_TYPE,
+                __ -> Bindings.createBooleanBinding(() -> networkTypeProperty.stream()
+                        .map(Option::value)
+                        .anyMatch("4"::equals), networkTypeProperty));
     }
 
     public ObservableBooleanValue centerHasToilets() {
@@ -297,10 +457,12 @@ public class CSCFormModel extends FormModel {
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue centerHasOtherBackupPower() {
-        final var backupPower = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES);
-        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES, __ -> Bindings.createBooleanBinding(() -> backupPower.stream()
-                .map(Option::value)
-                .anyMatch("autre_precisez"::equals), backupPower));
+        final var backupPower = (ListProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES);
+        return bindings.computeIfAbsent(FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES,
+                __ -> Bindings.createBooleanBinding(() -> backupPower.stream()
+                        .map(Option::value)
+                        .anyMatch("autre_precisez"::equals), backupPower));
     }
 
     public ObservableBooleanValue centerHasBackupPower() {
@@ -314,11 +476,12 @@ public class CSCFormModel extends FormModel {
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue centerHasTarredRoad() {
         final var roadTypeProperty = (ObjectProperty<Option>) getPropertyFor(FieldKeys.CSC.Accessibility.ROAD_OBSTACLE);
-        return bindings.computeIfAbsent(FieldKeys.CSC.Accessibility.ROAD_OBSTACLE, __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(roadTypeProperty.getValue())
-                        .map(Option::value)
-                        .filter("1"::equals)
-                        .isPresent(),
-                roadTypeProperty));
+        return bindings.computeIfAbsent(FieldKeys.CSC.Accessibility.ROAD_OBSTACLE,
+                __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(roadTypeProperty.getValue())
+                                .map(Option::value)
+                                .filter("1"::equals)
+                                .isPresent(),
+                        roadTypeProperty));
     }
 
     public ObservableBooleanValue structureIsChiefdom() {
@@ -327,12 +490,13 @@ public class CSCFormModel extends FormModel {
 
     @SuppressWarnings("unchecked")
     public ObservableBooleanValue nonFunctionalReasonIsUnknown() {
-        final var reasonProperty = (ListProperty<Option>) getPropertyFor(FieldKeys.CSC.Identification.NON_FUNCTION_REASON);
-        return bindings.computeIfAbsent(FieldKeys.CSC.Identification.NON_FUNCTION_REASON, __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(reasonProperty.getValue())
-                        .filter(l -> l.stream().map(Option::value).anyMatch("6"::equals))
-                        .isPresent(),
-                reasonProperty
-        ));
+        final var reasonProperty = (ListProperty<Option>) getPropertyFor(
+                FieldKeys.CSC.Identification.NON_FUNCTION_REASON);
+        return bindings.computeIfAbsent(FieldKeys.CSC.Identification.NON_FUNCTION_REASON,
+                __ -> Bindings.createBooleanBinding(() -> Optional.ofNullable(reasonProperty.getValue())
+                                .filter(l -> l.stream().map(Option::value).anyMatch("6"::equals))
+                                .isPresent(),
+                        reasonProperty));
     }
 
     public ObservableBooleanValue structureOfficerAppointed() {

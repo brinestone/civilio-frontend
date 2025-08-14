@@ -1,26 +1,18 @@
 package fr.civipol.civilio.form.field.table;
 
-import com.dlsc.formsfx.model.util.TranslationService;
-import fr.civipol.civilio.domain.converter.OptionConverter;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ColumnDefinition<T, V> {
+public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
     @Getter(AccessLevel.PACKAGE)
     private final String titleKey, fieldKey;
     @Getter(AccessLevel.PACKAGE)
@@ -33,29 +25,29 @@ public class ColumnDefinition<T, V> {
     private final ObjectProperty<StringConverter<V>> converter = new SimpleObjectProperty<>();
     private final StringProperty title = new SimpleStringProperty();
 
-    public ColumnDefinition<T, V> withValidator(Predicate<V> predicate) {
+    public ColumnDefinition<T, V, C> withValidator(Predicate<V> predicate) {
         this.validator.set(predicate);
-        return this;
+        return (C) this;
     }
 
-    public ColumnDefinition<T, V> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
+    public ColumnDefinition<T, V, C> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
         this.valueProvider.set(provider);
-        return this;
+        return (C) this;
     }
 
-    public ColumnDefinition<T, V> withConverter(StringConverter<V> converter) {
+    public ColumnDefinition<T, V, C> withConverter(StringConverter<V> converter) {
         this.converter.set(converter);
-        return this;
+        return (C) this;
     }
 
-    public ColumnDefinition<T, V> editable(boolean editable) {
+    public ColumnDefinition<T, V, C> editable(boolean editable) {
         this.editable.set(editable);
-        return this;
+        return (C) this;
     }
 
-    public ColumnDefinition<T, V> width(double width) {
+    public ColumnDefinition<T, V, C> width(double width) {
         this.tableColumn.setPrefWidth(width);
-        return this;
+        return (C) this;
     }
 
     ColumnDefinition(String titleKey, String fieldKey, Supplier<TableCell<T, V>> cellSupplier) {
@@ -75,7 +67,6 @@ public class ColumnDefinition<T, V> {
     }
 
     public static <V> StringColumnDefinition<V> ofStringType(String titleKey, String fieldKey) {
-        Supplier<TableCell<V, String>> supplier = TextFieldTableCell::new;
         return new StringColumnDefinition<>(titleKey, fieldKey);
     }
 
@@ -87,10 +78,8 @@ public class ColumnDefinition<T, V> {
         return new MultiSelectionColumnDefinition<>(titleKey, fieldKey, options, converter);
     }
 
-    public static <V> ColumnDefinition<V, Boolean> ofBooleanType(String titleKey, String fieldKey) {
-        final var definition = new ColumnDefinition<V, Boolean>(titleKey, fieldKey, null);
-        definition.cellSupplier = () -> new CheckBoxTableCell<>(index -> definition.valueProvider.get().apply(fieldKey, index));
-        return definition;
+    public static <V> BooleanColumnDefinition<V> ofBooleanType(String titleKey, String fieldKey) {
+        return new BooleanColumnDefinition<>(titleKey, fieldKey);
     }
 
     public static <V> SpinnerColumnDefinition<V, Float> ofFloatType(String titleKey, String fieldKey) {

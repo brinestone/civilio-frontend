@@ -4,7 +4,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DefaultStringConverter;
 
-public class StringColumnDefinition<V> extends ColumnDefinition<V, String> {
+public class StringColumnDefinition<V> extends ColumnDefinition<V, String, StringColumnDefinition<V>> {
     private static <V> TableCell<V, String> defaultSupplier() {
         return new TextFieldTableCell<>();
     }
@@ -15,7 +15,6 @@ public class StringColumnDefinition<V> extends ColumnDefinition<V, String> {
     }
 
     public StringColumnDefinition<V> withAutoCompletion() {
-
         return this;
     }
 }

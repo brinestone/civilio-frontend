@@ -54,7 +54,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
             }
         });
 
-        field.getColumnDefinitions().addListener((ListChangeListener<ColumnDefinition<V, ?>>) c -> {
+        field.getColumnDefinitions().addListener((ListChangeListener<ColumnDefinition>) c -> {
             while (c.next()) {
                 if (c.wasAdded()) {
                     int end = c.getFrom() + c.getRemovedSize();
@@ -66,7 +66,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
                             column.editableProperty().bind(field.editableProperty());
                         column.setUserData(columnDefinition);
                         column.setCellFactory(param -> {
-                            final TableCell cell = columnDefinition.getCellSupplier().get();
+                            final TableCell cell = (TableCell) columnDefinition.getCellSupplier().get();
                             if (cell instanceof ComboBoxTableCell cb) {
                                 cb.converterProperty().bind(columnDefinition.converterProperty());
                             }
@@ -137,6 +137,7 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         tcSelection.setPrefWidth(50);
         btnAdd.setCursor(Cursor.HAND);
         btnRemoveSelection.setCursor(Cursor.HAND);
+        tcSelection.setSortable(false);
     }
 
     @Override
