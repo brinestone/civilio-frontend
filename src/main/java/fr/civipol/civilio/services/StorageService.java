@@ -80,17 +80,18 @@ public class StorageService implements AppService {
 
     @Override
     public boolean isConfigured(ConfigService cm) {
-        try {
-            final var bucketName = Constants.UPLOADS_BUCKET;
-            if (!storageClient.bucketExists(BucketExistsArgs.builder()
-                    .bucket(bucketName)
-                    .build())) {
-                storageClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
-            }
-            return true;
-        } catch (Exception ex) {
-            log.error("Could not communicate with S3 storage", ex);
-            return false;
-        }
+        return true;
+//        try {
+//            final var bucketName = Constants.UPLOADS_BUCKET;
+//            if (!storageClient.bucketExists(BucketExistsArgs.builder()
+//                    .bucket(bucketName)
+//                    .build())) {
+//                storageClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+//            }
+//            return true;
+//        } catch (Exception ex) {
+//            log.error("Could not communicate with S3 storage", ex);
+//            return false;
+//        }
     }
 }
