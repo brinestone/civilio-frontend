@@ -52,7 +52,7 @@ public class BackgroundModule {
         }
         final var config = new HikariConfig();
         config.setPassword(pass.get());
-        config.setMaximumPoolSize(4);
+        config.setMaximumPoolSize(Math.min(Runtime.getRuntime().availableProcessors(), 2));
         config.setUsername(user.get());
         config.setDataSourceClassName("org.postgresql.ds.PGSimpleDataSource");
         config.setJdbcUrl("jdbc:postgresql://%s:%d/%s".formatted(host.get(), port.get(), dbName.get()));

@@ -17,12 +17,16 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 import static fr.civipol.civilio.form.FieldKeys.Chiefdom.*;
 
 @Slf4j
 @SuppressWarnings("DuplicatedCode")
 public class ChefferieFormModel extends FormModel {
+    private static final String[] REGION_IDS = IntStream.rangeClosed(1, 7)
+            .mapToObj("%02d"::formatted)
+            .toArray(String[]::new);
     private final Map<String, Property<?>> valueProperties = new HashMap<>();
     private final Map<String, ListProperty<Option>> options = new HashMap<>();
 
@@ -166,50 +170,50 @@ public class ChefferieFormModel extends FormModel {
             log.debug("Already tracking fields, skipping.");
             return;
         }
-        trackUpdatesForField(RESPONDENT_NAME);
-        trackUpdatesForField(POSITION);
-        trackUpdatesForField(EMAIL);
-        trackUpdatesForField(CREATION_DATE);
-        trackUpdatesForField(DIVISION);
-        trackUpdatesForField(MUNICIPALITY);
-        trackUpdatesForField(QUARTER);
-        trackUpdatesForField(FACILITY_NAME);
-        trackUpdatesForField(CLASSIFICATION);
-        trackUpdatesForField(HEALTH_CENTER_PROXIMITY);
-        trackUpdatesForField(GPS_COORDS);
+        trackChangesForField(RESPONDENT_NAME);
+        trackChangesForField(POSITION);
+        trackChangesForField(EMAIL);
+        trackChangesForField(CREATION_DATE);
+        trackChangesForField(DIVISION);
+        trackChangesForField(MUNICIPALITY);
+        trackChangesForField(QUARTER);
+        trackChangesForField(FACILITY_NAME);
+        trackChangesForField(CLASSIFICATION);
+        trackChangesForField(HEALTH_CENTER_PROXIMITY);
+        trackChangesForField(GPS_COORDS);
         // trackUpdatesForField(RECEPTION_AREA);
         // trackUpdatesForField(OTHER_RECEPTION_AREA);
-        trackUpdatesForField(CS_OFFICER_TRAINED);
-        trackUpdatesForField(WAITING_ROOM);
-        trackUpdatesForField(OTHER_WAITING_ROOM);
-        trackUpdatesForField(IS_CHIEF_CS_OFFICER);
-        trackUpdatesForField(CHIEF_OATH);
-        trackUpdatesForField(CS_REG_LOCATION);
-        trackUpdatesForField(OTHER_CS_REG_LOCATION);
-        trackUpdatesForField(TOILETS_ACCESSIBLE);
-        trackUpdatesForField(PC_COUNT);
-        trackUpdatesForField(PRINTER_COUNT);
-        trackUpdatesForField(TABLET_COUNT);
-        trackUpdatesForField(CAR_COUNT);
-        trackUpdatesForField(BIKE_COUNT);
-        trackUpdatesForField(IS_CHIEFDOM_CHIEF_RESIDENCE);
-        trackUpdatesForField(HAS_INTERNET);
-        trackUpdatesForField(INTERNET_TYPE);
-        trackUpdatesForField(OTHER_INTERNET_TYPE);
-        trackUpdatesForField(HAS_ENEO_CONNECTION);
-        trackUpdatesForField(WATER_ACCESS);
-        trackUpdatesForField(WATER_SOURCES);
-        trackUpdatesForField(OTHER_WATER_SOURCE);
-        trackUpdatesForField(HAS_EXTINGUISHER);
-        trackUpdatesForField(EMPLOYEE_COUNT);
-        trackUpdatesForField(EXTRA_INFO);
+        trackChangesForField(CS_OFFICER_TRAINED);
+        trackChangesForField(WAITING_ROOM);
+        trackChangesForField(OTHER_WAITING_ROOM);
+        trackChangesForField(IS_CHIEF_CS_OFFICER);
+        trackChangesForField(CHIEF_OATH);
+        trackChangesForField(CS_REG_LOCATION);
+        trackChangesForField(OTHER_CS_REG_LOCATION);
+        trackChangesForField(TOILETS_ACCESSIBLE);
+        trackChangesForField(PC_COUNT);
+        trackChangesForField(PRINTER_COUNT);
+        trackChangesForField(TABLET_COUNT);
+        trackChangesForField(CAR_COUNT);
+        trackChangesForField(BIKE_COUNT);
+        trackChangesForField(IS_CHIEFDOM_CHIEF_RESIDENCE);
+        trackChangesForField(HAS_INTERNET);
+        trackChangesForField(INTERNET_TYPE);
+        trackChangesForField(OTHER_INTERNET_TYPE);
+        trackChangesForField(HAS_ENEO_CONNECTION);
+        trackChangesForField(WATER_ACCESS);
+        trackChangesForField(WATER_SOURCES);
+        trackChangesForField(OTHER_WATER_SOURCE);
+        trackChangesForField(HAS_EXTINGUISHER);
+        trackChangesForField(EMPLOYEE_COUNT);
+        trackChangesForField(EXTRA_INFO);
         fieldsTracked = true;
         log.debug("Tracking field changes");
     }
 
     @Override
     public void loadInitialOptions() {
-        options.get(DIVISION).setAll(optionSource.findOptions("division", "01"));
+        options.get(DIVISION).setAll(optionSource.findOptions("division", REGION_IDS));
         options.get(MUNICIPALITY).setAll(optionSource.findOptions("commune"));
         options.get(CLASSIFICATION).setAll(optionSource.findOptions("vb2qk85"));
         options.get(WATER_SOURCES).setAll(optionSource.findOptions("zp4ec39"));

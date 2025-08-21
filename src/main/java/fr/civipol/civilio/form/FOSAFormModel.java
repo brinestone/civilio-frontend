@@ -18,10 +18,14 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 @Slf4j
 @SuppressWarnings("unchecked")
 public class FOSAFormModel extends FormModel {
+    private static final String[] REGION_IDS = IntStream.rangeClosed(1, 7)
+            .mapToObj("%02d"::formatted)
+            .toArray(String[]::new);
     private final StringProperty attachedCsc, officeName, respondentNames, position, phone, email, locality, quarter;
     private final ObjectProperty<LocalDate> creationDate;
     private final ListProperty<Option> deviceOptions, waterSourceTypes, waterSources, registeredEventTypes, eventRegistrationTypes,
@@ -150,57 +154,57 @@ public class FOSAFormModel extends FormModel {
             log.debug("Already tracking fields, skipping.");
             return;
         }
-        trackUpdatesForField(FieldKeys.Fosa.RESPONDING_DEVICE);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_1);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_2);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_3);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_4);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_YEAR_5);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_1);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_2);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_3);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_4);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_5);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_1);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_2);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_3);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_4);
-        trackUpdatesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_5);
-        trackUpdatesForField(FieldKeys.Fosa.PERSONNEL_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.BIKE_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.CAR_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.TABLET_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.PRINTER_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.PC_COUNT);
-        trackUpdatesForField(FieldKeys.Fosa.ENVIRONMENT_TYPE);
-        trackUpdatesForField(FieldKeys.Fosa.WATER_SOURCES);
-        trackUpdatesForField(FieldKeys.Fosa.HAS_INTERNET_CONNECTION);
-        trackUpdatesForField(FieldKeys.Fosa.HAS_BACKUP_POWER_SOURCE);
-        trackUpdatesForField(FieldKeys.Fosa.HAS_ENEO_CONNECTION);
-        trackUpdatesForField(FieldKeys.Fosa.HAS_TOILET_FIELD);
-        trackUpdatesForField(FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS);
-        trackUpdatesForField(FieldKeys.Fosa.SEND_BIRTH_DECLARATIONS_TO_CSC);
-        trackUpdatesForField(FieldKeys.Fosa.USES_DHIS_FORMS);
-        trackUpdatesForField(FieldKeys.Fosa.USES_BUNEC_BIRTH_FORM);
-        trackUpdatesForField(FieldKeys.Fosa.USES_DHIS);
-        trackUpdatesForField(FieldKeys.Fosa.GEO_POINT);
-        trackUpdatesForField(FieldKeys.Fosa.CSC_DISTANCE);
-        trackUpdatesForField(FieldKeys.Fosa.ATTACHED_CSC);
-        trackUpdatesForField(FieldKeys.Fosa.HAS_MATERNITY);
-        trackUpdatesForField(FieldKeys.Fosa.STATUS);
-        trackUpdatesForField(FieldKeys.Fosa.FACILITY_TYPE);
-        trackUpdatesForField(FieldKeys.Fosa.HEALTH_AREA);
-        trackUpdatesForField(FieldKeys.Fosa.DISTRICT);
-        trackUpdatesForField(FieldKeys.Fosa.OFFICE_NAME);
-        trackUpdatesForField(FieldKeys.Fosa.LOCALITY);
-        trackUpdatesForField(FieldKeys.Fosa.QUARTER);
-        trackUpdatesForField(FieldKeys.Fosa.MUNICIPALITY);
-        trackUpdatesForField(FieldKeys.Fosa.DIVISION);
-        trackUpdatesForField(FieldKeys.Fosa.CREATION_DATE);
-        trackUpdatesForField(FieldKeys.Fosa.RESPONDENT_NAME);
-        trackUpdatesForField(FieldKeys.Fosa.POSITION);
-        trackUpdatesForField(FieldKeys.Fosa.PHONE);
-        trackUpdatesForField(FieldKeys.Fosa.MAIL);
+        trackChangesForField(FieldKeys.Fosa.RESPONDING_DEVICE);
+        trackChangesForField(FieldKeys.Fosa.STATS_YEAR_1);
+        trackChangesForField(FieldKeys.Fosa.STATS_YEAR_2);
+        trackChangesForField(FieldKeys.Fosa.STATS_YEAR_3);
+        trackChangesForField(FieldKeys.Fosa.STATS_YEAR_4);
+        trackChangesForField(FieldKeys.Fosa.STATS_YEAR_5);
+        trackChangesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_1);
+        trackChangesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_2);
+        trackChangesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_3);
+        trackChangesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_4);
+        trackChangesForField(FieldKeys.Fosa.STATS_BIRTH_COUNT_5);
+        trackChangesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_1);
+        trackChangesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_2);
+        trackChangesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_3);
+        trackChangesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_4);
+        trackChangesForField(FieldKeys.Fosa.STATS_DEATH_COUNT_5);
+        trackChangesForField(FieldKeys.Fosa.PERSONNEL_COUNT);
+        trackChangesForField(FieldKeys.Fosa.BIKE_COUNT);
+        trackChangesForField(FieldKeys.Fosa.CAR_COUNT);
+        trackChangesForField(FieldKeys.Fosa.TABLET_COUNT);
+        trackChangesForField(FieldKeys.Fosa.PRINTER_COUNT);
+        trackChangesForField(FieldKeys.Fosa.PC_COUNT);
+        trackChangesForField(FieldKeys.Fosa.ENVIRONMENT_TYPE);
+        trackChangesForField(FieldKeys.Fosa.WATER_SOURCES);
+        trackChangesForField(FieldKeys.Fosa.HAS_INTERNET_CONNECTION);
+        trackChangesForField(FieldKeys.Fosa.HAS_BACKUP_POWER_SOURCE);
+        trackChangesForField(FieldKeys.Fosa.HAS_ENEO_CONNECTION);
+        trackChangesForField(FieldKeys.Fosa.HAS_TOILET_FIELD);
+        trackChangesForField(FieldKeys.Fosa.CSC_EVENT_REGISTRATIONS);
+        trackChangesForField(FieldKeys.Fosa.SEND_BIRTH_DECLARATIONS_TO_CSC);
+        trackChangesForField(FieldKeys.Fosa.USES_DHIS_FORMS);
+        trackChangesForField(FieldKeys.Fosa.USES_BUNEC_BIRTH_FORM);
+        trackChangesForField(FieldKeys.Fosa.USES_DHIS);
+        trackChangesForField(FieldKeys.Fosa.GEO_POINT);
+        trackChangesForField(FieldKeys.Fosa.CSC_DISTANCE);
+        trackChangesForField(FieldKeys.Fosa.ATTACHED_CSC);
+        trackChangesForField(FieldKeys.Fosa.HAS_MATERNITY);
+        trackChangesForField(FieldKeys.Fosa.STATUS);
+        trackChangesForField(FieldKeys.Fosa.FACILITY_TYPE);
+        trackChangesForField(FieldKeys.Fosa.HEALTH_AREA);
+        trackChangesForField(FieldKeys.Fosa.DISTRICT);
+        trackChangesForField(FieldKeys.Fosa.OFFICE_NAME);
+        trackChangesForField(FieldKeys.Fosa.LOCALITY);
+        trackChangesForField(FieldKeys.Fosa.QUARTER);
+        trackChangesForField(FieldKeys.Fosa.MUNICIPALITY);
+        trackChangesForField(FieldKeys.Fosa.DIVISION);
+        trackChangesForField(FieldKeys.Fosa.CREATION_DATE);
+        trackChangesForField(FieldKeys.Fosa.RESPONDENT_NAME);
+        trackChangesForField(FieldKeys.Fosa.POSITION);
+        trackChangesForField(FieldKeys.Fosa.PHONE);
+        trackChangesForField(FieldKeys.Fosa.MAIL);
         trackingUpdates = true;
         log.debug("Tracking field changes");
     }
@@ -446,7 +450,7 @@ public class FOSAFormModel extends FormModel {
     }
 
     public void loadInitialOptions() {
-        divisions.setAll(optionSource.findOptions("division", "01"));
+        divisions.setAll(optionSource.findOptions("division", REGION_IDS));
         environmentTypes.setAll(optionSource.findOptions("vb2qk85"));
         districts.setAll(optionSource.findOptions("district"));
         fosaTypes.setAll(optionSource.findOptions("pa9ii12"));

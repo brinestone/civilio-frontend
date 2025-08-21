@@ -112,7 +112,6 @@ public class ChefferieFormController extends FormController implements Initializ
     @FXML
     private Tab tabExtra;
     private Form extrasForm, respondentForm, structureIdForm, serviceForm, equipmentForm, personnelForm;
-    private final Map<String, Collection<Option>> optionsCache = new HashMap<>();
     private boolean optionsLoaded = false;
 
     @Override
@@ -126,8 +125,8 @@ public class ChefferieFormController extends FormController implements Initializ
                 final var options = formService.findFormOptions(FormType.CHIEFDOM);
                 if (options != null && !options.isEmpty()) {
                     Platform.runLater(() -> {
-                        ChefferieFormController.this.optionsCache.clear();
-                        ChefferieFormController.this.optionsCache.putAll(options);
+                        ChefferieFormController.this.allOptions.clear();
+                        ChefferieFormController.this.allOptions.putAll(options);
                         log.debug("Loaded {} options", options.size());
                     });
                 }
@@ -148,13 +147,6 @@ public class ChefferieFormController extends FormController implements Initializ
     @Override
     protected Map<String, String> loadSubmissionData() throws Exception {
         return formService.findSubmissionData(submissionIndex.get(), FormType.CHIEFDOM, this::keyMaker);
-    }
-
-    @Override
-    public Collection<Option> findOptions(String group, String parent) {
-        return optionsCache.getOrDefault(group, Collections.emptyList()).stream()
-                .filter(o -> Objects.equals(o.parent(), parent))
-                .toList();
     }
 
     @SuppressWarnings("DuplicatedCode")
@@ -504,7 +496,7 @@ public class ChefferieFormController extends FormController implements Initializ
                 .ofMultiSelectionType(model.getOptionsFor(INTERNET_TYPE),
                         (ListProperty<Option>) model.getPropertyFor(INTERNET_TYPE))
                 .label(INTERNET_TYPE)
-                .render(createMultiOptionComboBox(ts, model.getOptionsFor(INTERNET_TYPE)))
+                .render(createMultiOptionComboBox(ts))
                 .valueDescription("chefferie.form.fields.typeConnexion.description")
                 .span(ColSpan.HALF);
         internetTypeAvailable.addListener((ob, ov, nv) -> internetTypeControl
@@ -516,7 +508,7 @@ public class ChefferieFormController extends FormController implements Initializ
                         (ListProperty<Option>) model.getPropertyFor(WATER_SOURCES))
                 .label(WATER_SOURCES)
                 .valueDescription("chefferie.form.fields.waterType.description")
-                .render(createMultiOptionComboBox(ts, model.getOptionsFor(WATER_SOURCES)))
+                .render(createMultiOptionComboBox(ts))
                 .span(ColSpan.THIRD);
 
         final var otherWaterSourceControl = Field

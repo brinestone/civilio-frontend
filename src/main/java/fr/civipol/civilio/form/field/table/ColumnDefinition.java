@@ -1,25 +1,23 @@
 package fr.civipol.civilio.form.field.table;
 
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.cell.CheckBoxTableCell;
-import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.Collection;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class ColumnDefinition<T, V> {
+public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
     @Getter(AccessLevel.PACKAGE)
     private final String titleKey, fieldKey;
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private Supplier<TableCell<T, V>> cellSupplier;
     @Getter(AccessLevel.PACKAGE)
     private final TableColumn<T, V> tableColumn = new TableColumn<>();
@@ -29,27 +27,27 @@ public class ColumnDefinition<T, V> {
     private final ObjectProperty<StringConverter<V>> converter = new SimpleObjectProperty<>();
     private final StringProperty title = new SimpleStringProperty();
 
-    public ColumnDefinition<T, V> withValidator(Predicate<V> predicate) {
+    public ColumnDefinition<T, V, C> withValidator(Predicate<V> predicate) {
         this.validator.set(predicate);
         return this;
     }
 
-    public ColumnDefinition<T, V> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
+    public ColumnDefinition<T, V, C> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
         this.valueProvider.set(provider);
         return this;
     }
 
-    public ColumnDefinition<T, V> withConverter(StringConverter<V> converter) {
+    public ColumnDefinition<T, V, C> withConverter(StringConverter<V> converter) {
         this.converter.set(converter);
         return this;
     }
 
-    public ColumnDefinition<T, V> editable(boolean editable) {
+    public ColumnDefinition<T, V, C> editable(boolean editable) {
         this.editable.set(editable);
         return this;
     }
 
-    public ColumnDefinition<T, V> width(double width) {
+    public ColumnDefinition<T, V, C> width(double width) {
         this.tableColumn.setPrefWidth(width);
         return this;
     }
@@ -63,36 +61,43 @@ public class ColumnDefinition<T, V> {
 
     private void setupTableColumn() {
         tableColumn.textProperty().bind(title);
-        tableColumn.setCellValueFactory(param -> {
-            final var index = param.getTableView().getItems().indexOf(param.getValue());
-            return valueProvider.get().apply(fieldKey, index);
-        });
+        tableColumn.editableProperty().bind(editable);
+        tableColumn.setCellValueFactory(param -> Optional.ofNullable(valueProvider.getValue())
+                .map(fn -> fn.apply(fieldKey, param.getTableView().getItems().indexOf(param.getValue())))
+                .orElse(new SimpleObjectProperty<>()));
         tableColumn.setCellFactory(param -> cellSupplier.get());
     }
 
-    public static <V> ColumnDefinition<V, String> ofStringType(String titleKey, String fieldKey) {
-        Supplier<TableCell<V, String>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+    public static <V> StringColumnDefinition<V> ofStringType(String fieldKey) {
+        return new StringColumnDefinition<>(fieldKey, fieldKey);
     }
 
-    public static <V, R> ColumnDefinition<V, R> ofSelectionType(Collection<R> options, String titleKey, String fieldKey) {
-        Supplier<TableCell<V, R>> supplier = () -> new ComboBoxTableCell<>(FXCollections.observableArrayList(options));
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+    public static <V, R> SingleSelectionColumnDefinition<V, R> ofSingleSelectionType(StringConverter<R> converter, ObservableList<R> options, String fieldKey) {
+        return new SingleSelectionColumnDefinition<>(fieldKey, fieldKey, options, converter);
     }
 
-    public static <V> ColumnDefinition<V, Boolean> ofBooleanType(String titleKey, String fieldKey) {
-        final var definition = new ColumnDefinition<V, Boolean>(titleKey, fieldKey, null);
-        definition.cellSupplier = () -> new CheckBoxTableCell<>(index -> definition.valueProvider.get().apply(fieldKey, index));
-        return definition;
+    public static <V, R> MultiSelectionColumnDefinition<V, R> ofMultiSelectionType(String fieldKey, ObservableList<R> options, StringConverter<R> converter) {
+        return new MultiSelectionColumnDefinition<>(fieldKey, fieldKey, options, converter);
     }
 
-    public static <V> ColumnDefinition<V, Integer> ofIntegerType(String titleKey, String fieldKey) {
-        Supplier<TableCell<V, Integer>> supplier = TextFieldTableCell::new;
-        return new ColumnDefinition<>(titleKey, fieldKey, supplier);
+    public static <V> BooleanColumnDefinition<V> ofBooleanType(String fieldKey) {
+        return new BooleanColumnDefinition<>(fieldKey, fieldKey);
+    }
+
+    public static <V> SpinnerColumnDefinition<V, Float> ofFloatType(String fieldKey) {
+        return SpinnerColumnDefinition.ofFloatType(fieldKey, fieldKey);
+    }
+
+    public static <V> SpinnerColumnDefinition<V, Integer> ofIntegerType(String fieldKey) {
+        return SpinnerColumnDefinition.ofIntegerType(fieldKey, fieldKey);
     }
 
     public boolean isEditable() {
         return editable.get();
+    }
+
+    public BooleanProperty editableProperty() {
+        return editable;
     }
 
     public StringProperty titleProperty() {

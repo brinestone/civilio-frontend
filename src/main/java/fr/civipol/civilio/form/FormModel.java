@@ -9,6 +9,7 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public abstract class FormModel {
     protected static final String DELIMITER_TOKEN_PATTERN = "[, ]";
     protected final ObservableMap<String, FieldChange> changes = FXCollections.observableHashMap();
+    protected final Map<String, Object> trackingListeners = new HashMap<>();
     private final StringProperty index = new SimpleStringProperty(this, "index"), validationCode = new SimpleStringProperty(this, "validationCode");
     protected final Function<String, ?> valueSource;
 
@@ -156,7 +158,7 @@ public abstract class FormModel {
                 return 0.0;
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Integer.class::equals).isPresent()) {
             if (raw instanceof String s && StringUtils.isNotBlank(s))
-                return Double.valueOf(Math.max(Integer.parseInt(s), 0.0)).intValue();
+                return Double.valueOf(Math.max(Double.parseDouble(s), 0.0)).intValue();
             else if (raw instanceof Double d)
                 return d.intValue();
             else
@@ -207,24 +209,29 @@ public abstract class FormModel {
     public abstract ListProperty<Option> getOptionsFor(String field);
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    protected void trackUpdatesForField(String field) {
+    protected void trackChangesForField(String field) {
         final var property = getPropertyFor(field);
         if (property instanceof ListProperty l) {
             final var initialValue = List.copyOf(l);
-            l.addListener((ListChangeListener) c -> {
+            ListChangeListener listChangeListener = c -> {
                 final var entry = changes.computeIfAbsent(field, k -> new FieldChange(k, null, initialValue, 0, false));
                 while (c.next()) {
                     entry.setNewValue(List.copyOf(l));
                 }
-            });
-        } else
-            property.addListener((ob, ov, nv) -> {
+            };
+            l.addListener(listChangeListener);
+            trackingListeners.put(field, listChangeListener);
+        } else {
+            ChangeListener changeListener = (ob, ov, nv) -> {
                 final var updatesEntry = changes.computeIfAbsent(field, k -> new FieldChange(k, nv, ov, 0, false));
                 updatesEntry.setNewValue(nv);
 
                 if (Objects.equals(nv, updatesEntry.getOldValue()))
                     changes.remove(field);
-            });
+            };
+            property.addListener(changeListener);
+            trackingListeners.put(field, changeListener);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -240,8 +247,8 @@ public abstract class FormModel {
     public void loadValues() {
         loadValue(getIndexFieldKey(), "");
         loadValue(getValidationCodeFieldKey(), "");
-        trackUpdatesForField(getIndexFieldKey());
-        trackUpdatesForField(getValidationCodeFieldKey());
+        trackChangesForField(getIndexFieldKey());
+        trackChangesForField(getValidationCodeFieldKey());
     }
 
     public void updateTrackedPersonnelFields(FieldChange update) {

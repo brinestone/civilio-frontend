@@ -4,6 +4,7 @@ import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.validators.CustomValidator;
 import com.dlsc.preferencesfx.PreferencesFx;
+import com.dlsc.preferencesfx.PreferencesFxEvent;
 import com.dlsc.preferencesfx.formsfx.view.controls.SimpleTextControl;
 import com.dlsc.preferencesfx.model.Category;
 import com.dlsc.preferencesfx.model.Group;
@@ -48,10 +49,11 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     private final FormService formService;
     private final ExecutorService executorService;
     private final Preferences prefs = Preferences.userRoot().node(Constants.FIELD_MAPPER_PREFS_NODE_PATH);
+    private String batchId;
 
     public PreferencesFx makePrefsForm() {
         final var ts = new ResourceBundleService(ResourceBundle.getBundle("messages"));
-        return PreferencesFx.of(this,
+        PreferencesFx form = PreferencesFx.of(this,
                         fosaFieldSettingsCategory(this),
                         chiefdomFieldSettingsCategory(this),
                         cscFieldSettingsCategory(this)
@@ -59,6 +61,18 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("/img/Logo32x32.png"))))
                 .dialogTitle(ts.translate("field_mapper.title"))
                 .instantPersistent(true);
+        form.addEventHandler(PreferencesFxEvent.EVENT_PREFERENCES_SAVED, ev -> {
+            executorService.submit(() -> {
+                try {
+                    formService.completeBatchOperation(batchId);
+                } catch (Throwable t) {
+                    log.error("could not complete field mapping updates", t);
+                } finally {
+                    batchId = null;
+                }
+            });
+        });
+        return form;
     }
 
     @Override
@@ -127,34 +141,33 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     }
 
     private FormType extractForm(String breadcrumb) {
-        String prefix = breadcrumb.substring(0, breadcrumb.indexOf("."));
-        if (prefix.equals("data_personnel")) return FormType.FOSA;
-        else if (prefix.equals("data_chefferie_personnel")) return FormType.CHIEFDOM;
-        return FormType.fromString(prefix);
+        final var firstSegment = breadcrumb.substring(0, breadcrumb.indexOf("#"));
+        final var formName = firstSegment.substring(firstSegment.lastIndexOf(".") + 1);
+        return FormType.fromString(formName);
     }
 
     @Override
     public void saveObject(String breadcrumb, Object object) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(key);
-        executorService.submit(() -> {
-            try {
-                var acceptableValue = object;
-                if (object instanceof String s && StringUtils.isBlank(s)) {
-                    acceptableValue = null;
-                }
-                assert acceptableValue instanceof String;
-                formService.updateFieldMapping(form, key, key, (String) acceptableValue);
-            } catch (Throwable t) {
-                log.error("error while updating object: " + breadcrumb, t);
+        final var form = extractForm(breadcrumb);
+        try {
+            if (StringUtils.isBlank(batchId))
+                batchId = formService.startBatchOperation();
+            var acceptableValue = object;
+            if (object instanceof String s && StringUtils.isBlank(s)) {
+                acceptableValue = null;
             }
-        });
+            assert acceptableValue instanceof String;
+            formService.updateFieldMapping(form, key, key, (String) acceptableValue, batchId);
+        } catch (Exception ex) {
+            log.error("error while updating object: " + breadcrumb, ex);
+        }
     }
 
     @Override
     public Object loadObject(String breadcrumb, Object defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(key);
+        final var form = extractForm(breadcrumb);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
@@ -240,13 +253,20 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.areas.title", FieldKeys.CSC.Areas.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.equipment.title", FieldKeys.CSC.Equipment.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.digitization.title", FieldKeys.CSC.Digitization.ALL_FIELDS),
+                groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.indexing.title", FieldKeys.CSC.RecordIndexing.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.record_procurement.title", FieldKeys.CSC.RecordProcurement.ALL_FIELDS),
-                groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.stats.title", FieldKeys.CSC.VitalStats.ALL_FIELDS),
+                groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.stats.title", FieldKeys.CSC.FinancialStats.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.archiving.title", FieldKeys.CSC.Archiving.ALL_FIELDS),
-                groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.deeds.title", FieldKeys.CSC.Deeds.ALL_FIELDS),
-                groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.records.title", FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.comments.title", FieldKeys.CSC.Comments.ALL_FIELDS)
         ).subCategories(
+                Category.of("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.title",
+                        groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.sections.general.title", Stream.of(
+                                        FieldKeys.CSC.PersonnelInfo.STATS_FIELDS)
+                                .toArray(String[]::new)),
+                        groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.sections.staff.title", FieldKeys.CSC.PersonnelInfo.STAFF_FIELDS)
+                ),
+                Category.of("mapper.categories.forms.csc.base_fields.sections.records.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.records.title", FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS)),
+                Category.of("mapper.categories.forms.csc.base_fields.sections.deeds.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.deeds.title", FieldKeys.CSC.Deeds.ALL_FIELDS)),
                 Category.of("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", FieldKeys.CSC.Accessibility.Villages.ALL_FIELDS)),
                 Category.of("mapper.categories.forms.csc.base_fields.sections.areas.sub_forms.rooms.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.areas.sub_forms.rooms.title", FieldKeys.CSC.Areas.Rooms.ALL_FIELDS))
         );
@@ -346,7 +366,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 .subCategories(
                         Category.of("mapper.categories.forms.chefferie.sub_forms.data_personnel.title",
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.data_personnel.title",
+                                        "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_NAME),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_POSITION),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_GENDER),
@@ -407,9 +427,9 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                                 settingFactory.apply(FieldKeys.Fosa.BIKE_COUNT),
                                 settingFactory.apply(FieldKeys.Fosa.PERSONNEL_COUNT)))
                 .subCategories(
-                        Category.of("mapper.categories.forms.fosa.sub_forms.title",
+                        Category.of("mapper.categories.forms.any.sub_forms.title",
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.data_personnel.title",
+                                        "fosa.form.sections.personnel_status.title",
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_NAME),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_POSITION),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_GENDER),

@@ -104,7 +104,11 @@ public class FormHeaderController implements AppController {
             });
         });
 
-        binding.setOnAutoCompleted(e -> submissionRef.setValue(e.getCompletion()));
+        binding.setOnAutoCompleted(e -> {
+            submissionRef.setValue(e.getCompletion());
+            submissionIdUpdatedExternally = true;
+            tfIndexSearch.setText(e.getCompletion().index());
+        });
         btnPrev.disableProperty().bind(Bindings.or(
                 Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                         .map(SubmissionRef::prev)

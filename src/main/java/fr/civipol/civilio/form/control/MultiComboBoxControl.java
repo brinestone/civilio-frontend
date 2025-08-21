@@ -6,14 +6,17 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.GridPane;
 import javafx.util.StringConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.CheckComboBox;
 
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V>> {
@@ -25,9 +28,9 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
     private Label readonlyLabel;
     private final ObjectProperty<StringConverter<V>> converter = new SimpleObjectProperty<>(this, "converter");
 
-    public MultiComboBoxControl(StringConverter<V> converter) {
+    public MultiComboBoxControl(Function<MultiSelectionField<V>, StringConverter<V>> converterProvider) {
         super();
-        setConverter(converter);
+        setConverter(converterProvider.apply(field));
     }
 
     public void setConverter(StringConverter<V> converter) {
@@ -38,11 +41,35 @@ public class MultiComboBoxControl<V> extends SimpleControl<MultiSelectionField<V
     public void layoutParts() {
         super.layoutParts();
         final var columns = field.getSpan();
-        final var stack = new StackPane();
-        stack.getChildren().addAll(comboBox, readonlyLabel);
-        comboBox.setPrefWidth(USE_COMPUTED_SIZE);
-        add(fieldLabel, 0, 0, 2, 1);
-        add(stack, 2, 0, columns - 2, 1);
+        int fieldLabelColSpan = 2;
+        int controlRowIndex = 0;
+        int controlRowSpan = 1;
+        int controlColIndex = 2;
+        int controlColSpan = columns - fieldLabelColSpan;
+        if (field.isBlockLabel()) {
+            fieldLabelColSpan = columns;
+            controlColIndex = 0;
+            controlRowIndex = 1;
+            controlColSpan = columns;
+        }
+
+        Node valueDescription = field.getValueDescription();
+        Node labelDescription = field.getLabelDescription();
+
+        add(fieldLabel, 0, 0, fieldLabelColSpan, 1);
+        if (labelDescription != null) {
+            GridPane.setValignment(labelDescription, VPos.TOP);
+            add(labelDescription, 0, 1, fieldLabelColSpan, 1);
+            controlRowIndex = 2;
+        }
+        add(comboBox, controlColIndex, controlRowIndex, controlColSpan, controlRowSpan);
+        GridPane.setFillWidth(comboBox, true);
+        add(readonlyLabel, controlColIndex, controlRowIndex, controlColSpan, controlRowSpan);
+        if (valueDescription != null) {
+            GridPane.setValignment(valueDescription, VPos.TOP);
+            add(valueDescription, controlColIndex, controlRowIndex + controlRowSpan, controlColSpan, 1);
+        }
+        comboBox.setMaxWidth(Double.MAX_VALUE);
         setHgap(5.0);
     }
 

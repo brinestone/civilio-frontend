@@ -23,8 +23,6 @@ import fr.civipol.civilio.entity.PersonnelInfo;
 import fr.civipol.civilio.form.FOSAFormModel;
 import fr.civipol.civilio.form.FieldKeys;
 import fr.civipol.civilio.form.FormModel;
-import fr.civipol.civilio.form.field.gps.GeoPointField;
-import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.form.field.PersonnelInfoField;
 import fr.civipol.civilio.services.FormService;
 import fr.civipol.civilio.services.PingService;
@@ -59,7 +57,6 @@ import java.util.stream.Stream;
 public class FOSAFormController extends FormController implements Initializable, OptionSource {
     private static final String PING_DOMAIN = "tile.openstreetmap.org";
     private boolean optionsLoaded = false;
-    private final Map<String, Collection<Option>> allOptions = new HashMap<>();
     private Form respondentForm, structureIdForm, eventRegistrationForm, equipmentForm, personnelForm;
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
@@ -201,13 +198,6 @@ public class FOSAFormController extends FormController implements Initializable,
         return formService.findSubmissionData(submissionIndex.get(), FormType.FOSA, this::keyMaker);
     }
 
-    @Override
-    public Collection<Option> findOptions(String group, String parent) {
-        return allOptions.getOrDefault(group, Collections.emptyList()).stream()
-                .filter(o -> Objects.equals(o.parent(), parent))
-                .toList();
-    }
-
     @SuppressWarnings("DuplicatedCode")
     private void configureForms(TranslationService ts) {
         setRespondentSection(ts);
@@ -268,7 +258,7 @@ public class FOSAFormController extends FormController implements Initializable,
                         model.emergencyPowerSourcesProperty())
                 .label("fosa.form.fields.alternative_power.title")
                 .span(ColSpan.THIRD)
-                .render(createMultiOptionComboBox(ts, model.emergencyPowerSourceTypesProperty()));
+                .render(createMultiOptionComboBox(ts));
         emergencyPowerSource.editableProperty().bind(model.emergencyPowerSourceAvailableProperty());
         model.emergencyPowerSourceAvailableProperty().addListener((ob, ov, nv) -> {
             if (!nv)
@@ -290,9 +280,7 @@ public class FOSAFormController extends FormController implements Initializable,
                                 Field.ofMultiSelectionType(model.waterSourceTypesProperty(),
                                                 model.waterSourcesProperty())
                                         .label("fosa.form.fields.water_source.title")
-                                        .render(createMultiOptionComboBox(
-                                                ts,
-                                                model.waterSourceTypesProperty()))
+                                        .render(createMultiOptionComboBox(ts))
                                         .span(ColSpan.THIRD)),
                         Section.of(
                                         Field.ofIntegerType(model.pcCountProperty())
@@ -351,7 +339,7 @@ public class FOSAFormController extends FormController implements Initializable,
                                 Field.ofMultiSelectionType(
                                                 model.eventRegistrationTypesProperty(),
                                                 model.registeredEventTypesProperty())
-                                        .render(createMultiOptionComboBox(ts, model.eventRegistrationTypesProperty()))
+                                        .render(createMultiOptionComboBox(ts))
                                         .label("fosa.form.fields.csc_event_reg_type.title")
                                         .valueDescription("fosa.form.fields.csc_event_reg_type.description")
                                         .span(ColSpan.TWO_THIRD),

@@ -21,3 +21,10 @@
 .tooltip {
     -fx-text-fill: white;
 }
+
+.field-value-description,
+.field-label-description {
+    -fx-font-style: italic;
+    -fx-opacity: 50%;
+    -fx-font-size: 11px;
+}

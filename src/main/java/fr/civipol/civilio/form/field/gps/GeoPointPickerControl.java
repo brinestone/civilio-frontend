@@ -5,7 +5,10 @@ import fr.civipol.civilio.domain.viewmodel.GeoPointViewModel;
 import fr.civipol.civilio.form.control.JsAgent;
 import fr.civipol.civilio.util.NotifyCallback;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
+import javafx.beans.property.FloatProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleFloatProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Worker;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -20,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import netscape.javascript.JSObject;
 
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Slf4j
 public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
@@ -58,6 +60,8 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
                 -fx-background-color: white;
                 """);
         connectivityNoticeLabel.setWrapText(true);
+        latLabel.getStyleClass().add("field-value-description");
+        lonLabel.getStyleClass().add("field-value-description");
     }
 
     @Override
@@ -71,12 +75,12 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
         labelContainer.setSpacing(2.0);
         labelContainer.getChildren().addAll(controlLabel, coordinateContainer);
         mapContainer.getChildren().setAll(mapView, connectivityNotice);
-        add(labelContainer, 0, 0, 3, REMAINING);
-        add(mapContainer, 4, 0, columns - 3, REMAINING);
+        add(labelContainer, 0, 0, 2, 1);
+        add(mapContainer, 4, 0, columns - 2, REMAINING);
         setVgap(5.0);
         mapView.setPrefHeight(180);
         connectivityNoticeLabel.setMaxWidth(150);
-        GridPane.setValignment(labelContainer, VPos.CENTER);
+        GridPane.setValignment(labelContainer, VPos.TOP);
         GridPane.setHalignment(mapContainer, HPos.LEFT);
         loadMapView();
     }

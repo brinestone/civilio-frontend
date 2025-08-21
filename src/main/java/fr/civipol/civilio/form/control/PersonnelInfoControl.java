@@ -233,32 +233,19 @@ public class PersonnelInfoControl extends SimpleControl<PersonnelInfoField> {
                         .findFirst()
                         .orElse(null)
         ));
-        tcComputerKnowledge.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.computerKnowledgeLevelsProperty().stream()
-                .filter(o -> o.value().equals(v))
-                .findFirst()
-                .orElse(null)),
-                field.computerKnowledgeLevelsProperty()));
+        tcComputerKnowledge.setCellFactory(param -> new ComboBoxTableCell<>(OptionConverter.usingOptions(translationService, field.computerKnowledgeLevelsProperty())));
 
         tcEducationLevel.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 field.educationLevelOptionsProperty().stream()
                         .filter(o -> o.value().equals(param.getValue().educationLevelProperty().getValueSafe()))
                         .findFirst()
                         .orElse(null)));
-        tcEducationLevel.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.educationLevelOptionsProperty().stream()
-                .filter(o -> o.value().equals(v))
-                .findFirst()
-                .orElse(null)),
-                field.educationLevelOptionsProperty()
-        ));
+        tcEducationLevel.setCellFactory(param -> new ComboBoxTableCell<>(OptionConverter.usingOptions(translationService, field.educationLevelOptionsProperty())));
 
         tcAge.setCellValueFactory(param -> param.getValue().ageProperty());
         tcAge.setCellFactory(param -> new TextFieldTableCell<>(new IntegerStringConverter()));
 
-        tcGender.setCellFactory(param -> new ComboBoxTableCell<>(new OptionConverter(translationService, v -> field.genderOptionsProperty().stream()
-                .filter(o -> o.value().equals(v))
-                .findFirst()
-                .orElse(null)),
-                field.genderOptionsProperty()));
+        tcGender.setCellFactory(param -> new ComboBoxTableCell<>(OptionConverter.usingOptions(translationService, field.genderOptionsProperty())));
         tcGender.setCellValueFactory(param -> new SimpleObjectProperty<>(
                 field.genderOptionsProperty().stream()
                         .filter(o -> o.value().equals(param.getValue().genderProperty().getValueSafe()))
