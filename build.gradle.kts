@@ -6,7 +6,7 @@ plugins {
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
-group = "fr.civipol"version = "1.0.1"
+group = "fr.civipol"version = "1.0.2"
 description = "A Civil Status data management tool."
 
 repositories {
