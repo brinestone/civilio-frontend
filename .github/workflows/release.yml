@@ -72,7 +72,7 @@ jobs:
         name: Setup Java
         with:
           java-version-file: .tool-versions
-          distribution: graalvm
+          distribution: temurin
           cache: gradle
       - name: Build Installer
         run: gradle jpackage
