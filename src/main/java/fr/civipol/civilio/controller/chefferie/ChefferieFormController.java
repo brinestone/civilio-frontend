@@ -76,7 +76,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class ChefferieFormController extends FormController implements Initializable, OptionSource {
+public class ChefferieFormController extends FormController implements Initializable {
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)

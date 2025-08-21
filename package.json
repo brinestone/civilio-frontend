@@ -2,8 +2,7 @@
   "name": "civilio",
   "version": "1.0.1",
   "scripts": {
-    "release": "standard-version",
-    "postrelease": "node version-bump.mjs"
+    "release": "standard-version"
   },
   "keywords": [],
   "author": "",

@@ -28,7 +28,6 @@ public class Bootstrapper extends Application {
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
-        var ignored = appComponent.stageManager();
         appComponent.eventBus().publish(new StageReadyEvent(primaryStage, configurationRequired));
         appComponent.eventBus().subscribe(RestartEvent.class, this::onRestartRequested);
     }

@@ -6,7 +6,8 @@ plugins {
     id("org.javamodularity.moduleplugin") version "1.8.15"
 }
 
-group = "fr.civipol"version = "1.0.2"
+group = "fr.civipol"
+version = "1.0.2"
 description = "A Civil Status data management tool."
 
 repositories {
@@ -240,4 +241,8 @@ tasks.named<Jar>("jar") {
         include("**/*.html")
         into("resources")
     }
+}
+
+tasks.processResources {
+    exclude("**/*.bak")
 }
