@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/brinestone/civilio-frontend/compare/v1.0.2...v1.1.0) (2025-08-21)
+
+
+### Features
+
+* Minor fixes ([7bbc96c](https://github.com/brinestone/civilio-frontend/commit/7bbc96cf39c035cd33c360508fdf9e0509c9794a))
+
 ### [1.0.2](https://github.com/brinestone/civilio-frontend/compare/v1.0.0...v1.0.2) (2025-08-21)
 
 
