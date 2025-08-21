@@ -139,13 +139,13 @@ public abstract class FormModel {
             else if (raw instanceof Date)
                 return LocalDate.ofInstant(((Date) raw).toInstant(), ZoneId.systemDefault());
         } else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Option.class::equals).isPresent()
-                   && raw instanceof String)
+                && raw instanceof String)
             return getOptionsFor(id).stream()
                     .filter(o -> o.value().equals(raw))
                     .findFirst().orElse(null);
         else if (Optional.ofNullable(getPropertyTypeFor(id)).filter(Boolean.class::equals).isPresent()) {
             if (raw instanceof String && ((String) raw).equalsIgnoreCase("true")
-                || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
+                    || raw instanceof String && "false".equalsIgnoreCase(((String) raw))) {
                 return Boolean.valueOf(((String) raw));
             } else if (("1".equals(raw) || "2".equals(raw)))
                 return "1".equals(raw);

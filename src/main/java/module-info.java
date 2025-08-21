@@ -13,16 +13,13 @@ module fr.civipol.civilio {
     requires com.dlsc.preferencesfx;
     requires com.dlsc.formsfx;
     requires jakarta.cdi;
-    requires com.fasterxml.jackson.databind;
-    requires minio;
-    requires transitive org.apache.commons.compress;
-    requires com.google.common;
     requires org.controlsfx.controls;
     requires javafx.web;
     requires jdk.jsobject;
     requires java.sql;
     requires com.zaxxer.hikari;
     requires java.management;
+    requires com.fasterxml.jackson.databind;
 
     opens fr.civipol.civilio.dagger.module to dagger;
     opens fr.civipol.civilio.dagger.component to dagger;

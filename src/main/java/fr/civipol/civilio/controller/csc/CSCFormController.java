@@ -27,7 +27,6 @@ import fr.civipol.civilio.form.field.table.ColumnDefinition;
 import fr.civipol.civilio.form.field.table.TabularField;
 import fr.civipol.civilio.services.FormService;
 import fr.civipol.civilio.services.PingService;
-import fr.civipol.civilio.services.StorageService;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -66,7 +65,6 @@ import java.util.stream.Stream;
 public class CSCFormController extends FormController implements Initializable, StorageHandler, SubFormDataLoader {
     private static final String PING_DOMAIN = "tile.openstreetmap.org";
     private boolean optionsLoaded = false;
-    private final StorageService storageService;
     @Getter(AccessLevel.PROTECTED)
     private final ExecutorService executorService;
     @Getter(AccessLevel.PROTECTED)
@@ -1364,40 +1362,12 @@ public class CSCFormController extends FormController implements Initializable, 
 
     @Override
     public void upload(File file, Consumer<UploadTask> callback) {
-        final var task = new UploadTask(file);
-        final ProgressInputStream.ProgressListener listener = (read, total) -> {
-            final var progress = Double.valueOf(read / (double) total);
-            final var progressF = progress.floatValue();
-            task.setProgress(progressF);
-            log.debug("Upload progress: {}", "%.1f%%".formatted(progressF));
-        };
-        executorService.submit(() -> {
-            try {
-                final var objectName = Optional.ofNullable(submissionIndex.getValue())
-                        .filter(StringUtils::isNotBlank)
-                        .orElse(file.getName().trim().replaceAll("[^0-9a-zA-Z.]", "_")
-                                .toLowerCase());
-                final var url = storageService.upload(file, objectName, listener, Map.of("form", "csc",
-                        "index", submissionIndex.getValueSafe(), "org", "record"));
-                Platform.runLater(() -> task.setUrl(url));
-            } catch (Throwable t) {
-                Platform.runLater(() -> task.fail(t));
-                log.error("Could not upload file: {}", file, t);
-                showErrorAlert(t.getLocalizedMessage());
-            }
-        });
-        callback.accept(task);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void delete(String id) {
-        executorService.submit(() -> {
-            try {
-                storageService.delete(id);
-            } catch (Throwable t) {
-                log.error("could not delete file with object ID: {}", id, t);
-            }
-        });
+        throw new UnsupportedOperationException();
     }
 
     public void onClose() {

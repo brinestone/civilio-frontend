@@ -5,7 +5,7 @@
 <?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.Cursor?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<ButtonBar prefHeight="45.0" prefWidth="294.0" xmlns="http://javafx.com/javafx/23.0.1"
+<ButtonBar prefHeight="45.0" prefWidth="294.0" xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.FormFooterController">
     <buttons>
         <Button fx:id="btnFinish" defaultButton="true" mnemonicParsing="false" text="%forms.footer.actions.finish">

@@ -3,7 +3,6 @@ package fr.civipol.civilio.controls;
 import com.dlsc.formsfx.model.structure.Field;
 import com.dlsc.formsfx.model.util.ResourceBundleService;
 import com.dlsc.formsfx.model.validators.IntegerRangeValidator;
-import com.dlsc.formsfx.model.validators.RegexValidator;
 import com.dlsc.formsfx.model.validators.StringLengthValidator;
 import com.dlsc.preferencesfx.PreferencesFx;
 import com.dlsc.preferencesfx.formsfx.view.controls.SimplePasswordControl;
@@ -34,9 +33,6 @@ public class SettingsControl implements AppControl, StorageHandler {
     private static final String GENERAL_SETTINGS_CATEGORY_KEY = "settings.general";
     private static final String DISPLAY_SETTINGS_GROUP_KEY = "settings.general";
     private static final String LANGUAGE_SETTING_FIELD_KEY = Constants.SYSTEM_LANGUAGE_KEY;
-    private static final String MINIO_ENDPOINT = Constants.MINIO_ENDPOINT_KEY_NAME;
-    private static final String MINIO_ACCESS_KEY = Constants.MINIO_ACCESS_KEY_NAME;
-    private static final String MINIO_SECRET_KEY = Constants.MINIO_SECRET_KEY_NAME;
     private static final String DB_HOST_KEY = Constants.DB_HOST_KEY;
     private static final String DB_PORT_KEY = Constants.DB_PORT_KEY;
     private static final String DB_NAME_KEY = Constants.DB_NAME_KEY;
@@ -53,9 +49,6 @@ public class SettingsControl implements AppControl, StorageHandler {
     private static final String FRENCH_LOCALE_KEY = "settings.language.fr";
     private final Preferences prefs = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH);
     private final ObjectProperty<String> selectedLocaleProperty = new SimpleObjectProperty<>(this, "selectedLocale", Locale.getDefault().getLanguage());
-    private final StringProperty s3StorageEndpointProperty = new SimpleStringProperty(this, "s3Endpoint", "");
-    private final StringProperty s3StorageAccessKeyProperty = new SimpleStringProperty(this, "s3AccessKey", "");
-    private final StringProperty s3ServiceAccountSecretProperty = new SimpleStringProperty(this, "s3SecretKey", "");
     private final StringProperty dbHostProperty = new SimpleStringProperty(this, "apiOrigin", "");
     private final IntegerProperty dbPortProperty = new SimpleIntegerProperty(this, "dbPort", 5432);
     private final StringProperty dbUserProperty = new SimpleStringProperty(this, "dbUser", "");
@@ -67,7 +60,6 @@ public class SettingsControl implements AppControl, StorageHandler {
     public PreferencesFx makePreferencesForm() {
         final var rbs = ResourceBundle.getBundle("messages");
         final var ts = new ResourceBundleService(rbs);
-        final var secretKeyPasswordField = Field.ofPasswordType(s3ServiceAccountSecretProperty).render(SimplePasswordControl::new);
         final var dbPasswordField = Field.ofPasswordType(dbPwdProperty).render(SimplePasswordControl::new);
         final var localeKeys = FXCollections.observableArrayList(
                 rbs.getString(ENGLISH_LOCALE_KEY),
@@ -83,19 +75,6 @@ public class SettingsControl implements AppControl, StorageHandler {
                         )
                 ),
                 Category.of("settings.advanced.title",
-                        Group.of("settings.advanced.storage.title",
-                                Setting.of(MINIO_ENDPOINT, s3StorageEndpointProperty)
-                                        .validate(
-                                                StringLengthValidator.atLeast(10, "settings.msg.value_too_short"),
-                                                RegexValidator.forURL("settings.msg.invalid_url")
-                                        ),
-                                Setting.of(MINIO_ACCESS_KEY, s3StorageAccessKeyProperty)
-                                        .validate(
-                                                StringLengthValidator.atLeast(20, "settings.msg.value_too_short")
-                                        ),
-                                Setting.of(MINIO_SECRET_KEY, secretKeyPasswordField, s3ServiceAccountSecretProperty)
-                                        .validate(StringLengthValidator.atLeast(40, "settings.msg.value_too_short"))
-                        ),
                         Group.of("settings.advanced.db.title",
                                 Setting.of(DB_HOST_KEY, dbHostProperty)
                                         .validate(StringLengthValidator.atLeast(1, "settings.msg.value_too_short")),

@@ -2,7 +2,8 @@
   "name": "civilio",
   "version": "1.0.0",
   "scripts": {
-    "release": "standard-version"
+    "release": "standard-version",
+    "postrelease": "node version-bump.mjs"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +12,7 @@
     "node": ">=22.5.0"
   },
   "devDependencies": {
+    "@types/node": "^24.3.0",
     "standard-version": "^9.5.0"
   }
 }
