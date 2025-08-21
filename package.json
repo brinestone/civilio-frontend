@@ -1,6 +1,6 @@
 {
   "name": "civilio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "release": "standard-version",
     "postrelease": "node version-bump.mjs"
