@@ -44,3 +44,4 @@ logs/
 *.tar
 node_modules
 *.bak
+temp.db

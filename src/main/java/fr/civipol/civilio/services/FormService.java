@@ -114,7 +114,7 @@ public class FormService implements AppService {
                     tableName = VILLAGES_TABLE;
                 else if (field.contains("sub_forms.rooms"))
                     tableName = PIECES_TABLE;
-                else if (field.contains("sub_forms.indexing"))
+                else if (field.contains("sub_forms.indexing") || field.contains("deeds"))
                     tableName = STATISTICS_TABLE;
                 else if (field.contains("sub_forms.officers"))
                     tableName = PERSONNEL_INFO_TABLE;
@@ -209,7 +209,7 @@ public class FormService implements AppService {
     private List<FieldMapping> findFieldMappingsInternal(Connection connection, String form) throws SQLException {
         final var sql = """
                 SELECT
-                    field, i18n_key, quote_ident(db_column), db_table, db_column_type
+                    field, i18n_key, db_column, db_table, db_column_type
                 FROM
                     civilio.form_field_mappings
                 WHERE

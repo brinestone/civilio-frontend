@@ -1,6 +1,6 @@
 package fr.civipol.civilio.form;
 
-@SuppressWarnings({ "DuplicatedCode" })
+@SuppressWarnings({"DuplicatedCode"})
 public class FieldKeys {
     public static final class Fosa {
         public static final String RESPONDING_DEVICE = "fosa.form.fields.responding_device.title";
@@ -72,13 +72,9 @@ public class FieldKeys {
         public static final String PERSONNEL_ED_LEVEL = "data_personnel.columns.education_level.title";
         public static final String PERSONNEL_COMPUTER_LEVEL = "data_personnel.columns.pc_knowledge.title";
         public static final String PERSONNEL_STATUS = "data_personnel.columns.status.title";
-        public static final String EC_TRAINING = "data_personnel.columns.ec_training.title";
-        public static final String HAS_COMPUTER_TRAINING = "data_personnel.columns.has_pc_training.title";
-        public static final String ARCHIVING_TRAINING = "data_personnel.columns.archiving_training.title";
-        public static final String MONTHLY_REVENUE = "data_personnel.columns.monthly_revenue.title";
-        public static final String[] ALL_FIELDS = { PERSONNEL_NAME, PERSONNEL_AGE, PERSONNEL_PHONE, PERSONNEL_AGE,
-                PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL,
-                PERSONNEL_POSITION };
+        public static final String[] ALL_FIELDS = {PERSONNEL_NAME, PERSONNEL_PHONE, PERSONNEL_AGE,
+                PERSONNEL_GENDER, PERSONNEL_EMAIL, PERSONNEL_COMPUTER_LEVEL, PERSONNEL_STATUS, PERSONNEL_CS_TRAINING, PERSONNEL_ED_LEVEL,
+                PERSONNEL_POSITION};
     }
 
     public static final class Chiefdom {
@@ -94,12 +90,6 @@ public class FieldKeys {
         public static final String CLASSIFICATION = "chefferie.form.fields.classification.title";
         public static final String HEALTH_CENTER_PROXIMITY = "chefferie.form.fields.distance.title";
         public static final String GPS_COORDS = "chefferie.form.sections.geo_point.title";
-        public static final String FUNCTION = "chefferie.form.fields.fonction.title";
-        // public static final String RECEPTION_AREA =
-        // "chefferie.form.fields.reception.title";
-        // public static final String OTHER_RECEPTION_AREA =
-        // "chefferie.form.fields.other_recep.title";
-        public static final String CONSERVATION_PLACE = "chefferie.form.fields.conservation_place.title";
         public static final String CS_OFFICER_TRAINED = "chefferie.form.fields.training.title";
         public static final String WAITING_ROOM = "chefferie.form.fields.waiting_room.title";
         public static final String OTHER_WAITING_ROOM = "chefferie.form.fields.other_waiting_room.title";
@@ -349,7 +339,6 @@ public class FieldKeys {
             public static final String DOES_ROAD_DETERIORATE = "csc.form.sections.accessibility.fields.road_deteriorates.title";
             public static final String ROAD_OBSTACLE = "csc.form.sections.accessibility.fields.obstacle.title";
             public static final String ATTACHED_VILLAGES_NUMBER = "csc.form.sections.accessibility.fields.attached_villages_num.title";
-            public static final String ATTACHED_VILLAGES_LIST = "csc.form.sections.accessibility.sub_forms.attached_villages_list.title";
             public static final String COVER_RADIUS = "csc.form.sections.accessibility.fields.cover_radius.title";
             public static final String[] ALL_FIELDS = {
                     ROAD_TYPE, DOES_ROAD_DETERIORATE, ROAD_OBSTACLE, ATTACHED_VILLAGES_NUMBER,
@@ -399,7 +388,7 @@ public class FieldKeys {
             public static final String OFFICE_COUNT = "csc.form.sections.areas.fields.office_count.title";
             public static final String DEDICATED_CS_ROOMS = "csc.form.sections.areas.fields.dedicated_cs_rooms.title";
             public static final String MOVING = "csc.form.sections.areas.fields.moving.title";
-//            public static final String RENOVATION_DUE = "csc.form.sections.areas.fields.renovation_due.title";
+            //            public static final String RENOVATION_DUE = "csc.form.sections.areas.fields.renovation_due.title";
             public static final String[] ALL_FIELDS = {
                     OFFICE_COUNT, DEDICATED_CS_ROOMS, MOVING/*, RENOVATION_DUE*/
             };
@@ -509,7 +498,7 @@ public class FieldKeys {
             public static final String PRICES_DISPLAYED = "csc.form.sections.vital_stats.fields.prices_displayed.title";
             public static final String MUNICIPALITY_BUDGET_2024 = "csc.form.sections.vital_stats.fields.municipality_budget.title";
             public static final String CS_BUDGET_2024 = "csc.form.sections.vital_stats.fields.cs_budget.title";
-//            public static final String CS_REVENUE_2024 = "csc.form.sections.vital_stats.fields.cs_revenue.title";
+            //            public static final String CS_REVENUE_2024 = "csc.form.sections.vital_stats.fields.cs_revenue.title";
             public static final String[] ALL_FIELDS = {
                     BIRTH_CERT_COST, BIRTH_CERT_COPY_COST, MARRIAGE_CERT_COPY_COST, DEATH_CERT_COPY_COST,
                     CELIBACY_CERT_COPY_COST,
@@ -542,7 +531,7 @@ public class FieldKeys {
 
         public static final class Comments {
             public static final String RELEVANT_INFO = "csc.form.sections.comments.fields.relevant_info.title";
-            public static final String[] ALL_FIELDS = { RELEVANT_INFO };
+            public static final String[] ALL_FIELDS = {RELEVANT_INFO};
         }
 
         public static final class Deeds {
@@ -574,7 +563,12 @@ public class FieldKeys {
             public static final String FEMALE_COUNT = "csc.form.sections.personnel_info.fields.female_count.title";
             public static final String NON_OFFICER_MALE_COUNT = "csc.form.sections.personnel_info.fields.non_officer_male_count.title";
             public static final String NON_OFFICER_FEMALE_COUNT = "csc.form.sections.personnel_info.fields.non_officer_female_count.title";
+            public static final String HAS_EC_TRAINING = "data_personnel.columns.ec_training.title";
+            public static final String HAS_COMPUTER_TRAINING = "data_personnel.columns.has_pc_training.title";
+            public static final String HAS_ARCHIVING_TRAINING = "data_personnel.columns.archiving_training.title";
+            public static final String MONTHLY_SALARY = "data_personnel.columns.monthly_revenue.title";
             public static final String[] ALL_FIELDS = {
+                    HAS_EC_TRAINING, HAS_COMPUTER_TRAINING, HAS_ARCHIVING_TRAINING, MONTHLY_SALARY,
                     MALE_COUNT, FEMALE_COUNT, NON_OFFICER_MALE_COUNT, NON_OFFICER_FEMALE_COUNT
             };
 
@@ -584,13 +578,39 @@ public class FieldKeys {
                 public static final String OTHER_STATUS = "csc.form.sections.personnel_info.sub_forms.officers.fields.other_status.title";
                 public static final String TOTAL_ALLOWANCE_2022 = "csc.form.sections.personnel_info.sub_forms.officers.fields.allowance_2022.title";
                 public static final String TOTAL_REVENUE_2022 = "csc.form.sections.personnel_info.sub_forms.officers.fields.revenue_2022.title";
-                public static final String ARCHIVING_TRAINING = "csc.form.sections.personnel_info.sub_forms.officers.fields.archiving_training.title";
+                public static final String HAS_ARCHIVING_TRAINING = "csc.form.sections.personnel_info.sub_forms.officers.fields.archiving_training.title";
                 public static final String CS_SENIORITY = "csc.form.sections.personnel_info.sub_forms.officers.fields.seniority.title";
                 public static final String[] ALL_FIELDS = {
                         OTHER_POSITION, STATUS, OTHER_STATUS, TOTAL_ALLOWANCE_2022, TOTAL_REVENUE_2022,
-                        ARCHIVING_TRAINING, CS_SENIORITY
+                        HAS_ARCHIVING_TRAINING, CS_SENIORITY
                 };
             }
+
+            public static String[] STAFF_FIELDS = {
+                    FieldKeys.PersonnelInfo.PERSONNEL_NAME,
+                    FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+                    FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION,
+                    FieldKeys.CSC.PersonnelInfo.Officers.STATUS,
+                    FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS,
+                    FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
+                    FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
+                    FieldKeys.PersonnelInfo.PERSONNEL_AGE,
+                    FieldKeys.PersonnelInfo.PERSONNEL_EMAIL,
+                    FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
+                    FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
+                    PersonnelInfo.HAS_EC_TRAINING,
+                    Officers.HAS_ARCHIVING_TRAINING,
+                    HAS_COMPUTER_TRAINING,
+                    Officers.CS_SENIORITY,
+                    MONTHLY_SALARY
+            };
+
+            public static String[] STATS_FIELDS = {
+                    FieldKeys.CSC.PersonnelInfo.MALE_COUNT,
+                    FieldKeys.CSC.PersonnelInfo.FEMALE_COUNT,
+                    FieldKeys.CSC.PersonnelInfo.NON_OFFICER_MALE_COUNT,
+                    FieldKeys.CSC.PersonnelInfo.NON_OFFICER_FEMALE_COUNT
+            };
         }
     }
 }

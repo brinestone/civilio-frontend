@@ -24,10 +24,10 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
 
     protected TabularField(ListProperty<V> valueProperty, ListProperty<V> persistentValueProperty, Supplier<V> valueSupplier) {
         super(valueProperty, persistentValueProperty);
+        rendererSupplier = TabularControl::new;
         this.valueSupplier = valueSupplier;
     }
 
-    @SafeVarargs
     @SuppressWarnings("rawtypes")
     public final TabularField<V> withColumns(ColumnDefinition... definition) {
         columnDefinitions.setAll(definition);
@@ -39,13 +39,20 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
         super.translate(service);
         addActionText.setValue(service.translate(ADD_ACTION_TEXT));
         removeActionText.setValue(service.translate(REMOVE_ACTION_TEXT));
-        rendererSupplier = TabularControl::new;
         columnDefinitions
                 .forEach(cd -> cd.titleProperty().setValue(service.translate(cd.getTitleKey())));
     }
 
-    public static <V> TabularField<V> create(Collection<V> data, Supplier<V> valueSupplier) {
-        return new TabularField<V>(new SimpleListProperty<>(FXCollections.observableArrayList(data)), new SimpleListProperty<>(FXCollections.observableArrayList(data)), valueSupplier);
+    /**
+     * Creates a new tabular field
+     *
+     * @param data          The initial data to be in the table
+     * @param valueSupplier A supplier to be used to generate new rows in the table
+     * @param <V>           The data type for each row in the table
+     * @return The created instance of the field
+     */
+    public static <V> TabularField<V> create(ListProperty<V> data, Supplier<V> valueSupplier) {
+        return new TabularField<>(data, new SimpleListProperty<>(FXCollections.observableArrayList(data)), valueSupplier);
     }
 
     public StringProperty removeActionTextProperty() {

@@ -6,8 +6,10 @@ import fr.civipol.civilio.entity.GeoPoint;
 import fr.civipol.civilio.form.field.Option;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +35,7 @@ public class CSCFormModel extends FormModel {
     private final OptionSource optionSource;
     private final SubFormDataLoader subFormDataLoader;
     @Getter
-    private final List<Map<String, Object>> villageData, roomData, vitalStatsData, archiveStats, personnelStats;
+    private final ListProperty<Map<String, Object>> villageData, deedsData, roomData, financialStatsData, archiveStatsData, staffData;
 
     public CSCFormModel(Function<String, ?> valueSource,
                         BiFunction<String, Integer, String> keyMaker,
@@ -44,11 +46,12 @@ public class CSCFormModel extends FormModel {
         this.optionSource = optionSource;
         this.subFormDataLoader = subFormDataLoader;
         setupChangeListeners();
-        roomData = new ArrayList<>();
-        villageData = new ArrayList<>();
-        vitalStatsData = new ArrayList<>();
-        archiveStats = new ArrayList<>();
-        personnelStats = new ArrayList<>();
+        villageData = new SimpleListProperty<>(FXCollections.observableArrayList());
+        roomData = new SimpleListProperty<>(FXCollections.observableArrayList());
+        financialStatsData = new SimpleListProperty<>(FXCollections.observableArrayList());
+        archiveStatsData = new SimpleListProperty<>(FXCollections.observableArrayList());
+        staffData = new SimpleListProperty<>(FXCollections.observableArrayList());
+        deedsData = new SimpleListProperty<>(FXCollections.observableArrayList());
     }
 
     @SuppressWarnings("unchecked")
@@ -115,10 +118,32 @@ public class CSCFormModel extends FormModel {
             log.debug("Already tracking fields, skipping.");
             return;
         }
-        Stream.of(FieldKeys.CSC.TRACKABLE_FIELDS).forEach(this::trackUpdatesForField);
+        Stream.of(FieldKeys.CSC.TRACKABLE_FIELDS).forEach(this::trackChangesForField);
 
         trackingChanges = true;
         log.debug("Tracking field changes");
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void unTrackFieldChanges(String field) {
+        changes.remove(field);
+        final var property = valueProperties.get(field);
+        if (property instanceof ChangeListener<?> c) {
+            property.removeListener(c);
+        } else if (property instanceof ListChangeListener<?> c && property instanceof ListProperty l) {
+            l.removeListener(c);
+        }
+    }
+
+    public void trackSubFormProperty(String key, Property property) {
+        log.debug("tracking: {}", key);
+        if (valueProperties.containsKey(key)) {
+            log.warn("field: {} is already being tracked. Removing previously tracked property", key);
+
+        }
+        valueProperties.put(key, property);
+        trackChangesForField(key);
+        log.debug("now tracking");
     }
 
     @Override
@@ -129,27 +154,78 @@ public class CSCFormModel extends FormModel {
         loadVillageValues();
         loadRoomValues();
         loadArchivedDataValues();
-        loadPersonnelValues();
+        loadStaffValues();
+        loadDeedValues();
+    }
+
+    private void loadDeedValues() {
+        final var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.Deeds.ALL_FIELDS);
+        deserializeSubFormValues(maps, deedsData);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <V> Property<V> provideSubFormDataProperty(Map<String, Object> dataGroup, String fieldKey, int ordinal, V defaultValue) {
+        final var uniqueKey = keyMaker.apply(fieldKey, ordinal);
+        if (!valueProperties.containsKey(uniqueKey)) {
+            final var property = createValueProperty(fieldKey);
+            valueProperties.put(uniqueKey, property);
+            property.setValue(Optional.ofNullable(dataGroup.get(fieldKey)).orElse(getDefaultValueFor(fieldKey)));
+            trackChangesForField(uniqueKey);
+            return property;
+        } else {
+            changes.remove(uniqueKey);
+            return valueProperties.get(uniqueKey);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <V> Property<V> provideVillageDataFieldProperty(String fieldKey, int ordinal) {
+        return provideSubFormDataProperty(villageData.get(ordinal), fieldKey, ordinal, (V) getDefaultValueFor(fieldKey));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <V> Property<V> provideStaffDataFieldProperty(String fieldKey, int ordinal) {
+        return provideSubFormDataProperty(staffData.get(ordinal), fieldKey, ordinal, (V) getDefaultValueFor(fieldKey));
+    }
+
+    public <V> Property<V> provideRoomDataFieldProperty(String fieldKey, int ordinal) {
+        return provideSubFormDataProperty(roomData.get(ordinal), fieldKey, ordinal, null);
+    }
+
+    public <V> Property<V> provideDeedFieldProperty(String fieldKey, int ordinal) {
+        return provideSubFormDataProperty(deedsData.get(ordinal), fieldKey, ordinal, null);
     }
 
     private void loadArchivedDataValues() {
-
+        final var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS);
+        deserializeSubFormValues(maps, archiveStatsData);
     }
 
-    private void loadPersonnelValues() {
+    private void loadStaffValues() {
+        final var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.PersonnelInfo.STAFF_FIELDS);
+        deserializeSubFormValues(maps, staffData);
+    }
 
+    private void deserializeSubFormValues(Collection<Map<String, Object>> dataCollection, List<Map<String, Object>> destination) {
+        destination.clear();
+        for (var data : dataCollection) {
+            for (var entry : data.entrySet()) {
+                final var parsedValue = deserializeValue(entry.getValue(), entry.getKey());
+                entry.setValue(parsedValue);
+            }
+            destination.add(data);
+        }
+        destination.removeIf(d -> d.size() == 0);
     }
 
     private void loadRoomValues() {
+        final var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.Areas.Rooms.ALL_FIELDS);
+        deserializeSubFormValues(maps, roomData);
     }
 
     private void loadVillageValues() {
-        villageData.clear();
-        villageData.addAll(subFormDataLoader.loadSubFormData(
-                FieldKeys.CSC.Accessibility.Villages.NAME,
-                FieldKeys.CSC.Accessibility.Villages.DISTANCE,
-                FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS)
-        );
+        var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.Accessibility.Villages.ALL_FIELDS);
+        deserializeSubFormValues(maps, villageData);
     }
 
     @Override
@@ -178,9 +254,9 @@ public class CSCFormModel extends FormModel {
     private Property createValueProperty(String id) {
         final var key = keyExtractor.apply(id);
         final var targetType = getPropertyTypeFor(key);
-        if (targetType.equals(String.class))
+        if (String.class.equals(targetType))
             return new SimpleStringProperty();
-        else if (targetType.equals(Option.class))
+        else if (Option.class.equals(targetType))
             return new SimpleObjectProperty<Option>();
         else if (Double.class.equals(targetType))
             return new SimpleDoubleProperty();
@@ -221,7 +297,7 @@ public class CSCFormModel extends FormModel {
     protected Class<?> getPropertyTypeFor(String id) {
         return switch (id) {
             case FieldKeys.CSC.Digitization.OTHER_CS_SOFTWARE_LICENSE_SPONSOR, FieldKeys.PersonnelInfo.PERSONNEL_NAME,
-                    FieldKeys.CSC.Respondent.POSITION, FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
+                    FieldKeys.CSC.Respondent.POSITION,
                     FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS,
                     FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS, FieldKeys.CSC.Accessibility.Villages.NAME,
                     FieldKeys.CSC.Identification.OTHER_NON_FUNCTION_REASON, FieldKeys.CSC.Respondent.NAME,
@@ -252,6 +328,7 @@ public class CSCFormModel extends FormModel {
                     FieldKeys.PersonnelInfo.PERSONNEL_GENDER, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
                     FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL, FieldKeys.CSC.PersonnelInfo.Officers.STATUS,
                     FieldKeys.CSC.Deeds.YEAR, FieldKeys.CSC.Areas.Rooms.CONDITION,
+                    FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
                     FieldKeys.CSC.StatusOfArchivedRecords.YEAR -> Option.class;
             case FieldKeys.CSC.Areas.Rooms.AREA, FieldKeys.CSC.Accessibility.Villages.DISTANCE,
                     FieldKeys.CSC.Accessibility.ATTACHED_VILLAGES_NUMBER -> Double.class;
@@ -277,8 +354,8 @@ public class CSCFormModel extends FormModel {
                     FieldKeys.CSC.Archiving.LOCKED_DOOR, FieldKeys.CSC.Archiving.IS_ARCHIVE_ROOM_ACCESS_LIMITED,
                     FieldKeys.CSC.Archiving.ROOM_HAS_HUMIDITY, FieldKeys.CSC.Archiving.WRITTEN_ARCHIVING_PLAN,
                     FieldKeys.CSC.Archiving.REGISTERS_DEPOSITED_SYSTEMATICALLY, FieldKeys.CSC.Archiving.VANDALIZED,
-                    FieldKeys.PersonnelInfo.HAS_COMPUTER_TRAINING,
-                    FieldKeys.CSC.PersonnelInfo.Officers.ARCHIVING_TRAINING,
+                    FieldKeys.CSC.PersonnelInfo.HAS_COMPUTER_TRAINING,
+                    FieldKeys.CSC.PersonnelInfo.HAS_ARCHIVING_TRAINING,
                     FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING -> Boolean.class;
             case FieldKeys.CSC.Identification.NON_FUNCTION_REASON, FieldKeys.CSC.Infrastructure.BACKUP_POWER_SOURCES,
                     FieldKeys.CSC.Infrastructure.NETWORK_TYPE,

@@ -141,16 +141,15 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     }
 
     private FormType extractForm(String breadcrumb) {
-        String prefix = breadcrumb.substring(0, breadcrumb.indexOf("."));
-        if (prefix.equals("data_personnel")) return FormType.FOSA;
-        else if (prefix.equals("data_chefferie_personnel")) return FormType.CHIEFDOM;
-        return FormType.fromString(prefix);
+        final var firstSegment = breadcrumb.substring(0, breadcrumb.indexOf("#"));
+        final var formName = firstSegment.substring(firstSegment.lastIndexOf(".") + 1);
+        return FormType.fromString(formName);
     }
 
     @Override
     public void saveObject(String breadcrumb, Object object) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(key);
+        final var form = extractForm(breadcrumb);
         try {
             if (StringUtils.isBlank(batchId))
                 batchId = formService.startBatchOperation();
@@ -168,7 +167,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
     @Override
     public Object loadObject(String breadcrumb, Object defaultObject) {
         final var key = extractKey(breadcrumb);
-        final var form = extractForm(key);
+        final var form = extractForm(breadcrumb);
         try {
             return formService.findFieldMapping(form, key)
                     .map(FieldMapping::dbColumn)
@@ -260,6 +259,12 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.archiving.title", FieldKeys.CSC.Archiving.ALL_FIELDS),
                 groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.comments.title", FieldKeys.CSC.Comments.ALL_FIELDS)
         ).subCategories(
+                Category.of("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.title",
+                        groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.sections.general.title", Stream.of(
+                                        FieldKeys.CSC.PersonnelInfo.STATS_FIELDS)
+                                .toArray(String[]::new)),
+                        groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.personnel.sub_forms.personnel_info.sections.staff.title", FieldKeys.CSC.PersonnelInfo.STAFF_FIELDS)
+                ),
                 Category.of("mapper.categories.forms.csc.base_fields.sections.records.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.records.title", FieldKeys.CSC.StatusOfArchivedRecords.ALL_FIELDS)),
                 Category.of("mapper.categories.forms.csc.base_fields.sections.deeds.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.deeds.title", FieldKeys.CSC.Deeds.ALL_FIELDS)),
                 Category.of("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", groupFactory.apply("mapper.categories.forms.csc.base_fields.sections.accessibility.sub_forms.villages.title", FieldKeys.CSC.Accessibility.Villages.ALL_FIELDS)),
@@ -361,7 +366,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                 .subCategories(
                         Category.of("mapper.categories.forms.chefferie.sub_forms.data_personnel.title",
                                 Group.of(
-                                        "mapper.categories.forms.FieldKeys.Fosa.sub_forms.data_personnel.title",
+                                        "mapper.categories.forms.fosa.sub_forms.data_personnel.title",
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_NAME),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_POSITION),
                                         settingFactory.apply(FieldKeys.PersonnelInfo.PERSONNEL_GENDER),

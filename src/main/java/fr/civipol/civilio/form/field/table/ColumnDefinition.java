@@ -7,7 +7,9 @@ import javafx.scene.control.TableColumn;
 import javafx.util.StringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.apache.commons.lang3.function.TriFunction;
 
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -27,27 +29,27 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
 
     public ColumnDefinition<T, V, C> withValidator(Predicate<V> predicate) {
         this.validator.set(predicate);
-        return (C) this;
+        return this;
     }
 
     public ColumnDefinition<T, V, C> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
         this.valueProvider.set(provider);
-        return (C) this;
+        return this;
     }
 
     public ColumnDefinition<T, V, C> withConverter(StringConverter<V> converter) {
         this.converter.set(converter);
-        return (C) this;
+        return this;
     }
 
     public ColumnDefinition<T, V, C> editable(boolean editable) {
         this.editable.set(editable);
-        return (C) this;
+        return this;
     }
 
     public ColumnDefinition<T, V, C> width(double width) {
         this.tableColumn.setPrefWidth(width);
-        return (C) this;
+        return this;
     }
 
     ColumnDefinition(String titleKey, String fieldKey, Supplier<TableCell<T, V>> cellSupplier) {
@@ -59,39 +61,43 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
 
     private void setupTableColumn() {
         tableColumn.textProperty().bind(title);
-        tableColumn.setCellValueFactory(param -> {
-            final var index = param.getTableView().getItems().indexOf(param.getValue());
-            return valueProvider.get().apply(fieldKey, index);
-        });
+        tableColumn.editableProperty().bind(editable);
+        tableColumn.setCellValueFactory(param -> Optional.ofNullable(valueProvider.getValue())
+                .map(fn -> fn.apply(fieldKey, param.getTableView().getItems().indexOf(param.getValue())))
+                .orElse(new SimpleObjectProperty<>()));
         tableColumn.setCellFactory(param -> cellSupplier.get());
     }
 
-    public static <V> StringColumnDefinition<V> ofStringType(String titleKey, String fieldKey) {
-        return new StringColumnDefinition<>(titleKey, fieldKey);
+    public static <V> StringColumnDefinition<V> ofStringType(String fieldKey) {
+        return new StringColumnDefinition<>(fieldKey, fieldKey);
     }
 
-    public static <V, R> SingleSelectionColumnDefinition<V, R> ofSingleSelectionType(StringConverter<R> converter, ObservableList<R> options, String titleKey, String fieldKey) {
-        return new SingleSelectionColumnDefinition<>(titleKey, fieldKey, options, converter);
+    public static <V, R> SingleSelectionColumnDefinition<V, R> ofSingleSelectionType(StringConverter<R> converter, ObservableList<R> options, String fieldKey) {
+        return new SingleSelectionColumnDefinition<>(fieldKey, fieldKey, options, converter);
     }
 
-    public static <V, R> MultiSelectionColumnDefinition<V, R> ofMultiSelectionType(String titleKey, String fieldKey, ObservableList<R> options, StringConverter<R> converter) {
-        return new MultiSelectionColumnDefinition<>(titleKey, fieldKey, options, converter);
+    public static <V, R> MultiSelectionColumnDefinition<V, R> ofMultiSelectionType(String fieldKey, ObservableList<R> options, StringConverter<R> converter) {
+        return new MultiSelectionColumnDefinition<>(fieldKey, fieldKey, options, converter);
     }
 
-    public static <V> BooleanColumnDefinition<V> ofBooleanType(String titleKey, String fieldKey) {
-        return new BooleanColumnDefinition<>(titleKey, fieldKey);
+    public static <V> BooleanColumnDefinition<V> ofBooleanType(String fieldKey) {
+        return new BooleanColumnDefinition<>(fieldKey, fieldKey);
     }
 
-    public static <V> SpinnerColumnDefinition<V, Float> ofFloatType(String titleKey, String fieldKey) {
-        return SpinnerColumnDefinition.ofFloatType(titleKey, fieldKey);
+    public static <V> SpinnerColumnDefinition<V, Float> ofFloatType(String fieldKey) {
+        return SpinnerColumnDefinition.ofFloatType(fieldKey, fieldKey);
     }
 
-    public static <V> SpinnerColumnDefinition<V, Integer> ofIntegerType(String titleKey, String fieldKey) {
-        return SpinnerColumnDefinition.ofIntegerType(titleKey, fieldKey);
+    public static <V> SpinnerColumnDefinition<V, Integer> ofIntegerType(String fieldKey) {
+        return SpinnerColumnDefinition.ofIntegerType(fieldKey, fieldKey);
     }
 
     public boolean isEditable() {
         return editable.get();
+    }
+
+    public BooleanProperty editableProperty() {
+        return editable;
     }
 
     public StringProperty titleProperty() {
