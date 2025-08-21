@@ -42,6 +42,7 @@ public class FormService implements AppService {
     private static final String PIECES_TABLE = "data_pieces";
     private static final String VILLAGES_TABLE = "data_villages";
     private final Lazy<DataSource> dataSourceProvider;
+    private final Lazy<ConfigService> configServiceProvider;
     private final Map<String, Connection> batchConnections = new ConcurrentHashMap<>();
     private final Map<String, Set<PreparedStatement>> batchQueries = new ConcurrentHashMap<>();
 
@@ -685,9 +686,12 @@ public class FormService implements AppService {
         runMigrations();
     }
 
+    @Override
+    public boolean isConfigured(ConfigService cm) throws Exception {
+        return configServiceProvider.get().databaseConfigurationValid();
+    }
+
     private Set<String> getMigrationScripts() {
-        // The path to your migrations folder within resources
-        // Ensure you use a trailing slash to indicate a directory
         String migrationsPath = "/migrations/";
 
         Set<String> fileNames = new HashSet<>();

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.Region?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<HBox alignment="CENTER" prefHeight="35.0" spacing="10.0" stylesheets="@../../styles/forms/header.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.FormHeaderController">
+<HBox alignment="CENTER" prefHeight="35.0" spacing="10.0" stylesheets="@../../styles/forms/header.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.FormHeaderController">
     <padding>
         <Insets left="10.0" right="10.0" />
     </padding>

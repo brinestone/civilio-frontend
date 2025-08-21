@@ -1,5 +1,6 @@
 package fr.civipol.civilio.stage;
 
+import com.dlsc.preferencesfx.PreferencesFxEvent;
 import dagger.Lazy;
 import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.controls.SettingsControl;
@@ -99,7 +100,8 @@ public class StageManager {
             if (!configurationValid() || event.forceConfiguration()) {
                 final var settingsControl = settingsControlProvider.get();
                 final var form = settingsControl.makePreferencesForm();
-                form.getView().getScene().getWindow().setOnHidden(this::onSettingsConfigured);
+                form.addEventHandler(PreferencesFxEvent.EVENT_PREFERENCES_SAVED, __ -> onSettingsConfigured());
+                form.getView().getScene().getWindow().setOnHidden(__ -> Platform.exit());
                 form.show();
                 return;
             }
@@ -118,7 +120,7 @@ public class StageManager {
         }
     }
 
-    private void onSettingsConfigured(WindowEvent ignored) {
+    private void onSettingsConfigured() {
         eventBus.publish(new RestartEvent());
     }
 
@@ -129,10 +131,7 @@ public class StageManager {
                         configManager.loadObject(Constants.DB_PORT_KEY, String.class),
                         configManager.loadObject(Constants.DB_NAME_KEY, String.class),
                         configManager.loadObject(Constants.DB_USER_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class),
-                        configManager.loadObject(Constants.MINIO_ENDPOINT_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_SECRET_KEY_NAME, String.class),
-                        configManager.loadObject(Constants.MINIO_ACCESS_KEY_NAME, String.class))
+                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class))
                 .map(o -> o.filter(StringUtils::isNotBlank))
                 .allMatch(Optional::isPresent);
     }

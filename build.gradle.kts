@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "fr.civipol"
-version = "0.0.1"
+version = "1.0.0"
 description = "A Civil Status data management tool."
 
 repositories {
@@ -27,9 +27,9 @@ application {
     mainClass.set(mainClassName)
     // Add the --add-exports argument here
     applicationDefaultJvmArgs = listOf(
-            "-Dprism.forceGPU=true",
-            "-Dprism.lcdtext=false",
-            "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
+        "-Dprism.forceGPU=true",
+        "-Dprism.lcdtext=false",
+        "--add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls"
     )
 }
 
@@ -48,6 +48,7 @@ val daggerVersion = "2.56"
 val geoToolsVersion = "28.1"
 
 dependencies {
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.1")
 
     // HikariCP
     implementation("com.zaxxer:HikariCP:6.3.0")
@@ -56,22 +57,15 @@ dependencies {
     // ControlsFX
     implementation("org.controlsfx:controlsfx:11.2.2")
 
-    // MinIO Client
-    implementation("io.minio:minio:7.1.4") {
-        exclude("org.apache.commons", module = "commons-compress")
-    }
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation("org.apache.commons:commons-compress:1.27.1")
-
     // Ikonli icons
     implementation("org.kordamp.ikonli:ikonli-javafx:12.4.0")
     implementation("org.kordamp.ikonli:ikonli-feather-pack:12.4.0")
 
     // FormsFX
     implementation(
-            files(
-                    "libs/formsfx-core-11.6.0.jar"
-            )
+        files(
+            "libs/formsfx-core-11.6.0.jar"
+        )
     )
 
     // PreferencesFX
@@ -104,11 +98,11 @@ dependencies {
 jlink {
     // This is for jlink's internal module path, not for runtime of your application
     addOptions(
-            "--add-modules",
-            "jakarta.cdi,jakarta.inject",
-            "--strip-debug",
-            "--no-header-files",
-            "--no-man-pages"
+        "--add-modules",
+        "jakarta.cdi,jakarta.inject",
+        "--strip-debug",
+        "--no-header-files",
+        "--no-man-pages"
     )
     launcher {
         val os = org.gradle.internal.os.OperatingSystem.current();
@@ -122,17 +116,27 @@ jlink {
             ext = ".exe"
         }
 
-        jvmArgs = listOf("-Djpackage.app-path=$separator${listOf("\${APP_HOME}", "..", "CivilIO$ext").joinToString(separator)}")
+        jvmArgs = listOf(
+            "-Djpackage.app-path=$separator${
+                listOf(
+                    "\${APP_HOME}",
+                    "..",
+                    "CivilIO$ext"
+                ).joinToString(separator)
+            }"
+        )
     }
     jpackage {
         imageName = "CivilIO"
         val os = org.gradle.internal.os.OperatingSystem.current()
-        installerOptions.addAll(listOf(
+        installerOptions.addAll(
+            listOf(
                 "--description", project.description.toString(),
                 "--vendor", "Civipol",
                 "--copyright", "Copyright 2025 Civipol",
                 "--name", "CivilIO"
-        ))
+            )
+        )
 
         when {
             os.isWindows -> {
@@ -149,7 +153,6 @@ jlink {
             }
         }
     }
-
     addExtraDependencies("org.slf4j", "ch.qos.logback", "resources")
     addOptions("--add-modules", "jakarta.cdi,jakarta.inject")
 }
@@ -215,10 +218,10 @@ tasks.processResources {
     }
     filesMatching("application.properties") {
         expand(
-                "appName" to appName,
-                "appId" to appId,
-                "build" to build,
-                "projectName" to rootProject.name
+            "appName" to appName,
+            "appId" to appId,
+            "build" to build,
+            "projectName" to rootProject.name
         )
     }
 }
@@ -226,9 +229,11 @@ tasks.processResources {
 tasks.compileJava {
     // This is for compilation, which is different from runtime.
     // The previous error was a runtime error.
-    options.compilerArgs.addAll(listOf(
+    options.compilerArgs.addAll(
+        listOf(
             "--add-modules", "jakarta.inject,java.naming,java.desktop"
-    ))
+        )
+    )
 }
 
 tasks.named<Jar>("jar") {

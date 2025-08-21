@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.StatusBar?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
-<BorderPane fx:id="root" prefHeight="558.0" prefWidth="1002.0" stylesheets="@../styles/shell.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.ShellController">
+<BorderPane fx:id="root" prefHeight="558.0" prefWidth="1002.0" stylesheets="@../styles/shell.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.civipol.civilio.controller.ShellController">
     <left>
         <VBox alignment="CENTER" prefHeight="426.0" prefWidth="195.0" spacing="5.0" BorderPane.alignment="CENTER">
             <BorderPane.margin>

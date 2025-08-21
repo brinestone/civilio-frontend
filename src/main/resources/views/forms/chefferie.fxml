@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane prefHeight="611.0" prefWidth="1059.0" xmlns="http://javafx.com/javafx/23.0.1"
+<BorderPane prefHeight="611.0" prefWidth="1059.0" xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="fr.civipol.civilio.controller.chefferie.ChefferieFormController">
     <top>

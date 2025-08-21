@@ -23,12 +23,14 @@ import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Singleton
 public class ConfigService {
     private static final String ALG = "AES";
     private static final String AES_KEY = "b7OAdC1xaoxiyumkbqY6cSr2rVS14rsaTLTT1Uqe9e4OYKVa5WK6YMDbziwIBr3RKJjMjWOjCoEcucQzdKkkzvFya3bp9k3bxuC6hofWQXFsdLvWYmmkWBiqqF8ScD9F";
+    public static final String SALT = "kic7jcfMxWZtO6hZV5BFzdA59zSMsJqm8oslruwFKp0T9DLhm08kpqR13RGECfRi";
     private static SecretKeySpec keyRef;
     private final Preferences settings = Preferences.userRoot().node(Constants.SETTINGS_PREFS_NODE_PATH);
     private final ObjectMapper mapper = new ObjectMapper();
@@ -40,6 +42,17 @@ public class ConfigService {
         this.bus = eventBus;
         updateStateHash();
         settings.addPreferenceChangeListener(evt -> updateStateHash());
+    }
+
+    public boolean databaseConfigurationValid() {
+        final var host = loadObject(Constants.DB_HOST_KEY, String.class);
+        final var port = loadObject(Constants.DB_PORT_KEY, Integer.class);
+        final var dbName = loadObject(Constants.DB_NAME_KEY, String.class);
+        final var pass = loadObject(Constants.DB_USER_PWD_KEY, String.class);
+        final var user = loadObject(Constants.DB_USER_KEY, String.class);
+        final var useSsl = loadObject(Constants.DB_USE_SSL_KEY, false);
+
+        return Stream.of(host, port, dbName, pass, user).allMatch(Optional::isPresent);
     }
 
     private void updateStateHash() {
@@ -116,7 +129,7 @@ public class ConfigService {
     private static SecretKeySpec getKey() throws NoSuchAlgorithmException, InvalidKeySpecException {
         if (keyRef != null) return keyRef;
         final var factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        final var spec = new PBEKeySpec(AES_KEY.toCharArray(), System.getProperty("app.build").getBytes(), 65536, 256);
+        final var spec = new PBEKeySpec(AES_KEY.toCharArray(), SALT.getBytes(), 65536, 256);
         keyRef = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), ALG);
         return keyRef;
     }

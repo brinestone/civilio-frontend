@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
@@ -45,10 +46,16 @@ public class Bootstrapper extends Application {
         final var cm = appComponent.configManager();
 
         for (var service : services) {
-            if (service.isConfigured(cm))
-                service.initialize();
-            else {
-                log.warn("{} requires configuration", service.getClass().getSimpleName());
+            try {
+                if (service.isConfigured(cm))
+                    service.initialize();
+                else {
+                    log.warn("{} requires configuration", service.getClass().getSimpleName());
+                    configurationRequired = true;
+                    return;
+                }
+            } catch (SQLException ex) {
+                log.error("error while initializing service: {}", service.getClass().getSimpleName(), ex);
                 configurationRequired = true;
                 return;
             }

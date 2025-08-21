@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.BorderPane?>
 <BorderPane prefHeight="611.0" prefWidth="1059.0" stylesheets="@../../styles/forms/fosa.css"
-            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="fr.civipol.civilio.controller.fosa.FOSAFormController">
     <center>
         <TabPane prefHeight="439.0" prefWidth="775.0">

@@ -1,7 +1,6 @@
 package fr.civipol.civilio.form.control.fosa;
 
 import com.dlsc.formsfx.view.controls.SimpleControl;
-import com.google.common.base.Objects;
 import fr.civipol.civilio.domain.converter.IntegerStringConverter;
 import fr.civipol.civilio.domain.viewmodel.InventoryEntryViewModel;
 import fr.civipol.civilio.entity.InventoryEntry;
@@ -23,6 +22,7 @@ import javafx.util.converter.DefaultStringConverter;
 import org.controlsfx.control.tableview2.TableColumn2;
 import org.controlsfx.control.tableview2.cell.TextField2TableCell;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class InventoryControl extends SimpleControl<InventoryField> {
@@ -91,7 +91,7 @@ public class InventoryControl extends SimpleControl<InventoryField> {
         field.valueProperty().addListener((ob, ov, nv) -> {
             final var vms = nv.stream()
                     .map(InventoryEntryViewModel::new)
-                    .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equal(vvm.getEntry(), vm.getEntry()))))
+                    .peek(vm -> vm.setSelected(selectedItems.stream().anyMatch(vvm -> Objects.equals(vvm.getEntry(), vm.getEntry()))))
                     .peek(vm -> vm.selectedProperty().addListener((oob, oov, nnv) -> listChanged.set(true)))
                     .toList();
             tvInventoryEntries.getItems().setAll(vms);
