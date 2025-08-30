@@ -412,9 +412,9 @@ public class FormService implements AppService {
             FormType form,
             int page,
             int size,
-            FilterManager filterManager) throws SQLException {
-        final var dataSource = this.dataSourceProvider.get();
+            FilterManager filterManager) throws SQLException {final var dataSource = this.dataSourceProvider.get();
         final var resultBuilder = PageResult.<FormSubmission>builder();
+
         final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
             String schema = form.toString();
