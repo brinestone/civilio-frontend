@@ -5,6 +5,7 @@ import com.dlsc.formsfx.model.util.TranslationService;
 import com.dlsc.formsfx.view.controls.SimpleComboBoxControl;
 import com.dlsc.formsfx.view.controls.SimpleTextControl;
 import fr.civipol.civilio.domain.OptionSource;
+import fr.civipol.civilio.domain.SubFormDataLoader;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormType;
@@ -13,10 +14,7 @@ import fr.civipol.civilio.form.control.MultiComboBoxControl;
 import fr.civipol.civilio.form.field.Option;
 import fr.civipol.civilio.services.FormService;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -38,14 +36,14 @@ import java.util.stream.Stream;
  * Represents a base form capable of submitting data and loading existing submission data.
  */
 @Slf4j
-public abstract class FormController implements AppController, OptionSource {
+public abstract class FormController implements AppController, OptionSource, SubFormDataLoader {
     protected Map<String, Collection<Option>> allOptions = new HashMap<>();
     private final BooleanProperty submitting = new SimpleBooleanProperty(this, "submitting", false);
     @Setter
-    protected Consumer<String> onSubmit;
+    protected Consumer<Integer> onSubmit;
     @Setter
     protected Consumer<Void> onDiscard;
-    protected final StringProperty submissionIndex = new SimpleStringProperty(this, "submissionIndex");
+    protected final IntegerProperty submissionIndex = new SimpleIntegerProperty(this, "submissionIndex");
     protected final ObservableMap<String, Object> submissionData = FXCollections.observableHashMap();
 
     protected void setSubmitting(boolean v) {
@@ -58,7 +56,7 @@ public abstract class FormController implements AppController, OptionSource {
 
     protected abstract FormModel getModel();
 
-    public void setSubmissionIndex(String submissionIndex) {
+    public void setSubmissionIndex(Integer submissionIndex) {
         this.submissionIndex.set(submissionIndex);
     }
 
@@ -75,7 +73,7 @@ public abstract class FormController implements AppController, OptionSource {
 
     protected FormController() {
         submissionIndex.addListener((ob, ov, nv) -> {
-            if (StringUtils.isBlank(nv)) {
+            if (nv == null) {
                 getModel().trackFieldChanges();
                 return;
             }
@@ -269,6 +267,28 @@ public abstract class FormController implements AppController, OptionSource {
                 log.error("error while loading auto-completion options", t);
             }
         });
+    }
+
+    @Override
+    public Collection<Map<String, Object>> loadSubFormData(String... fieldKeys) {
+        final var result = new ArrayList<Map<String, Object>>();
+        for (var key : fieldKeys) {
+            for (var entry : submissionData.entrySet()) {
+                final var fieldKey = extractFieldKey(entry.getKey());
+                if (!fieldKey.equals(key)) continue;
+                final var pos = Integer.parseInt(extractFieldIdentifiers(entry.getKey())[0]);
+                if (pos >= result.size()) {
+                    var cnt = result.size();
+                    while (cnt <= pos) {
+                        result.add(new HashMap<>());
+                        cnt++;
+                    }
+                }
+                final var map = result.get(pos);
+                map.put(key, entry.getValue());
+            }
+        }
+        return result;
     }
 
     public void onClose() {

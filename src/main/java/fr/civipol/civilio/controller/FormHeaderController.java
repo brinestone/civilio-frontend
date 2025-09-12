@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.textfield.TextFields;
+import org.controlsfx.validation.Severity;
+import org.controlsfx.validation.ValidationSupport;
+import org.controlsfx.validation.Validator;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -34,7 +37,7 @@ public class FormHeaderController implements AppController {
     private final Lazy<FieldMapper> fieldMapperProvider;
     private final BooleanProperty canGoNext = new SimpleBooleanProperty(this, "canGoNext", true);
     private final BooleanProperty canGoPrev = new SimpleBooleanProperty(this, "canGoNext", true);
-    private final StringProperty submissionIndex = new SimpleStringProperty(this, "submissionIndex");
+    private final IntegerProperty submissionIndex = new SimpleIntegerProperty(this, "submissionIndex");
     private final StringProperty index = new SimpleStringProperty(this, "index");
     private final StringProperty validationCode = new SimpleStringProperty(this, "validationCode");
     private final ObjectProperty<SubmissionRef> submissionRef = new SimpleObjectProperty<>();
@@ -53,7 +56,7 @@ public class FormHeaderController implements AppController {
     private TextField tfValidationCode;
     private boolean submissionIdUpdatedExternally;
 
-    public StringProperty submissionIndexProperty() {
+    public IntegerProperty submissionIndexProperty() {
         return submissionIndex;
     }
 
@@ -76,6 +79,11 @@ public class FormHeaderController implements AppController {
                         .orElse(rb.getString("forms.header.date.new")), submissionIndex, submissionRef));
         lblSubmissionDate.textProperty().bind(lblSubmissionDateBinding);
         tfValidationCode.textProperty().bindBidirectional(validationCode);
+        final var vs = new ValidationSupport();
+        vs.registerValidator(tfValidationCode, false, Validator.combine(
+                Validator.createEmptyValidator(rb.getString("forms.msg.invalid_value")),
+                Validator.<String>createPredicateValidator(v -> formService.isValidationCodeValid(v, formType.getValue()), rb.getString("forms.msg.invalid_value"), Severity.WARNING)
+        ));
         btnNext.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::next)
                 .ifPresent(submissionIndex::setValue));
@@ -95,7 +103,7 @@ public class FormHeaderController implements AppController {
 
             executorService.submit(() -> {
                 try {
-                    final var submissionRefs = formService.findSubmissionRefsByIndex(nv, indexFieldName.getValueSafe(), formType.getValue());
+                    final var submissionRefs = formService.searchSubmissionRefsByIndex(nv.trim(), formType.getValue());
                     Platform.runLater(() -> suggestions.setAll(submissionRefs));
                 } catch (Throwable e) {
                     log.error("error while searching for submission refs", e);
@@ -107,31 +115,32 @@ public class FormHeaderController implements AppController {
         binding.setOnAutoCompleted(e -> {
             submissionRef.setValue(e.getCompletion());
             submissionIdUpdatedExternally = true;
-            tfIndexSearch.setText(e.getCompletion().index());
+            tfIndexSearch.setText(String.valueOf(e.getCompletion().index()));
+            submissionIdUpdatedExternally = false;
         });
         btnPrev.disableProperty().bind(Bindings.or(
                 Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                         .map(SubmissionRef::prev)
-                        .map(StringUtils::isBlank)
-                        .orElse(true), submissionRef).or(canGoPrev.not()),
+                        .filter(v -> v <= 0)
+                        .isPresent(), submissionRef).or(canGoPrev.not()),
                 loading
         ));
         btnNext.disableProperty().bind(Bindings.or(
                 Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                         .map(SubmissionRef::next)
-                        .map(StringUtils::isBlank)
-                        .orElse(true), submissionRef).or(canGoNext.not()),
+                        .filter(v -> v <= 0)
+                        .isPresent(), submissionRef).or(canGoNext.not()),
                 loading
         ));
         submissionIndex.addListener((ob, ov, nv) -> {
-            if (StringUtils.isBlank(nv)) return;
+            if (nv == null) return;
             executorService.submit(() -> {
                 try {
-                    formService.findSubmissionRefByIndex(nv, formType.getValue())
+                    formService.findSubmissionRefByIndex(nv.intValue(), formType.getValue())
                             .ifPresentOrElse(v -> Platform.runLater(() -> {
                                 submissionRef.setValue(v);
                                 submissionIdUpdatedExternally = true;
-                                tfIndexSearch.setText(v.index());
+                                tfIndexSearch.setText(String.valueOf(v.index()));
                                 submissionIdUpdatedExternally = false;
                             }), () -> Platform.runLater(() -> {
                                 submissionRef.setValue(null);

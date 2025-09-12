@@ -30,7 +30,7 @@ Translation can be automatically done using the `translate.mjs` file, to generat
 ### Examples
 - Translating to french
     ```bash
-    node translate.mjs fr
+    node translate.mjs en fr
     ```
 - Translating to french and spanish
     ```bash

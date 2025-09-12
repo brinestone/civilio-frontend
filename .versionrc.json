@@ -3,6 +3,10 @@
         {
             "filename": "build.gradle.kts",
             "updater": "version-bump.mjs"
+        },
+        {
+            "filename": "package.json",
+            "type": "json"
         }
     ]
 }

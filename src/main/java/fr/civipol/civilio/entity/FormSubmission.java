@@ -1,34 +1,27 @@
 package fr.civipol.civilio.entity;
 
-import fr.civipol.civilio.domain.filter.FilterField;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @Jacksonized
 @Builder
 @EqualsAndHashCode(of = {"index"})
 public class FormSubmission implements Comparable<FormSubmission> {
-    private String id;
-    @FilterField(dbFieldName ="_validation_status", labelKey = "filters.validation.status")
+    private Integer id;
     private String validationStatus;
-    @FilterField(dbFieldName = "q14_02_validation_code", labelKey = "filters.validation.code")
     private String validationCode;
-    @FilterField(dbFieldName = "_submitted_by", labelKey = "filters.user.recorded_by.title")
-    private String submittedBy;
-    @FilterField(dbFieldName = "_submission_time", labelKey = "filters.recorded_on.title")
-    private Date submittedOn;
-    @FilterField(dbFieldName = "_index", labelKey = "filters.index.title")
-    private String index;
-    @FilterField(dbFieldName = "q1_12_officename", labelKey = "filters.facility_name.title")
+    private LocalDate submittedOn;
+    private Integer index;
     private String facilityName;
+    private boolean valid;
 
     @Override
     public int compareTo(FormSubmission o) {
-        return Integer.compare(Integer.parseInt(o.getIndex()), Integer.parseInt(getIndex()));
+        return Integer.compare(o.getIndex(), getIndex());
     }
 }

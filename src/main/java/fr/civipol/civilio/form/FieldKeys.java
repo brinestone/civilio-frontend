@@ -116,6 +116,47 @@ public class FieldKeys {
         public static final String EXTRA_INFO = "chefferie.form.fields.extra_info.title";
         public static final String INDEX = "chefferie.form.fields.index";
         public static final String VALIDATION_CODE = "chefferie.form.fields.validation_code";
+
+        public static final String[] TRACKABLE_FIELDS = {
+                RESPONDENT_NAME,
+                POSITION,
+                PHONE,
+                EMAIL,
+                CREATION_DATE,
+                DIVISION,
+                MUNICIPALITY,
+                QUARTER,
+                FACILITY_NAME,
+                CLASSIFICATION,
+                HEALTH_CENTER_PROXIMITY,
+                GPS_COORDS,
+                CS_OFFICER_TRAINED,
+                WAITING_ROOM,
+                OTHER_WAITING_ROOM,
+                IS_CHIEF_CS_OFFICER,
+                CHIEF_OATH,
+                CS_REG_LOCATION,
+                OTHER_CS_REG_LOCATION,
+                TOILETS_ACCESSIBLE,
+                PC_COUNT,
+                PRINTER_COUNT,
+                TABLET_COUNT,
+                CAR_COUNT,
+                BIKE_COUNT,
+                IS_CHIEFDOM_CHIEF_RESIDENCE,
+                HAS_INTERNET,
+                INTERNET_TYPE,
+                OTHER_INTERNET_TYPE,
+                HAS_ENEO_CONNECTION,
+                WATER_ACCESS,
+                WATER_SOURCES,
+                OTHER_WATER_SOURCE,
+                HAS_EXTINGUISHER,
+                EMPLOYEE_COUNT,
+                EXTRA_INFO,
+                INDEX,
+                VALIDATION_CODE,
+        };
     }
 
     public static final class CSC {

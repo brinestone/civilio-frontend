@@ -16,11 +16,13 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
     private static final String ADD_ACTION_TEXT = "controls.stats_collector.actions.add_new";
     private static final String REMOVE_ACTION_TEXT = "controls.stats_collector.actions.remove_selection";
     @Getter
+    @SuppressWarnings("rawtypes")
     private final ObservableList<ColumnDefinition> columnDefinitions = FXCollections.observableArrayList();
     private final StringProperty addActionText = new SimpleStringProperty(), removeActionText = new SimpleStringProperty();
     private final DoubleProperty height = new SimpleDoubleProperty(this, "height", 300);
     @Getter(AccessLevel.PACKAGE)
     private final Supplier<V> valueSupplier;
+    private final IntegerProperty maxRecords = new SimpleIntegerProperty(this, "maxRecords");
 
     protected TabularField(ListProperty<V> valueProperty, ListProperty<V> persistentValueProperty, Supplier<V> valueSupplier) {
         super(valueProperty, persistentValueProperty);
@@ -31,6 +33,15 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
     @SuppressWarnings("rawtypes")
     public final TabularField<V> withColumns(ColumnDefinition... definition) {
         columnDefinitions.setAll(definition);
+        return this;
+    }
+
+    public final TabularField<V> withMaxRecords(IntegerProperty maxRecords) {
+        if (maxRecords == null && this.maxRecords.isBound()){
+            this.maxRecords.unbind();
+            return this;
+        }
+        this.maxRecords.bind(maxRecords);
         return this;
     }
 
@@ -65,5 +76,13 @@ public class TabularField<V> extends DataField<ListProperty<V>, List<V>, Tabular
 
     public DoubleProperty heightProperty() {
         return height;
+    }
+
+    public IntegerProperty maxRecordsProperty() {
+        return maxRecords;
+    }
+
+    public int getMaxRecords() {
+        return maxRecords.get();
     }
 }

@@ -14,7 +14,9 @@ import com.dlsc.formsfx.view.util.ColSpan;
 import fr.civipol.civilio.controller.FormController;
 import fr.civipol.civilio.controller.FormFooterController;
 import fr.civipol.civilio.controller.FormHeaderController;
-import fr.civipol.civilio.domain.*;
+import fr.civipol.civilio.domain.FieldChange;
+import fr.civipol.civilio.domain.StorageHandler;
+import fr.civipol.civilio.domain.UploadTask;
 import fr.civipol.civilio.domain.converter.OptionConverter;
 import fr.civipol.civilio.entity.FormType;
 import fr.civipol.civilio.entity.GeoPoint;
@@ -45,7 +47,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
@@ -62,7 +63,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
-public class CSCFormController extends FormController implements Initializable, StorageHandler, SubFormDataLoader {
+public class CSCFormController extends FormController implements Initializable, StorageHandler {
     private static final String PING_DOMAIN = "tile.openstreetmap.org";
     private boolean optionsLoaded = false;
     @Getter(AccessLevel.PROTECTED)
@@ -212,7 +213,6 @@ public class CSCFormController extends FormController implements Initializable, 
         setupDigitization(ts);
         setupScanning(ts);
         setupRecordProcurement(ts);
-        setupFinancialStats(ts);
         setupArchiving(ts);
         setupStaff(ts);
         setupComments(ts);
@@ -307,54 +307,54 @@ public class CSCFormController extends FormController implements Initializable, 
                                 HashMap::new
                         ).label("csc.form.sections.personnel_info.title")
                         .withColumns(
-                                ColumnDefinition.<Map<String, Object>>ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_NAME)
+                                ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_NAME)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.<Map<String, Object>, Option>ofSingleSelectionType(OptionConverter.usingOptions(personnelRoles), personnelRoles, FieldKeys.PersonnelInfo.PERSONNEL_POSITION)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.<Map<String, Object>>ofStringType(FieldKeys.CSC.PersonnelInfo.Officers.OTHER_POSITION)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(statusOptions), statusOptions, FieldKeys.CSC.PersonnelInfo.Officers.STATUS)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofStringType(FieldKeys.CSC.PersonnelInfo.Officers.OTHER_STATUS)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(genders), genders, FieldKeys.PersonnelInfo.PERSONNEL_GENDER)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_PHONE)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofIntegerType(FieldKeys.PersonnelInfo.PERSONNEL_AGE)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofStringType(FieldKeys.PersonnelInfo.PERSONNEL_EMAIL)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(educationLevels), educationLevels, FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(computerKnowledgeLevels), computerKnowledgeLevels, FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofBooleanType(FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofBooleanType(FieldKeys.CSC.PersonnelInfo.HAS_ARCHIVING_TRAINING)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofBooleanType(FieldKeys.CSC.PersonnelInfo.HAS_COMPUTER_TRAINING)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.PersonnelInfo.Officers.CS_SENIORITY)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty),
+                                        .withValueSelector(model::provideStaffDataFieldProperty),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022)
                                         .width(width)
-                                        .withValueProvider(model::provideStaffDataFieldProperty)
+                                        .withValueSelector(model::provideStaffDataFieldProperty)
                         )
         )).binding(BindingMode.CONTINUOUS).i18n(ts);
         tStaff.setContent(wrapForm(form));
@@ -388,25 +388,25 @@ public class CSCFormController extends FormController implements Initializable, 
                 TabularField.create(model.getDeedsData(), HashMap::new)
                         .withColumns(
                                 ColumnDefinition.ofSingleSelectionType(OptionConverter.usingOptions(yearOptions), yearOptions, FieldKeys.CSC.Deeds.YEAR)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(75),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.BIRTH_CERT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.BIRTH_CERT_NOT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.MARRIAGE_CERT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.MARRIAGE_CERT_NOT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.DEATH_CERT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width),
                                 ColumnDefinition.ofIntegerType(FieldKeys.CSC.Deeds.DEATH_CERT_NOT_DRAWN)
-                                        .withValueProvider(model::provideDeedFieldProperty)
+                                        .withValueSelector(model::provideDeedFieldProperty)
                                         .width(width)
                         ).label("csc.form.sections.deeds.title")
         )).i18n(ts).binding(BindingMode.CONTINUOUS);
@@ -482,23 +482,29 @@ public class CSCFormController extends FormController implements Initializable, 
 
         setupDeeds(ts);
         setupArchiveStatus(ts);
+        setupFinancialStats(ts);
 
         tArchivingParent.graphicProperty().bind(
                 Bindings.createObjectBinding(() -> {
-                    final var archivingGraphic = tArchiving.getGraphic();
-                    final var deedGraphic = tDeeds.getGraphic();
-                    final var archivingStatusGraphic = tStatusOfArchives.getGraphic();
-                    return Stream.of(archivingGraphic, deedGraphic, archivingStatusGraphic)
-                            .filter(Objects::nonNull)
-                            .findFirst()
-                            .map(FontIcon.class::cast)
-                            .map(n -> {
-                                final var clone = new FontIcon();
-                                clone.setIconCode(n.getIconCode());
-                                clone.setIconColor(n.getIconColor());
-                                return clone;
-                            }).orElse(null);
-                }, tArchiving.graphicProperty(), tDeeds.graphicProperty(), tStatusOfArchives.graphicProperty())
+                            final var archivingGraphic = tArchiving.getGraphic();
+                            final var deedGraphic = tDeeds.getGraphic();
+                            final var archivingStatusGraphic = tStatusOfArchives.getGraphic();
+                            final var financialStatsGraphic = tStats.getGraphic();
+                            return Stream.of(archivingGraphic, financialStatsGraphic, deedGraphic, archivingStatusGraphic)
+                                    .filter(Objects::nonNull)
+                                    .findFirst()
+                                    .map(FontIcon.class::cast)
+                                    .map(n -> {
+                                        final var clone = new FontIcon();
+                                        clone.setIconCode(n.getIconCode());
+                                        clone.setIconColor(n.getIconColor());
+                                        return clone;
+                                    }).orElse(null);
+                        }, tArchiving.graphicProperty(),
+                        tStats.graphicProperty(),
+                        tDeeds.graphicProperty(),
+                        tStatusOfArchives.graphicProperty()
+                )
         );
     }
 
@@ -517,10 +523,12 @@ public class CSCFormController extends FormController implements Initializable, 
                 integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.CELIBACY_CERT_COPY_COST),
                 integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.NON_REGISTERED_CERTS),
                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.FinancialStats.RATES_UNDER_DELIBERATION))
+                        .blockedLabel(true)
                         .label(FieldKeys.CSC.FinancialStats.RATES_UNDER_DELIBERATION)
                         .span(ColSpan.THIRD),
                 Field.ofBooleanType((BooleanProperty) model.getPropertyFor(FieldKeys.CSC.FinancialStats.PRICES_DISPLAYED))
                         .label(FieldKeys.CSC.FinancialStats.PRICES_DISPLAYED)
+                        .blockedLabel(true)
                         .span(ColSpan.THIRD),
                 integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.MUNICIPALITY_BUDGET_2024),
                 integerFieldFactory.apply(FieldKeys.CSC.FinancialStats.CS_BUDGET_2024)
@@ -840,10 +848,10 @@ public class CSCFormController extends FormController implements Initializable, 
                                                 ColumnDefinition.<Map<String, Object>>ofIntegerType(
                                                                 FieldKeys.CSC.Areas.Rooms.NUMBER)
                                                         .width(columnWidth)
-                                                        .withValueProvider(model::provideRoomDataFieldProperty),
+                                                        .withValueSelector(model::provideRoomDataFieldProperty),
                                                 ColumnDefinition.<Map<String, Object>>ofStringType(FieldKeys.CSC.Areas.Rooms.NAME)
                                                         .width(columnWidth)
-                                                        .withValueProvider(model::provideRoomDataFieldProperty),
+                                                        .withValueSelector(model::provideRoomDataFieldProperty),
                                                 ColumnDefinition.<Map<String, Object>, Option>ofSingleSelectionType(
                                                                 optionConverterProvider
                                                                         .apply(model.getOptionsFor(
@@ -851,11 +859,11 @@ public class CSCFormController extends FormController implements Initializable, 
                                                                 model.getOptionsFor(
                                                                         FieldKeys.CSC.Areas.Rooms.CONDITION),
                                                                 FieldKeys.CSC.Areas.Rooms.CONDITION)
-                                                        .withValueProvider(model::provideRoomDataFieldProperty)
+                                                        .withValueSelector(model::provideRoomDataFieldProperty)
                                                         .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>>ofFloatType(
                                                                 FieldKeys.CSC.Areas.Rooms.AREA)
-                                                        .withValueProvider(model::provideRoomDataFieldProperty)
+                                                        .withValueSelector(model::provideRoomDataFieldProperty)
                                                         .width(columnWidth),
                                                 ColumnDefinition.<Map<String, Object>, Option>ofMultiSelectionType(
                                                                 FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE,
@@ -864,7 +872,7 @@ public class CSCFormController extends FormController implements Initializable, 
                                                                 optionConverterProvider
                                                                         .apply(model.getOptionsFor(
                                                                                 FieldKeys.CSC.Areas.Rooms.RENOVATION_NATURE)))
-                                                        .withValueProvider(model::provideRoomDataFieldProperty)
+                                                        .withValueSelector(model::provideRoomDataFieldProperty)
                                                         .width(columnWidth))))
                 .i18n(ts);
         areasForm = form;
@@ -1082,15 +1090,15 @@ public class CSCFormController extends FormController implements Initializable, 
                 .label("csc.form.base_fields.sections.accessibility.sub_forms.villages.title")
                 .withColumns(
                         ColumnDefinition.<Map<String, Object>>ofStringType(FieldKeys.CSC.Accessibility.Villages.NAME)
-                                .withValueProvider(model::provideVillageDataFieldProperty)
+                                .withValueSelector(model::provideVillageDataFieldProperty)
                                 .width(150),
                         ColumnDefinition.<Map<String, Object>>ofFloatType(
                                         FieldKeys.CSC.Accessibility.Villages.DISTANCE
                                 ).width(350)
-                                .withValueProvider(model::provideVillageDataFieldProperty)
+                                .withValueSelector(model::provideVillageDataFieldProperty)
                                 .editable(true),
                         ColumnDefinition.<Map<String, Object>>ofStringType(FieldKeys.CSC.Accessibility.Villages.OBSERVATIONS)
-                                .withValueProvider(model::provideVillageDataFieldProperty)
+                                .withValueSelector(model::provideVillageDataFieldProperty)
                                 .width(150)
                 ))).i18n(ts).binding(BindingMode.CONTINUOUS);
         villagesForm = form;
@@ -1372,27 +1380,5 @@ public class CSCFormController extends FormController implements Initializable, 
 
     public void onClose() {
         pingService.unobserve(PING_DOMAIN);
-    }
-
-    @Override
-    public Collection<Map<String, Object>> loadSubFormData(String... fieldKeys) {
-        final var result = new ArrayList<Map<String, Object>>();
-        for (var key : fieldKeys) {
-            for (var entry : submissionData.entrySet()) {
-                final var fieldKey = extractFieldKey(entry.getKey());
-                if (!fieldKey.equals(key)) continue;
-                final var pos = Integer.parseInt(extractFieldIdentifiers(entry.getKey())[0]);
-                if (pos >= result.size()) {
-                    var cnt = result.size();
-                    while (cnt <= pos) {
-                        result.add(new HashMap<>());
-                        cnt++;
-                    }
-                }
-                final var map = result.get(pos);
-                map.put(key, entry.getValue());
-            }
-        }
-        return result;
     }
 }

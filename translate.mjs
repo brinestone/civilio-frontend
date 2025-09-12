@@ -46,7 +46,7 @@ async function translateValue(value, sourceLocale, targetLocales) {
         if (localesCopy.length === 0) return result;
     }
 
-    for (const targetLocale of targetLocales) {
+    for (const targetLocale of localesCopy) {
         if (targetLocale === sourceLocale) {
             result.set(targetLocale, value);
             console.debug(`Skipping translation for ${targetLocale} as it is the same as source locale ${sourceLocale}`);
@@ -138,7 +138,6 @@ async function translateFile(filePath, sourceLocale, targetLocales) {
                 existingTranslations.forEach(({dest_locale, dest_value}) => {
                     translatedValues.set(dest_locale, dest_value);
                 });
-                console.log('skipped translation - ' + trimmedKey + ', using cached values: ' + existingTranslations.map(v => v.dest_value).join(', '));
             } else
                 translatedValues = await translateValue(trimmedValue, sourceLocale, targetLocalesCopy);
             for (const [targetLocale, translatedValue] of translatedValues.entries()) {

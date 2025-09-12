@@ -3,7 +3,6 @@ package fr.civipol.civilio.services;
 import dagger.Lazy;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.PageResult;
-import fr.civipol.civilio.domain.filter.FilterManager;
 import fr.civipol.civilio.entity.FieldMapping;
 import fr.civipol.civilio.entity.FormSubmission;
 import fr.civipol.civilio.entity.FormType;
@@ -23,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -51,6 +51,28 @@ public class FormService implements AppService {
         try (final var connection = ds.getConnection()) {
             return findFieldMappingsInternal(connection, form.toString());
         }
+    }
+
+    public boolean isValidationCodeValid(String code, FormType formType) {
+        if (StringUtils.isBlank(code)) return true;
+        final var ds = dataSourceProvider.get();
+        try (final var connection = ds.getConnection()) {
+            try (final var st = connection.prepareStatement("""
+                    select exists(select *
+                                  from civilio.validation_codes
+                                  where form = CAST(? as civilio.form_types)
+                                  and code = ?);
+                                        """)) {
+                st.setString(2, code);
+                st.setString(1, formType.toString());
+                try (final var rs = st.executeQuery()) {
+                    return rs.next() && rs.getBoolean(1);
+                }
+            }
+        } catch (SQLException ex) {
+            log.error("could not validate validation code: {}", code);
+        }
+        return false;
     }
 
     public Optional<FieldMapping> findFieldMapping(FormType form, String field) throws SQLException {
@@ -281,7 +303,7 @@ public class FormService implements AppService {
     }
 
     public Map<String, String> findSubmissionData(
-            String submissionIndex,
+            Integer submissionIndex,
             FormType form,
             BiFunction<FieldMapping, Integer, String> keyMaker) throws SQLException {
         final var ds = dataSourceProvider.get();
@@ -291,7 +313,7 @@ public class FormService implements AppService {
             final var formMappings = findFieldMappingsInternal(connection, form.toString());
             String refColumn;
             final var sql = """
-                    SELECT FORMAT('SELECT %I::TEXT FROM %I.%I df WHERE df.%I=CAST(%L AS INTEGER);', ?, ?, ?, ?, ?);
+                    SELECT FORMAT('SELECT %I::TEXT FROM %I.%I df WHERE df.%I=%L;', ?, ?, ?, ?, ?);
                     """;
             final var childTables = List.of(PERSONNEL_INFO_TABLE, PIECES_TABLE, STATISTICS_TABLE, VILLAGES_TABLE);
             try (final var ps = connection.prepareStatement(sql)) {
@@ -301,7 +323,7 @@ public class FormService implements AppService {
                     ps.setString(2, schema);
                     ps.setString(3, mapping.dbTable());
                     ps.setString(4, refColumn);
-                    ps.setString(5, submissionIndex);
+                    ps.setInt(5, submissionIndex);
 
                     String query;
                     try (final var rs = ps.executeQuery()) {
@@ -324,7 +346,7 @@ public class FormService implements AppService {
 
     // @SuppressWarnings({"DuplicatedCode"})
     public void updateSubmission(
-            String submissionIndex,
+            Integer submissionIndex,
             FormType form,
             Function<String, String> fieldExtractor,
             FieldChange... changes) throws SQLException {
@@ -350,7 +372,7 @@ public class FormService implements AppService {
                                 submissionIndex, connection);
                         continue;
                     }
-                    call.setString(1, submissionIndex);
+                    call.setString(1, String.valueOf(submissionIndex));
                     call.setString(2, form.name().toLowerCase());
                     call.setInt(3, change.getOrdinal());
                     final var field = fieldExtractor.apply(change.getField());
@@ -358,7 +380,7 @@ public class FormService implements AppService {
                     call.setObject(5, change.getNewValue());
                     try (final var rs = call.executeQuery()) {
                         if (rs.next())
-                            submissionIndex = rs.getString(1);
+                            submissionIndex = rs.getInt(1);
                         else
                             throw new IllegalStateException("An error occurred");
                     }
@@ -375,7 +397,7 @@ public class FormService implements AppService {
             int ordinal,
             String form,
             String fieldPattern,
-            String submissionIndex,
+            Integer submissionIndex,
             Connection connection) throws SQLException {
         try (final var call = connection.prepareCall("""
                 CALL civilio.proc_process_deletion_change(
@@ -385,7 +407,7 @@ public class FormService implements AppService {
                     form_type := CAST(? as civilio.form_types)
                 );
                 """)) {
-            call.setString(1, submissionIndex);
+            call.setString(1, String.valueOf(submissionIndex));
             call.setString(2, fieldPattern);
             call.setInt(3, ordinal);
             call.setString(4, form);
@@ -414,112 +436,77 @@ public class FormService implements AppService {
         }
     }
 
-    public void deleteSubmissions(FormType form, String... indices) throws SQLException {
-        if (indices.length == 0)
-            return;
-        final var dataSource = this.dataSourceProvider.get();
-        try (final var connection = dataSource.getConnection()) {
-            connection.setAutoCommit(false);
-            try (final var st = connection.prepareStatement("""
-                    DELETE FROM %s.data d WHERE d._index IN (%s);
-                    """.formatted(form.toString(), String.join(",", Collections.nCopies(indices.length, "?"))))) {
-                for (var i = 0; i < indices.length; i++) {
-                    st.setString(i + 1, indices[i]);
-                }
-
-                st.executeUpdate();
-            }
-        }
-    }
-
     public PageResult<FormSubmission> findFormSubmissions(
             FormType form,
             int page,
             int size,
-            FilterManager filterManager) throws SQLException {
+            String filterQuery) throws SQLException {
         final var dataSource = this.dataSourceProvider.get();
         final var resultBuilder = PageResult.<FormSubmission>builder();
-        final var filter = filterManager.toPreparedstatementFilter();
         try (final var connection = dataSource.getConnection()) {
-            String schema = form.toString();
-            String sql;
-            if (form == FormType.FOSA || form == FormType.CHIEFDOM)
+            final var schema = form.toString();
+            String sql, countSql;
+            if (filterQuery.isBlank()) {
                 sql = """
-                        SELECT
-                            df._id,
-                            df._index,
-                            df._validation_status,
-                            df.q14_02_validation_code,
-                            df._submitted_by,
-                            df.q1_12_officename,
-                            df._submission_time::DATE
-                        FROM
-                            %s.data df
-                        WHERE
-                            %s
-                        ORDER BY
-                            _submission_time::DATE DESC
-                        OFFSET ?
-                        LIMIT ?;
-                        """.formatted(schema, filter.getWhereClause());
-            else
+                        SELECT FORMAT('SELECT _id, _index, _validation_status, validation_code, facility_name, _submission_time, form, is_valid FROM
+                        civilio.vw_submissions WHERE form = %L::civilio.form_types OFFSET %L::INTEGER LIMIT %L::INTEGER;', ?, ?, ?);
+                        """;
+                countSql = """
+                        SELECT FORMAT('SELECT COUNT(*) FROM civilio.vw_submissions WHERE form = %L::civilio.form_types;', ?);
+                        """;
+            } else {
                 sql = """
-                        SELECT
-                            df._id,
-                            df._index,
-                            df._validation_status,
-                            df.code_de_validation,
-                            df._submitted_by,
-                            df.q2_4_officename,
-                            df._submission_time::DATE
-                        FROM
-                            csc.data df
-                        WHERE
-                            %s
-                        ORDER BY
-                            _submission_time::DATE DESC
-                        OFFSET ?
-                        LIMIT ?;
-                        """.formatted(filter.getWhereClause());
-            final var countSql = """
-                    SELECT
-                        COUNT(distinct _index)
-                    FROM
-                        %s.data
-                    WHERE
-                        %s;
-                    """.formatted(schema, filter.getWhereClause());
-            try (
-                    final var ps = connection.prepareStatement(sql);
-                    final var countPs = connection.prepareStatement(countSql)) {
-                filter.applyToPreparedStatement(ps);
-                var index = filter.getParameters().size();
-                ps.setInt(++index, page * size);
-                ps.setInt(++index, size);
-                filter.applyToPreparedStatement(countPs);
-
-                try (final var rs = ps.executeQuery()) {
-                    final var streamBuilder = Stream.<FormSubmission>builder();
-                    while (rs.next()) {
-                        streamBuilder.add(
-                                FormSubmission.builder()
-                                        .id(rs.getString(1))
-                                        .index(rs.getString(2))
-                                        .validationStatus(rs.getString(3))
-                                        .validationCode(rs.getString(4))
-                                        .submittedBy(rs.getString(5))
-                                        .facilityName(rs.getString(6))
-                                        .submittedOn(rs.getDate(7))
-                                        .build());
-                    }
-                    resultBuilder.data(streamBuilder.build().toList());
+                        SELECT FORMAT('SELECT _id, _index, _validation_status, validation_code, facility_name, _submission_time, form, is_valid FROM civilio.vw_submissions WHERE form = %L::civilio.form_types AND (LOWER(_index::TEXT) LIKE %L OR LOWER(validation_code) LIKE %L OR LOWER(facility_name) LIKE %L) OFFSET %L::INTEGER LIMIT %L::INTEGER;', ?, ?, ?, ?, ?, ?);
+                        """;
+                countSql = """
+                        SELECT FORMAT('SELECT COUNT(*) FROM civilio.vw_submissions WHERE form = %L::civilio.form_types AND (LOWER(_index::TEXT) LIKE %L OR LOWER(validation_code) LIKE %L OR LOWER(facility_name) LIKE %L);', ?, ?, ?, ?)
+                        """;
+            }
+            String query, countQuery;
+            try (final var ps1 = connection.prepareStatement(sql); final var ps2 = connection.prepareStatement(countSql)) {
+                var index = 1;
+                ps1.setString(index, schema);
+                ps2.setString(index++, schema);
+                if (!filterQuery.isBlank()) {
+                    String value = "%%%s%%".formatted(filterQuery.toLowerCase());
+                    ps1.setString(index, value);
+                    ps2.setString(index++, value);
+                    ps1.setString(index, value);
+                    ps2.setString(index++, value);
+                    ps1.setString(index, value);
+                    ps2.setString(index++, value);
                 }
-                try (final var rs = countPs.executeQuery()) {
-                    var count = 0L;
-                    if (rs.next()) {
-                        count = rs.getLong(1);
+                ps1.setInt(index++, page * size);
+                ps1.setInt(index, size);
+
+                try (final var rs1 = ps1.executeQuery(); final var rs2 = ps2.executeQuery()) {
+                    if (!rs1.next()) throw new IllegalStateException("Could not generate queries for form submissions");
+                    if (!rs2.next()) throw new IllegalStateException("Could not generate queries for form submissions");
+
+                    query = rs1.getString(1);
+                    countQuery = rs2.getString(1);
+                }
+
+                try (final var st1 = connection.createStatement(); final var st2 = connection.createStatement()) {
+                    try (final var rs1 = st1.executeQuery(query); final var rs2 = st2.executeQuery(countQuery)) {
+                        if (!rs2.next())
+                            throw new IllegalStateException("Could not count the total number of records of query");
+                        resultBuilder.totalRecords(rs2.getLong(1));
+
+                        final var streamBuilder = Stream.<FormSubmission>builder();
+                        while (rs1.next()) {
+                            streamBuilder.add(FormSubmission.builder()
+                                    .id(rs1.getInt("_id"))
+                                    .index(rs1.getInt("_index"))
+                                    .validationStatus(rs1.getString("_validation_status"))
+                                    .validationCode(rs1.getString("validation_code"))
+                                    .facilityName(rs1.getString("facility_name"))
+                                    .submittedOn(Optional.ofNullable(rs1.getDate("_submission_time")).map(Date::toLocalDate).orElse(null))
+                                    .valid(rs1.getBoolean("is_valid"))
+                                    .build());
+                        }
+                        resultBuilder.data(streamBuilder.build().toList());
                     }
-                    resultBuilder.totalRecords(count);
                 }
             }
         }
@@ -569,109 +556,80 @@ public class FormService implements AppService {
         return result;
     }
 
-    public Optional<SubmissionRef> findSubmissionRefByIndex(String index, FormType form) throws SQLException {
+    public Optional<SubmissionRef> findSubmissionRefByIndex(Integer index, FormType form) throws SQLException {
         final var ds = dataSourceProvider.get();
         final var schema = form.toString();
         try (final var connection = ds.getConnection()) {
-            String validationCodeColumn = "q14_02_validation_code";
-            if (form == FormType.CSC)
-                validationCodeColumn = "code_de_validation";
-
             try (final var st = connection.prepareStatement("""
-                    select d._id::TEXT,
-                           d._submission_time::date,
-                           d._index::TEXT,
-                           d.q14_02_validation_code,
-                           d.prev::TEXT,
-                           d.next::TEXT
-                    from (
-                            select  _id,
-                                    _submission_time,
-                                    _index,
-                                    %s as q14_02_validation_code,
-                                    lead(_index) over (order by _index) as next,
-                                    lag(_index) over (order by _index)  as prev
-                            from
-                                    %s.data
-                         ) as d
-                    where d._index = CAST(? as integer);
-                    """.formatted(validationCodeColumn, schema))) {
-                st.setString(1, index);
+                    select d._id,
+                           d._submission_time,
+                           d._index,
+                           d.validation_code,
+                           d.next,
+                           d.prev
+                    from civilio.vw_submissions d
+                    where d._index = ? AND d.form = CAST(? as civilio.form_types)
+                    limit 1;
+                    """)) {
+                st.setInt(1, index);
+                st.setString(2, schema);
                 try (final var rs = st.executeQuery()) {
                     if (!rs.next())
                         return Optional.empty();
-                    return Optional.of(new SubmissionRef(rs.getString(1),
-                            rs.getDate(2).toLocalDate(),
-                            rs.getString(3),
-                            rs.getString(4),
-                            rs.getString(5),
-                            rs.getString(6)));
+                    return Optional.of(new SubmissionRef(rs.getInt(1),
+                                    Optional.ofNullable(rs.getDate(2))
+                                            .map(Date::toLocalDate)
+                                            .orElse(null),
+                                    rs.getInt(3),
+                                    rs.getString(4),
+                                    rs.getInt(6),
+                                    rs.getInt(5)
+                            )
+                    );
                 }
             }
         }
     }
 
-    public Collection<SubmissionRef> findSubmissionRefsByIndex(String query, String fieldId, FormType form)
+    public Collection<SubmissionRef> searchSubmissionRefsByIndex(String query, FormType form)
             throws SQLException {
         if (StringUtils.isBlank(query))
             return Collections.emptyList();
         final var ds = dataSourceProvider.get();
         final var schema = form.toString();
         try (final var conn = ds.getConnection()) {
-            final var mappingWrapper = findFieldMappingInternal(conn, form.toString(), fieldId);
-            if (mappingWrapper.isEmpty()) {
-                return Collections.emptyList();
-            }
-            final var mapping = mappingWrapper.get();
-
+            String sql;
             try (final var st = conn.prepareStatement("""
-                    SELECT FORMAT('
-                        SELECT
-                            d._id::TEXT,
-                            d._submission_time::DATE,
-                            d._index::TEXT,
-                            d.q14_02_validation_code,
-                            d.prev::TEXT,
-                            d.next::TEXT
-                        FROM (
-                            SELECT
-                                _id,
-                                _submission_time,
-                                _index,
-                                %I as q14_02_validation_code,
-                                lead(_index) over (order by _index) as next,
-                                lag(_index) over (order by _index)  as prev
-                            FROM
-                                %I.data
-                            ) as d
-                        WHERE
-                            d._index::TEXT LIKE %L OR LOWER(d.%I::TEXT) LIKE LOWER(%L)
-                        LIMIT 10;
-                    ', ?, ?, ?, ?, ?);
-                                        """)) {
-                var validationCodeColumn = "q14_02_validation_code";
-                if (form == FormType.CSC)
-                    validationCodeColumn = "code_de_validation";
-                st.setString(1, validationCodeColumn);
+                    select d._id,
+                           d._submission_time,
+                           d._index,
+                           d.validation_code,
+                           d.next,
+                           d.prev
+                    from civilio.vw_submissions d
+                    where d._index::TEXT LIKE ? AND d.form = CAST(? as civilio.form_types)
+                    limit 1;
+                    """)) {
+                st.setString(1, "%%%s%%".formatted(query.toLowerCase()));
                 st.setString(2, schema);
-                st.setString(3, "%%%s%%".formatted(query));
-                st.setString(4, mapping.dbColumn());
-                st.setString(5, "%%%s%%".formatted(query));
-                String sql;
                 try (final var rs = st.executeQuery()) {
-                    if (!rs.next()) throw new IllegalStateException("Could not generate dynamic query");
+                    if (!rs.next()) throw new IllegalStateException("Could not generate query");
                     sql = rs.getString(1);
                 }
-                try (final var rs = conn.createStatement().executeQuery(sql)) {
+            }
+
+            try (final var st = conn.createStatement()) {
+                try (final var rs = st.executeQuery(sql)) {
                     final var builder = Stream.<SubmissionRef>builder();
                     while (rs.next()) {
                         builder.add(new SubmissionRef(
-                                rs.getString(1),
-                                rs.getDate(2).toLocalDate(),
-                                rs.getString(3),
-                                rs.getString(4),
-                                rs.getString(5),
-                                rs.getString(6))
+                                        rs.getInt("_id"),
+                                        Optional.ofNullable(rs.getDate("_submission_time")).map(Date::toLocalDate).orElse(null),
+                                        rs.getInt("_index"),
+                                        rs.getString("validation_code"),
+                                        rs.getInt("prev"),
+                                        rs.getInt("next")
+                                )
                         );
                     }
                     return builder.build().toList();

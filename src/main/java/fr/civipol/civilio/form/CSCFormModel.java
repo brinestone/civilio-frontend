@@ -169,7 +169,7 @@ public class CSCFormModel extends FormModel {
         if (!valueProperties.containsKey(uniqueKey)) {
             final var property = createValueProperty(fieldKey);
             valueProperties.put(uniqueKey, property);
-            property.setValue(Optional.ofNullable(dataGroup.get(fieldKey)).orElse(getDefaultValueFor(fieldKey)));
+            property.setValue(Optional.ofNullable(dataGroup.get(fieldKey)).orElse(defaultValue));
             trackChangesForField(uniqueKey);
             return property;
         } else {
@@ -206,18 +206,6 @@ public class CSCFormModel extends FormModel {
         deserializeSubFormValues(maps, staffData);
     }
 
-    private void deserializeSubFormValues(Collection<Map<String, Object>> dataCollection, List<Map<String, Object>> destination) {
-        destination.clear();
-        for (var data : dataCollection) {
-            for (var entry : data.entrySet()) {
-                final var parsedValue = deserializeValue(entry.getValue(), entry.getKey());
-                entry.setValue(parsedValue);
-            }
-            destination.add(data);
-        }
-        destination.removeIf(d -> d.size() == 0);
-    }
-
     private void loadRoomValues() {
         final var maps = subFormDataLoader.loadSubFormData(FieldKeys.CSC.Areas.Rooms.ALL_FIELDS);
         deserializeSubFormValues(maps, roomData);
@@ -249,48 +237,6 @@ public class CSCFormModel extends FormModel {
         if (FieldKeys.CSC.INDEX.equals(key) || FieldKeys.CSC.VALIDATION_CODE.equals(key))
             return super.getPropertyFor(id);
         return valueProperties.computeIfAbsent(id, this::createValueProperty);
-    }
-
-    private Property createValueProperty(String id) {
-        final var key = keyExtractor.apply(id);
-        final var targetType = getPropertyTypeFor(key);
-        if (String.class.equals(targetType))
-            return new SimpleStringProperty();
-        else if (Option.class.equals(targetType))
-            return new SimpleObjectProperty<Option>();
-        else if (Double.class.equals(targetType))
-            return new SimpleDoubleProperty();
-        else if (Float.class.equals(targetType))
-            return new SimpleFloatProperty();
-        else if (LocalDate.class.equals(targetType))
-            return new SimpleObjectProperty<LocalDate>();
-        else if (Boolean.class.equals(targetType))
-            return new SimpleBooleanProperty();
-        else if (List.class.equals(targetType))
-            return new SimpleListProperty<Option>(FXCollections.observableArrayList());
-        else if (GeoPoint.class.equals(targetType))
-            return new SimpleObjectProperty<GeoPoint>();
-        else if (Integer.class.equals(targetType))
-            return new SimpleIntegerProperty();
-        throw new IllegalStateException("Could not determine the property type to create for key: " + key);
-    }
-
-    private Object getDefaultValueFor(String id) {
-        final var key = keyExtractor.apply(id);
-        final var targetType = getPropertyTypeFor(key);
-        if (String.class.equals(targetType))
-            return "";
-        else if (Float.class.equals(targetType))
-            return 0f;
-        else if (Boolean.class.equals(targetType))
-            return false;
-        else if (Integer.class.equals(targetType))
-            return 0;
-        else if (List.class.equals(targetType))
-            return FXCollections.observableArrayList();
-        else if (GeoPoint.class.equals(targetType))
-            return GeoPoint.builder().build();
-        return null;
     }
 
     @Override
