@@ -236,12 +236,11 @@ tasks.compileJava {
     )
 }
 
-tasks.named<Jar>("jar") {
-    from(sourceSets.main.get().resources) {
-        include("**/*.html")
-        into("resources")
-    }
-}
+//tasks.named<Jar>("jar") {
+//    from(sourceSets.main.get().resources) {
+//        include("**/*.html")
+//    }
+//}
 
 tasks.processResources {
     exclude("**/*.bak")
