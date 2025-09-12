@@ -86,7 +86,7 @@ public class GeoPointPickerControl extends SimpleControl<GeoPointField> {
     }
 
     private void loadMapView() {
-        final var url = GeoPointPickerControl.class.getResource("/html/leaflet.html");
+        final var url = GeoPointPickerControl.class.getResource("leaflet.html");
         if (url == null) {
             log.warn("url not found for \"/html/leaflet.html\" resource");
             return;

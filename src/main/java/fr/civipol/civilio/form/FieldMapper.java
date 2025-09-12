@@ -58,7 +58,7 @@ public class FieldMapper implements StorageHandler, FieldMappingSource {
                         chiefdomFieldSettingsCategory(this),
                         cscFieldSettingsCategory(this)
                 ).i18n(ts)
-                .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("/img/Logo32x32.png"))))
+                .dialogIcon(new Image(Objects.requireNonNull(FieldMapper.class.getResourceAsStream("img/Logo32x32.png"))))
                 .dialogTitle(ts.translate("field_mapper.title"))
                 .instantPersistent(true);
         form.addEventHandler(PreferencesFxEvent.EVENT_PREFERENCES_SAVED, ev -> {

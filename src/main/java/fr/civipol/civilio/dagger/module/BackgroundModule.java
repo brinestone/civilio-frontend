@@ -1,28 +1,41 @@
 package fr.civipol.civilio.dagger.module;
 
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ElementsIntoSet;
 import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.event.EventBus;
 import fr.civipol.civilio.event.ShutdownEvent;
-import fr.civipol.civilio.services.*;
+import fr.civipol.civilio.services.AppService;
+import fr.civipol.civilio.services.AuthService;
+import fr.civipol.civilio.services.ConfigService;
+import fr.civipol.civilio.services.FormService;
+import fr.civipol.civilio.services.PingService;
+import fr.civipol.civilio.services.UserService;
 import jakarta.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 
 @Module
 public class BackgroundModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackgroundModule.class);
+
+    @Provides
+    @Singleton
+    public ResourceBundle resourceBundle() {
+        return ResourceBundle.getBundle("messages");
+    }
 
     @Provides
     @Singleton
@@ -62,7 +75,8 @@ public class BackgroundModule {
 
     @Provides
     @ElementsIntoSet
-    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService, PingService pingService) {
+    public Set<AppService> authService(AuthService authService, FormService formService, UserService userService,
+            PingService pingService) {
         return Set.of(authService, formService, userService, pingService);
     }
 

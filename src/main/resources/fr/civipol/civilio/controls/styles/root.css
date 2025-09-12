@@ -1,0 +1,30 @@
+.root {
+    /*-fx-background-color: #FAFAFA;*/
+}
+
+.muted-text {
+    -fx-text-fill: #868686;
+}
+
+.primary-button {
+    -fx-base: #1F5673;
+    -fx-font-weight: 600;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.form-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.tooltip {
+    -fx-text-fill: white;
+}
+
+.field-value-description,
+.field-label-description {
+    -fx-font-style: italic;
+    -fx-opacity: 50%;
+    -fx-font-size: 11px;
+}

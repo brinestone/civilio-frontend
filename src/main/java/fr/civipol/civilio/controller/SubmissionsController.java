@@ -88,7 +88,8 @@ public class SubmissionsController implements AppController, Initializable {
             final var dialog = new Stage();
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(parent);
-            dialog.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/img/Logo32x32.png"))));
+            dialog.getIcons()
+                    .add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("img/Logo32x32.png"))));
 
             final var viewName = "forms/" + cbFormType.getValue().toString().toLowerCase();
             final var view = vl.loadView(viewName);
@@ -98,9 +99,11 @@ public class SubmissionsController implements AppController, Initializable {
             controller.setOnSubmit(__ -> doLoadSubmissionData());
             controller.setSubmissionIndex(submissionId);
 
-            dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - " + System.getProperty("app.name"));
+            dialog.setTitle("Forms::" + cbFormType.getValue().toString().toUpperCase() + " - "
+                    + System.getProperty("app.name"));
             dialog.setScene(new Scene((Parent) view));
-            dialog.getScene().getStylesheets().add(Objects.requireNonNull(getClass().getResource("/styles/root.css")).toExternalForm());
+            dialog.getScene().getStylesheets()
+                    .add(Objects.requireNonNull(getClass().getResource("styles/root.css")).toExternalForm());
             dialog.setOnCloseRequest(__ -> controller.onClose());
             dialog.showAndWait();
         } catch (IOException | NullPointerException ex) {
@@ -125,7 +128,8 @@ public class SubmissionsController implements AppController, Initializable {
             final var row = new TableRow<FormSubmissionViewModel>();
             row.setOnMouseClicked(event -> {
                 if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2 && !row.isEmpty()) {
-                    final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission().getIndex();
+                    final var submissionId = row.getTableView().getFocusModel().getFocusedItem().getSubmission()
+                            .getIndex();
                     showFormDialog(row.getScene().getWindow(), submissionId);
                 }
             });
@@ -156,13 +160,15 @@ public class SubmissionsController implements AppController, Initializable {
         loadingSubmissions.set(true);
         executorService.submit(() -> {
             try {
-                final var result = formService.findFormSubmissions(cbFormType.getValue(), pgPagination.getCurrentPageIndex(), PAGE_SIZE, tfFilter.textProperty().getValueSafe());
+                final var result = formService.findFormSubmissions(cbFormType.getValue(),
+                        pgPagination.getCurrentPageIndex(), PAGE_SIZE, tfFilter.textProperty().getValueSafe());
                 Platform.runLater(() -> {
                     try {
                         final var submissions = result.getData().stream()
                                 .map(FormSubmissionViewModel::new)
                                 .toList();
-                        pgPagination.setPageCount(Double.valueOf(Math.ceil((double) result.getTotalRecords() / PAGE_SIZE)).intValue());
+                        pgPagination.setPageCount(
+                                Double.valueOf(Math.ceil((double) result.getTotalRecords() / PAGE_SIZE)).intValue());
                         tvSubmissions.getItems().setAll(submissions);
                     } catch (Throwable t) {
                         log.error("error while loading submissions data", t);
@@ -225,7 +231,11 @@ public class SubmissionsController implements AppController, Initializable {
 
     private void initBindings() {
         btnOpenSubmissionForm.disableProperty().bind(cbFormType.valueProperty().isNull());
-        lblTitle.textProperty().bind(Bindings.createStringBinding(() -> String.format("%s - %s", resourceRef.getString("fosa.submissions.title"), cbFormType.getValue().toString().toUpperCase()), cbFormType.valueProperty()));
+        lblTitle.textProperty()
+                .bind(Bindings.createStringBinding(
+                        () -> String.format("%s - %s", resourceRef.getString("fosa.submissions.title"),
+                                cbFormType.getValue().toString().toUpperCase()),
+                        cbFormType.valueProperty()));
         pgPagination.visibleProperty().bind(pgPagination.pageCountProperty().greaterThan(1));
         pgPagination.disableProperty().bind(pgPagination.pageCountProperty().lessThanOrEqualTo(0));
         tfFilter.disableProperty().bind(loadingSubmissions.and(tfFilter.textProperty().isNotEmpty()));
@@ -244,7 +254,8 @@ public class SubmissionsController implements AppController, Initializable {
         tcValidationCode.setCellValueFactory(param -> param.getValue().validationCodeProperty());
         tcValidationCode.setCellFactory(param -> new TextFieldTableCell<>(defaultStringConverter));
 
-        tcValidated.setCellFactory(param -> new CheckBoxTableCell<>(index -> tvSubmissions.getItems().get(index).validatedProperty()));
+        tcValidated.setCellFactory(
+                param -> new CheckBoxTableCell<>(index -> tvSubmissions.getItems().get(index).validatedProperty()));
         tcValidated.setCellValueFactory(param -> param.getValue().validatedProperty());
 
         tcRecordedOn.setCellValueFactory(param -> param.getValue().submittedOnProperty());

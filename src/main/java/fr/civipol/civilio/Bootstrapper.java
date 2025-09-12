@@ -27,7 +27,7 @@ public class Bootstrapper extends Application {
     public void start(Stage primaryStage) {
         final var appName = System.getProperty("app.name");
         primaryStage.setTitle(appName);
-        primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("img/Logo32x32.png"))));
 
         final var __ = appComponent.stageManager();
         appComponent.eventBus().publish(new StageReadyEvent(primaryStage, configurationRequired));
@@ -64,7 +64,7 @@ public class Bootstrapper extends Application {
     }
 
     private void loadConfiguration() throws IOException {
-        try (var in = Bootstrapper.class.getResourceAsStream("/application.properties")) {
+        try (var in = Bootstrapper.class.getResourceAsStream("application.properties")) {
             final var properties = new Properties();
             properties.load(in);
             System.getProperties().putAll(properties);

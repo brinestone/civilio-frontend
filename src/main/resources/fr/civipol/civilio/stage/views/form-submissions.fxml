@@ -73,12 +73,12 @@
                 </padding>
                 <TableView fx:id="tvSubmissions" prefHeight="200.0" prefWidth="200.0">
                     <columns>
-                        <TableColumn fx:id="tcValidated" prefWidth="104.0" text="%fosa.columns.validated"/>
+                        <TableColumn fx:id="tcValidated" prefWidth="65.103515625" text="%fosa.columns.validated"/>
+                        <TableColumn fx:id="tcIndex" prefWidth="55.611328125" text="%submissions.columns.index"/>
                         <TableColumn fx:id="tcFacilityName" prefWidth="452.13671875"
                                      text="%submissions.columns.facility_name"/>
-                        <TableColumn fx:id="tcValidationCode" prefWidth="200"
+                        <TableColumn fx:id="tcValidationCode" prefWidth="113.900390625"
                                      text="%fosa.columns.validation_code"/>
-                        <TableColumn fx:id="tcIndex" prefWidth="126.0" text="%submissions.columns.index"/>
                         <TableColumn fx:id="tcRecordedOn" editable="false" prefWidth="182.0"
                                      text="%fosa.columns.recorded_on"/>
                     </columns>

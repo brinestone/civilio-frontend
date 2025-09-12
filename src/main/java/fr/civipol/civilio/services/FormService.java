@@ -1,5 +1,37 @@
 package fr.civipol.civilio.services;
 
+import java.io.IOException;
+import java.net.JarURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.lang3.StringUtils;
+
 import dagger.Lazy;
 import fr.civipol.civilio.domain.FieldChange;
 import fr.civipol.civilio.domain.PageResult;
@@ -11,27 +43,6 @@ import fr.civipol.civilio.form.field.Option;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.sql.DataSource;
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Inject))
@@ -54,7 +65,8 @@ public class FormService implements AppService {
     }
 
     public boolean isValidationCodeValid(String code, FormType formType) {
-        if (StringUtils.isBlank(code)) return true;
+        if (StringUtils.isBlank(code))
+            return true;
         final var ds = dataSourceProvider.get();
         try (final var connection = ds.getConnection()) {
             try (final var st = connection.prepareStatement("""
@@ -111,7 +123,8 @@ public class FormService implements AppService {
         }
     }
 
-    public void updateFieldMapping(FormType form, String field, String i18nKey, String dbColumn, String batchKey) throws SQLException {
+    public void updateFieldMapping(FormType form, String field, String i18nKey, String dbColumn, String batchKey)
+            throws SQLException {
         String tableName = DATA_TABLE;
         final var connection = batchConnections.get(batchKey);
         connection.setAutoCommit(false);
@@ -288,8 +301,7 @@ public class FormService implements AppService {
                             form.toString(),
                             mapping.dbTable(),
                             columnNameWrapper.get(),
-                            columnNameWrapper.get())
-            )) {
+                            columnNameWrapper.get()))) {
                 st.setString(1, "%%" + query + "%%");
                 st.setInt(2, limit);
                 try (final var rs = st.executeQuery()) {
@@ -463,7 +475,8 @@ public class FormService implements AppService {
                         """;
             }
             String query, countQuery;
-            try (final var ps1 = connection.prepareStatement(sql); final var ps2 = connection.prepareStatement(countSql)) {
+            try (final var ps1 = connection.prepareStatement(sql);
+                 final var ps2 = connection.prepareStatement(countSql)) {
                 var index = 1;
                 ps1.setString(index, schema);
                 ps2.setString(index++, schema);
@@ -480,8 +493,10 @@ public class FormService implements AppService {
                 ps1.setInt(index, size);
 
                 try (final var rs1 = ps1.executeQuery(); final var rs2 = ps2.executeQuery()) {
-                    if (!rs1.next()) throw new IllegalStateException("Could not generate queries for form submissions");
-                    if (!rs2.next()) throw new IllegalStateException("Could not generate queries for form submissions");
+                    if (!rs1.next())
+                        throw new IllegalStateException("Could not generate queries for form submissions");
+                    if (!rs2.next())
+                        throw new IllegalStateException("Could not generate queries for form submissions");
 
                     query = rs1.getString(1);
                     countQuery = rs2.getString(1);
@@ -501,7 +516,8 @@ public class FormService implements AppService {
                                     .validationStatus(rs1.getString("_validation_status"))
                                     .validationCode(rs1.getString("validation_code"))
                                     .facilityName(rs1.getString("facility_name"))
-                                    .submittedOn(Optional.ofNullable(rs1.getDate("_submission_time")).map(Date::toLocalDate).orElse(null))
+                                    .submittedOn(Optional.ofNullable(rs1.getDate("_submission_time"))
+                                            .map(Date::toLocalDate).orElse(null))
                                     .valid(rs1.getBoolean("is_valid"))
                                     .build());
                         }
@@ -517,12 +533,16 @@ public class FormService implements AppService {
     /**
      * Retrieves the available formType options for a given formType formType.
      * <p>
-     * This method queries the <code>civilio.choices</code> table for all options associated with the specified formType formType.
-     * The results are grouped by the "group" column, and each group contains a list of {@link Option} objects.
+     * This method queries the <code>civilio.choices</code> table for all options
+     * associated with the specified formType formType.
+     * The results are grouped by the "group" column, and each group contains a list
+     * of {@link Option} objects.
      * </p>
      *
-     * @param formType the formType or identifier of the formType whose options are to be retrieved
-     * @return a map where the key is the group name and the value is a list of {@link Option} objects for that group
+     * @param formType the formType or identifier of the formType whose options are
+     *                 to be retrieved
+     * @return a map where the key is the group name and the value is a list of
+     * {@link Option} objects for that group
      * @throws SQLException if a database access error occurs
      */
     public Map<String, List<Option>> findFormOptions(FormType formType) throws SQLException {
@@ -542,12 +562,10 @@ public class FormService implements AppService {
                     while (rs.next()) {
                         final var list = result.computeIfAbsent(rs.getString(4), k -> new ArrayList<>());
                         list.add(new Option(
-                                        rs.getString(2),
-                                        rs.getString(1),
-                                        rs.getString(5),
-                                        rs.getString(3)
-                                )
-                        );
+                                rs.getString(2),
+                                rs.getString(1),
+                                rs.getString(5),
+                                rs.getString(3)));
                     }
                 }
             }
@@ -577,15 +595,13 @@ public class FormService implements AppService {
                     if (!rs.next())
                         return Optional.empty();
                     return Optional.of(new SubmissionRef(rs.getInt(1),
-                                    Optional.ofNullable(rs.getDate(2))
-                                            .map(Date::toLocalDate)
-                                            .orElse(null),
-                                    rs.getInt(3),
-                                    rs.getString(4),
-                                    rs.getInt(6),
-                                    rs.getInt(5)
-                            )
-                    );
+                            Optional.ofNullable(rs.getDate(2))
+                                    .map(Date::toLocalDate)
+                                    .orElse(null),
+                            rs.getInt(3),
+                            rs.getString(4),
+                            rs.getInt(6),
+                            rs.getInt(5)));
                 }
             }
         }
@@ -613,7 +629,8 @@ public class FormService implements AppService {
                 st.setString(1, "%%%s%%".formatted(query.toLowerCase()));
                 st.setString(2, schema);
                 try (final var rs = st.executeQuery()) {
-                    if (!rs.next()) throw new IllegalStateException("Could not generate query");
+                    if (!rs.next())
+                        throw new IllegalStateException("Could not generate query");
                     sql = rs.getString(1);
                 }
             }
@@ -623,14 +640,12 @@ public class FormService implements AppService {
                     final var builder = Stream.<SubmissionRef>builder();
                     while (rs.next()) {
                         builder.add(new SubmissionRef(
-                                        rs.getInt("_id"),
-                                        Optional.ofNullable(rs.getDate("_submission_time")).map(Date::toLocalDate).orElse(null),
-                                        rs.getInt("_index"),
-                                        rs.getString("validation_code"),
-                                        rs.getInt("prev"),
-                                        rs.getInt("next")
-                                )
-                        );
+                                rs.getInt("_id"),
+                                Optional.ofNullable(rs.getDate("_submission_time")).map(Date::toLocalDate).orElse(null),
+                                rs.getInt("_index"),
+                                rs.getString("validation_code"),
+                                rs.getInt("prev"),
+                                rs.getInt("next")));
                     }
                     return builder.build().toList();
                 }
@@ -649,71 +664,60 @@ public class FormService implements AppService {
         return configServiceProvider.get().databaseConfigurationValid();
     }
 
-    private Set<String> getMigrationScripts() {
-        String migrationsPath = "/migrations/";
+    private int extractMigrationVersion(String fileName) {
+        try {
+            var version = fileName.substring(0, fileName.indexOf("."));
+            return Integer.parseInt(version);
+        } catch (Exception ignored) {
+            log.warn("Invalid migration version number: {}", fileName);
+            return Integer.MAX_VALUE;
+        }
+    }
 
-        Set<String> fileNames = new HashSet<>();
+    private int compareMigrationVersions(String migration1, String migration2) {
+        final var v1 = extractMigrationVersion(migration1);
+        final var v2 = extractMigrationVersion(migration2);
+        return Integer.compare(v1, v2);
+    }
 
-        // Get the URL for the migrations folder
-        URL migrationsFolderUrl = getClass().getResource(migrationsPath);
-
-        if (migrationsFolderUrl == null) {
-            System.err.println("Migrations folder not found: " + migrationsPath);
-            return fileNames;
+    private Stream<String> getMigrationScripts() throws IOException, URISyntaxException {
+        final var path = "migrations/";
+        final var resourceUrl = FormService.class.getClassLoader().getResource(path);
+        if (resourceUrl == null) {
+            final var packagePath = FormService.class.getPackageName().replaceAll("\\.", "/");
+            log.warn("No migration directory found at resource path: {}", "/%s/%s".formatted(packagePath, path));
+            return Stream.empty();
         }
 
-        // Determine if running from a JAR or directly from file system
-        String protocol = migrationsFolderUrl.getProtocol();
-
-        if ("jar".equals(protocol)) {
-            // Running from a JAR file
-            String jarPath = migrationsFolderUrl.getPath().substring(5, migrationsFolderUrl.getPath().indexOf("!"));
-            try (final var jar = new JarFile(java.net.URLDecoder.decode(jarPath, StandardCharsets.UTF_8))) {
-                Enumeration<JarEntry> entries = jar.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    String name = entry.getName();
-
-                    // Check if the entry is within the migrations path and is a direct file
-                    if (name.startsWith(migrationsPath) && !entry.isDirectory()) {
-                        // Extract just the file name
-                        String relativePath = name.substring(migrationsPath.length());
-                        // Ensure it's not a file in a deeper subdirectory
-                        if (!relativePath.contains("/")) {
-                            fileNames.add(relativePath);
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                System.err.println("Error reading JAR file: " + e.getMessage());
-                e.printStackTrace();
+        final var migrationStream = Stream.<String>builder();
+        if ("file".equals(resourceUrl.getProtocol())) {
+            final var migrationsPath = Paths.get(resourceUrl.toURI());
+            try (final var files = Files.list(migrationsPath)) {
+                files.filter(Files::isRegularFile)
+                        .map(Path::getFileName)
+                        .filter(fileName -> fileName.endsWith(".sql"))
+                        .map(Path::toString)
+                        .forEach(migrationStream::add);
             }
-        } else if ("file".equals(protocol)) {
-            // Running from the file system (e.g., during development in an IDE)
-            try {
-                final var directory = new File(migrationsFolderUrl.toURI());
-                if (directory.isDirectory()) {
-                    final var files = directory.listFiles();
-                    if (files != null) {
-                        for (var file : files) {
-                            // Only add actual files, not subdirectories
-                            if (file.isFile()) {
-                                fileNames.add(file.getName());
-                            }
-                        }
-                    }
-                } else {
-                    System.err.println("Path is not a directory: " + migrationsFolderUrl.toExternalForm());
+            return migrationStream.build().sorted(this::compareMigrationVersions);
+        } else if ("jar".equals(resourceUrl.getProtocol())) {
+            final var connection = (JarURLConnection) resourceUrl.openConnection();
+            final var jarFile = connection.getJarFile();
+            final var entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                final var entry = entries.nextElement();
+                final var entryName = entry.getName();
+                if (entryName.startsWith(path + "/") &&
+                        !entryName.equals(path + "/") &&
+                        entryName.endsWith(".sql")) {
+                    String filename = entryName.substring(path.length() + 1);
+                    migrationStream.add(filename);
                 }
-            } catch (URISyntaxException e) {
-                System.err.println("Invalid URI for migrations path: " + e.getMessage());
-                e.printStackTrace();
             }
-        } else {
-            System.err.println("Unsupported protocol for migrations folder: " + protocol);
+            return migrationStream.build().sorted(this::compareMigrationVersions);
         }
 
-        return fileNames;
+        return Stream.empty();
     }
 
     private void runMigrations() throws SQLException, IOException, URISyntaxException {
@@ -724,12 +728,7 @@ public class FormService implements AppService {
             assertMigrationsTable(connection);
             final var prefix = "/migrations/";
             final var appliedMigrations = countAppliedMigrations(connection);
-            final var migrations = getMigrationScripts().stream()
-                    .sorted((o1, o2) -> {
-                        final var i = Integer.parseInt(o1.substring(0, o1.indexOf(".")));
-                        final var j = Integer.parseInt(o2.substring(0, o2.indexOf(".")));
-                        return Integer.compare(i, j);
-                    })
+            final var migrations = getMigrationScripts()
                     .skip(appliedMigrations)
                     .map(s -> prefix + s)
                     .toList();
@@ -738,25 +737,33 @@ public class FormService implements AppService {
                 log.info("Migrations already applied");
                 return;
             }
-            try (final var st = connection.createStatement()) {
-                for (var migration : migrations) {
-                    final var id = migration.substring(prefix.length(), migration.indexOf("."));
-                    final var sql = Files.readString(
-                            Paths.get(Objects.requireNonNull(FormService.class.getResource(migration)).toURI()));
-                    st.execute(sql);
+            for (var i = appliedMigrations; i < migrations.size(); i++) {
+                final var migrationFile = migrations.get(i);
+                final var migrationId = extractMigrationVersion(migrationFile);
+                final var resourcePath = "migrations/%s".formatted(migrationFile);
+                try (final var is = FormService.class.getResourceAsStream(resourcePath)) {
+                    byte[] data;
+                    if (is == null) {
+                        throw new IOException("Migration file not found: " + resourcePath);
+                    }
+                    data = is.readAllBytes();
+                    if (data == null) {
+                        log.warn("Migration file is empty: {}", resourcePath);
+                        continue;
+                    }
+                    final var sql = new String(data, StandardCharsets.UTF_8);
+                    try (final var st = connection.createStatement()) {
+                        st.executeUpdate(sql);
+                    }
                     try (final var ps = connection.prepareStatement("""
-                            INSERT INTO
-                                civilio.migrations (_version)
-                            VALUES
-                                (CAST(? AS INTEGER));
+                            INSERT INTO civilio.migrations(_version) VALUES (?);
                             """)) {
-                        ps.setString(1, id);
+                        ps.setInt(1, migrationId);
                         ps.executeUpdate();
                     }
-                    log.debug("Applied migration: {}", migration);
+                    log.debug("Applied migration: {}", migrationFile);
                 }
             }
-
             connection.commit();
             log.info("Migrations applied successfully");
         } catch (SQLException | IOException | URISyntaxException e) {

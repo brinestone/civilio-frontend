@@ -22,8 +22,8 @@ public class ViewLoader {
     public <T> Dialog<T> prepareDialog() {
         final var dialog = new Dialog<T>();
         final var stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        stage.getScene().getStylesheets().add(Objects.requireNonNull(ViewLoader.class.getResource("/styles/root.css")).toExternalForm());
-        stage.getIcons().add(new Image(Objects.requireNonNull(ViewLoader.class.getResourceAsStream("/img/Logo32x32.png"))));
+        stage.getScene().getStylesheets().add(Objects.requireNonNull(ViewLoader.class.getResource("styles/root.css")).toExternalForm());
+        stage.getIcons().add(new Image(Objects.requireNonNull(ViewLoader.class.getResourceAsStream("img/Logo32x32.png"))));
         dialog.getDialogPane().getButtonTypes().clear();
         dialog.setTitle(System.getProperty("app.name"));
         return dialog;
@@ -36,7 +36,7 @@ public class ViewLoader {
     public Node loadView(String name) throws IOException {
         System.gc();
         final var loader = fxmlLoaderFactory.newFXMLLoader();
-        final var viewResource = ViewLoader.class.getResource("/views/" + name + ".fxml");
+        final var viewResource = ViewLoader.class.getResource("views/" + name + ".fxml");
         loader.setLocation(viewResource);
         final var view = (Node) loader.load();
         controllerMemo.put(name, loader.getController());
