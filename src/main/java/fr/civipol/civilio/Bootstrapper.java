@@ -23,11 +23,13 @@ public class Bootstrapper extends Application {
     private boolean configurationRequired;
 
     @Override
+    @SuppressWarnings("unused")
     public void start(Stage primaryStage) {
         final var appName = System.getProperty("app.name");
         primaryStage.setTitle(appName);
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(Bootstrapper.class.getResourceAsStream("/img/Logo32x32.png"))));
 
+        final var __ = appComponent.stageManager();
         appComponent.eventBus().publish(new StageReadyEvent(primaryStage, configurationRequired));
         appComponent.eventBus().subscribe(RestartEvent.class, this::onRestartRequested);
     }

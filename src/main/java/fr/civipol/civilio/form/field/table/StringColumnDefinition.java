@@ -13,7 +13,7 @@ public class StringColumnDefinition<V> extends ColumnDefinition<V, String, Strin
 
     StringColumnDefinition(String titleKey, String fieldKey) {
         super(titleKey, fieldKey, StringColumnDefinition::defaultSupplier);
-        withConverter(defaultConverter);
+//        withConverter(defaultConverter);
     }
 
     public StringColumnDefinition<V> withAutoCompletion() {

@@ -22,6 +22,5 @@ export function readVersion(contents) {
 }
 
 export function writeVersion(contents, version) {
-    const newContents = contents.replace(/version\s*=\s*["'][^"']+["']/m, `version = "${version}"`);
-    return newContents;
+    return contents.replace(/version\s*=\s*["'][^"']+["']/m, `version = "${version}"`);
 }

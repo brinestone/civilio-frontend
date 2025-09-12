@@ -266,16 +266,20 @@ public class FOSAFormController extends FormController implements Initializable,
         });
         final var form = Form.of(Group.of(
                                 Field.ofBooleanType(model.toiletAvailableProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.toilet_present.title")
                                         .valueDescription("fosa.form.fields.toilet_resent.description"),
                                 Field.ofBooleanType(model.eneoConnectionProperty())
                                         .label("fosa.form.fields.has_eneo_connection.title")
+                                        .blockedLabel(true)
                                         .valueDescription("fosa.form.fields.has_eneo_connection.description"),
                                 Field.ofBooleanType(model.emergencyPowerSourceAvailableProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.has_power_source.title")
                                         .valueDescription("fosa.form.fields.has_power_source.description"),
                                 emergencyPowerSource,
                                 Field.ofBooleanType(model.internetConnectionAvailableProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.internet_conn.title"),
                                 Field.ofMultiSelectionType(model.waterSourceTypesProperty(),
                                                 model.waterSourcesProperty())
@@ -321,18 +325,22 @@ public class FOSAFormController extends FormController implements Initializable,
         final var model = (FOSAFormModel) this.model;
         final var form = Form.of(Group.of(
                                 Field.ofBooleanType(model.dhis2UsageProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.dhis2_usage.title")
                                         .valueDescription("fosa.form.fields.dhis2_usage.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.bunecBirthFormUsageProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.uses_bunec_birth_form.title")
                                         .valueDescription("fosa.form.fields.uses_bunec_birth_form.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.dhis2FormUsageProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.uses_dhis2_form.title")
                                         .valueDescription("fosa.form.fields.uses_dhis2_form.description")
                                         .span(ColSpan.THIRD),
                                 Field.ofBooleanType(model.birthDeclarationToCscProperty())
+                                        .blockedLabel(true)
                                         .label("fosa.form.fields.birth_declaration_transmission_to_csc.title")
                                         .valueDescription("fosa.form.fields.birth_declaration_transmission_to_csc.description")
                                         .span(ColSpan.THIRD),
@@ -459,6 +467,7 @@ public class FOSAFormController extends FormController implements Initializable,
                                 .label("fosa.form.fields.fosa_status.title")
                                 .span(ColSpan.HALF),
                         Field.ofBooleanType(model.maternityAvailableProperty())
+                                .blockedLabel(true)
                                 .label("fosa.form.fields.has_maternity.title")
                                 .valueDescription("fosa.form.fields.has_maternity.description")
                                 .span(ColSpan.HALF),
@@ -487,55 +496,56 @@ public class FOSAFormController extends FormController implements Initializable,
         final var today = LocalDate.now();
         final var localDateStringConverter = new LocalDateStringConverter(FormatStyle.MEDIUM);
         final var form = Form.of(
-                        Group.of(
-                                Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
-                                        .label(FieldKeys.Fosa.RESPONDING_DEVICE)
-                                        .render(createOptionComboBox(ts))
-                                        .required("settings.msg.value_required"),
-                                Field.ofStringType(model.respondentNamesProperty())
-                                        .label(FieldKeys.Fosa.RESPONDENT_NAME)
-                                        .required("settings.msg.value_required"),
-                                Field.ofStringType(model.positionProperty())
-                                        .span(ColSpan.HALF)
-                                        .required("settings.msg.value_required")
-                                        .render(bindAutoCompletionWrapper(
-                                                FieldKeys.Fosa.POSITION,
-                                                FormType.FOSA))
-                                        .valueDescription("fosa.form.fields.position.description")
-                                        .label("fosa.form.fields.position.title"),
-                                Field.ofStringType(model.phoneProperty())
-                                        .span(ColSpan.HALF)
-                                        .required("settings.msg.value_required")
-                                        .validate(RegexValidator.forPattern(
-                                                "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
-                                                "forms.msg.invalid_value"))
-                                        .label("fosa.form.fields.phone.title")
-                                        .valueDescription("fosa.form.fields.phone.description"),
-                                Field.ofStringType(model.emailProperty())
-                                        .span(ColSpan.HALF)
-                                        .validate(RegexValidator.forPattern(
-                                                "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
-                                                "forms.msg.invalid_value"))
-                                        .label("fosa.form.fields.email.title")
-                                        .valueDescription("fosa.form.fields.email.description"),
-                                Field.ofDate(model.creationDateProperty())
-                                        .label("fosa.form.fields.creation_date.title")
-                                        .validate(CustomValidator.forPredicate(
-                                                d -> d == null || today.isEqual(d)
-                                                        || today.isAfter(d),
-                                                "fosa.form.msg.value_out_of_range"))
-                                        .format(localDateStringConverter,
-                                                "forms.msg.invalid_value")
-                                        .render(new SimpleDateControl() {
-                                            @Override
-                                            public void initializeParts() {
-                                                super.initializeParts();
-                                                picker.setConverter(
-                                                        localDateStringConverter);
-                                            }
-                                        })
-                                        .span(ColSpan.HALF)))
-                .i18n(ts);
+                Group.of(
+                        Field.ofSingleSelectionType(model.deviceOptionsProperty(), model.deviceProperty())
+                                .label(FieldKeys.Fosa.RESPONDING_DEVICE)
+                                .render(createOptionComboBox(ts))
+                                .required("settings.msg.value_required"),
+                        Field.ofStringType(model.respondentNamesProperty())
+                                .label(FieldKeys.Fosa.RESPONDENT_NAME)
+                                .required("settings.msg.value_required"),
+                        Field.ofStringType(model.positionProperty())
+                                .span(ColSpan.HALF)
+                                .required("settings.msg.value_required")
+                                .render(bindAutoCompletionWrapper(
+                                        FieldKeys.Fosa.POSITION,
+                                        FormType.FOSA))
+                                .valueDescription("fosa.form.fields.position.description")
+                                .label("fosa.form.fields.position.title"),
+                        Field.ofStringType(model.phoneProperty())
+                                .span(ColSpan.HALF)
+                                .required("settings.msg.value_required")
+                                .validate(RegexValidator.forPattern(
+                                        "^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$",
+                                        "forms.msg.invalid_value"))
+                                .label("fosa.form.fields.phone.title")
+                                .valueDescription("fosa.form.fields.phone.description"),
+                        Field.ofStringType(model.emailProperty())
+                                .span(ColSpan.HALF)
+                                .validate(RegexValidator.forPattern(
+                                        "^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$",
+                                        "forms.msg.invalid_value"))
+                                .label("fosa.form.fields.email.title")
+                                .valueDescription("fosa.form.fields.email.description"),
+                        Field.ofDate(model.creationDateProperty())
+                                .label("fosa.form.fields.creation_date.title")
+                                .validate(CustomValidator.forPredicate(
+                                        d -> d == null || today.isEqual(d)
+                                                || today.isAfter(d),
+                                        "fosa.form.msg.value_out_of_range"))
+                                .format(localDateStringConverter,
+                                        "forms.msg.invalid_value")
+                                .render(new SimpleDateControl() {
+                                    @Override
+                                    public void initializeParts() {
+                                        super.initializeParts();
+                                        picker.setConverter(
+                                                localDateStringConverter);
+                                    }
+                                })
+                                .span(ColSpan.HALF)
+                )
+        ).i18n(ts);
         spRespondentContainer.setContent(new FormRenderer(form));
         respondentForm = form;
         form.binding(BindingMode.CONTINUOUS);

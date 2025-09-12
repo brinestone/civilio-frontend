@@ -130,6 +130,10 @@ public class TabularControl<V> extends SimpleControl<TabularField<V>> {
         cbSelectAll.visibleProperty().bind(field.editableProperty());
         cbSelectAll.disableProperty().bind(noItems);
         tcSelection.editableProperty().bind(field.editableProperty());
+        btnAdd.disableProperty().bind(
+                Bindings.when(field.maxRecordsProperty().asObject().isNull()).then(false)
+                        .otherwise(Bindings.createBooleanBinding(() -> table.getItems().size() >= field.getMaxRecords(), field.maxRecordsProperty(), table.getItems()))
+        );
     }
 
     @Override

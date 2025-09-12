@@ -30,7 +30,6 @@
             <Tab fx:id="tDigitization" closable="false" text="%csc.form.sections.digitization.title"/>
             <Tab fx:id="tScanning" closable="false" text="%csc.form.sections.indexing.title"/>
             <Tab fx:id="tProcurement" closable="false" text="%csc.form.sections.record_procurement.title"/>
-            <Tab fx:id="tStats" closable="false" text="%csc.form.sections.vital_stats.title"/>
             <Tab fx:id="tArchivingParent" closable="false" text="%csc.form.sections.archiving_function.title">
                 <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
                     <Tab fx:id="tArchiving" closable="false"
@@ -38,6 +37,7 @@
                     <Tab fx:id="tDeeds" closable="false" text="%csc.form.sections.archiving.sections.deeds.title"/>
                     <Tab fx:id="tStatusOfArchives" closable="false"
                          text="%csc.form.sections.status_of_archived_records.title"/>
+                    <Tab fx:id="tStats" closable="false" text="%csc.form.sections.vital_stats.title"/>
                 </TabPane>
             </Tab>
             <Tab fx:id="tPersonnelParent" closable="false" text="%csc.form.sections.personnel_info.title">

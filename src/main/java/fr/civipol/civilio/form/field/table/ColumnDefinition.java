@@ -7,7 +7,6 @@ import javafx.scene.control.TableColumn;
 import javafx.util.StringConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
-import org.apache.commons.lang3.function.TriFunction;
 
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -18,9 +17,9 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
     @Getter(AccessLevel.PACKAGE)
     private final String titleKey, fieldKey;
     @Getter(AccessLevel.PACKAGE)
-    private Supplier<TableCell<T, V>> cellSupplier;
+    protected Supplier<TableCell<T, V>> cellSupplier;
     @Getter(AccessLevel.PACKAGE)
-    private final TableColumn<T, V> tableColumn = new TableColumn<>();
+    protected final TableColumn<T, V> tableColumn = new TableColumn<>();
     private final BooleanProperty editable = new SimpleBooleanProperty(true);
     private final ObjectProperty<BiFunction<String, Integer, Property<V>>> valueProvider = new SimpleObjectProperty<>();
     private final ObjectProperty<Predicate<V>> validator = new SimpleObjectProperty<>();
@@ -32,7 +31,7 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
         return this;
     }
 
-    public ColumnDefinition<T, V, C> withValueProvider(BiFunction<String, Integer, Property<V>> provider) {
+    public ColumnDefinition<T, V, C> withValueSelector(BiFunction<String, Integer, Property<V>> provider) {
         this.valueProvider.set(provider);
         return this;
     }
@@ -59,7 +58,7 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
         setupTableColumn();
     }
 
-    private void setupTableColumn() {
+    protected void setupTableColumn() {
         tableColumn.textProperty().bind(title);
         tableColumn.editableProperty().bind(editable);
         tableColumn.setCellValueFactory(param -> Optional.ofNullable(valueProvider.getValue())
@@ -88,8 +87,8 @@ public class ColumnDefinition<T, V, C extends ColumnDefinition<T, V, C>> {
         return SpinnerColumnDefinition.ofFloatType(fieldKey, fieldKey);
     }
 
-    public static <V> SpinnerColumnDefinition<V, Integer> ofIntegerType(String fieldKey) {
-        return SpinnerColumnDefinition.ofIntegerType(fieldKey, fieldKey);
+    public static <V> IntegerColumnDefinition<V> ofIntegerType(String fieldKey) {
+        return new IntegerColumnDefinition<>(fieldKey, fieldKey);
     }
 
     public boolean isEditable() {

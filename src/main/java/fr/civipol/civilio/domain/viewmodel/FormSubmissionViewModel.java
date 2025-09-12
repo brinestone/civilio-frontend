@@ -5,14 +5,15 @@ import javafx.beans.property.*;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.Optional;
 
 public class FormSubmissionViewModel implements Comparable<FormSubmissionViewModel> {
     @Getter
     private final FormSubmission submission;
-    private final ObjectProperty<Date> submittedOn;
-    private final StringProperty submittedBy, validationCode;
+    private final ObjectProperty<LocalDate> submittedOn;
+    private final IntegerProperty index;
+    private final StringProperty validationCode, facilityName;
     private final BooleanProperty selected, validated;
 
     public FormSubmissionViewModel(FormSubmission submission) {
@@ -27,25 +28,27 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         validationCode = new SimpleStringProperty(submission, "validationCode", Optional.ofNullable(submission)
                 .map(FormSubmission::getValidationCode)
                 .orElse(null));
-        submittedBy = new SimpleStringProperty(submission, "submittedBy", Optional.ofNullable(submission)
-                .map(FormSubmission::getSubmittedBy)
+        index = new SimpleIntegerProperty(submission, "index", Optional.ofNullable(submission)
+                .map(FormSubmission::getIndex)
                 .orElse(null));
         submittedOn = new SimpleObjectProperty<>(submission, "submittedOn", Optional.ofNullable(submission)
                 .map(FormSubmission::getSubmittedOn)
                 .orElse(null));
-        submittedBy.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setSubmittedBy(nv)));
+        facilityName = new SimpleStringProperty(submission, "facilityName", Optional.ofNullable(submission)
+                .map(FormSubmission::getFacilityName)
+                .orElse(null));
         validated.addListener((ob, ov, nv) -> Optional.ofNullable(getSubmission()).ifPresent(fs -> fs.setValidationStatus(nv ? "validation_status_passed" : "validation_status_on_hold")));
+    }
+
+    public StringProperty facilityNameProperty() {
+        return facilityName;
     }
 
     public void setSelected(boolean val) {
         selected.set(val);
     }
 
-    public StringProperty submittedByProperty() {
-        return submittedBy;
-    }
-
-    public ObjectProperty<Date> submittedOnProperty() {
+    public ObjectProperty<LocalDate> submittedOnProperty() {
         return submittedOn;
     }
 
@@ -61,10 +64,6 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
         return selected;
     }
 
-    public void setSubmittedBy(String v) {
-        submittedBy.set(v);
-    }
-
     public void setValidationCode(String v) {
         validationCode.set(v);
     }
@@ -77,6 +76,10 @@ public class FormSubmissionViewModel implements Comparable<FormSubmissionViewMod
     @Override
     public boolean equals(Object obj) {
         return obj != null && obj.getClass().equals(getClass()) && getSubmission().equals(((FormSubmissionViewModel) obj).getSubmission());
+    }
+
+    public IntegerProperty indexProperty() {
+        return index;
     }
 
     @Override

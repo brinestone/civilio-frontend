@@ -75,7 +75,7 @@ jobs:
           distribution: temurin
           cache: gradle
       - name: Build Installer
-        run: gradle jpackage --debug
+        run: gradle jpackage
       - name: Set Version
         id: set-version
         run: |
