@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "fr.civipol"
-version = "2.0.3"
+version = "2.1.0"
 description = "A Civil Status data management tool."
 
 repositories {
