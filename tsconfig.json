@@ -22,5 +22,10 @@
     "typeCheckHostBindings": true,
     "strictTemplates": true
   },
-  "files": []
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/civilio/tsconfig.app.json"
+    }
+  ]
 }
