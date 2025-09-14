@@ -5,13 +5,25 @@ import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerRpm } from '@electron-forge/maker-rpm';
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
 
+const iconPngPath = "./projects/electron/assets/icon.png";
+const iconIcoPath = './projects/electron/assets/icon.ico';
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true
+    asar: true,
   },
   outDir: './out',
-  rebuildConfig: {},
-  makers: [new MakerSquirrel({}), new MakerZIP({}, ['darwin']), new MakerRpm({}), new MakerDeb({})],
+  makers: [
+    new MakerSquirrel({
+      setupIcon: iconIcoPath,
+    }),
+    new MakerZIP({}, ['darwin']),
+    new MakerRpm({}),
+    new MakerDeb({
+      options: {
+        icon: iconPngPath
+      }
+    })
+  ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
   ],
