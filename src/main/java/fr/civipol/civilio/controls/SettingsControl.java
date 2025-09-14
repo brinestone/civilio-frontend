@@ -56,9 +56,10 @@ public class SettingsControl implements AppControl, StorageHandler {
     private final BooleanProperty useDbSslProperty = new SimpleBooleanProperty(this, "useSsl", false);
     private final StringProperty dbPwdProperty = new SimpleStringProperty(this, "dbPwd", "");
     private final ConfigService configManager;
+    private final ResourceBundle resourceRef;
 
     public PreferencesFx makePreferencesForm() {
-        final var rbs = ResourceBundle.getBundle("messages");
+        final var rbs = this.resourceRef;
         final var ts = new ResourceBundleService(rbs);
         final var dbPasswordField = Field.ofPasswordType(dbPwdProperty).render(SimplePasswordControl::new);
         final var localeKeys = FXCollections.observableArrayList(
@@ -91,9 +92,9 @@ public class SettingsControl implements AppControl, StorageHandler {
                 )
         ).i18n(ts);
 
-        prefs.dialogIcon(new Image(Objects.requireNonNull(SettingsControl.class.getResourceAsStream("/img/Logo32x32.png"))));
+        prefs.dialogIcon(new Image(Objects.requireNonNull(SettingsControl.class.getResourceAsStream("img/Logo32x32.png"))));
         prefs.dialogTitle(rbs.getString("settings.title"));
-        prefs.getStylesheets().add(Objects.requireNonNull(SettingsControl.class.getResource("/styles/root.css")).toExternalForm());
+        prefs.getStylesheets().add(Objects.requireNonNull(SettingsControl.class.getResource("styles/root.css")).toExternalForm());
         return prefs;
     }
 

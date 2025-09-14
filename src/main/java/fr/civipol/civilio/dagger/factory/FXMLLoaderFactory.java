@@ -11,10 +11,11 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor(onConstructor = @__({@Inject}))
 public class FXMLLoaderFactory {
     private final ControllerFactory controllerFactory;
+    private final ResourceBundle resources;
 
     public FXMLLoader newFXMLLoader() {
         final var loader = new FXMLLoader();
-        loader.setResources(ResourceBundle.getBundle("messages"));
+        loader.setResources(resources);
         loader.setControllerFactory(c -> {
             final var v = controllerFactory.apply(c);
             return v;

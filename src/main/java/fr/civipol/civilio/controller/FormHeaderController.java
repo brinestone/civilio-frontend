@@ -30,10 +30,11 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
-@RequiredArgsConstructor(onConstructor = @__({@Inject}))
+@RequiredArgsConstructor(onConstructor = @__({ @Inject }))
 public class FormHeaderController implements AppController {
     private final FormService formService;
     private final ExecutorService executorService;
+    private final ResourceBundle resourceRef;
     private final Lazy<FieldMapper> fieldMapperProvider;
     private final BooleanProperty canGoNext = new SimpleBooleanProperty(this, "canGoNext", true);
     private final BooleanProperty canGoPrev = new SimpleBooleanProperty(this, "canGoNext", true);
@@ -70,7 +71,7 @@ public class FormHeaderController implements AppController {
 
     @FXML
     private void initialize() {
-        final var rb = ResourceBundle.getBundle("messages");
+        final var rb = resourceRef;
         final var lblSubmissionDateBinding = Bindings.when(loading)
                 .then(rb.getString("loading.txt"))
                 .otherwise(Bindings.createStringBinding(() -> Optional.ofNullable(submissionRef.getValue())
@@ -82,8 +83,9 @@ public class FormHeaderController implements AppController {
         final var vs = new ValidationSupport();
         vs.registerValidator(tfValidationCode, false, Validator.combine(
                 Validator.createEmptyValidator(rb.getString("forms.msg.invalid_value")),
-                Validator.<String>createPredicateValidator(v -> formService.isValidationCodeValid(v, formType.getValue()), rb.getString("forms.msg.invalid_value"), Severity.WARNING)
-        ));
+                Validator.<String>createPredicateValidator(
+                        v -> formService.isValidationCodeValid(v, formType.getValue()),
+                        rb.getString("forms.msg.invalid_value"), Severity.WARNING)));
         btnNext.setOnAction(ignored -> Optional.ofNullable(submissionRef.getValue())
                 .map(SubmissionRef::next)
                 .ifPresent(submissionIndex::setValue));
@@ -95,7 +97,8 @@ public class FormHeaderController implements AppController {
         binding.setDelay(500);
 
         tfIndexSearch.textProperty().addListener((ob, ov, nv) -> {
-            if (submissionIdUpdatedExternally) return;
+            if (submissionIdUpdatedExternally)
+                return;
             if (StringUtils.isBlank(nv)) {
                 suggestions.clear();
                 return;
@@ -123,17 +126,16 @@ public class FormHeaderController implements AppController {
                         .map(SubmissionRef::prev)
                         .filter(v -> v <= 0)
                         .isPresent(), submissionRef).or(canGoPrev.not()),
-                loading
-        ));
+                loading));
         btnNext.disableProperty().bind(Bindings.or(
                 Bindings.createBooleanBinding(() -> Optional.ofNullable(submissionRef.getValue())
                         .map(SubmissionRef::next)
                         .filter(v -> v <= 0)
                         .isPresent(), submissionRef).or(canGoNext.not()),
-                loading
-        ));
+                loading));
         submissionIndex.addListener((ob, ov, nv) -> {
-            if (nv == null) return;
+            if (nv == null)
+                return;
             executorService.submit(() -> {
                 try {
                     formService.findSubmissionRefByIndex(nv.intValue(), formType.getValue())

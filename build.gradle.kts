@@ -216,7 +216,7 @@ tasks.processResources {
     filesMatching("logback.xml") {
         expand("logLevel" to logLevel)
     }
-    filesMatching("application.properties") {
+    filesMatching("*/**/application.properties") {
         expand(
             "appName" to appName,
             "appId" to appId,
@@ -237,9 +237,8 @@ tasks.compileJava {
 }
 
 tasks.named<Jar>("jar") {
-    from(sourceSets.main.get().resources) {
-        include("**/*.html")
-        into("resources")
+    manifest {
+        attributes["Main-Class"] = mainClassName
     }
 }
 

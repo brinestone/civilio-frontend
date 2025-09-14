@@ -1,10 +1,26 @@
 package fr.civipol.civilio.stage;
 
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.controlsfx.control.NotificationPane;
+import org.controlsfx.control.action.Action;
+
 import com.dlsc.preferencesfx.PreferencesFxEvent;
+
 import dagger.Lazy;
 import fr.civipol.civilio.Constants;
 import fr.civipol.civilio.controls.SettingsControl;
-import fr.civipol.civilio.event.*;
+import fr.civipol.civilio.event.EventBus;
+import fr.civipol.civilio.event.RestartEvent;
+import fr.civipol.civilio.event.RestartPendingEvent;
+import fr.civipol.civilio.event.SettingsUpdatedEvent;
+import fr.civipol.civilio.event.StageReadyEvent;
+import fr.civipol.civilio.event.ToastEvent;
 import fr.civipol.civilio.services.AuthService;
 import fr.civipol.civilio.services.ConfigService;
 import jakarta.inject.Inject;
@@ -12,17 +28,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.controlsfx.control.NotificationPane;
-import org.controlsfx.control.action.Action;
-
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Stream;
 
 @Slf4j
 public class StageManager {
@@ -33,7 +39,8 @@ public class StageManager {
     private final EventBus eventBus;
     private final Lazy<ConfigService> configManager;
     private NotificationPane notificationPane;
-    private final Action restartAction = new Action(rbs.getString("stage.notificationPane.restart.actions.text"), this::onRestartButtonClicked);
+    private final Action restartAction = new Action(rbs.getString("stage.notificationPane.restart.actions.text"),
+            this::onRestartButtonClicked);
 
     @Inject
     public StageManager(
@@ -50,22 +57,26 @@ public class StageManager {
         eventBus.subscribe(StageReadyEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
                 onStageReady(e);
-            else Platform.runLater(() -> onStageReady(e));
+            else
+                Platform.runLater(() -> onStageReady(e));
         });
         eventBus.subscribe(SettingsUpdatedEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
                 onSettingsChanged(e);
-            else Platform.runLater(() -> onSettingsChanged(e));
+            else
+                Platform.runLater(() -> onSettingsChanged(e));
         });
         eventBus.subscribe(RestartPendingEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
                 onRestartPending(e);
-            else Platform.runLater(() -> onRestartPending(e));
+            else
+                Platform.runLater(() -> onRestartPending(e));
         });
         eventBus.subscribe(ToastEvent.class, (e) -> {
             if (Platform.isFxApplicationThread())
                 onToastMessage(e);
-            else Platform.runLater(() -> onToastMessage(e));
+            else
+                Platform.runLater(() -> onToastMessage(e));
         });
     }
 
@@ -74,7 +85,8 @@ public class StageManager {
         if (t.actions().length == 0)
             notificationPane.getActions().setAll(new Action(rbs.getString("msg.ok"), __ -> {
             }));
-        else notificationPane.getActions().setAll(t.actions());
+        else
+            notificationPane.getActions().setAll(t.actions());
         notificationPane.show();
     }
 
@@ -127,11 +139,11 @@ public class StageManager {
     private boolean configurationValid() {
         final var configManager = this.configManager.get();
         return Stream.of(
-                        configManager.loadObject(Constants.DB_HOST_KEY, String.class),
-                        configManager.loadObject(Constants.DB_PORT_KEY, String.class),
-                        configManager.loadObject(Constants.DB_NAME_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_KEY, String.class),
-                        configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class))
+                configManager.loadObject(Constants.DB_HOST_KEY, String.class),
+                configManager.loadObject(Constants.DB_PORT_KEY, String.class),
+                configManager.loadObject(Constants.DB_NAME_KEY, String.class),
+                configManager.loadObject(Constants.DB_USER_KEY, String.class),
+                configManager.loadObject(Constants.DB_USER_PWD_KEY, String.class))
                 .map(o -> o.filter(StringUtils::isNotBlank))
                 .allMatch(Optional::isPresent);
     }
@@ -152,7 +164,7 @@ public class StageManager {
         stage.setResizable(true);
         var scene = new Scene(notificationPane);
         scene.getStylesheets()
-                .add(Objects.requireNonNull(StageManager.class.getResource("/styles/root.css")).toExternalForm());
+                .add(Objects.requireNonNull(StageManager.class.getResource("styles/root.css")).toExternalForm());
         stage.setScene(scene);
         stage.show();
     }

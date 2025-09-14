@@ -1,5 +1,7 @@
 package fr.civipol.civilio.dagger.module;
 
+import java.util.ResourceBundle;
+
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
@@ -13,13 +15,13 @@ import fr.civipol.civilio.stage.StageManager;
 import fr.civipol.civilio.stage.ViewLoader;
 import jakarta.inject.Singleton;
 
-@Module(includes = {BackgroundModule.class, ControllerModule.class})
+@Module(includes = { BackgroundModule.class, ControllerModule.class })
 public class UIModule {
 
     @Provides
     @Singleton
-    public FXMLLoaderFactory fxmlLoaderFactory(ControllerFactory controllerFactory) {
-        return new FXMLLoaderFactory(controllerFactory);
+    public FXMLLoaderFactory fxmlLoaderFactory(ControllerFactory controllerFactory, ResourceBundle resourceBundle) {
+        return new FXMLLoaderFactory(controllerFactory, resourceBundle);
     }
 
     @Provides
@@ -30,7 +32,8 @@ public class UIModule {
 
     @Provides
     @Singleton
-    public StageManager stageManager(ViewLoader viewLoader, AuthService authService, EventBus eb, Lazy<SettingsControl> settingsControlProvider, Lazy<ConfigService> configManagerProvider) {
+    public StageManager stageManager(ViewLoader viewLoader, AuthService authService, EventBus eb,
+            Lazy<SettingsControl> settingsControlProvider, Lazy<ConfigService> configManagerProvider) {
         return new StageManager(authService, viewLoader, eb, settingsControlProvider, configManagerProvider);
     }
 }
