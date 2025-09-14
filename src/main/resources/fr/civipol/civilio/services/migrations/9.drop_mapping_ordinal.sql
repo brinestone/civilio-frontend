@@ -1,1 +1,0 @@
-alter table civilio.form_field_mappings drop column if exists ordinal;
