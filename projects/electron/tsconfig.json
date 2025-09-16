@@ -1,23 +1,40 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "esnext",
     "allowJs": true,
     "module": "commonjs",
     "skipLibCheck": true,
+    "removeComments": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "outDir": "../../dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
       "*": [
         "node_modules/*"
+      ],
+      "@civilio/shared": [
+        "../../libs/shared/index.ts"
+      ],
+      "@civilio/schema": [
+        "./src/db/schema.ts"
+      ],
+      "@civilio/handlers": [
+        "./src/handlers/index.ts"
+      ],
+      "@civilio/helpers/*": [
+        "./src/helpers/*"
       ]
     }
   },
   "include": [
-    "src/**/*"
-, "drizzle.config.ts"  ]
+    "src/**/*",
+    "../../libs/*"
+  ],
+  "exclude": [
+    "../../libs/ui"
+  ]
 }

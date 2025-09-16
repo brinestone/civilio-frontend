@@ -1,8 +1,13 @@
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+
+
+// contextBridge.exposeInMainWorld('api', {
+//   getConfig: createChannelRequestFn('config:read', async (channel, _, opts) => {
+//     const { timeout } = RequestOptionsSchema.parse(opts || {});
+//     return sendMessageAndWaitAsync(channel, timeout).then(AppConfigSchema.parse);
+//   })
+// })
 
 import { contextBridge, ipcRenderer } from "electron";
-import { ipcMain } from "electron/main";
 
 contextBridge.exposeInMainWorld('electron', {
   send: (channel: string, data: any) => {
@@ -15,7 +20,7 @@ contextBridge.exposeInMainWorld('electron', {
   sendSync: (channel: string, data: any) => {
     return ipcRenderer.sendSync(channel, data);
   },
-  removeListener: (channel: string, func: (...args: any[]) => void) => {
+  off: (channel: string, func: (...args: any[]) => void) => {
     ipcRenderer.removeListener(channel, func);
   },
-})
+});

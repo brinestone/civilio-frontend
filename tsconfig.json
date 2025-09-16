@@ -1,5 +1,8 @@
 {
   "compileOnSave": false,
+  "exclude": [
+    "./projects/electron"
+  ],
   "compilerOptions": {
     "strict": true,
     "noImplicitOverride": true,
@@ -8,6 +11,7 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "isolatedModules": true,
+    "baseUrl": "./",
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
@@ -15,6 +19,12 @@
     "paths": {
       "@spartan-ng/helm/button": [
         "./libs/ui/ui-button-helm/src/index.ts"
+      ],
+      "@civilio/shared": [
+        "./libs/shared/index.ts"
+      ],
+      "@spartan-ng/helm/table": [
+        "./libs/ui/ui-table-helm/src/index.ts"
       ]
     }
   },

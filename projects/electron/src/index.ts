@@ -1,38 +1,31 @@
 import { app, BrowserWindow } from "electron";
-import path from 'path';
+import { registerIpcHandlers } from './helpers/handlers';
+import { showMainWindow } from "./helpers/windows";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-let mainWindow: BrowserWindow | null;
+let configurationValid = true;
 
-const createWindow = (): void => {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
-    webPreferences: {
-      devTools: !app.isPackaged,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  });
+async function initializeServices() {
+  // configurationValid = checkConfiguration();
+  registerIpcHandlers();
+}
 
-  if (['linux', 'win32'].includes(process.platform)) {
-    mainWindow.removeMenu();
-  }
-
-  const startURL = app.isPackaged ? `file://${path.join(__dirname, 'civilio', 'browser', 'index.html')}` : `http://localhost:4200`;
-
-  mainWindow.loadURL(startURL);
-};
+// function checkConfiguration() {
+//   const store = usePrefs();
+//   const { success } = AppConfigSchema.safeParse(store);
+//   return success;
+// }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", () => {
-  createWindow();
+app.on("ready", async () => {
+  await initializeServices();
+  showMainWindow();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -48,7 +41,7 @@ app.on('activate', () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    showMainWindow();
   }
 });
 
