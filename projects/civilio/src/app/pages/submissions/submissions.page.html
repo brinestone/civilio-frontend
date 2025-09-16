@@ -1,17 +1,34 @@
-<div class="page-header !justify-start gap-4">
+<div class="page-header !justify-start gap-4 items-center">
   <h1 class="page-title">Form Submissions</h1>
   <div class="flex gap-2 items-center">
-    <button hlmBtn variant="outline">
-      <ng-icon name="lucideRefreshCw" />
-      <span>Refresh</span>
+    <button
+      [disabled]="submissions.isLoading()"
+      hlmBtn
+      variant="outline"
+      (click)="submissions.reload()"
+    >
+      <ng-icon
+        name="lucideRefreshCw"
+        [class.animate-spin]="submissions.isLoading()"
+      />
+      <span>
+        @if (submissions.isLoading()) {
+          Loading...
+        } @else {
+          Refresh
+        }
+      </span>
     </button>
     <brn-select
+      [disabled]="submissions.isLoading()"
       [(value)]="formType"
       class="inline-block"
       placeholder="Select a Form type"
     >
       <hlm-select-trigger>
-        <hlm-select-value class="uppercase cursor-pointer placeholder:capitalize" />
+        <hlm-select-value
+          class="uppercase cursor-pointer placeholder:capitalize"
+        />
       </hlm-select-trigger>
       <hlm-select-content class="w-56">
         @for (option of formTypeOptions; track $index) {
@@ -23,3 +40,51 @@
     </brn-select>
   </div>
 </div>
+<section class="page-section">
+  <table hlmTable class="w-full">
+    <thead hlmTHead>
+      @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+        <tr hlmTr>
+          @for (header of headerGroup.headers; track header.id) {
+            <th hlmTh [attr.colspan]="header.colSpan">
+              @if (!header.isPlaceholder) {
+                <ng-container
+                  *flexRender="
+                    header.column.columnDef.header;
+                    props: header.getContext();
+                    let headerText
+                  "
+                >
+                  <p>{{ headerText }}</p>
+                </ng-container>
+              }
+            </th>
+          }
+        </tr>
+      }
+    </thead>
+    <tbody hlmTBody class="w-full">
+      @for (row of table.getRowModel().rows; track row.id) {
+        <tr
+          hlmTr
+          [attr.key]="row.id"
+          [attr.data-state]="row.getIsSelected() && 'selected'"
+        >
+          @for (cell of row.getVisibleCells(); track $index) {
+            <td hlmTd>
+              <ng-container
+                *flexRender="
+                  cell.column.columnDef.cell;
+                  props: cell.getContext();
+                  let cell
+                "
+              >
+                <p>{{ cell }}</p>
+              </ng-container>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

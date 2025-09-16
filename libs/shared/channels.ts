@@ -1,9 +1,9 @@
 import z from 'zod';
-import { FindFieldMappingsRequestSchema, UpdateFieldMappingRequestSchema } from './dto';
-import { AppConfigSchema, FieldMappingSchema } from './schema';
+import { FindFieldMappingsRequestSchema, FindFormSubmissionsRequestSchema, UpdateFieldMappingRequestSchema } from './dto';
+import { AppConfigSchema, createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
 import { Observable } from 'rxjs';
 
-const entities = z.enum(['field-mappings', 'config']);
+const entities = z.enum(['field-mappings', 'config', 'submissions']);
 const crudActions = z.enum(['create', 'read', 'update', 'delete']);
 export const ChannelSchema = z.templateLiteral([
   entities, ':', crudActions
@@ -16,7 +16,11 @@ const channelArgs = {
   'config:read': {},
   'config:create': {},
   'config:update': {},
-  'config:delete': {}
+  'config:delete': {},
+  'submissions:create': {},
+  'submissions:read': FindFormSubmissionsRequestSchema,
+  'submissions:update': {},
+  'submissions:delete': {}
 } as const;
 const channelResponses = {
   'config:read': AppConfigSchema.nullable(),
@@ -27,6 +31,10 @@ const channelResponses = {
   'config:create': {},
   'config:update': {},
   'config:delete': {},
+  'submissions:create': {},
+  'submissions:read': createPaginatedResultSchema(FormSubmissionSchema),
+  'submissions:update': {},
+  'submissions:delete': {}
 }
 type InferZod<T extends z.ZodType> = z.infer<T>;
 type MaybeAsync<T> = Promise<T> | Observable<T> | T;

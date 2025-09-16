@@ -9,7 +9,7 @@ function generateMessageId() {
   return result;
 }
 
-export async function sendRpcAndWaitAsync(channel: Channel, timeout: number, data?: unknown) {
+export async function sendRpcAndWaitAsync(channel: Channel, timeout: number = 30000, data?: unknown) {
   const id = generateMessageId();
   const replyChannel = computeReplyChannel(channel);
   return new Promise((resolve, reject) => {

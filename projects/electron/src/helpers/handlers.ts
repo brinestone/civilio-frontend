@@ -1,24 +1,12 @@
-import { getAppConfig } from "@civilio/handlers";
-import { AppConfigSchema, BadRequestError, Channel, computeReplyChannel, ExecutionError, InferOutput, RpcBaseSchema, rpcMessageSchema } from "@civilio/shared";
-import { ipcMain } from "electron/main";
-import { reportError } from './error';
+import { findFormSubmissions, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
+import { AppConfigSchema, FindFormSubmissionsRequestSchema } from "@civilio/shared";
 
 export function registerIpcHandlers() {
-  ipcMain.on('config:read' as Channel, (event, eventData) => {
-    const replyChannel = computeReplyChannel('config:read');
-    const dataSchema = rpcMessageSchema(AppConfigSchema);
-    try {
-      const { headers } = RpcBaseSchema.parse(eventData);
-      const config = AppConfigSchema.parse(getAppConfig());
-      event.sender.send(replyChannel, {
-        headers: {
-          ...headers,
-          ts: new Date(),
-        },
-        body: config
-      } as InferOutput<typeof dataSchema>)
-    } catch (e) {
-      reportError(event, new ExecutionError(e.message, 'field-mappings:read', e));
-    }
+  respondingNoInputChannelHandler('submissions:read', () => {
+    const config = AppConfigSchema.parse(getAppConfig());
+    return config;
+  });
+  respondingInputChannelHandler('submissions:read', FindFormSubmissionsRequestSchema, async ({form, page, size, filter})=> {
+    return await findFormSubmissions(form, page, size, filter);
   })
 }

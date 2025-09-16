@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 import { conigValidGuard } from './guards/conig-valid-guard';
 
+const configValidGuardFn = conigValidGuard('/settings');
 export const routes: Routes = [
   {
-    canActivate: [conigValidGuard],
+    canActivate: [configValidGuardFn],
     title: 'Form Submissions',
     path: 'submissions', loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
   },

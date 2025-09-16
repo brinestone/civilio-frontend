@@ -12,7 +12,7 @@ export const AppErrorSchema = z.object({
   data: ErrorDataSchema.optional()
 });
 
-abstract class AppErrorBase extends Error implements AppError {
+export abstract class AppErrorBase extends Error implements AppError {
   abstract code: ErrorCode;
   protected constructor(readonly messageId: string, readonly srcChannel?: string, message?: string) {
     super(message);
@@ -26,10 +26,10 @@ export class BadRequestError extends AppErrorBase {
   }
 }
 
-export class TimeoutError extends Error implements AppError {
+export class TimeoutError extends AppErrorBase{
   readonly code = 'timeout';
-  constructor(readonly timeout: number, readonly srcChannel: Channel, readonly messageId: string) {
-    super(`timeout error after: ${timeout}ms`);
+  constructor(readonly timeout: number, srcChannel: Channel, messageId: string) {
+    super(messageId, srcChannel, `timeout error after: ${timeout}ms`);
   }
 }
 
