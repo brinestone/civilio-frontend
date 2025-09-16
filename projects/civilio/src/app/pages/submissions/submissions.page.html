@@ -1,0 +1,25 @@
+<div class="page-header !justify-start gap-4">
+  <h1 class="page-title">Form Submissions</h1>
+  <div class="flex gap-2 items-center">
+    <button hlmBtn variant="outline">
+      <ng-icon name="lucideRefreshCw" />
+      <span>Refresh</span>
+    </button>
+    <brn-select
+      [(value)]="formType"
+      class="inline-block"
+      placeholder="Select a Form type"
+    >
+      <hlm-select-trigger>
+        <hlm-select-value class="uppercase cursor-pointer placeholder:capitalize" />
+      </hlm-select-trigger>
+      <hlm-select-content class="w-56">
+        @for (option of formTypeOptions; track $index) {
+          <hlm-option [value]="option" class="uppercase">{{
+            option
+          }}</hlm-option>
+        }
+      </hlm-select-content>
+    </brn-select>
+  </div>
+</div>
