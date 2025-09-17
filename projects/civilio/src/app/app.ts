@@ -7,6 +7,7 @@ import { isDesktop } from '@app/util';
 import { dispatch } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
 import { ThemeService } from './services/theme.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'cv-root',
   imports: [RouterOutlet, BaseLayout, HlmToaster],
@@ -17,11 +18,8 @@ export class App implements OnInit {
   protected readonly title = signal('civilio');
   protected formService = inject(FormService);
   private loadConfig = dispatch(LoadConfig);
-
-  constructor(ts: ThemeService) {
-    ts.theme$.subscribe(v => {
-    });
-  }
+  private themeService = inject(ThemeService);
+  protected themeSignal = toSignal(this.themeService.theme$, { initialValue: 'system' });
 
   ngOnInit(): void {
     if (isDesktop()) {

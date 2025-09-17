@@ -1,6 +1,7 @@
 import { findFormSubmissions, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
-import { AppConfigSchema, FindFormSubmissionsRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
+import { AppConfigSchema, FindFormSubmissionsRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
 import _ from 'lodash';
+import { testConnection } from "./db";
 
 export function registerIpcHandlers() {
   respondingNoInputChannelHandler('config:read', () => {
@@ -16,5 +17,8 @@ export function registerIpcHandlers() {
     _.set(config, path, value);
     config.save();
     return AppConfigSchema.parse(config);
-  })
+  });
+  respondingInputChannelHandler('db:test', TestDbConnectionRequestSchema, async (arg) => {
+    return await testConnection(arg);
+  });
 }

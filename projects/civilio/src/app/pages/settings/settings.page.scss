@@ -5,7 +5,7 @@
 }
 
 .section-item {
-  @apply rounded-md border-l-4 border-transparent;
+  @apply rounded-md border-l-4 border-transparent focus-within:ring-1 focus-within:ring-[var(--primary)];
   & > a {
     @apply flex items-center gap-2 p-2;
   }

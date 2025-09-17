@@ -15,3 +15,15 @@ export class SetLocale {
   static type = `${prefix} set locale`;
   constructor(readonly locale: Locale) { }
 }
+
+export class TestDb {
+  static type = `${prefix} test connection`;
+  constructor(
+    readonly host: string,
+    readonly port: number,
+    readonly database: string,
+    readonly username: string,
+    readonly password: string,
+    readonly ssl: boolean = false
+  ) { }
+}

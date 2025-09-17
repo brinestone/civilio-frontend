@@ -5,11 +5,11 @@
 }
 
 .menu-link {
-  @apply px-2 py-1 rounded-md transition-colors;
+  @apply px-2 py-1 rounded-md transition-colors focus-within:ring-1 focus-within:ring-[var(--primary)];
   &:has(.active-route) {
-    @apply font-bold bg-[var(--primary)]/40 hover:bg-[var(--primary)] text-[var(--primary-foreground)];
+    @apply font-bold bg-[var(--primary)] hover:bg-[var(--primary)] text-[var(--primary-foreground)];
   }
   &:not(:has(.active-route)) {
-    @apply hover:bg-[var(--muted)]/50 opacity-50 hover:opacity-100;
+    @apply hover:bg-[var(--muted)];
   }
 }

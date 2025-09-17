@@ -53,6 +53,7 @@ export const AppConfigSchema = z.object({
   }).partial().optional()
 }).default({});
 
+export const DbConfigSchema = AppConfigSchema.unwrap().shape.db.def.innerType;
 export type FieldMapping = z.infer<typeof FieldMappingSchema>;
 export type FormType = z.infer<typeof FormTypeSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
@@ -60,3 +61,4 @@ export type FormSubmission = z.infer<typeof FormSubmissionSchema>;
 export type Option = z.infer<typeof OptionSchema>;
 export type ThemeMode = z.infer<typeof ThemeSchema>;
 export type Locale = z.infer<typeof LocaleSchema>;
+export type DbConfig = z.infer<typeof DbConfigSchema>;

@@ -15,7 +15,7 @@ import { provideIcons } from '@ng-icons/core';
   imports: [
     ThemeSelectorComponent,
     LocaleSelectorComponent
-],
+  ],
   host: {
     'class': 'page'
   },

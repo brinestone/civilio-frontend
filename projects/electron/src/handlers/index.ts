@@ -42,14 +42,17 @@ export function respondingInputChannelHandler<TChannel extends Channel, TInputSc
   schema: TInputSchema,
   handler: (rpc: z.infer<TInputSchema>) => Promise<unknown> | unknown) {
   const replyChannel = computeReplyChannel(channel);
-  ipcMain.on(channel, (event, eventData) => {
+  ipcMain.on(channel, async (event, eventData) => {
     logRequest(channel, eventData);
     const rpcSchema = rpcMessageSchema(schema);
     let messageId: string = '';
     try {
       const rpc = rpcSchema.parse(eventData);
       messageId = rpc.headers.messageId;
-      const result = handler(rpc.body);
+      let result = handler(rpc.body);
+      if (isPromise(result)) {
+        result = await result;
+      }
       const replyData: any = {
         headers: {
           messageId: rpc.headers.messageId,

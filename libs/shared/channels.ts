@@ -1,5 +1,5 @@
 import z from 'zod';
-import { FindFieldMappingsRequestSchema, FindFormSubmissionsRequestSchema, UpdateFieldMappingRequestSchema } from './dto';
+import { FindFieldMappingsRequestSchema, FindFormSubmissionsRequestSchema, TestDbConnectionRequestSchema, TestDbConnectionResponseSchema, UpdateFieldMappingRequestSchema } from './dto';
 import { AppConfigSchema, createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
 import { Observable } from 'rxjs';
 
@@ -20,7 +20,8 @@ const channelArgs = {
   'submissions:create': {},
   'submissions:read': FindFormSubmissionsRequestSchema,
   'submissions:update': {},
-  'submissions:delete': {}
+  'submissions:delete': {},
+  'db:test': TestDbConnectionRequestSchema
 } as const;
 const channelResponses = {
   'config:read': AppConfigSchema.nullable(),
@@ -34,11 +35,12 @@ const channelResponses = {
   'submissions:create': {},
   'submissions:read': createPaginatedResultSchema(FormSubmissionSchema),
   'submissions:update': {},
-  'submissions:delete': {}
+  'submissions:delete': {},
+  'db:test': TestDbConnectionResponseSchema
 }
 type InferZod<T extends z.ZodType> = z.infer<T>;
 type MaybeAsync<T> = Promise<T> | Observable<T> | T;
-export type Channel = z.output<typeof ChannelSchema>;
+export type Channel = z.output<typeof ChannelSchema> | 'db:test';
 // export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends {} ? never : typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;

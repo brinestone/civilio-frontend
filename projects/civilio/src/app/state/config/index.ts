@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { AppConfig, AppConfigSchema } from '@civilio/shared';
+import { AppConfig, AppConfigSchema, DbConfigSchema } from '@civilio/shared';
 import { Action, State, StateContext, StateToken } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { from, tap } from 'rxjs';
+import { concatMap, from, tap, throwError } from 'rxjs';
 import { ConfigService } from '../../services/config.service';
-import { LoadConfig, SetLocale, SetTheme } from './actions';
+import { LoadConfig, SetLocale, SetTheme, TestDb } from './actions';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -15,20 +15,34 @@ type ConfigStateModel = {
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 
+@Injectable()
 @State({
   name: CONFIG_STATE,
   defaults: { configured: false, env: 'desktop' }
 })
-@Injectable()
 export class ConfigState {
   private readonly configService = inject(ConfigService);
+
+  @Action(TestDb, { cancelUncompleted: true })
+  onTestDb(ctx: Context, action: TestDb) {
+    return from(this.configService.testDb(action)).pipe(
+      concatMap(v => {
+        if (v === true) return this.configService.setDbConfig(action);
+        return throwError(() => new Error(v));
+      }),
+      tap(config => ctx.setState(patch({
+        config,
+        configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
+      })))
+    )
+  }
 
   @Action(SetLocale, { cancelUncompleted: true })
   onSetLocale(ctx: Context, { locale }: SetLocale) {
     return from(this.configService.setLocale(locale)).pipe(
       tap(config => ctx.setState(patch({
         config,
-        configured: 'db' in config && AppConfigSchema.unwrap().shape.db.unwrap().safeParse(config.db).success
+        configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
       })))
     )
   }
@@ -38,7 +52,7 @@ export class ConfigState {
     return from(this.configService.setTheme(value)).pipe(
       tap(config => ctx.setState(patch({
         config,
-        configured: 'db' in config && AppConfigSchema.unwrap().shape.db.unwrap().safeParse(config.db).success
+        configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
       })))
     );
   }

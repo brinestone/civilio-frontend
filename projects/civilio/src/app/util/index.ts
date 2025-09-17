@@ -1,4 +1,20 @@
+import { inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AppErrorSchema, Channel, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
+import { Actions, ActionType, ofActionCompleted, ofActionDispatched } from "@ngxs/store";
+import { map, merge } from "rxjs";
+
+export function isActionLoading(action: ActionType) {
+  const actions$ = inject(Actions);
+  const s = signal(false);
+  merge(
+    actions$.pipe(ofActionDispatched(action), map(() => true)),
+    actions$.pipe(ofActionCompleted(action), map(() => false)),
+  ).pipe(
+    takeUntilDestroyed()
+  ).subscribe(v => s.set(v));
+  return s.asReadonly()
+}
 
 export function isDesktop() {
   return window && 'electron' in window;
@@ -13,7 +29,7 @@ function generateMessageId() {
   return result;
 }
 
-export async function sendRpcAndWaitAsync(channel: Channel, data: unknown = undefined, timeout: number = 30000) {
+export async function sendRpcMessageAsync(channel: Channel, data: unknown = undefined, timeout: number = 30000) {
   const id = generateMessageId();
   const replyChannel = computeReplyChannel(channel);
   return new Promise((resolve, reject) => {
