@@ -53,7 +53,7 @@ export function createChannelRequestFn<TChannel extends Channel>(channel: TChann
   }
 }
 export const RpcHeadersSchema = z.object({
-  ts: z.coerce.date(),
+  ts: z.any().optional(),
   messageId: z.string(),
   srcChannel: z.string(),
   timeout: z.number().optional()

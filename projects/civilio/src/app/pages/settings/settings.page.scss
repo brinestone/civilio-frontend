@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 :host {
-  @apply h-full grid grid-cols-[20%_80%] grid-rows-[auto_1fr_auto];
+  @apply h-full grid grid-cols-[auto_1fr] grid-rows-[auto_1fr_auto];
 }
 
 .section-item {

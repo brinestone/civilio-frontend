@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSettings, lucideTable2 } from '@ng-icons/lucide';
+import {
+  BrnToggleGroupModule
+} from '@spartan-ng/brain/toggle-group';
+import { ThemeSelectorComponent } from '../../components/theme-selector/theme-selector.component';
 
 @Component({
   selector: 'cv-base',
@@ -11,13 +15,14 @@ import { lucideSettings, lucideTable2 } from '@ng-icons/lucide';
       lucideSettings,
     })
   ],
-  imports: [NgIcon, RouterLink, RouterLinkActive],
+  imports: [NgIcon, RouterLink, RouterLinkActive, ThemeSelectorComponent,
+    BrnToggleGroupModule,],
   templateUrl: './base.layout.html',
   styleUrl: './base.layout.scss'
 })
 export class BaseLayout {
   protected leftLinks = [
-    { label: 'Forms', icon: 'lucideTable2', path: '/submissions' },
+    { label: 'Form Submissions', icon: 'lucideTable2', path: '/submissions' },
     { label: 'Settings', icon: 'lucideSettings', path: '/settings' },
-  ]
+  ];
 }

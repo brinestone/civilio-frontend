@@ -1,5 +1,6 @@
 import { reportError } from '@civilio/helpers/error';
-import { AppErrorBase, Channel, computeReplyChannel, ExecutionError, InferOutput, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema } from '@civilio/shared';
+import { logRequest, logResponse } from '@civilio/helpers/logger';
+import { AppErrorBase, Channel, computeReplyChannel, ExecutionError, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema } from '@civilio/shared';
 import { ipcMain } from 'electron';
 import { isPromise } from 'util/types';
 import z from 'zod';
@@ -10,6 +11,7 @@ export * from './submissions';
 export function respondingNoInputChannelHandler<TChannel extends Channel>(channel: TChannel, handler: () => unknown) {
   const replyChannel = computeReplyChannel(channel);
   ipcMain.on(channel, async (event, eventData) => {
+    logRequest(channel, eventData);
     const rpcSchema = RpcBaseSchema;
     let messageId: string = '';
     try {
@@ -19,15 +21,16 @@ export function respondingNoInputChannelHandler<TChannel extends Channel>(channe
       if (isPromise(result)) {
         result = await result;
       }
-      const replyData: any = {
+      const replyRpc: any = {
         headers: {
           messageId: rpc.headers.messageId,
           srcChannel: channel,
-          ts: new Date(),
+          ts: Date.now(),
         } as RpcInputHeaders,
         body: result ?? null
       };
-      event.sender.send(replyChannel, replyData);
+      event.sender.send(replyChannel, replyRpc);
+      logResponse(channel, replyRpc);
     } catch (e) {
       reportError(event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e));
     }
@@ -40,6 +43,7 @@ export function respondingInputChannelHandler<TChannel extends Channel, TInputSc
   handler: (rpc: z.infer<TInputSchema>) => Promise<unknown> | unknown) {
   const replyChannel = computeReplyChannel(channel);
   ipcMain.on(channel, (event, eventData) => {
+    logRequest(channel, eventData);
     const rpcSchema = rpcMessageSchema(schema);
     let messageId: string = '';
     try {
@@ -50,11 +54,12 @@ export function respondingInputChannelHandler<TChannel extends Channel, TInputSc
         headers: {
           messageId: rpc.headers.messageId,
           srcChannel: channel,
-          ts: new Date(),
+          ts: Date.now(),
         } as RpcInputHeaders,
         body: result ?? null
       };
       event.sender.send(replyChannel, replyData);
+      logResponse(channel, replyData);
     } catch (e) {
       reportError(event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e));
     }

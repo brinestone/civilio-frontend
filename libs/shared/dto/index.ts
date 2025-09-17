@@ -1,6 +1,10 @@
 import z from "zod";
 import { FormTypeSchema } from "../schema";
 
+export const UpdateConfigRequestSchema = z.object({
+  path: z.string(),
+  value: z.unknown().nullable()
+});
 export const UpdateFieldMappingRequestSchema = z.object({
   form: FormTypeSchema,
   field: z.string(),
@@ -19,3 +23,4 @@ export const FindFormSubmissionsRequestSchema = z.object({
 
 export type FindFieldMappingsRequest = z.infer<typeof FindFieldMappingsRequestSchema>;
 export type NewFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
+export type UpdateConfigRequest = z.infer<typeof UpdateConfigRequestSchema>;

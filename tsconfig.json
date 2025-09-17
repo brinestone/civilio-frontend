@@ -17,6 +17,9 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
+      "@app/*": [
+        "./projects/civilio/src/app/*"
+      ],
       "@spartan-ng/helm/button": [
         "./libs/ui/ui-button-helm/src/index.ts"
       ],

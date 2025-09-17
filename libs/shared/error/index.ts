@@ -2,7 +2,7 @@ import z from 'zod';
 import { Channel } from '../channels';
 
 export const ErrorCodeSchema = z.enum(['bad_request', 'mal_config', 'timeout', 'execution_error']);
-export const ErrorDataSchema = z.record(z.string(), z.unknown());
+export const ErrorDataSchema = z.unknown();
 
 export const AppErrorSchema = z.object({
   code: ErrorCodeSchema,
@@ -26,7 +26,7 @@ export class BadRequestError extends AppErrorBase {
   }
 }
 
-export class TimeoutError extends AppErrorBase{
+export class TimeoutError extends AppErrorBase {
   readonly code = 'timeout';
   constructor(readonly timeout: number, srcChannel: Channel, messageId: string) {
     super(messageId, srcChannel, `timeout error after: ${timeout}ms`);

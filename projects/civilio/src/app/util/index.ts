@@ -1,5 +1,9 @@
 import { AppErrorSchema, Channel, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
 
+export function isDesktop() {
+  return window && 'electron' in window;
+}
+
 function generateMessageId() {
   const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQYZ0123456789';
   let result = '';
@@ -9,7 +13,7 @@ function generateMessageId() {
   return result;
 }
 
-export async function sendRpcAndWaitAsync(channel: Channel, timeout: number = 30000, data?: unknown) {
+export async function sendRpcAndWaitAsync(channel: Channel, data: unknown = undefined, timeout: number = 30000) {
   const id = generateMessageId();
   const replyChannel = computeReplyChannel(channel);
   return new Promise((resolve, reject) => {
@@ -29,7 +33,9 @@ export async function sendRpcAndWaitAsync(channel: Channel, timeout: number = 30
     const replyHandler = (_: any, arg: any) => {
       const rpc = RpcBaseSchema.parse(arg);
       if (id === rpc.headers.messageId && rpc.headers.srcChannel === channel) {
-        resolve(arg);
+        if (arg && 'body' in arg) {
+          resolve(arg.body);
+        }
         cleanup();
       }
     }

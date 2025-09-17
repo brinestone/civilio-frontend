@@ -1,0 +1,17 @@
+<brn-toggle-group
+  [size]="size()"
+  hlm
+  [(value)]="theme"
+  (valueChange)="setTheme($any($event))"
+>
+  @for (option of themeOptions; track $index) {
+    <button
+      [attr.aria-label]="option.label"
+      class="cursor-pointer"
+      [value]="option.value"
+      hlmToggleGroupItem
+    >
+      <ng-icon [name]="option.icon" />
+    </button>
+  }
+</brn-toggle-group>

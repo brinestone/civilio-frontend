@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+export const ThemeSchema = z.enum(['light', 'system', 'dark']);
+export const LocaleSchema = z.enum(['en-CM', 'fr-CM']);
+
 export const OptionSchema = z.object({
   label: z.string().nullable(),
   value: z.string().nullable(),
@@ -43,6 +46,10 @@ export const AppConfigSchema = z.object({
     host: z.string(),
     port: z.number().default(5432),
     database: z.string()
+  }).partial().optional(),
+  prefs: z.object({
+    theme: ThemeSchema,
+    locale: LocaleSchema
   }).partial().optional()
 }).default({});
 
@@ -51,3 +58,5 @@ export type FormType = z.infer<typeof FormTypeSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 export type FormSubmission = z.infer<typeof FormSubmissionSchema>;
 export type Option = z.infer<typeof OptionSchema>;
+export type ThemeMode = z.infer<typeof ThemeSchema>;
+export type Locale = z.infer<typeof LocaleSchema>;
