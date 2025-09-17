@@ -1,0 +1,18 @@
+@reference "tailwindcss";
+
+:host {
+  @apply h-full grid grid-cols-[20%_80%] grid-rows-[auto_1fr_auto];
+}
+
+.section-item {
+  @apply rounded-md border-l-4 border-transparent;
+  & > a {
+    @apply flex items-center gap-2 p-2;
+  }
+  &:not(:has(a.active)) {
+    @apply hover:bg-gray-500/20 text-[var(--muted-foreground)] hover:text-inherit;
+  }
+  &:has(a.active) {
+    @apply border-[var(--primary)] bg-gray-500/20 font-bold;
+  }
+}

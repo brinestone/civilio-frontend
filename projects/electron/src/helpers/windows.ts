@@ -7,6 +7,7 @@ export function showMainWindow() {
   mainWindow = new BrowserWindow({
     height: 600,
     center: true,
+    minWidth: 480,
     width: 840,
     icon: nativeImage.createFromDataURL(logo),
     webPreferences: {

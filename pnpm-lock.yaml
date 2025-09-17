@@ -35,6 +35,9 @@ importers:
       '@ng-icons/lucide':
         specifier: ^32.1.0
         version: 32.1.0
+      '@ngxs/form-plugin':
+        specifier: ^20.1.0
+        version: 20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@angular/forms@20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@angular/platform-browser@20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2)))(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)
       '@ngxs/logger-plugin':
         specifier: ^20.1.0
         version: 20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)
@@ -2324,6 +2327,14 @@ packages:
 
   '@ng-icons/lucide@32.1.0':
     resolution: {integrity: sha512-w2sZ+0ep7PTVPIlZmIhJV/m0F9OqFObHGP5A81to9Gc0Uqv7ZpqCY+o2wOGAVjtyTXhIxM4z4+FT8OeRW4JQmw==}
+
+  '@ngxs/form-plugin@20.1.0':
+    resolution: {integrity: sha512-7rvbswkEhg3X/KV1R6kTAOac2E4tmhryB73o6SkpeYODmbOGNKpftNdMbcrPfTg6V5n8wbTX4rm3pC+MUDUf5g==}
+    peerDependencies:
+      '@angular/core': '>=20.0.0 <21.0.0'
+      '@angular/forms': '>=20.0.0 <21.0.0'
+      '@ngxs/store': ^20.1.0 || ^20.1.0-dev
+      rxjs: '>=7.0.0'
 
   '@ngxs/logger-plugin@20.1.0':
     resolution: {integrity: sha512-ocRgzCJ0kPGHwnRi7mbeqBS+QvIdz2ffBIb4LGab5OwHVJDSV0JTVvKNAH/LsSaqIKLLwW+eUQT41zw2nBkmJA==}
@@ -10800,6 +10811,14 @@ snapshots:
 
   '@ng-icons/lucide@32.1.0':
     dependencies:
+      tslib: 2.8.1
+
+  '@ngxs/form-plugin@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@angular/forms@20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@angular/platform-browser@20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2)))(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)':
+    dependencies:
+      '@angular/core': 20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2)
+      '@angular/forms': 20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@angular/platform-browser@20.3.0(@angular/common@20.3.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2)))(rxjs@7.8.2)
+      '@ngxs/store': 20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2)
+      rxjs: 7.8.2
       tslib: 2.8.1
 
   '@ngxs/logger-plugin@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.0(@angular/compiler@20.3.0)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)':
