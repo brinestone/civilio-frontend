@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { TestDb } from '@app/state/config';
+import { TestDb } from '@app/store/config';
 import { isActionLoading } from '@app/util';
 import { TestDbConnectionRequestSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';

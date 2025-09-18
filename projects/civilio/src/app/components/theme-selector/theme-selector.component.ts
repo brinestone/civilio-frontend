@@ -4,8 +4,8 @@ import { lucideSun, lucideComputer, lucideMoon } from "@ng-icons/lucide";
 import { dispatch, select } from "@ngxs/store";
 import { BrnToggleGroupModule } from "@spartan-ng/brain/toggle-group";
 import { HlmToggleGroupModule } from "@spartan-ng/helm/toggle-group";
-import { SetTheme } from "../../state/config";
-import { currentTheme } from "../../state/selectors";
+import { SetTheme } from "../../store/config";
+import { currentTheme } from "../../store/selectors";
 
 @Component({
   selector: 'cv-theme-selector',

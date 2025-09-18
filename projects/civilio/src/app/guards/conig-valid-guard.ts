@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngxs/store';
-import { isConfigValid } from '../state/selectors';
+import { isConfigValid } from '../store/selectors';
 import { toast } from 'ngx-sonner';
 
 export const conigValidGuard: (redirect: string) => CanActivateFn = (redirect: string) => (route, state) => {

@@ -154,7 +154,6 @@ export namespace Fosa {
 }
 
 
-
 export namespace Chiefdom {
   export const RESPONDENT_NAME = "chefferie.form.fields.names.title";
   export const POSITION = "chefferie.form.fields.position.title";
@@ -648,9 +647,6 @@ export namespace CSC {
     Accessibility.ROAD_OBSTACLE,
     Accessibility.ATTACHED_VILLAGES_NUMBER,
     Accessibility.COVER_RADIUS,
-    //                Accessibility.Villages.NAME,
-    //                Accessibility.Villages.DISTANCE,
-    //                Accessibility.Villages.OBSERVATIONS,
     Infrastructure.STATUS,
     Infrastructure.OTHER_BUILDING,
     Infrastructure.ENEO_CONNECTION,
@@ -672,12 +668,6 @@ export namespace CSC {
     Areas.OFFICE_COUNT,
     Areas.DEDICATED_CS_ROOMS,
     Areas.MOVING,
-    //                Areas.RENOVATION_DUE,
-    //                Areas.Rooms.NUMBER,
-    //                Areas.Rooms.NAME,
-    //                Areas.Rooms.CONDITION,
-    //                Areas.Rooms.AREA,
-    //                Areas.Rooms.RENOVATION_NATURE,
     Equipment.COMPUTER_COUNT,
     Equipment.SERVER_COUNT,
     Equipment.PRINTER_COUNT,
@@ -735,7 +725,6 @@ export namespace CSC {
     FinancialStats.PRICES_DISPLAYED,
     FinancialStats.MUNICIPALITY_BUDGET_2024,
     FinancialStats.CS_BUDGET_2024,
-    //                FinancialStats.CS_REVENUE_2024,
     Archiving.HAS_ARCHIVING_ROOM,
     Archiving.ARCHIVE_ROOM_ELECTRIC_CONDITION,
     Archiving.HAS_FIRE_EXTINGUISHERS,
@@ -757,29 +746,5 @@ export namespace CSC {
     Deeds.MARRIAGE_CERT_NOT_DRAWN,
     Deeds.DEATH_CERT_DRAWN,
     Deeds.DEATH_CERT_NOT_DRAWN,
-    //                StatusOfArchivedRecords.YEAR,
-    //                StatusOfArchivedRecords.BIRTH_COUNT,
-    //                StatusOfArchivedRecords.MARRIAGE_COUNT,
-    //                StatusOfArchivedRecords.DEATH_COUNT,
-    //                PersonnelInfo.MALE_COUNT,
-    //                PersonnelInfo.FEMALE_COUNT,
-    //                PersonnelInfo.NON_OFFICER_MALE_COUNT,
-    //                PersonnelInfo.NON_OFFICER_FEMALE_COUNT,
-    //                PersonnelInfo.Officers.OTHER_POSITION,
-    //                PersonnelInfo.Officers.STATUS,
-    //                PersonnelInfo.Officers.OTHER_STATUS,
-    //                PersonnelInfo.Officers.TOTAL_ALLOWANCE_2022,
-    //                PersonnelInfo.Officers.TOTAL_REVENUE_2022,
-    //                PersonnelInfo.Officers.ARCHIVING_TRAINING,
-    //                PersonnelInfo.Officers.CS_SENIORITY,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_NAME,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_AGE,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_PHONE,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_ED_LEVEL,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_EMAIL,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_GENDER,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_POSITION,
-    //                FieldKeys.PersonnelInfo.PERSONNEL_CS_TRAINING
   ]
 }

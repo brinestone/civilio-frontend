@@ -1,0 +1,18 @@
+@reference "tailwindcss";
+
+:host {
+  @apply grid grid-rows-[auto_auto_1fr] h-full;
+}
+
+.link-item {
+  @apply border-b-3 border-transparent rounded-t-md text-[var(--muted)] focus-within:ring-1 focus-within:ring-[var(--primary)];
+  & > a {
+    @apply px-4 pt-3 pb-1 outline-none block;
+  }
+  &:has(a.active) {
+    @apply border-[var(--primary)] text-[var(--primary)] font-bold;
+  }
+  &:not(:has(a.active)) {
+    @apply text-[var(--primary)];
+  }
+}

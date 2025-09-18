@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ThemeMode } from '@civilio/shared';
 import { Store } from '@ngxs/store';
 import { BehaviorSubject, filter } from 'rxjs';
-import { currentTheme } from '../state/selectors';
+import { currentTheme } from '../store/selectors';
 
 @Injectable({
   providedIn: 'root'

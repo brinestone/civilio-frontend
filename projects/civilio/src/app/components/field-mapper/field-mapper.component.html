@@ -1,0 +1,18 @@
+<ng-container
+  [ngTemplateOutlet]="
+    form() == 'fosa'
+      ? fosaTemplate
+      : form() == 'chefferie'
+        ? chefferieTemplate
+        : form() == 'csc'
+          ? cscTemplate
+          : defaultTemplate
+  "
+/>
+
+<ng-template #fosaTemplate>
+
+</ng-template>
+<ng-template #cscTemplate> csc </ng-template>
+<ng-template #chefferieTemplate> chefferie </ng-template>
+<ng-template #defaultTemplate> Unknown form type </ng-template>

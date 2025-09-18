@@ -1,5 +1,5 @@
-import { findFormSubmissions, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
-import { AppConfigSchema, FindFormSubmissionsRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
+import { findFieldMappings, findFormSubmissions, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
+import { AppConfigSchema, FindFieldMappingsRequestSchema, FindFormSubmissionsRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
 import _ from 'lodash';
 import { testConnection } from "./db";
 
@@ -21,4 +21,7 @@ export function registerIpcHandlers() {
   respondingInputChannelHandler('db:test', TestDbConnectionRequestSchema, async (arg) => {
     return await testConnection(arg);
   });
+  respondingInputChannelHandler('field-mappings:read', FindFieldMappingsRequestSchema, async ({ form }) => {
+    return await findFieldMappings(form);
+  })
 }

@@ -8,7 +8,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 
 const sections = [
   { label: 'General', icon: 'lucideSlidersVertical', path: 'general' },
-  { label: 'Field Mapping', icon: 'lucideUnlink2', path: 'field-mapping' },
+  { label: 'Field Mappings', icon: 'lucideUnlink2', path: 'field-mapping' },
   { label: 'Advanced', icon: 'lucideWrench', path: 'advanced' },
 ] as const
 

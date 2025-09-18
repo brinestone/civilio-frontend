@@ -1,6 +1,6 @@
 import { Component, linkedSignal } from '@angular/core';
-import { SetLocale } from '@app/state/config';
-import { currentLocale } from '@app/state/selectors';
+import { SetLocale } from '@app/store/config';
+import { currentLocale } from '@app/store/selectors';
 import { NgIcon } from "@ng-icons/core";
 import { dispatch, select } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';

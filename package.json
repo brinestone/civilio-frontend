@@ -50,6 +50,7 @@
     "@angular/router": "^20.1.0",
     "@ng-icons/core": "^32.1.0",
     "@ng-icons/lucide": "^32.1.0",
+    "@ngx-translate/core": "^17.0.0",
     "@ngxs/form-plugin": "^20.1.0",
     "@ngxs/logger-plugin": "^20.1.0",
     "@ngxs/router-plugin": "^20.1.0",

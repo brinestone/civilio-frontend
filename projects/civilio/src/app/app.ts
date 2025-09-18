@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BaseLayout } from '@app/layouts/base/base.layout';
 import { FormService } from '@app/services/form.service';
-import { LoadConfig } from '@app/state/config';
+import { LoadConfig } from '@app/store/config';
 import { isDesktop } from '@app/util';
 import { dispatch } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
