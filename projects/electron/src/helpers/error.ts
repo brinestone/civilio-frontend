@@ -19,5 +19,6 @@ export function reportError(ev: IpcMainEvent, err: AppError) {
     }
   } as z.output<typeof schema>;
   ev.sender.send('error', data);
+  console.error(err);
   logResponse('error', data);
 }

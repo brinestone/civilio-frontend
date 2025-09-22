@@ -1,6 +1,6 @@
 import { inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AppErrorSchema, Channel, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
+import { AppErrorSchema, Channel, ChannelArg, ChannelResponse, computeReplyChannel, MaybeAsync, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
 import { Actions, ActionType, ofActionCompleted, ofActionDispatched } from "@ngxs/store";
 import { map, merge } from "rxjs";
 
@@ -29,7 +29,7 @@ function generateMessageId() {
   return result;
 }
 
-export async function sendRpcMessageAsync(channel: Channel, data: unknown = undefined, timeout: number = 30000) {
+export async function sendRpcMessageAsync<TChannel extends Channel>(channel: TChannel, data: ChannelArg<TChannel> | undefined = undefined, timeout: number = 30000): Promise<ChannelResponse<TChannel>> {
   const id = generateMessageId();
   const replyChannel = computeReplyChannel(channel);
   return new Promise((resolve, reject) => {
@@ -40,9 +40,9 @@ export async function sendRpcMessageAsync(channel: Channel, data: unknown = unde
         clearTimeout(timer);
     }
     const errorHandler = (_: any, arg: any) => {
-      const err = rpcMessageSchema(AppErrorSchema).parse(arg);
-      if (err.headers.messageId === id && err.headers.srcChannel === channel) {
-        reject(err);
+      const rpc = rpcMessageSchema(AppErrorSchema).parse(arg);
+      if (rpc.headers.messageId === id && rpc.headers.srcChannel === channel) {
+        reject(rpc.body);
         cleanup();
       }
     };

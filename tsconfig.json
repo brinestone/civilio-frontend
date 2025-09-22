@@ -24,7 +24,7 @@
         "./libs/ui/ui-button-helm/src/index.ts"
       ],
       "@civilio/shared": [
-        "./libs/shared/index.ts"
+        "libs/shared/index.ts"
       ],
       "@spartan-ng/helm/table": [
         "./libs/ui/ui-table-helm/src/index.ts"

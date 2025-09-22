@@ -32,7 +32,7 @@ settings:
     fr: Français
   title: Paramètres
   msg:
-    invalid_port: "Numéro de port non valide (plage: 1025 - 65535)"
+    invalid_port: 'Numéro de port non valide (plage: 1025 - 65535)'
     value_required: Ce champ est obligatoire
     invalid_url: URL non valide
     value_too_short: La valeur est trop courte
@@ -147,15 +147,14 @@ csc:
         title: Zones consacrées au statut civil
         fields:
           office_count:
-            title: "# des bureaux"
+            title: '# des bureaux'
             description: Combien de chambres sont dédiées au statut civil?
           dedicated_cs_rooms:
             title: Rooms CS dédiés?
             description: Y a-t-il d'autres chambres dédiées pour le statut civil?
           moving:
             title: Y a-t-il des plans émouvants?
-            description: Est-il prévu d'emménager dans un nouveau bâtiment dans les
-              prochains mois?
+            description: Est-il prévu d'emménager dans un nouveau bâtiment dans les prochains mois?
         sub_forms:
           rooms:
             fields:
@@ -173,44 +172,42 @@ csc:
         title: Installations du Civil Registry Center (équipement fonctionnel)
         fields:
           pc_count:
-            title: "# des ordinateurs"
+            title: '# des ordinateurs'
           server_count:
-            title: "# des serveurs"
+            title: '# des serveurs'
           printer_count:
-            title: "# des imprimantes"
+            title: '# des imprimantes'
           scanner_count:
-            title: "# de scanners"
+            title: '# de scanners'
           inverters:
-            title: "# des onduleurs"
+            title: '# des onduleurs'
           conditioners:
-            title: "# de conditionneurs"
+            title: '# de conditionneurs'
           fans:
-            title: "# de fans"
+            title: '# de fans'
           projectors:
-            title: "# de projecteurs"
+            title: '# de projecteurs'
           office_tables:
-            title: "# des tables de bureau"
+            title: '# des tables de bureau'
           chairs:
-            title: "# de chaises"
+            title: '# de chaises'
           cars:
-            title: "# de voitures"
+            title: '# de voitures'
           bikes:
-            title: "# de vélos"
+            title: '# de vélos'
           tablets:
-            title: "# de tablettes"
+            title: '# de tablettes'
       digitization:
         title: Numérisation / informatisation du statut civil
         fields:
           using_info_sys_outside_cs:
             title: Utilisation d'un système à l'extérieur de CR
-            description: En dehors du registre civil, tout autre département du centre
-              utilise-t-il un système informatisé
+            description: En dehors du registre civil, tout autre département du centre utilise-t-il un système informatisé
           external_cr_uses_internet:
             title: Si oui, ce système utilise-t-il Internet?
           has_cs_software:
             title: Logiciel équipé?
-            description: Le centre est-il équipé d'un ou plusieurs logiciels pour le statut
-              civil?
+            description: Le centre est-il équipé d'un ou plusieurs logiciels pour le statut civil?
           cs_software_name:
             title: Quel est le (s) nom (s) du logiciel?
           cs_software_license_sponsor:
@@ -226,14 +223,14 @@ csc:
           software_trained_user_count:
             title: "# d'utilisateurs formés"
           software_recorded_marriage_count:
-            title: "# de certificats de mariage"
-            description: "# des certificats de mariage enregistrer dans le logiciel"
+            title: '# de certificats de mariage'
+            description: '# des certificats de mariage enregistrer dans le logiciel'
           software_recorded_birth_count:
-            title: "# des certificats de naissance"
-            description: "# des certificats de naissance Registre dans le logiciel"
+            title: '# des certificats de naissance'
+            description: '# des certificats de naissance Registre dans le logiciel'
           software_recorded_death_count:
-            title: "# des certificats de décès"
-            description: "# des certificats de décès enregistrer dans le logiciel"
+            title: '# des certificats de décès'
+            description: '# des certificats de décès enregistrer dans le logiciel'
           software_is_functional:
             title: Le logiciel est-il fonctionnel?
           software_dysfunction_reason:
@@ -251,16 +248,15 @@ csc:
             title: Veuillez spécifier le fournisseur de dossiers
           non_compliant_registers_used:
             title: Utilisation des registres personnalisés
-            description: Avez-vous souvent dû acheter les registres sur le marché pour la
-              création des actes?
+            description: Avez-vous souvent dû acheter les registres sur le marché pour la création des actes?
           blank_registries:
             title: Registres vierges
           blank_marriages:
-            title: "# de registres de mariage vide"
+            title: '# de registres de mariage vide'
           blank_births:
-            title: "# de registres de naissance vierges"
+            title: '# de registres de naissance vierges'
           blank_deaths:
-            title: "# de registres de mort vierges"
+            title: '# de registres de mort vierges'
       vital_stats:
         title: Ressources financières liées aux documents de statistiques cibles
         fields:
@@ -275,11 +271,10 @@ csc:
           celibacy_cert_copy_cost:
             title: Coût du certificat de célibat (FCFA)
           non_registered_certs:
-            title: "# de certificats non enregistrés"
+            title: '# de certificats non enregistrés'
           rates_under_deliberation:
             title: Les tarifs sont-ils sous délibération?
-            description: Ces taux sont-ils actuellement l'objet d'une délibération par le
-              Conseil municipal?
+            description: Ces taux sont-ils actuellement l'objet d'une délibération par le Conseil municipal?
           prices_displayed:
             title: Ces prix sont-ils affichés?
           municipality_budget:
@@ -313,9 +308,9 @@ csc:
         title: Statut du personnel
         fields:
           male_count:
-            title: "# des hommes"
+            title: '# des hommes'
           female_count:
-            title: "# des femmes"
+            title: '# des femmes'
           non_officer_male_count:
             title: Non-officiers masculins
           non_officer_female_count:
@@ -387,28 +382,26 @@ csc:
         fields:
           records_scanned:
             title: CS Records scanned?
-            description: Les dossiers du statut civil ont-ils été numérisés (scannés) dans
-              ce centre de statut civil?
+            description: Les dossiers du statut civil ont-ils été numérisés (scannés) dans ce centre de statut civil?
           staff_trained:
             title: Le personnel formé?
-            description: Le personnel du Civil Status Center a-t-il été formé à
-              l'utilisation du logiciel de numérisation?
+            description: Le personnel du Civil Status Center a-t-il été formé à l'utilisation du logiciel de numérisation?
           document_scan_start_date:
             title: Analyser la date de début
           is_data_indexed:
             title: Les données ont-elles été indexées?
           marriages_indexed:
-            title: "# des mariages indexés"
+            title: '# des mariages indexés'
           deaths_indexed:
-            title: "# des décès indexés"
+            title: '# des décès indexés'
           births_indexed:
-            title: "# des naissances indexées"
+            title: '# des naissances indexées'
           marriages_scanned:
-            title: "# des mariages numérisés"
+            title: '# des mariages numérisés'
           births_scanned:
-            title: "# des naissances scannées"
+            title: '# des naissances scannées'
           deaths_scanned:
-            title: "# de décès scannés"
+            title: '# de décès scannés'
           is_data_in_use:
             title: Les données sont-elles utilisées?
           data_usage:
@@ -419,20 +412,16 @@ csc:
           archiving_room:
             title: Le centre a-t-il une salle d'archivage?
           archiving_room_electric_condition:
-            title: Quel est l'état du circuit électrique dans la salle d'archives
-              principale?
+            title: Quel est l'état du circuit électrique dans la salle d'archives principale?
           fire_extinguishers:
             title: La salle a-t-elle un ou plusieurs extincteurs?
           locked_door:
-            title: Est-ce que la pièce dans laquelle les registres sont archivés ont une
-              porte verrouillée
+            title: Est-ce que la pièce dans laquelle les registres sont archivés ont une porte verrouillée
           access_limited:
-            title: L'accès à la salle des archives est-il limité à une catégorie de
-              personnel?
+            title: L'accès à la salle des archives est-il limité à une catégorie de personnel?
           room_has_humidity:
             title: Problèmes d'étanchéité?
-            description: La pièce dans laquelle les registres sont archivés montrent-ils des
-              traces d'humidité (problèmes d'étanchéité)?
+            description: La pièce dans laquelle les registres sont archivés montrent-ils des traces d'humidité (problèmes d'étanchéité)?
           register_archiving_type:
             title: Comment les registres sont-ils archivés?
           other_register_archiving_type:
@@ -442,12 +431,10 @@ csc:
           registers_deposited:
             title: Tous les registres de la sous-préfecture ont-ils été déposés à la mairie?
           registers_deposited_systematically:
-            title: Les registres sont-ils systématiquement soumis à la mairie à la fin de
-              l'année?
+            title: Les registres sont-ils systématiquement soumis à la mairie à la fin de l'année?
           vandalized:
             title: Vandalisation
-            description: Les archives ont-elles fait l'objet de vols ou d'actes de
-              vandalisme?
+            description: Les archives ont-elles fait l'objet de vols ou d'actes de vandalisme?
           vandalized_date:
             title: Pouvez-vous décrire le contexte et la date?
         sections:
@@ -466,11 +453,11 @@ csc:
           year:
             title: Année
           birth_count:
-            title: "# des registres de naissance archivés"
+            title: '# des registres de naissance archivés'
           marriage_count:
-            title: "# des registres de mariage archivés"
+            title: '# des registres de mariage archivés'
           death_count:
-            title: "# des registres de la mort archivés"
+            title: '# des registres de la mort archivés'
     fields:
       index:
         title: Indice
@@ -525,17 +512,17 @@ fosa:
       - Année
       - Année
     births:
-      - "# des naissances enregistrées"
-      - "# des naissances enregistrées"
-      - "# des naissances enregistrées"
-      - "# des naissances enregistrées"
-      - "# des naissances enregistrées"
+      - '# des naissances enregistrées'
+      - '# des naissances enregistrées'
+      - '# des naissances enregistrées'
+      - '# des naissances enregistrées'
+      - '# des naissances enregistrées'
     deaths:
-      - "# des décès enregistrés"
-      - "# des décès enregistrés"
-      - "# des décès enregistrés"
-      - "# des décès enregistrés"
-      - "# des décès enregistrés"
+      - '# des décès enregistrés'
+      - '# des décès enregistrés'
+      - '# des décès enregistrés'
+      - '# des décès enregistrés'
+      - '# des décès enregistrés'
     observation: Observations
     validation_code: Code de validation
     recorded_by: Enregistré par
@@ -618,8 +605,7 @@ fosa:
         description: Utilisation de DHIS2 dans la formation en santé
       uses_bunec_birth_form:
         title: Utilise le formulaire de naissance de Bunec
-        description: Enregistrement des naissances sur le formulaire standardisé fourni
-          par BUNEC
+        description: Enregistrement des naissances sur le formulaire standardisé fourni par BUNEC
       uses_dhis2_form:
         title: Utilise des formulaires DHIS2
         description: Formation à l'utilisation du formulaire standardisé DHIS2
@@ -634,8 +620,7 @@ fosa:
       toilet_present:
         title: A des toilettes?
       toilet_resent:
-        description: Présence de toilettes accessibles pour les utilisateurs de
-          l'établissement
+        description: Présence de toilettes accessibles pour les utilisateurs de l'établissement
       has_eneo_connection:
         title: Connexion d'emplacement?
         description: L'installation est-elle connectée au réseau électrique (ENEO)?
@@ -657,8 +642,7 @@ fosa:
         title: Liste du personnel du registre civil
       key_personnel_count:
         title: Personnel clé pour les décès / naissances
-        description: Combien de membres du personnel clé sont en charge du registre
-          civil (départements de maternité et de décès)
+        description: Combien de membres du personnel clé sont en charge du registre civil (départements de maternité et de décès)
       bike_count:
         title: Vélos
       car_count:
@@ -818,11 +802,9 @@ filter:
     nn: N'est pas nul
 and: et
 msg:
-  restart_notice: Configuration à l'échelle du système mise à jour. L'application
-    doit être redémarrée pour appliquer les modifications.
+  restart_notice: Configuration à l'échelle du système mise à jour. L'application doit être redémarrée pour appliquer les modifications.
   discard_msg:
-    txt: Êtes-vous sûr de vouloir éliminer les modifications que vous avez
-      apportées?
+    txt: Êtes-vous sûr de vouloir éliminer les modifications que vous avez apportées?
   ok: D'accord
 stage:
   notificationPane:
@@ -999,8 +981,7 @@ chefferie:
         title: Distance du centre de statut civil le plus proche
       fonction:
         title: Fonction de statut civil
-        description: Fonction de statut civil exercé par le chef ou une notable dans la
-          chefferie
+        description: Fonction de statut civil exercé par le chef ou une notable dans la chefferie
         option:
           first: Oui, officier de statut civil
           second: Oui, secrétaire du statut civil
@@ -1020,8 +1001,7 @@ chefferie:
           third: D'autres (veuillez spécifier)
       training:
         title: L'officier de statut civil est-il formé
-        description: Formation reçue sur le statut civil du chef ou une notable de la
-          chefferie
+        description: Formation reçue sur le statut civil du chef ou une notable de la chefferie
         option:
           first: Oui
           second: Non
@@ -1033,8 +1013,7 @@ chefferie:
           second: Non
       cs_actor_is_chief:
         title: Le chef exerce-t-il le statut civil?
-        description: La fonction de statut civil est-elle remplie par le chef ou notable
-          dans la chefferie?
+        description: La fonction de statut civil est-elle remplie par le chef ou notable dans la chefferie?
       reception_location:
         description: Zone de réception des utilisateurs dans la chefferie
         option:
@@ -1049,9 +1028,9 @@ chefferie:
           second: Non
       Functional_equipment:
         title: Équipement fonctionnel
-        description: "Équipement fonctionnel dans la chefferie: types et quantités"
+        description: 'Équipement fonctionnel dans la chefferie: types et quantités'
       equipment_question:
-        title: "Équipement fonctionnel dans la chefferie: types et quantités"
+        title: 'Équipement fonctionnel dans la chefferie: types et quantités'
       equipment_quantity:
         computers:
           description: Nombre d'ordinateurs
@@ -1120,13 +1099,11 @@ chefferie:
             fith: D'autres (veuillez spécifier)
       employer:
         title: Personnel en charge de l'état civil
-        description: Combien de membres du personnel sont chargés du statut civil dans
-          la chefferie?
+        description: Combien de membres du personnel sont chargés du statut civil dans la chefferie?
       facility_name:
         title: Nom complet de la chefferie
       extra_info:
-        description: Veuillez utiliser l'espace fourni pour ajouter toute information
-          pertinente supplémentaire.
+        description: Veuillez utiliser l'espace fourni pour ajouter toute information pertinente supplémentaire.
         title: Des informations supplémentaires
       index: Indice
       validation_code: Code de validation

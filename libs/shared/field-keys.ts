@@ -1,3 +1,5 @@
+import z from "zod";
+
 export namespace PersonnelInfo {
   export const PERSONNEL_NAME = "data_personnel.columns.name.title";
   export const PERSONNEL_POSITION = "data_personnel.columns.role.title";
@@ -24,63 +26,178 @@ export namespace PersonnelInfo {
 }
 
 export namespace Fosa {
-  export const RESPONDING_DEVICE = "fosa.form.fields.responding_device.title";
-  export const MAIL = "fosa.form.fields.email.title";
-  export const PHONE = "fosa.form.fields.phone.title";
-  export const POSITION = "fosa.form.fields.position.title";
-  export const RESPONDENT_NAME = "fosa.form.fields.names.title";
-  export const CREATION_DATE = "fosa.form.fields.creation_date.description";
-  export const DIVISION = "fosa.form.fields.department.description";
-  export const MUNICIPALITY = "fosa.form.fields.communes.title";
-  export const QUARTER = "fosa.form.fields.quarter.title";
-  export const LOCALITY = "fosa.form.fields.locality.title";
-  export const OFFICE_NAME = "fosa.form.fields.fosa_name.title";
-  export const DISTRICT = "fosa.form.fields.district.title";
-  export const HEALTH_AREA = "fosa.form.fields.health_area.title";
-  export const FACILITY_TYPE = "fosa.form.fields.fosa_type.title";
-  export const HAS_MATERNITY = "fosa.form.fields.has_maternity.title";
-  export const CSC_DISTANCE = "fosa.form.fields.distance_csc.title";
-  export const GEO_POINT = "fosa.form.sections.geo_point.title";
-  export const USES_DHIS = "fosa.form.fields.dhis2_usage.title";
-  export const USES_BUNEC_BIRTH_FORM = "fosa.form.fields.uses_bunec_birth_form.title";
-  export const USES_DHIS_FORMS = "fosa.form.fields.uses_dhis2_form.title";
-  export const SEND_BIRTH_DECLARATIONS_TO_CSC = "fosa.form.fields.birth_declaration_transmission_to_csc.title";
-  export const CSC_EVENT_REGISTRATIONS = "fosa.form.fields.csc_event_reg_type.title";
-  export const STATS_YEAR_1 = "fosa.columns.year.1";
-  export const STATS_DEATH_COUNT_1 = "fosa.columns.deaths.1";
-  export const STATS_BIRTH_COUNT_1 = "fosa.columns.births.1";
-  export const STATS_OBSERVATIONS_1 = "fosa.columns.observation.1";
-  export const STATS_YEAR_2 = "fosa.columns.year.2";
-  export const STATS_DEATH_COUNT_2 = "fosa.columns.deaths.2";
-  export const STATS_BIRTH_COUNT_2 = "fosa.columns.births.2";
-  export const STATS_YEAR_3 = "fosa.columns.year.3";
-  export const STATS_DEATH_COUNT_3 = "fosa.columns.deaths.3";
-  export const STATS_BIRTH_COUNT_3 = "fosa.columns.births.3";
-  export const STATS_YEAR_4 = "fosa.columns.year.4";
-  export const STATS_DEATH_COUNT_4 = "fosa.columns.deaths.4";
-  export const STATS_BIRTH_COUNT_4 = "fosa.columns.births.4";
-  export const STATS_YEAR_5 = "fosa.columns.year.5";
-  export const STATS_DEATH_COUNT_5 = "fosa.columns.deaths.5";
-  export const STATS_BIRTH_COUNT_5 = "fosa.columns.births.5";
-  export const HAS_TOILET_FIELD = "fosa.form.fields.toilet_present.title";
-  export const HAS_ENEO_CONNECTION = "fosa.form.fields.has_eneo_connection.title";
-  export const HAS_BACKUP_POWER_SOURCE = "fosa.form.fields.has_power_source.title";
-  export const BACKUP_POWER_SOURCES = "fosa.form.fields.alternative_power.title";
-  export const HAS_INTERNET_CONNECTION = "fosa.form.fields.internet_conn.title";
-  export const HAS_WATER_SOURCES = "fosa.form.fields.has_water_source.title";
-  export const WATER_SOURCES = "fosa.form.fields.water_source.title";
-  export const ENVIRONMENT_TYPE = "fosa.form.fields.environment.title";
-  export const PC_COUNT = "fosa.form.fields.pc_count.title";
-  export const PRINTER_COUNT = "fosa.form.fields.printer_count.title";
-  export const TABLET_COUNT = "fosa.form.fields.tablet_count.title";
-  export const CAR_COUNT = "fosa.form.fields.car_count.title";
-  export const BIKE_COUNT = "fosa.form.fields.bike_count.title";
-  export const PERSONNEL_COUNT = "fosa.form.fields.key_personnel_count.title";
-  export const STATUS = "fosa.form.fields.fosa_status.title";
-  export const ATTACHED_CSC = "fosa.form.fields.csc_reg.title";
-  export const INDEX = "fosa.form.fields.index";
-  export const VALIDATION_CODE = "fosa.form.fields.validation_code";
-  export const STAFF_INFO_FIELDS = [
+  export const SectionKeysSchema = z.enum([
+    'fosa.form.sections.respondent',
+    'fosa.form.sections.identification',
+    'fosa.form.sections.reg_cs_events',
+    'fosa.form.sections.stats',
+    'fosa.form.sections.stats.line_1',
+    'fosa.form.sections.stats.line_2',
+    'fosa.form.sections.stats.line_3',
+    'fosa.form.sections.stats.line_4',
+    'fosa.form.sections.stats.line_5',
+    'fosa.form.sections.infra',
+    'fosa.form.sections.infra.eq',
+    'fosa.form.sections.extras',
+    'fosa.form.sections.staff',
+    'fosa.form.sections.staff.sections.employees'
+  ]);
+  export const ServiceFieldKeysSchema = z.templateLiteral([
+    SectionKeysSchema.extract(['fosa.form.sections.reg_cs_events']),
+    '.fields.',
+    z.enum([
+      'uses_dhis2_form',
+      'dhis2_usage',
+      'uses_bunec_birth_form',
+      'dhis2_form_training',
+      'birth_declaration_transmission_to_csc',
+      'csc_event_reg_type',
+      'has_toilet',
+      'has_eneo_connection',
+      'has_backup_power_source',
+      'backup_power_sources',
+      'has_internet',
+      'has_water_sources',
+      'environment_type'
+    ])]);
+  export const RespondentFieldKeysSchema = z.templateLiteral([SectionKeysSchema.extract(['fosa.form.sections.respondent']), '.fields.', z.enum([
+    'device',
+    'email',
+    'phone',
+    'position',
+    'names',
+    'knows_creation_date',
+    'creation_date'
+  ])]);
+  export const MetaFieldKeysSchema = z.templateLiteral(['fosa.form.fields', '.', z.enum([
+    'index',
+    'validation_code'
+  ])]);
+  export const IdentificationFieldKeysSchema = z.templateLiteral([SectionKeysSchema.extract(['fosa.form.sections.identification']), '.fields', '.', z.enum([
+    'division',
+    'municipality',
+    'quarter',
+    'locality',
+    'facility_name',
+    'district',
+    'milieu',
+    'other_category',
+    'category',
+    'status',
+    'health_area',
+    'has_maternity',
+    'attached_cs',
+    'cs_proximity',
+    'knows_gps_coords',
+    'gps_coords'
+  ])]);
+  export const StatsFieldKeysSchema = z.union([
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.stats.line_1']),
+      '.fields.',
+      z.enum([
+        'stats_year_1',
+        'stats_births_1',
+        'stats_deaths_1',
+      ])
+    ]),
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.stats.line_2']),
+      '.fields.',
+      z.enum([
+        'stats_year_2',
+        'stats_births_2',
+        'stats_deaths_2',
+      ])
+    ]),
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.stats.line_3']),
+      '.fields.',
+      z.enum([
+        'stats_year_3',
+        'stats_births_3',
+        'stats_deaths_3',
+      ])
+    ]),
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.stats.line_4']),
+      '.fields.',
+      z.enum([
+        'stats_year_4',
+        'stats_births_4',
+        'stats_deaths_4',
+      ])
+    ]),
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.stats.line_5']),
+      '.fields.',
+      z.enum([
+        'stats_year_5',
+        'stats_births_5',
+        'stats_deaths_5',
+      ])
+    ])
+  ]);
+  export const InfrastructureFieldKeysSchema = z.union([
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.infra']),
+      '.fields.',
+      z.enum([
+        'toilet_present',
+        'eneo_connection',
+        'backup_power_available',
+        'backup_power',
+        'has_internet',
+        'water_source_available',
+        'water_sources',
+      ])
+    ])
+  ]);
+
+  export const EquipmentFieldKeySchema = z.templateLiteral([
+    SectionKeysSchema.extract(['fosa.form.sections.infra.eq']),
+    '.fields.',
+    z.enum([
+      'pc_count',
+      'printer_count',
+      'car_count',
+      'tablet_count',
+      'bike_count'
+    ])
+  ]);
+
+  export const StaffFieldKeysSchema = z.union([
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.staff']),
+      '.fields.',
+      z.enum([
+        'employee_count'
+      ])
+    ]),
+    z.templateLiteral([
+      SectionKeysSchema.extract(['fosa.form.sections.staff.sections.employees']),
+      '.fields.',
+      z.enum([
+        'names',
+        'position',
+        'gender',
+        'phone',
+        'age',
+        'has_cs_training',
+        'ed_level',
+        'computer_level'
+      ])
+    ])
+  ])
+
+  export const CommentsFieldKeysSchema = z.templateLiteral([
+    SectionKeysSchema.extract(['fosa.form.sections.extras']),
+    '.fields.',
+    z.enum([
+      'extra_info'
+    ])
+  ])
+  const STAFF_INFO_FIELDS = [
     PersonnelInfo.PERSONNEL_NAME,
     PersonnelInfo.PERSONNEL_POSITION,
     PersonnelInfo.PERSONNEL_GENDER,
@@ -91,62 +208,6 @@ export namespace Fosa {
     PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
   ];
   export const ALL_FIELDS = [
-    RESPONDING_DEVICE,
-    MAIL,
-    PHONE,
-    POSITION,
-    RESPONDENT_NAME,
-    CREATION_DATE,
-    DIVISION,
-    MUNICIPALITY,
-    QUARTER,
-    LOCALITY,
-    OFFICE_NAME,
-    DISTRICT,
-    HEALTH_AREA,
-    FACILITY_TYPE,
-    HAS_MATERNITY,
-    CSC_DISTANCE,
-    GEO_POINT,
-    USES_DHIS,
-    USES_BUNEC_BIRTH_FORM,
-    USES_DHIS_FORMS,
-    SEND_BIRTH_DECLARATIONS_TO_CSC,
-    CSC_EVENT_REGISTRATIONS,
-    STATS_YEAR_1,
-    STATS_DEATH_COUNT_1,
-    STATS_BIRTH_COUNT_1,
-    STATS_OBSERVATIONS_1,
-    STATS_YEAR_2,
-    STATS_DEATH_COUNT_2,
-    STATS_BIRTH_COUNT_2,
-    STATS_YEAR_3,
-    STATS_DEATH_COUNT_3,
-    STATS_BIRTH_COUNT_3,
-    STATS_YEAR_4,
-    STATS_DEATH_COUNT_4,
-    STATS_BIRTH_COUNT_4,
-    STATS_YEAR_5,
-    STATS_DEATH_COUNT_5,
-    STATS_BIRTH_COUNT_5,
-    HAS_TOILET_FIELD,
-    HAS_ENEO_CONNECTION,
-    HAS_BACKUP_POWER_SOURCE,
-    BACKUP_POWER_SOURCES,
-    HAS_INTERNET_CONNECTION,
-    HAS_WATER_SOURCES,
-    WATER_SOURCES,
-    ENVIRONMENT_TYPE,
-    PC_COUNT,
-    PRINTER_COUNT,
-    TABLET_COUNT,
-    CAR_COUNT,
-    BIKE_COUNT,
-    PERSONNEL_COUNT,
-    STATUS,
-    ATTACHED_CSC,
-    INDEX,
-    VALIDATION_CODE,
     ...STAFF_INFO_FIELDS
   ] as const;
 
@@ -612,7 +673,7 @@ export namespace CSC {
     };
   }
 
-  export const TRACKABLE_FIELDS =[
+  export const TRACKABLE_FIELDS = [
     INDEX,
     VALIDATION_CODE,
     Identification.FACILITY_NAME,
@@ -748,3 +809,20 @@ export namespace CSC {
     Deeds.DEATH_CERT_NOT_DRAWN,
   ]
 }
+
+export const AllFieldKeysSchema = z.union([
+  Fosa.RespondentFieldKeysSchema,
+  Fosa.IdentificationFieldKeysSchema,
+  Fosa.ServiceFieldKeysSchema,
+  Fosa.MetaFieldKeysSchema,
+  Fosa.StatsFieldKeysSchema,
+  Fosa.InfrastructureFieldKeysSchema,
+  Fosa.EquipmentFieldKeySchema,
+  Fosa.CommentsFieldKeysSchema,
+  Fosa.StaffFieldKeysSchema
+]);
+export const AllSectionKeysSchema = z.union([
+  Fosa.SectionKeysSchema
+])
+export type FieldKeys = z.output<typeof AllFieldKeysSchema>;
+export type FormSectionKeys = z.output<typeof AllSectionKeysSchema>;

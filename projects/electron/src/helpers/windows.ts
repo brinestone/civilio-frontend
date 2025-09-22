@@ -12,7 +12,7 @@ export function showMainWindow() {
     icon: nativeImage.createFromDataURL(logo),
     webPreferences: {
       devTools: !app.isPackaged,
-      preload: path.resolve(path.join(__dirname, '..', 'preload.js'))
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
@@ -20,7 +20,7 @@ export function showMainWindow() {
     mainWindow.removeMenu();
   }
 
-  const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', 'civilio', 'browser', 'index.html'))}` : `http://localhost:4200`;
+  const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', '..', 'assets', 'civilio', 'browser', 'index.html'))}` : `http://localhost:4200`;
   mainWindow.loadURL(startURL);
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();

@@ -1,10 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TestDb } from '@app/store/config';
 import { isActionLoading } from '@app/util';
 import { TestDbConnectionRequestSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideDatabase, lucideSave, lucideServer } from '@ng-icons/lucide';
+import { Navigate } from '@ngxs/router-plugin';
 import { dispatch } from '@ngxs/store';
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
@@ -87,6 +89,8 @@ export class AdvancedSettingsPage {
   ];
   protected readonly testingDbConnection = isActionLoading(TestDb);
   protected readonly dbConnectionPassed = signal(false);
+  private readonly navigate = dispatch(Navigate);
+  private readonly route = inject(ActivatedRoute).snapshot;
   private readonly testDb = dispatch(TestDb);
   protected onFormSubmit(form: NgForm) {
     console.log(form.value);
@@ -96,7 +100,10 @@ export class AdvancedSettingsPage {
         toast.error('Testing failed', { description: e.message });
       },
       complete: () => {
-        toast.success('Changes saved')
+        toast.success('Changes saved');
+        const redirect = this.route.queryParams['continue'];
+        if (!redirect) return;
+        this.navigate([decodeURIComponent(redirect)]);
       }
     })
   }

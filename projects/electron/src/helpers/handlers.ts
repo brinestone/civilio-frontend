@@ -1,22 +1,28 @@
-import { findFieldMappings, findFormSubmissions, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
-import { AppConfigSchema, FindFieldMappingsRequestSchema, FindFormSubmissionsRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
-import _ from 'lodash';
+import { findDbColumns, findFieldMappings, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
+import { AppConfigPaths, FindDbColumnsRequestSchema, FindFieldMappingsRequestSchema, FindFormOptionsRequestSchema, FindFormSubmissionsRequestSchema, LoadTranslationRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
 import { testConnection } from "./db";
+import { storeValue } from "./store";
 
 export function registerIpcHandlers() {
+  respondingInputChannelHandler('columns:read', FindDbColumnsRequestSchema, async ({ form }) => {
+    return await findDbColumns(form);
+  })
+  respondingInputChannelHandler('options:read', FindFormOptionsRequestSchema, async ({ form }) => {
+    return await findFormOptions(form);
+  })
+  respondingInputChannelHandler('translations:read', LoadTranslationRequestSchema, async ({ locale }) => {
+    return findTranslationsFor('en-CM');
+  })
   respondingNoInputChannelHandler('config:read', () => {
-    const v = getAppConfig();
-    const config = AppConfigSchema.parse(v);
+    const config = getAppConfig();
     return config;
   });
   respondingInputChannelHandler('submissions:read', FindFormSubmissionsRequestSchema, async ({ form, page, size, filter }) => {
     return await findFormSubmissions(form, page, size, filter);
   });
   respondingInputChannelHandler('config:update', UpdateConfigRequestSchema, ({ path, value }) => {
-    const config = getAppConfig();
-    _.set(config, path, value);
-    config.save();
-    return AppConfigSchema.parse(config);
+    storeValue(path as AppConfigPaths, value);
+    return getAppConfig();
   });
   respondingInputChannelHandler('db:test', TestDbConnectionRequestSchema, async (arg) => {
     return await testConnection(arg);

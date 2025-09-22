@@ -1,18 +1,102 @@
-<ng-container
-  [ngTemplateOutlet]="
-    form() == 'fosa'
-      ? fosaTemplate
-      : form() == 'chefferie'
-        ? chefferieTemplate
-        : form() == 'csc'
-          ? cscTemplate
-          : defaultTemplate
-  "
-/>
+<form #inputForm="ngForm" class="space-y-3">
+  <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline">
+    @for (section of modelDefinition().sections; track $index) {
+      <ng-container
+        *ngTemplateOutlet="sectionTemplate; context: { $implicit: section }"
+      ></ng-container>
+    }
+  </div>
+</form>
 
-<ng-template #fosaTemplate>
-
+<ng-template #sectionTemplate let-section let-isChild="isChild">
+  @if (section.id) {
+    <h2 class="group-title col-span-2" [class.child-group-title]="isChild">
+      {{ section.id + ".title" | translate }}
+    </h2>
+  }
+  @for (field of section.fields; track field.key) {
+    <ng-container>
+      <label hlmLabel [for]="field.key" class="block">{{
+        field.key + ".title" | translate
+      }}</label>
+      <div class="space-y-1">
+        <brn-popover sideOffset="5">
+          <input
+            class="hidden"
+            [ngModel]="mappings()?.[field.key]"
+            #target="ngModel"
+            [name]="field.key"
+          />
+          <button
+            hlmBtn
+            class="w-[200px] justify-between overflow-ellipsis line-clamp-1 !text-start"
+            variant="outline"
+            [id]="field.key"
+            brnPopoverTrigger
+            [class.!font-normal]="!target.value && !mappings()?.[field.key]"
+            [class.text-muted-foreground]="
+              !target.value && !mappings()?.[field.key]
+            "
+          >
+            {{
+              target.value?.name ||
+                (mappings()?.[field.key]?.dbColumn ?? "Select column")
+            }}
+          </button>
+          <hlm-command
+            *brnPopoverContent="let ctx"
+            hlmPopoverContent
+            class="w-[200px] p-0"
+          >
+            <hlm-command-search>
+              <ng-icon hlm name="lucideSearch" />
+              <input placeholder="Search Column..." hlm-command-search-input />
+            </hlm-command-search>
+            <div class="w-full" *brnCommandEmpty hlmCommandEmpty>
+              No results found
+            </div>
+            <hlm-command-list>
+              <hlm-command-group>
+                @for (spec of dbColumns(); track $index) {
+                  <button
+                    class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
+                    hlm-command-item
+                    (click)="target.control.setValue(spec)"
+                    [value]="spec.name"
+                  >
+                    <div class="space-y-1">
+                      <p class="block text-start w-full">{{ spec.name }}</p>
+                      <span
+                        class="block text-start text-sm text-[var(--muted-foreground)]"
+                        >table: {{ spec.tableName }}</span
+                      >
+                    </div>
+                    @if (
+                      target.control.value ===
+                        mappings()?.[field.key]?.dbColumn &&
+                      target.control.value !== undefined &&
+                      target.control.value !== null
+                    ) {
+                      <ng-icon name="lucideCheck" />
+                    }
+                  </button>
+                }
+              </hlm-command-group>
+            </hlm-command-list>
+          </hlm-command>
+        </brn-popover>
+        <!-- <input hlmInput [id]="field.key" [name]="field.key" /> -->
+      </div>
+    </ng-container>
+  }
+  @if (section.children) {
+    @for (child of section.children; track child.id) {
+      <ng-container
+        *ngTemplateOutlet="
+          sectionTemplate;
+          context: { $implicit: child, isChild: true }
+        "
+      ></ng-container>
+    }
+  }
 </ng-template>
-<ng-template #cscTemplate> csc </ng-template>
-<ng-template #chefferieTemplate> chefferie </ng-template>
-<ng-template #defaultTemplate> Unknown form type </ng-template>

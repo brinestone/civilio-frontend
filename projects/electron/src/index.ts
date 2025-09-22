@@ -7,18 +7,9 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-let configurationValid = true;
-
 async function initializeServices() {
-  // configurationValid = checkConfiguration();
   registerIpcHandlers();
 }
-
-// function checkConfiguration() {
-//   const store = usePrefs();
-//   const { success } = AppConfigSchema.safeParse(store);
-//   return success;
-// }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

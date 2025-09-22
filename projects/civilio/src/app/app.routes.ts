@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { conigValidGuard } from './guards/conig-valid-guard';
+import { dbConfiguredGuard } from './guards/conig-valid-guard';
 import { provideFormStore } from './store/form';
 
-const configValidGuardFn = conigValidGuard('/settings');
+const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
   {
-    canActivate: [configValidGuardFn],
+    canActivate: [dbConfigValidGuardFn],
     title: 'Form Submissions',
     path: 'submissions', loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
   },
@@ -16,6 +16,7 @@ export const routes: Routes = [
         providers: [
           provideFormStore()
         ],
+        canActivate: [dbConfigValidGuardFn],
         path: 'field-mapping',
         title: 'Field mapping Settings',
         loadComponent: () => import('./pages/settings/field-mapping-settings/field-mapping-settings.page').then(m => m.FieldMappingSettingsPage), children: [

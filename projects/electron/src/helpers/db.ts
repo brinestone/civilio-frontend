@@ -1,7 +1,7 @@
-import { MalConfigurationError, TestDbConnectionRequest } from '@civilio/shared';
+import { DbConfigSchema, MalConfigurationError, TestDbConnectionRequest } from '@civilio/shared';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client, Pool } from 'pg';
-import { usePrefs } from './store';
+import { getStoreValue } from './store';
 
 let pool: Pool | null = null;
 
@@ -33,11 +33,11 @@ export async function testConnection({ database, host, password, port, ssl, user
 }
 
 export function resetPool() {
-  const prefs = usePrefs();
-  if (!prefs.db) {
+  const { data: dbConfig, success } = DbConfigSchema.safeParse(getStoreValue('db'));
+  if (!success) {
     throw new MalConfigurationError('db');
   }
-  const { host, password, port, ssl, username, database } = prefs.db;
+  const { host, password, port, ssl, username, database } = dbConfig;
   const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
   if (ssl) {
     url.searchParams.set('sslmode', 'require');
@@ -48,12 +48,12 @@ export function resetPool() {
 }
 
 export function provideDatabase(schema: Record<string, unknown>) {
-  const prefs = usePrefs();
-  if (!prefs.db) {
+  const { data: dbConfig, success } = DbConfigSchema.safeParse(getStoreValue('db'));
+  if (!success) {
     throw new MalConfigurationError('db');
   }
   if (pool == null) {
-    const { host, password, port, ssl, username, database } = prefs.db;
+    const { host, password, port, ssl, username, database } = dbConfig;
     const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
     if (ssl) {
       url.searchParams.set('sslmode', 'require');

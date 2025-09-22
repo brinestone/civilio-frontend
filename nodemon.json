@@ -1,6 +1,7 @@
 {
   "$schema": "https://www.schemastore.org/nodemon.json",
   "exec": "pnpm wait-on:ng && pnpm build:electron && pnpm start:electron",
+  "cwd": ".",
   "watch": ["projects/electron/*"],
   "ext": "ts,json"
 }

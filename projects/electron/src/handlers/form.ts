@@ -1,7 +1,17 @@
-import { choices, fieldMappings, vwFormSubmissions } from '@civilio/schema';
+import { choices, fieldMappings, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
 import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
 import { and, countDistinct, eq, like, or, sql } from 'drizzle-orm';
 import { provideDatabase } from '../helpers/db';
+
+export async function findDbColumns(form: FormType) {
+  const db = provideDatabase({ vwDbColumns });
+  return await db.select({
+    name: vwDbColumns.name,
+    dataType: vwDbColumns.dataType,
+    tableName: vwDbColumns.tableName,
+  }).from(vwDbColumns)
+    .where(eq(vwDbColumns.form, form));
+}
 
 export async function findFormOptions(form: FormType) {
   const db = provideDatabase({ choices });

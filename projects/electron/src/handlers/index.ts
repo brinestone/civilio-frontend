@@ -6,9 +6,11 @@ import { isPromise } from 'util/types';
 import z from 'zod';
 
 export * from './config';
-export * from './submissions';
+export * from './form';
+export * from './i18n';
 
 export function respondingNoInputChannelHandler<TChannel extends Channel>(channel: TChannel, handler: () => unknown) {
+  console.time(channel);
   const replyChannel = computeReplyChannel(channel);
   ipcMain.on(channel, async (event, eventData) => {
     logRequest(channel, eventData);
@@ -33,6 +35,7 @@ export function respondingNoInputChannelHandler<TChannel extends Channel>(channe
       logResponse(channel, replyRpc);
     } catch (e) {
       reportError(event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e));
+      console.timeEnd(channel);
     }
   })
 }
@@ -45,9 +48,10 @@ export function respondingInputChannelHandler<TChannel extends Channel, TInputSc
   ipcMain.on(channel, async (event, eventData) => {
     logRequest(channel, eventData);
     const rpcSchema = rpcMessageSchema(schema);
+    const rpc = rpcSchema.parse(eventData);
     let messageId: string = '';
     try {
-      const rpc = rpcSchema.parse(eventData);
+      console.time(`${channel}::${rpc.headers.messageId}`);
       messageId = rpc.headers.messageId;
       let result = handler(rpc.body);
       if (isPromise(result)) {
@@ -65,6 +69,8 @@ export function respondingInputChannelHandler<TChannel extends Channel, TInputSc
       logResponse(channel, replyData);
     } catch (e) {
       reportError(event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e));
+    } finally {
+      console.timeEnd(`${channel}::${rpc.headers.messageId}`);
     }
   });
 }

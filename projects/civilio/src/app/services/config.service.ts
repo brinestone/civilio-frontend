@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AppConfigSchema, DbConfig, Locale, TestDbConnectionRequest, TestDbConnectionResponseSchema, ThemeMode, UpdateConfigRequest } from '@civilio/shared';
+import { AppConfigPaths, AppConfigSchema, DbConfig, Locale, TestDbConnectionRequest, TestDbConnectionResponseSchema, ThemeMode, UpdateConfigRequest } from '@civilio/shared';
 import { sendRpcMessageAsync } from '../util';
 
 @Injectable({
@@ -8,9 +8,9 @@ import { sendRpcMessageAsync } from '../util';
 export class ConfigService {
   async setDbConfig(dbConfig: DbConfig) {
     return await sendRpcMessageAsync('config:update', {
-      path: 'db',
+      path: 'db' as AppConfigPaths,
       value: dbConfig
-    }).then(AppConfigSchema.parse);
+    });
   }
   async testDb(input: TestDbConnectionRequest) {
     return await sendRpcMessageAsync('db:test', input).then(TestDbConnectionResponseSchema.parse)

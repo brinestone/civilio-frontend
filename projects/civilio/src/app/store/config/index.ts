@@ -31,8 +31,8 @@ export class ConfigState {
         return throwError(() => new Error(v));
       }),
       tap(config => ctx.setState(patch({
-        config,
-        configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
+        config: config ?? undefined,
+        configured: config != null && 'db' in config && DbConfigSchema.safeParse(config.db).success
       })))
     )
   }

@@ -32,7 +32,7 @@ settings:
     fr: French
   title: Settings
   msg:
-    invalid_port: "Invalid port number (Range: 1025 - 65535)"
+    invalid_port: 'Invalid port number (Range: 1025 - 65535)'
     value_required: This field is required
     invalid_url: Invalid URL
     value_too_short: Value is too short
@@ -147,7 +147,7 @@ csc:
         title: Areas devoted to civil status
         fields:
           office_count:
-            title: "# of Offices"
+            title: '# of Offices'
             description: How many rooms are dedicated to civil status?
           dedicated_cs_rooms:
             title: Dedicated CS rooms?
@@ -172,38 +172,37 @@ csc:
         title: Facilities of the Civil Registry Centre (Functional Equipment)
         fields:
           pc_count:
-            title: "# of Computers"
+            title: '# of Computers'
           server_count:
-            title: "# of Servers"
+            title: '# of Servers'
           printer_count:
-            title: "# of Printers"
+            title: '# of Printers'
           scanner_count:
-            title: "# of Scanners"
+            title: '# of Scanners'
           inverters:
-            title: "# of Inverters"
+            title: '# of Inverters'
           conditioners:
-            title: "# of Conditioners"
+            title: '# of Conditioners'
           fans:
-            title: "# of Fans"
+            title: '# of Fans'
           projectors:
-            title: "# of Projectors"
+            title: '# of Projectors'
           office_tables:
-            title: "# of Office Tables"
+            title: '# of Office Tables'
           chairs:
-            title: "# of Chairs"
+            title: '# of Chairs'
           cars:
-            title: "# of Cars"
+            title: '# of Cars'
           bikes:
-            title: "# of Bikes"
+            title: '# of Bikes'
           tablets:
-            title: "# of Tablets"
+            title: '# of Tablets'
       digitization:
         title: Digitization/Computerization of civil status
         fields:
           using_info_sys_outside_cs:
             title: Using a System Outside CR
-            description: Apart from the civil registry, does any other department of the
-              centre use a computerised system
+            description: Apart from the civil registry, does any other department of the centre use a computerised system
           external_cr_uses_internet:
             title: If so, does this system use the Internet?
           has_cs_software:
@@ -222,16 +221,16 @@ csc:
           software_feedback:
             title: What's your feedback on the software?
           software_trained_user_count:
-            title: "# of trained users"
+            title: '# of trained users'
           software_recorded_marriage_count:
-            title: "# of marraige certificates"
-            description: "# of marriage certificates registerd in the software"
+            title: '# of marraige certificates'
+            description: '# of marriage certificates registerd in the software'
           software_recorded_birth_count:
-            title: "# of birth certificates"
-            description: "# of birth certificates registerd in the software"
+            title: '# of birth certificates'
+            description: '# of birth certificates registerd in the software'
           software_recorded_death_count:
-            title: "# of death certificates"
-            description: "# of death certificates registerd in the software"
+            title: '# of death certificates'
+            description: '# of death certificates registerd in the software'
           software_is_functional:
             title: Is the software functional?
           software_dysfunction_reason:
@@ -249,16 +248,15 @@ csc:
             title: Please specify the records provider
           non_compliant_registers_used:
             title: Usage of custom registers
-            description: Have you often had to buy the registers in the market for the
-              establishment of the deeds?
+            description: Have you often had to buy the registers in the market for the establishment of the deeds?
           blank_registries:
             title: Blank Registries
           blank_marriages:
-            title: "# of blank marriage registers"
+            title: '# of blank marriage registers'
           blank_births:
-            title: "# of blank birth registers"
+            title: '# of blank birth registers'
           blank_deaths:
-            title: "# of blank death registers"
+            title: '# of blank death registers'
       vital_stats:
         title: Financial resources related to vital statistics documents
         fields:
@@ -273,11 +271,10 @@ csc:
           celibacy_cert_copy_cost:
             title: Cost of certificate of celibacy (FCFA)
           non_registered_certs:
-            title: "# of Certificates not registered"
+            title: '# of Certificates not registered'
           rates_under_deliberation:
             title: Are rates under deliberation?
-            description: Are these rates currently the subject of a deliberation by the
-              municipal council?
+            description: Are these rates currently the subject of a deliberation by the municipal council?
           prices_displayed:
             title: Are these prices displayed?
           municipality_budget:
@@ -287,7 +284,7 @@ csc:
             title: Civil status share
             description: What was the share devoted to civil status in 2024?
           cs_revenue:
-            title: ""
+            title: ''
       deeds:
         title: Deeds drawn up, not withdrawn in the last 5 years
         fields:
@@ -313,9 +310,9 @@ csc:
         title: Staff Status
         fields:
           male_count:
-            title: "# of Males"
+            title: '# of Males'
           female_count:
-            title: "# of Females"
+            title: '# of Females'
           non_officer_male_count:
             title: Male non-officers
           non_officer_female_count:
@@ -387,28 +384,26 @@ csc:
         fields:
           records_scanned:
             title: CS records scanned?
-            description: Have the civil status records been digitized (scanned) in this
-              civil status center?
+            description: Have the civil status records been digitized (scanned) in this civil status center?
           staff_trained:
             title: Staff trained?
-            description: Has the staff of the civil status center been trained in the use of
-              the digitization software?
+            description: Has the staff of the civil status center been trained in the use of the digitization software?
           document_scan_start_date:
             title: Scan starting date
           is_data_indexed:
             title: Has the data been indexed?
           marriages_indexed:
-            title: "# of marriages indexed"
+            title: '# of marriages indexed'
           deaths_indexed:
-            title: "# of deaths indexed"
+            title: '# of deaths indexed'
           births_indexed:
-            title: "# of births indexed"
+            title: '# of births indexed'
           marriages_scanned:
-            title: "# of marriages scanned"
+            title: '# of marriages scanned'
           births_scanned:
-            title: "# of births scanned"
+            title: '# of births scanned'
           deaths_scanned:
-            title: "# of deaths scanned"
+            title: '# of deaths scanned'
           is_data_in_use:
             title: Is the data in use?
           data_usage:
@@ -428,8 +423,7 @@ csc:
             title: Is access to the archive room limited to one category of staff?
           room_has_humidity:
             title: Sealing problems?
-            description: Does the room in which the registers are archived show traces of
-              humidity (sealing problems)?
+            description: Does the room in which the registers are archived show traces of humidity (sealing problems)?
           register_archiving_type:
             title: How are registers archived?
           other_register_archiving_type:
@@ -437,11 +431,9 @@ csc:
           written_archiving_plan:
             title: Is there a written record archiving plan?
           registers_deposited:
-            title: Have all the registers of the sub-prefecture been deposited at the town
-              hall?
+            title: Have all the registers of the sub-prefecture been deposited at the town hall?
           registers_deposited_systematically:
-            title: Are the registers systematically submitted to the Town Hall at the end of
-              the year?
+            title: Are the registers systematically submitted to the Town Hall at the end of the year?
           vandalized:
             title: Vandalization
             description: Have the archives been the subject of theft or acts of vandalism?
@@ -463,11 +455,11 @@ csc:
           year:
             title: Year
           birth_count:
-            title: "# of Birth Registers Archived"
+            title: '# of Birth Registers Archived'
           marriage_count:
-            title: "# of Marriage Registers Archived"
+            title: '# of Marriage Registers Archived'
           death_count:
-            title: "# of Death Registers Archived"
+            title: '# of Death Registers Archived'
     fields:
       index:
         title: Index
@@ -522,17 +514,17 @@ fosa:
       - Year
       - Year
     births:
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
+      - '# of births registered'
+      - '# of births registered'
+      - '# of births registered'
+      - '# of births registered'
+      - '# of births registered'
     deaths:
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
+      - '# of deaths registered'
+      - '# of deaths registered'
+      - '# of deaths registered'
+      - '# of deaths registered'
+      - '# of deaths registered'
     observation: Observations
     validation_code: Validation Code
     recorded_by: Recorded by
@@ -544,12 +536,159 @@ fosa:
       respondent:
         title: Respondent
         description: Information about the respondent
-      structure_identification:
+        fields:
+          knows_creation_date:
+            description: Do you know the date of creation of the Health center?
+            title: Knows Creation Date?
+          device:
+            title: Which device do you use to fill in the questionnaire?
+          names:
+            title: First and last names
+          position:
+            title: Function
+            description: Position / function in the health facility
+          phone:
+            title: Phone number
+            description: Phone number (preferably WhatsApp)
+          email:
+            title: Email
+            description: Email address (work email)
+          creation_date:
+            title: Created at
+            description: Year of creation of the health facility (dd/MM/YYYY)
+      identification:
         title: Structure identification
+        fields:
+          division:
+            title: Division
+            description: Division in the region
+          municipality:
+            title: Town/City
+          quarter:
+            title: Neighborhood
+          locality:
+            title: Locality
+          facility_name:
+            title: Facility name
+            description: Full name of the FOSA facility
+          district:
+            title: Health district
+            description: Associated health district
+          health_area:
+            title: Health area
+          milieu:
+            title: Environment type
+            options:
+              urban:
+                title: Urban
+              rural:
+                title: Rural
+          category:
+            title: Type of facility
+          other_category:
+            title: Specify the type of facility
+          status:
+            title: Status of the facility
+          has_maternity:
+            title: Has maternity
+            description: Existence of a maternity ward in the health facility
+          attached_cs:
+            title: Associated CSC
+            description: Local registry office
+          cs_proximity:
+            title: Distance to CSC
+            description: Average distance from the registry office
+          knows_gps_coords:
+            title: Can you take the location?
+          gps_coords:
+            title: GPS coordinates
+      stats:
+        title: Vital statistics for the last 5 years
+        fields:
+          year_1:
+            title: Year
+          stats_births_1:
+            title: '# of births registered'
+          stats_deaths_1:
+            title: '# of deaths registered'
+          stats_year_2:
+            title: Year
+          stats_births_2:
+            title: '# of births registered'
+          stats_deaths_2:
+            title: '# of deaths registered'
+          stats_year_3:
+            title: Year
+          stats_births_3:
+            title: '# of births registered'
+          stats_deaths_3:
+            title: '# of deaths registered'
+          stats_year_4:
+            title: Year
+          stats_births_4:
+            title: '# of births registered'
+          stats_deaths_4:
+            title: '# of deaths registered'
+          stats_year_5:
+            title: Year
+          stats_births_5:
+            title: '# of births registered'
+          stats_deaths_5:
+            title: '# of deaths registered'
       reg_cs_events:
         title: Registration of civil status events
-      infra_eq:
+        fields:
+          dhis2_usage:
+            title: DHIS2 Usage
+            description: Using DHIS2 in health training
+          uses_bunec_birth_form:
+            title: Uses BUNEC's Birth Form
+            description: Registration of births on the standardized form provided by BUNEC
+          dhis2_form_training:
+            title: DHIS2 Training
+            description: Training in the use of the DHIS2 standardized form
+          birth_declaration_transmission_to_csc:
+            title: Are birth declarations transmitted to CSC?
+            description: Transmission of birth declarations to the registry office
+          csc_event_reg_type:
+            title: Record civil status events?
+            description: How do you record civil status events?
+      infra:
         title: Infrastructure and Equipment
+        sections:
+          eq:
+            title: Functional equipment
+            fields:
+              pc_count:
+                title: '# of Computers'
+              printer_count:
+                title: '# of Printers'
+              scanner_count:
+                title: '# of Scanners'
+              car_count:
+                title: '# of Cars'
+              bike_count:
+                title: '# of Bikes'
+        fields:
+          toilet_present:
+            title: Has Toilet?
+            description: Presence of accessible toilets for users in the facility
+          eneo_connection:
+            title: ENEO Connection?
+            description: Is the facility connected to the electricity grid (ENEO)?
+          backup_power_available:
+            title: Has emergency Power Source?
+            description: Does the center have an emergency or alternative source of power
+          backup_power:
+            title: Backup Power Sources
+          has_internet:
+            title: Has an Internet Connection?
+          water_source_available:
+            title: Is there a water Source?
+            description: Availability of water supply for the facility
+          water_sources:
+            title: Water sources
+            description: List of available water sources for the facility
       personnel_status:
         title: Personnel Status
       geo_point:
@@ -557,74 +696,12 @@ fosa:
       extra:
         title: Comments & Extra
     fields:
-      names:
-        title: First and last names
-      position:
-        title: Function
-        description: Position / function in the health facility
-      phone:
-        title: Phone number
-        description: Phone number (preferably WhatsApp)
-      email:
-        title: Email
-        description: Email address (work email)
-      creation_date:
-        title: Created at
-        description: Year of creation of the health facility (dd/MM/YYYY)
-      department:
-        title: Division
-        description: Division in the region
-      communes:
-        title: Town/City
-      quarter:
-        title: Neighborhood
-      locality:
-        title: Locality
-      fosa_name:
-        title: Facility name
-        description: Full name of the FOSA facility
-      district:
-        title: Health district
-        description: Associated health district
-      health_area:
-        title: Health area
-      environment:
-        title: Environment type
-        options:
-          urban:
-            title: Urban
-          rural:
-            title: Rural
-      fosa_type:
-        title: Type of facility
-      fosa_status:
-        title: Status of the facility
-      has_maternity:
-        title: Has maternity
-        description: Existence of a maternity ward in the health facility
-      csc_reg:
-        title: Associated CSC
-        description: Local registry office
-      distance_csc:
-        title: CSC Proximity
-        description: Average distance from the registry office
+      index:
+        title: Index
+      validation_code:
+        title: Validation code
       region:
         title: Region
-      dhis2_usage:
-        title: DHIS2 Usage
-        description: Using DHIS2 in health training
-      uses_bunec_birth_form:
-        title: Uses BUNEC's Birth Form
-        description: Registration of births on the standardized form provided by BUNEC
-      uses_dhis2_form:
-        title: Uses DHIS2 Forms
-        description: Training in the use of the DHIS2 standardized form
-      birth_declaration_transmission_to_csc:
-        title: Birth Declarations to CSC
-        description: Transmission of birth declarations to the registry office
-      csc_event_reg_type:
-        title: Record civil status events?
-        description: How do you record civil status events?
       stats:
         title: Vital statistics for the last 5 years
       toilet_present:
@@ -652,8 +729,7 @@ fosa:
         title: List of civil registry staff
       key_personnel_count:
         title: Key personnel for deaths/births
-        description: How many key staff personnel are in charge of the civil registry
-          (maternity and death departments)
+        description: How many key staff personnel are in charge of the civil registry (maternity and death departments)
       bike_count:
         title: Bikes
       car_count:
@@ -664,13 +740,9 @@ fosa:
         title: Printers
       pc_count:
         title: Computers
-      index: Index
-      validation_code: Validation code
-      responding_device:
-        title: Which device do you use to fill in the questionnaire?
     msg:
       value_out_of_range: Value out of range
-    finish: ""
+    finish: ''
   open_filters: Filters
 forms:
   validation:
@@ -814,8 +886,7 @@ filter:
     nn: Is not null
 and: and
 msg:
-  restart_notice: System-wide configuration updated. The application needs to be
-    restarted to apply the changes.
+  restart_notice: System-wide configuration updated. The application needs to be restarted to apply the changes.
   discard_msg:
     txt: Are you sure you want to discard the changes you've made?
   ok: Ok
@@ -994,8 +1065,7 @@ chefferie:
         title: Distance to the nearest civil status center
       fonction:
         title: Civil status function
-        description: Civil status function exercised by the chief or a notable in the
-          chiefdom
+        description: Civil status function exercised by the chief or a notable in the chiefdom
         option:
           first: Yes, Civil Status Officer
           second: Yes, Civil Status Secretary
@@ -1015,8 +1085,7 @@ chefferie:
           third: Others (Please specify)
       training:
         title: Is the civil status officer trained
-        description: Training received on the civil status of the chief or a notable of
-          the chiefdom
+        description: Training received on the civil status of the chief or a notable of the chiefdom
         option:
           first: Yes
           second: No
@@ -1028,8 +1097,7 @@ chefferie:
           second: No
       cs_actor_is_chief:
         title: Does the chief exercise the civil status function?
-        description: Is the civil status function performed by the chief or a notable in
-          the chiefdom?
+        description: Is the civil status function performed by the chief or a notable in the chiefdom?
       reception_location:
         description: User reception area in the chiefdom
         option:
@@ -1044,9 +1112,9 @@ chefferie:
           second: No
       Functional_equipment:
         title: Functional equipment
-        description: "Functional equipment in the chiefdom: types and quantities"
+        description: 'Functional equipment in the chiefdom: types and quantities'
       equipment_question:
-        title: "Functional equipment in the chiefdom: types and quantities"
+        title: 'Functional equipment in the chiefdom: types and quantities'
       equipment_quantity:
         computers:
           description: Number of computers
@@ -1119,8 +1187,7 @@ chefferie:
       facility_name:
         title: Full name of chiefdom
       extra_info:
-        description: Please use the space provided to add any additional relevant
-          information.
+        description: Please use the space provided to add any additional relevant information.
         title: Extra information
       index: Index
       validation_code: Validation code
@@ -1149,7 +1216,7 @@ chefferie:
         title: Specify the reception area
     msg:
       invalid_value: Invalid value
-    title: ""
+    title: ''
 services:
   auth:
     user_not_found: Invalid username or password
@@ -1162,7 +1229,7 @@ submissions:
     facility_name: Facility Name
   filter:
     prompt: Filter by "Facility Name", "Validation Code", "Index"
-range_0_100: "min "
-range_1_50: "min "
-range_1980_current_year: "min "
-range_0_80000: "min "
+range_0_100: 'min '
+range_1_50: 'min '
+range_1980_current_year: 'min '
+range_0_80000: 'min '

@@ -1,6 +1,10 @@
-import { usePrefs } from "@civilio/helpers/store";
+import { getStoreValue } from "@civilio/helpers/store";
+import { AppConfigSchema } from "@civilio/shared";
+import z from "zod";
 
 export function getAppConfig() {
-  const prefs = usePrefs();
-  return prefs;
+  const keys = z.keyof(AppConfigSchema.unwrap()).options;
+  const map: any = {};
+  keys.forEach(k => map[k] = getStoreValue(k));
+  return AppConfigSchema.parse(map);
 }

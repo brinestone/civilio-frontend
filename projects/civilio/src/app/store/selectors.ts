@@ -1,6 +1,6 @@
+import { FormType } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { CONFIG_STATE } from "./config";
-import { FormType } from "@civilio/shared";
 import { FORM_STATE } from "./form";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
@@ -13,8 +13,19 @@ export const currentTheme = createSelector([configSlices.config], (config) => {
 export const currentLocale = createSelector([configSlices.config], config => {
   return config?.prefs?.locale ?? navigator.language;
 });
+export function optionsSelector(form: FormType, group: string) {
+  return createSelector([formSlices.options], options => {
+    return options?.[form][group] ?? [];
+  })
+}
 export function fieldMappingsfor(formType: FormType) {
   return createSelector([formSlices.mappings], mappings => {
-    return mappings.filter(({ form }) => formType == form);
+    return mappings?.[formType];
+  })
+}
+
+export function dbColumnsFor(form: FormType) {
+  return createSelector([formSlices.columns], cols => {
+    return cols?.[form] ?? []
   })
 }
