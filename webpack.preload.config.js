@@ -1,27 +1,36 @@
-import path from 'path';
+const path = require("path");
 
-export default {
-  mode: 'production',
-  target: 'electron-preload',
-  entry: path.resolve(import.meta.dirname, 'projects/electron/src/preload.ts'),
+module.exports = {
+  mode: "production",
+  target: "electron-preload",
+  entry: path.resolve(__dirname, "projects/electron/src/preload.ts"),
   output: {
-    path: path.resolve(import.meta.dirname, 'dist'),
-    filename: 'preload.js',
+    path: path.resolve(__dirname, "dist/electron"),
+    filename: "preload.js",
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: [".ts", ".js"],
     alias: {
-      '@civilio/shared': path.resolve(import.meta.dirname, 'libs/shared/index.ts'),
-      '@civilio/schema': path.resolve(import.meta.dirname, 'projects/electron/src/db/schema.ts'),
-      '@civilio/handlers': path.resolve(import.meta.dirname, 'projects/electron/src/handlers/index.ts'),
-      '@civilio/helpers': path.resolve(import.meta.dirname, 'projects/electron/src/helpers'),
+      "@civilio/shared": path.resolve(__dirname, "libs/shared/index.ts"),
+      "@civilio/schema": path.resolve(
+        __dirname,
+        "projects/electron/src/db/schema.ts",
+      ),
+      "@civilio/handlers": path.resolve(
+        __dirname,
+        "projects/electron/src/handlers/index.ts",
+      ),
+      "@civilio/helpers": path.resolve(
+        __dirname,
+        "projects/electron/src/helpers",
+      ),
     },
   },
   module: {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
+        use: "ts-loader",
         exclude: /node_modules/,
       },
     ],

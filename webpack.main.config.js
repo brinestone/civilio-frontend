@@ -1,31 +1,28 @@
-import path from "path";
-import CopyWebpackPlugin from "copy-webpack-plugin";
+const path = require("path");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
-export default {
+module.exports = {
   mode: "production",
   target: "electron-main",
-  entry: path.resolve(import.meta.dirname, "projects/electron/src/index.ts"),
+  entry: path.resolve(__dirname, "projects/electron/src/index.ts"),
   output: {
-    path: path.resolve(import.meta.dirname, "dist"),
+    path: path.resolve(__dirname, "dist/electron"),
     filename: "index.js",
   },
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
-      "@civilio/shared": path.resolve(
-        import.meta.dirname,
-        "libs/shared/index.ts",
-      ),
+      "@civilio/shared": path.resolve(__dirname, "libs/shared/index.ts"),
       "@civilio/schema": path.resolve(
-        import.meta.dirname,
+        __dirname,
         "projects/electron/src/db/schema.ts",
       ),
       "@civilio/handlers": path.resolve(
-        import.meta.dirname,
+        __dirname,
         "projects/electron/src/handlers/index.ts",
       ),
       "@civilio/helpers": path.resolve(
-        import.meta.dirname,
+        __dirname,
         "projects/electron/src/helpers",
       ),
     },
@@ -43,8 +40,8 @@ export default {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(import.meta.dirname, "projects/electron/src"),
-          to: path.resolve(import.meta.dirname, "dist/projects/electron/src"),
+          from: path.resolve(__dirname, "projects/electron/src"),
+          to: path.resolve(__dirname, "dist/projects/electron/src"),
           globOptions: {
             ignore: ["**/*.ts"],
           },

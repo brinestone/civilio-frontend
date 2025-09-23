@@ -18,21 +18,18 @@ const iconPath = "./assets/img/icon"; // No file extension
 const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
-  './dist/civilio/',
-  './assets'
-] as const;
+  './dist/assets'
+];
 
 const config: ForgeConfig = {
   hooks: {
     generateAssets: async ({ outDir }) => {
-      const forgeDir = join(outDir ?? './out', 'assets');
-      if (!existsSync(forgeDir)) await mkdir(forgeDir);
+      const forgeDir = join(outDir ?? './dist', 'assets');
+      if (!existsSync(forgeDir)) await mkdir(forgeDir, { recursive: true });
       for (const p of assetsDirs) {
         if (!existsSync(p)) continue;
         try {
           const src = resolve(process.cwd(), p);
-          // const dir = basename(src);
-
           const children = await readdir(src);
           for (const child of children) {
             if (child == 'migrations') continue;
@@ -53,12 +50,14 @@ const config: ForgeConfig = {
   },
   packagerConfig: {
     asar: true,
-    extraResource: [
-      ...assetsDirs
-    ],
-    icon: iconPath, // This is the fix!
+    icon: iconPath,
+    // Remove windowsSign if you don't have code signing certificates
+    // windowsSign: true,
+    extraResource: assetsDirs,
+    // Explicitly set the main entry point
+    executableName: 'civilio'
   },
-  outDir: './dist',
+  rebuildConfig: {},
   makers: [
     new MakerSquirrel({
       setupIcon: iconIcoPath,

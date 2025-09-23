@@ -20,7 +20,7 @@ export function showMainWindow() {
     mainWindow.removeMenu();
   }
 
-  const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', '..', 'assets', 'civilio', 'browser', 'index.html'))}` : `http://localhost:4200`;
+  const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', 'assets', 'browser', 'index.html'))}` : `http://localhost:4200`;
   mainWindow.loadURL(startURL);
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
