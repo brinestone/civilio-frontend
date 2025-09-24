@@ -577,7 +577,7 @@ fosa:
           health_area:
             title: Health area
           milieu:
-            title: Environment type
+            title: Milieu
             options:
               urban:
                 title: Urban
@@ -604,37 +604,51 @@ fosa:
             title: GPS coordinates
       stats:
         title: Vital statistics for the last 5 years
-        fields:
-          year_1:
-            title: Year
-          stats_births_1:
-            title: '# of births registered'
-          stats_deaths_1:
-            title: '# of deaths registered'
-          stats_year_2:
-            title: Year
-          stats_births_2:
-            title: '# of births registered'
-          stats_deaths_2:
-            title: '# of deaths registered'
-          stats_year_3:
-            title: Year
-          stats_births_3:
-            title: '# of births registered'
-          stats_deaths_3:
-            title: '# of deaths registered'
-          stats_year_4:
-            title: Year
-          stats_births_4:
-            title: '# of births registered'
-          stats_deaths_4:
-            title: '# of deaths registered'
-          stats_year_5:
-            title: Year
-          stats_births_5:
-            title: '# of births registered'
-          stats_deaths_5:
-            title: '# of deaths registered'
+        line_1:
+          title: Line 1
+          fields:
+            stats_year_1:
+              title: Year
+            stats_births_1:
+              title: '# of births registered'
+            stats_deaths_1:
+              title: '# of deaths registered'
+        line_2:
+          title: Line 2
+          fields:
+            stats_year_2:
+              title: Year
+            stats_births_2:
+              title: '# of births registered'
+            stats_deaths_2:
+              title: '# of deaths registered'
+        line_3:
+          title: Line 3
+          fields:
+            stats_year_3:
+              title: Year
+            stats_births_3:
+              title: '# of births registered'
+            stats_deaths_3:
+              title: '# of deaths registered'
+        line_4:
+          title: Line 4
+          fields:
+            stats_year_4:
+              title: Year
+            stats_births_4:
+              title: '# of births registered'
+            stats_deaths_4:
+              title: '# of deaths registered'
+        line_5:
+          title: Line 5
+          fields:
+            stats_year_5:
+              title: Year
+            stats_births_5:
+              title: '# of births registered'
+            stats_deaths_5:
+              title: '# of deaths registered'
       reg_cs_events:
         title: Registration of civil status events
         fields:
@@ -659,6 +673,8 @@ fosa:
           eq:
             title: Functional equipment
             fields:
+              tablet_count:
+                title: '# of Tablets'
               pc_count:
                 title: '# of Computers'
               printer_count:
@@ -689,12 +705,40 @@ fosa:
           water_sources:
             title: Water sources
             description: List of available water sources for the facility
-      personnel_status:
-        title: Personnel Status
-      geo_point:
-        title: GPS Coordinates
-      extra:
+      staff:
+        title: Staff & Personnel Status
+        fields:
+          employee_count:
+            title: '# of Employees'
+        sections:
+          employees:
+            title: List of civil registry staff
+            fields:
+              names:
+                title: Names
+              position:
+                title: Position
+              gender:
+                title: Gender
+              phone:
+                title: Phone number (WhatsApp)
+              age:
+                title: Age
+              has_cs_training:
+                title: CS Training
+                description: Has the staff received training in civil status registration?
+              ed_level:
+                title: Education Level
+                description: Highest level of education attained by the staff member
+              computer_level:
+                title: Computer Skills
+                description: Computer knowledge skills
+      extras:
         title: Comments & Extra
+        fields:
+          relevant_info:
+            title: Relevant Information
+            description: Any additional relevant information about the facility
     fields:
       index:
         title: Index

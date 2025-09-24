@@ -4,7 +4,7 @@ import { FieldMapping, FindDbColumnsResponse, FindFormOptionsResponse, FormType 
 import { Action, provideStates, State, StateContext, StateToken } from "@ngxs/store";
 import { insertItem, patch } from "@ngxs/store/operators";
 import { EMPTY, from, tap } from "rxjs";
-import { LoadDbColumns, LoadMappings, LoadOptions } from "./actions";
+import { LoadDbColumns, LoadMappings, LoadOptions, UpdateMappings } from "./actions";
 export * from './actions';
 
 type FormStateModel = {
@@ -23,6 +23,19 @@ type Context = StateContext<FormStateModel>;
 })
 class FormState {
   private readonly formService = inject(FormService);
+
+  @Action(UpdateMappings)
+  onUpdateMappings(ctx: Context, { form, mappings }: UpdateMappings) {
+    return from(this.formService.updateFieldMappings(form, ...mappings)).pipe(
+      tap(result => ctx.setState(patch({
+        mappings: patch({
+          [form]: patch(result.reduce((acc, curr) => {
+            return { ...acc, [curr.field]: curr };
+          }, {} as Record<string, FieldMapping>))
+        })
+      })))
+    )
+  }
   @Action(LoadDbColumns)
   onLoadDbColumns(ctx: Context, { form }: LoadDbColumns) {
     if (ctx.getState().columns?.[form] !== undefined) {

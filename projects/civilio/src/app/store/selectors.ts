@@ -29,3 +29,6 @@ export function dbColumnsFor(form: FormType) {
     return cols?.[form] ?? []
   })
 }
+
+export const formMappings = formSlices.mappings;
+export const formColumns = formSlices.columns;

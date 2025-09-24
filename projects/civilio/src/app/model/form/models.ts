@@ -238,13 +238,13 @@ export const FosaFormDefinition: FormModelDefinition = {
       id: 'fosa.form.sections.infra',
       children: [
         {
-          id: 'fosa.form.sections.infra.eq',
+          id: 'fosa.form.sections.infra.sections.eq',
           fields: [
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.eq.fields.pc_count', type: 'int' },
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.eq.fields.printer_count', type: 'int' },
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.eq.fields.tablet_count', type: 'int' },
-            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.eq.fields.car_count', type: 'int' },
-            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.eq.fields.bike_count', type: 'int' },
+            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.pc_count', type: 'int' },
+            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.printer_count', type: 'int' },
+            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.tablet_count', type: 'int' },
+            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.sections.eq.fields.car_count', type: 'int' },
+            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.sections.eq.fields.bike_count', type: 'int' },
           ]
         }
       ],
@@ -352,7 +352,7 @@ export const FosaFormDefinition: FormModelDefinition = {
       id: 'fosa.form.sections.extras',
       fields: [
         {
-          key: 'fosa.form.sections.extras.fields.extra_info',
+          key: 'fosa.form.sections.extras.fields.relevant_info',
           type: 'text',
           multiline: true,
         },

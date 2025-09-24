@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema, FormType, OptionSchema } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FormSubmissionSchema, FormType, OptionSchema, UpdateFieldMappingRequest } from '@civilio/shared';
 import { from, map } from 'rxjs';
 import { sendRpcMessageAsync } from '../util';
 
@@ -7,6 +7,12 @@ import { sendRpcMessageAsync } from '../util';
   providedIn: 'root'
 })
 export class FormService {
+  async updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]) {
+    return await sendRpcMessageAsync('field-mappings:update', {
+      form,
+      updates: mappings
+    });
+  }
   async loadDbColumnSpecsFor(form: FormType) {
     return await sendRpcMessageAsync('columns:read', { form });
   }

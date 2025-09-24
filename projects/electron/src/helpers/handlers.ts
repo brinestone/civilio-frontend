@@ -1,18 +1,21 @@
-import { findDbColumns, findFieldMappings, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler } from "@civilio/handlers";
-import { AppConfigPaths, FindDbColumnsRequestSchema, FindFieldMappingsRequestSchema, FindFormOptionsRequestSchema, FindFormSubmissionsRequestSchema, LoadTranslationRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema } from "@civilio/shared";
+import { findDbColumns, findFieldMappings, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler, updateFieldMappings } from "@civilio/handlers";
+import { AppConfigPaths, FindDbColumnsRequestSchema, FindFieldMappingsRequestSchema, FindFormOptionsRequestSchema, FindFormSubmissionsRequestSchema, LoadTranslationRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema, UpdateFieldMappingRequestSchema } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
 
 export function registerIpcHandlers() {
+  respondingInputChannelHandler('field-mappings:update', UpdateFieldMappingRequestSchema, async ({ form, updates }) => {
+    return await updateFieldMappings(form, updates);
+  })
   respondingInputChannelHandler('columns:read', FindDbColumnsRequestSchema, async ({ form }) => {
     return await findDbColumns(form);
-  })
+  });
   respondingInputChannelHandler('options:read', FindFormOptionsRequestSchema, async ({ form }) => {
     return await findFormOptions(form);
-  })
+  });
   respondingInputChannelHandler('translations:read', LoadTranslationRequestSchema, async ({ locale }) => {
     return findTranslationsFor('en-CM');
-  })
+  });
   respondingNoInputChannelHandler('config:read', () => {
     const config = getAppConfig();
     return config;

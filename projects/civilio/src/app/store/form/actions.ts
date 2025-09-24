@@ -1,4 +1,4 @@
-import { FormType } from "@civilio/shared";
+import { FieldUpdateSpec, FormType, UpdateFieldMappingRequest } from "@civilio/shared";
 
 const prefix = '[form]';
 
@@ -15,4 +15,12 @@ export class LoadOptions {
 export class LoadDbColumns {
   static type = `${prefix} load columns`;
   constructor(readonly form: FormType) { }
+}
+
+export class UpdateMappings {
+  static type = `${prefix} update mappings`;
+  readonly mappings: FieldUpdateSpec[];
+  constructor(readonly form: FormType, ...mappings: FieldUpdateSpec[]) {
+    this.mappings = mappings;
+  }
 }

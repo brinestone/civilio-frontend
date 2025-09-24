@@ -37,7 +37,7 @@ export namespace Fosa {
     'fosa.form.sections.stats.line_4',
     'fosa.form.sections.stats.line_5',
     'fosa.form.sections.infra',
-    'fosa.form.sections.infra.eq',
+    'fosa.form.sections.infra.sections.eq',
     'fosa.form.sections.extras',
     'fosa.form.sections.staff',
     'fosa.form.sections.staff.sections.employees'
@@ -155,7 +155,7 @@ export namespace Fosa {
   ]);
 
   export const EquipmentFieldKeySchema = z.templateLiteral([
-    SectionKeysSchema.extract(['fosa.form.sections.infra.eq']),
+    SectionKeysSchema.extract(['fosa.form.sections.infra.sections.eq']),
     '.fields.',
     z.enum([
       'pc_count',
@@ -194,7 +194,7 @@ export namespace Fosa {
     SectionKeysSchema.extract(['fosa.form.sections.extras']),
     '.fields.',
     z.enum([
-      'extra_info'
+      'relevant_info'
     ])
   ])
   const STAFF_INFO_FIELDS = [

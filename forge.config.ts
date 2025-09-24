@@ -18,7 +18,8 @@ const iconPath = "./assets/img/icon"; // No file extension
 const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
-  './dist/assets'
+  './dist/angular/',
+  './assets'
 ];
 
 const config: ForgeConfig = {
@@ -53,7 +54,7 @@ const config: ForgeConfig = {
     icon: iconPath,
     // Remove windowsSign if you don't have code signing certificates
     // windowsSign: true,
-    extraResource: assetsDirs,
+    extraResource: ['./dist/assets'],
     // Explicitly set the main entry point
     executableName: 'civilio'
   },

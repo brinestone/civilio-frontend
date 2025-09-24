@@ -1,6 +1,6 @@
 import { reportError } from '@civilio/helpers/error';
 import { logRequest, logResponse } from '@civilio/helpers/logger';
-import { AppErrorBase, Channel, computeReplyChannel, ExecutionError, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema } from '@civilio/shared';
+import { AppErrorBase, Channel, ChannelArg, computeReplyChannel, ExecutionError, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema } from '@civilio/shared';
 import { ipcMain } from 'electron';
 import { isPromise } from 'util/types';
 import z from 'zod';

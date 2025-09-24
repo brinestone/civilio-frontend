@@ -1,7 +1,42 @@
 import { choices, fieldMappings, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
 import { and, countDistinct, eq, like, or, sql } from 'drizzle-orm';
 import { provideDatabase } from '../helpers/db';
+
+export async function updateFieldMappings(form: FormType, specs: FieldUpdateSpec[]) {
+  const db = provideDatabase({ vwDbColumns, fieldMappings });
+  return await db.transaction(async tx => {
+    for (const spec of specs) {
+      const [dbSpec] = await tx.select().from(vwDbColumns).where(
+        and(
+          eq(vwDbColumns.form, form),
+          eq(vwDbColumns.name, spec.dbColumn),
+          eq(vwDbColumns.tableName, spec.table)
+        )
+      );
+      if (!dbSpec) {
+        throw new Error('Database column datatype could not be determined for column: ' + spec.dbColumn);
+      }
+      return await tx.insert(fieldMappings)
+        .values({
+          dbColumn: spec.dbColumn,
+          dbColumnType: dbSpec.dataType,
+          dbTable: spec.table,
+          field: spec.field,
+          form,
+          i18nKey: spec.field
+        }).onConflictDoUpdate({
+          target: [fieldMappings.field, fieldMappings.form],
+          set: {
+            dbColumnType: dbSpec.dataType,
+            dbColumn: dbSpec.name,
+            dbTable: dbSpec.tableName,
+            i18nKey: spec.field
+          }
+        }).returning();
+    }
+  })
+}
 
 export async function findDbColumns(form: FormType) {
   const db = provideDatabase({ vwDbColumns });

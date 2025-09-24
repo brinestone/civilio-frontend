@@ -82,4 +82,6 @@ export type GroupDefinition = z.output<typeof FormGroupSchema>;
 export const FormModelDefinitionSchema = z.object({
   sections: FormGroupSchema.array()
 });
+export type FieldDefinition = z.output<typeof FieldDefinitionSchema>;
 export type FormModelDefinition = z.output<typeof FormModelDefinitionSchema>;
+export type FormSection = z.output<typeof FormGroupSchema>;

@@ -1,11 +1,21 @@
-<form #inputForm="ngForm" class="space-y-3">
-  <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline">
-    @for (section of modelDefinition().sections; track $index) {
+<form
+  [formGroup]="inputForm"
+  class="flex items-start justify-between relative max-h-full"
+>
+  <div
+    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline max-h-full overflow-y-auto"
+  >
+    @for (section of formModel().sections; track $index) {
       <ng-container
         *ngTemplateOutlet="sectionTemplate; context: { $implicit: section }"
-      ></ng-container>
+      />
     }
   </div>
+
+  <!-- <div class="flex justify-end items-center gap-3 sticky top-4 right-0">
+    <button hlmBtn variant="outline">Reset</button>
+    <button hlmBtn>Save</button>
+  </div> -->
 </form>
 
 <ng-template #sectionTemplate let-section let-isChild="isChild">
@@ -16,15 +26,14 @@
   }
   @for (field of section.fields; track field.key) {
     <ng-container>
-      <label hlmLabel [for]="field.key" class="block">{{
+      <label hlmLabel class="block">{{
         field.key + ".title" | translate
       }}</label>
       <div class="space-y-1">
         <brn-popover sideOffset="5">
           <input
             class="hidden"
-            [ngModel]="mappings()?.[field.key]"
-            #target="ngModel"
+            [formControl]="inputForm.controls[field.key].controls.col"
             [name]="field.key"
           />
           <button
@@ -33,14 +42,16 @@
             variant="outline"
             [id]="field.key"
             brnPopoverTrigger
-            [class.!font-normal]="!target.value && !mappings()?.[field.key]"
+            [class.!font-normal]="
+              !inputForm.controls[field.key].value && !mappings()[field.key]
+            "
             [class.text-muted-foreground]="
-              !target.value && !mappings()?.[field.key]
+              !inputForm.controls[field.key].value && !mappings()[field.key]
             "
           >
             {{
-              target.value?.name ||
-                (mappings()?.[field.key]?.dbColumn ?? "Select column")
+              inputForm.controls[field.key].value.col?.name ||
+                (mappings()[field.key]?.dbColumn || "Select column")
             }}
           </button>
           <hlm-command
@@ -61,7 +72,9 @@
                   <button
                     class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
                     hlm-command-item
-                    (click)="target.control.setValue(spec)"
+                    (click)="
+                      inputForm.controls[field.key].patchValue({ col: spec })
+                    "
                     [value]="spec.name"
                   >
                     <div class="space-y-1">
@@ -72,10 +85,10 @@
                       >
                     </div>
                     @if (
-                      target.control.value ===
+                      inputForm.controls[field.key].value ===
                         mappings()?.[field.key]?.dbColumn &&
-                      target.control.value !== undefined &&
-                      target.control.value !== null
+                      inputForm.controls[field.key].value !== undefined &&
+                      inputForm.controls[field.key].value !== null
                     ) {
                       <ng-icon name="lucideCheck" />
                     }
@@ -85,7 +98,6 @@
             </hlm-command-list>
           </hlm-command>
         </brn-popover>
-        <!-- <input hlmInput [id]="field.key" [name]="field.key" /> -->
       </div>
     </ng-container>
   }

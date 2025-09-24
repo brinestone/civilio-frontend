@@ -2,6 +2,7 @@ import { DbConfigSchema, MalConfigurationError, TestDbConnectionRequest } from '
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client, Pool } from 'pg';
 import { getStoreValue } from './store';
+import { app } from 'electron';
 
 let pool: Pool | null = null;
 
@@ -62,5 +63,5 @@ export function provideDatabase(schema: Record<string, unknown>) {
       connectionString: url.toString()
     });
   }
-  return drizzle(pool, { schema });
+  return drizzle(pool, { schema, logger: !app.isPackaged });
 }

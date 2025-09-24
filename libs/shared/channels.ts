@@ -11,6 +11,7 @@ import {
   TestDbConnectionRequestSchema,
   TestDbConnectionResponseSchema,
   UpdateConfigRequestSchema,
+  FieldMappingRequestSchema,
   UpdateFieldMappingRequestSchema
 } from './dto';
 import { AppConfigSchema, createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema, OptionSchema } from './schema';
@@ -22,7 +23,7 @@ export const ChannelSchema = z.templateLiteral([
   entities, ':', crudActions
 ]);
 const channelArgs = {
-  'field-mappings:create': UpdateFieldMappingRequestSchema,
+  'field-mappings:create': FieldMappingRequestSchema,
   'field-mappings:read': FindFieldMappingsRequestSchema,
   'field-mappings:update': UpdateFieldMappingRequestSchema,
   'field-mappings:delete': {},
@@ -43,7 +44,7 @@ const channelResponses = {
   'config:read': AppConfigSchema.nullable(),
   'field-mappings:create': FieldMappingSchema,
   'field-mappings:read': FieldMappingSchema.array(),
-  'field-mappings:update': FieldMappingSchema,
+  'field-mappings:update': FieldMappingSchema.array(),
   'field-mappings:delete': {},
   'columns:read': FindDbColumnsResponseSchema,
   'options:read': FindFormOptionsResponseSchema,

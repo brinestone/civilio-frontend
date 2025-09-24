@@ -1,5 +1,6 @@
 import z from "zod";
 import { DbColumnSpecSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
+import { AllFieldKeysSchema } from "../field-keys";
 
 export const LoadTranslationRequestSchema = z.object({
   locale: LocaleSchema.transform(v => v.split('-')[0].toLowerCase())
@@ -38,12 +39,23 @@ export const UpdateConfigRequestSchema = z.object({
   path: z.string(),
   value: z.unknown().nullable()
 });
-export const UpdateFieldMappingRequestSchema = z.object({
+export const FieldMappingRequestSchema = z.object({
   form: FormTypeSchema,
-  field: z.string(),
+  field: AllFieldKeysSchema,
   i18nKey: z.string(),
   dbColumn: z.string().nullable()
-})
+});
+export const FieldUpdateSpecSchema = FieldMappingRequestSchema.pick({
+  field: true,
+  dbColumn: true
+}).extend({
+  table: z.string()
+}).required();
+export const UpdateFieldMappingRequestSchema = z.object({
+  updates: FieldUpdateSpecSchema.array(),
+  form: FormTypeSchema
+});
+
 export const FindFieldMappingsRequestSchema = z.object({
   form: FormTypeSchema
 });
@@ -59,7 +71,7 @@ export const FindFormSubmissionsRequestSchema = z.object({
 });
 
 export type FindFieldMappingsRequest = z.infer<typeof FindFieldMappingsRequestSchema>;
-export type NewFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
+export type FieldMappingRequest = z.infer<typeof FieldMappingRequestSchema>;
 export type UpdateConfigRequest = z.infer<typeof UpdateConfigRequestSchema>;
 export type FindFormOptionsResponse = z.infer<typeof FindFormOptionsResponseSchema>;
 export type TestDbConnectionRequest = z.infer<typeof TestDbConnectionRequestSchema>;
@@ -67,3 +79,5 @@ export type TestDbConnectionResponse = z.infer<typeof TestDbConnectionResponseSc
 export type LoadTranslationRequest = z.input<typeof LoadTranslationRequestSchema>;
 export type LoadTranslationResponse = z.output<typeof LoadTranslationResponseSchema>;
 export type FindDbColumnsResponse = z.infer<typeof FindDbColumnsResponseSchema>;
+export type UpdateFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
+export type FieldUpdateSpec = z.output<typeof FieldUpdateSpecSchema>;

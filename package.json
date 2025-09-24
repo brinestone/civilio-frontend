@@ -15,7 +15,7 @@
     "start:electron": "electron-forge start",
     "build:electron": "pnpm build:electron:webpack",
     "build:electron:webpack": "webpack --config webpack.main.config.js && webpack --config webpack.preload.config.js",
-    "make:electron": "pnpm clean && electron-forge make",
+    "make:electron": "pnpm clean && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge make",
     "clean": "pnpm exec rimraf dist out",
     "package:electron": "pnpm clean && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge package",
     "watch": "ng build --watch --configuration development",
