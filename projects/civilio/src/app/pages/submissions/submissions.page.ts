@@ -1,21 +1,24 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, input, model, OnInit, output, Signal, signal, untracked } from '@angular/core';
+import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
 import { Navigate } from '@ngxs/router-plugin';
-import { dispatch } from '@ngxs/store';
+import { dispatch, Store } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { BadgeVariants, HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
+import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel, getFacetedRowModel } from '@tanstack/angular-table';
 import { FormService } from '../../services/form.service';
 import { FormsModule } from '@angular/forms';
+import { debounceTime } from 'rxjs';
+import { lastFocusedFormType } from '@app/store/selectors';
+import { SetFormType } from '@app/store/form';
 
 @Component({
   selector: 'cv-badge-cell',
@@ -74,6 +77,12 @@ export class ButtonCell {
   readonly actionTriggered = output<string>();
 }
 
+function debounceSignal<T>(src: Signal<T>, t: number = 500) {
+  return toSignal(toObservable(src).pipe(
+    debounceTime(t)
+  ), { initialValue: untracked(src) });
+}
+
 @Component({
   selector: 'cv-submissions',
   viewProviders: [
@@ -99,7 +108,7 @@ export class ButtonCell {
   templateUrl: './submissions.page.html',
   styleUrl: './submissions.page.scss'
 })
-export class SubmissionsPage {
+export class SubmissionsPage implements OnInit {
   private navigate = dispatch(Navigate);
   private route = inject(ActivatedRoute);
   private formService = inject(FormService);
@@ -107,8 +116,9 @@ export class SubmissionsPage {
   protected readonly formType = signal<FormType>('csc');
   protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
   protected readonly filter = model('');
+  private readonly filterQuery = debounceSignal(this.filter);
   protected submissions = rxResource({
-    params: () => ({ filter: this.filter(), form: this.formType(), pagination: this.pagination() }),
+    params: () => ({ filter: this.filterQuery(), form: this.formType(), pagination: this.pagination() }),
     stream: ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
       // console.log(pageIndex, pageSize, filter, form);
       return this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
@@ -144,7 +154,7 @@ export class SubmissionsPage {
       accessorKey: 'facilityName',
       header: 'Facilility Name'
     },
-    this.columnHelper.accessor('validationCode', { header: 'Validation Code' }),
+    this.columnHelper.accessor('validationCode', { id: 'validationCode', header: 'Validation Code' }),
     this.columnHelper.accessor('submissionTime', {
       header: 'Submission Date',
       cell: ({ getValue }) => flexRenderComponent(DateCell, {
@@ -192,7 +202,15 @@ export class SubmissionsPage {
     this.navigate([index, this.formType()], undefined, { relativeTo: this.route });
   }
 
-  constructor() {
+  ngOnInit(): void {
+    this.formType.set(this.store.selectSnapshot(lastFocusedFormType) ?? 'csc');
+  }
 
+  constructor(private store: Store) {
+    effect(() => {
+      const form = this.formType();
+      this.filter.set('');
+      store.dispatch(new SetFormType(form));
+    });
   }
 }

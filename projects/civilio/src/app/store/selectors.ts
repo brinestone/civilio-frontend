@@ -32,3 +32,4 @@ export function dbColumnsFor(form: FormType) {
 
 export const formMappings = formSlices.mappings;
 export const formColumns = formSlices.columns;
+export const lastFocusedFormType = formSlices.lastFocusedFormType;

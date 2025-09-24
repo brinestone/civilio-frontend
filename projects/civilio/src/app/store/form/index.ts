@@ -2,15 +2,16 @@ import { EnvironmentProviders, inject, Injectable } from "@angular/core";
 import { FormService } from "@app/services/form.service";
 import { FieldMapping, FindDbColumnsResponse, FindFormOptionsResponse, FormType } from "@civilio/shared";
 import { Action, provideStates, State, StateContext, StateToken } from "@ngxs/store";
-import { insertItem, patch } from "@ngxs/store/operators";
+import { patch } from "@ngxs/store/operators";
 import { EMPTY, from, tap } from "rxjs";
-import { LoadDbColumns, LoadMappings, LoadOptions, UpdateMappings } from "./actions";
+import { LoadDbColumns, LoadMappings, LoadOptions, SetFormType, UpdateMappings } from "./actions";
 export * from './actions';
 
 type FormStateModel = {
   mappings?: Record<FormType, Record<string, FieldMapping>>;
   options?: Record<FormType, FindFormOptionsResponse>;
   columns?: Record<FormType, FindDbColumnsResponse>;
+  lastFocusedFormType: FormType;
 };
 export const FORM_STATE = new StateToken<FormStateModel>('form');
 type Context = StateContext<FormStateModel>;
@@ -19,10 +20,18 @@ type Context = StateContext<FormStateModel>;
 @State({
   name: FORM_STATE,
   defaults: {
+    lastFocusedFormType: 'csc'
   }
 })
 class FormState {
   private readonly formService = inject(FormService);
+
+  @Action(SetFormType)
+  onSetFormType(ctx: Context, { form }: SetFormType) {
+    ctx.setState(patch({
+      lastFocusedFormType: form
+    }));
+  }
 
   @Action(UpdateMappings)
   onUpdateMappings(ctx: Context, { form, mappings }: UpdateMappings) {

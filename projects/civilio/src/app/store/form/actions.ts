@@ -24,3 +24,8 @@ export class UpdateMappings {
     this.mappings = mappings;
   }
 }
+
+export class SetFormType {
+  static type = `${prefix} set form type`
+  constructor(readonly form: FormType) { }
+}
