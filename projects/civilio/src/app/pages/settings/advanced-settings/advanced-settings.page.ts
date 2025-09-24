@@ -102,6 +102,10 @@ export class AdvancedSettingsPage {
       complete: () => {
         toast.success('Changes saved');
         const redirect = this.route.queryParams['continue'];
+        form.form.controls['password'].reset();
+        form.form.markAsPristine();
+        form.form.markAsUntouched();
+        form.form.updateValueAndValidity();
         if (!redirect) return;
         this.navigate([decodeURIComponent(redirect)]);
       }

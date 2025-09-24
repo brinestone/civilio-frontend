@@ -2,6 +2,9 @@ import { CdkListboxModule } from '@angular/cdk/listbox';
 import { Component, computed, effect, inject, linkedSignal, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { SetLocale, SetTheme, TestDb } from '@app/store/config';
+import { UpdateMappings } from '@app/store/form';
+import { actionsLoading } from '@app/util';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideSave, lucideSettings, lucideSlidersVertical, lucideTrash2, lucideUnlink2, lucideWrench } from '@ng-icons/lucide';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -38,6 +41,7 @@ const sections = [
   styleUrl: './settings.page.scss'
 })
 export class SettingsPage {
+  protected readonly isSavingSettings = actionsLoading(UpdateMappings, SetTheme, SetLocale, TestDb);
   protected readonly sections = signal(sections);
   protected readonly sectionFilter = signal('');
   protected readonly filteredSections = computed(() => {
@@ -46,4 +50,9 @@ export class SettingsPage {
     if (!filter) return sections;
     return sections.filter(v => v.label.toLowerCase().includes(filter.trim().toLowerCase()));
   });
+  constructor() {
+    effect(() => {
+      console.log(this.isSavingSettings());
+    })
+  }
 }

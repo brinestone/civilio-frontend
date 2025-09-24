@@ -78,8 +78,8 @@ export class FieldMapperComponent implements OnInit {
   protected readonly mappings = toSignal(this.store.select(formMappings).pipe(
     takeUntilDestroyed(),
     combineLatestWith(this.form$),
-    map(([mappings, form]) => mappings?.[form] ?? ({} as Record<string, FieldMapping>))
-  ), { initialValue: {} as Record<string, FieldMapping> });
+    map(([mappings, form]) => mappings?.[form] ?? ({} as Record<string, FieldMapping> | undefined))
+  ), );
   protected readonly mappedColumns = signal<Record<string, { field: string, table: string }[]>>({});
   protected readonly dbColumns = linkedSignal(() => {
     const specs = this.store.selectSnapshot(dbColumnsFor(this.form()));
@@ -93,6 +93,7 @@ export class FieldMapperComponent implements OnInit {
   constructor() {
     effect(() => {
       const mappings = this.mappings();
+      if (!mappings) return;
       for (const mapping of Object.values(mappings)) {
         this.mappedColumns.update(m => ({ ...m, [mapping.dbColumn]: [...(m[mapping.dbColumn] ?? []), { field: mapping.field, table: mapping.dbTable }] }));
       }

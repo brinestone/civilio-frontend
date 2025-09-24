@@ -41,50 +41,100 @@
   </div>
 </div>
 <section class="page-section">
-  <table hlmTable class="w-full">
-    <thead hlmTHead>
-      @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
-        <tr hlmTr>
-          @for (header of headerGroup.headers; track header.id) {
-            <th hlmTh [attr.colspan]="header.colSpan">
-              @if (!header.isPlaceholder) {
+  <div class="justify-between flex items-center">
+    <input
+      type="search"
+      hlmInput
+      placeholder="Filter submissions..."
+      [(ngModel)]="filter"
+    />
+    <div></div>
+  </div>
+  <div
+    class="border-border block w-full rounded-md max-h-[35rem] overflow-y-auto relative border"
+  >
+    <table hlmTable class="w-full">
+      <thead hlmTHead class="sticky top-0 bg-background">
+        @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+          <tr hlmTr>
+            @for (header of headerGroup.headers; track header.id) {
+              <th hlmTh [attr.colspan]="header.colSpan">
+                @if (!header.isPlaceholder) {
+                  <ng-container
+                    *flexRender="
+                      header.column.columnDef.header;
+                      props: header.getContext();
+                      let headerText
+                    "
+                  >
+                    <p>{{ headerText }}</p>
+                  </ng-container>
+                }
+              </th>
+            }
+          </tr>
+        }
+      </thead>
+      <tbody hlmTBody>
+        @for (row of table.getRowModel().rows; track row.id) {
+          <tr
+            hlmTr
+            [attr.key]="row.id"
+            [attr.data-state]="row.getIsSelected() && 'selected'"
+          >
+            @for (cell of row.getVisibleCells(); track $index) {
+              <td hlmTd>
                 <ng-container
                   *flexRender="
-                    header.column.columnDef.header;
-                    props: header.getContext();
-                    let headerText
+                    cell.column.columnDef.cell;
+                    props: cell.getContext();
+                    let cell
                   "
                 >
-                  <p>{{ headerText }}</p>
+                  {{ cell }}
                 </ng-container>
-              }
-            </th>
-          }
-        </tr>
-      }
-    </thead>
-    <tbody hlmTBody class="w-full">
-      @for (row of table.getRowModel().rows; track row.id) {
-        <tr
-          hlmTr
-          [attr.key]="row.id"
-          [attr.data-state]="row.getIsSelected() && 'selected'"
-        >
-          @for (cell of row.getVisibleCells(); track $index) {
-            <td hlmTd>
-              <ng-container
-                *flexRender="
-                  cell.column.columnDef.cell;
-                  props: cell.getContext();
-                  let cell
-                "
-              >
-                <p>{{ cell }}</p>
-              </ng-container>
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr hlmTr>
+            <td
+              hlmTd
+              [attr.colspan]="columnConfig.length"
+              class="h-24 text-center"
+            >
+              No results.
             </td>
-          }
-        </tr>
-      }
-    </tbody>
-  </table>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="flex justify-between items-center">
+    <p class="text-sm text-muted-foreground">
+      Showing from {{ currentRange()[0] + 1 | number }} to
+      {{ currentRange()[1] | number }} of
+      {{ submissions.value()?.totalRecords ?? 0 | number }} records.
+    </p>
+    <div class="flex gap-3 items-center justify-end">
+      <button
+        size="sm"
+        [disabled]="pagination().pageIndex === 0"
+        (click)="table.previousPage()"
+        hlmBtn
+        variant="outline"
+      >
+        Previous
+      </button>
+      <button
+        size="sm"
+        [disabled]="pagination().pageIndex + 1 >= totalPages()"
+        (click)="table.nextPage()"
+        hlmBtn
+        variant="outline"
+      >
+        Next
+      </button>
+    </div>
+  </div>
 </section>

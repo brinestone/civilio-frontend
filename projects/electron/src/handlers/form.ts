@@ -77,10 +77,11 @@ export async function findFieldMappings(type: FormType) {
 
 export async function findFormSubmissions(form: FormType, page: number = 0, size: number = 100, filterQuery?: string) {
   const db = provideDatabase({ vwFormSubmissions });
+  const q = `%${filterQuery.toLowerCase()}%`;
   const filter = filterQuery ? and(eq(vwFormSubmissions.form, form), or(
-    like(sql`LOWER(${vwFormSubmissions.index}::TEXT)`, filterQuery.toLowerCase()),
-    like(sql`LOWER(${vwFormSubmissions.validationCode})`, filterQuery.toLowerCase()),
-    like(sql`LOWER(${vwFormSubmissions.facilityName})`, filterQuery.toLowerCase())
+    like(sql`LOWER(${vwFormSubmissions.index}::TEXT)`, q),
+    like(sql`LOWER(${vwFormSubmissions.validationCode})`, q),
+    like(sql`LOWER(${vwFormSubmissions.facilityName})`, q)
   )) : eq(vwFormSubmissions.form, form);
 
   const submissions = await db.select().from(vwFormSubmissions)

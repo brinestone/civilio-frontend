@@ -1,9 +1,20 @@
 import { inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AppErrorSchema, Channel, ChannelArg, ChannelResponse, computeReplyChannel, MaybeAsync, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
+import { AppErrorSchema, Channel, ChannelArg, ChannelResponse, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
 import { Actions, ActionType, ofActionCompleted, ofActionDispatched } from "@ngxs/store";
-import { map, merge } from "rxjs";
+import { from, map, merge, mergeMap, reduce, scan } from "rxjs";
 
+export function actionsLoading(...actions: ActionType[]) {
+  const actions$ = inject(Actions);
+  const source = signal(false);
+  from(actions).pipe(
+    takeUntilDestroyed(),
+    mergeMap(action => merge(actions$.pipe(ofActionDispatched(action), map(() => true)),
+      actions$.pipe(ofActionCompleted(action), map(() => false)))),
+    scan((acc, curr) => curr && acc)
+  ).subscribe(v => source.set(v));
+  return source.asReadonly();
+}
 export function isActionLoading(action: ActionType) {
   const actions$ = inject(Actions);
   const s = signal(false);
