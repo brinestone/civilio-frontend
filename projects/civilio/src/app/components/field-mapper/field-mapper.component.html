@@ -3,7 +3,7 @@
   class="flex items-start justify-between relative max-h-full"
 >
   <div
-    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline max-h-full overflow-y-auto"
+    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline max-h-full @sm:overflow-hidden overflow-y-auto"
   >
     @for (section of formModel().sections; track $index) {
       <ng-container
@@ -51,7 +51,7 @@
           >
             {{
               inputForm.controls[field.key].value.col?.name ||
-                (mappings()?.[field.key]?.dbColumn || "Select column")
+                mappings()?.[field.key]?.dbColumn || "Select column"
             }}
           </button>
           <hlm-command

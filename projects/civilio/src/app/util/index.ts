@@ -1,8 +1,14 @@
-import { inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { inject, Signal, signal, untracked } from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { AppErrorSchema, Channel, ChannelArg, ChannelResponse, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
 import { Actions, ActionType, ofActionCompleted, ofActionDispatched } from "@ngxs/store";
-import { from, map, merge, mergeMap, reduce, scan } from "rxjs";
+import { debounceTime, from, map, merge, mergeMap, scan } from "rxjs";
+
+export function debounceSignal<T>(src: Signal<T>, t: number = 500) {
+  return toSignal(toObservable(src).pipe(
+    debounceTime(t)
+  ), { initialValue: untracked(src) });
+}
 
 export function actionsLoading(...actions: ActionType[]) {
   const actions$ = inject(Actions);

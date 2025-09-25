@@ -1,1 +1,56 @@
-<p>form works!</p>
+<div class="flex justify-between items-center py-2 px-4 border-b border-border">
+  <a hlmBtn size="sm" variant="outline" routerLink="/submissions">
+    <ng-icon name="lucideArrowLeft" />
+    <span>Back to Submissions</span>
+  </a>
+  <hlm-sheet side="right">
+    <button hlmBtn size="sm" variant="ghost" brnSheetTrigger>
+      <ng-icon name="lucideUnlink" />
+      <span>Field mapper</span>
+    </button>
+    <hlm-sheet-content
+      class="min-w-[50vw] @container"
+      *brnSheetContent="let ctx"
+    >
+      <hlm-sheet-header>
+        <h3 hlmSheetTitle>Field Mapper</h3>
+        <p hlmSheetDescription>
+          Map form fields to database columns for accurate data storage.
+        </p>
+      </hlm-sheet-header>
+      <div class="max-h-[600px] overflow-y-auto">
+        @if (model()) {
+          <cv-field-mapper [formModel]="$any(model())" [form]="$any(form())" />
+        } @else {
+          <p class="text-sm text-muted-foreground p-4">
+            No form model available.
+          </p>
+        }
+      </div>
+    </hlm-sheet-content>
+  </hlm-sheet>
+</div>
+<div class="grid grid-cols-[auto_1fr]">
+  <div class="border-r border-border px-4 py-2 h-full overflow-y-auto">
+    @if (fragments().length > 0) {
+      <ul class="list-none text-sm text-muted-foreground">
+        @for (fragment of fragments(); track $index) {
+          <li class="pl-{{ fragment.depth * 4 + 4 }}">
+            <a
+              [routerLink]="[form(), index()]"
+              routerLinkActive="active-fragment"
+              class="border-l-2 pl-4"
+              [routerLinkActiveOptions]="{ exact: true }"
+              [fragment]="fragment.id"
+            >
+              {{ fragment.id + ".title" | translate }}
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+  <main class="overflow-y-auto max-h-full">
+    <router-outlet />
+  </main>
+</div>

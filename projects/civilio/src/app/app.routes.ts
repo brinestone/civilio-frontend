@@ -10,25 +10,15 @@ export const routes: Routes = [
     path: 'submissions', loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
   },
   {
-    title: 'Settings', path: 'settings', loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage), children: [
-      { path: 'general', title: 'General Settings', loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage) },
-      {
-        providers: [
-          provideFormStore()
-        ],
-        canActivate: [dbConfigValidGuardFn],
-        path: 'field-mapping',
-        title: 'Field mapping Settings',
-        loadComponent: () => import('./pages/settings/field-mapping-settings/field-mapping-settings.page').then(m => m.FieldMappingSettingsPage), children: [
-          { path: 'fosa', title: 'Fosa Mapping Settings', loadComponent: () => import('./pages/settings/field-mapping-settings/fosa/fosa.page').then(m => m.FosaPage) },
-          { path: 'chefferie', title: 'Chefferie Mapping Settings', loadComponent: () => import('./pages/settings/field-mapping-settings/chiefdom/chiefdom.page').then(m => m.ChiefdomPage) },
-          { path: 'csc', title: 'CSC Mapping Settings', loadComponent: () => import('./pages/settings/field-mapping-settings/csc/csc.page').then(m => m.CscPage) },
-          { path: '', pathMatch: 'full', redirectTo: 'fosa' }
-        ]
-      },
-      { path: 'advanced', title: 'Advanced Settings', loadComponent: () => import('./pages/settings/advanced-settings/advanced-settings.page').then(m => m.AdvancedSettingsPage) },
-      { path: '', redirectTo: 'general', pathMatch: 'full' }
-    ]
+    path: 'forms',
+    loadComponent: () => import('./layouts/form/form.layout').then(m => m.FormLayout),
+    canActivate: [dbConfigValidGuardFn],
+    providers: [provideFormStore()],
+    loadChildren: () => import('./form.routes').then(m => m.formRoutes)
+  },
+  {
+    title: 'Settings', path: 'settings', loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
+    loadChildren: () => import('./settings.routes').then(m => m.settingsRoutes)
   },
   { path: '', redirectTo: 'submissions', pathMatch: 'full' }
 ];

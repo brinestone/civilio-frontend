@@ -3,15 +3,15 @@ import { FieldKeys, Option } from '@civilio/shared';
 
 export const FosaFormDefinition: FormModelDefinition = {
   sections: [
-    {
-      fields: [
-        {
-          key: 'fosa.form.fields.index',
-          required: true,
-          type: 'text'
-        },
-      ]
-    },
+    // {
+    //   fields: [
+    //     {
+    //       key: 'fosa.form.fields.index',
+    //       required: true,
+    //       type: 'text'
+    //     },
+    //   ]
+    // },
     // #region Respondent
     {
       id: 'fosa.form.sections.respondent',

@@ -14,6 +14,7 @@ export function registerIpcHandlers() {
     return await findFormOptions(form);
   });
   respondingInputChannelHandler('translations:read', LoadTranslationRequestSchema, async ({ locale }) => {
+    console.log(locale);
     return findTranslationsFor('en-CM');
   });
   respondingNoInputChannelHandler('config:read', () => {

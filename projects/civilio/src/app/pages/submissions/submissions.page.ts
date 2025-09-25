@@ -1,7 +1,11 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, effect, inject, input, model, OnInit, output, Signal, signal, untracked } from '@angular/core';
-import { rxResource, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, input, model, OnInit, output, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { SetFormType } from '@app/store/form';
+import { lastFocusedFormType } from '@app/store/selectors';
+import { debounceSignal } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
@@ -13,12 +17,8 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel, getFacetedRowModel } from '@tanstack/angular-table';
+import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
 import { FormService } from '../../services/form.service';
-import { FormsModule } from '@angular/forms';
-import { debounceTime } from 'rxjs';
-import { lastFocusedFormType } from '@app/store/selectors';
-import { SetFormType } from '@app/store/form';
 
 @Component({
   selector: 'cv-badge-cell',
@@ -68,19 +68,13 @@ type Action = {
   `,
   styles: `
     :host {
-      @apply inline-flex justify-start items-center gap-3;
+      @apply inline-flex justify-start items-center;
     }
   `
 })
 export class ButtonCell {
   readonly actions = input<Action[]>();
   readonly actionTriggered = output<string>();
-}
-
-function debounceSignal<T>(src: Signal<T>, t: number = 500) {
-  return toSignal(toObservable(src).pipe(
-    debounceTime(t)
-  ), { initialValue: untracked(src) });
 }
 
 @Component({
@@ -199,7 +193,7 @@ export class SubmissionsPage implements OnInit {
   });
 
   protected openSubmission(index: number) {
-    this.navigate([index, this.formType()], undefined, { relativeTo: this.route });
+    this.navigate(['/', 'forms', this.formType(), index], undefined, { relativeTo: this.route });
   }
 
   ngOnInit(): void {

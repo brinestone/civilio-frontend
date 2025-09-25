@@ -1,5 +1,5 @@
 <div class="page-header !justify-start gap-4 items-center">
-  <h1 class="page-title">Form Submissions</h1>
+  <!-- <h1 class="page-title">Form Submissions</h1> -->
   <div class="flex gap-2 items-center">
     <button
       [disabled]="submissions.isLoading()"
@@ -54,7 +54,7 @@
     class="border-border block w-full rounded-md max-h-[35rem] overflow-y-auto relative border"
   >
     <table hlmTable class="w-full">
-      <thead hlmTHead class="sticky top-0 bg-background">
+      <thead hlmTHead class="sticky top-0 border-b border-border backdrop-blur-md">
         @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
           <tr hlmTr>
             @for (header of headerGroup.headers; track header.id) {
@@ -81,6 +81,9 @@
             hlmTr
             [attr.key]="row.id"
             [attr.data-state]="row.getIsSelected() && 'selected'"
+            (dblclick)="openSubmission(row.original.index)"
+            class="cursor-pointer"
+            title="Double click to open the submission form"
           >
             @for (cell of row.getVisibleCells(); track $index) {
               <td hlmTd>

@@ -81,6 +81,10 @@ body {
   @apply cursor-pointer gap-2 items-center disabled:cursor-auto font-semibold;
 }
 
+[brnselecttrigger], hlm-option {
+  @apply cursor-pointer;
+}
+
 .page {
   @apply pt-6 block space-y-4 h-full max-h-full overflow-auto;
   & > .page-header,

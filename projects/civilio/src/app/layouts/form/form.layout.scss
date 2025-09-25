@@ -1,0 +1,15 @@
+@reference "tailwindcss";
+
+:host {
+  @apply grid grid-rows-[auto_1fr] h-full bg-red-500;
+}
+
+li {
+  & > a:not(.active-fragment) {
+    @apply border-transparent text-muted-foreground hover:text-[var(--primary)] hover:border-[var(--primary)] hover:font-medium;
+  }
+
+  & > a.active-fragment {
+    @apply text-[var(--primary)] border-[var(--primary)] font-medium;
+  }
+}
