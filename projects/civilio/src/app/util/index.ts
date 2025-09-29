@@ -1,8 +1,20 @@
-import { inject, Signal, signal, untracked } from "@angular/core";
+import { inject, Injector, Signal, signal, untracked } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { AppErrorSchema, Channel, ChannelArg, ChannelResponse, computeReplyChannel, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema, TimeoutError } from "@civilio/shared";
 import { Actions, ActionType, ofActionCompleted, ofActionDispatched } from "@ngxs/store";
-import { debounceTime, from, map, merge, mergeMap, scan } from "rxjs";
+import { debounceTime, filter, from, map, merge, mergeMap, OperatorFunction, scan } from "rxjs";
+
+export function mapSignal<T, U, R>(src: Signal<T>, key: string, operator?: OperatorFunction<U, R>, opts?: Partial<{ initialValue: U, injector: Injector }>) {
+  const src$ = toObservable(src, { injector: opts?.injector }).pipe(
+    mergeMap(v => Object.entries(v as any)),
+    filter(([k]) => k === key),
+    map(([_, v]) => v as U),
+  );
+
+  return operator
+    ? toSignal<R>(operator(src$), { injector: opts?.injector })
+    : toSignal<U>(src$, { injector: opts?.injector });
+}
 
 export function debounceSignal<T>(src: Signal<T>, t: number = 500) {
   return toSignal(toObservable(src).pipe(

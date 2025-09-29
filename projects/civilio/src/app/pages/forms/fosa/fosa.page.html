@@ -23,8 +23,8 @@
 <ng-template #sectionTemplate let-section>
   <ng-container [formGroup]="form">
     @for (field of section.fields; track $index) {
-      @if (form.contains(field.key)) {
-        <ng-container>
+      @if (form.contains(field.key) && relevanceRegistry[field.key]()) {
+        <div class="space-y-1">
           <label hlmLabel [for]="field.key">{{
             field.key + ".title" | translate
           }}</label>
@@ -35,27 +35,89 @@
                 [id]="field.key"
                 [formControlName]="field.key"
                 [type]="field.inputType ?? 'text'"
-                [placeholder]="field.placeholder | translate"
+                [placeholder]="field.key + '.description' | translate"
               />
             }
             @case ("boolean") {
-              <hlm-checkbox
-                [id]="field.key"
-                [checked]="form.get(field.key)?.value"
-                (checkedChange)="form.get(field.key)?.setValue($event)"
-              />
+              <hlm-checkbox [id]="field.key" [formControlName]="field.key" />
             }
             @case ("date") {
               <hlm-date-picker
-                [date]="form.get(field.key)?.value"
-                (dateChange)="form.get(field.key)?.setValue($event)"
+                [formControlName]="field.key"
                 [id]="field.key"
                 [min]="field.min"
                 [max]="field.max"
               />
             }
           }
-        </ng-container>
+          @if (
+            form.controls[field.key].invalid && form.controls[field.key].dirty
+          ) {
+            <p class="text-red-500 block text-sm space-y-1">
+              @if (form.controls[field.key].hasError("required")) {
+                {{ "validation.msg.field_required" | translate }}
+              } @else if (form.controls[field.key].hasError("invalidValue")) {
+                {{
+                  "validation.msg.value_unsupported"
+                    | translate
+                      : {
+                          validValues: form.controls[field.key]
+                            .getError("invalidValue")
+                            .validValues.join(", "),
+                        }
+                }}
+              } @else if (form.controls[field.key].hasError("pattern")) {
+                {{ "validation.msg.pattern_mismatch" | translate }}
+              } @else if (form.controls[field.key].hasError("minDate")) {
+                {{
+                  "validation.msg.min_date"
+                    | translate
+                      : {
+                          minDate: form.controls[field.key].getError("minDate"),
+                        }
+                }}
+              } @else if (form.controls[field.key].hasError("maxDate")) {
+                {{
+                  "validation.msg.max_date"
+                    | translate
+                      : {
+                          maxDate: form.controls[field.key].getError("maxDate"),
+                        }
+                }}
+              } @else if (form.controls[field.key].hasError("invalidDate")) {
+                {{ "validation.msg.invalid_date" | translate }}
+              } @else if (
+                form.controls[field.key].hasError("min") ||
+                form.controls[field.key].hasError("max")
+              ) {
+                @if (form.controls[field.key].hasError("min")) {
+                  <span>
+                    {{
+                      "validation.msg.min"
+                        | translate
+                          : {
+                              min: form.controls[field.key].getError("min").min,
+                            }
+                    }}
+                  </span>
+                }
+                @if (
+                  form.controls[field.key].hasError("min") &&
+                  form.controls[field.key].hasError("max")
+                ) {
+                  <br />
+                }
+                @if (form.controls[field.key].hasError("max")) {
+                  {{
+                    "validation.msg.max"
+                      | translate
+                        : { max: form.controls[field.key].getError("max").max }
+                  }}
+                }
+              }
+            </p>
+          }
+        </div>
       }
     }
   </ng-container>

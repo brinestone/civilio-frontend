@@ -1,8 +1,8 @@
 import { InjectionToken, makeEnvironmentProviders } from "@angular/core";
 import { isDesktop } from "@app/util";
+import { FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FormSubmissionSchema, FormType, Paginated } from "@civilio/shared";
 import { ElectronFormService } from "../electron/form.service";
 import { WebFormService } from "../web/form.service";
-import { FormType, FindSubmissionDataResponse, FieldUpdateSpec, FindFieldMappingsResponse, FindDbColumnsResponse, FindFormOptionsResponse, Paginated, FormSubmissionSchema } from "@civilio/shared";
 
 export interface FormService {
   findSubmissionData(form: FormType, index: number): Promise<FindSubmissionDataResponse>;

@@ -1,3 +1,13 @@
+validation:
+  msg:
+    field_required: This field is required
+    value_unsupported: Value is unsupported. It must be one of {{validValues}}
+    pattern_mismatch: Invalid format
+    invalid_date: Invalid date
+    max_date: The date cannot be after {{maxDate}}
+    min_date: The date cannot be before {{minDate}}
+    min: Value must be at least {{min}}
+    max: Value must be at most {{max}}
 login:
   username: Username
   forgot_password: Forgot password?

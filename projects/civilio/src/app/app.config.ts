@@ -12,7 +12,7 @@ import { withNgxsFormPlugin } from '@ngxs/form-plugin';
 import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
-import { provideElectronTranslationLoader } from './adapters/ngx-translate';
+import { provideTranslationLoader } from './adapters/ngx-translate';
 import { routes } from './app.routes';
 import { provideDomainForms } from './services/form';
 import { ConfigState } from './store/config';
@@ -39,7 +39,7 @@ export const appConfig: ApplicationConfig = {
     }),
     provideTranslateService({
       fallbackLang: 'en',
-      loader: provideElectronTranslationLoader()
+      loader: provideTranslationLoader()
     })
   ]
 };

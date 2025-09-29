@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, effect, inject, Injector, linkedSignal, resource, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, effect, inject, Injector, linkedSignal, resource } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormRecord, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { FosaFormDefinition } from '@app/model';
@@ -10,8 +10,7 @@ import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 
 import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 
-import { NgTemplateOutlet } from '@angular/common';
-import { FieldKey } from '@civilio/shared';
+import { KeyValuePipe, NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BrnTabsImports } from '@spartan-ng/brain/tabs';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -32,6 +31,7 @@ import { AbstractForm } from '../form.page';
     HlmInput,
     HlmCheckboxImports,
     HlmLabel,
+    KeyValuePipe,
     ReactiveFormsModule,
     BrnTabsImports
   ],
@@ -40,15 +40,13 @@ import { AbstractForm } from '../form.page';
   styleUrl: './fosa.page.scss'
 })
 export class FosaPage extends AbstractForm implements AfterViewInit {
-  private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly cdr = inject(ChangeDetectorRef);
   private loadOptions = dispatch(LoadOptions);
   private readonly targetTab = injectRouteFragment()
   private formService = inject(FORM_SERVICE);
   protected readonly submissionIndex = injectParams('submissionIndex');
   protected readonly injector = inject(Injector);
   protected destroyRef = inject(DestroyRef);
-
-  protected irrelevant = signal<FieldKey[]>([]);
   protected formModel = FosaFormDefinition;
   protected currentTab = linkedSignal(() => {
     return this.targetTab() ?? this.formModel.sections[0].id;

@@ -112,7 +112,7 @@ export class SubmissionsPage implements OnInit {
   protected readonly filter = model('');
   private readonly filterQuery = debounceSignal(this.filter);
   protected submissions = resource({
-    params: () => ({ filter: this.filterQuery(), form: this.formType(), pagination: this.pagination() }),
+    params: () => ({ filter: this.filterQuery()?.trim(), form: this.formType(), pagination: this.pagination() }),
     loader: ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
       return this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
     }
@@ -192,7 +192,7 @@ export class SubmissionsPage implements OnInit {
   });
 
   protected openSubmission(index: number) {
-    this.navigate(['/', 'forms', this.formType(), index], undefined, { relativeTo: this.route });
+    this.navigate(['/forms', this.formType(), index]);
   }
 
   ngOnInit(): void {

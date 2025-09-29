@@ -1,51 +1,15 @@
-<div class="flex justify-between items-center py-2 px-4 border-b border-border">
-  <a hlmBtn size="sm" variant="outline" routerLink="/submissions">
+<div class="pl-4 py-1 border-b border-border">
+  <a
+    hlmBtn
+    size="sm"
+    class="inline-flex"
+    variant="outline"
+    routerLink="/submissions"
+  >
     <ng-icon name="lucideArrowLeft" />
     <span>Back to Submissions</span>
   </a>
-  <hlm-sheet side="right">
-    <button hlmBtn size="sm" variant="ghost" brnSheetTrigger>
-      <ng-icon name="lucideUnlink" />
-      <span>Field mapper</span>
-    </button>
-    <hlm-sheet-content
-      class="min-w-[50vw] @container"
-      *brnSheetContent="let ctx"
-    >
-      <hlm-sheet-header>
-        <h3 hlmSheetTitle>Field Mapper</h3>
-        <p hlmSheetDescription>
-          Map form fields to database columns for accurate data storage.
-        </p>
-      </hlm-sheet-header>
-      <div class="max-h-[600px] overflow-y-auto">
-        @defer (when model()) {
-          <cv-field-mapper [formModel]="$any(model())" [form]="$any(form())" />
-        }
-      </div>
-    </hlm-sheet-content>
-  </hlm-sheet>
 </div>
-<div class="grid grid-cols-[auto_1fr] h-full">
-  <div class="border-r border-border px-4 py-2 h-full">
-    @if (fragments().length > 0) {
-      <ul class="list-none text-sm text-[var(--muted-foreground)]">
-        @for (fragment of fragments(); track $index) {
-          <li>
-            <a
-              [routerLink]="[form(), index()]"
-              routerLinkActive="active-fragment"
-              [routerLinkActiveOptions]="{ exact: true }"
-              [fragment]="fragment"
-            >
-              {{ fragment + ".title" | translate }}
-            </a>
-          </li>
-        }
-      </ul>
-    }
-  </div>
-  <main class="overflow-y-auto">
-    <router-outlet />
-  </main>
-</div>
+<main class="overflow-y-auto">
+  <router-outlet />
+</main>

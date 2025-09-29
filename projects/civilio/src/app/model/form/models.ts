@@ -1,6 +1,6 @@
 import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import z from 'zod';
-import { FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevanceFnSchema, ValueProviderFn } from './schemas';
+import { FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevancePredicateSchema } from './schemas';
 
 export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
   meta: {
@@ -43,10 +43,13 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           key: 'fosa.form.sections.respondent.fields.creation_date',
           type: 'date',
           required: true,
-          relevanceFn: RelevanceFnSchema.implement((deps) => {
-            const v = deps['fosa.form.sections.respondent.fields.knows_creation_date'];
-            return v === true;
-          })
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const v = deps['fosa.form.sections.respondent.fields.knows_creation_date'];
+              return v === true;
+            }),
+            dependencies: ['fosa.form.sections.respondent.fields.knows_creation_date']
+          }
         } as FieldDefinition
       ]
     },
@@ -110,13 +113,15 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           key: 'fosa.form.sections.identification.fields.other_category',
           type: 'text',
           required: true,
-          relevance: (provider: ValueProviderFn) => {
-            const k = 'fosa.form.sections.identification.fields.category';
-            const deps = provider(k);
-            const v = Array.isArray(deps) ? deps[0] : deps;
-            return v?.value === '10';
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const k = 'fosa.form.sections.identification.fields.category';
+              const v = Array.isArray(deps) ? deps[0] : deps;
+              return v?.value === '10';
+            }),
+            dependencies: ['fosa.form.sections.identification.fields.category']
           }
-        },
+        } as FieldDefinition,
         {
           key: 'fosa.form.sections.identification.fields.status',
           type: 'single-selection',
@@ -145,11 +150,12 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           key: 'fosa.form.sections.identification.fields.gps_coords',
           type: 'point',
-          relevance: (provider: ValueProviderFn) => {
-            const k: FieldKey = 'fosa.form.sections.identification.fields.knows_gps_coords';
-            const deps = provider(k);
-            const v = Array.isArray(deps) ? deps[0] : deps;
-            return v?.value === '10';
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const v = deps['fosa.form.sections.identification.fields.knows_gps_coords'];
+              return v === true;
+            }),
+            dependencies: ['fosa.form.sections.identification.fields.knows_gps_coords']
           }
         },
       ]
@@ -165,9 +171,12 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           key: 'fosa.form.sections.reg_cs_events.fields.uses_bunec_birth_form',
           type: 'boolean',
-          relevance: (provider: ValueProviderFn) => {
-            const k = 'fosa.form.sections.reg_cs_events.fields.dhis2_usage';
-            return (provider(k)[k] ?? false) as boolean;
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const v = deps['fosa.form.sections.reg_cs_events.fields.dhis2_usage'];
+              return v === true;
+            }),
+            dependencies: ['fosa.form.sections.reg_cs_events.fields.dhis2_usage']
           }
         },
         {
@@ -257,9 +266,12 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           type: 'multi-selection',
           required: true,
           optionsGroupKey: 'xt53f30',
-          relevance: (provider: ValueProviderFn) => {
-            const k = 'fosa.form.sections.infra.fields.backup_power_available';
-            return provider(k)[k] as boolean | undefined ?? true;
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const v = deps['fosa.form.sections.infra.fields.backup_power_available'];
+              return v === true;
+            }),
+            dependencies: ['fosa.form.sections.infra.fields.backup_power_available']
           }
         },
         {
@@ -274,9 +286,12 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           key: 'fosa.form.sections.infra.fields.water_sources',
           type: 'multi-selection',
           optionsGroupKey: 'zp4ec39',
-          relevance: (provider: ValueProviderFn) => {
-            const k = 'fosa.form.sections.infra.fields.water_source_available';
-            return provider(k)[k] as boolean | undefined ?? false;
+          relevance: {
+            predicate: RelevancePredicateSchema.implement((deps) => {
+              const v = deps['fosa.form.sections.infra.fields.water_source_available'];
+              return v === true;
+            }),
+            dependencies: ['fosa.form.sections.infra.fields.water_source_available']
           },
           required: true
         }
@@ -386,6 +401,20 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
   ],
 });
 
+export const ChefferieFormDefinition = FormModelDefinitionSchema.parse({
+  sections: [],
+  meta: {
+    form: 'chefferie' as FormType
+  }
+});
+
+export const CscFormDefinition = FormModelDefinitionSchema.parse({
+  sections: [],
+  meta: {
+    form: 'csc' as FormType
+  }
+})
+
 function extractFields(section: FormSection) {
   const lookupMap: any = {};
   if (section.children && section.children.length > 0) {
@@ -451,11 +480,25 @@ export function defaultValueForType(type: FieldDefinition['type']) {
   }
 }
 
-type ParsedValue = boolean | null | Date | GeoPoint | number | string;
-export function parseValue(definition: FieldDefinition, raw: (string | null)[] | string | null): ParsedValue | ParsedValue[] {
+export type ParsedValue = boolean | null | Date | GeoPoint | number | string;
+export type RawInput = (string | null)[] | string;
+export function parseValue(definition: FieldDefinition, raw: RawInput | null): ParsedValue | ParsedValue[] {
   if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
   switch (definition.type) {
-    case 'boolean': return z.coerce.boolean().nullable().parse(raw)
+    case 'boolean': {
+      try {
+        const result = z.union(
+          [
+            z.literal('1').transform(() => false),
+            z.literal('2').transform(() => true)
+          ]).nullable().parse(raw) ?? false;
+        return result;
+      } catch (e) {
+        console.error(e);
+        console.log(definition.key, raw);
+        throw e;
+      }
+    }
     case 'date': return z.union([
       z.iso.date().pipe(z.coerce.date()),
       z.date().nullable().default(new Date())
@@ -471,8 +514,11 @@ export function parseValue(definition: FieldDefinition, raw: (string | null)[] |
       }
       return raw;
     }
-    case 'text':
-    case 'single-selection': return raw
+    case 'text': {
+      if (!raw) return defaultValueForType('text') as string;
+      return String(raw);
+    }
+    case 'single-selection': return raw;
     default: return null;
   }
 }

@@ -1,19 +1,10 @@
-import { Injectable, Provider } from '@angular/core';
-import { sendRpcMessageAsync } from '@app/util';
-import { LoadTranslationRequest, Locale } from '@civilio/shared';
-import { TranslateLoader, TranslationObject } from '@ngx-translate/core';
-import { from, map, Observable } from 'rxjs';
+import { Provider } from '@angular/core';
+import { isDesktop } from '@app/util';
+import { TranslateLoader } from '@ngx-translate/core';
+import { ElectronTranslationLoader } from './electron/ngx-translate';
+import { WebTranslationLoader } from './web/ngx-translate';
 
-@Injectable()
-class ElectronTranslationLoader extends TranslateLoader {
-  override getTranslation(lang: string): Observable<TranslationObject> {
-    const locale: Locale = lang.startsWith('en') ? 'en-CM' : 'fr-CM';
-    return from(sendRpcMessageAsync('translations:read', { locale } as LoadTranslationRequest)).pipe(
-      map(v => v as TranslationObject)
-    );
-  }
-}
 
-export function provideElectronTranslationLoader() {
-  return { provide: TranslateLoader, useClass: ElectronTranslationLoader } as Provider;
+export function provideTranslationLoader() {
+  return { provide: TranslateLoader, useClass: isDesktop() ? ElectronTranslationLoader : WebTranslationLoader } as Provider;
 }

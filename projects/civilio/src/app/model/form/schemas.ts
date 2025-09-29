@@ -1,18 +1,25 @@
-import { FieldKeySchema, AllSectionKeysSchema, OptionSchema, FormTypeSchema } from "@civilio/shared";
+import { FieldKeySchema, AllSectionKeysSchema, OptionSchema, FormTypeSchema, GeopointSchema } from "@civilio/shared";
 import z from "zod";
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
+const ParsedValueSchema = z.union([
+  z.string(),
+  z.boolean(),
+  z.null(),
+  GeopointSchema,
+  z.number()
+])
 export const ValueProviderFnSchema = z.function({
   input: z.tuple([FieldKeySchema], FieldKeySchema),
   output: z.record(FieldKeySchema, z.union([FieldValueSchema, FieldValueSchema.array()]).nullable())
 });
-export const RelevanceFnSchema = z.function({
-  input: [z.record(FieldKeySchema, FieldValueSchema)],
+export const RelevancePredicateSchema = z.function({
+  input: [z.record(FieldKeySchema, z.union([ParsedValueSchema, ParsedValueSchema.array()]))],
   output: z.boolean()
 });
 const ValidateFnSchema = z.function({
-  input: [FieldValueSchema],
+  input: [z.union([ParsedValueSchema, ParsedValueSchema.array()])],
   output: z.union([z.null(), z.string()])
 });
 
@@ -20,7 +27,10 @@ const BaseFieldDefinitionSchema = z.object({
   key: FieldKeySchema,
   required: z.literal(true).optional(),
   validate: ValidateFnSchema.optional(),
-  relevanceFn: RelevanceFnSchema.optional(),
+  relevance: z.object({
+    predicate: RelevancePredicateSchema,
+    dependencies: FieldKeySchema.array()
+  }).optional(),
   span: z.union([
     z.literal(1),
     z.literal(2),
@@ -84,7 +94,7 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 const GroupBaseSchema = z.object({
   id: AllSectionKeysSchema,
   fields: FieldDefinitionSchema.array(),
-  relevance: RelevanceFnSchema.optional()
+  relevance: RelevancePredicateSchema.optional()
 });
 export const FormGroupSchema = GroupBaseSchema.extend({
   children: GroupBaseSchema.array().optional(),
@@ -102,4 +112,4 @@ export type FieldDefinition = z.output<typeof FieldDefinitionSchema>;
 export type FormModelDefinition = z.output<typeof FormModelDefinitionSchema>;
 export type FormSection = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;
-export type RelevanceFn = z.output<typeof RelevanceFnSchema>;
+export type RelevanceFn = z.output<typeof RelevancePredicateSchema>;
