@@ -1,1 +1,62 @@
-<p>fosa works!</p>
+<form [formGroup]="form" class="px-4">
+  <hlm-tabs [tab]="currentTab()" (tabActivated)="currentTab.set($event)">
+    <hlm-paginated-tabs-list>
+      @for (section of formModel.sections; track $index) {
+        <button [hlmTabsTrigger]="section.id">
+          {{ section.id + ".title" | translate }}
+        </button>
+      }
+    </hlm-paginated-tabs-list>
+    @for (section of formModel.sections; track $index) {
+      @defer (when currentTab() === section.id) {
+        <fieldset class="space-y-2" [hlmTabsContent]="section.id">
+          <ng-container
+            [ngTemplateOutlet]="sectionTemplate"
+            [ngTemplateOutletContext]="{ $implicit: section }"
+          />
+        </fieldset>
+      }
+    }
+  </hlm-tabs>
+</form>
+
+<ng-template #sectionTemplate let-section>
+  <ng-container [formGroup]="form">
+    @for (field of section.fields; track $index) {
+      @if (form.contains(field.key)) {
+        <ng-container>
+          <label hlmLabel [for]="field.key">{{
+            field.key + ".title" | translate
+          }}</label>
+          @switch (field.type) {
+            @case ("text") {
+              <input
+                hlmInput
+                [id]="field.key"
+                [formControlName]="field.key"
+                [type]="field.inputType ?? 'text'"
+                [placeholder]="field.placeholder | translate"
+              />
+            }
+            @case ("boolean") {
+              <hlm-checkbox
+                [id]="field.key"
+                [checked]="form.get(field.key)?.value"
+                (checkedChange)="form.get(field.key)?.setValue($event)"
+              />
+            }
+            @case ("date") {
+              <hlm-date-picker
+                [date]="form.get(field.key)?.value"
+                (dateChange)="form.get(field.key)?.setValue($event)"
+                [id]="field.key"
+                [min]="field.min"
+                [max]="field.max"
+              />
+            }
+          }
+        </ng-container>
+      }
+    }
+  </ng-container>
+</ng-template>

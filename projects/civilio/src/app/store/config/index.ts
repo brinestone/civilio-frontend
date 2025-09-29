@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
+import { CONFIG_SERVICE } from '@app/services/config';
 import { AppConfig, AppConfigSchema, DbConfigSchema } from '@civilio/shared';
 import { Action, State, StateContext, StateToken } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 import { concatMap, from, tap, throwError } from 'rxjs';
-import { ConfigService } from '../../services/config.service';
 import { LoadConfig, SetLocale, SetTheme, TestDb } from './actions';
 
 export * from './actions';
@@ -21,7 +21,7 @@ export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
   defaults: { configured: false, env: 'desktop' }
 })
 export class ConfigState {
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(CONFIG_SERVICE);
 
   @Action(TestDb, { cancelUncompleted: true })
   onTestDb(ctx: Context, action: TestDb) {

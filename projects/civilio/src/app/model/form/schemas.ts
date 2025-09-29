@@ -1,14 +1,14 @@
-import { AllFieldKeysSchema, AllSectionKeysSchema, OptionSchema } from "@civilio/shared";
+import { FieldKeySchema, AllSectionKeysSchema, OptionSchema, FormTypeSchema } from "@civilio/shared";
 import z from "zod";
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
 export const ValueProviderFnSchema = z.function({
-  input: z.tuple([AllFieldKeysSchema], AllFieldKeysSchema),
-  output: z.record(AllFieldKeysSchema, FieldValueSchema.array())
+  input: z.tuple([FieldKeySchema], FieldKeySchema),
+  output: z.record(FieldKeySchema, z.union([FieldValueSchema, FieldValueSchema.array()]).nullable())
 });
 export const RelevanceFnSchema = z.function({
-  input: [ValueProviderFnSchema],
+  input: [z.record(FieldKeySchema, FieldValueSchema)],
   output: z.boolean()
 });
 const ValidateFnSchema = z.function({
@@ -17,10 +17,23 @@ const ValidateFnSchema = z.function({
 });
 
 const BaseFieldDefinitionSchema = z.object({
-  key: AllFieldKeysSchema,
+  key: FieldKeySchema,
   required: z.literal(true).optional(),
   validate: ValidateFnSchema.optional(),
-  relevance: RelevanceFnSchema.optional()
+  relevanceFn: RelevanceFnSchema.optional(),
+  span: z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(6),
+    z.literal(7),
+    z.literal(8),
+    z.literal(9),
+    z.literal(10),
+    z.literal(11),
+    z.literal(12)
+  ]).optional().default(12)
 });
 
 const TextFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
@@ -33,7 +46,7 @@ const TextFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 
 const SelectionFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   optionsGroupKey: z.string(),
-  parent: AllFieldKeysSchema.optional(),
+  parent: FieldKeySchema.optional(),
   type: z.union([z.literal('single-selection'), z.literal('multi-selection')])
 });
 
@@ -59,7 +72,7 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   max: z.number().optional()
 })
 
-const FieldDefinitionSchema = z.discriminatedUnion('type', [
+export const FieldDefinitionSchema = z.discriminatedUnion('type', [
   BooleanFieldDefinitionSchema,
   GeoPointFieldDefinitionSchema,
   DateFieldDefinitionSchema,
@@ -69,7 +82,7 @@ const FieldDefinitionSchema = z.discriminatedUnion('type', [
 ])
 
 const GroupBaseSchema = z.object({
-  id: AllSectionKeysSchema.optional(),
+  id: AllSectionKeysSchema,
   fields: FieldDefinitionSchema.array(),
   relevance: RelevanceFnSchema.optional()
 });
@@ -80,8 +93,13 @@ export const FormGroupSchema = GroupBaseSchema.extend({
 export type GroupDefinition = z.output<typeof FormGroupSchema>;
 
 export const FormModelDefinitionSchema = z.object({
-  sections: FormGroupSchema.array()
+  sections: FormGroupSchema.array(),
+  meta: z.object({
+    form: FormTypeSchema
+  })
 });
 export type FieldDefinition = z.output<typeof FieldDefinitionSchema>;
 export type FormModelDefinition = z.output<typeof FormModelDefinitionSchema>;
 export type FormSection = z.output<typeof FormGroupSchema>;
+export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;
+export type RelevanceFn = z.output<typeof RelevanceFnSchema>;

@@ -1,17 +1,12 @@
-import { FormModelDefinition, RelevanceFnSchema, ValueProviderFnSchema } from './schemas';
-import { FieldKeys, Option } from '@civilio/shared';
+import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
+import z from 'zod';
+import { FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevanceFnSchema, ValueProviderFn } from './schemas';
 
-export const FosaFormDefinition: FormModelDefinition = {
+export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
+  meta: {
+    form: 'fosa'
+  },
   sections: [
-    // {
-    //   fields: [
-    //     {
-    //       key: 'fosa.form.fields.index',
-    //       required: true,
-    //       type: 'text'
-    //     },
-    //   ]
-    // },
     // #region Respondent
     {
       id: 'fosa.form.sections.respondent',
@@ -48,11 +43,11 @@ export const FosaFormDefinition: FormModelDefinition = {
           key: 'fosa.form.sections.respondent.fields.creation_date',
           type: 'date',
           required: true,
-          relevance: (provider) => {
-            const deps = provider('fosa.form.sections.respondent.fields.knows_creation_date');
-            return deps['fosa.form.sections.respondent.fields.knows_creation_date'][0] as boolean;
-          }
-        }
+          relevanceFn: RelevanceFnSchema.implement((deps) => {
+            const v = deps['fosa.form.sections.respondent.fields.knows_creation_date'];
+            return v === true;
+          })
+        } as FieldDefinition
       ]
     },
     // #endregion
@@ -115,9 +110,10 @@ export const FosaFormDefinition: FormModelDefinition = {
           key: 'fosa.form.sections.identification.fields.other_category',
           type: 'text',
           required: true,
-          relevance: (provider) => {
+          relevance: (provider: ValueProviderFn) => {
             const k = 'fosa.form.sections.identification.fields.category';
-            const v = provider(k)[k]?.[0] as Option | undefined;
+            const deps = provider(k);
+            const v = Array.isArray(deps) ? deps[0] : deps;
             return v?.value === '10';
           }
         },
@@ -149,10 +145,11 @@ export const FosaFormDefinition: FormModelDefinition = {
         {
           key: 'fosa.form.sections.identification.fields.gps_coords',
           type: 'point',
-          relevance: (provider) => {
-            const k: FieldKeys = 'fosa.form.sections.identification.fields.knows_gps_coords';
-            const v = provider(k)[k]?.[0] as boolean | undefined;
-            return v === true;
+          relevance: (provider: ValueProviderFn) => {
+            const k: FieldKey = 'fosa.form.sections.identification.fields.knows_gps_coords';
+            const deps = provider(k);
+            const v = Array.isArray(deps) ? deps[0] : deps;
+            return v?.value === '10';
           }
         },
       ]
@@ -168,9 +165,9 @@ export const FosaFormDefinition: FormModelDefinition = {
         {
           key: 'fosa.form.sections.reg_cs_events.fields.uses_bunec_birth_form',
           type: 'boolean',
-          relevance: (provider) => {
+          relevance: (provider: ValueProviderFn) => {
             const k = 'fosa.form.sections.reg_cs_events.fields.dhis2_usage';
-            return (provider(k)[k][0] ?? false) as boolean;
+            return (provider(k)[k] ?? false) as boolean;
           }
         },
         {
@@ -260,9 +257,9 @@ export const FosaFormDefinition: FormModelDefinition = {
           type: 'multi-selection',
           required: true,
           optionsGroupKey: 'xt53f30',
-          relevance: (provider) => {
+          relevance: (provider: ValueProviderFn) => {
             const k = 'fosa.form.sections.infra.fields.backup_power_available';
-            return provider(k)[k]?.[0] as boolean | undefined ?? true;
+            return provider(k)[k] as boolean | undefined ?? true;
           }
         },
         {
@@ -277,9 +274,9 @@ export const FosaFormDefinition: FormModelDefinition = {
           key: 'fosa.form.sections.infra.fields.water_sources',
           type: 'multi-selection',
           optionsGroupKey: 'zp4ec39',
-          relevance: (provider) => {
+          relevance: (provider: ValueProviderFn) => {
             const k = 'fosa.form.sections.infra.fields.water_source_available';
-            return provider(k)[k]?.[0] as boolean | undefined ?? false;
+            return provider(k)[k] as boolean | undefined ?? false;
           },
           required: true
         }
@@ -387,4 +384,95 @@ export const FosaFormDefinition: FormModelDefinition = {
       ]
     }
   ],
-} as const;
+});
+
+function extractFields(section: FormSection) {
+  const lookupMap: any = {};
+  if (section.children && section.children.length > 0) {
+    section.children.forEach(child => {
+      const extract = extractFields(child);
+      Object.assign(lookupMap, extract);
+    });
+  }
+  for (const field of section.fields) {
+    lookupMap[field.key] = field;
+  }
+
+  return lookupMap as Record<FieldKey, FieldDefinition>;
+};
+
+const lookupCache: Record<FormType, Record<FieldKey, FieldDefinition> | undefined> = {
+  chefferie: undefined,
+  csc: undefined,
+  fosa: undefined
+};
+
+export function extractAllFields(model: FormModelDefinition) {
+  const list = Array<FieldDefinition>();
+
+  for (const section of model.sections) {
+    list.push(...listFieldsInSection(section));
+  }
+
+  return list;
+}
+
+function listFieldsInSection(section: FormSection) {
+  const result = [...section.fields];
+  if (section.children) {
+    for (const child of section.children) {
+      result.push(...listFieldsInSection(child));
+    }
+  }
+  return result;
+}
+
+export function lookupFieldSchema(formDefinition: FormModelDefinition, key: FieldKey) {
+  let schema = lookupCache[formDefinition.meta.form];
+  if (schema) return schema[key];
+
+  for (const section of formDefinition.sections) {
+    const entry = lookupCache[formDefinition.meta.form];
+    lookupCache[formDefinition.meta.form] = Object.assign(entry ?? {}, extractFields(section));
+  }
+  return lookupFieldSchema(formDefinition, key);
+}
+
+export function defaultValueForType(type: FieldDefinition['type']) {
+  switch (type) {
+    case 'boolean': return false;
+    case 'date': return new Date();
+    case 'float':
+    case 'int': return 0.0;
+    case 'multi-selection': return Array<Option>()
+    case 'point': return GeopointSchema.parse({})
+    case 'text': return '';
+    default: return null;
+  }
+}
+
+type ParsedValue = boolean | null | Date | GeoPoint | number | string;
+export function parseValue(definition: FieldDefinition, raw: (string | null)[] | string | null): ParsedValue | ParsedValue[] {
+  if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
+  switch (definition.type) {
+    case 'boolean': return z.coerce.boolean().nullable().parse(raw)
+    case 'date': return z.union([
+      z.iso.date().pipe(z.coerce.date()),
+      z.date().nullable().default(new Date())
+    ]).parse(raw);
+    case 'float':
+    case 'int': return z.coerce.number().nullable().parse(raw)
+    case 'multi-selection': return raw?.split(' ') ?? []
+    case "point": {
+      if (!raw) return GeopointSchema.parse({});
+      if (typeof raw == 'string') {
+        const [lat, long] = raw?.split(' ', 2) ?? [];
+        return GeopointSchema.parse({ lat, long });
+      }
+      return raw;
+    }
+    case 'text':
+    case 'single-selection': return raw
+    default: return null;
+  }
+}

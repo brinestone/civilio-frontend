@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, effect, inject, input, model, OnInit, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, OnInit, output, resource, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -18,7 +18,7 @@ import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
-import { FormService } from '../../services/form.service';
+import { ElectronFormService } from '../../services/electron/form.service';
 
 @Component({
   selector: 'cv-badge-cell',
@@ -105,16 +105,15 @@ export class ButtonCell {
 export class SubmissionsPage implements OnInit {
   private navigate = dispatch(Navigate);
   private route = inject(ActivatedRoute);
-  private formService = inject(FormService);
+  private formService = inject(ElectronFormService);
   protected readonly formTypeOptions = FormTypeSchema.options
   protected readonly formType = signal<FormType>('csc');
   protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
   protected readonly filter = model('');
   private readonly filterQuery = debounceSignal(this.filter);
-  protected submissions = rxResource({
+  protected submissions = resource({
     params: () => ({ filter: this.filterQuery(), form: this.formType(), pagination: this.pagination() }),
-    stream: ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
-      // console.log(pageIndex, pageSize, filter, form);
+    loader: ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
       return this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
     }
   });

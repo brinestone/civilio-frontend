@@ -93,7 +93,7 @@ body {
   }
 
   & > .page-section > .section-title {
-    @apply text-xl font-bold text-muted-foreground;
+    @apply text-xl font-bold text-[var(--muted-foreground)];
   }
 
   & > .page-section {

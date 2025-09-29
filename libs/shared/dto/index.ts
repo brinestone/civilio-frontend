@@ -1,9 +1,19 @@
 import z from "zod";
-import { DbColumnSpecSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
-import { AllFieldKeysSchema } from "../field-keys";
+import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
+import { FieldKeySchema } from "../field-keys";
+
+export const FindSubmissionDataRequestSchema = z.object({
+  form: FormTypeSchema,
+  index: z.number()
+});
+
+export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
+  z.string().nullable(),
+  z.string().nullable().array()
+])).nullable();
 
 export const LoadTranslationRequestSchema = z.object({
-  locale: LocaleSchema.transform(v => v.split('-')[0].toLowerCase())
+  locale: LocaleSchema
 });
 
 const strictTranslationBaseSchema = z.union([
@@ -39,9 +49,10 @@ export const UpdateConfigRequestSchema = z.object({
   path: z.string(),
   value: z.unknown().nullable()
 });
+export const AppConfigResponseSchema = AppConfigSchema;
 export const FieldMappingRequestSchema = z.object({
   form: FormTypeSchema,
-  field: AllFieldKeysSchema,
+  field: FieldKeySchema,
   i18nKey: z.string(),
   dbColumn: z.string().nullable()
 });
@@ -59,6 +70,7 @@ export const UpdateFieldMappingRequestSchema = z.object({
 export const FindFieldMappingsRequestSchema = z.object({
   form: FormTypeSchema
 });
+export const FindFieldMappingsResponseSchema = FieldMappingSchema.array();
 export const FindDbColumnsRequestSchema = FindFieldMappingsRequestSchema;
 export const FindDbColumnsResponseSchema = DbColumnSpecSchema.array();
 export const FindFormOptionsRequestSchema = FindFieldMappingsRequestSchema;
@@ -73,6 +85,7 @@ export const FindFormSubmissionsRequestSchema = z.object({
 export type FindFieldMappingsRequest = z.infer<typeof FindFieldMappingsRequestSchema>;
 export type FieldMappingRequest = z.infer<typeof FieldMappingRequestSchema>;
 export type UpdateConfigRequest = z.infer<typeof UpdateConfigRequestSchema>;
+export type AppConfigResponse = z.infer<typeof AppConfigResponseSchema>;
 export type FindFormOptionsResponse = z.infer<typeof FindFormOptionsResponseSchema>;
 export type TestDbConnectionRequest = z.infer<typeof TestDbConnectionRequestSchema>;
 export type TestDbConnectionResponse = z.infer<typeof TestDbConnectionResponseSchema>;
@@ -81,3 +94,5 @@ export type LoadTranslationResponse = z.output<typeof LoadTranslationResponseSch
 export type FindDbColumnsResponse = z.infer<typeof FindDbColumnsResponseSchema>;
 export type UpdateFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
 export type FieldUpdateSpec = z.output<typeof FieldUpdateSpecSchema>;
+export type FindSubmissionDataResponse = z.output<typeof FindSubmissionDataResponseSchema>;
+export type FindFieldMappingsResponse = z.output<typeof FindFieldMappingsResponseSchema>;

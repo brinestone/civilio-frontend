@@ -1,5 +1,5 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
-import { FormService } from "@app/services/form.service";
+import { FORM_SERVICE } from "@app/services/form";
 import { FieldMapping, FindDbColumnsResponse, FindFormOptionsResponse, FormType } from "@civilio/shared";
 import { Action, provideStates, State, StateContext, StateToken } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
@@ -24,7 +24,7 @@ type Context = StateContext<FormStateModel>;
   }
 })
 class FormState {
-  private readonly formService = inject(FormService);
+  private readonly formService = inject(FORM_SERVICE);
 
   @Action(SetFormType)
   onSetFormType(ctx: Context, { form }: SetFormType) {

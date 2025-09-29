@@ -1,21 +1,25 @@
+import { Observable } from 'rxjs';
 import z from 'zod';
 import {
+  AppConfigResponseSchema,
+  FieldMappingRequestSchema,
   FindDbColumnsRequestSchema,
   FindDbColumnsResponseSchema,
   FindFieldMappingsRequestSchema,
+  FindFieldMappingsResponseSchema,
   FindFormOptionsRequestSchema,
   FindFormOptionsResponseSchema,
   FindFormSubmissionsRequestSchema,
+  FindSubmissionDataRequestSchema,
+  FindSubmissionDataResponseSchema,
   LoadTranslationRequestSchema,
   LoadTranslationResponseSchema,
   TestDbConnectionRequestSchema,
   TestDbConnectionResponseSchema,
   UpdateConfigRequestSchema,
-  FieldMappingRequestSchema,
   UpdateFieldMappingRequestSchema
 } from './dto';
-import { AppConfigSchema, createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema, OptionSchema } from './schema';
-import { Observable } from 'rxjs';
+import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
 
 const entities = z.enum(['field-mappings', 'config', 'submissions',]);
 const crudActions = z.enum(['create', 'read', 'update', 'delete']);
@@ -38,18 +42,19 @@ const channelArgs = {
   'submissions:update': {},
   'submissions:delete': {},
   'db:test': TestDbConnectionRequestSchema,
-  'translations:read': LoadTranslationRequestSchema
+  'translations:read': LoadTranslationRequestSchema,
+  'submission-data:read': FindSubmissionDataRequestSchema
 } as const;
 const channelResponses = {
-  'config:read': AppConfigSchema.nullable(),
+  'config:read': AppConfigResponseSchema,
   'field-mappings:create': FieldMappingSchema,
-  'field-mappings:read': FieldMappingSchema.array(),
-  'field-mappings:update': FieldMappingSchema.array(),
+  'field-mappings:read': FindFieldMappingsResponseSchema,
+  'field-mappings:update': FindFieldMappingsResponseSchema,
   'field-mappings:delete': {},
   'columns:read': FindDbColumnsResponseSchema,
   'options:read': FindFormOptionsResponseSchema,
   'config:create': {},
-  'config:update': AppConfigSchema.nullable(),
+  'config:update': AppConfigResponseSchema,
   'config:delete': {},
   'submissions:create': {},
   'submissions:read': createPaginatedResultSchema(FormSubmissionSchema),
@@ -57,10 +62,11 @@ const channelResponses = {
   'submissions:delete': {},
   'db:test': TestDbConnectionResponseSchema,
   'translations:read': LoadTranslationResponseSchema,
+  'submission-data:read': FindSubmissionDataResponseSchema
 } as const;
 type InferZod<T extends z.ZodType> = z.infer<T>;
 export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
-export type Channel = z.output<typeof ChannelSchema> | 'db:test' | 'translations:read' | 'options:read' | 'columns:read';
+export type Channel = z.output<typeof ChannelSchema> | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
 // export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends {} ? never : typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AppConfigPaths, AppConfigSchema, DbConfig, Locale, TestDbConnectionRequest, TestDbConnectionResponseSchema, ThemeMode, UpdateConfigRequest } from '@civilio/shared';
-import { sendRpcMessageAsync } from '../util';
+import { sendRpcMessageAsync } from '../../util';
+import { ConfigService } from '../config';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: null
 })
-export class ConfigService {
+export class ElectronConfigService implements ConfigService{
   async setDbConfig(dbConfig: DbConfig) {
     return await sendRpcMessageAsync('config:update', {
       path: 'db' as AppConfigPaths,

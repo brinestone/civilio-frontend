@@ -45,7 +45,7 @@
             [class.!font-normal]="
               !inputForm.controls[field.key].value && !mappings()?.[field.key]
             "
-            [class.text-muted-foreground]="
+            [class.text-[var(--muted-foreground)]]="
               !inputForm.controls[field.key].value && !mappings()?.[field.key]
             "
           >

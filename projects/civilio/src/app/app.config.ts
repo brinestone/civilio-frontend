@@ -14,7 +14,9 @@ import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
 import { provideElectronTranslationLoader } from './adapters/ngx-translate';
 import { routes } from './app.routes';
+import { provideDomainForms } from './services/form';
 import { ConfigState } from './store/config';
+import { provideDomainConfig } from './services/config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +24,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideDomainConfig(),
+    provideDomainForms(),
     provideStore([ConfigState],
       withNgxsRouterPlugin(),
       withNgxsLoggerPlugin({

@@ -1,12 +1,15 @@
-import { findDbColumns, findFieldMappings, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler, updateFieldMappings } from "@civilio/handlers";
-import { AppConfigPaths, FindDbColumnsRequestSchema, FindFieldMappingsRequestSchema, FindFormOptionsRequestSchema, FindFormSubmissionsRequestSchema, LoadTranslationRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema, UpdateFieldMappingRequestSchema } from "@civilio/shared";
+import { findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, respondingInputChannelHandler, respondingNoInputChannelHandler, updateFieldMappings } from "@civilio/handlers";
+import { AppConfigPaths, FindDbColumnsRequestSchema, FindFieldMappingsRequestSchema, FindFormOptionsRequestSchema, FindFormSubmissionsRequestSchema, FindSubmissionDataRequestSchema, LoadTranslationRequestSchema, TestDbConnectionRequestSchema, UpdateConfigRequestSchema, UpdateFieldMappingRequestSchema } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
 
 export function registerIpcHandlers() {
+  respondingInputChannelHandler('submission-data:read', FindSubmissionDataRequestSchema, async ({ form, index }) => {
+    return await findFormData(form, index);
+  });
   respondingInputChannelHandler('field-mappings:update', UpdateFieldMappingRequestSchema, async ({ form, updates }) => {
     return await updateFieldMappings(form, updates);
-  })
+  });
   respondingInputChannelHandler('columns:read', FindDbColumnsRequestSchema, async ({ form }) => {
     return await findDbColumns(form);
   });
@@ -14,8 +17,7 @@ export function registerIpcHandlers() {
     return await findFormOptions(form);
   });
   respondingInputChannelHandler('translations:read', LoadTranslationRequestSchema, async ({ locale }) => {
-    console.log(locale);
-    return findTranslationsFor('en-CM');
+    return findTranslationsFor(locale);
   });
   respondingNoInputChannelHandler('config:read', () => {
     const config = getAppConfig();

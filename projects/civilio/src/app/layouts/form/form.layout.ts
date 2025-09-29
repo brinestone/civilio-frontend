@@ -1,12 +1,12 @@
-import { Component, computed, DestroyRef, effect, inject, model, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, model, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FieldMapperComponent } from "@app/components";
-import { FormModelDefinition, FormSection, FosaFormDefinition } from '@app/model';
+import { FormModelDefinition, FosaFormDefinition } from '@app/model';
 import { FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideUnlink } from '@ng-icons/lucide';
-import { TranslateDirective, TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -45,14 +45,12 @@ export class FormLayout implements OnInit {
     const model = this.model();
     const child = this.route.firstChild;
     if (!model || !child) return [];
-    const fragments = Array<{ id: string, depth: number }>();
-    const extractKeys: (a: FormSection, b: number) => { id: string, depth: number }[] = (section: FormSection, depth: number) => {
-      return [{ id: section.id ?? '', depth }, ...((section.children ?? []).flatMap(s => extractKeys(s, depth + 1)))]
-    };
-    for (const section of model.sections) {
-      fragments.push(...extractKeys(section, 0));
-    }
-    return fragments;
+    return model.sections.map(s => s.id);
+    // const fragments = Array<{ id: string, depth: number }>();
+    // for (const section of model.sections) {
+    //   fragments.push(...extractKeys(section, 0));
+    // }
+    // return fragments;
   });
   ngOnInit(): void {
     const child = this.route.firstChild;
@@ -70,15 +68,8 @@ export class FormLayout implements OnInit {
       child.params.pipe(
         takeUntilDestroyed(this.destroyRef)
       ).subscribe(({ submissionIndex }) => {
-        console.log(submissionIndex);
         this.index.set(Number(submissionIndex));
       })
     }
-  }
-
-  constructor() {
-    effect(() => {
-      console.log(this.fragments());
-    })
   }
 }

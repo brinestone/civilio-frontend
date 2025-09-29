@@ -48,6 +48,8 @@ function generateMessageId() {
 
 export async function sendRpcMessageAsync<TChannel extends Channel>(channel: TChannel, data: ChannelArg<TChannel> | undefined = undefined, timeout: number = 30000): Promise<ChannelResponse<TChannel>> {
   const id = generateMessageId();
+  const timeKey = `${channel}::${id}`;
+  console.time(timeKey);
   const replyChannel = computeReplyChannel(channel);
   return new Promise((resolve, reject) => {
     const cleanup = (closeTimer = true) => {
@@ -55,6 +57,7 @@ export async function sendRpcMessageAsync<TChannel extends Channel>(channel: TCh
       window.electron.off(replyChannel, replyHandler);
       if (closeTimer)
         clearTimeout(timer);
+      console.timeEnd(timeKey);
     }
     const errorHandler = (_: any, arg: any) => {
       const rpc = rpcMessageSchema(AppErrorSchema).parse(arg);

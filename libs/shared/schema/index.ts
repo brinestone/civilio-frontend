@@ -59,8 +59,14 @@ export const AppConfigSchema = z.object({
   prefs: AppPrefsSchema.partial().optional()
 }).default({});
 
+export const GeopointSchema = z.object({
+  lat: z.coerce.number().min(-90).max(90).default(5.483401),
+  long: z.coerce.number().max(180).min(-180).default(47.88104)
+})
+
 export type AppPrefs = z.infer<typeof AppPrefsSchema>;
 export type FieldMapping = z.infer<typeof FieldMappingSchema>;
+export type GeoPoint = z.infer<typeof GeopointSchema>;
 export type FormType = z.infer<typeof FormTypeSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 export type FormSubmission = z.infer<typeof FormSubmissionSchema>;
@@ -80,3 +86,8 @@ type _DeepKeys<T> = T extends object ? (
 ) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
+export type Paginated<T extends z.ZodType> = {
+  totalRecords: number;
+  data: z.infer<T>[];
+}
+export type Nullable<T> = T | null;

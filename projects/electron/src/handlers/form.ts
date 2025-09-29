@@ -1,7 +1,42 @@
 import { choices, fieldMappings, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
 import { and, countDistinct, eq, like, or, sql } from 'drizzle-orm';
 import { provideDatabase } from '../helpers/db';
+
+export async function findFormData(form: FormType, index: number) {
+  const db = provideDatabase({ fieldMappings });
+  const mappings = await db.select({
+    col: fieldMappings.dbColumn,
+    table: fieldMappings.dbTable,
+    field: fieldMappings.field
+  })
+    .from(fieldMappings)
+    .where(
+      eq(fieldMappings.form, form),
+    );
+
+  const map: any = {};
+  for (const { col, table, field } of mappings) {
+    let queryResult = await db.execute(sql`
+        SELECT FORMAT('SELECT d.%I::TEXT as query FROM %I.%I d WHERE d.%I = %s::INTEGER;', ${col}::TEXT, ${form}::TEXT, ${table}::TEXT, ${table == 'data' ? '_index' : '_parent_index'}::TEXT, ${index}::INTEGER);
+      `);
+
+    const [{ format: query }] = queryResult.rows;
+
+    queryResult = await db.execute(query as string);
+    const rows = queryResult.rows;
+    if (table != 'data')
+      map[field] = [
+        ...(map[field] ?? []),
+        ...Array.isArray(queryResult.rows)
+          ? queryResult.rows.map((row: any) => row.query)
+          : []
+      ];
+    else
+      map[field] = rows[0].query;
+  }
+  return FindSubmissionDataResponseSchema.parse(map);
+}
 
 export async function updateFieldMappings(form: FormType, specs: FieldUpdateSpec[]) {
   const db = provideDatabase({ vwDbColumns, fieldMappings });
@@ -50,7 +85,7 @@ export async function findDbColumns(form: FormType) {
 
 export async function findFormOptions(form: FormType) {
   const db = provideDatabase({ choices });
-  return await db.select({
+  const result = await db.select({
     label: choices.label,
     value: choices.name,
     parent: choices.parent,
@@ -63,9 +98,11 @@ export async function findFormOptions(form: FormType) {
       v.forEach(x => {
         const entry = map[x.group] ?? [];
         entry.push(OptionSchema.parse(x));
+        map[x.group] = entry;
       });
       return map;
     });
+  return result;
 }
 
 export async function findFieldMappings(type: FormType) {

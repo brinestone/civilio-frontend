@@ -810,7 +810,7 @@ export namespace CSC {
   ]
 }
 
-export const AllFieldKeysSchema = z.union([
+export const FosaFieldKeySchema = z.union([
   Fosa.RespondentFieldKeysSchema,
   Fosa.IdentificationFieldKeysSchema,
   Fosa.ServiceFieldKeysSchema,
@@ -821,8 +821,13 @@ export const AllFieldKeysSchema = z.union([
   Fosa.CommentsFieldKeysSchema,
   Fosa.StaffFieldKeysSchema
 ]);
+
+export const FieldKeySchema = z.union([
+  FosaFieldKeySchema
+]);
 export const AllSectionKeysSchema = z.union([
   Fosa.SectionKeysSchema
-])
-export type FieldKeys = z.output<typeof AllFieldKeysSchema>;
+]);
+export type FosaFieldKey = z.output<typeof FosaFieldKeySchema>;
+export type FieldKey = z.output<typeof FieldKeySchema>;
 export type FormSectionKeys = z.output<typeof AllSectionKeysSchema>;
