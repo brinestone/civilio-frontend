@@ -2,6 +2,15 @@ import z from "zod";
 import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
 import { FieldKeySchema } from "../field-keys";
 
+export const GetAutoCompletionSuggestionsRequestSchema = z.object({
+  field: FieldKeySchema,
+  query: z.string(),
+  form: FormTypeSchema,
+  resultSize: z.number()
+});
+
+export const GetAutoCompletionSuggestionsResponseSchema = z.string().array();
+
 export const FindSubmissionDataRequestSchema = z.object({
   form: FormTypeSchema,
   index: z.number()
@@ -96,3 +105,5 @@ export type UpdateFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequest
 export type FieldUpdateSpec = z.output<typeof FieldUpdateSpecSchema>;
 export type FindSubmissionDataResponse = z.output<typeof FindSubmissionDataResponseSchema>;
 export type FindFieldMappingsResponse = z.output<typeof FindFieldMappingsResponseSchema>;
+export type GetAutoCompletionSuggestionsRequest = z.infer<typeof GetAutoCompletionSuggestionsRequestSchema>;
+export type GetAutoCompletionSuggestionsResponse = z.infer<typeof GetAutoCompletionSuggestionsResponseSchema>;

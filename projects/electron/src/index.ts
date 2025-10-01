@@ -1,5 +1,5 @@
 import { app, BrowserWindow } from "electron";
-import { registerIpcHandlers } from './helpers/handlers';
+import { registerDevelopmentIpcHandlers, registerProductionIpcHandlers } from './helpers/handlers';
 import { showMainWindow } from "./helpers/windows";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -8,7 +8,10 @@ if (require("electron-squirrel-startup")) {
 }
 
 async function initializeServices() {
-  registerIpcHandlers();
+  registerProductionIpcHandlers();
+  if (!app.isPackaged) {
+    registerDevelopmentIpcHandlers();
+  }
 }
 
 // This method will be called when Electron has finished

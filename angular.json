@@ -52,7 +52,10 @@
                 "input": "projects/civilio/public"
               }
             ],
-            "styles": ["projects/civilio/src/styles.scss"]
+            "styles": [
+              "node_modules/inter-ui/inter.css",
+              "projects/civilio/src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {

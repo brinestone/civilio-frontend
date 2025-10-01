@@ -8,6 +8,11 @@ validation:
     min_date: The date cannot be before {{minDate}}
     min: Value must be at least {{min}}
     max: Value must be at most {{max}}
+tmpl:
+  dropdown:
+    placeholder: Select value
+  autocomplete:
+    empty_text: No results could be found
 login:
   username: Username
   forgot_password: Forgot password?
@@ -575,7 +580,8 @@ fosa:
           municipality:
             title: Town/City
           quarter:
-            title: Neighborhood
+            title: Quarter
+            description: Quarter/village
           locality:
             title: Locality
           facility_name:

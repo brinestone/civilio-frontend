@@ -1,13 +1,13 @@
 <form [formGroup]="form" class="px-4">
   <hlm-tabs [tab]="currentTab()" (tabActivated)="currentTab.set($event)">
     <hlm-paginated-tabs-list>
-      @for (section of formModel.sections; track $index) {
+      @for (section of formModel().sections; track $index) {
         <button [hlmTabsTrigger]="section.id">
           {{ section.id + ".title" | translate }}
         </button>
       }
     </hlm-paginated-tabs-list>
-    @for (section of formModel.sections; track $index) {
+    @for (section of formModel().sections; track $index) {
       @defer (when currentTab() === section.id) {
         <fieldset class="space-y-2" [hlmTabsContent]="section.id">
           <ng-container
@@ -28,30 +28,93 @@
           <label hlmLabel [for]="field.key">{{
             field.key + ".title" | translate
           }}</label>
-          @switch (field.type) {
-            @case ("text") {
+
+          @if (field.type === "text") {
+            @if (field.multiline && !field.autocomplete) {
+              <textarea
+                hlmInput
+                [id]="field.key"
+                [formControlName]="field.key"
+                rows="4"
+                [placeholder]="field.key + '.description' | translate"
+              ></textarea>
+            } @else if (field.autocomplete && !field.multiline) {
+              <hlm-autocomplete
+                [filteredOptions]="autoCompletionSources[field.key][1]()"
+                [(search)]="autoCompletionSources[field.key][0]"
+                (actualValueChange)="form.controls[field.key].setValue($event)"
+                [inputId]="field.key"
+                [emptyText]="'misc.no_results_found' | translate"
+              />
+            } @else {
               <input
                 hlmInput
                 [id]="field.key"
                 [formControlName]="field.key"
-                [type]="field.inputType ?? 'text'"
+                type="text"
                 [placeholder]="field.key + '.description' | translate"
               />
             }
-            @case ("boolean") {
-              <hlm-checkbox [id]="field.key" [formControlName]="field.key" />
-            }
-            @case ("date") {
-              <hlm-date-picker
-                [formControlName]="field.key"
-                [id]="field.key"
-                [min]="field.min"
-                [max]="field.max"
-              />
-            }
+          } @else if (field.type === "boolean") {
+            <hlm-checkbox [id]="field.key" [formControlName]="field.key" />
+          } @else if (field.type === "date") {
+            <hlm-date-picker
+              [formControlName]="field.key"
+              [id]="field.key"
+              [min]="field.min"
+              [max]="field.max"
+            />
+          } @else if (field.type === "int") {
+            <input
+              hlmInput
+              [formControlName]="field.key"
+              [min]="field.min"
+              [max]="field.max"
+              step="1"
+              type="number"
+              [id]="field.key"
+            />
+          } @else if (field.type === "float") {
+            <input
+              hlmInput
+              [formControlName]="field.key"
+              [min]="field.min"
+              [max]="field.max"
+              type="number"
+              [id]="field.key"
+            />
+          } @else if (
+            field.type === "single-selection" ||
+            field.type === "multi-selection"
+          ) {
+            <brn-select
+              scrollable="true"
+              [multiple]="field.type === 'multi-selection'"
+              class="w-full"
+              placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
+              [formControlName]="field.key"
+              [id]="field.key"
+            >
+              <hlm-select-trigger class="w-full flex">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content class="w-full max-h-96">
+                @for (option of formOptions[field.key](); track $index) {
+                  <hlm-option [value]="option.value">
+                    @if (option.i18nKey) {
+                      {{ option.i18nKey | translate }}
+                    } @else {
+                      {{ option.label || option.value }}
+                    }
+                  </hlm-option>
+                }
+              </hlm-select-content>
+            </brn-select>
           }
+
           @if (
-            form.controls[field.key].invalid && form.controls[field.key].dirty
+            form.controls[field.key].invalid &&
+            (form.controls[field.key].dirty || field.type.endsWith("selection"))
           ) {
             <p class="text-red-500 block text-sm space-y-1">
               @if (form.controls[field.key].hasError("required")) {

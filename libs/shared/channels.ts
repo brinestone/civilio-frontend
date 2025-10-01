@@ -12,6 +12,8 @@ import {
   FindFormSubmissionsRequestSchema,
   FindSubmissionDataRequestSchema,
   FindSubmissionDataResponseSchema,
+  GetAutoCompletionSuggestionsRequestSchema,
+  GetAutoCompletionSuggestionsResponseSchema,
   LoadTranslationRequestSchema,
   LoadTranslationResponseSchema,
   TestDbConnectionRequestSchema,
@@ -26,7 +28,10 @@ const crudActions = z.enum(['create', 'read', 'update', 'delete']);
 export const ChannelSchema = z.templateLiteral([
   entities, ':', crudActions
 ]);
-const channelArgs = {
+export const PushEventSchema = z.enum([
+  'i18n:update'
+]);
+export const channelArgs = {
   'field-mappings:create': FieldMappingRequestSchema,
   'field-mappings:read': FindFieldMappingsRequestSchema,
   'field-mappings:update': UpdateFieldMappingRequestSchema,
@@ -43,9 +48,10 @@ const channelArgs = {
   'submissions:delete': {},
   'db:test': TestDbConnectionRequestSchema,
   'translations:read': LoadTranslationRequestSchema,
-  'submission-data:read': FindSubmissionDataRequestSchema
+  'submission-data:read': FindSubmissionDataRequestSchema,
+  'suggestions:read': GetAutoCompletionSuggestionsRequestSchema
 } as const;
-const channelResponses = {
+export const channelResponses = {
   'config:read': AppConfigResponseSchema,
   'field-mappings:create': FieldMappingSchema,
   'field-mappings:read': FindFieldMappingsResponseSchema,
@@ -62,12 +68,14 @@ const channelResponses = {
   'submissions:delete': {},
   'db:test': TestDbConnectionResponseSchema,
   'translations:read': LoadTranslationResponseSchema,
-  'submission-data:read': FindSubmissionDataResponseSchema
+  'submission-data:read': FindSubmissionDataResponseSchema,
+  'suggestions:read': GetAutoCompletionSuggestionsResponseSchema
 } as const;
+
 type InferZod<T extends z.ZodType> = z.infer<T>;
 export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
-export type Channel = z.output<typeof ChannelSchema> | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
-// export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends {} ? never : typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
+export type PushEvent = z.output<typeof PushEventSchema>;
+export type Channel = z.output<typeof ChannelSchema> | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
 export const RequestOptionsSchema = z.object({

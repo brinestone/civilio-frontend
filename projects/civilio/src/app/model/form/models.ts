@@ -489,14 +489,13 @@ export function parseValue(definition: FieldDefinition, raw: RawInput | null): P
       try {
         const result = z.union(
           [
-            z.literal('1').transform(() => false),
-            z.literal('2').transform(() => true)
-          ]).nullable().parse(raw) ?? false;
+            z.literal('1').transform(() => true),
+            z.literal('2').transform(() => false),
+            z.null().transform(() => false)
+          ]).parse(raw);
         return result;
       } catch (e) {
-        console.error(e);
-        console.log(definition.key, raw);
-        throw e;
+        return false;
       }
     }
     case 'date': return z.union([

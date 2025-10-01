@@ -17,6 +17,7 @@ import { routes } from './app.routes';
 import { provideDomainForms } from './services/form';
 import { ConfigState } from './store/config';
 import { provideDomainConfig } from './services/config';
+import { provideNotifications } from './services/notification';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +38,7 @@ export const appConfig: ApplicationConfig = {
     provideNgIconLoader(async name => {
       return await fetch(`/${name}.svg`).then(r => r.text());
     }),
+    provideNotifications(),
     provideTranslateService({
       fallbackLang: 'en',
       loader: provideTranslationLoader()

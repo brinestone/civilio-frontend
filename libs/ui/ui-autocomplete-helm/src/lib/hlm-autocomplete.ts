@@ -1,18 +1,19 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-	booleanAttribute,
-	ChangeDetectionStrategy,
-	Component,
-	computed,
-	ElementRef,
-	forwardRef,
-	inject,
-	input,
-	linkedSignal,
-	output,
-	TemplateRef,
-	viewChild,
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  forwardRef,
+  inject,
+  input,
+  linkedSignal,
+  output,
+  TemplateRef,
+  viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -24,6 +25,8 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmPopoverContent } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import type { ClassValue } from 'clsx';
+import { derivedFrom } from 'ngxtension/derived-from';
+import { identity, mergeMap, pipe } from 'rxjs';
 import { HlmAutocompleteEmpty } from './hlm-autocomplete-empty';
 import { HlmAutocompleteGroup } from './hlm-autocomplete-group';
 import { HlmAutocompleteItem } from './hlm-autocomplete-item';
@@ -204,6 +207,13 @@ export class HlmAutocomplete<T> implements ControlValueAccessor {
 	/** Emitted when the search query changes. */
 	public readonly searchChange = output<string>();
 
+  private readonly actualValue = derivedFrom([this._search, this._value], pipe(
+    mergeMap(identity)
+  ));
+
+    /** Emits with the value of either the search or the selected value */
+  public readonly actualValueChange = output<string | T | undefined>();
+
 	protected _onChange?: ChangeFn<T | null>;
 	protected _onTouched?: TouchFn;
 
@@ -279,6 +289,13 @@ export class HlmAutocomplete<T> implements ControlValueAccessor {
 	public setDisabledState(isDisabled: boolean): void {
 		this._disabled.set(isDisabled);
 	}
+
+  constructor() {
+    effect(() => {
+      this.actualValueChange.emit(this.actualValue());
+    });
+
+  }
 }
 
 interface HlmAutocompleteOption<T> {

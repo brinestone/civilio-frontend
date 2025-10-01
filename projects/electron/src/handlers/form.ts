@@ -1,7 +1,25 @@
 import { choices, fieldMappings, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType, Option, OptionSchema } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema } from '@civilio/shared';
 import { and, countDistinct, eq, like, or, sql } from 'drizzle-orm';
 import { provideDatabase } from '../helpers/db';
+
+export async function findAutocompleteSuggestions({ form, query, resultSize, field }: GetAutoCompletionSuggestionsRequest) {
+  const db = provideDatabase({ fieldMappings });
+  const [mapping] = await db.select().from(fieldMappings).where(and(
+    eq(fieldMappings.form, form),
+    eq(fieldMappings.field, field),
+  )).limit(1);
+
+  if (!mapping) throw new Error(`Mapping not found for field: ${field} and form: ${form}`);
+
+  let resultSet = await db.execute(sql`SELECT FORMAT('SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY d.%I ASC LIMIT %L::INTEGER', ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT, ${'%' + query + '%'}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`)
+  const [{ format }] = resultSet.rows;
+
+  resultSet = await db.execute(format as string);
+  const result = resultSet.rows.map(({ result }) => result);
+
+  return GetAutoCompletionSuggestionsResponseSchema.parse(result);
+}
 
 export async function findFormData(form: FormType, index: number) {
   const db = provideDatabase({ fieldMappings });

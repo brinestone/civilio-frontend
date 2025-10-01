@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createPaginatedResultSchema, FieldUpdateSpec, FindDbColumnsResponseSchema, FindFieldMappingsResponseSchema, FindFormOptionsResponseSchema, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldKey, FieldUpdateSpec, FindDbColumnsResponseSchema, FindFieldMappingsResponseSchema, FindFormOptionsResponseSchema, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse } from '@civilio/shared';
 import { sendRpcMessageAsync } from '../../util';
 import { FormService } from '../form';
 
@@ -7,6 +7,9 @@ import { FormService } from '../form';
   providedIn: null
 })
 export class ElectronFormService implements FormService {
+  async findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string) {
+    return await sendRpcMessageAsync('suggestions:read', { field, query, resultSize: 10, form });
+  }
   async findSubmissionData(form: FormType, index: number) {
     return await sendRpcMessageAsync('submission-data:read', { form, index }).then(FindSubmissionDataResponseSchema.parse);
   }

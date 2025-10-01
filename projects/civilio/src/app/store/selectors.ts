@@ -13,9 +13,9 @@ export const currentTheme = createSelector([configSlices.config], (config) => {
 export const currentLocale = createSelector([configSlices.config], config => {
   return config?.prefs?.locale ?? navigator.language;
 });
-export function optionsSelector(form: FormType, group: string) {
+export function optionsSelector(form: FormType) {
   return createSelector([formSlices.options], options => {
-    return options?.[form][group] ?? [];
+    return options?.[form] ?? {}
   })
 }
 export function fieldMappingsfor(formType: FormType) {
