@@ -56,6 +56,9 @@ importers:
       '@tanstack/angular-table':
         specifier: ^8.21.3
         version: 8.21.3(@angular/core@20.3.1(@angular/compiler@20.3.1)(rxjs@7.8.2))
+      '@types/leaflet':
+        specifier: ^1.9.20
+        version: 1.9.20
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -80,6 +83,9 @@ importers:
       inter-ui:
         specifier: ^4.1.1
         version: 4.1.1
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -3473,6 +3479,9 @@ packages:
   '@types/fs-extra@9.0.13':
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
 
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
 
@@ -3499,6 +3508,9 @@ packages:
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
+
+  '@types/leaflet@1.9.20':
+    resolution: {integrity: sha512-rooalPMlk61LCaLOvBF2VIf9M47HgMQqi5xQ9QRi7c8PkdIe0WrIi5IxXUXQjAdL0c+vcQ01mYWbthzmp9GHWw==}
 
   '@types/lodash@4.17.20':
     resolution: {integrity: sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA==}
@@ -5971,6 +5983,9 @@ packages:
 
   launch-editor@2.11.1:
     resolution: {integrity: sha512-SEET7oNfgSaB6Ym0jufAdCeo3meJVeCaaDyzRygy0xsp2BFKCprcfHljTq4QkzTLUxEKkFK6OK4811YM2oSrRg==}
+
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
 
   less-loader@11.1.4:
     resolution: {integrity: sha512-6/GrYaB6QcW6Vj+/9ZPgKKs6G10YZai/l/eJ4SLwbzqNTBsAqt5hSLVF47TgsiBxV1P6eAU0GYRH3YRuQU9V3A==}
@@ -12554,6 +12569,8 @@ snapshots:
       '@types/node': 24.5.2
     optional: true
 
+  '@types/geojson@7946.0.16': {}
+
   '@types/http-cache-semantics@4.0.4': {}
 
   '@types/http-errors@2.0.5': {}
@@ -12579,6 +12596,10 @@ snapshots:
   '@types/keyv@3.1.4':
     dependencies:
       '@types/node': 24.5.2
+
+  '@types/leaflet@1.9.20':
+    dependencies:
+      '@types/geojson': 7946.0.16
 
   '@types/lodash@4.17.20': {}
 
@@ -15409,6 +15430,8 @@ snapshots:
     dependencies:
       picocolors: 1.1.1
       shell-quote: 1.8.3
+
+  leaflet@1.9.4: {}
 
   less-loader@11.1.4(less@4.4.1)(webpack@5.101.3):
     dependencies:

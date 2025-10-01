@@ -107,7 +107,7 @@ export class SubmissionsPage implements OnInit {
   private route = inject(ActivatedRoute);
   private formService = inject(ElectronFormService);
   protected readonly formTypeOptions = FormTypeSchema.options
-  protected readonly formType = signal<FormType>('csc');
+  protected readonly formType = signal<FormType>('fosa');
   protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
   protected readonly filter = model('');
   private readonly filterQuery = debounceSignal(this.filter);

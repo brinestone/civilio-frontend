@@ -6,8 +6,8 @@ validation:
     invalid_date: Invalid date
     max_date: The date cannot be after {{maxDate}}
     min_date: The date cannot be before {{minDate}}
-    min: Value must be at least {{min}}
-    max: Value must be at most {{max}}
+    min: Value must be at least {{min}}{{suffix}}
+    max: Value must be at most {{max}}{{suffix}}
 tmpl:
   dropdown:
     placeholder: Select value
@@ -760,6 +760,7 @@ fosa:
         title: Index
       validation_code:
         title: Validation code
+        description: 'The validation code is used to verify the authenticity of the submission. It should be a unique alphanumeric string.'
       region:
         title: Region
       stats:

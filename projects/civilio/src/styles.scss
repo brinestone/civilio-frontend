@@ -1,5 +1,6 @@
 @use "tailwindcss";
 @use 'inter-ui/inter.css';
+@use 'leaflet/dist/leaflet.css';
 @import "@angular/cdk/overlay-prebuilt.css";
 @import "@spartan-ng/brain/hlm-tailwind-preset.css";
 
@@ -9,7 +10,7 @@ html {
 
 html,
 body {
-  @apply h-full m-0 antialiased bg-background text-foreground;
+  @apply h-full m-0 antialiased bg-background text-foreground ;
   font-family:
     Inter,
     system-ui,
@@ -23,6 +24,10 @@ body {
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
+}
+
+html > body {
+  @apply block;
 }
 
 :root {

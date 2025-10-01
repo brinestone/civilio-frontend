@@ -37,11 +37,13 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         },
         {
           key: 'fosa.form.sections.respondent.fields.knows_creation_date',
-          type: 'boolean'
+          type: 'boolean',
+          span: 1,
         },
         {
           key: 'fosa.form.sections.respondent.fields.creation_date',
           type: 'date',
+          span: 11,
           required: true,
           relevance: {
             predicate: RelevancePredicateSchema.implement((deps) => {
@@ -94,6 +96,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         },
         {
           key: 'fosa.form.sections.identification.fields.health_area',
+          parent: 'fosa.form.sections.identification.fields.district',
           type: 'single-selection',
           optionsGroupKey: 'airesante',
         },

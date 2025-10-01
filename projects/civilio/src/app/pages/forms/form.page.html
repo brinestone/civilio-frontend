@@ -9,7 +9,11 @@
     </hlm-paginated-tabs-list>
     @for (section of formModel().sections; track $index) {
       @defer (when currentTab() === section.id) {
-        <fieldset class="space-y-2" [hlmTabsContent]="section.id">
+        <fieldset
+          tabindex="-1"
+          class="grid grid-cols-2 gap-3"
+          [hlmTabsContent]="section.id"
+        >
           <ng-container
             [ngTemplateOutlet]="sectionTemplate"
             [ngTemplateOutletContext]="{ $implicit: section }"
@@ -23,7 +27,7 @@
 <ng-template #sectionTemplate let-section>
   <ng-container [formGroup]="form">
     @for (field of section.fields; track $index) {
-      @if (form.contains(field.key) && relevanceRegistry[field.key]()) {
+      @defer (when form.contains(field.key) && relevanceRegistry[field.key]()) {
         <div class="space-y-1">
           <label hlmLabel [for]="field.key">{{
             field.key + ".title" | translate
@@ -110,8 +114,9 @@
                 }
               </hlm-select-content>
             </brn-select>
+          } @else if (field.type == "point") {
+            <cv-geo-point [formControlName]="field.key" />
           }
-
           @if (
             form.controls[field.key].invalid &&
             (form.controls[field.key].dirty || field.type.endsWith("selection"))
@@ -130,6 +135,8 @@
                         }
                 }}
               } @else if (form.controls[field.key].hasError("pattern")) {
+                {{ "validation.msg.pattern_mismatch" | translate }}
+              } @else if (form.controls[field.key].hasError("int")) {
                 {{ "validation.msg.pattern_mismatch" | translate }}
               } @else if (form.controls[field.key].hasError("minDate")) {
                 {{
@@ -159,7 +166,10 @@
                       "validation.msg.min"
                         | translate
                           : {
-                              min: form.controls[field.key].getError("min").min,
+                              min:
+                                form.controls[field.key].getError("min").min
+                                | number,
+                              suffix: "m",
                             }
                     }}
                   </span>
@@ -174,7 +184,12 @@
                   {{
                     "validation.msg.max"
                       | translate
-                        : { max: form.controls[field.key].getError("max").max }
+                        : {
+                            max:
+                              form.controls[field.key].getError("max").max
+                              | number,
+                            suffix: "m",
+                          }
                   }}
                 }
               }

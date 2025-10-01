@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, resource, signal, Signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
@@ -28,6 +28,7 @@ import { injectRouteData } from 'ngxtension/inject-route-data';
 import { injectRouteFragment } from 'ngxtension/inject-route-fragment';
 import { debounceTime, filter, map, mergeMap, pipe } from 'rxjs';
 import z from 'zod';
+import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
 
 @Component({
   selector: 'cv-fosa',
@@ -38,12 +39,14 @@ import z from 'zod';
     NgTemplateOutlet,
     HlmDatePickerImports,
     HlmSelectImports,
+    DecimalPipe,
     BrnSelectImports,
     HlmInput,
     HlmCheckboxImports,
     HlmLabel,
     ReactiveFormsModule,
-    BrnTabsImports
+    BrnTabsImports,
+    GeoPointComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './form.page.html',
@@ -276,6 +279,15 @@ export class FormPage implements AfterViewInit {
     }
 
     if (schema.type == 'int' || schema.type == 'float') {
+      if (schema.type == 'int') {
+        validators.push(control => {
+          if (!control.value) return null;
+          const stringValue = String(control.value ?? '').trim();
+
+          if (!stringValue) return null;
+          return z.coerce.number().int().safeParse(stringValue).success ? null : { int: true };
+        })
+      }
       if (schema.min) {
         validators.push(Validators.min(schema.min));
       }
