@@ -1,4 +1,41 @@
-<div class="px-4 flex justify-end items-center py-1 border-b border-border">
+<div class="px-4 flex justify-between items-center py-1 border-b border-border">
+  <div class="flex items-center gap-3">
+    <a
+      [disabled]="
+        !surroundingRefs.value() || surroundingRefs.value()?.[0] == null
+      "
+      routerLink="../{{ surroundingRefs.value()?.[0] }}"
+      [relativeTo]="route"
+      size="sm"
+      variant="outline"
+      hlmBtn
+    >
+      <ng-icon name="lucideChevronLeft" />
+      <span>Prev</span>
+    </a>
+    <button
+      [disabled]="
+        !surroundingRefs.value() || surroundingRefs.value()?.[1] == null
+      "
+      size="sm"
+      variant="outline"
+      hlmBtn
+      routerLink="../{{ surroundingRefs.value()?.[1] }}"
+      [relativeTo]="route"
+    >
+      <span>Next</span>
+      <ng-icon name="lucideChevronRight" />
+    </button>
+    <hlm-autocomplete
+      [(search)]="indexInputFilter"
+      [filteredOptions]="indexSuggestions.value()"
+      [loading]="indexSuggestions.isLoading()"
+      [(value)]="submissionIndex"
+      [emptyText]="'tmpl.autocomplete.empty_text' | translate"
+      [loadingText]="'loading.txt' | translate"
+      [searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
+    />
+  </div>
   <hlm-sheet
     #sheet
     [state]="mapperSheetState()"
@@ -28,10 +65,12 @@
   </hlm-sheet>
 </div>
 <form [formGroup]="form" class="px-4">
-  <hlm-tabs [tab]="currentTab()" (tabActivated)="currentTab.set($event)">
+  <hlm-tabs [tab]="currentTab()" (tabActivated)="onActivaTabChanged($event)">
     <hlm-paginated-tabs-list>
       @for (section of formModel().sections; track $index) {
-        <button [hlmTabsTrigger]="section.id">
+        <button
+          [hlmTabsTrigger]="section.id"
+        >
           {{ section.id + ".title" | translate }}
         </button>
       }
@@ -40,7 +79,7 @@
       @defer (when currentTab() === section.id) {
         <fieldset
           tabindex="-1"
-          class="grid grid-cols-2 gap-3"
+          class="grid grid-cols-[auto_auto] gap-3 pb-16 overflow-y-auto px-4"
           [hlmTabsContent]="section.id"
         >
           <ng-container
@@ -70,6 +109,17 @@
         }
       }
     }
+    @if ((section.children?.length ?? 0) > 0) {
+      @for (child of section.children; track child.id ?? $index) {
+        <h2 class="col-span-2 font-extrabold text-2xl text-muted-foreground">
+          {{ child.id + ".title" | translate }}
+        </h2>
+        <ng-container
+          [ngTemplateOutlet]="sectionTemplate"
+          [ngTemplateOutletContext]="{ $implicit: child }"
+        />
+      }
+    }
   </ng-container>
 </ng-template>
 
@@ -79,164 +129,170 @@
       field.key + ".title" | translate
     }}</label>
 
-    @if (field.type === "text") {
-      @if (field.multiline && !field.autocomplete) {
-        <textarea
-          hlmInput
-          [id]="field.key"
+    @if (field.readonly === true) {
+      <p [id]="field.key">{{ form.controls[field.key].value }}</p>
+    } @else {
+      @if (field.type === "text") {
+        @if (field.multiline && !field.autocomplete) {
+          <textarea
+            hlmInput
+            [id]="field.key"
+            [formControlName]="field.key"
+            rows="9"
+            class="min-h-20"
+            [placeholder]="field.key + '.description' | translate"
+          ></textarea>
+        } @else if (field.autocomplete && !field.multiline) {
+          <hlm-autocomplete
+            [filteredOptions]="autoCompletionSources[field.key][1]()"
+            [(search)]="autoCompletionSources[field.key][0]"
+            [inputId]="field.key"
+            [formControlName]="field.key"
+            [emptyText]="'tmpl.autocomplete.empty_text' | translate"
+          />
+        } @else {
+          <input
+            hlmInput
+            [id]="field.key"
+            [formControlName]="field.key"
+            type="text"
+            [placeholder]="field.key + '.description' | translate"
+          />
+        }
+      } @else if (field.type === "boolean") {
+        <hlm-checkbox [id]="field.key" [formControlName]="field.key" />
+      } @else if (field.type === "date") {
+        <hlm-date-picker
           [formControlName]="field.key"
-          rows="4"
-          [placeholder]="field.key + '.description' | translate"
-        ></textarea>
-      } @else if (field.autocomplete && !field.multiline) {
-        <hlm-autocomplete
-          [filteredOptions]="autoCompletionSources[field.key][1]()"
-          [(search)]="autoCompletionSources[field.key][0]"
-          (actualValueChange)="form.controls[field.key].setValue($event)"
-          [inputId]="field.key"
-          [emptyText]="'misc.no_results_found' | translate"
+          [id]="field.key"
+          [min]="field.min"
+          [max]="field.max"
         />
-      } @else {
+      } @else if (field.type === "int") {
         <input
           hlmInput
-          [id]="field.key"
           [formControlName]="field.key"
-          type="text"
-          [placeholder]="field.key + '.description' | translate"
+          [min]="field.min"
+          [max]="field.max"
+          step="1"
+          type="number"
+          [id]="field.key"
         />
+      } @else if (field.type === "float") {
+        <input
+          hlmInput
+          [formControlName]="field.key"
+          [min]="field.min"
+          [max]="field.max"
+          type="number"
+          [id]="field.key"
+        />
+      } @else if (
+        field.type === "single-selection" || field.type === "multi-selection"
+      ) {
+        <brn-select
+          scrollable="true"
+          [multiple]="field.type === 'multi-selection'"
+          class="w-full"
+          placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
+          [formControlName]="field.key"
+          [id]="field.key"
+        >
+          <hlm-select-trigger class="w-full flex">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content class="w-full max-h-96">
+            @for (option of formOptions[field.key](); track $index) {
+              <hlm-option [value]="option.value">
+                @if (option.i18nKey) {
+                  {{ option.i18nKey | translate }}
+                } @else {
+                  {{ option.label || option.value }}
+                }
+              </hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
+      } @else if (field.type == "point") {
+        <cv-geo-point [formControlName]="field.key" />
       }
-    } @else if (field.type === "boolean") {
-      <hlm-checkbox [id]="field.key" [formControlName]="field.key" />
-    } @else if (field.type === "date") {
-      <hlm-date-picker
-        [formControlName]="field.key"
-        [id]="field.key"
-        [min]="field.min"
-        [max]="field.max"
-      />
-    } @else if (field.type === "int") {
-      <input
-        hlmInput
-        [formControlName]="field.key"
-        [min]="field.min"
-        [max]="field.max"
-        step="1"
-        type="number"
-        [id]="field.key"
-      />
-    } @else if (field.type === "float") {
-      <input
-        hlmInput
-        [formControlName]="field.key"
-        [min]="field.min"
-        [max]="field.max"
-        type="number"
-        [id]="field.key"
-      />
-    } @else if (
-      field.type === "single-selection" || field.type === "multi-selection"
-    ) {
-      <brn-select
-        scrollable="true"
-        [multiple]="field.type === 'multi-selection'"
-        class="w-full"
-        placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
-        [formControlName]="field.key"
-        [id]="field.key"
-      >
-        <hlm-select-trigger class="w-full flex">
-          <hlm-select-value />
-        </hlm-select-trigger>
-        <hlm-select-content class="w-full max-h-96">
-          @for (option of formOptions[field.key](); track $index) {
-            <hlm-option [value]="option.value">
-              @if (option.i18nKey) {
-                {{ option.i18nKey | translate }}
-              } @else {
-                {{ option.label || option.value }}
-              }
-            </hlm-option>
-          }
-        </hlm-select-content>
-      </brn-select>
-    } @else if (field.type == "point") {
-      <cv-geo-point [formControlName]="field.key" />
-    }
-    @if (
-      form.controls[field.key].invalid &&
-      (form.controls[field.key].dirty || field.type.endsWith("selection"))
-    ) {
-      <p class="text-red-500 block text-sm space-y-1">
-        @if (form.controls[field.key].hasError("required")) {
-          {{ "validation.msg.field_required" | translate }}
-        } @else if (form.controls[field.key].hasError("invalidValue")) {
-          {{
-            "validation.msg.value_unsupported"
-              | translate
-                : {
-                    validValues: form.controls[field.key]
-                      .getError("invalidValue")
-                      .validValues.join(", "),
-                  }
-          }}
-        } @else if (form.controls[field.key].hasError("pattern")) {
-          {{ "validation.msg.pattern_mismatch" | translate }}
-        } @else if (form.controls[field.key].hasError("int")) {
-          {{ "validation.msg.pattern_mismatch" | translate }}
-        } @else if (form.controls[field.key].hasError("minDate")) {
-          {{
-            "validation.msg.min_date"
-              | translate
-                : {
-                    minDate: form.controls[field.key].getError("minDate"),
-                  }
-          }}
-        } @else if (form.controls[field.key].hasError("maxDate")) {
-          {{
-            "validation.msg.max_date"
-              | translate
-                : {
-                    maxDate: form.controls[field.key].getError("maxDate"),
-                  }
-          }}
-        } @else if (form.controls[field.key].hasError("invalidDate")) {
-          {{ "validation.msg.invalid_date" | translate }}
-        } @else if (
-          form.controls[field.key].hasError("min") ||
-          form.controls[field.key].hasError("max")
-        ) {
-          @if (form.controls[field.key].hasError("min")) {
-            <span>
-              {{
-                "validation.msg.min"
-                  | translate
-                    : {
-                        min:
-                          form.controls[field.key].getError("min").min | number,
-                        suffix: "m",
-                      }
-              }}
-            </span>
-          }
-          @if (
-            form.controls[field.key].hasError("min") &&
-            form.controls[field.key].hasError("max")
-          ) {
-            <br />
-          }
-          @if (form.controls[field.key].hasError("max")) {
+      @if (
+        form.controls[field.key].invalid &&
+        (form.controls[field.key].dirty || field.type.endsWith("selection"))
+      ) {
+        <p class="text-red-500 block text-sm space-y-1">
+          @if (form.controls[field.key].hasError("required")) {
+            {{ "validation.msg.field_required" | translate }}
+          } @else if (form.controls[field.key].hasError("invalidValue")) {
             {{
-              "validation.msg.max"
+              "validation.msg.value_unsupported"
                 | translate
                   : {
-                      max:
-                        form.controls[field.key].getError("max").max | number,
-                      suffix: "m",
+                      validValues: form.controls[field.key]
+                        .getError("invalidValue")
+                        .validValues.join(", "),
                     }
             }}
+          } @else if (form.controls[field.key].hasError("pattern")) {
+            {{ "validation.msg.pattern_mismatch" | translate }}
+          } @else if (form.controls[field.key].hasError("int")) {
+            {{ "validation.msg.pattern_mismatch" | translate }}
+          } @else if (form.controls[field.key].hasError("minDate")) {
+            {{
+              "validation.msg.min_date"
+                | translate
+                  : {
+                      minDate: form.controls[field.key].getError("minDate"),
+                    }
+            }}
+          } @else if (form.controls[field.key].hasError("maxDate")) {
+            {{
+              "validation.msg.max_date"
+                | translate
+                  : {
+                      maxDate: form.controls[field.key].getError("maxDate"),
+                    }
+            }}
+          } @else if (form.controls[field.key].hasError("invalidDate")) {
+            {{ "validation.msg.invalid_date" | translate }}
+          } @else if (
+            form.controls[field.key].hasError("min") ||
+            form.controls[field.key].hasError("max")
+          ) {
+            @if (form.controls[field.key].hasError("min")) {
+              <span>
+                {{
+                  "validation.msg.min"
+                    | translate
+                      : {
+                          min:
+                            form.controls[field.key].getError("min").min
+                            | number,
+                          suffix: field.unit ?? "" | translate,
+                        }
+                }}
+              </span>
+            }
+            @if (
+              form.controls[field.key].hasError("min") &&
+              form.controls[field.key].hasError("max")
+            ) {
+              <br />
+            }
+            @if (form.controls[field.key].hasError("max")) {
+              {{
+                "validation.msg.max"
+                  | translate
+                    : {
+                        max:
+                          form.controls[field.key].getError("max").max | number,
+                        suffix: field.unit ?? "" | translate,
+                      }
+              }}
+            }
           }
-        }
-      </p>
+        </p>
+      }
     }
   </div>
 </ng-template>

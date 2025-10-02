@@ -2,6 +2,13 @@ import z from "zod";
 import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
 import { FieldKeySchema } from "../field-keys";
 
+export const FindIndexSuggestionsRequestSchema = z.object({
+  form: FormTypeSchema,
+  query: z.string().regex(/^\d+$/)
+});
+
+export const FindIndexSuggestionsResponseSchema = z.number().array();
+
 export const GetAutoCompletionSuggestionsRequestSchema = z.object({
   field: FieldKeySchema,
   query: z.string(),
@@ -20,6 +27,18 @@ export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
   z.string().nullable(),
   z.string().nullable().array()
 ])).nullable();
+
+export const FindSubmissionRefRequestSchema = z.object({
+  form: FormTypeSchema,
+  index: z.int()
+});
+
+export const SubmissionRefSchema = z.int().nullable();
+
+export const FindSubmissionRefResponseSchema = z.tuple([
+  SubmissionRefSchema.nullable(),
+  SubmissionRefSchema.nullable()
+]).nullable();
 
 export const LoadTranslationRequestSchema = z.object({
   locale: LocaleSchema
@@ -107,3 +126,7 @@ export type FindSubmissionDataResponse = z.output<typeof FindSubmissionDataRespo
 export type FindFieldMappingsResponse = z.output<typeof FindFieldMappingsResponseSchema>;
 export type GetAutoCompletionSuggestionsRequest = z.infer<typeof GetAutoCompletionSuggestionsRequestSchema>;
 export type GetAutoCompletionSuggestionsResponse = z.infer<typeof GetAutoCompletionSuggestionsResponseSchema>;
+export type FindSubmissionRefRequest = z.output<typeof FindSubmissionRefRequestSchema>;
+export type FindSubmissionRefResponse = z.output<typeof FindSubmissionRefResponseSchema>;
+export type FindIndexSuggestionsRequest = z.output<typeof FindIndexSuggestionsRequestSchema>;
+export type FindIndexSuggestionsResponse = z.output<typeof FindIndexSuggestionsResponseSchema>;

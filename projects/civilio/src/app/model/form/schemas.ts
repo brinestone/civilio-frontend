@@ -43,7 +43,9 @@ const BaseFieldDefinitionSchema = z.object({
     z.literal(10),
     z.literal(11),
     z.literal(12)
-  ]).optional().default(12)
+  ]).optional().default(12),
+  readonly: z.boolean().optional(),
+  default: z.any().optional()
 });
 
 const TextFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
@@ -79,7 +81,23 @@ const BooleanFieldDefinitionSchema = BaseFieldDefinitionSchema.omit({
 const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   type: z.union([z.literal('float'), z.literal('int')]),
   min: z.number().optional(),
-  max: z.number().optional()
+  max: z.number().optional(),
+  unit: z.string().optional()
+});
+
+const ColumnDefinitionSchema = z.object({
+  id: z.string(),
+  valueAccessorFn: z.function({
+    input: [z.record(z.string(), z.unknown())],
+    output: z.unknown()
+  }),
+  width: z.int().optional(),
+  editable: z.boolean().optional()
+});
+
+const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
+  type: z.literal('table'),
+  columns: ColumnDefinitionSchema.array()
 })
 
 export const FieldDefinitionSchema = z.discriminatedUnion('type', [
@@ -88,7 +106,8 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
   DateFieldDefinitionSchema,
   SelectionFieldDefinitionSchema,
   TextFieldDefinitionSchema,
-  NumberFieldDefinitionSchema
+  NumberFieldDefinitionSchema,
+  TabularFieldDefinitionSchema
 ])
 
 const GroupBaseSchema = z.object({

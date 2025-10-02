@@ -1,3 +1,10 @@
+misc:
+  placeholder:
+    jump_to_index: Jump to index
+units:
+  meters:
+    short: m
+    long: meters
 validation:
   msg:
     field_required: This field is required

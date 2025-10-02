@@ -1,6 +1,6 @@
 import { InjectionToken, makeEnvironmentProviders } from "@angular/core";
 import { isDesktop } from "@app/util";
-import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated } from "@civilio/shared";
+import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated } from "@civilio/shared";
 import { ElectronFormService } from "../electron/form.service";
 import { WebFormService } from "../web/form.service";
 
@@ -12,6 +12,8 @@ export interface FormService {
   findFieldMappings(form: FormType): Promise<FindFieldMappingsResponse>;
   findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<typeof FormSubmissionSchema>>;
   findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
+  findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse>;
+  findIndexSuggestions(form: FormType, query: string): Promise<number[]>;
 }
 
 export const FORM_SERVICE = new InjectionToken<FormService>('Form Service');

@@ -3,6 +3,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Electron Main",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/dist/electron/index.js",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+      "outputCapture": "std",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      "preLaunchTask": "npm: build:electron"
+    },
+    {
       "name": "ng serve",
       "type": "chrome",
       "request": "launch",
@@ -15,6 +28,6 @@
       "request": "launch",
       "preLaunchTask": "npm: test",
       "url": "http://localhost:9876/debug.html"
-    }
+    },
   ]
 }

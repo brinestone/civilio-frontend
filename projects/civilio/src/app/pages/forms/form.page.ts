@@ -2,22 +2,33 @@ import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, model, resource, signal, Signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FieldMapperComponent } from '@app/components';
+import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
 import { extractAllFields, FieldDefinition, FormModelDefinition, ParsedValue, parseValue, RawInput } from '@app/model';
 import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
 import { optionsSelector } from '@app/store/selectors';
 import { mapSignal } from '@app/util';
 import { FieldKey, FormType, Option } from '@civilio/shared';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideChevronLeft, lucideChevronRight, lucideUnlink } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Navigate } from '@ngxs/router-plugin';
 import { Actions, dispatch, ofActionSuccessful, Store } from '@ngxs/store';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher } from '@spartan-ng/brain/forms';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { BrnTabsImports } from '@spartan-ng/brain/tabs';
 import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { isAfter, isBefore, toDate } from 'date-fns';
 import { toast } from 'ngx-sonner';
@@ -28,20 +39,16 @@ import { injectRouteData } from 'ngxtension/inject-route-data';
 import { injectRouteFragment } from 'ngxtension/inject-route-fragment';
 import { debounceTime, filter, map, mergeMap, pipe } from 'rxjs';
 import z from 'zod';
-import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideUnlink } from '@ng-icons/lucide';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { BrnSheetImports } from '@spartan-ng/brain/sheet';
-import { HlmSheetImports } from '@spartan-ng/helm/sheet';
-import { FieldMapperComponent } from '@app/components';
-import { BrnDialogState } from '@spartan-ng/brain/dialog';
+
 
 @Component({
   selector: 'cv-form-page',
   viewProviders: [
+    { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
     provideIcons({
-      lucideUnlink
+      lucideUnlink,
+      lucideChevronLeft,
+      lucideChevronRight
     })
   ],
   imports: [
@@ -63,7 +70,8 @@ import { BrnDialogState } from '@spartan-ng/brain/dialog';
     HlmLabel,
     ReactiveFormsModule,
     BrnTabsImports,
-    GeoPointComponent
+    GeoPointComponent,
+    RouterLink
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './form.page.html',
@@ -71,16 +79,37 @@ import { BrnDialogState } from '@spartan-ng/brain/dialog';
 })
 export class FormPage implements AfterViewInit {
   private store = inject(Store);
+  private navigate = dispatch(Navigate);
   protected readonly cdr = inject(ChangeDetectorRef);
   private loadOptions = dispatch(LoadOptions);
   private readonly targetTab = injectRouteFragment()
   private formService = inject(FORM_SERVICE);
-  protected readonly submissionIndex = injectParams('submissionIndex');
+  private readonly submissionIndexInput = injectParams('submissionIndex');
+  protected readonly submissionIndex = linkedSignal(() => {
+    const index = this.submissionIndexInput();
+    return index === null ? null : Number(index);
+  });
   protected readonly injector = inject(Injector);
   protected destroyRef = inject(DestroyRef);
   private routeData = injectRouteData();
+  protected readonly route = inject(ActivatedRoute);
 
-
+  protected readonly indexInputFilter = linkedSignal(() => {
+    const index = String(this.submissionIndex() ?? '');
+    return index;
+  });
+  protected readonly debouncedIndexFilter = derivedFrom([this.indexInputFilter], pipe(
+    map(([v]) => v ?? ''),
+    debounceTime(500),
+  ), { initialValue: '' });
+  protected readonly indexSuggestions = resource({
+    defaultValue: [],
+    params: () => ({ form: this.formType(), filter: this.debouncedIndexFilter() }),
+    loader: async ({ params: { filter, form } }) => {
+      if (!filter || !z.string().regex(/^\d+$/).safeParse(filter).success) return [];
+      return this.formService.findIndexSuggestions(form, filter);
+    }
+  });
   protected readonly mapperSheetState = model<BrnDialogState>('closed');
   protected readonly autoCompletionSources: Record<string, [WritableSignal<string>, Signal<string[]>]> = {};
   private readonly optionsNotifier = createNotifier();
@@ -90,20 +119,29 @@ export class FormPage implements AfterViewInit {
   private readonly allFormOptions = computed(() => {
     this.optionsNotifier.listen();
     return this.store.selectSnapshot(this.optionSelector());
-  })
+  });
   protected readonly formOptions: Record<string, Signal<Option[]>> = {};
   protected relevanceRegistry: Record<string, () => boolean> = {};
   protected valueProviders: Record<string, Signal<ParsedValue | ParsedValue[]>> = {};
   private controlValidatorRegistry: Record<string, ValidatorFn[]> = {};
   protected currentTab = linkedSignal(() => {
     return this.targetTab() ?? this.formModel().sections[0].id;
-  })
+  });
+  protected readonly surroundingRefs = resource({
+    params: () => ({
+      index: this.submissionIndex(), form: this.formType()
+    }),
+    loader: async ({ params: { index, form } }) => {
+      if (index === null) return null;
+      return await this.formService.findSurroundingSubmissionRefs(form, Number(index))
+    }
+  });
   protected readonly submissionData = resource({
     defaultValue: {},
     params: () => ({ index: this.submissionIndex() }),
     loader: async ({ params: { index } }) => {
       if (index === null) return {};
-      return await this.formService.findSubmissionData(this.formType(), Number(index));
+      return await this.formService.findSubmissionData(this.formType(), index);
     }
   });
   protected readonly form = new FormRecord<UntypedFormControl>({});
@@ -190,10 +228,9 @@ export class FormPage implements AfterViewInit {
 
   private setupAutocompletion(schema: FieldDefinition) {
     const source = signal<string>(this.form.controls[schema.key].value, {})
-    const provider = derivedFrom([source], pipe(
+    const provider = derivedFrom([source, this.form.controls[schema.key].valueChanges], pipe(
       debounceTime(500),
-      filter(([v]) => !!v),
-      map(v => String(v[0]).trim()),
+      map(([v1, v2]) => String(v1 || v2).trim()),
       filter(v => v.length > 0),
       mergeMap(query => this.formService.findAutocompleteSuggestions(this.formType(), schema.key, query))
     ), { injector: this.injector, initialValue: [] });
@@ -343,5 +380,13 @@ export class FormPage implements AfterViewInit {
       control.markAsUntouched({ emitEvent: false });
       this.cdr.markForCheck();
     }, { injector: this.injector });
+  }
+
+  protected onActivaTabChanged(tab: string) {
+    this.currentTab.set(tab);
+    this.navigate([], undefined, {
+      fragment: tab,
+      queryParamsHandling: 'preserve'
+    })
   }
 }

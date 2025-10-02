@@ -63,5 +63,5 @@ export function provideDatabase(schema: Record<string, unknown>) {
       connectionString: url.toString()
     });
   }
-  return drizzle(pool, { schema, logger: !app.isPackaged });
+  return drizzle(pool, { schema });
 }

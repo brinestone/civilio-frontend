@@ -1,4 +1,4 @@
-import { createChannelHandler, createPushHandler, findAutocompleteSuggestions, findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findTranslationsFor, getAppConfig, updateFieldMappings, watchAssets } from "@civilio/handlers";
+import { createChannelHandler, createPushHandler, findAutocompleteSuggestions, findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findIndexSuggestions, findSubmissionRef, findTranslationsFor, getAppConfig, updateFieldMappings, watchAssets } from "@civilio/handlers";
 import { AppConfigPaths } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
@@ -8,6 +8,12 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+  createChannelHandler('index-suggestions:read', async (args) => {
+    return await findIndexSuggestions(args);
+  });
+  createChannelHandler('submission-ref:read', async (args) => {
+    return await findSubmissionRef(args);
+  });
   createChannelHandler('suggestions:read', async (dto) => {
     return await findAutocompleteSuggestions(dto);
   })

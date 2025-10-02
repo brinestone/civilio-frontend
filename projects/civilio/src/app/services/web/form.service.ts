@@ -1,11 +1,17 @@
 import { Injectable } from "@angular/core";
-import { FormType, FindSubmissionDataResponse, FieldUpdateSpec, FindFieldMappingsResponse, FindDbColumnsResponse, FindFormOptionsResponse, Paginated, FormSubmissionSchema, FieldKey, GetAutoCompletionSuggestionsResponse } from "@civilio/shared";
+import { FormType, FindSubmissionDataResponse, FieldUpdateSpec, FindFieldMappingsResponse, FindDbColumnsResponse, FindFormOptionsResponse, Paginated, FormSubmissionSchema, FieldKey, GetAutoCompletionSuggestionsResponse, FindSubmissionRefResponse } from "@civilio/shared";
 import { FormService } from "../form";
 
 @Injectable({
   providedIn: null
 })
 export class WebFormService implements FormService {
+  findIndexSuggestions(form: FormType, query: string): Promise<number[]> {
+    throw new Error("Method not implemented.");
+  }
+  findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse> {
+    throw new Error("Method not implemented.");
+  }
   findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse> {
     throw new Error("Method not implemented.");
   }

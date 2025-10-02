@@ -1,5 +1,5 @@
 import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
-import z from 'zod';
+import z, { Schema } from 'zod';
 import { FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevancePredicateSchema } from './schemas';
 
 export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
@@ -29,11 +29,13 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         },
         {
           key: 'fosa.form.sections.respondent.fields.phone',
-          type: 'text'
+          type: 'text',
+          pattern: '^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$'
         },
         {
           key: 'fosa.form.sections.respondent.fields.email',
-          type: 'text'
+          type: 'text',
+          pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$'
         },
         {
           key: 'fosa.form.sections.respondent.fields.knows_creation_date',
@@ -75,7 +77,6 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           key: 'fosa.form.sections.identification.fields.quarter',
           type: 'text',
-          autocomplete: true,
           required: true
         },
         {
@@ -144,7 +145,8 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           key: 'fosa.form.sections.identification.fields.cs_proximity',
           type: 'int',
           min: 0,
-          max: 80000
+          max: 80000,
+          unit: 'units.meters.short'
         },
         {
           key: 'fosa.form.sections.identification.fields.knows_gps_coords',
@@ -205,7 +207,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           id: 'fosa.form.sections.stats.line_1',
           fields: [
-            { key: 'fosa.form.sections.stats.line_1.fields.stats_year_1', type: 'int' },
+            { default: 2024, readonly: true, key: 'fosa.form.sections.stats.line_1.fields.stats_year_1', type: 'int' },
             { key: 'fosa.form.sections.stats.line_1.fields.stats_births_1', type: 'int' },
             { key: 'fosa.form.sections.stats.line_1.fields.stats_deaths_1', type: 'int' },
           ]
@@ -213,14 +215,14 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           id: 'fosa.form.sections.stats.line_2',
           fields: [
-            { key: 'fosa.form.sections.stats.line_2.fields.stats_year_2', type: 'int' },
+            { default: 2023, readonly: true, key: 'fosa.form.sections.stats.line_2.fields.stats_year_2', type: 'int' },
             { key: 'fosa.form.sections.stats.line_2.fields.stats_births_2', type: 'int' },
             { key: 'fosa.form.sections.stats.line_2.fields.stats_deaths_2', type: 'int' },
           ]
         }, {
           id: 'fosa.form.sections.stats.line_3',
           fields: [
-            { key: 'fosa.form.sections.stats.line_3.fields.stats_year_3', type: 'int' },
+            { default: 2022, readonly: true, key: 'fosa.form.sections.stats.line_3.fields.stats_year_3', type: 'int' },
             { key: 'fosa.form.sections.stats.line_3.fields.stats_births_3', type: 'int' },
             { key: 'fosa.form.sections.stats.line_3.fields.stats_deaths_3', type: 'int' },
           ]
@@ -228,7 +230,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           id: 'fosa.form.sections.stats.line_4',
           fields: [
-            { key: 'fosa.form.sections.stats.line_4.fields.stats_year_4', type: 'int' },
+            { default: 2021, readonly: true, key: 'fosa.form.sections.stats.line_4.fields.stats_year_4', type: 'int' },
             { key: 'fosa.form.sections.stats.line_4.fields.stats_births_4', type: 'int' },
             { key: 'fosa.form.sections.stats.line_4.fields.stats_deaths_4', type: 'int' },
           ]
@@ -236,7 +238,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           id: 'fosa.form.sections.stats.line_5',
           fields: [
-            { key: 'fosa.form.sections.stats.line_5.fields.stats_year_5', type: 'int' },
+            { default: 2020, readonly: true, key: 'fosa.form.sections.stats.line_5.fields.stats_year_5', type: 'int' },
             { key: 'fosa.form.sections.stats.line_5.fields.stats_births_5', type: 'int' },
             { key: 'fosa.form.sections.stats.line_5.fields.stats_deaths_5', type: 'int' },
           ]
@@ -475,7 +477,7 @@ export function defaultValueForType(type: FieldDefinition['type']) {
     case 'boolean': return false;
     case 'date': return new Date();
     case 'float':
-    case 'int': return 0.0;
+    case 'int': return 0;
     case 'multi-selection': return Array<Option>()
     case 'point': return GeopointSchema.parse({})
     case 'text': return '';
@@ -506,7 +508,13 @@ export function parseValue(definition: FieldDefinition, raw: RawInput | null): P
       z.date().nullable().default(new Date())
     ]).parse(raw);
     case 'float':
-    case 'int': return z.coerce.number().nullable().parse(raw)
+    case 'int': {
+      try {
+        return z.coerce.number().nullable().parse(raw ?? definition.default);
+      } catch (e) {
+        return defaultValueForType(definition.type) as number;
+      }
+    }
     case 'multi-selection': return raw?.split(' ') ?? []
     case "point": {
       if (!raw) return GeopointSchema.parse({});

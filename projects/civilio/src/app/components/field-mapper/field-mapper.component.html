@@ -30,7 +30,7 @@
         field.key + ".title" | translate
       }}</label>
       <div class="space-y-1">
-        <brn-popover sideOffset="5">
+        <brn-popover sideOffset="5" class="w-full">
           <input
             class="hidden"
             [formControl]="inputForm.controls[field.key].controls.col"
@@ -38,7 +38,7 @@
           />
           <button
             hlmBtn
-            class="w-[200px] justify-between overflow-ellipsis line-clamp-1 !text-start"
+            class="w-full justify-between overflow-ellipsis line-clamp-1 !text-start"
             variant="outline"
             [id]="field.key"
             brnPopoverTrigger
@@ -57,7 +57,7 @@
           <hlm-command
             *brnPopoverContent="let ctx"
             hlmPopoverContent
-            class="w-[200px] p-0"
+            class="w-full p-0"
           >
             <hlm-command-search>
               <ng-icon hlm name="lucideSearch" />

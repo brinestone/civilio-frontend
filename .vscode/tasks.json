@@ -4,6 +4,23 @@
   "tasks": [
     {
       "type": "npm",
+      "script": "build:electron:webpack",
+      "problemMatcher": {
+        "owner": "webpack",
+        "pattern": "$webpack",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": {
+            "regexp": "(.*?)"
+          },
+          "endsPattern": {
+            "regexp": "^webpack\\s\\d+\\.\\d+\\.\\d+\\scompiled\\ssuccessfully\\sin\\s\\d+\\s?ms$"
+          }
+        }
+      }
+    },
+    {
+      "type": "npm",
       "script": "start",
       "isBackground": true,
       "problemMatcher": {

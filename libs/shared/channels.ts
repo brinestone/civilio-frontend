@@ -10,8 +10,12 @@ import {
   FindFormOptionsRequestSchema,
   FindFormOptionsResponseSchema,
   FindFormSubmissionsRequestSchema,
+  FindIndexSuggestionsRequestSchema,
+  FindIndexSuggestionsResponseSchema,
   FindSubmissionDataRequestSchema,
   FindSubmissionDataResponseSchema,
+  FindSubmissionRefRequestSchema,
+  FindSubmissionRefResponseSchema,
   GetAutoCompletionSuggestionsRequestSchema,
   GetAutoCompletionSuggestionsResponseSchema,
   LoadTranslationRequestSchema,
@@ -49,7 +53,9 @@ export const channelArgs = {
   'db:test': TestDbConnectionRequestSchema,
   'translations:read': LoadTranslationRequestSchema,
   'submission-data:read': FindSubmissionDataRequestSchema,
-  'suggestions:read': GetAutoCompletionSuggestionsRequestSchema
+  'suggestions:read': GetAutoCompletionSuggestionsRequestSchema,
+  'submission-ref:read': FindSubmissionRefRequestSchema,
+  'index-suggestions:read': FindIndexSuggestionsRequestSchema
 } as const;
 export const channelResponses = {
   'config:read': AppConfigResponseSchema,
@@ -69,13 +75,15 @@ export const channelResponses = {
   'db:test': TestDbConnectionResponseSchema,
   'translations:read': LoadTranslationResponseSchema,
   'submission-data:read': FindSubmissionDataResponseSchema,
-  'suggestions:read': GetAutoCompletionSuggestionsResponseSchema
+  'suggestions:read': GetAutoCompletionSuggestionsResponseSchema,
+  'submission-ref:read': FindSubmissionRefResponseSchema,
+  'index-suggestions:read': FindIndexSuggestionsResponseSchema,
 } as const;
 
 type InferZod<T extends z.ZodType> = z.infer<T>;
 export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
 export type PushEvent = z.output<typeof PushEventSchema>;
-export type Channel = z.output<typeof ChannelSchema> | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
+export type Channel = z.output<typeof ChannelSchema> | 'index-suggestions:read' | 'submission-ref:read' | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
 export const RequestOptionsSchema = z.object({

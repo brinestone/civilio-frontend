@@ -30,6 +30,7 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
   private marker?: Marker;
   private touchedCallback?: any;
   private changeCallback?: any;
+  private externalChange = false;
 
   protected readonly online = signal(navigator.onLine);
   protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
@@ -39,7 +40,7 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
   ngAfterViewInit(): void {
     this.map = map(this.mapContainer().nativeElement, {
       center: this.resolvedCoords(),
-      zoom: 13
+      zoom: 16
     });
     this.map.on('click', this.onMapClicked.bind(this))
     this.initTileLayer();
@@ -76,6 +77,7 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
     this.map.setView(coords);
 
     this.marker?.on('move', ({ latlng: { lat, lng } }: any) => {
+      if (this.externalChange) return;
       this.changeCallback?.({ lat, long: lng });
       this._value.set({ lat, long: lng });
     })
@@ -95,7 +97,15 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
   }
 
   writeValue(obj: any): void {
-    this._value.set(GeopointSchema.optional().parse(obj));
+    this.externalChange = true;
+    const coords = GeopointSchema.optional().parse(obj);
+    this._value.set(coords);
+    if (coords) {
+      const _coords = latLng(coords?.lat, coords?.long);
+      this.moveMarker(_coords);
+      this.map?.setView(_coords);
+    }
+    this.externalChange = false;
   }
   registerOnChange(fn: any): void {
     this.changeCallback = fn;

@@ -1,7 +1,36 @@
 import { choices, fieldMappings, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindSubmissionDataResponseSchema, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema } from '@civilio/shared';
-import { and, countDistinct, eq, like, or, sql } from 'drizzle-orm';
+import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindIndexSuggestionsRequest, FindIndexSuggestionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefRequest, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema } from '@civilio/shared';
+import { and, asc, countDistinct, eq, like, or, sql } from 'drizzle-orm';
 import { provideDatabase } from '../helpers/db';
+
+export async function findIndexSuggestions({ form, query }: FindIndexSuggestionsRequest) {
+  const db = provideDatabase({ vwFormSubmissions });
+  const result = await db.select({
+    index: vwFormSubmissions.index
+  }).from(vwFormSubmissions)
+    .where(and(
+      eq(vwFormSubmissions.form, form),
+      like(sql<string>`${vwFormSubmissions.index}::TEXT`, `%${query}%`)
+    ))
+    .orderBy(vwFormSubmissions.index)
+    .limit(5);
+
+  return FindIndexSuggestionsResponseSchema.parse(result.map(({ index }) => index));
+}
+
+export async function findSubmissionRef({ form, index }: FindSubmissionRefRequest) {
+  const db = provideDatabase({ vwFormSubmissions });
+  const [result] = await db.select({
+    next: vwFormSubmissions.next,
+    prev: vwFormSubmissions.prev
+  }).from(vwFormSubmissions)
+    .where(and(
+      eq(vwFormSubmissions.index, index),
+      eq(vwFormSubmissions.form, form),
+    ));
+
+  return [result?.prev ?? null, result?.next ?? null]
+}
 
 export async function findAutocompleteSuggestions({ form, query, resultSize, field }: GetAutoCompletionSuggestionsRequest) {
   const db = provideDatabase({ fieldMappings });
@@ -12,7 +41,7 @@ export async function findAutocompleteSuggestions({ form, query, resultSize, fie
 
   if (!mapping) throw new Error(`Mapping not found for field: ${field} and form: ${form}`);
 
-  let resultSet = await db.execute(sql`SELECT FORMAT('SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY d.%I ASC LIMIT %L::INTEGER', ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT, ${'%' + query + '%'}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`)
+  let resultSet = await db.execute(sql`SELECT FORMAT('SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY UPPER(d.%I::TEXT) ASC LIMIT %L::INTEGER', ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT, ${'%' + query + '%'}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`)
   const [{ format }] = resultSet.rows;
 
   resultSet = await db.execute(format as string);
