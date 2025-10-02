@@ -5,3 +5,12 @@
   <span>Lat: {{ resolvedCoords()[0] | number: "1.3-4" }}</span>
   <span>Lon: {{ resolvedCoords()[1] | number: "1.3-4" }}</span>
 </div>
+
+@if (!online()) {
+  <div
+    class="gap-3 dark:bg-black/70 bg-white/70 text-lg dark:text-muted-foreground absolute w-full backdrop-blur-lg z-[1000] h-full flex items-center justify-center"
+  >
+    <ng-icon name="lucideCircleAlert" />
+    <p>Map unavailable. Please check your Internet connection</p>
+  </div>
+}

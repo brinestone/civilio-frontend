@@ -1,17 +1,26 @@
 import { DecimalPipe } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, forwardRef, linkedSignal, model, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, forwardRef, linkedSignal, model, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPoint, GeopointSchema } from '@civilio/shared';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCircleAlert } from '@ng-icons/lucide';
 import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
-
+import { fromEvent, merge } from 'rxjs';
 
 @Component({
   selector: 'cv-geo-point',
+  viewProviders: [
+    provideIcons({
+      lucideCircleAlert
+    })
+  ],
   providers: [
     { multi: true, provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => GeoPointComponent) }
   ],
   imports: [
-    DecimalPipe
+    DecimalPipe,
+    NgIcon
   ],
   templateUrl: './geo-point.component.html',
   styleUrl: './geo-point.component.scss'
@@ -22,6 +31,7 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
   private touchedCallback?: any;
   private changeCallback?: any;
 
+  protected readonly online = signal(navigator.onLine);
   protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
   protected readonly disabled = signal(false);
   protected readonly _value = model<GeoPoint>();
@@ -95,5 +105,14 @@ export class GeoPointComponent implements ControlValueAccessor, AfterViewInit {
   }
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
+  }
+
+  constructor() {
+    merge(
+      fromEvent(window, 'online'),
+      fromEvent(window, 'offline'),
+    ).pipe(
+      takeUntilDestroyed(),
+    ).subscribe(() => this.online.set(navigator.onLine));
   }
 }

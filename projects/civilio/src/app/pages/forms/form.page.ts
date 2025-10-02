@@ -1,5 +1,5 @@
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, resource, signal, Signal, WritableSignal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, model, resource, signal, Signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
 import { extractAllFields, FieldDefinition, FormModelDefinition, ParsedValue, parseValue, RawInput } from '@app/model';
@@ -29,19 +29,36 @@ import { injectRouteFragment } from 'ngxtension/inject-route-fragment';
 import { debounceTime, filter, map, mergeMap, pipe } from 'rxjs';
 import z from 'zod';
 import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideUnlink } from '@ng-icons/lucide';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { BrnSheetImports } from '@spartan-ng/brain/sheet';
+import { HlmSheetImports } from '@spartan-ng/helm/sheet';
+import { FieldMapperComponent } from '@app/components';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
 
 @Component({
-  selector: 'cv-fosa',
+  selector: 'cv-form-page',
+  viewProviders: [
+    provideIcons({
+      lucideUnlink
+    })
+  ],
   imports: [
+    BrnSheetImports,
+    HlmSheetImports,
     HlmAutocompleteImports,
     HlmTabsImports,
     TranslatePipe,
+    HlmButton,
     NgTemplateOutlet,
     HlmDatePickerImports,
     HlmSelectImports,
     DecimalPipe,
     BrnSelectImports,
+    FieldMapperComponent,
     HlmInput,
+    NgIcon,
     HlmCheckboxImports,
     HlmLabel,
     ReactiveFormsModule,
@@ -64,6 +81,7 @@ export class FormPage implements AfterViewInit {
   private routeData = injectRouteData();
 
 
+  protected readonly mapperSheetState = model<BrnDialogState>('closed');
   protected readonly autoCompletionSources: Record<string, [WritableSignal<string>, Signal<string[]>]> = {};
   private readonly optionsNotifier = createNotifier();
   protected formType = computed(() => this.routeData()['form'] as FormType);
@@ -125,7 +143,9 @@ export class FormPage implements AfterViewInit {
       this.addFieldControl(schema);
     }
     for (const schema of schemas) {
-      this.setupRelevanceWatch(schema);
+      if (schema.relevance) {
+        this.setupRelevanceWatch(schema);
+      }
       if (schema.type == 'text' && schema.autocomplete) {
         const result = this.setupAutocompletion(schema);
         this.autoCompletionSources[schema.key] = result;

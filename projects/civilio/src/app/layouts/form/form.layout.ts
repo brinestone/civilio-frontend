@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { RouterOutlet } from '@angular/router';
+import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucideUnlink } from '@ng-icons/lucide';
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 
 @Component({
@@ -17,13 +16,10 @@ import { HlmSheetImports } from '@spartan-ng/helm/sheet';
   ],
   imports: [
     RouterOutlet,
-    NgIcon,
-    HlmButton,
     HlmAlertImports,
-    RouterLink,
     HlmSheetImports,
     BrnSheetImports
-  ],
+],
   templateUrl: './form.layout.html',
   styleUrl: './form.layout.scss'
 })
