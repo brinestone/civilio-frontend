@@ -79,7 +79,7 @@
       @defer (when currentTab() === section.id) {
         <fieldset
           tabindex="-1"
-          class="grid grid-cols-[auto_auto] gap-3 pb-16 overflow-y-auto px-4"
+          class="grid grid-cols-2 gap-3 pb-16 overflow-y-auto px-4"
           [hlmTabsContent]="section.id"
         >
           <ng-container
@@ -220,7 +220,11 @@
       } @else if (field.type == "point") {
         <cv-geo-point [formControlName]="field.key" />
       } @else if (field.type == "table") {
-        <cv-tabular-field class="grid-cols-2" />
+        <cv-tabular-field
+          [optionSource]="allFormOptions()"
+          [columnsSchema]="field.columns"
+          [formControlName]="field.key"
+        />
       }
       @if (
         form.controls[field.key].invalid &&

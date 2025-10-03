@@ -1,4 +1,4 @@
-import { FieldKeySchema, AllSectionKeysSchema, OptionSchema, FormTypeSchema, GeopointSchema } from "@civilio/shared";
+import { AllSectionKeysSchema, FieldKeySchema, FormTypeSchema, GeopointSchema, OptionSchema } from "@civilio/shared";
 import z from "zod";
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
@@ -85,30 +85,56 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   unit: z.string().optional()
 });
 
-export const ColumnDefinitionSchema = z.object({
+export const BaseColumnDefinition = z.object({
   key: FieldKeySchema,
   draggable: z.boolean().optional(),
   width: z.int().optional(),
   editable: z.boolean().optional(),
-  type: z.union([
-    z.literal('boolean'),
-    z.literal('date'),
-    z.literal('single-selection'),
-    z.literal('multi-selection'),
-    z.literal('text'),
-    z.literal('number'),
-  ])
+  default: z.any().optional()
 });
 
-const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema
-.omit({
-  span: true,
-  default: true,
-  required: true
-}).extend({
-  type: z.literal('table'),
-  columns: z.record(z.string(), ColumnDefinitionSchema)
+export const TextColumnDefinitionSchema = BaseColumnDefinition.extend({
+  type: z.literal('text')
 })
+
+export const NumberColumnDefinitionSchema = BaseColumnDefinition.extend({
+  min: z.number().optional(),
+  max: z.number().optional(),
+  type: z.literal('number')
+})
+
+export const SelectionColumnDefinitionSchema = BaseColumnDefinition.extend({
+  optionGroupKey: z.string(),
+  type: z.enum(['single-selection', 'multi-selection'])
+})
+
+export const BooleanColumnDefinitionSchema = BaseColumnDefinition.extend({
+  type: z.literal('boolean')
+});
+
+export const DateColumnDefinitionSchema = BaseColumnDefinition.extend({
+  type: z.literal('date'),
+  min: z.coerce.date().optional(),
+  max: z.coerce.date().optional()
+});
+
+export const ColumnDefinitionSchema = z.discriminatedUnion('type', [
+  DateColumnDefinitionSchema,
+  BooleanColumnDefinitionSchema,
+  SelectionColumnDefinitionSchema,
+  NumberColumnDefinitionSchema,
+  TextColumnDefinitionSchema
+]);
+
+const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema
+  .omit({
+    span: true,
+    default: true,
+    required: true
+  }).extend({
+    type: z.literal('table'),
+    columns: z.record(z.string(), ColumnDefinitionSchema)
+  })
 
 export const FieldDefinitionSchema = z.discriminatedUnion('type', [
   BooleanFieldDefinitionSchema,
@@ -151,4 +177,4 @@ export type ColumnDefinition = z.output<typeof ColumnDefinitionSchema>;
 export type DefinitionLike = {
   type: FieldDefinition['type'] | ColumnDefinition['type'],
   default?: any
-}
+};

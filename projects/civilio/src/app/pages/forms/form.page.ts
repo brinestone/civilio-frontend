@@ -1,7 +1,7 @@
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, model, resource, signal, Signal, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldMapperComponent } from '@app/components';
 import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
@@ -95,7 +95,6 @@ export class FormPage implements AfterViewInit {
   protected destroyRef = inject(DestroyRef);
   private routeData = injectRouteData();
   protected readonly route = inject(ActivatedRoute);
-
   protected readonly indexInputFilter = linkedSignal(() => {
     const index = String(this.submissionIndex() ?? '');
     return index;
@@ -112,13 +111,14 @@ export class FormPage implements AfterViewInit {
       return this.formService.findIndexSuggestions(form, filter);
     }
   });
+
   protected readonly mapperSheetState = model<BrnDialogState>('closed');
   protected readonly autoCompletionSources: Record<string, [WritableSignal<string>, Signal<string[]>]> = {};
   private readonly optionsNotifier = createNotifier();
   protected formType = computed(() => this.routeData()['form'] as FormType);
   protected formModel = computed(() => this.routeData()['model'] as FormModelDefinition);
   protected optionSelector = computed(() => optionsSelector(this.formType()));
-  private readonly allFormOptions = computed(() => {
+  protected readonly allFormOptions = computed(() => {
     this.optionsNotifier.listen();
     return this.store.selectSnapshot(this.optionSelector());
   });
@@ -197,8 +197,7 @@ export class FormPage implements AfterViewInit {
     }
   }
 
-  private setupDropdownOptions(schema: FieldDefinition) {
-    if (schema.type != 'single-selection' && schema.type != 'multi-selection') return;
+  private setupDropdownOptions(schema: Extract<FieldDefinition, { type: 'multi-selection' | 'single-selection' }>) {
     if (schema.parent) {
       const parentProvider = this.valueProviders[schema.parent];
       const provider = computed(() => {
@@ -299,12 +298,7 @@ export class FormPage implements AfterViewInit {
       ), { injector: this.injector, initialValue: null });
   }
 
-  protected addFieldControl(schema: FieldDefinition) {
-    const key = schema.key;
-    const control = new UntypedFormControl();
-    this.form.addControl(key, control);
-    const provider = this.makeProviderSignal(schema);
-    this.valueProviders[key] = provider;
+  private extractValidators(schema: FieldDefinition) {
     const validators: ValidatorFn[] = [];
 
     if ('required' in schema && !schema.relevance) {
@@ -391,13 +385,31 @@ export class FormPage implements AfterViewInit {
       });
     }
 
-    this.controlValidatorRegistry[key] = validators;
-    control.addValidators(validators);
+    return validators;
+  }
 
-    const source = mapSignal(
-      this.submissionData.value, key,
-      pipe(map(v => schema.type == 'table' ? this.extractSubFormData(schema, v as any) : parseValue(schema, v as RawInput | null))),
-      { injector: this.injector });
+  protected addFieldControl(schema: FieldDefinition) {
+    const key = schema.key;
+    const control = new UntypedFormControl();
+    this.form.addControl(key, control);
+    const provider = this.makeProviderSignal(schema);
+    this.valueProviders[key] = provider;
+
+    this.controlValidatorRegistry[key] = this.extractValidators(schema);
+    control.addValidators(this.controlValidatorRegistry[key]);
+
+    let source: Signal<any>;
+
+    if (schema.type == 'table') {
+      source = derivedFrom([this.submissionData.value], pipe(
+        map(([v]) => this.extractSubFormData(schema, v))
+      ), { injector: this.injector, initialValue: [] })
+    } else {
+      source = mapSignal(
+        this.submissionData.value, key,
+        pipe(map(v => parseValue(schema, v as RawInput | null))),
+        { injector: this.injector });
+    }
 
     effect(() => {
       const updatedValue = source();

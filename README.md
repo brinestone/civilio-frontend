@@ -1,59 +1,101 @@
-# Civilio
+# CivilIO
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.3.
+CivilIO is a desktop application for managing civil status data, built with Angular and Electron.
 
-## Development server
+## Project Structure
 
-To start a local development server, run:
+The project is a monorepo managed with pnpm workspaces, organized as follows:
 
-```bash
-ng serve
-```
+-   `projects/civilio`: The main Angular application.
+-   `projects/electron`: The Electron main and preload processes.
+-   `libs/shared`: Shared utilities and code between the Angular and Electron apps.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tech Stack
 
-## Code scaffolding
+-   **Frameworks**: Angular, Electron
+-   **Database**: PostgreSQL with Drizzle ORM
+-   **Styling**: Tailwind CSS with SCSS, `spartan-ng` UI components
+-   **State Management**: NGXS
+-   **Package Manager**: pnpm
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Getting Started
 
-```bash
-ng generate component component-name
-```
+### Prerequisites
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+-   Node.js and pnpm
+-   A running PostgreSQL instance
 
-```bash
-ng generate --help
-```
+### Installation
 
-## Building
+1.  Clone the repository.
+2.  Install the dependencies:
 
-To build the project run:
+    ```bash
+    pnpm install
+    ```
 
-```bash
-ng build
-```
+### Development
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+To start the application in development mode, run:
 
 ```bash
-ng test
+pnpm dev
 ```
 
-## Running end-to-end tests
+This will concurrently start the Angular development server and the Electron application with hot-reloading.
 
-For end-to-end (e2e) testing, run:
+## Database Migrations
+
+The project uses Drizzle ORM for database migrations.
+
+-   To generate and apply migrations, run:
+
+    ```bash
+    pnpm migrate.local
+    ```
+
+-   To open Drizzle Studio, run:
+
+    ```bash
+    pnpm studio
+    ```
+
+## Building and Packaging
+
+To build and package the application for production, run:
 
 ```bash
-ng e2e
+pnpm make:electron
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+This will create a distributable package in the `out` directory.
 
-## Additional Resources
+## Testing
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+To run the unit tests, use:
+
+```bash
+pnpm test
+```
+
+## Code Generation
+
+The project includes custom schematics for generating new components:
+
+-   Generate a new page:
+
+    ```bash
+    pnpm generate:page <page-name>
+    ```
+
+-   Generate a new layout:
+
+    ```bash
+    pnpm generate:layout <layout-name>
+    ```
+
+-   Generate a new component:
+
+    ```bash
+    pnpm generate:component <component-name>
+    ```

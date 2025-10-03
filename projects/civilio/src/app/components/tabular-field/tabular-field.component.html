@@ -1,1 +1,57 @@
-<p>tabular-field works!</p>
+<table hlmTable class="w-full">
+  <thead hlmTHead class="sticky top-0 border-b border-border backdrop-blur-md">
+    @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+      <tr hlmTr>
+        @for (header of headerGroup.headers; track header.id) {
+          <th hlmTh [attr.colspan]="header.colSpan">
+            @if (!header.isPlaceholder) {
+              <ng-container
+                *flexRender="
+                  header.column.columnDef.header;
+                  props: header.getContext();
+                  let headerText
+                "
+              >
+                <p>{{ headerText }}</p>
+              </ng-container>
+            }
+          </th>
+        }
+      </tr>
+    }
+  </thead>
+  <tbody hlmTBody>
+    @for (row of table.getRowModel().rows; track row.id) {
+      <tr
+        hlmTr
+        [attr.key]="row.id"
+        [attr.data-state]="row.getIsSelected() && 'selected'"
+        class="cursor-pointer"
+      >
+        @for (cell of row.getVisibleCells(); track $index) {
+          <td hlmTd>
+            <ng-container
+              *flexRender="
+                cell.column.columnDef.cell;
+                props: cell.getContext();
+                let cell
+              "
+            >
+              {{ cell }}
+            </ng-container>
+          </td>
+        } @empty {
+          <tr hlmTr>
+            <td
+              hlmTd
+              [attr.colspan]="_columns().length || 1"
+              class="h-24 text-center"
+            >
+              No results.
+            </td>
+          </tr>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

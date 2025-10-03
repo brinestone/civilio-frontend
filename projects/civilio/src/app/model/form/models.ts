@@ -324,18 +324,23 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
             age: {
               key: 'fosa.form.sections.staff.sections.employees.fields.age',
               type: 'number',
+              min: 18,
+              max: 90
             },
             computer_level: {
-              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level',
               type: 'single-selection',
+              optionGroupKey: 'nz2pr56',
+              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level'
             },
             ed_level: {
-              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level',
-              type: 'single-selection'
+              key: 'fosa.form.sections.staff.sections.employees.fields.ed_level',
+              type: 'single-selection',
+              optionGroupKey: 'ta2og93',
             },
             gender: {
               key: 'fosa.form.sections.staff.sections.employees.fields.gender',
-              type: 'single-selection'
+              type: 'single-selection',
+              optionGroupKey: 'xw39g10'
             },
             has_cs_training: {
               key: 'fosa.form.sections.staff.sections.employees.fields.has_cs_training',
@@ -343,7 +348,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
             },
             phone: {
               key: 'fosa.form.sections.staff.sections.employees.fields.phone',
-              type: 'text'
+              type: 'text',
             },
             position: {
               key: 'fosa.form.sections.staff.sections.employees.fields.position',
