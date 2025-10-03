@@ -85,19 +85,29 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   unit: z.string().optional()
 });
 
-const ColumnDefinitionSchema = z.object({
-  id: z.string(),
-  valueAccessorFn: z.function({
-    input: [z.record(z.string(), z.unknown())],
-    output: z.unknown()
-  }),
+export const ColumnDefinitionSchema = z.object({
+  key: FieldKeySchema,
+  draggable: z.boolean().optional(),
   width: z.int().optional(),
-  editable: z.boolean().optional()
+  editable: z.boolean().optional(),
+  type: z.union([
+    z.literal('boolean'),
+    z.literal('date'),
+    z.literal('single-selection'),
+    z.literal('multi-selection'),
+    z.literal('text'),
+    z.literal('number'),
+  ])
 });
 
-const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
+const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema
+.omit({
+  span: true,
+  default: true,
+  required: true
+}).extend({
   type: z.literal('table'),
-  columns: ColumnDefinitionSchema.array()
+  columns: z.record(z.string(), ColumnDefinitionSchema)
 })
 
 export const FieldDefinitionSchema = z.discriminatedUnion('type', [
@@ -127,8 +137,18 @@ export const FormModelDefinitionSchema = z.object({
     form: FormTypeSchema
   })
 });
+
+// const DefinitionLikeSchema = z.object({
+//   type:
+// });
+
 export type FieldDefinition = z.output<typeof FieldDefinitionSchema>;
 export type FormModelDefinition = z.output<typeof FormModelDefinitionSchema>;
 export type FormSection = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;
 export type RelevanceFn = z.output<typeof RelevancePredicateSchema>;
+export type ColumnDefinition = z.output<typeof ColumnDefinitionSchema>;
+export type DefinitionLike = {
+  type: FieldDefinition['type'] | ColumnDefinition['type'],
+  default?: any
+}

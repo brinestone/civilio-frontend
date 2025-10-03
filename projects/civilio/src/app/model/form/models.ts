@@ -1,6 +1,6 @@
 import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
-import z, { Schema } from 'zod';
-import { FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevancePredicateSchema } from './schemas';
+import z from 'zod';
+import { DefinitionLike, FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevancePredicateSchema } from './schemas';
 
 export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
   meta: {
@@ -311,59 +311,47 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
           required: true,
           min: 0,
           max: 500
-        }
-      ],
-      children: [
+        },
         {
-          id: 'fosa.form.sections.staff.sections.employees',
-          fields: [
-            {
+          key: 'fosa.form.sections.staff.sections.employees',
+          type: 'table',
+          span: 12,
+          columns: {
+            names: {
               key: 'fosa.form.sections.staff.sections.employees.fields.names',
               type: 'text',
-              required: true
             },
-            {
-              key: 'fosa.form.sections.staff.sections.employees.fields.position',
-              type: 'text',
-              required: true
-            },
-            {
-              key: 'fosa.form.sections.staff.sections.employees.fields.gender',
-              type: 'single-selection',
-              required: true,
-              optionsGroupKey: 'xw39g10'
-            },
-            {
-              key: 'fosa.form.sections.staff.sections.employees.fields.phone',
-              type: 'text',
-              pattern: '^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$',
-            },
-            {
+            age: {
               key: 'fosa.form.sections.staff.sections.employees.fields.age',
-              required: true,
-              type: 'int',
-              min: 18,
-              max: 90
+              type: 'number',
             },
-            {
+            computer_level: {
+              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level',
+              type: 'single-selection',
+            },
+            ed_level: {
+              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level',
+              type: 'single-selection'
+            },
+            gender: {
+              key: 'fosa.form.sections.staff.sections.employees.fields.gender',
+              type: 'single-selection'
+            },
+            has_cs_training: {
               key: 'fosa.form.sections.staff.sections.employees.fields.has_cs_training',
               type: 'boolean'
             },
-            {
-              key: 'fosa.form.sections.staff.sections.employees.fields.ed_level',
-              type: 'single-selection',
-              optionsGroupKey: 'ta2og93',
-              required: true
+            phone: {
+              key: 'fosa.form.sections.staff.sections.employees.fields.phone',
+              type: 'text'
             },
-            {
-              key: 'fosa.form.sections.staff.sections.employees.fields.computer_level',
-              type: 'single-selection',
-              required: true,
-              optionsGroupKey: 'nz2pr56'
+            position: {
+              key: 'fosa.form.sections.staff.sections.employees.fields.position',
+              type: 'text'
             }
-          ]
-        }
-      ]
+          }
+        } as FieldDefinition
+      ],
     },
     {
       id: 'fosa.form.sections.extras',
@@ -472,7 +460,7 @@ export function lookupFieldSchema(formDefinition: FormModelDefinition, key: Fiel
   return lookupFieldSchema(formDefinition, key);
 }
 
-export function defaultValueForType(type: FieldDefinition['type']) {
+export function defaultValueForType(type: DefinitionLike['type']) {
   switch (type) {
     case 'boolean': return false;
     case 'date': return new Date();
@@ -487,7 +475,7 @@ export function defaultValueForType(type: FieldDefinition['type']) {
 
 export type ParsedValue = boolean | null | Date | GeoPoint | number | string;
 export type RawInput = (string | null)[] | string;
-export function parseValue(definition: FieldDefinition, raw: RawInput | null): ParsedValue | ParsedValue[] {
+export function parseValue(definition: DefinitionLike, raw: RawInput | null): ParsedValue | ParsedValue[] {
   if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
   switch (definition.type) {
     case 'boolean': {
@@ -508,6 +496,7 @@ export function parseValue(definition: FieldDefinition, raw: RawInput | null): P
       z.date().nullable().default(new Date())
     ]).parse(raw);
     case 'float':
+    case 'number':
     case 'int': {
       try {
         return z.coerce.number().nullable().parse(raw ?? definition.default);

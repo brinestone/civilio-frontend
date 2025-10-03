@@ -174,18 +174,21 @@ export namespace Fosa {
         'employee_count'
       ])
     ]),
-    z.templateLiteral([
+    z.union([
       SectionKeysSchema.extract(['fosa.form.sections.staff.sections.employees']),
-      '.fields.',
-      z.enum([
-        'names',
-        'position',
-        'gender',
-        'phone',
-        'age',
-        'has_cs_training',
-        'ed_level',
-        'computer_level'
+      z.templateLiteral([
+        SectionKeysSchema.extract(['fosa.form.sections.staff.sections.employees']),
+        '.fields.',
+        z.enum([
+          'names',
+          'position',
+          'gender',
+          'phone',
+          'age',
+          'has_cs_training',
+          'ed_level',
+          'computer_level'
+        ])
       ])
     ])
   ])

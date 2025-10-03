@@ -5,6 +5,7 @@ import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Valid
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldMapperComponent } from '@app/components';
 import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
+import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
 import { extractAllFields, FieldDefinition, FormModelDefinition, ParsedValue, parseValue, RawInput } from '@app/model';
 import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
@@ -66,6 +67,7 @@ import z from 'zod';
     FieldMapperComponent,
     HlmInput,
     NgIcon,
+    TabularFieldComponent,
     HlmCheckboxImports,
     HlmLabel,
     ReactiveFormsModule,
@@ -122,7 +124,7 @@ export class FormPage implements AfterViewInit {
   });
   protected readonly formOptions: Record<string, Signal<Option[]>> = {};
   protected relevanceRegistry: Record<string, () => boolean> = {};
-  protected valueProviders: Record<string, Signal<ParsedValue | ParsedValue[]>> = {};
+  protected valueProviders: Record<string, Signal<ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[]>> = {};
   private controlValidatorRegistry: Record<string, ValidatorFn[]> = {};
   protected currentTab = linkedSignal(() => {
     return this.targetTab() ?? this.formModel().sections[0].id;
@@ -147,9 +149,6 @@ export class FormPage implements AfterViewInit {
   protected readonly form = new FormRecord<UntypedFormControl>({});
 
   constructor(actions: Actions) {
-    effect(() => {
-      console.log('submission index: ', this.submissionIndex())
-    })
     effect(() => {
       const err = this.submissionData.error();
       if (!err) return;
@@ -267,10 +266,37 @@ export class FormPage implements AfterViewInit {
     }, { injector: this.injector });
   }
 
-  private makeProviderSignal({ key, ...rest }: FieldDefinition) {
-    return derivedFrom([this.form.controls[key].valueChanges, this.submissionData.value], pipe(
-      map(([formValue, pristineValue]) => formValue as ParsedValue | ParsedValue[] | undefined ?? parseValue({ key, ...rest }, pristineValue?.[key] ?? null) ?? null),
-    ), { injector: this.injector, initialValue: null });
+  private extractSubFormData(schema: Extract<FieldDefinition, { type: 'table' }>, rawData: Record<string, string | (string | null)[] | null> | null) {
+    const entries = Object.entries(rawData ?? {}).filter(([k]) => k.startsWith(schema.key))
+    const rowCount = entries.filter(([_, entry]) => entry != null)
+      .map(([_, entry]) => entry?.length ?? 0)
+      .reduce((max, curr) => curr > max ? curr : max, Number.MIN_SAFE_INTEGER);
+
+    return Array.from({ length: rowCount }, (_, index) => {
+      return entries.reduce((acc, [k, v]) => {
+        const [lastPart] = k.split('.').slice(-1);
+        const columnDefinition = schema.columns[lastPart];
+        const parsedValue = !columnDefinition ? null : parseValue(columnDefinition, (v as RawInput[])[index]);
+        acc[k] = parsedValue;
+        return acc;
+      }, {} as Record<string, ParsedValue | ParsedValue[]>)
+    });
+  }
+
+  private makeProviderSignal(schema: FieldDefinition) {
+    const { key, type } = schema;
+
+    if (type == 'table') {
+      return derivedFrom([this.form.controls[key].valueChanges, this.submissionData.value], pipe(
+        map(([formValue, rawValue]) => {
+          if (formValue) return formValue as Record<string, ParsedValue | ParsedValue[]>[];
+          return this.extractSubFormData(schema, rawValue)
+        })
+      ), { injector: this.injector, initialValue: [] });
+    } else
+      return derivedFrom([this.form.controls[key].valueChanges, this.submissionData.value], pipe(
+        map(([formValue, pristineValue]) => formValue as ParsedValue | ParsedValue[] | undefined ?? parseValue(schema, pristineValue?.[key] ?? null) ?? null),
+      ), { injector: this.injector, initialValue: null });
   }
 
   protected addFieldControl(schema: FieldDefinition) {
@@ -370,7 +396,7 @@ export class FormPage implements AfterViewInit {
 
     const source = mapSignal(
       this.submissionData.value, key,
-      pipe(map(v => parseValue(schema, v as RawInput | null))),
+      pipe(map(v => schema.type == 'table' ? this.extractSubFormData(schema, v as any) : parseValue(schema, v as RawInput | null))),
       { injector: this.injector });
 
     effect(() => {
@@ -386,7 +412,8 @@ export class FormPage implements AfterViewInit {
     this.currentTab.set(tab);
     this.navigate([], undefined, {
       fragment: tab,
-      queryParamsHandling: 'preserve'
-    })
+      queryParamsHandling: 'preserve',
+      preserveFragment: true,
+    });
   }
 }

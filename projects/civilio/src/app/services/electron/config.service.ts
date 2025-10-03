@@ -6,7 +6,7 @@ import { ConfigService } from '../config';
 @Injectable({
   providedIn: null
 })
-export class ElectronConfigService implements ConfigService{
+export class ElectronConfigService implements ConfigService {
   async setDbConfig(dbConfig: DbConfig) {
     return await sendRpcMessageAsync('config:update', {
       path: 'db' as AppConfigPaths,
@@ -23,10 +23,7 @@ export class ElectronConfigService implements ConfigService{
     } as UpdateConfigRequest).then(AppConfigSchema.parse);
   }
   async setTheme(theme: ThemeMode) {
-    return await sendRpcMessageAsync('config:update', {
-      path: 'prefs.theme',
-      value: theme
-    } as UpdateConfigRequest).then(AppConfigSchema.parse);
+    return await sendRpcMessageAsync('theme:update', { theme }).then(AppConfigSchema.parse);
   }
   async loadConfig() {
     const result = await sendRpcMessageAsync('config:read');

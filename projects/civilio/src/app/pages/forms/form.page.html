@@ -9,6 +9,7 @@
       size="sm"
       variant="outline"
       hlmBtn
+      [preserveFragment]="true"
     >
       <ng-icon name="lucideChevronLeft" />
       <span>Prev</span>
@@ -22,6 +23,7 @@
       hlmBtn
       routerLink="../{{ surroundingRefs.value()?.[1] }}"
       [relativeTo]="route"
+      [preserveFragment]="true"
     >
       <span>Next</span>
       <ng-icon name="lucideChevronRight" />
@@ -68,9 +70,7 @@
   <hlm-tabs [tab]="currentTab()" (tabActivated)="onActivaTabChanged($event)">
     <hlm-paginated-tabs-list>
       @for (section of formModel().sections; track $index) {
-        <button
-          [hlmTabsTrigger]="section.id"
-        >
+        <button [hlmTabsTrigger]="section.id">
           {{ section.id + ".title" | translate }}
         </button>
       }
@@ -124,7 +124,11 @@
 </ng-template>
 
 <ng-template #fieldTemplate let-field>
-  <div class="space-y-1" [formGroup]="form">
+  <div
+    class="space-y-1"
+    [class.col-span-2]="field.type == 'table'"
+    [formGroup]="form"
+  >
     <label hlmLabel [for]="field.key">{{
       field.key + ".title" | translate
     }}</label>
@@ -215,6 +219,8 @@
         </brn-select>
       } @else if (field.type == "point") {
         <cv-geo-point [formControlName]="field.key" />
+      } @else if (field.type == "table") {
+        <cv-tabular-field class="grid-cols-2" />
       }
       @if (
         form.controls[field.key].invalid &&

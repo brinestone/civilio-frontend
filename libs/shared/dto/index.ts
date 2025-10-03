@@ -1,6 +1,10 @@
 import z from "zod";
-import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema } from "../schema";
+import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema, ThemeSchema } from "../schema";
 import { FieldKeySchema } from "../field-keys";
+
+export const UpdateThemeRequestSchema = z.object({
+  theme: ThemeSchema
+})
 
 export const FindIndexSuggestionsRequestSchema = z.object({
   form: FormTypeSchema,
