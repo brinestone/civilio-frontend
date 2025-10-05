@@ -70,9 +70,14 @@
   <hlm-tabs [tab]="currentTab()" (tabActivated)="onActivaTabChanged($event)">
     <hlm-paginated-tabs-list>
       @for (section of formModel().sections; track $index) {
-        <button [hlmTabsTrigger]="section.id">
+        <a
+          [preserveFragment]="true"
+          [routerLink]="[]"
+          [fragment]="section.id"
+          [hlmTabsTrigger]="section.id"
+        >
           {{ section.id + ".title" | translate }}
-        </button>
+        </a>
       }
     </hlm-paginated-tabs-list>
     @for (section of formModel().sections; track $index) {

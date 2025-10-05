@@ -1,0 +1,12 @@
+@for (action of actions(); track $index) {
+  <button (click)="trigger.emit(action.key)" hlmBtn variant="ghost" size="sm">
+    @if (action.icon) {
+      <ng-icon [name]="action.icon" />
+    }
+    @if (action.i18nKey) {
+      <span>{{ action.i18nKey | translate }}</span>
+    } @else if (action.label) {
+      <span> {{ action.label }} </span>
+    }
+  </button>
+}

@@ -1,4 +1,6 @@
 misc:
+  actions:
+    modify: 'Modify'
   placeholder:
     jump_to_index: Jump to index
 units:

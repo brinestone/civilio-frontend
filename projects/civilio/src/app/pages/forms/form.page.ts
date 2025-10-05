@@ -160,6 +160,8 @@ export class FormPage implements AfterViewInit {
       takeUntilDestroyed(),
       ofActionSuccessful(UpdateMappings)
     ).subscribe(() => this.submissionData.reload());
+
+    this.form.valueChanges.subscribe(v => console.log(v));
   }
 
   ngAfterViewInit(): void {

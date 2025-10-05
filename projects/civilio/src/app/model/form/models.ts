@@ -487,6 +487,7 @@ export function parseValue(definition: DefinitionLike, raw: RawInput | null): Pa
       try {
         const result = z.union(
           [
+            z.boolean(),
             z.literal('1').transform(() => true),
             z.literal('2').transform(() => false),
             z.null().transform(() => false)

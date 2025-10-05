@@ -1,72 +1,102 @@
-import { Component, computed, forwardRef, inject, input, linkedSignal, signal, untracked } from '@angular/core';
+import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ColumnDefinition, ParsedValue } from '@app/model';
+import { ColumnDefinition, ParsedValue, parseValue } from '@app/model';
 import { Option } from '@civilio/shared';
-import { TranslateService } from '@ngx-translate/core';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideCheck, lucidePencil, lucideX } from '@ng-icons/lucide';
+import { TranslatePipe } from '@ngx-translate/core';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-import { createAngularTable, createColumnHelper, FlexRender, FlexRenderDirective, getCoreRowModel } from '@tanstack/angular-table';
 
 export type ColumnSchemaSource = (key: string) => () => ColumnDefinition;
 
 @Component({
   selector: 'cv-tabular-field',
   imports: [
+    TranslatePipe,
     HlmTableImports,
-    FlexRender,
-    FlexRenderDirective
+    HlmSelectImports,
+    HlmCheckboxImports,
+    DecimalPipe,
+    BrnSelectImports,
+    HlmInput,
+    HlmButton,
+    NgTemplateOutlet,
+    NgIcon
   ],
   templateUrl: './tabular-field.component.html',
   styleUrl: './tabular-field.component.scss',
   providers: [
-    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => TabularFieldComponent), multi: true }
+    provideIcons({
+      lucidePencil,
+      lucideCheck,
+      lucideX
+    }),
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TabularFieldComponent),
+      multi: true
+    }
   ],
 })
 export class TabularFieldComponent implements ControlValueAccessor {
-  private translateService = inject(TranslateService);
   private changeCallback?: (arg?: any) => void;
-  private touchCallback?: (arg?: any) => void;
+  protected touchCallback?: (arg?: any) => void;
   public readonly optionSource = input.required<Record<string, Option[]>>();
   public readonly columnsSchema = input.required<Record<string, ColumnDefinition>>();
 
-  private readonly _columnSchemas = computed(() => Object.values(this.columnsSchema()));
-  protected readonly _data = signal<Record<string, ParsedValue>[]>([]);
-  private readonly columnHelper = createColumnHelper<Record<string, ParsedValue>>();
+  protected readonly _columnSchemas = computed(() => Object.values(this.columnsSchema()).reduce((acc, curr) => ({ ...acc, [curr.key]: curr }), {} as Record<string, ColumnDefinition>));
+  protected readonly _headers = computed(() => Object.keys(this._columnSchemas()));
+  protected readonly _data = signal<Record<string, ParsedValue | ParsedValue[]>[]>([]);
   protected readonly _disabled = signal(false);
-  protected readonly _columns = linkedSignal(() => {
-    const keys = Object.keys(this._data()[0] ?? {});
+  protected readonly _editingRows = signal<number[]>([]);
 
-    return keys.map(k => {
-      const columnSchema = this._columnSchemas().find(c => c.key == k) as Extract<ColumnDefinition, { type: 'multi-selection' | 'single-selection'; }>;
-      return this.columnHelper.accessor((row) => row[k],
-        {
-          id: k,
-          header: this.translateService.instant(`${k}.title`),
-          cell: ({ renderValue }) => {
-            if (!(['multi-selection', 'single-selection'] as ColumnDefinition['type'][]).includes(columnSchema.type)) return renderValue();
-            const options = untracked(this.optionSource)[columnSchema.optionGroupKey];
-            const option = options.find(o => o.value == renderValue());
-            return option?.i18nKey ? this.translateService.instant(option.i18nKey) : option?.label;
-          }
-        });
+  protected updateValue(row: number, key: string, value: any) {
+    console.log(key, value);
+    const schema = this._columnSchemas()[key];
+    const parsedValue = parseValue(schema, value);
+    this._data.update((data) => {
+      const rec = data[row];
+      rec[key] = parsedValue;
+      return [...data];
     });
-  });
-  protected readonly table = createAngularTable(() => ({
-    columns: this._columns(),
-    data: this._data(),
-    getCoreRowModel: getCoreRowModel(),
-  }))
+    this.changeCallback?.(this._data());
+  }
+
+  protected cancelEditingRow(index: number) {
+    this._editingRows.update(arr => [...arr.filter(x => x != index)]);
+  }
+
+  protected commitEdit(index: number) {
+    this.changeCallback?.(this._data());
+    this.cancelEditingRow(index);
+  }
+
+  protected startEditingRow(index: number) {
+    this._editingRows.update(arr => {
+      return [...(new Set([...arr, index]))];
+    });
+  }
 
   writeValue(obj: any): void {
-    this._data.set(obj ?? []);
+    this._data.set([...(obj ?? [])]);
   }
   registerOnChange(fn: any): void {
     this.changeCallback = fn;
   }
   registerOnTouched(fn: any): void {
-    this.changeCallback = fn;
+    this.touchCallback = fn;
   }
   setDisabledState?(isDisabled: boolean): void {
     this._disabled.set(isDisabled);
   }
 
+  protected findOption(group: string, value: any) {
+    return this.optionSource()[group]?.find(o => o.value == value);
+  }
 }

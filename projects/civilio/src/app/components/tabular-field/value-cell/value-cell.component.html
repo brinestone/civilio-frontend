@@ -1,0 +1,42 @@
+@switch (columnSchema().type) {
+  @case ("boolean") {
+    <hlm-checkbox [checked]="$any(value())" [disabled]="!_editing()" />
+  }
+  @case ("date") {
+    @if (!_editing()) {
+      <span>{{ $any(value()) | date: "mediumDate" }}</span>
+    }
+  }
+  @case ("multi-selection") {
+    <ng-container [ngTemplateOutlet]="selectionTemplate" />
+  }
+  @case ("single-selection") {
+    <ng-container [ngTemplateOutlet]="selectionTemplate" />
+  }
+  @case ("number") {
+    <span>{{ $any(value()) | number }}</span>
+  }
+  @case ("text") {
+    <span>{{ $any(value()) }}</span>
+  }
+}
+
+<ng-template #selectionTemplate>
+  @if (!_editing()) {
+    @if ($any(_option())?.length) {
+      @for (option of $any(_option()); track $index) {
+        @if (option.i18nKey) {
+          {{ option.i18nKey | translate }}
+        } @else {
+          {{ option?.label }}
+        }
+      }
+    } @else {
+      @if ($any(_option())?.i18nKey) {
+        {{ $any(_option())?.i18nKey | translate }}
+      } @else {
+        {{ $any(_option())?.label }}
+      }
+    }
+  }
+</ng-template>
