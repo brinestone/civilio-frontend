@@ -1,6 +1,13 @@
 import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import z from 'zod';
-import { DefinitionLike, FieldDefinition, FormModelDefinition, FormModelDefinitionSchema, FormSection, RelevancePredicateSchema } from './schemas';
+import {
+  DefinitionLike,
+  FieldDefinition,
+  FormModelDefinition,
+  FormModelDefinitionSchema,
+  FormSection,
+  RelevancePredicateSchema
+} from './schemas';
 
 export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
   meta: {
@@ -251,11 +258,41 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           id: 'fosa.form.sections.infra.sections.eq',
           fields: [
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.pc_count', type: 'int' },
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.printer_count', type: 'int' },
-            { required: true, min: 0, max: 1000, key: 'fosa.form.sections.infra.sections.eq.fields.tablet_count', type: 'int' },
-            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.sections.eq.fields.car_count', type: 'int' },
-            { required: true, min: 0, max: 100, key: 'fosa.form.sections.infra.sections.eq.fields.bike_count', type: 'int' },
+            {
+              required: true,
+              min: 0,
+              max: 1000,
+              key: 'fosa.form.sections.infra.sections.eq.fields.pc_count',
+              type: 'int'
+            },
+            {
+              required: true,
+              min: 0,
+              max: 1000,
+              key: 'fosa.form.sections.infra.sections.eq.fields.printer_count',
+              type: 'int'
+            },
+            {
+              required: true,
+              min: 0,
+              max: 1000,
+              key: 'fosa.form.sections.infra.sections.eq.fields.tablet_count',
+              type: 'int'
+            },
+            {
+              required: true,
+              min: 0,
+              max: 100,
+              key: 'fosa.form.sections.infra.sections.eq.fields.car_count',
+              type: 'int'
+            },
+            {
+              required: true,
+              min: 0,
+              max: 100,
+              key: 'fosa.form.sections.infra.sections.eq.fields.bike_count',
+              type: 'int'
+            },
           ]
         }
       ],
@@ -411,7 +448,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
   meta: {
     form: 'csc' as FormType
   }
-})
+});
 
 function extractFields(section: FormSection) {
   const lookupMap: any = {};
@@ -454,32 +491,29 @@ function listFieldsInSection(section: FormSection) {
   return result;
 }
 
-export function lookupFieldSchema(formDefinition: FormModelDefinition, key: FieldKey) {
-  let schema = lookupCache[formDefinition.meta.form];
-  if (schema) return schema[key];
-
-  for (const section of formDefinition.sections) {
-    const entry = lookupCache[formDefinition.meta.form];
-    lookupCache[formDefinition.meta.form] = Object.assign(entry ?? {}, extractFields(section));
-  }
-  return lookupFieldSchema(formDefinition, key);
-}
-
 export function defaultValueForType(type: DefinitionLike['type']) {
   switch (type) {
-    case 'boolean': return false;
-    case 'date': return new Date();
+    case 'boolean':
+      return false;
+    case 'date':
+      return new Date();
     case 'float':
-    case 'int': return 0;
-    case 'multi-selection': return Array<Option>()
-    case 'point': return GeopointSchema.parse({})
-    case 'text': return '';
-    default: return null;
+    case 'int':
+      return 0;
+    case 'multi-selection':
+      return Array<Option>()
+    case 'point':
+      return GeopointSchema.parse({})
+    case 'text':
+      return '';
+    default:
+      return null;
   }
 }
 
 export type ParsedValue = boolean | null | Date | GeoPoint | number | string;
 export type RawInput = (string | null)[] | string;
+
 export function parseValue(definition: DefinitionLike, raw: RawInput | null): ParsedValue | ParsedValue[] {
   if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
   switch (definition.type) {
@@ -497,10 +531,11 @@ export function parseValue(definition: DefinitionLike, raw: RawInput | null): Pa
         return false;
       }
     }
-    case 'date': return z.union([
-      z.iso.date().pipe(z.coerce.date()),
-      z.date().nullable().default(new Date())
-    ]).parse(raw);
+    case 'date':
+      return z.union([
+        z.iso.date().pipe(z.coerce.date()),
+        z.date().nullable().default(new Date())
+      ]).parse(raw);
     case 'float':
     case 'number':
     case 'int': {
@@ -510,7 +545,8 @@ export function parseValue(definition: DefinitionLike, raw: RawInput | null): Pa
         return defaultValueForType(definition.type) as number;
       }
     }
-    case 'multi-selection': return raw?.split(' ') ?? []
+    case 'multi-selection':
+      return raw?.split(' ') ?? []
     case "point": {
       if (!raw) return GeopointSchema.parse({});
       if (typeof raw == 'string') {
@@ -523,7 +559,9 @@ export function parseValue(definition: DefinitionLike, raw: RawInput | null): Pa
       if (!raw) return defaultValueForType('text') as string;
       return String(raw);
     }
-    case 'single-selection': return raw;
-    default: return null;
+    case 'single-selection':
+      return raw;
+    default:
+      return null;
   }
 }

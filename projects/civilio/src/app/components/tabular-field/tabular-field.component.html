@@ -1,6 +1,47 @@
-<table hlmTable>
-  <!-- <caption hlmCaption>test</caption> -->
-  <thead hlmTHead>
+<table hlmTable class="caption-top">
+  <caption hlmCaption class="py-1 m-0 px-2 sticky top-0 backdrop-blur-md">
+    <div class="flex items-center m-0 justify-between">
+      <p class="text-lg font-semibold">{{ title() }}</p>
+      @if (enableCreationActions()) {
+        <div class="flex items-center gap-3">
+          @if (_hasPendingUpdates()) {
+            <button
+              (click)="commitAllChanges()"
+              hlmBtn
+              variant="outline"
+              size="sm"
+            >
+              <ng-icon name="lucideCheckCheck" />
+            </button>
+            <button
+              (click)="discardAllChanges()"
+              hlmBtn
+              variant="outline"
+              size="sm"
+            >
+              <ng-icon name="lucideX" />
+            </button>
+          }
+          <button
+            [disabled]="
+              maxRows() === undefined
+                ? false
+                : $any(maxRows()) <= _data().length
+            "
+            size="sm"
+            variant="outline"
+            (click)="addRow()"
+            hlmBtn
+            [title]="'tmpl.table.actions.add_new.description' | translate"
+          >
+            <ng-icon name="lucidePlus" />
+            <span>{{ "tmpl.table.actions.add_new.title" | translate }}</span>
+          </button>
+        </div>
+      }
+    </div>
+  </caption>
+  <thead hlmTHead class="sticky top-[29.25px] backdrop-blur-md">
     <tr hlmTr>
       @for (header of _headers(); track header) {
         <th hlmTh>{{ header + ".title" | translate }}</th>
@@ -10,7 +51,7 @@
   </thead>
   <tbody hlmTBody>
     @for (row of _data(); track $index; let rowIndex = $index) {
-      <tr hlmTr>
+      <tr hlmTr class="group">
         @for (key of _headers(); track $index) {
           <td hlmTd>
             <ng-container
@@ -25,34 +66,59 @@
             />
           </td>
         }
-        <td class="inline-flex gap-2 text-sm" hlmTd>
-          @if (_editingRows().includes($index)) {
-            <button
-              hlmBtn
-              size="sm"
-              variant="ghost"
-              (click)="commitEdit($index)"
-            >
-              <ng-icon name="lucideCheck" />
-            </button>
-            <!-- <button
-              hlmBtn
-              size="sm"
-              variant="ghost"
-              (click)="cancelEditingRow($index)"
-            >
-              <ng-icon name="lucideX" />
-            </button> -->
-          } @else {
-            <button
-              (click)="startEditingRow($index)"
-              hlmBtn
-              size="sm"
-              variant="ghost"
-            >
-              <ng-icon name="lucidePencil" />
-            </button>
-          }
+        <td class="text-sm" hlmTd>
+          <div
+            [ngClass]="{
+              'opacity-100': _editingRows().includes($index),
+              'opacity-0 group-hover:opacity-100':
+                !_editingRows().includes($index),
+            }"
+            class="flex justify-center gap-2 items-center"
+          >
+            @if (_editingRows().includes($index)) {
+              <button
+                hlmBtn
+                size="sm"
+                variant="ghost"
+                (click)="commitEdit($index)"
+              >
+                <ng-icon name="lucideCheck" />
+              </button>
+              <button
+                hlmBtn
+                size="sm"
+                variant="ghost"
+                (click)="cancelEditingRow($index)"
+              >
+                <ng-icon name="lucideX" />
+              </button>
+            } @else {
+              <button
+                (click)="startEditingRow($index)"
+                hlmBtn
+                size="sm"
+                variant="ghost"
+              >
+                <ng-icon name="lucidePencil" />
+              </button>
+              <button
+                (click)="removeRow($index)"
+                size="sm"
+                variant="ghost"
+                hlmBtn
+              >
+                <ng-icon name="lucideTrash2" />
+              </button>
+            }
+          </div>
+        </td>
+      </tr>
+    } @empty {
+      <tr hlmTr>
+        <td hlmTd class="text-center" [colSpan]="_headers().length + 1">
+          {{
+            (loadingData() ? "loading.txt" : "tmpl.table.no_data") | translate
+          }}
         </td>
       </tr>
     }
@@ -155,8 +221,9 @@
       [min]="min"
       type="number"
       [max]="max"
-      (change)="updateValue(index, key, $event.target.value)"
+      (change)="updateValue(index, key, $any($event.target)?.value)"
       (blur)="touchCallback?.()"
+      (focus)="touchCallback?.()"
     />
   }
 </ng-template>
@@ -171,6 +238,7 @@
   <hlm-checkbox
     [disabled]="!editing"
     [checked]="value"
+    (focus)="touchCallback?.()"
     (checkedChange)="updateValue(index, key, $event); touchCallback?.()"
   />
 </ng-template>
@@ -189,8 +257,8 @@
     <input
       hlmInput
       [value]="value"
-      (change)="updateValue(index, key, $event.target.value)"
-      (blur)="touchCallback?.()"
+      (change)="updateValue(index, key, $any($event.target)?.value)"
+      (focus)="touchCallback?.()"
     />
   }
 </ng-template>
@@ -215,6 +283,7 @@
       [multiple]="multiple"
       (valueChange)="updateValue(index, key, $event)"
       (openChange)="touchCallback?.()"
+      (focus)="touchCallback?.()"
     >
       <hlm-select-trigger class="w-full">
         <hlm-select-value />

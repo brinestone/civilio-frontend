@@ -1,6 +1,6 @@
 misc:
   actions:
-    modify: 'Modify'
+    modify: Modify
   placeholder:
     jump_to_index: Jump to index
 units:
@@ -22,6 +22,12 @@ tmpl:
     placeholder: Select value
   autocomplete:
     empty_text: No results could be found
+  table:
+    no_data: No data
+    actions:
+      add_new:
+        title: Add new
+        description: Add a new row
 login:
   username: Username
   forgot_password: Forgot password?
@@ -56,7 +62,7 @@ settings:
     fr: French
   title: Settings
   msg:
-    invalid_port: 'Invalid port number (Range: 1025 - 65535)'
+    invalid_port: "Invalid port number (Range: 1025 - 65535)"
     value_required: This field is required
     invalid_url: Invalid URL
     value_too_short: Value is too short
@@ -171,7 +177,7 @@ csc:
         title: Areas devoted to civil status
         fields:
           office_count:
-            title: '# of Offices'
+            title: "# of Offices"
             description: How many rooms are dedicated to civil status?
           dedicated_cs_rooms:
             title: Dedicated CS rooms?
@@ -196,31 +202,31 @@ csc:
         title: Facilities of the Civil Registry Centre (Functional Equipment)
         fields:
           pc_count:
-            title: '# of Computers'
+            title: "# of Computers"
           server_count:
-            title: '# of Servers'
+            title: "# of Servers"
           printer_count:
-            title: '# of Printers'
+            title: "# of Printers"
           scanner_count:
-            title: '# of Scanners'
+            title: "# of Scanners"
           inverters:
-            title: '# of Inverters'
+            title: "# of Inverters"
           conditioners:
-            title: '# of Conditioners'
+            title: "# of Conditioners"
           fans:
-            title: '# of Fans'
+            title: "# of Fans"
           projectors:
-            title: '# of Projectors'
+            title: "# of Projectors"
           office_tables:
-            title: '# of Office Tables'
+            title: "# of Office Tables"
           chairs:
-            title: '# of Chairs'
+            title: "# of Chairs"
           cars:
-            title: '# of Cars'
+            title: "# of Cars"
           bikes:
-            title: '# of Bikes'
+            title: "# of Bikes"
           tablets:
-            title: '# of Tablets'
+            title: "# of Tablets"
       digitization:
         title: Digitization/Computerization of civil status
         fields:
@@ -245,16 +251,16 @@ csc:
           software_feedback:
             title: What's your feedback on the software?
           software_trained_user_count:
-            title: '# of trained users'
+            title: "# of trained users"
           software_recorded_marriage_count:
-            title: '# of marraige certificates'
-            description: '# of marriage certificates registerd in the software'
+            title: "# of marraige certificates"
+            description: "# of marriage certificates registerd in the software"
           software_recorded_birth_count:
-            title: '# of birth certificates'
-            description: '# of birth certificates registerd in the software'
+            title: "# of birth certificates"
+            description: "# of birth certificates registerd in the software"
           software_recorded_death_count:
-            title: '# of death certificates'
-            description: '# of death certificates registerd in the software'
+            title: "# of death certificates"
+            description: "# of death certificates registerd in the software"
           software_is_functional:
             title: Is the software functional?
           software_dysfunction_reason:
@@ -276,11 +282,11 @@ csc:
           blank_registries:
             title: Blank Registries
           blank_marriages:
-            title: '# of blank marriage registers'
+            title: "# of blank marriage registers"
           blank_births:
-            title: '# of blank birth registers'
+            title: "# of blank birth registers"
           blank_deaths:
-            title: '# of blank death registers'
+            title: "# of blank death registers"
       vital_stats:
         title: Financial resources related to vital statistics documents
         fields:
@@ -295,7 +301,7 @@ csc:
           celibacy_cert_copy_cost:
             title: Cost of certificate of celibacy (FCFA)
           non_registered_certs:
-            title: '# of Certificates not registered'
+            title: "# of Certificates not registered"
           rates_under_deliberation:
             title: Are rates under deliberation?
             description: Are these rates currently the subject of a deliberation by the municipal council?
@@ -308,7 +314,7 @@ csc:
             title: Civil status share
             description: What was the share devoted to civil status in 2024?
           cs_revenue:
-            title: ''
+            title: ""
       deeds:
         title: Deeds drawn up, not withdrawn in the last 5 years
         fields:
@@ -334,9 +340,9 @@ csc:
         title: Staff Status
         fields:
           male_count:
-            title: '# of Males'
+            title: "# of Males"
           female_count:
-            title: '# of Females'
+            title: "# of Females"
           non_officer_male_count:
             title: Male non-officers
           non_officer_female_count:
@@ -417,17 +423,17 @@ csc:
           is_data_indexed:
             title: Has the data been indexed?
           marriages_indexed:
-            title: '# of marriages indexed'
+            title: "# of marriages indexed"
           deaths_indexed:
-            title: '# of deaths indexed'
+            title: "# of deaths indexed"
           births_indexed:
-            title: '# of births indexed'
+            title: "# of births indexed"
           marriages_scanned:
-            title: '# of marriages scanned'
+            title: "# of marriages scanned"
           births_scanned:
-            title: '# of births scanned'
+            title: "# of births scanned"
           deaths_scanned:
-            title: '# of deaths scanned'
+            title: "# of deaths scanned"
           is_data_in_use:
             title: Is the data in use?
           data_usage:
@@ -479,11 +485,11 @@ csc:
           year:
             title: Year
           birth_count:
-            title: '# of Birth Registers Archived'
+            title: "# of Birth Registers Archived"
           marriage_count:
-            title: '# of Marriage Registers Archived'
+            title: "# of Marriage Registers Archived"
           death_count:
-            title: '# of Death Registers Archived'
+            title: "# of Death Registers Archived"
     fields:
       index:
         title: Index
@@ -538,17 +544,17 @@ fosa:
       - Year
       - Year
     births:
-      - '# of births registered'
-      - '# of births registered'
-      - '# of births registered'
-      - '# of births registered'
-      - '# of births registered'
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
     deaths:
-      - '# of deaths registered'
-      - '# of deaths registered'
-      - '# of deaths registered'
-      - '# of deaths registered'
-      - '# of deaths registered'
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
     observation: Observations
     validation_code: Validation Code
     recorded_by: Recorded by
@@ -635,45 +641,45 @@ fosa:
             stats_year_1:
               title: Year
             stats_births_1:
-              title: '# of births registered'
+              title: "# of births registered"
             stats_deaths_1:
-              title: '# of deaths registered'
+              title: "# of deaths registered"
         line_2:
           title: Line 2
           fields:
             stats_year_2:
               title: Year
             stats_births_2:
-              title: '# of births registered'
+              title: "# of births registered"
             stats_deaths_2:
-              title: '# of deaths registered'
+              title: "# of deaths registered"
         line_3:
           title: Line 3
           fields:
             stats_year_3:
               title: Year
             stats_births_3:
-              title: '# of births registered'
+              title: "# of births registered"
             stats_deaths_3:
-              title: '# of deaths registered'
+              title: "# of deaths registered"
         line_4:
           title: Line 4
           fields:
             stats_year_4:
               title: Year
             stats_births_4:
-              title: '# of births registered'
+              title: "# of births registered"
             stats_deaths_4:
-              title: '# of deaths registered'
+              title: "# of deaths registered"
         line_5:
           title: Line 5
           fields:
             stats_year_5:
               title: Year
             stats_births_5:
-              title: '# of births registered'
+              title: "# of births registered"
             stats_deaths_5:
-              title: '# of deaths registered'
+              title: "# of deaths registered"
       reg_cs_events:
         title: Registration of civil status events
         fields:
@@ -699,17 +705,17 @@ fosa:
             title: Functional equipment
             fields:
               tablet_count:
-                title: '# of Tablets'
+                title: "# of Tablets"
               pc_count:
-                title: '# of Computers'
+                title: "# of Computers"
               printer_count:
-                title: '# of Printers'
+                title: "# of Printers"
               scanner_count:
-                title: '# of Scanners'
+                title: "# of Scanners"
               car_count:
-                title: '# of Cars'
+                title: "# of Cars"
               bike_count:
-                title: '# of Bikes'
+                title: "# of Bikes"
         fields:
           toilet_present:
             title: Has Toilet?
@@ -734,7 +740,7 @@ fosa:
         title: Staff & Personnel Status
         fields:
           employee_count:
-            title: '# of Employees'
+            title: "# of Employees"
         sections:
           employees:
             title: List of civil registry staff
@@ -769,7 +775,7 @@ fosa:
         title: Index
       validation_code:
         title: Validation code
-        description: 'The validation code is used to verify the authenticity of the submission. It should be a unique alphanumeric string.'
+        description: "The validation code is used to verify the authenticity of the submission. It should be a unique alphanumeric string."
       region:
         title: Region
       stats:
@@ -812,7 +818,7 @@ fosa:
         title: Computers
     msg:
       value_out_of_range: Value out of range
-    finish: ''
+    finish: ""
   open_filters: Filters
 forms:
   validation:
@@ -1182,9 +1188,9 @@ chefferie:
           second: No
       Functional_equipment:
         title: Functional equipment
-        description: 'Functional equipment in the chiefdom: types and quantities'
+        description: "Functional equipment in the chiefdom: types and quantities"
       equipment_question:
-        title: 'Functional equipment in the chiefdom: types and quantities'
+        title: "Functional equipment in the chiefdom: types and quantities"
       equipment_quantity:
         computers:
           description: Number of computers
@@ -1286,7 +1292,7 @@ chefferie:
         title: Specify the reception area
     msg:
       invalid_value: Invalid value
-    title: ''
+    title: ""
 services:
   auth:
     user_not_found: Invalid username or password
@@ -1299,7 +1305,7 @@ submissions:
     facility_name: Facility Name
   filter:
     prompt: Filter by "Facility Name", "Validation Code", "Index"
-range_0_100: 'min '
-range_1_50: 'min '
-range_1980_current_year: 'min '
-range_0_80000: 'min '
+range_0_100: "min "
+range_1_50: "min "
+range_1980_current_year: "min "
+range_0_80000: "min "

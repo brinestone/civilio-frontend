@@ -134,9 +134,11 @@
     [class.col-span-2]="field.type == 'table'"
     [formGroup]="form"
   >
-    <label hlmLabel [for]="field.key">{{
-      field.key + ".title" | translate
-    }}</label>
+    @if (field.type != "table") {
+      <label hlmLabel [for]="field.key">{{
+        field.key + ".title" | translate
+      }}</label>
+    }
 
     @if (field.readonly === true) {
       <p [id]="field.key">{{ form.controls[field.key].value }}</p>
@@ -226,6 +228,9 @@
         <cv-geo-point [formControlName]="field.key" />
       } @else if (field.type == "table") {
         <cv-tabular-field
+          [title]="field.key + '.title' | translate"
+          [loadingData]="submissionData.isLoading()"
+          [enableCreationActions]="field.readonly !== true"
           [optionSource]="allFormOptions()"
           [columnsSchema]="field.columns"
           [formControlName]="field.key"
