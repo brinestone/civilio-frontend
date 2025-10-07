@@ -82,58 +82,95 @@
     </hlm-paginated-tabs-list>
     @for (section of formModel().sections; track $index) {
       @defer (when currentTab() === section.id) {
-        <fieldset
-          tabindex="-1"
-          class="grid grid-cols-2 gap-3 pb-16 overflow-y-auto px-4"
+        <div
+          class="max-w-full pb-16 overflow-y-auto px-4"
+          [ngStyle]="{
+            display: 'grid',
+            gap: 'calc(var(--spacing) * 3)',
+            gridTemplateColumns: !(section.columns | isArray)
+              ? 'repeat(' + (section.columns ?? 2) + ', minmax(0, 1fr))'
+              : $any(section.columns).join(' '),
+          }"
           [hlmTabsContent]="section.id"
         >
           <ng-container
             [ngTemplateOutlet]="sectionTemplate"
-            [ngTemplateOutletContext]="{ $implicit: section }"
+            [ngTemplateOutletContext]="{
+              $implicit: section,
+              columns: section.columns ?? 2,
+            }"
           />
-        </fieldset>
+        </div>
       }
     }
   </hlm-tabs>
 </form>
 
-<ng-template #sectionTemplate let-section>
+<ng-template #sectionTemplate let-section let-columns="columns">
   <ng-container [formGroup]="form">
     @for (field of section.fields; track $index) {
       @defer (when form.contains(field.key)) {
         @if (!relevanceRegistry[field.key]) {
-          <ng-container
-            [ngTemplateOutlet]="fieldTemplate"
-            [ngTemplateOutletContext]="{ $implicit: field }"
-          />
+          @if (
+            (field.type != "multi-selection" &&
+              field.type != "single-selection") ||
+            ((field.type == "multi-selection" ||
+              field.type == "single-selection") &&
+              ((field.parent && formOptions[field.key]().length > 0) ||
+                !field.parent))
+          ) {
+            <ng-container
+              [ngTemplateOutlet]="fieldTemplate"
+              [ngTemplateOutletContext]="{ $implicit: field, columns }"
+            />
+          }
         } @else if (relevanceRegistry[field.key]()) {
-          <ng-container
-            [ngTemplateOutlet]="fieldTemplate"
-            [ngTemplateOutletContext]="{ $implicit: field }"
-          />
+          @if (
+            (field.type != "multi-selection" &&
+              field.type != "single-selection") ||
+            ((field.type == "multi-selection" ||
+              field.type == "single-selection") &&
+              ((field.parent && formOptions[field.key]().length > 0) ||
+                !field.parent))
+          ) {
+            <ng-container
+              [ngTemplateOutlet]="fieldTemplate"
+              [ngTemplateOutletContext]="{ $implicit: field, columns }"
+            />
+          }
         }
       }
     }
     @if ((section.children?.length ?? 0) > 0) {
       @for (child of section.children; track child.id ?? $index) {
-        <h2 class="col-span-2 font-extrabold text-2xl text-muted-foreground">
+        <h2
+          class="font-extrabold text-2xl text-muted-foreground"
+          [ngStyle]="{
+            gridColumnStart: 1,
+            gridColumnEnd: ((columns | isArray) ? columns.length : columns) + 1,
+          }"
+        >
           {{ child.id + ".title" | translate }}
         </h2>
         <ng-container
           [ngTemplateOutlet]="sectionTemplate"
-          [ngTemplateOutletContext]="{ $implicit: child }"
+          [ngTemplateOutletContext]="{ $implicit: child, columns }"
         />
       }
     }
   </ng-container>
 </ng-template>
 
-<ng-template #fieldTemplate let-field>
-  <div
-    class="space-y-1"
-    [class.col-span-2]="field.type == 'table'"
-    [formGroup]="form"
-  >
+<ng-template #fieldTemplate let-field let-columns="columns">
+  @let cols =
+    field.type == "table"
+      ? (columns | isArray)
+        ? columns.length
+        : columns
+      : (field.span ?? (columns | isArray))
+        ? columns.length
+        : columns;
+  <div class="space-y-1 col-span-{{ cols }}" [formGroup]="form">
     @if (field.type != "table") {
       <label hlmLabel [for]="field.key">{{
         field.key + ".title" | translate

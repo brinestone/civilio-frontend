@@ -42,7 +42,7 @@ const BaseFieldDefinitionSchema = z.object({
     z.literal(9),
     z.literal(10),
     z.literal(11),
-    z.literal(12)
+    z.literal(12),
   ]).optional().default(12),
   readonly: z.boolean().optional(),
   default: z.any().optional()
@@ -153,6 +153,10 @@ const GroupBaseSchema = z.object({
 });
 export const FormGroupSchema = GroupBaseSchema.extend({
   children: GroupBaseSchema.array().optional(),
+  columns: z.union([
+    z.int(),
+    z.string().array()
+  ]).optional()
 });
 
 export type GroupDefinition = z.output<typeof FormGroupSchema>;

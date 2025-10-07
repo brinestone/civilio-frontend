@@ -627,7 +627,7 @@ fosa:
             title: Associated CSC
             description: Local registry office
           cs_proximity:
-            title: Distance to CSC
+            title: Distance to CSC (meters)
             description: Average distance from the registry office
           knows_gps_coords:
             title: Can you take the location?

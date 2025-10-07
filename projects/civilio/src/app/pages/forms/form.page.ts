@@ -1,12 +1,11 @@
-import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, model, resource, signal, Signal, WritableSignal } from '@angular/core';
+import { DecimalPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, DestroyRef, effect, inject, Injector, linkedSignal, model, resource, signal, Signal, untracked, WritableSignal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
+import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { FieldMapperComponent } from '@app/components';
-import { GeoPointComponent } from "@app/components/geo-point/geo-point.component";
-import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
+import { FieldMapperComponent, GeoPointComponent, TabularFieldComponent } from '@app/components';
 import { extractAllFields, FieldDefinition, FormModelDefinition, ParsedValue, parseValue, RawInput } from '@app/model';
+import { IsArrayPipe } from '@app/pipes';
 import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
 import { optionsSelector } from '@app/store/selectors';
@@ -59,6 +58,7 @@ import z from 'zod';
     HlmTabsImports,
     TranslatePipe,
     HlmButton,
+    IsArrayPipe,
     NgTemplateOutlet,
     HlmDatePickerImports,
     HlmSelectImports,
@@ -73,7 +73,8 @@ import z from 'zod';
     ReactiveFormsModule,
     BrnTabsImports,
     GeoPointComponent,
-    RouterLink
+    RouterLink,
+    NgStyle
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './form.page.html',
@@ -202,8 +203,10 @@ export class FormPage implements AfterViewInit {
   private setupDropdownOptions(schema: Extract<FieldDefinition, { type: 'multi-selection' | 'single-selection' }>) {
     if (schema.parent) {
       const parentProvider = this.valueProviders[schema.parent];
+      const parentNotifier = createNotifier();
       const provider = computed(() => {
-        const parentValue = parentProvider() as string;
+        parentNotifier.listen();
+        const parentValue = untracked(parentProvider) as string;
         const fieldOptions = this.allFormOptions()[schema.optionsGroupKey];
         if (!fieldOptions) return [];
         const result = fieldOptions.filter(({ parent }) => parent === parentValue);
@@ -215,6 +218,11 @@ export class FormPage implements AfterViewInit {
         if (currentOptions.every(({ value }) => value != this.form.controls[schema.key].value)) {
           this.form.controls[schema.key].setValue(null);
         }
+      }, { injector: this.injector });
+
+      effect(() => {
+        const _ = parentProvider();
+        parentNotifier.notify();
       }, { injector: this.injector });
 
       return provider;

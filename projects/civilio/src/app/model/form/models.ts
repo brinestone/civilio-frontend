@@ -21,8 +21,9 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           key: 'fosa.form.sections.respondent.fields.names',
           required: true,
-          type: 'text'
-        },
+          type: 'text',
+          span: 3
+        } as FieldDefinition,
         {
           key: 'fosa.form.sections.respondent.fields.device',
           required: true,
@@ -209,6 +210,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
     },
     {
       id: 'fosa.form.sections.stats',
+      columns: ['auto', '1fr', '1fr'],
       fields: [],
       children: [
         {
@@ -352,7 +354,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
         {
           key: 'fosa.form.sections.staff.sections.employees',
           type: 'table',
-          span: 12,
+          f: 12,
           columns: {
             names: {
               key: 'fosa.form.sections.staff.sections.employees.fields.names',
