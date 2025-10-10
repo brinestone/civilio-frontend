@@ -13,9 +13,9 @@
       />
       <span>
         @if (submissions.isLoading()) {
-          Loading...
+          {{ "loading.txt" | translate }}
         } @else {
-          Refresh
+          {{ "refresh.txt" | translate }}
         }
       </span>
     </button>
@@ -54,7 +54,10 @@
     class="border-border block w-full rounded-md max-h-[35rem] overflow-y-auto relative border"
   >
     <table hlmTable class="w-full">
-      <thead hlmTHead class="sticky top-0 border-b border-border backdrop-blur-md">
+      <thead
+        hlmTHead
+        class="sticky top-0 border-b border-border backdrop-blur-md"
+      >
         @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
           <tr hlmTr>
             @for (header of headerGroup.headers; track header.id) {
@@ -106,7 +109,11 @@
               [attr.colspan]="columnConfig.length"
               class="h-24 text-center"
             >
-              No results.
+              @if (submissions.isLoading()) {
+                {{ "loading.txt" | translate }}
+              } @else {
+                {{ "tmpl.table.no_data" | translate }}
+              }
             </td>
           </tr>
         }

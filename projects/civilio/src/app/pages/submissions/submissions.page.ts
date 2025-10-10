@@ -19,6 +19,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
 import { ElectronFormService } from '../../services/electron/form.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'cv-badge-cell',
@@ -94,7 +95,8 @@ export class ButtonCell {
     FlexRender,
     HlmTableImports,
     HlmInput,
-    DecimalPipe
+    DecimalPipe,
+    TranslatePipe
   ],
   host: {
     'class': 'page'

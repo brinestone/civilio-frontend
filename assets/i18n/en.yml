@@ -1,6 +1,13 @@
 misc:
+  dialogs:
+    pending_changes:
+      title: Discard unsaved changes?
+      description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
   actions:
     modify: Modify
+    discard: Discard changes
+    save_and_exit: Save changes and leave
+    stay: Stay here
   placeholder:
     jump_to_index: Jump to index
 units:
@@ -745,6 +752,8 @@ fosa:
           employees:
             title: List of civil registry staff
             fields:
+              index:
+                title: Index
               names:
                 title: Names
               position:
@@ -832,9 +841,12 @@ forms:
       discard: Discard Changes
   header:
     actions:
+      save_changes: Save Changes
+      discard: Discard Changes
       navigation:
         prev: Prev
         next: Next
+      field_mapper: Field mapper
     controls:
       index: Index
       validation_code: Validation Code
@@ -938,6 +950,8 @@ filters:
     title: Index
 loading:
   txt: Loading...
+refresh:
+  txt: Refresh
 Dialog:
   filters:
     clear: Reset
@@ -962,10 +976,18 @@ filter:
     nn: Is not null
 and: and
 msg:
+  error:
+    title: 'An error occured'
   restart_notice: System-wide configuration updated. The application needs to be restarted to apply the changes.
   discard_msg:
     txt: Are you sure you want to discard the changes you've made?
   ok: Ok
+  changes_saved:
+    title: Success
+    description: Changes saved successfully
+  saving_changes:
+    description: Saving changes...
+
 stage:
   notificationPane:
     restart:
@@ -990,6 +1012,7 @@ choices:
     good: Good
 field_mapper:
   title: Form field mapper
+  description: Map form fields to database columns for accurate data storage.
 mapper:
   categories:
     forms:

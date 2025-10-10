@@ -11,7 +11,7 @@ export function showMainWindow() {
     width: 840,
     icon: nativeImage.createFromDataURL(logo),
     webPreferences: {
-      devTools: !app.isPackaged,
+      // devTools: !app.isPackaged,
       preload: path.join(__dirname, 'preload.js')
     }
   });
@@ -22,8 +22,8 @@ export function showMainWindow() {
 
   const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', 'assets', 'browser', 'index.html'))}` : `http://localhost:4200`;
   mainWindow.loadURL(startURL);
+  mainWindow.webContents.openDevTools();
   if (!app.isPackaged) {
-    mainWindow.webContents.openDevTools();
     mainWindow.maximize();
   }
 };

@@ -11,8 +11,9 @@ import {
   untracked
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { FormModelDefinition, FormSection } from '@app/model';
+import { ValuesPipe } from '@app/pipes';
 import { LoadDbColumns, LoadMappings, UpdateMappings } from '@app/store/form';
 import { dbColumnsFor, formMappings } from '@app/store/selectors';
 import { DbColumnSpec, FieldMapping, FieldUpdateSpec, FormType } from '@civilio/shared';
@@ -56,6 +57,7 @@ type FieldForm = FormGroup<{
     HlmIcon,
     HlmButton,
     BrnPopover,
+    ValuesPipe,
     ReactiveFormsModule,
     BrnPopoverTrigger,
     HlmPopoverContent,
@@ -67,7 +69,6 @@ type FieldForm = FormGroup<{
 })
 export class FieldMapperComponent implements OnInit {
   private store = inject(Store);
-  private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
   private updateMapping = dispatch(UpdateMappings);
   private loadMappings = dispatch(LoadMappings);
@@ -79,7 +80,7 @@ export class FieldMapperComponent implements OnInit {
     takeUntilDestroyed(),
     combineLatestWith(this.form$),
     map(([mappings, form]) => mappings?.[form] ?? ({} as Record<string, FieldMapping> | undefined))
-  ), );
+  ),);
   protected readonly mappedColumns = signal<Record<string, { field: string, table: string }[]>>({});
   protected readonly dbColumns = linkedSignal(() => {
     const specs = this.store.selectSnapshot(dbColumnsFor(this.form()));
@@ -126,17 +127,34 @@ export class FieldMapperComponent implements OnInit {
       }
     }
     for (const field of section.fields) {
-      const mapping: FieldMapping | undefined = (mappings as Record<string, FieldMapping>)[field.key as string];
-      let colSpec;
-      if (mapping) {
-        colSpec = dbColumns.find(c => c.name == mapping.dbColumn && c.tableName == mapping.dbTable);
+      if (field.type == 'table') {
+        for (const column of Object.values(field.columns)) {
+          const mapping: FieldMapping | undefined = (mappings as Record<string, FieldMapping>)[field.key as string];
+          let colSpec;
+          if (mapping) {
+            colSpec = dbColumns.find(c => c.name == mapping.dbColumn && c.tableName == mapping.dbTable);
+          }
+          result.push([
+            column.key,
+            new FormGroup({
+              col: new FormControl(colSpec),
+              key: new FormControl(String(column.key), { nonNullable: true })
+            })
+          ]);
+        }
+      } else {
+        const mapping: FieldMapping | undefined = (mappings as Record<string, FieldMapping>)[field.key as string];
+        let colSpec;
+        if (mapping) {
+          colSpec = dbColumns.find(c => c.name == mapping.dbColumn && c.tableName == mapping.dbTable);
+        }
+        const group: FieldForm = new FormGroup({
+          col: new FormControl(colSpec),
+          key: new FormControl(String(field.key), { nonNullable: true })
+        });
+        result.push([field.key, group]);
       }
-      const group: FieldForm = new FormGroup({
-        col: new FormControl(colSpec),
-        key: new FormControl(String(field.key), { nonNullable: true })
-      });
 
-      result.push([field.key, group]);
     }
     return result;
   }

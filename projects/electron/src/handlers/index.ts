@@ -9,6 +9,7 @@ import z from 'zod';
 export * from './config';
 export * from './form';
 export * from './i18n';
+export * from './resource';
 
 function generateMessageId() {
   return randomBytes(5).toString('hex');

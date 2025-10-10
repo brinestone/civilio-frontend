@@ -43,6 +43,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "allowedCommonJsDependencies": ["leaflet"],
             "browser": "projects/civilio/src/main.ts",
             "tsConfig": "projects/civilio/tsconfig.app.json",
             "inlineStyleLanguage": "scss",

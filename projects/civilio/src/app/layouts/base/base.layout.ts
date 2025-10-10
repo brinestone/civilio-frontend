@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, resource } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { sendRpcMessageAsync } from '@app/util';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSettings, lucideTable2 } from '@ng-icons/lucide';
 import {
@@ -25,4 +26,9 @@ export class BaseLayout {
     { label: 'Form Submissions', icon: 'lucideTable2', path: '/submissions' },
     { label: 'Settings', icon: 'lucideSettings', path: '/settings' },
   ];
+  protected readonly wideLogoUrl = resource({
+    loader: async () => {
+      return await sendRpcMessageAsync('resource:read', 'img/LogoWide.png');
+    }
+  });
 }

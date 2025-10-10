@@ -64,8 +64,8 @@ const SelectionFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 
 const DateFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
   type: z.literal('date'),
-  min: z.union([z.iso.date(), z.number()]).optional(),
-  max: z.union([z.iso.date(), z.number()]).optional(),
+  min: z.union([z.iso.date(), z.number(), z.date()]).optional(),
+  max: z.union([z.iso.date(), z.number(), z.date()]).optional(),
 });
 
 const GeoPointFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
@@ -133,7 +133,8 @@ const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema
     required: true
   }).extend({
     type: z.literal('table'),
-    columns: z.record(z.string(), ColumnDefinitionSchema)
+    columns: z.record(z.string(), ColumnDefinitionSchema),
+    identifierColumn: FieldKeySchema
   })
 
 export const FieldDefinitionSchema = z.discriminatedUnion('type', [

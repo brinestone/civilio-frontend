@@ -24,6 +24,10 @@ import {
   TestDbConnectionResponseSchema,
   UpdateConfigRequestSchema,
   UpdateFieldMappingRequestSchema,
+  FormSubmissionUpdateRequestSchema,
+  UpdateSubmissionFormDataResponseSchema,
+  UpdateSubmissionSubFormDataRequestSchema,
+  UpdateSubmissionSubFormDataResponseSchema,
   UpdateThemeRequestSchema
 } from './dto';
 import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
@@ -57,7 +61,10 @@ export const channelArgs = {
   'suggestions:read': GetAutoCompletionSuggestionsRequestSchema,
   'submission-ref:read': FindSubmissionRefRequestSchema,
   'index-suggestions:read': FindIndexSuggestionsRequestSchema,
-  'theme:update': UpdateThemeRequestSchema
+  'theme:update': UpdateThemeRequestSchema,
+  'resource:read': z.string(),
+  'submission-data:update': FormSubmissionUpdateRequestSchema,
+  'submission-sub-data:update': UpdateSubmissionSubFormDataRequestSchema,
 } as const;
 export const channelResponses = {
   'config:read': AppConfigResponseSchema,
@@ -80,13 +87,16 @@ export const channelResponses = {
   'suggestions:read': GetAutoCompletionSuggestionsResponseSchema,
   'submission-ref:read': FindSubmissionRefResponseSchema,
   'index-suggestions:read': FindIndexSuggestionsResponseSchema,
-  'theme:update': AppConfigResponseSchema
+  'theme:update': AppConfigResponseSchema,
+  'resource:read': z.string().nullable(),
+  'submission-data:update': UpdateSubmissionFormDataResponseSchema,
+  'submission-sub-data:update': UpdateSubmissionSubFormDataResponseSchema,
 } as const;
 
 type InferZod<T extends z.ZodType> = z.infer<T>;
 export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
 export type PushEvent = z.output<typeof PushEventSchema>;
-export type Channel = z.output<typeof ChannelSchema> | 'theme:update' | 'index-suggestions:read' | 'submission-ref:read' | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
+export type Channel = z.output<typeof ChannelSchema> | 'submission-sub-data:update' | 'submission-data:update' | 'resource:read' | 'theme:update' | 'index-suggestions:read' | 'submission-ref:read' | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
 export const RequestOptionsSchema = z.object({

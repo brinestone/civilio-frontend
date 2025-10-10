@@ -5,7 +5,7 @@
       @if (enableCreationActions()) {
         <div class="flex items-center gap-3">
           @if (_hasPendingUpdates()) {
-            <button
+            <button type="button"
               (click)="commitAllChanges()"
               hlmBtn
               variant="outline"
@@ -13,7 +13,7 @@
             >
               <ng-icon name="lucideCheckCheck" />
             </button>
-            <button
+            <button type="button"
               (click)="discardAllChanges()"
               hlmBtn
               variant="outline"
@@ -22,7 +22,7 @@
               <ng-icon name="lucideX" />
             </button>
           }
-          <button
+          <button type="button"
             [disabled]="
               maxRows() === undefined
                 ? false
@@ -76,7 +76,7 @@
             class="flex justify-center gap-2 items-center"
           >
             @if (_editingRows().includes($index)) {
-              <button
+              <button type="button"
                 hlmBtn
                 size="sm"
                 variant="ghost"
@@ -84,7 +84,7 @@
               >
                 <ng-icon name="lucideCheck" />
               </button>
-              <button
+              <button type="button"
                 hlmBtn
                 size="sm"
                 variant="ghost"
@@ -93,7 +93,7 @@
                 <ng-icon name="lucideX" />
               </button>
             } @else {
-              <button
+              <button type="button"
                 (click)="startEditingRow($index)"
                 hlmBtn
                 size="sm"
@@ -101,7 +101,7 @@
               >
                 <ng-icon name="lucidePencil" />
               </button>
-              <button
+              <button type="button"
                 (click)="removeRow($index)"
                 size="sm"
                 variant="ghost"
@@ -138,7 +138,7 @@
         [ngTemplateOutlet]="textCellTemplate"
         [ngTemplateOutletContext]="{
           $implicit: value,
-          editing: _editingRows().includes(index),
+          editing: _editingRows().includes(index) && (schema.editable ?? true),
           id: schema.key + '_' + index,
           index,
           key: schema.key,
@@ -152,7 +152,7 @@
           $implicit: value,
           min: schema.min,
           max: schema.max,
-          editing: _editingRows().includes(index),
+          editing: _editingRows().includes(index) && (schema.editable ?? true),
           id: schema.key + '_' + index,
           index,
           key: schema.key,
@@ -164,7 +164,7 @@
         [ngTemplateOutlet]="selectionCellTemplate"
         [ngTemplateOutletContext]="{
           $implicit: value,
-          editing: _editingRows().includes(index),
+          editing: _editingRows().includes(index) && (schema.editable ?? true),
           options: options,
           multiple: false,
           id: schema.key + '_' + index,
@@ -179,7 +179,7 @@
         [ngTemplateOutlet]="selectionCellTemplate"
         [ngTemplateOutletContext]="{
           $implicit: value,
-          editing: _editingRows().includes(index),
+          editing: _editingRows().includes(index) && (schema.editable ?? true),
           options: options,
           multiple: true,
           id: schema.key + '_' + index,
@@ -194,7 +194,7 @@
         [ngTemplateOutlet]="booleanCellTemplate"
         [ngTemplateOutletContext]="{
           $implicit: value,
-          editing: _editingRows().includes(index),
+          editing: _editingRows().includes(index) && (schema.editable ?? true),
           index,
           key: schema.key,
         }"

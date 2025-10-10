@@ -180,6 +180,7 @@ export namespace Fosa {
         SectionKeysSchema.extract(['fosa.form.sections.staff.sections.employees']),
         '.fields.',
         z.enum([
+          'index',
           'names',
           'position',
           'gender',

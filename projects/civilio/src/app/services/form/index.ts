@@ -1,10 +1,12 @@
 import { InjectionToken, makeEnvironmentProviders } from "@angular/core";
 import { isDesktop } from "@app/util";
-import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated } from "@civilio/shared";
+import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse } from "@civilio/shared";
 import { ElectronFormService } from "../electron/form.service";
 import { WebFormService } from "../web/form.service";
 
 export interface FormService {
+  updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse>;
+  updateSubmissionFormData(req: FormSubmissionUpdateRequest): Promise<UpdateSubmissionSubFormDataResponse>;
   findSubmissionData(form: FormType, index: number): Promise<FindSubmissionDataResponse>;
   updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]): Promise<FindFieldMappingsResponse>;
   loadDbColumnSpecsFor(form: FormType): Promise<FindDbColumnsResponse>;
