@@ -39,9 +39,9 @@ import { toDate, format, formatRFC3339 } from 'date-fns';
 // }
 
 export function logRequest(channel: Channel, data: { headers: RpcInputHeaders }) {
-	console.log(`<-- ${formatRFC3339(toDate(data.headers.ts))} [${channel}]::${data.headers.messageId}`);
+	console.log(`<-- ${formatRFC3339(toDate(data.headers.ts ?? new Date()))} [${channel}]::${data.headers.messageId}`);
 }
 
 export function logResponse(channel: Channel | 'error', data: { headers: RpcInputHeaders }) {
-	console.log(`--> ${formatRFC3339(toDate(data.headers.ts))} [${channel}]::${data.headers.messageId}`);
+	console.log(`--> ${formatRFC3339(toDate(data.headers.ts ?? new Date()))} [${channel}]::${data.headers.messageId}`);
 }

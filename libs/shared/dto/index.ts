@@ -8,7 +8,7 @@ export const ChangeRequestBaseSchema = z.object({
 });
 
 export const DeletionChangeRequestSchema = ChangeRequestBaseSchema.extend({
-	index: z.int(),
+	index: z.int().array(),
 	type: z.literal('delete')
 });
 
@@ -24,11 +24,31 @@ export const FormSubmissionUpdateRequestSchema = z.discriminatedUnion('type', [
 
 export const UpdateSubmissionFormDataResponseSchema = z.void();
 
-export const UpdateSubmissionSubFormDataRequestSchema = z.object({
-	form: FormTypeSchema,
+export const SubFormUpdateBaseSchema = z.object({
 	parentIndex: z.int(),
-	changes: z.tuple([z.int(), z.record(FieldKeySchema, z.string().array())]).array()
+	form: FormTypeSchema
 });
+
+export const DeletionSubFormUpdateChangeSchema = SubFormUpdateBaseSchema.extend({
+	indexes: z.object({ identifierKey: FieldKeySchema, index: z.int() }).array(),
+	type: z.literal('delete')
+});
+
+export const UpdateSubFormChangeSchema = SubFormUpdateBaseSchema.extend({
+	type: z.literal('update'),
+	changes: z.object({
+		identifier: z.object({
+			value: z.int().optional(),
+			fieldKey: FieldKeySchema
+		}),
+		data: z.record(z.string(), z.union([z.string(), z.string().array()]).nullable())
+	}).array()
+})
+
+export const UpdateSubmissionSubFormDataRequestSchema = z.discriminatedUnion('type', [
+	UpdateSubFormChangeSchema,
+	DeletionSubFormUpdateChangeSchema
+]);
 
 export const UpdateSubmissionSubFormDataResponseSchema = z.void();
 

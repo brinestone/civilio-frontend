@@ -36,7 +36,7 @@ import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
 import { optionsSelector } from '@app/store/selectors';
 import { mapSignal } from '@app/util';
-import { FieldKey, FormType, Option, ThemeSchema, toColumnMajor } from '@civilio/shared';
+import { deepTransform, FieldKey, FormType, Option, toRowMajor, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronLeft, lucideChevronRight, lucideSave, lucideTrash2, lucideUnlink } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -58,6 +58,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { isAfter, isBefore, toDate } from 'date-fns';
+import { cloneDeepWith, differenceBy, differenceWith, intersectionBy, isArray, isEmpty, isObject, isString, last } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { createNotifier } from 'ngxtension/create-notifier';
 import { derivedFrom } from 'ngxtension/derived-from';
@@ -302,19 +303,22 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 	private extractSubFormData(schema: Extract<FieldDefinition, {
 		type: 'table'
 	}>, rawData: Record<string, string | (string | null)[] | null> | null) {
-		const entries = Object.entries(rawData ?? {}).filter(([k]) => k.startsWith(schema.key))
-		const rowCount = entries.filter(([_, entry]) => entry != null)
-			.map(([_, entry]) => entry?.length ?? 0)
-			.reduce((max, curr) => curr > max ? curr : max, Number.MIN_SAFE_INTEGER);
 
-		return Array.from({ length: rowCount }, (_, index) => {
-			return entries.reduce((acc, [k, v]) => {
-				const [lastPart] = k.split('.').slice(-1);
-				const columnDefinition = schema.columns[lastPart];
-				acc[k] = !columnDefinition ? null : parseValue(columnDefinition, (v as RawInput[])[index]);
-				return acc;
-			}, {} as Record<string, ParsedValue | ParsedValue[]>)
-		});
+		if (rawData == null) return [];
+
+		const transformFn = (k: string, value: unknown) => {
+			const [lastPart] = k.split('.').slice(-1);
+			const columnDefinition = schema.columns[lastPart];
+			return parseValue(columnDefinition, (value as RawInput));
+		}
+
+		const temp: Record<string, unknown[]> = {};
+		for (const [k, v] of Object.entries(rawData)) {
+			if (!k.startsWith(schema.key)) continue;
+			temp[k] = v as any;
+		}
+
+		return toRowMajor(temp, transformFn);
 	}
 
 	private makeProviderSignal(schema: FieldDefinition) {
@@ -533,7 +537,9 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 	protected async savePendingChanges() {
 		const allControls = Object.entries(this.form.controls);
 		let rootChanges: Record<string, string> = {};
-		let subChanges: Record<string, string[]> = {};
+		let subFormChanges: Extract<UpdateSubmissionSubFormDataRequest, { type: 'update' }>['changes'] = [];
+		let subFormDeletions: Extract<UpdateSubmissionSubFormDataRequest, { type: 'delete' }>['indexes'] = [];
+		let subFormAdditions: Extract<UpdateSubmissionSubFormDataRequest, { type: 'update' }>['changes'] = [];
 		for (const [key, control] of allControls) {
 			if (control.pristine) continue;
 			const schema = lookupFieldSchema(key, this.formModel());
@@ -543,20 +549,48 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			}
 
 			if (schema.type == 'table') {
-				const columnMajorTransform = toColumnMajor(control.value, (key, value) => {
-					const columnSchema = Object.values(schema.columns).find(o => o.key == key)
-					if (!columnSchema) return null;
-					return serializeValue(columnSchema, value);
+				const transformFn = (key: string, value: unknown) => {
+					const k = last(key.split('.')) as string;
+					const columnDefinition = schema.columns[k];
+					return serializeValue(columnDefinition, value);
+				};
+
+				const pristineData = this.extractSubFormData(schema, this.submissionData.value());
+				subFormDeletions = deepTransform(differenceBy(pristineData, control.value, schema.identifierColumn), transformFn).map((v: any) => ({ index: Number(v[schema.identifierColumn]), identifierKey: schema.identifierColumn }));
+				subFormAdditions = deepTransform(differenceBy(control.value, pristineData, schema.identifierColumn), transformFn).map((v: any) => {
+					return { identifier: { value: v[schema.identifierColumn], fieldKey: schema.identifierColumn }, data: v, };
+				});
+				subFormChanges = deepTransform(intersectionBy(control.value, pristineData, schema.identifierColumn), transformFn).map((v: any) => {
+					return { identifier: { value: v[schema.identifierColumn], fieldKey: schema.identifierColumn }, data: v };
 				});
 			} else
 				rootChanges[key] = serializeValue(schema, control.value);
 		}
 
-		return await this.formService.updateSubmissionFormData({
-			type: 'update',
-			changes: rootChanges,
-			form: this.formType(),
-			index: this.submissionIndex() ?? undefined
-		});
+		if (!isEmpty(subFormDeletions)) {
+			await this.formService.updateSubFormSubmissionFormData({
+				type: 'delete',
+				form: this.formType(),
+				indexes: subFormDeletions,
+				parentIndex: this.submissionIndex() as number
+			});
+		}
+
+		if (!isEmpty(subFormChanges) || !isEmpty(subFormAdditions)) {
+			await this.formService.updateSubFormSubmissionFormData({
+				type: 'update',
+				form: this.formType(),
+				changes: [...subFormChanges, ...subFormAdditions],
+				parentIndex: this.submissionIndex() as number
+			});
+		}
+		if (!isEmpty(rootChanges)) {
+			await this.formService.updateSubmissionFormData({
+				type: 'update',
+				changes: rootChanges,
+				form: this.formType(),
+				index: this.submissionIndex() ?? undefined
+			});
+		}
 	}
 }

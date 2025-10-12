@@ -1,42 +1,125 @@
 import { choices, fieldMappings, fosaIdSeqInCivilio, fosaIndexSeqInCivilio, fosaPersonnelIndexSeqInCivilio, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMappingSchema, FieldUpdateSpec, FindIndexSuggestionsRequest, FindIndexSuggestionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefRequest, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema, FormSubmissionUpdateRequest } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldMapping, FieldMappingSchema, FieldUpdateSpec, FindIndexSuggestionsRequest, FindIndexSuggestionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefRequest, FormSubmissionSchema, FormSubmissionUpdateRequest, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
 import { and, countDistinct, eq, ExtractTablesWithRelations, like, or, sql } from 'drizzle-orm';
+import { NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import { PgSequence, PgTransaction } from 'drizzle-orm/pg-core';
 import { provideDatabase } from '../helpers/db';
-import { NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
+import { entries } from 'lodash';
 
-const sequences: Record<string, PgSequence | undefined> = {
-	'fosa.data_index': fosaIndexSeqInCivilio,
-	'fosa.data_personnel_index': fosaPersonnelIndexSeqInCivilio,
-	'fosa.data_id': fosaIdSeqInCivilio
+type Transaction = PgTransaction<NodePgQueryResultHKT, Record<string, unknown>, ExtractTablesWithRelations<Record<string, unknown>>>;
+
+const sequences: Record<string, Record<string, { column: string; sequence: PgSequence }[]>> = {
+	fosa: {
+		data: [
+			{ column: '_index', sequence: fosaIndexSeqInCivilio },
+			{ column: '_id', sequence: fosaIdSeqInCivilio },
+		],
+		data_personnel: [
+			{ column: '_index', sequence: fosaPersonnelIndexSeqInCivilio }
+		]
+	}
 };
 
-async function assertRow(index: number, table: string, form: string) {
-	const db = provideDatabase({});
-	const q = sql`SELECT EXISTS (SELECT _index FROM ${sql.identifier(form)}.${sql.identifier(table)} WHERE _index = ${index}) as row_exists FROM ${sql.identifier(form)}.${sql.identifier(table)};`;
-	let result = await db.execute(q);
-	const [{ row_exists }] = result.rows;
+async function processSubFormDeletionRequest(tx: Transaction, { form, indexes, parentIndex }: Extract<UpdateSubmissionSubFormDataRequest, { type: 'delete' }>) {
+	if (indexes.length == 0) return;
 
-	const exists = Boolean(row_exists ?? false);
+	const identifierMappingMap = new Map<string, FieldMapping>();
+	for (const { index, identifierKey } of indexes) {
+		let mapping = identifierMappingMap.get(identifierKey);
+		if (!identifierMappingMap.has(identifierKey)) {
+			mapping = await lookupMapping(identifierKey, form, tx);
+			identifierMappingMap.set(identifierKey, mapping);
+		}
 
-	if (exists) return index;
-	const indexKey = `${form}.${table}_index`;
-	const idKey = `${form}.${table}_id`
-	const indexSeq = sequences[indexKey];
-	const idSeq = sequences[idKey];
+		await tx.execute(sql.raw(`
+			DELETE FROM
+				"${form}"."${mapping.dbTable}"
+			WHERE
+				"_index" = ${index} AND "_parent_index" = ${parentIndex};
+			`));
+	}
+}
 
-	if (!indexSeq) throw new Error('Could not find sequences')
-	result = await db.execute(sql`INSERT INTO ${sql.identifier(form)}.${sql.identifier(table)}(_index, _id) VALUES (nextval(${indexSeq}), nextval(${idSeq})) RETURNING _index;`)
+async function lookupMapping(field: string, form: FormType, tx: Transaction) {
+	const [result] = await tx.select().from(fieldMappings).where(and(
+		eq(fieldMappings.form, form),
+		eq(fieldMappings.field, field)
+	)).$withCache();
+	return result ?? null;
+}
 
+async function processSubFormUpdateRequest(tx: Transaction, { changes, form, parentIndex }: Extract<UpdateSubmissionSubFormDataRequest, { type: 'update' }>) {
+	for (const { identifier: { fieldKey, value: index }, data } of changes) {
+		let _index = await assertRowUsingKey(tx, index, fieldKey, form, ['_parent_index', parentIndex])
+		for (const [key, value] of entries(data)) {
+			const mapping = await lookupMapping(key, form, tx);
+			await tx.execute(sql.raw(`
+				UPDATE "${form}"."${mapping.dbTable}"
+				SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
+				WHERE _parent_index = ${parentIndex} AND _index = ${_index};
+				`));
+		}
+	}
+}
+
+export async function processSubFormChangeRequest(arg: UpdateSubmissionSubFormDataRequest) {
+	const db = provideDatabase({ fieldMappings });
+	await db.transaction(async tx => {
+		if (arg.type == 'delete') {
+			return await processSubFormDeletionRequest(tx, arg)
+		} else if (arg.type == 'update') {
+			return await processSubFormUpdateRequest(tx, arg);
+		}
+	})
+}
+
+async function assertRow(tx: Transaction, table: string, form: FormType, index?: number, ...additionalFields: [string, any][]) {
+	if (index !== undefined) {
+		let result = await tx.execute(sql.raw(`
+			SELECT
+				EXISTS (
+					SELECT
+						_index
+					FROM
+						"${form}"."${table}"
+					WHERE
+						_index = ${index}
+				);
+		`));
+
+		const [{ exists }] = result.rows;
+
+		if (Boolean(exists)) return index;
+	}
+
+	const cols = sequences[form][table];
+	const result = await tx.execute(sql.raw(`
+    INSERT INTO "${form}"."${table}"
+        (${[...cols, ...additionalFields.map(([k]) => ({ column: k }))].map(({ column }) => `"${column}"`).join(',')})
+    VALUES
+        (${[...cols.map(({ sequence }) => `nextval('${sequence.schema}.${sequence.seqName}')`), ...additionalFields.map(([_, v]) => v)].join(',')})
+    RETURNING _index;
+`));
 	const [{ _index }] = result.rows;
 	return Number(_index);
 }
 
-async function deleteSubmission(tx: PgTransaction<NodePgQueryResultHKT, Record<string, unknown>, ExtractTablesWithRelations<Record<string, unknown>>>, { form, index }: Extract<FormSubmissionUpdateRequest, { type: 'delete' }>) {
 
+async function assertRowUsingKey(tx: Transaction, index: number, sampleField: string, form: FormType, ...additionalFields: [string, any][]) {
+	const mapping = await lookupMapping(sampleField, form, tx);
+	if (!mapping) throw new Error(`Mapping not found for field: ${sampleField}`);
+
+	const { dbTable: table } = mapping;
+
+	return await assertRow(tx, table, form, index, ...additionalFields);
 }
 
-async function updateSubmission(tx: PgTransaction<NodePgQueryResultHKT, Record<string, unknown>, ExtractTablesWithRelations<Record<string, unknown>>>, { changes, form, index }: Extract<FormSubmissionUpdateRequest, { type: 'update' }>) {
+async function deleteSubmission(tx: Transaction, { form, index }: Extract<FormSubmissionUpdateRequest, { type: 'delete' }>) {
+	if (index.length == 0) return;
+	await tx.execute(sql.raw(`DELETE FROM "${form}"."data" WHERE _index IN (${index.join(',')}); `));
+}
+
+async function updateSubmission(tx: Transaction, { changes, form, index }: Extract<FormSubmissionUpdateRequest, { type: 'update' }>) {
 	let _index = index;
 
 	for (const [key, value] of Object.entries(changes)) {
@@ -47,10 +130,10 @@ async function updateSubmission(tx: PgTransaction<NodePgQueryResultHKT, Record<s
 			));
 
 		if (!mapping) throw new Error(`Mapping for key: ${key} not found. Update aborted`);
-		_index = await assertRow(_index, mapping.dbTable, form);
+		_index = await assertRow(tx, mapping.dbTable, form, _index);
 
 		await tx.execute(sql.raw(
-			`UPDATE "${form}"."${mapping.dbTable}" SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType});`,
+			`UPDATE "${form}"."${mapping.dbTable}" SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType}) WHERE _index = ${index};`,
 		));
 	}
 }
@@ -121,27 +204,24 @@ export async function findFormData(form: FormType, index: number) {
 		.from(fieldMappings)
 		.where(
 			eq(fieldMappings.form, form),
-		);
+		).$withCache();
 
 	const map: any = {};
 	for (const { col, table, field } of mappings) {
-		let queryResult = await db.execute(sql`
-        SELECT FORMAT('SELECT d.%I::TEXT as query FROM %I.%I d WHERE d.%I = %s::INTEGER;', ${col}::TEXT, ${form}::TEXT, ${table}::TEXT, ${table == 'data' ? '_index' : '_parent_index'}::TEXT, ${index}::INTEGER);
-      `);
+		let queryResult = await db.execute(sql.raw(`
+			SELECT
+				d."${col}"::TEXT as value FROM "${form}"."${table}" d WHERE d."${table == 'data' ? '_index' : '_parent_index'}" = ${index};`));
 
-		const [{ format: query }] = queryResult.rows;
-
-		queryResult = await db.execute(query as string);
-		const rows = queryResult.rows;
+		const { rows } = queryResult;
 		if (table != 'data')
 			map[field] = [
 				...(map[field] ?? []),
-				...Array.isArray(queryResult.rows)
-					? queryResult.rows.map((row: any) => row.query)
+				...Array.isArray(rows)
+					? queryResult.rows.map((row: any) => row.value)
 					: []
 			];
 		else
-			map[field] = rows[0].query;
+			map[field] = rows[0].value;
 	}
 	return FindSubmissionDataResponseSchema.parse(map);
 }

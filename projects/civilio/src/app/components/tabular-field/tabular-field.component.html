@@ -256,7 +256,7 @@
   } @else {
     <input
       hlmInput
-      [value]="value"
+      [value]="value ?? ''"
       (change)="updateValue(index, key, $any($event.target)?.value)"
       (focus)="touchCallback?.()"
     />

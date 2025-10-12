@@ -61,6 +61,7 @@
 		"inter-ui": "^4.1.1",
 		"leaflet": "^1.9.4",
 		"lodash": "^4.17.21",
+		"lru-cache": "^11.2.2",
 		"mime-types": "^3.0.1",
 		"ngx-sonner": ">=3.0.0",
 		"ngxtension": "^6.0.0",
