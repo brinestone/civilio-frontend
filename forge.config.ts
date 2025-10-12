@@ -82,7 +82,7 @@ const config: ForgeConfig = {
     new PublisherGithub({
       repository: {
         owner: 'brinestone',
-        name: 'civilio',
+        name: 'civilio-frontend',
       },
       prerelease: true,
     })
