@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.4](https://github.com/brinestone/civilio-frontend/compare/v3.0.3...v3.0.4) (2025-10-12)
+
+
+### Bug Fixes
+
+* **ci:** correct platform for linux to ubuntu-latest ([6f617d0](https://github.com/brinestone/civilio-frontend/commit/6f617d097d5fa44f5345acbfcb9693a8ce68991b))
+
 ### [3.0.3](https://github.com/brinestone/civilio-frontend/compare/v3.0.2...v3.0.3) (2025-10-12)
 
 
