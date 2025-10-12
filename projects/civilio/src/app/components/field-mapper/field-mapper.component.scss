@@ -1,0 +1,12 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block space-y-3 p-4;
+}
+
+.group-title {
+  @apply font-extrabold text-2xl text-[var(--muted-foreground)];
+  &.child-group-title {
+    @apply text-xl font-bold;
+  }
+}

@@ -1,0 +1,137 @@
+<form
+  [formGroup]="inputForm"
+  class="flex items-start justify-between relative max-h-full"
+>
+  <div
+    class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 items-baseline max-h-full @sm:overflow-hidden overflow-y-auto"
+  >
+    @for (section of formModel().sections; track $index) {
+      <ng-container
+        *ngTemplateOutlet="sectionTemplate; context: { $implicit: section }"
+      />
+    }
+  </div>
+</form>
+
+<ng-template #sectionTemplate let-section let-isChild="isChild">
+  @if (section.id) {
+    <h2 class="group-title col-span-2" [class.child-group-title]="isChild">
+      {{ section.id + ".title" | translate }}
+    </h2>
+  }
+  @for (field of section.fields; track field.key) {
+    <ng-container>
+      @if (field.type == "table") {
+        <ng-container
+          [ngTemplateOutlet]="tableFieldTemplate"
+          [ngTemplateOutletContext]="{ $implicit: field }"
+        />
+      } @else {
+        <ng-container
+          [ngTemplateOutlet]="columnSelectorTemplate"
+          [ngTemplateOutletContext]="{ $implicit: field }"
+        />
+      }
+    </ng-container>
+  }
+  @if (section.children) {
+    @for (child of section.children; track child.id) {
+      <ng-container
+        *ngTemplateOutlet="
+          sectionTemplate;
+          context: { $implicit: child, isChild: true }
+        "
+      ></ng-container>
+    }
+  }
+</ng-template>
+
+<ng-template #tableFieldTemplate let-schema>
+  <h2 class="group-title child-group-title col-span-2">
+    {{ schema.key + ".title" | translate }}
+  </h2>
+  @let columns = schema.columns | values;
+  @for (entry of columns; track $index) {
+    <ng-container
+      [ngTemplateOutlet]="columnSelectorTemplate"
+      [ngTemplateOutletContext]="{ $implicit: entry }"
+    />
+  }
+</ng-template>
+
+<ng-template #columnSelectorTemplate let-field>
+  <label [for]="field.key + '_mapper_selector'" hlmLabel class="block">{{
+    field.key + ".title" | translate
+  }}</label>
+  <brn-popover
+    [id]="field.key + '_mapper_selector'"
+    sideOffset="5"
+    class="w-full"
+  >
+    <input
+      class="hidden"
+      [formControl]="inputForm.controls[field.key].controls.col"
+      [name]="field.key"
+    />
+    <button
+      hlmBtn
+      class="w-full justify-between overflow-ellipsis line-clamp-1 !text-start"
+      variant="outline"
+      [id]="field.key"
+      brnPopoverTrigger
+      [class.!font-normal]="
+        !inputForm.controls[field.key].value && !mappings()?.[field.key]
+      "
+      [class.text-[var(--muted-foreground)]]="
+        !inputForm.controls[field.key].value && !mappings()?.[field.key]
+      "
+    >
+      {{
+        inputForm.controls[field.key].value.col?.name ||
+          mappings()?.[field.key]?.dbColumn ||
+          "Select column"
+      }}
+    </button>
+    <hlm-command
+      *brnPopoverContent="let ctx"
+      hlmPopoverContent
+      class="w-full p-0"
+    >
+      <hlm-command-search>
+        <ng-icon hlm name="lucideSearch" />
+        <input placeholder="Search Column..." hlm-command-search-input />
+      </hlm-command-search>
+      <div class="w-full" *brnCommandEmpty hlmCommandEmpty>
+        No results found
+      </div>
+      <hlm-command-list>
+        <hlm-command-group>
+          @for (spec of dbColumns(); track $index) {
+            <button
+              class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
+              hlm-command-item
+              (click)="inputForm.controls[field.key].patchValue({ col: spec })"
+              [value]="spec.name"
+            >
+              <div class="space-y-1">
+                <p class="block text-start w-full">{{ spec.name }}</p>
+                <span
+                  class="block text-start text-sm text-[var(--muted-foreground)]"
+                  >table: {{ spec.tableName }}</span
+                >
+              </div>
+              @if (
+                inputForm.controls[field.key].value ===
+                  mappings()?.[field.key]?.dbColumn &&
+                inputForm.controls[field.key].value !== undefined &&
+                inputForm.controls[field.key].value !== null
+              ) {
+                <ng-icon name="lucideCheck" />
+              }
+            </button>
+          }
+        </hlm-command-group>
+      </hlm-command-list>
+    </hlm-command>
+  </brn-popover>
+</ng-template>

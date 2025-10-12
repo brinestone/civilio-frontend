@@ -1,0 +1,30 @@
+<div></div>
+<div class="px-4 py-2 border-b border-border flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    @defer (when wideLogoUrl.hasValue() && !wideLogoUrl.isLoading()) {
+      <a routerLink="/" class="outline-none" tabindex="-1">
+        <img [src]="wideLogoUrl.value()" width="100" alt="LogoWide" />
+      </a>
+    }
+    <ul class="flex list-none gap-3">
+      @for (link of leftLinks; track $index) {
+        <li class="menu-link">
+          <a
+            class="flex items-center gap-2 outline-none"
+            routerLinkActive="active-route"
+            [routerLinkActiveOptions]="{ exact: false }"
+            [routerLink]="link.path"
+          >
+            <ng-icon [name]="link.icon" />
+            <span>{{ link.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+  <cv-theme-selector size="sm" />
+</div>
+<main class="scroll-box">
+  <ng-content />
+</main>
+<div></div>

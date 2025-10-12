@@ -1,0 +1,1334 @@
+misc:
+  dialogs:
+    pending_changes:
+      title: Discard unsaved changes?
+      description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
+  actions:
+    modify: Modify
+    discard: Discard changes
+    save_and_exit: Save changes and leave
+    stay: Stay here
+  placeholder:
+    jump_to_index: Jump to index
+units:
+  meters:
+    short: m
+    long: meters
+validation:
+  msg:
+    field_required: This field is required
+    value_unsupported: Value is unsupported. It must be one of {{validValues}}
+    pattern_mismatch: Invalid format
+    invalid_date: Invalid date
+    max_date: The date cannot be after {{maxDate}}
+    min_date: The date cannot be before {{minDate}}
+    min: Value must be at least {{min}}{{suffix}}
+    max: Value must be at most {{max}}{{suffix}}
+tmpl:
+  dropdown:
+    placeholder: Select value
+  autocomplete:
+    empty_text: No results could be found
+  table:
+    no_data: No data
+    actions:
+      add_new:
+        title: Add new
+        description: Add a new row
+login:
+  username: Username
+  forgot_password: Forgot password?
+  lets_continue_your_journey: Let's continue your Journey
+  password: Password
+  powered_by: Powered by
+  settings: Settings
+  sign_in: Sign in
+  welcome_back: Welcome back
+settings:
+  advanced:
+    title: Advanced
+    db:
+      pwd: Password
+      host: Host
+      user: Username
+      title: Database
+      port: Port
+      ssl: SSL
+      name: Database Name
+    storage:
+      title: Storage
+      endpoint: API Endpoint (S3 compatible)
+      access_key: Access key
+      secret_key: Secret key
+    api:
+      origin: API Origin
+      title: API Settings
+  general: General
+  language:
+    en: English
+    fr: French
+  title: Settings
+  msg:
+    invalid_port: "Invalid port number (Range: 1025 - 65535)"
+    value_required: This field is required
+    invalid_url: Invalid URL
+    value_too_short: Value is too short
+csc:
+  add_new: Add New
+  submissions:
+    title: Submissions - CSC
+  add_submission: Add Submission
+  columns:
+    submitted: Submitted
+    recorded_at: Recorded At
+    last_updated_by: Last updated by
+    last_updated_at: Last updated at
+  form:
+    sections:
+      respondent:
+        title: Respondent
+        fields:
+          position:
+            title: Position
+            description: Role of the respondent within the CSC
+          phone:
+            description: Register (preferably WhatsApp)
+            title: Phone Number
+          email:
+            title: Email Address
+            description: Respondent's commonly used or professional email
+          knows_creation_date:
+            description: Do you know the date of creation of the CSC?
+            title: Knows Creation Date?
+          creation_date:
+            title: Date of Creation
+          name:
+            title: First and last names
+      identification:
+        title: Structure Identification
+        fields:
+          division:
+            description: Choose the department to which the civil status centre belongs
+            title: Division
+          municipality:
+            title: Commune/Municipality
+            description: Indicate the municipality of the civil status centre
+          quarter:
+            title: Quarter
+            description: Enter the name of the neighbourhood where the CSC is located
+          facility:
+            title: Facility Name
+          category:
+            title: Category
+          council_size:
+            title: Size of the council's municipality
+          milieu:
+            title: Milieu
+          attached_centers:
+            title: Number of Attached Centers
+          locality:
+            title: Locality
+          creation_date:
+            title: Date of Creation
+          functional:
+            title: Is the Centre Functional?
+          non_function_reason:
+            title: Why is the Centre not functional?
+          chiefdom_degree:
+            title: Chiefdom Degree
+          other_non_function_reason:
+            title: Specify the reason for non-functionality
+          fields:
+            is_chiefdom:
+              title: Is the Centre a Chiefdom?
+          non_function_duration:
+            title: How long has the Centre been non-functional?
+          sec_creation_order:
+            title: Secondary Creation Order
+          officer_appointment_order:
+            title: Officer Appointment Order
+          officer_appointed:
+            title: Is the Officer Appointed?
+          photo_url:
+            title: Photo of the Center
+          gps_coords:
+            title: GPS Coordinates
+      accessibility:
+        title: Accessibility of the Centre
+        fields:
+          road_type:
+            title: Type of Roads serving the Centre
+          road_deteriorates:
+            title: Does the road deteriorate periodically?
+          obstacle:
+            title: Barriers limiting access to the Centre
+          attached_villages_num:
+            title: Number of villages attached to the Centre
+          cover_radius:
+            title: Center coverage radius
+        sub_forms:
+          villages:
+            fields:
+              name:
+                title: Village name
+              avg_distance:
+                title: Average distance from the CSC (in KM)
+        sections:
+          general:
+            title: General
+          villages:
+            title: Attached Villages
+      infrastructure:
+        title: Infrastructure and equipment of the Centre
+      areas:
+        title: Areas devoted to civil status
+        fields:
+          office_count:
+            title: "# of Offices"
+            description: How many rooms are dedicated to civil status?
+          dedicated_cs_rooms:
+            title: Dedicated CS rooms?
+            description: Are there other dedicated rooms for civil status?
+          moving:
+            title: Are there moving plans?
+            description: Are there plans to move into a new building in the coming months?
+        sub_forms:
+          rooms:
+            fields:
+              number:
+                title: Room number
+              name:
+                title: Room name
+              condition:
+                title: Condition
+              dimension:
+                title: Dimensions
+              renovation:
+                title: Nature of renovation work
+      equipment:
+        title: Facilities of the Civil Registry Centre (Functional Equipment)
+        fields:
+          pc_count:
+            title: "# of Computers"
+          server_count:
+            title: "# of Servers"
+          printer_count:
+            title: "# of Printers"
+          scanner_count:
+            title: "# of Scanners"
+          inverters:
+            title: "# of Inverters"
+          conditioners:
+            title: "# of Conditioners"
+          fans:
+            title: "# of Fans"
+          projectors:
+            title: "# of Projectors"
+          office_tables:
+            title: "# of Office Tables"
+          chairs:
+            title: "# of Chairs"
+          cars:
+            title: "# of Cars"
+          bikes:
+            title: "# of Bikes"
+          tablets:
+            title: "# of Tablets"
+      digitization:
+        title: Digitization/Computerization of civil status
+        fields:
+          using_info_sys_outside_cs:
+            title: Using a System Outside CR
+            description: Apart from the civil registry, does any other department of the centre use a computerised system
+          external_cr_uses_internet:
+            title: If so, does this system use the Internet?
+          has_cs_software:
+            title: Software equipped?
+            description: Is the center equipped with one or more software for civil status?
+          cs_software_name:
+            title: What is the name(s) of the software?
+          cs_software_license_sponsor:
+            title: How was the software acquired?
+          other_cs_software_license_sponsor:
+            title: Specify the software acquisition method
+          users_receive_digital_acts:
+            title: Are digital documents given to users?
+          software_activation_date:
+            title: Software activation date
+          software_feedback:
+            title: What's your feedback on the software?
+          software_trained_user_count:
+            title: "# of trained users"
+          software_recorded_marriage_count:
+            title: "# of marraige certificates"
+            description: "# of marriage certificates registerd in the software"
+          software_recorded_birth_count:
+            title: "# of birth certificates"
+            description: "# of birth certificates registerd in the software"
+          software_recorded_death_count:
+            title: "# of death certificates"
+            description: "# of death certificates registerd in the software"
+          software_is_functional:
+            title: Is the software functional?
+          software_dysfunction_reason:
+            title: Why is the software not functional?
+      record_procurement:
+        title: Procurement of Records
+        fields:
+          lack_of_registers:
+            title: Have there been a lack of registers?
+            description: Have there been a lack of registers during these years?
+          records_provider:
+            title: Records Provider
+            description: Who provided you with records for this year 2025
+          other_records_provider:
+            title: Please specify the records provider
+          non_compliant_registers_used:
+            title: Usage of custom registers
+            description: Have you often had to buy the registers in the market for the establishment of the deeds?
+          blank_registries:
+            title: Blank Registries
+          blank_marriages:
+            title: "# of blank marriage registers"
+          blank_births:
+            title: "# of blank birth registers"
+          blank_deaths:
+            title: "# of blank death registers"
+      vital_stats:
+        title: Financial resources related to vital statistics documents
+        fields:
+          birth_cert_cost:
+            title: Cost of birth certificates (FCFA)
+          birth_cert_copy_cost:
+            title: Cost of copy of birth certificates (FCFA)
+          marriage_cert_copy_cost:
+            title: Cost of copy of marriage certificates (FCFA)
+          death_cert_copy_cost:
+            title: Cost of copy of death certificates (FCFA)
+          celibacy_cert_copy_cost:
+            title: Cost of certificate of celibacy (FCFA)
+          non_registered_certs:
+            title: "# of Certificates not registered"
+          rates_under_deliberation:
+            title: Are rates under deliberation?
+            description: Are these rates currently the subject of a deliberation by the municipal council?
+          prices_displayed:
+            title: Are these prices displayed?
+          municipality_budget:
+            title: 2024 budget
+            description: What is the municipality's budget for the year 2024?
+          cs_budget:
+            title: Civil status share
+            description: What was the share devoted to civil status in 2024?
+          cs_revenue:
+            title: ""
+      deeds:
+        title: Deeds drawn up, not withdrawn in the last 5 years
+        fields:
+          year:
+            title: Year
+          birth_certs_drawn:
+            title: Birth certificates drawn up
+          births_certs_not_withdrawn:
+            title: Birth certificates not withdrawn
+          marriage_certs_drawn:
+            title: Marriage certificates drawn up
+          marriage_certs_not_withdrawn:
+            title: Marriage certificates not withdrawn
+          death_certs_drawn:
+            title: Death certificates drawn
+          death_certs_not_withdrawn:
+            title: Death certificates not withdrawn
+      status_of_archived_records:
+        title: Status of archived records
+      archiving_function:
+        title: Archiving
+      personnel_info:
+        title: Staff Status
+        fields:
+          male_count:
+            title: "# of Males"
+          female_count:
+            title: "# of Females"
+          non_officer_male_count:
+            title: Male non-officers
+          non_officer_female_count:
+            title: Female non-officers
+        sub_forms:
+          officers:
+            fields:
+              other_position:
+                title: Alternative position
+              status:
+                title: Status
+              other_status:
+                title: Alternative status
+              allowance_2022:
+                title: Allowance (2022)
+              revenue_2022:
+                title: Revenue (2022)
+              archiving_training:
+                title: Has archiving training
+              seniority:
+                title: Seniority
+      comments:
+        title: Comments & Extra
+        fields:
+          relevant_info:
+            title: Relevant Information
+      infra:
+        fields:
+          occupancy_status:
+            title: Occupancy
+            description: Occupancy Status of the Center building
+          other_building:
+            title: Is there another public building?
+          eneo_connection:
+            title: ENEO Connection
+            description: Is the centre connected to the national electricity grid (ENEO)?
+          power_outages:
+            title: Frequent power interruptions?
+            description: Are there often interruptions in electrical energy?
+          stable_power:
+            title: Is the electricity supply stable?
+          backup_power_available:
+            title: Are there other sources of electrical power?
+          backup_power:
+            title: Select the functional complementary energy sources
+          other_backup_power:
+            title: Specify the complementary source
+          water_sources:
+            title: Which water source is available at the center?
+          toilets_available:
+            title: Are there toilets available?
+          separate_toilets_available:
+            title: Are the toilets separated by gender?
+          zone_operators:
+            title: Which telecom operators are in the zone?
+          has_fiber:
+            title: Is there a fiber optic connection?
+          other_zone_operators:
+            title: Specify the telecom operators in the zone
+          has_internet:
+            title: Is there an Internet connection?
+          internet_type:
+            title: Which telecom operators provide the Internet connection?
+          other_internet_type:
+            title: Specify the type of Internet provider
+          internet_sponsor:
+            title: Who pays for the Internet connection?
+      indexing:
+        fields:
+          records_scanned:
+            title: CS records scanned?
+            description: Have the civil status records been digitized (scanned) in this civil status center?
+          staff_trained:
+            title: Staff trained?
+            description: Has the staff of the civil status center been trained in the use of the digitization software?
+          document_scan_start_date:
+            title: Scan starting date
+          is_data_indexed:
+            title: Has the data been indexed?
+          marriages_indexed:
+            title: "# of marriages indexed"
+          deaths_indexed:
+            title: "# of deaths indexed"
+          births_indexed:
+            title: "# of births indexed"
+          marriages_scanned:
+            title: "# of marriages scanned"
+          births_scanned:
+            title: "# of births scanned"
+          deaths_scanned:
+            title: "# of deaths scanned"
+          is_data_in_use:
+            title: Is the data in use?
+          data_usage:
+            title: How is the data used?
+        title: Scanning of records and indexing
+      archiving:
+        fields:
+          archiving_room:
+            title: Does the center have an Archiving room?
+          archiving_room_electric_condition:
+            title: What is the state of the electrical circuit in the main archive room?
+          fire_extinguishers:
+            title: Does the hall have one or more fire extinguishers?
+          locked_door:
+            title: Does the room in which the registers are archived have a locked door
+          access_limited:
+            title: Is access to the archive room limited to one category of staff?
+          room_has_humidity:
+            title: Sealing problems?
+            description: Does the room in which the registers are archived show traces of humidity (sealing problems)?
+          register_archiving_type:
+            title: How are registers archived?
+          other_register_archiving_type:
+            title: Alternative Way of Archiving Records
+          written_archiving_plan:
+            title: Is there a written record archiving plan?
+          registers_deposited:
+            title: Have all the registers of the sub-prefecture been deposited at the town hall?
+          registers_deposited_systematically:
+            title: Are the registers systematically submitted to the Town Hall at the end of the year?
+          vandalized:
+            title: Vandalization
+            description: Have the archives been the subject of theft or acts of vandalism?
+          vandalized_date:
+            title: Can you describe the context and the date?
+        sections:
+          general:
+            title: General
+          deeds:
+            title: Deeds drawn up, not withdrawn in the last 5 years
+      personnel:
+        sections:
+          general:
+            title: General
+          personnel:
+            title: List of personnel (officers and non-officers)
+      archive_stats:
+        fields:
+          year:
+            title: Year
+          birth_count:
+            title: "# of Birth Registers Archived"
+          marriage_count:
+            title: "# of Marriage Registers Archived"
+          death_count:
+            title: "# of Death Registers Archived"
+    fields:
+      index:
+        title: Index
+      validation_code:
+        title: Validation Code
+    section:
+      accessibility:
+        sub_forms:
+          villages:
+            fields:
+              observations:
+                title: Observations
+    base_fields:
+      sections:
+        accessibility:
+          sub_forms:
+            villages:
+              title: List of attached villages
+        areas:
+          sub_forms:
+            rooms:
+              title: Status of spaces dedicated to civil status
+shell:
+  filter: Filter
+  sign_out: Sign out
+  menu:
+    forms:
+      fosa: FOSA Form
+      chefferie: CHEFFERIE Form
+      title: Forms
+      csc: CSC Form
+fosa:
+  submissions:
+    title: Submissions
+    form_type:
+      prompt_text: Select Form Type
+    msg:
+      delete_confirmation: Are you sure you want to remove the selected item(s)?
+    context_menu:
+      actions:
+        edit: Edit
+  add_submission: Add Submission
+  columns:
+    validated: Is Valid
+    recorded_at: Recorded at
+    last_updated_by: Last updated by
+    last_updated_at: Last updated at
+    year:
+      - Year
+      - Year
+      - Year
+      - Year
+      - Year
+    births:
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
+      - "# of births registered"
+    deaths:
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
+      - "# of deaths registered"
+    observation: Observations
+    validation_code: Validation Code
+    recorded_by: Recorded by
+    recorded_on: Date
+  form:
+    filter: Filter
+    title: FOSA Submission
+    sections:
+      respondent:
+        title: Respondent
+        description: Information about the respondent
+        fields:
+          knows_creation_date:
+            description: Do you know the date of creation of the Health center?
+            title: Knows Creation Date?
+          device:
+            title: Which device do you use to fill in the questionnaire?
+          names:
+            title: First and last names
+          position:
+            title: Function
+            description: Position / function in the health facility
+          phone:
+            title: Phone number
+            description: Phone number (preferably WhatsApp)
+          email:
+            title: Email
+            description: Email address (work email)
+          creation_date:
+            title: Created at
+            description: Year of creation of the health facility (dd/MM/YYYY)
+      identification:
+        title: Structure identification
+        fields:
+          division:
+            title: Division
+            description: Division in the region
+          municipality:
+            title: Town/City
+          quarter:
+            title: Quarter
+            description: Quarter/village
+          locality:
+            title: Locality
+          facility_name:
+            title: Facility name
+            description: Full name of the FOSA facility
+          district:
+            title: Health district
+            description: Associated health district
+          health_area:
+            title: Health area
+          milieu:
+            title: Milieu
+            options:
+              urban:
+                title: Urban
+              rural:
+                title: Rural
+          category:
+            title: Type of facility
+          other_category:
+            title: Specify the type of facility
+          status:
+            title: Status of the facility
+          has_maternity:
+            title: Has maternity
+            description: Existence of a maternity ward in the health facility
+          attached_cs:
+            title: Associated CSC
+            description: Local registry office
+          cs_proximity:
+            title: Distance to CSC (meters)
+            description: Average distance from the registry office
+          knows_gps_coords:
+            title: Can you take the location?
+          gps_coords:
+            title: GPS coordinates
+      stats:
+        title: Vital statistics for the last 5 years
+        line_1:
+          title: Line 1
+          fields:
+            stats_year_1:
+              title: Year
+            stats_births_1:
+              title: "# of births registered"
+            stats_deaths_1:
+              title: "# of deaths registered"
+        line_2:
+          title: Line 2
+          fields:
+            stats_year_2:
+              title: Year
+            stats_births_2:
+              title: "# of births registered"
+            stats_deaths_2:
+              title: "# of deaths registered"
+        line_3:
+          title: Line 3
+          fields:
+            stats_year_3:
+              title: Year
+            stats_births_3:
+              title: "# of births registered"
+            stats_deaths_3:
+              title: "# of deaths registered"
+        line_4:
+          title: Line 4
+          fields:
+            stats_year_4:
+              title: Year
+            stats_births_4:
+              title: "# of births registered"
+            stats_deaths_4:
+              title: "# of deaths registered"
+        line_5:
+          title: Line 5
+          fields:
+            stats_year_5:
+              title: Year
+            stats_births_5:
+              title: "# of births registered"
+            stats_deaths_5:
+              title: "# of deaths registered"
+      reg_cs_events:
+        title: Registration of civil status events
+        fields:
+          dhis2_usage:
+            title: DHIS2 Usage
+            description: Using DHIS2 in health training
+          uses_bunec_birth_form:
+            title: Uses BUNEC's Birth Form
+            description: Registration of births on the standardized form provided by BUNEC
+          dhis2_form_training:
+            title: DHIS2 Training
+            description: Training in the use of the DHIS2 standardized form
+          birth_declaration_transmission_to_csc:
+            title: Are birth declarations transmitted to CSC?
+            description: Transmission of birth declarations to the registry office
+          csc_event_reg_type:
+            title: Record civil status events?
+            description: How do you record civil status events?
+      infra:
+        title: Infrastructure and Equipment
+        sections:
+          eq:
+            title: Functional equipment
+            fields:
+              tablet_count:
+                title: "# of Tablets"
+              pc_count:
+                title: "# of Computers"
+              printer_count:
+                title: "# of Printers"
+              scanner_count:
+                title: "# of Scanners"
+              car_count:
+                title: "# of Cars"
+              bike_count:
+                title: "# of Bikes"
+        fields:
+          toilet_present:
+            title: Has Toilet?
+            description: Presence of accessible toilets for users in the facility
+          eneo_connection:
+            title: ENEO Connection?
+            description: Is the facility connected to the electricity grid (ENEO)?
+          backup_power_available:
+            title: Has emergency Power Source?
+            description: Does the center have an emergency or alternative source of power
+          backup_power:
+            title: Backup Power Sources
+          has_internet:
+            title: Has an Internet Connection?
+          water_source_available:
+            title: Is there a water Source?
+            description: Availability of water supply for the facility
+          water_sources:
+            title: Water sources
+            description: List of available water sources for the facility
+      staff:
+        title: Staff & Personnel Status
+        fields:
+          employee_count:
+            title: "# of Employees"
+        sections:
+          employees:
+            title: List of civil registry staff
+            fields:
+              index:
+                title: Index
+              names:
+                title: Names
+              position:
+                title: Position
+              gender:
+                title: Gender
+              phone:
+                title: Phone number (WhatsApp)
+              age:
+                title: Age
+              has_cs_training:
+                title: CS Training
+                description: Has the staff received training in civil status registration?
+              ed_level:
+                title: Education Level
+                description: Highest level of education attained by the staff member
+              computer_level:
+                title: Computer Skills
+                description: Computer knowledge skills
+      extras:
+        title: Comments & Extra
+        fields:
+          relevant_info:
+            title: Relevant Information
+            description: Any additional relevant information about the facility
+    fields:
+      index:
+        title: Index
+      validation_code:
+        title: Validation code
+        description: "The validation code is used to verify the authenticity of the submission. It should be a unique alphanumeric string."
+      region:
+        title: Region
+      stats:
+        title: Vital statistics for the last 5 years
+      toilet_present:
+        title: Has Toilet?
+      toilet_resent:
+        description: Presence of accessible toilets for users in the facility
+      has_eneo_connection:
+        title: ENEO Connection?
+        description: Is the facility connected to the electricity grid (ENEO)?
+      has_power_source:
+        title: Has emergency Power Source?
+        description: Does the center have an emergency or alternative source of power
+      alternative_power:
+        title: Backup Power Sources
+      internet_conn:
+        title: Has an Internet Connection?
+      has_water_source:
+        title: Alternative Water Source?
+        description: Availability of an alternative water supply for the facility
+      water_source:
+        title: Water sources
+      inventory:
+        title: Functional equipment in Inventory
+      personnel_status:
+        title: List of civil registry staff
+      key_personnel_count:
+        title: Key personnel for deaths/births
+        description: How many key staff personnel are in charge of the civil registry (maternity and death departments)
+      bike_count:
+        title: Bikes
+      car_count:
+        title: Cars
+      tablet_count:
+        title: Tablets
+      printer_count:
+        title: Printers
+      pc_count:
+        title: Computers
+    msg:
+      value_out_of_range: Value out of range
+    finish: ""
+  open_filters: Filters
+forms:
+  validation:
+    msg:
+      field_required: This field is required
+  msg:
+    invalid_value: Invalid value
+  footer:
+    actions:
+      finish: Save Changes
+      discard: Discard Changes
+  header:
+    actions:
+      save_changes: Save Changes
+      discard: Discard Changes
+      navigation:
+        prev: Prev
+        next: Next
+      field_mapper: Field mapper
+    controls:
+      index: Index
+      validation_code: Validation Code
+    date:
+      new: New Submission
+    index_search:
+      prompt: Search Index
+controls:
+  stats_collector:
+    actions:
+      add_new: Add
+      remove_selection: Remove selected
+  inventory:
+    columns:
+      quantity: Quantity
+      equipment: Equipment Name
+  gps:
+    lat: Latitude
+    lon: Longitude
+    acc: Precision (meters)
+    alt: Altitude (meters)
+    conn_notice: Cannot connect to the Internet. Please check your connection.
+  file_picker:
+    placeholder:
+      txt: Click below to select a picture
+data_personnel:
+  columns:
+    name:
+      title: Names
+    role:
+      title: Position
+    gender:
+      title: Sex
+    phone:
+      title: Phone number (WhatsApp)
+    age:
+      title: Age
+    has_cs_training:
+      title: CS Training
+    education_level:
+      title: Education level
+    pc_knowledge:
+      title: Computer skills
+    email:
+      title: Email
+    status:
+      title: Professional Status
+    ec_training:
+      title: Has Civil status training
+    has_pc_training:
+      title: Has computer training
+    archiving_training:
+      title: Has archiving training
+    monthly_revenue:
+      title: Monthly revenue
+data_chefferie_personnel:
+  columns:
+    name:
+      title: Names
+    role:
+      title: Position
+    gender:
+      title: Sex
+    phone:
+      title: Phone number (WhatsApp)
+    age:
+      title: Age
+    has_cs_training:
+      title: CS Training
+    email:
+      title: Email
+    education_level:
+      title: Education level
+    pc_knowledge:
+      title: Computer skills
+filters:
+  validation:
+    title: Validation Status
+    valid: Validated
+    invalid: Not validated
+    any: Any
+    status: Validation Status
+    code: Validation Code
+  user:
+    recorded_by:
+      title: Recorded by
+  title: Filters
+  submitted_at:
+    region:
+      title: Region
+  recorded_on:
+    title: Recorded on
+  controls:
+    operator:
+      prompt_text: Choose an operator
+  sorting:
+    title: Sorting
+  facility_name:
+    title: Facility Name
+  index:
+    title: Index
+loading:
+  txt: Loading...
+refresh:
+  txt: Refresh
+Dialog:
+  filters:
+    clear: Reset
+filter:
+  operators:
+    eq: Equals to
+    ne: Not equal to
+    gt: Greater than
+    lt: Less than
+    before: Before
+    before_or_today: Before or on
+    after: After
+    after_or_today: After or on
+    between: Between
+    contains: Contains
+    gte: Greater than or equals
+    lte: Less than or equals
+    start_with: Starts with
+    ends_with: Ends with
+    in: In
+    is_null: Is null
+    nn: Is not null
+and: and
+msg:
+  error:
+    title: 'An error occured'
+  restart_notice: System-wide configuration updated. The application needs to be restarted to apply the changes.
+  discard_msg:
+    txt: Are you sure you want to discard the changes you've made?
+  ok: Ok
+  changes_saved:
+    title: Success
+    description: Changes saved successfully
+  saving_changes:
+    description: Saving changes...
+
+stage:
+  notificationPane:
+    restart:
+      actions:
+        text: Restart
+choices:
+  region:
+    west: West Region
+    south_west: South West
+  gender:
+    male: Man
+    female: Woman
+  ed_level:
+    secondary: Secondary
+    advanced: Higher
+    primary: Primary
+    none: None
+  nz2pr56:
+    v_good: Very good
+    average: Average
+    none: None
+    good: Good
+field_mapper:
+  title: Form field mapper
+  description: Map form fields to database columns for accurate data storage.
+mapper:
+  categories:
+    forms:
+      fosa:
+        base_fields:
+          title: Base fields
+        sub_forms:
+          title: Sub-forms
+          data_personnel:
+            title: Personnel Info
+          stats_0:
+            title: Vital statistics (Line 1)
+          stats_1:
+            title: Vital statistics (Line 2)
+          stats_2:
+            title: Vital statistics (Line 3)
+          stats_3:
+            title: Vital statistics (Line 4)
+          stats_4:
+            title: Vital statistics (Line 5)
+      any:
+        sub_forms:
+          title: Sub-forms
+      chefferie:
+        sub_forms:
+          title: Sub-forms
+          data_personnel:
+            title: Personnel Info
+        base_fields:
+          title: Base Fields
+      csc:
+        base_fields:
+          sections:
+            deeds:
+              title: Deeds drawn up, not withdrawn in the last 5 years
+            infrastructure:
+              title: Infrastructure and equipment of the Centre
+            respondent:
+              title: The Respondent
+            identification:
+              title: Identification of the Center
+            accessibility:
+              title: Accessibility to the Center
+              sub_forms:
+                villages:
+                  title: Attached Villages
+            areas:
+              title: Areas devoted for civil status
+              sub_forms:
+                rooms:
+                  title: State of rooms devoted to civil status
+            equipment:
+              title: Facilities of the Civil Registry Centre (Functional Equipment)
+            digitization:
+              title: Digitization/Computerization of civil status
+            record_procurement:
+              title: Procurement of Records
+            stats:
+              title: Financial resources related to vital statistics documents
+            indexing:
+              title: Document scanning/indexing
+            archiving:
+              title: Archiving
+            records:
+              title: Number of archived records (2020 to 2024)
+            comments:
+              title: Comments & Extra
+            personnel:
+              sub_forms:
+                personnel_info:
+                  title: Staff Status
+                  sections:
+                    general:
+                      title: General
+                    staff:
+                      title: List of personnel (officers and non-officers)
+chefferie:
+  submissions:
+    title: Submission - CHEFFERIE
+  columns:
+    submitted: Add Submission
+    recorded_at: Submitted
+    last_updated_by: Recorded At
+    last_updated_at: Last updated by
+  add_submission: Last updated at
+  form:
+    sections:
+      respondent:
+        title: Respondent
+      structure_identification:
+        title: Structure identification
+      service_offered_and_amenities:
+        title: Services offered and amenities
+      infra_eq:
+        title: Infrastructure and Equipment
+      personnel_status:
+        title: Personnel Status
+      geo_point:
+        title: Geographic coordinates
+      extra:
+        title: Comments & Extra
+      equipment:
+        sections:
+          equipment:
+            title: Equipment Information
+        structure_info:
+          title: Building information & facilities
+    finish: Finish
+    discard: Discard
+    fields:
+      names:
+        title: First and last names
+      position:
+        title: Function
+        description: Position / function in the health facility
+      phone:
+        title: Phone number
+        description: Phone number (preferably WhatsApp)
+      email:
+        title: Email
+        description: Email address (work email)
+      creation_date:
+        title: Created at
+        description: Year of creation of the health facility (dd/MM/YYYY)
+      environment:
+        options:
+          urban:
+            title: Urban
+          rural:
+            title: Rural
+      region:
+        title: Region
+      department:
+        title: Division
+        description: Division in the region
+      communes:
+        title: Town/City
+      quarter:
+        title: Neighborhood
+      name:
+        title: Name of the CHEFFERIE
+      classification:
+        title: Classification
+        description: Classification of the chefferie
+        option:
+          first: 1ier degr� ou Lamidat
+          second: 2e degr�
+      distance:
+        title: Distance to the nearest civil status center
+      fonction:
+        title: Civil status function
+        description: Civil status function exercised by the chief or a notable in the chiefdom
+        option:
+          first: Yes, Civil Status Officer
+          second: Yes, Civil Status Secretary
+          third: No
+      benefit:
+        title: Taking the oath
+        description: Swearing in of the chief or a notable of the chiefdom
+        option:
+          first: Yes
+          second: No
+      conservation_place:
+        title: Place of conservation
+        description: Place of conservation of civil status registers
+        option:
+          first: In a reserved room
+          second: In the chief's house
+          third: Others (Please specify)
+      training:
+        title: Is the civil status officer trained
+        description: Training received on the civil status of the chief or a notable of the chiefdom
+        option:
+          first: Yes
+          second: No
+      waiting_room:
+        title: Space or waiting room available
+        description: Space or waiting room available for users
+        option:
+          first: Yes
+          second: No
+      cs_actor_is_chief:
+        title: Does the chief exercise the civil status function?
+        description: Is the civil status function performed by the chief or a notable in the chiefdom?
+      reception_location:
+        description: User reception area in the chiefdom
+        option:
+          first: Dans une salle r�serv�e
+          second: Dans le domicile du chef
+          third: Autres (A pr�ciser)
+      toilets_accessible:
+        title: Availability of toilets
+        description: Availability of toilets accessible to users
+        option:
+          first: Yes
+          second: No
+      Functional_equipment:
+        title: Functional equipment
+        description: "Functional equipment in the chiefdom: types and quantities"
+      equipment_question:
+        title: "Functional equipment in the chiefdom: types and quantities"
+      equipment_quantity:
+        computers:
+          description: Number of computers
+        tablets:
+          description: Number of tablets
+        printers:
+          description: Number of printers
+        cars:
+          description: Number of cars
+        motorcycles:
+          description: Number of motorcycles
+      structure:
+        title: Is the chiefdom building the chief's residence?
+        description: Is the chiefdom building, the chief's residence?
+        option:
+          first: Yes
+          second: No
+      connexion:
+        title: Internet access
+        description: Chiefdom Internet Connection
+        option:
+          first: Yes
+          second: No
+      typeConnexion:
+        title: Internet connection type
+        description: Type of internet connection available
+      eneoConnexion:
+        title: ENEO acces
+        description: Connection of the chiefdom to the electricity network (ENEO)
+      waterAcces:
+        title: Water availability
+        description: Availability of a water supply source in the chiefdom
+      waterType:
+        title: Water source(s) available
+        description: Type of water supply source
+      extinguisher:
+        title: Working fire extinguisher
+        description: Working fire extinguisher available in the chiefdom
+        option:
+          first: Yes
+          second: No
+      type:
+        connexion:
+          option:
+            first: 2G
+            second: 3G
+            third: 4G
+            fourth: ADSL (corded phone)
+            fith: Optical fiber
+      eneo:
+        connexion:
+          option:
+            first: Yes
+            second: No
+      water:
+        acces:
+          option:
+            first: Yes
+            second: No
+        type:
+          option:
+            first: CAMWATER
+            second: Well constructed/Drilling
+            third: Undeveloped/Traditional Well
+            fourth: Watercourse
+            fith: Others (Please specify)
+      employer:
+        title: Staff in charge of civil status
+        description: How many staff members are in charge of civil status in the chiefdom?
+      facility_name:
+        title: Full name of chiefdom
+      extra_info:
+        description: Please use the space provided to add any additional relevant information.
+        title: Extra information
+      index: Index
+      validation_code: Validation code
+      other_water_source:
+        description: Other available drinking water supply
+        title: Specify the water source
+      oath:
+        title: Has the chief or notable taken oath?
+      cs_reg_location:
+        title: Location of civil registers
+      other_cs_reg_location:
+        title: Specify the civil status registry location
+      other_internet_type:
+        title: Specify the internet connection type
+      degree:
+        options:
+          first_degree:
+            title: 1st degree or lamidat
+          second_degree:
+            title: Second Degree
+      other_waiting_room:
+        title: Specify the waiting room's location
+      reception:
+        title: User Reception
+      other_recep:
+        title: Specify the reception area
+    msg:
+      invalid_value: Invalid value
+    title: ""
+services:
+  auth:
+    user_not_found: Invalid username or password
+submissions:
+  context_menu:
+    actions:
+      delete: Delete
+  columns:
+    index: Index
+    facility_name: Facility Name
+  filter:
+    prompt: Filter by "Facility Name", "Validation Code", "Index"
+range_0_100: "min "
+range_1_50: "min "
+range_1980_current_year: "min "
+range_0_80000: "min "

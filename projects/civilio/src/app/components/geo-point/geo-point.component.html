@@ -1,0 +1,16 @@
+<div #mapContainer></div>
+<div
+  class="flex items-center text-muted-foreground bg-secondary italic text-sm gap-1 py-1 px-3"
+>
+  <span>Lat: {{ resolvedCoords()[0] | number: "1.1-2" }},</span>
+  <span>Lon: {{ resolvedCoords()[1] | number: "1.1-2" }}</span>
+</div>
+
+@if (!online()) {
+  <div
+    class="gap-3 dark:bg-black/70 bg-white/70 text-lg dark:text-muted-foreground absolute w-full backdrop-blur-lg z-[1000] h-full flex items-center justify-center"
+  >
+    <ng-icon name="lucideCircleAlert" />
+    <p>Map unavailable. Please check your Internet connection</p>
+  </div>
+}

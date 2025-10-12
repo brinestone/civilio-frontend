@@ -1,0 +1,25 @@
+<brn-select
+  [(value)]="selectedLocale"
+  (valueChange)="setLocale($any($event))"
+  class="inline-block"
+  placeholder="Select an option"
+>
+  <hlm-select-trigger>
+    <hlm-select-value>
+      <div class="flex items-center gap-2" *brnSelectValue="let value">
+        <ng-icon [name]="value.substring(0, 2)" />
+        <span>{{ value == "en-CM" ? "English" : "French" }}</span>
+      </div>
+    </hlm-select-value>
+  </hlm-select-trigger>
+  <hlm-select-content class="w-56">
+    <hlm-option value="en-CM" class="flex items-center gap-2">
+      <ng-icon name="en" />
+      <span>English</span>
+    </hlm-option>
+    <hlm-option value="fr-CM" class="flex items-center gap-2">
+      <ng-icon name="fr" />
+      <span>French</span>
+    </hlm-option>
+  </hlm-select-content>
+</brn-select>

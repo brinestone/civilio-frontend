@@ -1,0 +1,102 @@
+<div class="page-header">
+  <h1 class="page-title">Advanced Settings</h1>
+</div>
+<section class="page-section space-y-3">
+  <h2 class="section-title flex items-center gap-3">
+    <ng-icon name="lucideDatabase" />
+    <span>Database</span>
+  </h2>
+  <form
+    (ngSubmit)="onFormSubmit(form)"
+    #form="ngForm"
+    class="max-w-[380px] grid items-baseline grid-cols-[auto_1fr] gap-y-2 gap-x-4"
+  >
+    @for (schema of fieldSchema; track $index) {
+      <ng-container>
+        <label class="block text-end" hlmLabel [for]="schema.key">{{
+          schema.label
+        }}</label>
+        <div class="space-y-1 relative group">
+          @if (schema.type == "checkbox") {
+            <hlm-checkbox
+              [id]="schema.key"
+              [required]="schema.required"
+              [name]="schema.key"
+              [ngModel]="schema.default"
+              #model="ngModel"
+            />
+            @if (model.touched && model.invalid) {
+              @if (model.hasError("required")) {
+                <small class="text-sm text-red-500 block"
+                  >This field is required</small
+                >
+              }
+            }
+          } @else {
+            <input
+              [required]="schema.required"
+              hlmInput
+              [type]="schema.type"
+              [name]="schema.key"
+              [id]="schema.key"
+              autocomplete="off"
+              [value]="schema.default"
+              [ngModel]="schema.default"
+              #model="ngModel"
+            />
+            @if (model.touched && model.invalid) {
+              @if (model.hasError("required")) {
+                <small class="text-sm text-red-500 block"
+                  >This field is required</small
+                >
+              }
+            }
+          }
+
+          @if (schema.hint) {
+            <div
+              class="group-focus-within:opacity-100 opacity-0 group-focus-within:-translate-y-[50%] bg-background border-l-4 border rounded-md p-2 border-[var(--primary)] transition-all absolute left-[102%] w-max max-w-[250px] top-1/2 -translate-y-[10%]"
+            >
+              <small class="text-[var(--muted-foreground)] text-sm">{{
+                schema.hint
+              }}</small>
+            </div>
+          }
+        </div>
+      </ng-container>
+    }
+    @if (form.dirty) {
+      <div class="col-span-2 flex justify-between items-center gap-3">
+        <small
+          [class.text-green-500]="dbConnectionPassed()"
+          class="text-[var(--muted-foreground)]"
+        >
+          @if (testingDbConnection()) {
+            Testing connection...
+          } @else if (dbConnectionPassed()) {
+            <ng-icon name="lucideCheck" /> Connection successful
+          }
+        </small>
+        <div class="items-center gap-3 flex">
+          <button
+            size="sm"
+            [disabled]="form.invalid || testingDbConnection()"
+            type="submit"
+            hlmBtn
+          >
+            Save
+          </button>
+          <button
+            size="sm"
+            type="reset"
+            hlmBtn
+            variant="ghost"
+            class="text-destructive"
+          >
+            Discard changes
+          </button>
+        </div>
+      </div>
+    }
+  </form>
+</section>

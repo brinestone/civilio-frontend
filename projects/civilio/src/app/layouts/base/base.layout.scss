@@ -1,0 +1,15 @@
+@reference "tailwindcss";
+
+:host {
+  @apply grid grid-rows-[auto_auto_1fr_auto] h-full;
+}
+
+.menu-link {
+  @apply px-2 py-1 rounded-md transition-colors focus-within:ring-1 focus-within:ring-[var(--primary)];
+  &:has(.active-route) {
+    @apply font-bold bg-[var(--primary)] hover:bg-[var(--primary)] text-[var(--primary-foreground)];
+  }
+  &:not(:has(.active-route)) {
+    @apply hover:bg-[var(--muted)];
+  }
+}
