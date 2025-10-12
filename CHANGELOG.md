@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.3](https://github.com/brinestone/civilio-frontend/compare/v3.0.2...v3.0.3) (2025-10-12)
+
+
+### Bug Fixes
+
+* **ci:** add write permissions for release ([9f45d07](https://github.com/brinestone/civilio-frontend/commit/9f45d075a6057a8e49bbf4878e8eb8e043e3a7e3))
+
 ### [3.0.2](https://github.com/brinestone/civilio-frontend/compare/v3.0.1...v3.0.2) (2025-10-12)
 
 ### [3.0.1](https://github.com/brinestone/civilio-frontend/compare/v3.0.0...v3.0.1) (2025-10-12)
