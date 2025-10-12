@@ -5,6 +5,7 @@
 	"displayName": "CivilIO",
 	"description": "A Civil Status data management tool.",
 	"main": "./dist/electron/index.js",
+	"license": "ISC",
 	"scripts": {
 		"ng": "ng",
 		"start:ng": "ng serve",
