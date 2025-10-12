@@ -1,6 +1,6 @@
 {
 	"name": "civilio",
-	"version": "0.0.0",
+	"version": "3.0.0",
 	"productName": "civilio",
 	"displayName": "CivilIO",
 	"description": "A Civil Status data management tool.",
@@ -30,7 +30,8 @@
 		"generate:guard": "ng g g --project civilio",
 		"generate:pipe": "ng g p --project civilio",
 		"verify:electron": "node -e \"const fs = require('fs'); const path = require('path'); const mainFile = path.join(__dirname, 'dist', 'electron', 'index.js'); if (!fs.existsSync(mainFile)) { console.error('ERROR: Main entry point not found at:', mainFile); process.exit(1); } else { console.log('✓ Main entry point found at:', mainFile); }\"",
-		"test": "ng test"
+		"test": "ng test",
+		"release": "standard-version"
 	},
 	"private": true,
 	"dependencies": {
@@ -105,6 +106,7 @@
 		"nodemon": "^3.1.10",
 		"postcss": "^8.5.6",
 		"rimraf": "^6.0.1",
+		"standard-version": "^9.5.0",
 		"tailwindcss": "^4.1.13",
 		"tailwindcss-animate": "^1.0.6",
 		"ts-loader": "^9.5.4",
