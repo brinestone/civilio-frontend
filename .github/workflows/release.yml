@@ -6,7 +6,7 @@ jobs:
   publish:
     strategy:
       matrix:
-        os: ["windows", "macos", "linux"]
+        os: ["windows", "macos", "ubuntu"]
     runs-on: ${{ matrix.os }}-latest
     permissions:
       contents: write
