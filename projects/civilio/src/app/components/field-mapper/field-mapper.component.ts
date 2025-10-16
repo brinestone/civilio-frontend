@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
-import { FormModelDefinition, FormSection } from '@app/model';
+import { FormSchema, SectionSchema } from '@app/model/form';
 import { ValuesPipe } from '@app/pipes';
 import { LoadDbColumns, LoadMappings, UpdateMappings } from '@app/store/form';
 import { dbColumnsFor, formMappings } from '@app/store/selectors';
@@ -73,7 +73,7 @@ export class FieldMapperComponent implements OnInit {
   private updateMapping = dispatch(UpdateMappings);
   private loadMappings = dispatch(LoadMappings);
   private loadColumns = dispatch(LoadDbColumns);
-  readonly formModel = input.required<FormModelDefinition>();
+  readonly formModel = input.required<FormSchema>();
   readonly form = input.required<FormType>();
   private readonly form$ = toObservable(this.form);
   protected readonly mappings = toSignal(this.store.select(formMappings).pipe(
@@ -117,7 +117,7 @@ export class FieldMapperComponent implements OnInit {
     })
   }
 
-  private findAllFields(section: FormSection) {
+  private findAllFields(section: SectionSchema) {
     const result = Array<[string, FieldForm]>();
     const mappings = untracked(this.mappings);
     const dbColumns = untracked(this.dbColumns);

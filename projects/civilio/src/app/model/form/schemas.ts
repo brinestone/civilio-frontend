@@ -150,7 +150,10 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 const GroupBaseSchema = z.object({
   id: AllSectionKeysSchema,
   fields: FieldDefinitionSchema.array(),
-  relevance: RelevancePredicateSchema.optional()
+	relevance: z.object({
+		predicate: RelevancePredicateSchema,
+		dependencies: FieldKeySchema.array()
+	}).optional(),
 });
 export const FormGroupSchema = GroupBaseSchema.extend({
   children: GroupBaseSchema.array().optional(),
@@ -173,13 +176,13 @@ export const FormModelDefinitionSchema = z.object({
 //   type:
 // });
 
-export type FieldDefinition = z.output<typeof FieldDefinitionSchema>;
-export type FormModelDefinition = z.output<typeof FormModelDefinitionSchema>;
-export type FormSection = z.output<typeof FormGroupSchema>;
+export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
+export type FormSchema = z.output<typeof FormModelDefinitionSchema>;
+export type SectionSchema = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;
 export type RelevanceFn = z.output<typeof RelevancePredicateSchema>;
 export type ColumnDefinition = z.output<typeof ColumnDefinitionSchema>;
 export type DefinitionLike = {
-  type: FieldDefinition['type'] | ColumnDefinition['type'],
+  type: FieldSchema['type'] | ColumnDefinition['type'],
   default?: any
 };

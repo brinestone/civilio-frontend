@@ -16,22 +16,22 @@ import {
 	untracked,
 	WritableSignal
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldMapperComponent, GeoPointComponent, TabularFieldComponent } from '@app/components';
 import {
-	extractAllFields,
-	FieldDefinition,
-	FormModelDefinition,
+	extractAllFields as extractFieldSchemas,
+	FieldSchema,
+	FormSchema,
 	HasPendingChanges,
 	lookupFieldSchema,
 	ParsedValue,
 	parseValue,
 	RawInput,
 	serializeValue
-} from '@app/model';
-import { IsArrayPipe } from '@app/pipes';
+} from '@app/model/form';
+import { IsArrayPipe, JoinArrayPipe } from '@app/pipes';
 import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
 import { optionsSelector } from '@app/store/selectors';
@@ -58,14 +58,14 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { isAfter, isBefore, toDate } from 'date-fns';
-import { cloneDeepWith, differenceBy, differenceWith, intersectionBy, isArray, isEmpty, isObject, isString, last } from 'lodash';
+import { differenceBy, intersectionBy, isEmpty, keys, last } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { createNotifier } from 'ngxtension/create-notifier';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from 'ngxtension/inject-route-data';
 import { injectRouteFragment } from 'ngxtension/inject-route-fragment';
-import { debounceTime, filter, from, map, mergeMap, Observable, pipe } from 'rxjs';
+import { combineLatest, debounceTime, filter, from, map, mergeMap, Observable, pipe } from 'rxjs';
 import z from 'zod';
 
 
@@ -103,6 +103,7 @@ import z from 'zod';
 		HlmCheckboxImports,
 		HlmLabel,
 		ReactiveFormsModule,
+		JoinArrayPipe,
 		GeoPointComponent,
 		RouterLink,
 		NgStyle
@@ -114,11 +115,11 @@ import z from 'zod';
 export class FormPage implements AfterViewInit, HasPendingChanges {
 	private store = inject(Store);
 	private readonly translationService = inject(TranslateService);
-	private navigate = dispatch(Navigate);
+	private readonly navigate = dispatch(Navigate);
 	protected readonly cdr = inject(ChangeDetectorRef);
-	private loadOptions = dispatch(LoadOptions);
+	private readonly loadOptions = dispatch(LoadOptions);
 	private readonly targetTab = injectRouteFragment()
-	private formService = inject(FORM_SERVICE);
+	private readonly formService = inject(FORM_SERVICE);
 	private readonly submissionIndexInput = injectParams('submissionIndex');
 	protected readonly submissionIndex = linkedSignal(() => {
 		const index = this.submissionIndexInput();
@@ -148,7 +149,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 	protected readonly autoCompletionSources: Record<string, [WritableSignal<string>, Signal<string[]>]> = {};
 	private readonly optionsNotifier = createNotifier();
 	protected formType = computed(() => this.routeData()['form'] as FormType);
-	protected formModel = computed(() => this.routeData()['model'] as FormModelDefinition);
+	protected formModel = computed(() => this.routeData()['model'] as FormSchema);
 	protected optionSelector = computed(() => optionsSelector(this.formType()));
 	protected readonly allFormOptions = computed(() => {
 		this.optionsNotifier.listen();
@@ -194,6 +195,27 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		).subscribe(() => this.submissionData.reload());
 	}
 
+	private cleanUpRegistries(...keys: string[]) {
+		keys.forEach(k => {
+			delete this.valueProviders[k];
+			delete this.controlValidatorRegistry[k];
+			// delete this.relevanceRegistry[k];
+			delete this.autoCompletionSources[k];
+			delete this.formOptions[k];
+		})
+	}
+
+	private clearAllControls() {
+		const currentValues: Record<string, any> = {};
+		keys(this.form.controls).forEach(k => {
+			currentValues[k] = this.form.value[k];
+			this.form.removeControl(k);
+		});
+
+		this.cleanUpRegistries(...keys(currentValues));
+		return currentValues;
+	}
+
 	ngAfterViewInit(): void {
 		this.loadOptions(this.formType()).subscribe({
 			complete: () => {
@@ -201,34 +223,88 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			}
 		});
 		setTimeout(() => {
-			this.prepareFormControls();
+			this.prepareFormControls(this.formModel());
 			this.cdr.markForCheck();
 		}, 10);
 	}
 
-	protected prepareFormControls() {
-		const schemas = extractAllFields(this.formModel());
+	private checkInitialRelevance(schema: FieldSchema) {
+		if (!schema.relevance) return true;
+
+		const { dependencies, predicate } = schema.relevance;
+		const deps = dependencies.reduce((acc, curr) => {
+			const currentData = this.submissionData.value();
+			return {
+				...acc,
+				[curr]: parseValue(lookupFieldSchema(curr, this.formModel())!, currentData?.[curr] ?? null)
+			}
+		}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
+
+		return predicate(deps as any);
+	}
+
+	protected prepareFormControls(model: FormSchema) {
+		this.clearAllControls();
+		const schemas = extractFieldSchemas(model);
 		for (const schema of schemas) {
+			const isInitiallyRelevant = this.checkInitialRelevance(schema);
+			if (!isInitiallyRelevant) {
+				this.setupRelevanceSignalOnly(schema);
+				continue;
+			}
 			this.addFieldControl(schema);
 		}
+
 		for (const schema of schemas) {
-			if (schema.relevance) {
+			if (this.form.controls[schema.key]) {
+				this.setupFieldDependencies(schema);
+			} else {
 				this.setupRelevanceWatch(schema);
 			}
-			if (schema.type == 'text' && schema.autocomplete) {
-				this.autoCompletionSources[schema.key] = this.setupAutocompletion(schema);
-			}
+		}
 
-			if (schema.type == 'single-selection' || schema.type == 'multi-selection') {
-				const src = this.setupDropdownOptions(schema);
-				if (src) {
-					this.formOptions[schema.key] = src;
-				}
-			}
+		this.cdr.markForCheck();
+	}
+
+	private removeFieldControl(schema: FieldSchema) {
+		const { key } = schema;
+		try {
+			if (this.form.controls[key])
+				this.form.removeControl(key);
+
+			if (this.valueProviders[key])
+				delete this.valueProviders[key];
+
+			if (this.controlValidatorRegistry[key])
+				delete this.controlValidatorRegistry[key];
+
+			if (this.autoCompletionSources[key])
+				delete this.autoCompletionSources[key];
+
+			if (this.formOptions[key])
+				delete this.formOptions[key];
+
+			console.log(`Removed non-relevant control: ${key}`);
+		} catch (e) {
+			console.error(`Failed to remove control: ${key}: `, e)
 		}
 	}
 
-	private setupDropdownOptions(schema: Extract<FieldDefinition, { type: 'multi-selection' | 'single-selection' }>) {
+	private setupFieldDependencies(schema: FieldSchema) {
+		if (schema.relevance) {
+			this.setupRelevanceWatch(schema);
+		}
+
+		if (schema.type == 'text' && schema.autocomplete) {
+			this.autoCompletionSources[schema.key] = this.createAutocompletionSource(schema);
+		}
+
+		if (schema.type == 'single-selection' || schema.type == 'multi-selection') {
+			this.formOptions[schema.key] = this.createDropdownSource(schema);
+		}
+	}
+
+	private createDropdownSource(schema: Extract<FieldSchema, { type: 'multi-selection' | 'single-selection' }>) {
 		if (schema.parent) {
 			const parentProvider = this.valueProviders[schema.parent];
 			const parentNotifier = createNotifier();
@@ -261,7 +337,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		}
 	}
 
-	private setupAutocompletion(schema: FieldDefinition) {
+	private createAutocompletionSource(schema: FieldSchema) {
 		const source = signal<string>(this.form.controls[schema.key].value, {})
 		const provider = derivedFrom([source, this.form.controls[schema.key].valueChanges], pipe(
 			debounceTime(500),
@@ -272,35 +348,49 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		return [source, provider] as [WritableSignal<string>, Signal<string[]>];
 	}
 
-	private setupRelevanceWatch(schema: FieldDefinition) {
+	private setupRelevanceSignalOnly(schema: FieldSchema) {
+		if (!schema.relevance) return;
+
+		const { dependencies, predicate } = schema.relevance;
+		const relevanceSignal = computed(() => {
+			const deps = dependencies.reduce((acc, curr) => {
+				return { ...acc, [curr]: this.valueProviders[curr]?.() };
+			}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
+			return predicate(deps as any);
+		});
+
+		this.relevanceRegistry[schema.key] = relevanceSignal;
+	}
+
+	private setupRelevanceWatch(schema: FieldSchema) {
 		if (!schema.relevance) {
-			this.relevanceRegistry[schema.key] = () => true;
+			// this.relevanceRegistry[schema.key] = () => true;
 			return;
 		}
 		const { dependencies, predicate } = schema.relevance
-		const relevanceSignal = computed(() => {
+		const relevanceSignal = this.relevanceRegistry[schema.key] ?? computed(() => {
 			const deps = dependencies.reduce((acc, curr) => {
 				return { ...acc, [curr]: this.valueProviders[curr]() };
 			}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
 			return predicate(deps as any);
 		});
 
-		this.relevanceRegistry[schema.key] = relevanceSignal;
+		if (!this.relevanceRegistry[schema.key])
+			this.relevanceRegistry[schema.key] = relevanceSignal;
+
 		effect(() => {
 			const isRelevant = relevanceSignal();
 			const control = this.form.controls[schema.key];
-			if (isRelevant) {
-				const validators = this.controlValidatorRegistry[schema.key];
-				if (validators) control?.setValidators(validators);
-			} else {
-				control?.clearValidators();
-				control?.clearAsyncValidators();
+			if (isRelevant && !control) {
+				setTimeout(() => this.addFieldControl(schema), 0);
+			} else if (!isRelevant && !!control) {
+				this.removeFieldControl(schema);
 			}
 			setTimeout(() => this.cdr.markForCheck(), 0);
 		}, { injector: this.injector });
 	}
 
-	private extractSubFormData(schema: Extract<FieldDefinition, {
+	private extractSubFormData(schema: Extract<FieldSchema, {
 		type: 'table'
 	}>, rawData: Record<string, string | (string | null)[] | null> | null) {
 
@@ -321,23 +411,34 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		return toRowMajor(temp, transformFn);
 	}
 
-	private makeProviderSignal(schema: FieldDefinition) {
+	private makeProviderSignal(schema: FieldSchema, control: UntypedFormControl) {
 		const { key, type } = schema;
 
 		if (type == 'table') {
-			return derivedFrom([this.form.controls[key].valueChanges, this.submissionData.value], pipe(
+			return derivedFrom([control.valueChanges, this.submissionData.value], pipe(
 				map(([formValue, rawValue]) => {
 					if (formValue) return formValue as Record<string, ParsedValue | ParsedValue[]>[];
 					return this.extractSubFormData(schema, rawValue)
 				})
 			), { injector: this.injector, initialValue: [] });
-		} else
-			return derivedFrom([this.form.controls[key].valueChanges, this.submissionData.value], pipe(
-				map(([formValue, pristineValue]) => formValue as ParsedValue | ParsedValue[] | undefined ?? parseValue(schema, pristineValue?.[key] ?? null) ?? null),
-			), { injector: this.injector, initialValue: null });
+		} else {
+			const notifier = createNotifier();
+
+			const src$ = combineLatest([
+				control.valueChanges,
+				toObservable(this.submissionData.value, { injector: this.injector }).pipe(
+					map(v => v?.[key])
+				)
+			]).pipe(
+				map(([formValue, pristineValue]) => formValue as ParsedValue | ParsedValue[] | undefined ?? parseValue(schema, pristineValue ?? null) ?? null),
+			);
+
+			return toSignal(src$, { initialValue: null, injector: this.injector });
+		}
+
 	}
 
-	private extractValidators(schema: FieldDefinition) {
+	private extractValidators(schema: FieldSchema) {
 		const validators: ValidatorFn[] = [];
 
 		if ('required' in schema && !schema.relevance) {
@@ -428,35 +529,75 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		return validators;
 	}
 
-	protected addFieldControl(schema: FieldDefinition) {
-		const key = schema.key;
-		const control = new UntypedFormControl();
-		this.form.addControl(key, control);
-		this.valueProviders[key] = this.makeProviderSignal(schema);
+	private initializeFieldComponents(schema: FieldSchema, control: UntypedFormControl) {
+		this.valueProviders[schema.key] = this.makeProviderSignal(schema, control);
+		const validators = this.extractValidators(schema);
+		control.addValidators(validators);
+		this.controlValidatorRegistry[schema.key] = validators;
+		this.setInitialControlValue(schema, control);
+		this.setupValueUpdateEffect(schema, control);
+	}
 
-		this.controlValidatorRegistry[key] = this.extractValidators(schema);
-		control.addValidators(this.controlValidatorRegistry[key]);
-
+	private setupValueUpdateEffect(schema: FieldSchema, control: UntypedFormControl) {
 		let source: Signal<any>;
-
 		if (schema.type == 'table') {
 			source = derivedFrom([this.submissionData.value], pipe(
 				map(([v]) => this.extractSubFormData(schema, v))
-			), { injector: this.injector, initialValue: [] })
+			), { injector: this.injector, initialValue: [] });
 		} else {
 			source = mapSignal(
-				this.submissionData.value, key,
+				this.submissionData.value, schema.key,
 				pipe(map(v => parseValue(schema, v as RawInput | null))),
 				{ injector: this.injector });
 		}
 
 		effect(() => {
 			const updatedValue = source();
-			control.setValue(updatedValue);
-			control.markAsPristine();
-			control.markAsUntouched({ emitEvent: false });
-			this.cdr.markForCheck();
+			if (JSON.stringify(control.value) !== JSON.stringify(updatedValue)) {
+				control.setValue(updatedValue);
+				control.markAsPristine();
+				control.markAsUntouched();
+				this.cdr.markForCheck();
+			}
 		}, { injector: this.injector });
+	}
+
+	private setInitialControlValue(schema: FieldSchema, control: UntypedFormControl) {
+		try {
+			const { key } = schema;
+			const currentData = this.submissionData.value();
+			let initialValue: any;
+			if (schema.type == 'table') {
+				initialValue = this.extractSubFormData(schema, currentData);
+			} else {
+				initialValue = parseValue(schema, currentData?.[key] ?? null);
+			}
+
+			control.setValue(initialValue, { emitEvent: false });
+			control.markAsPristine();
+			control.markAsUntouched();
+		} catch (e) {
+			console.error(`Failed to set initial value for control ${schema.key}:`, e);
+			// Set a safe fallback value
+			control.setValue(schema.type === 'table' ? [] : null, { emitEvent: false });
+		}
+	}
+
+	private addFieldControl(schema: FieldSchema) {
+		try {
+			const key = schema.key;
+			if (this.form.controls[key]) {
+				console.log(`Control: ${key} already exists, skipping creation.`);
+				return;
+			}
+
+			const control = new UntypedFormControl();
+			this.form.addControl(key, control);
+
+			this.initializeFieldComponents(schema, control);
+		} catch (e) {
+			console.error(`Failed to create control for field: ${schema.key}: `, e);
+		}
 	}
 
 	protected onActiveTabChanged(tab: string) {
@@ -531,7 +672,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 	}
 
 	protected discardPendingChanges() {
-
+		this.submissionData.reload();
 	}
 
 	protected async savePendingChanges() {
@@ -593,4 +734,5 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			});
 		}
 	}
+
 }

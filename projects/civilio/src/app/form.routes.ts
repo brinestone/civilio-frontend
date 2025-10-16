@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { ChefferieFormDefinition, CscFormDefinition, FosaFormDefinition } from "./model";
+import { ChefferieFormDefinition, CscFormDefinition, FosaFormDefinition } from "./model/form";
 import { hasChangesGuard } from "./guards/has-changes-guard";
 
 export const formRoutes: Routes = [

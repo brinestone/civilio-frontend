@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FieldMapperComponent } from '@app/components';
-import { FosaFormDefinition } from '@app/model';
+import { FosaFormDefinition } from '@app/model/form';
 
 @Component({
   selector: 'cv-fosa',

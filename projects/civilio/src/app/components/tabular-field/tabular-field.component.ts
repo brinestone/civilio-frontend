@@ -1,7 +1,7 @@
 import { DecimalPipe, NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, forwardRef, input, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ColumnDefinition, ParsedValue, parseValue } from '@app/model';
+import { ColumnDefinition, ParsedValue, parseValue } from '@app/model/form';
 import { Option } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideCheckCheck, lucidePencil, lucidePlus, lucideTrash2, lucideX } from '@ng-icons/lucide';

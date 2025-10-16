@@ -1,6 +1,9 @@
 name: Artifact Release
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - v*.*.*
 
 jobs:
   publish:
@@ -17,6 +20,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: .tool-versions
+      - name: Add MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+        if: runner.os == 'Windows'
+      - name: Setup Windows tools
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          dotnet tool install --global wix
       - name: Enable Corepack
         run: corepack enable
       - name: Cache dependencies
