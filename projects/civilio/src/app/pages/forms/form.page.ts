@@ -17,18 +17,20 @@ import {
 	WritableSignal
 } from '@angular/core';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl, ValidatorFn, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldMapperComponent, GeoPointComponent, TabularFieldComponent } from '@app/components';
 import {
 	extractAllFields as extractFieldSchemas,
 	FieldSchema,
+	flattenSections,
 	FormSchema,
 	HasPendingChanges,
 	lookupFieldSchema,
 	ParsedValue,
 	parseValue,
 	RawInput,
+	SectionSchema,
 	serializeValue
 } from '@app/model/form';
 import { IsArrayPipe, JoinArrayPipe } from '@app/pipes';
@@ -36,7 +38,7 @@ import { FORM_SERVICE } from '@app/services/form';
 import { LoadOptions, UpdateMappings } from '@app/store/form';
 import { optionsSelector } from '@app/store/selectors';
 import { mapSignal } from '@app/util';
-import { deepTransform, FieldKey, FormType, Option, toRowMajor, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
+import { deepTransform, FieldKey, FormType, Option, toRowMajor, UnwrapArray, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronLeft, lucideChevronRight, lucideSave, lucideTrash2, lucideUnlink } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -67,7 +69,6 @@ import { injectRouteData } from 'ngxtension/inject-route-data';
 import { injectRouteFragment } from 'ngxtension/inject-route-fragment';
 import { combineLatest, debounceTime, filter, from, map, mergeMap, Observable, pipe } from 'rxjs';
 import z from 'zod';
-
 
 @Component({
 	selector: 'cv-form-page',
@@ -192,7 +193,11 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		actions.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateMappings)
-		).subscribe(() => this.submissionData.reload());
+		).subscribe(() => {
+			this.submissionData.reload();
+			this.prepareFormControls(this.formModel());
+			this.cdr.markForCheck();
+		});
 	}
 
 	private cleanUpRegistries(...keys: string[]) {
@@ -259,8 +264,14 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			if (this.form.controls[schema.key]) {
 				this.setupFieldDependencies(schema);
 			} else {
-				this.setupRelevanceWatch(schema);
+				this.setupFieldRelevanceWatch(schema);
 			}
+		}
+
+		const sections = flattenSections(model);
+		for (const section of sections) {
+			if (!section.relevance)
+				this.setupSectionRelevanceWatch(section);
 		}
 
 		this.cdr.markForCheck();
@@ -292,7 +303,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 
 	private setupFieldDependencies(schema: FieldSchema) {
 		if (schema.relevance) {
-			this.setupRelevanceWatch(schema);
+			this.setupFieldRelevanceWatch(schema);
 		}
 
 		if (schema.type == 'text' && schema.autocomplete) {
@@ -362,9 +373,27 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		this.relevanceRegistry[schema.key] = relevanceSignal;
 	}
 
-	private setupRelevanceWatch(schema: FieldSchema) {
+	private setupSectionRelevanceWatch(schema: SectionSchema | UnwrapArray<SectionSchema['children']>) {
+		// if (!schema.relevance) return;
+		// const { dependencies, predicate } = schema.relevance;
+		// const relevanceSignal = this.relevanceRegistry[schema.id] ?? computed(() => {
+		// 	const deps = dependencies.reduce((acc, curr) => {
+		// 		return { ...acc, [curr]: this.valueProviders[curr]?.() }
+		// 	}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
+		// 	return predicate(deps as any);
+		// });
+
+		// if (!this.relevanceRegistry[schema.id])
+		// 	this.relevanceRegistry[schema.id] = relevanceSignal;
+
+		// effect(() => {
+		// 	const isRelevant = relevanceSignal();
+		// 	const sec
+		// })
+	}
+
+	private setupFieldRelevanceWatch(schema: FieldSchema) {
 		if (!schema.relevance) {
-			// this.relevanceRegistry[schema.key] = () => true;
 			return;
 		}
 		const { dependencies, predicate } = schema.relevance
@@ -470,14 +499,13 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			if (schema.max) {
 				validators.push(c => {
 					if (!c.value) return null;
-					console.log(c.value);
 					const { success, data: rawDate } = dateValidationSchema.safeParse(c.value);
 					if (!success) {
 						return { invalidDate: 'Invalid date value' };
 					}
 
 					const maxDate = toDate(schema.max as string | number);
-					return isAfter(toDate(rawDate), maxDate) ? { maxDate: maxDate } : null;
+					return isAfter(toDate(rawDate), maxDate) ? { maxDate } : null;
 				})
 			}
 
@@ -555,9 +583,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			const updatedValue = source();
 			if (JSON.stringify(control.value) !== JSON.stringify(updatedValue)) {
 				control.setValue(updatedValue);
-				control.markAsPristine();
-				control.markAsUntouched();
-				this.cdr.markForCheck();
+				this.markAsPristine(control);
 			}
 		}, { injector: this.injector });
 	}
@@ -574,8 +600,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 			}
 
 			control.setValue(initialValue, { emitEvent: false });
-			control.markAsPristine();
-			control.markAsUntouched();
+			this.markAsPristine(control);
 		} catch (e) {
 			console.error(`Failed to set initial value for control ${schema.key}:`, e);
 			// Set a safe fallback value
@@ -609,10 +634,10 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		});
 	}
 
-	private markAsPristine() {
-		this.form.markAsUntouched();
-		this.form.markAsPristine();
-		this.form.updateValueAndValidity();
+	private markAsPristine(control: AbstractControl = this.form) {
+		control.markAsUntouched();
+		control.markAsPristine();
+		control.updateValueAndValidity();
 		this.cdr.markForCheck();
 	}
 

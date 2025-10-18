@@ -554,10 +554,12 @@ export namespace CSC {
 	])
 
 	export const AreaFieldKeysSchema = z.union([
+		SectionKeysSchema.extract(['csc.form.sections.areas.sections.rooms']),
 		z.templateLiteral([
 			SectionKeysSchema.extract(['csc.form.sections.areas.sections.rooms']),
 			'.fields.',
 			z.enum([
+				'index',
 				'number',
 				'name',
 				'condition',
@@ -569,7 +571,7 @@ export namespace CSC {
 			SectionKeysSchema.extract(['csc.form.sections.areas.sections.general']),
 			'.fields.',
 			z.enum([
-				'office_count',
+				// 'office_count',
 				'dedicated_cs_rooms',
 				'moving_plans'
 			])
@@ -603,12 +605,16 @@ export namespace CSC {
 
 	export const AccessibilityFieldKeysSchema = z.union([
 		z.templateLiteral([
+			SectionKeysSchema.extract(['csc.form.sections.accessibility.sections.villages'])
+		]),
+		z.templateLiteral([
 			SectionKeysSchema.extract(['csc.form.sections.accessibility.sections.villages']),
 			'.fields.',
 			z.enum([
+				'index',
 				'name',
 				'avg_dist',
-				'obvervations'
+				'obsvervations'
 			])
 		]),
 		z.templateLiteral([
@@ -642,6 +648,7 @@ export namespace CSC {
 			'is_functional',
 			'non_function_reason',
 			'custom_non_function_reason',
+			'non_function_duration',
 			'csc_creation_declaration',
 			'is_officer_appointed',
 			'officer_declaration',
@@ -653,17 +660,14 @@ export namespace CSC {
 		SectionKeysSchema.extract(['csc.form.sections.respondent']),
 		'.fields.',
 		z.enum([
-			'name',
+			'names',
 			'position',
 			'phone',
 			'email',
 			'knows_creation_date',
 			'creation_date'
 		])
-	])
-
-	export const INDEX = 'csc.form.fields.index.title';
-	export const VALIDATION_CODE = 'csc.form.fields.validation_code.title';
+	]);
 }
 
 export const FosaFieldKeySchema = z.union([

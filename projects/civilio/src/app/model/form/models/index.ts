@@ -1,21 +1,28 @@
-import { GeopointSchema, GeoPoint, Option } from '@civilio/shared';
+import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO } from 'date-fns';
+import { cloneDeep } from 'lodash';
 import z from 'zod';
-import { FormSchema, FieldSchema, SectionSchema, DefinitionLike } from '../schemas';
+import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
 
-export * from './fosa';
-export * from './csc';
 export * from './chiefdom';
+export * from './csc';
+export * from './fosa';
+
+export function flattenSections(schema: FormSchema) {
+	return schema.sections.flatMap(s => {
+		return [s, ...(s.children ?? [])];
+	})
+}
 
 export function lookupFieldSchema(key: string, model: FormSchema) {
 	const allFields = extractAllFields(model);
 	return allFields.find(f => f.key == key);
 }
 
-export function extractAllFields(model: FormSchema) {
+export function extractAllFields(schema: FormSchema) {
 	const list = Array<FieldSchema>();
 
-	for (const section of model.sections) {
+	for (const section of schema.sections) {
 		list.push(...listFieldsInSection(section));
 	}
 
@@ -26,7 +33,7 @@ function listFieldsInSection(section: SectionSchema) {
 	const result = [...section.fields];
 	if (section.children) {
 		for (const child of section.children) {
-			result.push(...listFieldsInSection(child));
+			result.push(...listFieldsInSection(child as any));
 		}
 	}
 	return result;

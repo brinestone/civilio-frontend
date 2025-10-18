@@ -99,7 +99,7 @@ export class GeoPointComponent implements ControlValueAccessor {
 
 	writeValue(obj: any): void {
 		this.externalChange = true;
-		const coords = GeopointSchema.optional().parse(obj);
+		const coords = GeopointSchema.parse(obj ?? {});
 		this._value.set(coords);
 		if (coords) {
 			const _coords = latLng(coords?.lat, coords?.long);
@@ -131,7 +131,7 @@ export class GeoPointComponent implements ControlValueAccessor {
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
 
 			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved') return;
-			this.map = map(this.mapContainer().nativeElement, {
+			this.map = this.map ?? map(this.mapContainer().nativeElement, {
 				center: this.resolvedCoords(),
 				zoom: 16
 			});

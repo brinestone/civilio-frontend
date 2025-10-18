@@ -5,7 +5,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideNgIconLoader } from '@ng-icons/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { withNgxsFormPlugin } from '@ngxs/form-plugin';
@@ -24,7 +24,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(),
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    provideRouter(routes, withComponentInputBinding()),
     provideDomainConfig(),
     provideDomainForms(),
     provideStore([ConfigState],

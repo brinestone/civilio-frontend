@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { createPaginatedResultSchema, FieldKey, FieldUpdateSpec, FindDbColumnsResponseSchema, FindFieldMappingsResponseSchema, FindFormOptionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefResponse, FormSubmissionSchema, FormType, FormSubmissionUpdateRequest, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
+import { createPaginatedResultSchema, FieldKey, FieldUpdateSpec, FindDbColumnsResponseSchema, FindFieldMappingsResponseSchema, FindFormOptionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefResponse, FormSubmissionSchema, FormType, FormSubmissionUpdateRequest, UpdateSubmissionSubFormDataRequest, RemoveFieldMappingRequest, RemoveFieldMappingResponse } from '@civilio/shared';
 import { sendRpcMessageAsync } from '../../util';
 import { FormService } from '../form';
 
@@ -7,6 +7,9 @@ import { FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse> {
+		return await sendRpcMessageAsync('field-mapping:clear', req);
+	}
 	async updateSubFormSubmissionFormData(arg: UpdateSubmissionSubFormDataRequest) {
 		return await sendRpcMessageAsync('submission-sub-data:update', arg);
 	}

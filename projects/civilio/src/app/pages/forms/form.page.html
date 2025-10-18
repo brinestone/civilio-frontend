@@ -99,7 +99,9 @@
 >
 	<hlm-tabs [tab]="currentTab()" (tabActivated)="onActiveTabChanged($event)">
 		<hlm-paginated-tabs-list>
-			@for (section of formModel().sections; track $index) {
+			@for (section of formModel().sections; track $index) { @let shouldShow =
+			!relevanceRegistry[section.id] || relevanceRegistry[section.id]();
+			@if(shouldShow) {
 			<a
 				[preserveFragment]="true"
 				[routerLink]="[]"
@@ -108,10 +110,12 @@
 			>
 				{{ section.id + ".title" | translate }}
 			</a>
-			}
+			} }
 		</hlm-paginated-tabs-list>
 		@for (section of formModel().sections; track $index) { @defer (when
-		currentTab() === section.id) {
+		currentTab() === section.id) { @let shouldShow =
+		!relevanceRegistry[section.id] || relevanceRegistry[section.id]();
+		@if(shouldShow){
 		<div
 			class="max-w-full pb-16 overflow-y-auto px-4"
 			[ngStyle]="{
@@ -131,38 +135,36 @@
             }"
 			/>
 		</div>
-		} }
+		} } }
 	</hlm-tabs>
 </form>
 
-<!-- <ng-template #sectionTemplate let-section let-columns="columns">
+<ng-template #sectionTemplate let-section let-columns="columns">
 	<ng-container [formGroup]="form">
-		@for (field of section.fields; track $index) { @defer (when
-		form.contains(field.key)) { @if (!relevanceRegistry[field.key]) { @if (
-		(field.type != "multi-selection" && field.type != "single-selection") ||
-		((field.type == "multi-selection" || field.type == "single-selection") &&
-		((field.parent && formOptions[field.key]().length > 0) || !field.parent)) )
-		{
-		<ng-container
-			[ngTemplateOutlet]="fieldTemplate"
-			[ngTemplateOutletContext]="{ $implicit: field, columns }"
-		/>
-		} } @else if (relevanceRegistry[field.key]()) { @if ( (field.type !=
+		@for (field of section.fields; track $index) { @if
+		(form.contains(field.key)) {
+		<!-- Check if field should be shown -->
+		@let shouldShow = !relevanceRegistry[field.key] ||
+		relevanceRegistry[field.key](); @let isDropdownAvailable = (field.type !=
 		"multi-selection" && field.type != "single-selection") || ((field.type ==
 		"multi-selection" || field.type == "single-selection") && ((field.parent &&
-		formOptions[field.key]().length > 0) || !field.parent)) ) {
+		($any(formOptions[field.key])?.().length ?? 0) > 0) || !field.parent)); @if
+		(shouldShow && isDropdownAvailable) {
 		<ng-container
 			[ngTemplateOutlet]="fieldTemplate"
 			[ngTemplateOutletContext]="{ $implicit: field, columns }"
 		/>
-		} } } } @if ((section.children?.length ?? 0) > 0) { @for (child of
-		section.children; track child.id ?? $index) {
+		} } }
+
+		<!-- Rest of the template remains the same -->
+		@if ((section.children?.length ?? 0) > 0) { @for (child of section.children;
+		track child.id ?? $index) {
 		<h2
 			class="font-extrabold text-2xl text-muted-foreground"
 			[ngStyle]="{
-            gridColumnStart: 1,
-            gridColumnEnd: ((columns | isArray) ? columns.length : columns) + 1,
-          }"
+						gridColumnStart: 1,
+						gridColumnEnd: ((columns | isArray) ? columns.length : columns) + 1,
+					}"
 		>
 			{{ child.id + ".title" | translate }}
 		</h2>
@@ -171,46 +173,6 @@
 			[ngTemplateOutletContext]="{ $implicit: child, columns }"
 		/>
 		} }
-	</ng-container>
-</ng-template> -->
-
-<ng-template #sectionTemplate let-section let-columns="columns">
-	<ng-container [formGroup]="form">
-		@for (field of section.fields; track $index) {
-			@if (form.contains(field.key)) {
-				<!-- Check if field should be shown -->
-				@let shouldShow = !relevanceRegistry[field.key] || relevanceRegistry[field.key]();
-				@let isDropdownAvailable = (field.type != "multi-selection" && field.type != "single-selection") ||
-					((field.type == "multi-selection" || field.type == "single-selection") &&
-					((field.parent && formOptions[field.key]().length > 0) || !field.parent));
-
-				@if (shouldShow && isDropdownAvailable) {
-					<ng-container
-						[ngTemplateOutlet]="fieldTemplate"
-						[ngTemplateOutletContext]="{ $implicit: field, columns }"
-					/>
-				}
-			}
-		}
-
-		<!-- Rest of the template remains the same -->
-		@if ((section.children?.length ?? 0) > 0) {
-			@for (child of section.children; track child.id ?? $index) {
-				<h2
-					class="font-extrabold text-2xl text-muted-foreground"
-					[ngStyle]="{
-						gridColumnStart: 1,
-						gridColumnEnd: ((columns | isArray) ? columns.length : columns) + 1,
-					}"
-				>
-					{{ child.id + ".title" | translate }}
-				</h2>
-				<ng-container
-					[ngTemplateOutlet]="sectionTemplate"
-					[ngTemplateOutletContext]="{ $implicit: child, columns }"
-				/>
-			}
-		}
 	</ng-container>
 </ng-template>
 
@@ -293,7 +255,7 @@
 				<hlm-select-value />
 			</hlm-select-trigger>
 			<hlm-select-content class="w-full max-h-96">
-				@for (option of formOptions[field.key](); track $index) {
+				@for (option of ($any(formOptions)[field.key]?.() || []); track $index) {
 				<hlm-option [value]="option.value">
 					@if (option.i18nKey) { {{ option.i18nKey | translate }} } @else { {{
 					option.label || option.value }} }
@@ -312,26 +274,26 @@
 			[columnsSchema]="field.columns"
 			[formControlName]="field.key"
 		/>
-		} @if (form.controls[field.key].invalid && (form.controls[field.key].dirty || field.type.endsWith("selection"))) {
+		} @if (form.controls[field.key].invalid && (form.controls[field.key].dirty
+		|| field.type.endsWith("selection"))) {
 		<p class="text-red-500 block text-sm space-y-1">
-			@if (form.controls[field.key].hasError("required")) {
-				{{ "validation.msg.field_required" | translate }}
-			} @else if (form.controls[field.key].hasError("invalidValue")) {
-				{{ "validation.msg.value_unsupported" | translate : {
-					validValues: form.controls[field.key].getError("invalidValue").validValues | join:',',
-				}
-			}}
-		} @else if (form.controls[field.key].hasError("pattern")) {
-			{{ "validation.msg.pattern_mismatch" | translate }}
-		} @else if (form.controls[field.key].hasError("int")) {
-			{{ "validation.msg.pattern_mismatch" | translate }}
-		} @else if (form.controls[field.key].hasError("minDate")) {
-			{{ "validation.msg.min_date" | translate : { minDate: form.controls[field.key].getError("minDate"), } }}
-		} @else if (form.controls[field.key].hasError("maxDate")) {
-			{{ "validation.msg.max_date" | translate : { maxDate: form.controls[field.key].getError("maxDate"), } }}
-		} @else if (form.controls[field.key].hasError("invalidDate")) {
-			{{ "validation.msg.invalid_date" | translate }}
-		} @else if (
+			@if (form.controls[field.key].hasError("required")) { {{
+			"validation.msg.field_required" | translate }} } @else if
+			(form.controls[field.key].hasError("invalidValue")) { {{
+			"validation.msg.value_unsupported" | translate : { validValues:
+			form.controls[field.key].getError("invalidValue").validValues | join:',',
+			} }} } @else if (form.controls[field.key].hasError("pattern")) { {{
+			"validation.msg.pattern_mismatch" | translate }} } @else if
+			(form.controls[field.key].hasError("int")) { {{
+			"validation.msg.pattern_mismatch" | translate }} } @else if
+			(form.controls[field.key].hasError("minDate")) { {{
+			"validation.msg.min_date" | translate : { minDate:
+			form.controls[field.key].getError("minDate"), } }} } @else if
+			(form.controls[field.key].hasError("maxDate")) { {{
+			"validation.msg.max_date" | translate : { maxDate:
+			form.controls[field.key].getError("maxDate"), } }} } @else if
+			(form.controls[field.key].hasError("invalidDate")) { {{
+			"validation.msg.invalid_date" | translate }} } @else if (
 			form.controls[field.key].hasError("min") ||
 			form.controls[field.key].hasError("max") ) { @if
 			(form.controls[field.key].hasError("min")) {
@@ -347,8 +309,7 @@
 			| translate : { max: form.controls[field.key].getError("max").max |
 			number, suffix: field.unit ?? "" | translate, } }} } }
 		</p>
-		}
-	}
+		} }
 	</div>
 </ng-template>
 @defer (when pendingChangesDialogState() == 'open') {

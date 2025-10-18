@@ -1,10 +1,10 @@
-import { choices, fieldMappings, fosaIdSeqInCivilio, fosaIndexSeqInCivilio, fosaPersonnelIndexSeqInCivilio, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
-import { createPaginatedResultSchema, FieldMapping, FieldMappingSchema, FieldUpdateSpec, FindIndexSuggestionsRequest, FindIndexSuggestionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefRequest, FormSubmissionSchema, FormSubmissionUpdateRequest, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
+import { choices, cscIdSeqInCivilio, cscIndexSeqInCivilio, cscPersonnelIndexSeqInCivilio, fieldMappings, fosaIdSeqInCivilio, fosaIndexSeqInCivilio, fosaPersonnelIndexSeqInCivilio, vwDbColumns, vwFormSubmissions } from '@civilio/schema';
+import { createPaginatedResultSchema, FieldMapping, FieldMappingSchema, FieldUpdateSpec, FindIndexSuggestionsRequest, FindIndexSuggestionsResponseSchema, FindSubmissionDataResponseSchema, FindSubmissionRefRequest, FormSubmissionSchema, FormSubmissionUpdateRequest, FormType, GetAutoCompletionSuggestionsRequest, GetAutoCompletionSuggestionsResponseSchema, Option, OptionSchema, RemoveFieldMappingRequest, UnwrapArray, UpdateSubmissionSubFormDataRequest } from '@civilio/shared';
 import { and, countDistinct, eq, ExtractTablesWithRelations, like, or, sql } from 'drizzle-orm';
 import { NodePgQueryResultHKT } from 'drizzle-orm/node-postgres';
 import { PgSequence, PgTransaction } from 'drizzle-orm/pg-core';
-import { provideDatabase } from '../helpers/db';
 import { entries } from 'lodash';
+import { provideDatabase } from '../helpers/db';
 
 type Transaction = PgTransaction<NodePgQueryResultHKT, Record<string, unknown>, ExtractTablesWithRelations<Record<string, unknown>>>;
 
@@ -17,8 +17,27 @@ const sequences: Record<string, Record<string, { column: string; sequence: PgSeq
 		data_personnel: [
 			{ column: '_index', sequence: fosaPersonnelIndexSeqInCivilio }
 		]
+	},
+	csc: {
+		data: [
+			{ column: '_index', sequence: cscIndexSeqInCivilio },
+			{ column: '_id', sequence: cscIdSeqInCivilio },
+			{ column: 'data_personnel', sequence: cscPersonnelIndexSeqInCivilio },
+		]
 	}
 };
+
+export async function removeFieldMapping({ form, field }: RemoveFieldMappingRequest) {
+	const db = provideDatabase({ fieldMappings });
+	await db.transaction(async tx => {
+		const result = await tx.delete(fieldMappings)
+			.where(and(
+				eq(fieldMappings.form, form),
+				eq(fieldMappings.field, field)
+			));
+		return result.rowCount == 1;
+	})
+}
 
 async function processSubFormDeletionRequest(tx: Transaction, { form, indexes, parentIndex }: Extract<UpdateSubmissionSubFormDataRequest, { type: 'delete' }>) {
 	if (indexes.length == 0) return;
@@ -206,23 +225,61 @@ export async function findFormData(form: FormType, index: number) {
 			eq(fieldMappings.form, form),
 		).$withCache();
 
-	const map: any = {};
-	for (const { col, table, field } of mappings) {
-		let queryResult = await db.execute(sql.raw(`
-			SELECT
-				d."${col}"::TEXT as value FROM "${form}"."${table}" d WHERE d."${table == 'data' ? '_index' : '_parent_index'}" = ${index};`));
+	const tableGroups = mappings.reduce((acc, mapping) => {
+		if (!acc[mapping.table]) {
+			acc[mapping.table] = [];
+		}
+		acc[mapping.table].push(mapping);
+		return acc;
+	}, {} as Record<string, UnwrapArray<typeof mappings>[]>);
 
-		const { rows } = queryResult;
-		if (table != 'data')
-			map[field] = [
-				...(map[field] ?? []),
-				...Array.isArray(rows)
-					? queryResult.rows.map((row: any) => row.value)
-					: []
-			];
-		else
-			map[field] = rows[0].value;
+	const map: Record<string, any> = {};
+	const tablePromises: Promise<void>[] = [];
+
+	for (const [tableName, mappings] of Object.entries(tableGroups)) {
+		const isDataTable = tableName == 'data';
+		const selection = mappings.map(f => sql.raw(`d."${f.col}"::TEXT AS "${f.field}"`)).join(', ');
+		const indexCol = isDataTable ? '_index' : '_parent_index';
+		const whereClause = `d."${indexCol}" = ${index}`;
+		const promise = db.execute(sql.raw(`
+			SELECT
+				${selection}
+			FROM "${form}"."${tableName}"
+			WHERE
+				${whereClause};
+			`)).then(result => {
+			const { rows } = result;
+			if (isDataTable) {
+				const row = rows[0] as Record<string, string> | undefined;
+				if (row) {
+					for (const field of mappings.map(({ field }) => field)) {
+						map[field] = row[field] ?? null;
+					}
+				}
+			} else {
+				const valuesByField: Record<string, string[]> = {};
+				for (const row of rows as Record<string, string>[]) {
+					for (const field of mappings.map(({ field }) => field)) {
+						if (!valuesByField[field]) {
+							valuesByField[field] = [];
+						}
+						valuesByField[field].push(row[field]);
+					}
+				}
+
+				for (const field of mappings) {
+					map[field.field] = [
+						...(map[field.field] ?? []),
+						...(valuesByField[field.field] ?? [])
+					];
+				}
+			}
+		});
+		tablePromises.push(promise);
 	}
+
+	await Promise.all(tablePromises);
+
 	return FindSubmissionDataResponseSchema.parse(map);
 }
 
