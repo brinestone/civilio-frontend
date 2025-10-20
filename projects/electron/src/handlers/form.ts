@@ -29,7 +29,7 @@ const sequences: Record<string, Record<string, { column: string; sequence: PgSeq
 
 export async function removeFieldMapping({ form, field }: RemoveFieldMappingRequest) {
 	const db = provideDatabase({ fieldMappings });
-	await db.transaction(async tx => {
+	return await db.transaction(async tx => {
 		const result = await tx.delete(fieldMappings)
 			.where(and(
 				eq(fieldMappings.form, form),
@@ -238,13 +238,13 @@ export async function findFormData(form: FormType, index: number) {
 
 	for (const [tableName, mappings] of Object.entries(tableGroups)) {
 		const isDataTable = tableName == 'data';
-		const selection = mappings.map(f => sql.raw(`d."${f.col}"::TEXT AS "${f.field}"`)).join(', ');
+		const selection = mappings.map(f => (`d."${f.col}"::TEXT AS "${f.field}"`)).join(',\n\t\t\t\t');
 		const indexCol = isDataTable ? '_index' : '_parent_index';
 		const whereClause = `d."${indexCol}" = ${index}`;
 		const promise = db.execute(sql.raw(`
 			SELECT
 				${selection}
-			FROM "${form}"."${tableName}"
+			FROM "${form}"."${tableName}" d
 			WHERE
 				${whereClause};
 			`)).then(result => {
@@ -263,7 +263,7 @@ export async function findFormData(form: FormType, index: number) {
 						if (!valuesByField[field]) {
 							valuesByField[field] = [];
 						}
-						valuesByField[field].push(row[field]);
+						valuesByField[field].push(row[field] ?? null);
 					}
 				}
 
@@ -280,6 +280,7 @@ export async function findFormData(form: FormType, index: number) {
 
 	await Promise.all(tablePromises);
 
+	console.log(map);
 	return FindSubmissionDataResponseSchema.parse(map);
 }
 

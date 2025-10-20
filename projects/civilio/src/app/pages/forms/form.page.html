@@ -72,7 +72,7 @@
 				<span>{{ "forms.header.actions.field_mapper" | translate }}</span>
 			</button>
 			<hlm-sheet-content
-				class="min-w-[50vw] @container"
+				class="min-w-[55vw] @container"
 				*brnSheetContent="let ctx"
 			>
 				<hlm-sheet-header>
@@ -158,7 +158,7 @@
 
 		<!-- Rest of the template remains the same -->
 		@if ((section.children?.length ?? 0) > 0) { @for (child of section.children;
-		track child.id ?? $index) {
+		track child.id ?? $index) { @if(child.id) {
 		<h2
 			class="font-extrabold text-2xl text-muted-foreground"
 			[ngStyle]="{
@@ -168,6 +168,7 @@
 		>
 			{{ child.id + ".title" | translate }}
 		</h2>
+		}
 		<ng-container
 			[ngTemplateOutlet]="sectionTemplate"
 			[ngTemplateOutletContext]="{ $implicit: child, columns }"
@@ -213,7 +214,11 @@
 			[placeholder]="field.key + '.description' | translate"
 		/>
 		} } @else if (field.type === "boolean") {
-		<hlm-checkbox [id]="field.key" [formControlName]="field.key" />
+		<hlm-checkbox
+			[title]="field.key + '.description' | translate"
+			[id]="field.key"
+			[formControlName]="field.key"
+		/>
 		} @else if (field.type === "date") {
 		<hlm-date-picker
 			class="w-full"
@@ -249,13 +254,13 @@
 			class="w-full"
 			placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
 			[formControlName]="field.key"
-			[id]="field.key"
 		>
-			<hlm-select-trigger class="w-full flex">
+			<hlm-select-trigger class="w-full flex" [id]="field.key">
 				<hlm-select-value />
 			</hlm-select-trigger>
 			<hlm-select-content class="w-full max-h-96">
-				@for (option of ($any(formOptions)[field.key]?.() || []); track $index) {
+				@for (option of ($any(formOptions)[field.key]?.() || []); track $index)
+				{
 				<hlm-option [value]="option.value">
 					@if (option.i18nKey) { {{ option.i18nKey | translate }} } @else { {{
 					option.label || option.value }} }

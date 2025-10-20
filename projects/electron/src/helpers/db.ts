@@ -77,17 +77,21 @@ class LRUDrizzleCache extends Cache {
 		maxSize: 50000,
 		max: 500,
 		sizeCalculation: (value, key) => {
-			return calculateSize(value);
+			const size = calculateSize(value);
+			console.log(`value at ${key} calculated to ${size} size`)
+			return size;
 		}
 	});
 	private readonly ttl = 36000;
 	strategy(): 'explicit' | 'all' {
 		return 'explicit';
 	}
-	get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
+	async get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
+		console.log(`Getting ${key} from cache`);
 		return this._cache.get(key);
 	}
 	async put(key: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void> {
+		console.log(`Updating ${key} from cache`);
 		const ttl = config?.px ?? (config?.ex ? config.ex * 1000 : this.ttl);
 		this._cache.set(key, response, { ttl });
 		for (const table of tables) {
@@ -125,8 +129,9 @@ class LRUDrizzleCache extends Cache {
 			}
 		}
 	}
-
 }
+
+const singletonCache = new LRUDrizzleCache();
 
 export function provideDatabase(schema: Record<string, unknown>) {
 	const { data: dbConfig, success } = DbConfigSchema.safeParse(getStoreValue('db'));
@@ -143,5 +148,5 @@ export function provideDatabase(schema: Record<string, unknown>) {
 			connectionString: url.toString()
 		});
 	}
-	return drizzle(pool, { schema, logger: !app.isPackaged, cache: new LRUDrizzleCache() });
+	return drizzle(pool, { schema, logger: !app.isPackaged, cache: singletonCache });
 }

@@ -104,7 +104,9 @@
 									<button
 										class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
 										hlm-command-item
-										(click)="updateMapping(fg.controls[schema.key], schema.key, spec)"
+										(click)="
+											updateMapping(fg.controls[schema.key], schema.key, spec)
+										"
 										[value]="spec.name"
 									>
 										<div class="space-y-1">
@@ -130,7 +132,7 @@
 				</brn-popover>
 
 				<button
-					(click)="removeMapping(form()!, schema.key)"
+					(click)="removeMapping(fg.controls[schema.key], schema.key)"
 					type="button"
 					hlmBtn
 					size="icon"

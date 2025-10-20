@@ -20,7 +20,7 @@ import { DbColumnSpec, FieldKey, FormType, UnwrapArray } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChevronsUpDown, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Actions, dispatch, ofActionCompleted, Store } from '@ngxs/store';
+import { Actions, dispatch, ofActionCompleted, ofActionSuccessful, Store } from '@ngxs/store';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
 import { BrnPopover, BrnPopoverContent, BrnPopoverTrigger } from '@spartan-ng/brain/popover';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -33,7 +33,7 @@ import { cloneDeep, difference, differenceWith, entries, values } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { createNotifier } from 'ngxtension/create-notifier';
 import { derivedFrom } from 'ngxtension/derived-from';
-import { concatMap, map, pipe, tap } from 'rxjs';
+import { concatMap, map, merge, pipe, takeUntil, tap } from 'rxjs';
 
 type FieldControl = FormControl<DbColumnSpec | null>;
 
@@ -81,7 +81,7 @@ export class FieldMapperComponent implements OnInit {
 	private doUpdateMapping = dispatch(UpdateMappings);
 	private loadMappings = dispatch(LoadMappings);
 	private loadColumns = dispatch(LoadDbColumns);
-	protected removeMapping = dispatch(RemoveMapping);
+	protected doRemoveMapping = dispatch(RemoveMapping);
 
 	readonly formModel = input.required<FormSchema>();
 	readonly form = input<FormType>();
@@ -143,9 +143,11 @@ export class FieldMapperComponent implements OnInit {
 			const model = this.formModel();
 			setTimeout(() => this.setupForm(model), 100);
 		});
-		actions$.pipe(
-			takeUntilDestroyed(),
-			ofActionCompleted(UpdateMappings)
+		merge(
+			actions$.pipe(ofActionSuccessful(UpdateMappings)),
+			// actions$.pipe(ofActionSuccessful(RemoveMapping)),
+		).pipe(
+			takeUntilDestroyed()
 		).subscribe(() => {
 			this.mappingsNotifier.notify();
 		})
@@ -231,6 +233,22 @@ export class FieldMapperComponent implements OnInit {
 				toast.error(this.translateService.instant('msg.error.title'), { description: e.message })
 			},
 			complete: () => {
+				control.markAsPristine();
+				control.markAsUntouched();
+				control.updateValueAndValidity();
+				this.cdr.markForCheck();
+			}
+		})
+	}
+
+	protected removeMapping(control: FieldControl, key: FieldKey) {
+		if (!control.value) return;
+		this.doRemoveMapping(this.form()!, key).subscribe({
+			error: (e: Error) => {
+				toast.error(this.translateService.instant('msg.error.title'), { description: e.message })
+			},
+			complete: () => {
+				control.setValue(null);
 				control.markAsPristine();
 				control.markAsUntouched();
 				control.updateValueAndValidity();

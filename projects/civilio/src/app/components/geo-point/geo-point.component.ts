@@ -6,7 +6,7 @@ import { sendRpcMessageAsync } from '@app/util';
 import { GeoPoint, GeopointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleAlert } from '@ng-icons/lucide';
-import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
+import { Control, control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, TileLayer, tileLayer } from 'leaflet';
 import { fromEvent, merge } from 'rxjs';
 
 @Component({
@@ -28,6 +28,7 @@ import { fromEvent, merge } from 'rxjs';
 })
 export class GeoPointComponent implements ControlValueAccessor {
 	private map?: Map;
+	private initialized = false;
 	private marker?: Marker;
 	private touchedCallback?: any;
 	private changeCallback?: any;
@@ -73,15 +74,13 @@ export class GeoPointComponent implements ControlValueAccessor {
 				tooltipAnchor: [12, 44],
 				shadowAnchor: [13, 41]
 			}),
-		});
-		this.marker.addTo(this.map);
+		}).addTo(this.map)
+			.on('move', ({ latlng: { lat, lng } }: any) => {
+				if (this.externalChange) return;
+				this.changeCallback?.({ lat, long: lng });
+				this._value.set({ lat, long: lng });
+			});
 		this.map.setView(coords);
-
-		this.marker?.on('move', ({ latlng: { lat, lng } }: any) => {
-			if (this.externalChange) return;
-			this.changeCallback?.({ lat, long: lng });
-			this._value.set({ lat, long: lng });
-		})
 	}
 
 	private initScale() {
@@ -129,16 +128,18 @@ export class GeoPointComponent implements ControlValueAccessor {
 		effect(() => {
 			const markerIconUrlStatus = this.markerIconUrl.status()
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
+			const _ = this.online();
 
-			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved') return;
-			this.map = this.map ?? map(this.mapContainer().nativeElement, {
-				center: this.resolvedCoords(),
-				zoom: 16
-			});
-			this.map.on('click', this.onMapClicked.bind(this))
+			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved' || this.initialized) return;
+			this.map = map(this.mapContainer().nativeElement,
+				{
+					center: this.resolvedCoords(),
+					zoom: 16
+				}).on('click', this.onMapClicked.bind(this));
 			this.initTileLayer();
 			this.initScale();
 			this.initMarker();
-		})
+			this.initialized = true;
+		});
 	}
 }

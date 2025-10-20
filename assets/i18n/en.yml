@@ -74,460 +74,262 @@ settings:
     invalid_url: Invalid URL
     value_too_short: Value is too short
 csc:
-  add_new: Add New
-  submissions:
-    title: Submissions - CSC
-  add_submission: Add Submission
-  columns:
-    submitted: Submitted
-    recorded_at: Recorded At
-    last_updated_by: Last updated by
-    last_updated_at: Last updated at
   form:
     sections:
       respondent:
         title: Respondent
         fields:
+          names:
+            title: The respondent's name
+            description: ""
           position:
             title: Position
-            description: Role of the respondent within the CSC
+            description: The respondent's position within at centre
           phone:
-            description: Register (preferably WhatsApp)
-            title: Phone Number
+            title: Phone
+            description: The respondent's phone number
           email:
-            title: Email Address
-            description: Respondent's commonly used or professional email
+            title: Email
+            description: The respondent's work email address
           knows_creation_date:
-            description: Do you know the date of creation of the CSC?
-            title: Knows Creation Date?
+            title: Do you know the date of creation of the centre?
           creation_date:
-            title: Date of Creation
-          name:
-            title: First and last names
+            title: What was the date of creation of the centre?
       identification:
-        title: Structure Identification
+        title: Identification of the structure
         fields:
           division:
-            description: Choose the department to which the civil status centre belongs
             title: Division
           municipality:
-            title: Commune/Municipality
-            description: Indicate the municipality of the civil status centre
+            title: Municipality/Commune
           quarter:
             title: Quarter
-            description: Enter the name of the neighbourhood where the CSC is located
-          facility:
-            title: Facility Name
+          degree:
+            title: Degree
+          facility_name:
+            title: Name of the Facility
           category:
             title: Category
-          council_size:
-            title: Size of the council's municipality
+          is_chiefdom:
+            title: Is the centre a chiefdom?
           milieu:
             title: Milieu
-          attached_centers:
-            title: Number of Attached Centers
-          locality:
-            title: Locality
-          creation_date:
-            title: Date of Creation
-          functional:
-            title: Is the Centre Functional?
+          is_functional:
+            title: Is the centre functional?
           non_function_reason:
-            title: Why is the Centre not functional?
-          chiefdom_degree:
-            title: Chiefdom Degree
-          other_non_function_reason:
-            title: Specify the reason for non-functionality
-          fields:
-            is_chiefdom:
-              title: Is the Centre a Chiefdom?
+            title: Why is the centre not functional?
+          custom_non_function_reason:
+            title: Please specify why the centre is not functional.
+            description: ""
           non_function_duration:
-            title: How long has the Centre been non-functional?
-          sec_creation_order:
-            title: Secondary Creation Order
-          officer_appointment_order:
-            title: Officer Appointment Order
-          officer_appointed:
-            title: Is the Officer Appointed?
-          photo_url:
-            title: Photo of the Center
+            title: How long has the centre not been functional?
+          csc_creation_declaration:
+            title: What is the declaration order for the creation of the centre?
+            description: ""
+          officer_declaration:
+            title: Declaration order appointing officer
+          is_officer_appointed:
+            title: Does the centre have an appointed officer?
           gps_coords:
-            title: GPS Coordinates
+            title: GPS Location
+          size:
+            title: Size of the CSC commune
+          attached_csc_count:
+            title: How many centres attached?
+            description: ""
       accessibility:
-        title: Accessibility of the Centre
-        fields:
-          road_type:
-            title: Type of Roads serving the Centre
-          road_deteriorates:
-            title: Does the road deteriorate periodically?
-          obstacle:
-            title: Barriers limiting access to the Centre
-          attached_villages_num:
-            title: Number of villages attached to the Centre
-          cover_radius:
-            title: Center coverage radius
-        sub_forms:
-          villages:
-            fields:
-              name:
-                title: Village name
-              avg_distance:
-                title: Average distance from the CSC (in KM)
+        title: Centre Accessibility
         sections:
           general:
             title: General
+            fields:
+              serving_roads:
+                title: Type of communication routes serving the centre?
+              is_road_degradable:
+                title: Are the roads degradable?
+              attached_villages_count:
+                title: How many villages are attached to the centre?
+                description: ""
+              cover_radius:
+                title: Cover radius
+              has_obstacles:
+                title: Type of obstacles limiting access to the centre
           villages:
-            title: Attached Villages
-      infrastructure:
-        title: Infrastructure and equipment of the Centre
+            title: ""
+            fields:
+              list:
+                title: Attached villages
+              index:
+                title: Index
+              name:
+                title: Name
+              avg_dist:
+                title: Average distance to the centre
+              observations:
+                title: Observations
+      infra:
+        title: Infrastructure of the centre
+        fields:
+          status:
+            title: Occupancy status of the building housing the civil status centre
+          other_building:
+            title: Other public building
+            description: ""
+          eneo_connection:
+            title: Eneo Connection?
+            description: Is the centre connected to the national electricity grid (ENEO)?
+          has_power_outages:
+            title: Are there often interruptions in electrical energy?
+          has_stable_power:
+            title: Is the electricity supply stable?
+          has_backup_power:
+            title: Are there other sources of electrical power?
+          backup_power_sources:
+            title: Check the functional complementary energy sources
+          other_power_source:
+            title: Please specify the backup power sources
+          water_sources:
+            title: What is the main source of water supply in the Centre?
+          toilets_available:
+            title: Does the centre have toilets?
+          are_toilets_separated:
+            title: Are the toilets separated by gender?
+          has_fiber_connection:
+            title: Does the fibre optic network serve the Centre?
+          network_type:
+            title: Which operators cover the area?
+          other_network_type:
+            title: Please specify the operator in the area.
+            description: ""
+          has_internet:
+            title: Is the building housing the Centre connected to the Internet?
+          internet_type:
+            title: Which operators provide access to the Internet?
+          other_internet_type:
+            title: Please specify the operator for the Internet connection.
+          internet_sponsor:
+            title: Who pays the connection fees?
       areas:
         title: Areas devoted to civil status
-        fields:
-          office_count:
-            title: "# of Offices"
-            description: How many rooms are dedicated to civil status?
-          dedicated_cs_rooms:
-            title: Dedicated CS rooms?
-            description: Are there other dedicated rooms for civil status?
-          moving:
-            title: Are there moving plans?
-            description: Are there plans to move into a new building in the coming months?
-        sub_forms:
-          rooms:
+        sections:
+          general:
+            title: General
             fields:
+              dedicated_cs_rooms:
+                title: Dedicated civil registry rooms?
+                description: Are there other rooms that are planned to be assigned to the civil registry?
+              moving_plans:
+                title: Moving plans?
+                description: Are there plans to move into a new building in the coming months?
+          rooms:
+            title: ""
+            fields:
+              list:
+                title: Rooms dedicated to civil status
+              index:
+                title: Index
               number:
                 title: Room number
-              name:
-                title: Room name
               condition:
-                title: Condition
-              dimension:
-                title: Dimensions
-              renovation:
-                title: Nature of renovation work
+                title: Room condition
+              area:
+                title: Area
+              renovation_nature:
+                title: Renovation nature
       equipment:
-        title: Facilities of the Civil Registry Centre (Functional Equipment)
+        title: Functional equipment
         fields:
           pc_count:
-            title: "# of Computers"
+            title: "# of computers"
           server_count:
-            title: "# of Servers"
+            title: "# of servers"
           printer_count:
-            title: "# of Printers"
+            title: "# of printers"
           scanner_count:
-            title: "# of Scanners"
-          inverters:
-            title: "# of Inverters"
-          conditioners:
-            title: "# of Conditioners"
-          fans:
-            title: "# of Fans"
-          projectors:
-            title: "# of Projectors"
-          office_tables:
-            title: "# of Office Tables"
-          chairs:
-            title: "# of Chairs"
-          cars:
-            title: "# of Cars"
-          bikes:
-            title: "# of Bikes"
-          tablets:
-            title: "# of Tablets"
+            title: "# of scanners"
+          inverter_count:
+            title: "# of inverters"
+          ac_count:
+            title: "# of air conditioners"
+          fan_count:
+            title: "# of fans"
+          projector_count:
+            title: "# of video projectors"
+          office_table_count:
+            title: "# of office tables"
+          chair_count:
+            title: "# of chairs"
+          tablet_count:
+            title: "# of tablets"
+          car_count:
+            title: "# of cars"
+          bike_count:
+            title: "# of bikes"
       digitization:
-        title: Digitization/Computerization of civil status
+        title: Digitization/Computerization of civil status records
         fields:
-          using_info_sys_outside_cs:
-            title: Using a System Outside CR
-            description: Apart from the civil registry, does any other department of the centre use a computerised system
+          external_service_from_cr:
+            title: Apart from civil registration, does any other department at the center use a computerized system?
           external_cr_uses_internet:
             title: If so, does this system use the Internet?
           has_cs_software:
-            title: Software equipped?
-            description: Is the center equipped with one or more software for civil status?
+            title: Is the CSC currently equipped with one or more civil status software programs?
           cs_software_name:
-            title: What is the name(s) of the software?
+            title: Enter the name(s) of the civil status software available
+            description: ""
           cs_software_license_sponsor:
-            title: How was the software acquired?
+            title: In what context was the system acquired?
           other_cs_software_license_sponsor:
-            title: Specify the software acquisition method
+            title: Other system acquisition framework
+            description: ""
           users_receive_digital_acts:
-            title: Are digital documents given to users?
+            title: Are digital documents provided to users?
           software_activation_date:
-            title: Software activation date
+            title: Software launch date
+            description: ""
           software_feedback:
-            title: What's your feedback on the software?
+            title: What do you think of the features offered by this software?
           software_trained_user_count:
-            title: "# of trained users"
+            title: How many people have been trained to use this software?
           software_recorded_marriage_count:
-            title: "# of marraige certificates"
-            description: "# of marriage certificates registerd in the software"
-          software_recorded_birth_count:
-            title: "# of birth certificates"
-            description: "# of birth certificates registerd in the software"
+            title: Number of marriage certificates recorded in the software
+          software_recorded_births_count:
+            title: Number of birth certificates registered in the software
           software_recorded_death_count:
-            title: "# of death certificates"
-            description: "# of death certificates registerd in the software"
-          software_is_functional:
-            title: Is the software functional?
-          software_dysfunction_reason:
-            title: Why is the software not functional?
-      record_procurement:
-        title: Procurement of Records
-        fields:
-          lack_of_registers:
-            title: Have there been a lack of registers?
-            description: Have there been a lack of registers during these years?
-          records_provider:
-            title: Records Provider
-            description: Who provided you with records for this year 2025
-          other_records_provider:
-            title: Please specify the records provider
-          non_compliant_registers_used:
-            title: Usage of custom registers
-            description: Have you often had to buy the registers in the market for the establishment of the deeds?
-          blank_registries:
-            title: Blank Registries
-          blank_marriages:
-            title: "# of blank marriage registers"
-          blank_births:
-            title: "# of blank birth registers"
-          blank_deaths:
-            title: "# of blank death registers"
-      vital_stats:
-        title: Financial resources related to vital statistics documents
-        fields:
-          birth_cert_cost:
-            title: Cost of birth certificates (FCFA)
-          birth_cert_copy_cost:
-            title: Cost of copy of birth certificates (FCFA)
-          marriage_cert_copy_cost:
-            title: Cost of copy of marriage certificates (FCFA)
-          death_cert_copy_cost:
-            title: Cost of copy of death certificates (FCFA)
-          celibacy_cert_copy_cost:
-            title: Cost of certificate of celibacy (FCFA)
-          non_registered_certs:
-            title: "# of Certificates not registered"
-          rates_under_deliberation:
-            title: Are rates under deliberation?
-            description: Are these rates currently the subject of a deliberation by the municipal council?
-          prices_displayed:
-            title: Are these prices displayed?
-          municipality_budget:
-            title: 2024 budget
-            description: What is the municipality's budget for the year 2024?
-          cs_budget:
-            title: Civil status share
-            description: What was the share devoted to civil status in 2024?
-          cs_revenue:
-            title: ""
-      deeds:
-        title: Deeds drawn up, not withdrawn in the last 5 years
-        fields:
-          year:
-            title: Year
-          birth_certs_drawn:
-            title: Birth certificates drawn up
-          births_certs_not_withdrawn:
-            title: Birth certificates not withdrawn
-          marriage_certs_drawn:
-            title: Marriage certificates drawn up
-          marriage_certs_not_withdrawn:
-            title: Marriage certificates not withdrawn
-          death_certs_drawn:
-            title: Death certificates drawn
-          death_certs_not_withdrawn:
-            title: Death certificates not withdrawn
-      status_of_archived_records:
-        title: Status of archived records
-      archiving_function:
-        title: Archiving
-      personnel_info:
-        title: Staff Status
-        fields:
-          male_count:
-            title: "# of Males"
-          female_count:
-            title: "# of Females"
-          non_officer_male_count:
-            title: Male non-officers
-          non_officer_female_count:
-            title: Female non-officers
-        sub_forms:
-          officers:
-            fields:
-              other_position:
-                title: Alternative position
-              status:
-                title: Status
-              other_status:
-                title: Alternative status
-              allowance_2022:
-                title: Allowance (2022)
-              revenue_2022:
-                title: Revenue (2022)
-              archiving_training:
-                title: Has archiving training
-              seniority:
-                title: Seniority
-      comments:
-        title: Comments & Extra
-        fields:
-          relevant_info:
-            title: Relevant Information
-      infra:
-        fields:
-          occupancy_status:
-            title: Occupancy
-            description: Occupancy Status of the Center building
-          other_building:
-            title: Is there another public building?
-          eneo_connection:
-            title: ENEO Connection
-            description: Is the centre connected to the national electricity grid (ENEO)?
-          power_outages:
-            title: Frequent power interruptions?
-            description: Are there often interruptions in electrical energy?
-          stable_power:
-            title: Is the electricity supply stable?
-          backup_power_available:
-            title: Are there other sources of electrical power?
-          backup_power:
-            title: Select the functional complementary energy sources
-          other_backup_power:
-            title: Specify the complementary source
-          water_sources:
-            title: Which water source is available at the center?
-          toilets_available:
-            title: Are there toilets available?
-          separate_toilets_available:
-            title: Are the toilets separated by gender?
-          zone_operators:
-            title: Which telecom operators are in the zone?
-          has_fiber:
-            title: Is there a fiber optic connection?
-          other_zone_operators:
-            title: Specify the telecom operators in the zone
-          has_internet:
-            title: Is there an Internet connection?
-          internet_type:
-            title: Which telecom operators provide the Internet connection?
-          other_internet_type:
-            title: Specify the type of Internet provider
-          internet_sponsor:
-            title: Who pays for the Internet connection?
-      indexing:
+            title: Number of death certificates recorded in the software
+            description: ""
+          is_software_functioning:
+            title: Does this software still work?
+          software_non_functioning_reason:
+            title: Why isn't it working?
+            description: ""
+      record_indexing:
+        title: Scanning of documents and indexing
         fields:
           records_scanned:
-            title: CS records scanned?
-            description: Have the civil status records been digitized (scanned) in this civil status center?
+            title: Have civil status records been scanned at this civil registry office?
           staff_trained:
-            title: Staff trained?
-            description: Has the staff of the civil status center been trained in the use of the digitization software?
+            title: Have the Center's agents been trained in digitization?
           document_scan_start_date:
-            title: Scan starting date
-          is_data_indexed:
+            title: In what year did digitization begin?
+          data_indexed:
             title: Has the data been indexed?
           marriages_indexed:
-            title: "# of marriages indexed"
+            title: '#  scanned births indexed'
           deaths_indexed:
-            title: "# of deaths indexed"
+            title: '# scanned death indexed'
           births_indexed:
-            title: "# of births indexed"
+            title: '# of births indexed'
           marriages_scanned:
-            title: "# of marriages scanned"
+            title: '# of scanned marriage certificates'
           births_scanned:
-            title: "# of births scanned"
+            title: '# of scanned birth certificates'
           deaths_scanned:
-            title: "# of deaths scanned"
-          is_data_in_use:
-            title: Is the data in use?
+            title: '# of scanned death certificates'
+          is_data_used_by_csc:
+            title: Are the digitized data used by the Civil Registry Center?
           data_usage:
-            title: How is the data used?
-        title: Scanning of records and indexing
-      archiving:
-        fields:
-          archiving_room:
-            title: Does the center have an Archiving room?
-          archiving_room_electric_condition:
-            title: What is the state of the electrical circuit in the main archive room?
-          fire_extinguishers:
-            title: Does the hall have one or more fire extinguishers?
-          locked_door:
-            title: Does the room in which the registers are archived have a locked door
-          access_limited:
-            title: Is access to the archive room limited to one category of staff?
-          room_has_humidity:
-            title: Sealing problems?
-            description: Does the room in which the registers are archived show traces of humidity (sealing problems)?
-          register_archiving_type:
-            title: How are registers archived?
-          other_register_archiving_type:
-            title: Alternative Way of Archiving Records
-          written_archiving_plan:
-            title: Is there a written record archiving plan?
-          registers_deposited:
-            title: Have all the registers of the sub-prefecture been deposited at the town hall?
-          registers_deposited_systematically:
-            title: Are the registers systematically submitted to the Town Hall at the end of the year?
-          vandalized:
-            title: Vandalization
-            description: Have the archives been the subject of theft or acts of vandalism?
-          vandalized_date:
-            title: Can you describe the context and the date?
-        sections:
-          general:
-            title: General
-          deeds:
-            title: Deeds drawn up, not withdrawn in the last 5 years
-      personnel:
-        sections:
-          general:
-            title: General
-          personnel:
-            title: List of personnel (officers and non-officers)
-      archive_stats:
-        fields:
-          year:
-            title: Year
-          birth_count:
-            title: "# of Birth Registers Archived"
-          marriage_count:
-            title: "# of Marriage Registers Archived"
-          death_count:
-            title: "# of Death Registers Archived"
-    fields:
-      index:
-        title: Index
-      validation_code:
-        title: Validation Code
-    section:
-      accessibility:
-        sub_forms:
-          villages:
-            fields:
-              observations:
-                title: Observations
-    base_fields:
-      sections:
-        accessibility:
-          sub_forms:
-            villages:
-              title: List of attached villages
-        areas:
-          sub_forms:
-            rooms:
-              title: Status of spaces dedicated to civil status
-shell:
-  filter: Filter
-  sign_out: Sign out
-  menu:
-    forms:
-      fosa: FOSA Form
-      chefferie: CHEFFERIE Form
-      title: Forms
-      csc: CSC Form
+            title: If yes, then how?
 fosa:
   submissions:
     title: Submissions
@@ -575,7 +377,7 @@ fosa:
         description: Information about the respondent
         fields:
           knows_creation_date:
-            description: Do you know the date of creation of the Health center?
+            description: Do you know the date of creation of the Health centre?
             title: Knows Creation Date?
           device:
             title: Which device do you use to fill in the questionnaire?
@@ -732,7 +534,7 @@ fosa:
             description: Is the facility connected to the electricity grid (ENEO)?
           backup_power_available:
             title: Has emergency Power Source?
-            description: Does the center have an emergency or alternative source of power
+            description: Does the centre have an emergency or alternative source of power
           backup_power:
             title: Backup Power Sources
           has_internet:
@@ -798,7 +600,7 @@ fosa:
         description: Is the facility connected to the electricity grid (ENEO)?
       has_power_source:
         title: Has emergency Power Source?
-        description: Does the center have an emergency or alternative source of power
+        description: Does the centre have an emergency or alternative source of power
       alternative_power:
         title: Backup Power Sources
       internet_conn:
@@ -977,7 +779,7 @@ filter:
 and: and
 msg:
   error:
-    title: 'An error occured'
+    title: "An error occured"
   restart_notice: System-wide configuration updated. The application needs to be restarted to apply the changes.
   discard_msg:
     txt: Are you sure you want to discard the changes you've made?
@@ -1053,9 +855,9 @@ mapper:
             respondent:
               title: The Respondent
             identification:
-              title: Identification of the Center
+              title: Identification of the centre
             accessibility:
-              title: Accessibility to the Center
+              title: Accessibility to the centre
               sub_forms:
                 villages:
                   title: Attached Villages
@@ -1161,7 +963,7 @@ chefferie:
           first: 1ier degr� ou Lamidat
           second: 2e degr�
       distance:
-        title: Distance to the nearest civil status center
+        title: Distance to the nearest civil status centre
       fonction:
         title: Civil status function
         description: Civil status function exercised by the chief or a notable in the chiefdom

@@ -1,12 +1,31 @@
-import { FormType } from "@civilio/shared";
-import { intersection, isEqual, isEqualWith } from 'lodash';
-import { FormModelDefinitionSchema, RelevancePredicateSchema, SectionSchema } from "../schemas";
+import { FieldKey, FormType } from "@civilio/shared";
+import { intersection, isEqual } from 'lodash';
+import { FormModelDefinitionSchema, RelevanceDefinition, RelevancePredicateSchema, SectionSchema } from "../schemas";
+
+const relevanceMap = {
+	dataIndexed: {
+		dependencies: ['csc.form.sections.record_indexing.fields.data_indexed'],
+		predicate: RelevancePredicateSchema.implement(deps => ['1', '2'].includes(deps['csc.form.sections.record_indexing.fields.data_indexed'] as string))
+	} as RelevanceDefinition,
+	documentsScanned: {
+		dependencies: ['csc.form.sections.record_indexing.fields.records_scanned'],
+		predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.record_indexing.fields.records_scanned'] == 1)
+	} as RelevanceDefinition,
+	centerIsFunctional: {
+		dependencies: ['csc.form.sections.identification.fields.is_functional'],
+		predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.identification.fields.is_functional'] === true)
+	} as RelevanceDefinition,
+	centerHasCsSoftware: {
+		dependencies: ['csc.form.sections.digitization.fields.has_cs_software'],
+		predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.digitization.fields.has_cs_software'] === true)
+	} as RelevanceDefinition
+}
 
 // #region CSC
 export const CscFormDefinition = FormModelDefinitionSchema.parse({
 	sections: [
+		// #region Respondent
 		{
-			// #region Respondent
 			id: 'csc.form.sections.respondent',
 			fields: [
 				{
@@ -265,6 +284,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							key: 'csc.form.sections.accessibility.sections.general.fields.attached_villages_count',
 							type: 'int',
 							max: 100,
+							min: 0,
 							required: true
 						},
 						{
@@ -278,7 +298,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				{
 					id: 'csc.form.sections.accessibility.sections.villages',
 					fields: [{
-						key: 'csc.form.sections.accessibility.sections.villages',
+						key: 'csc.form.sections.accessibility.sections.villages.fields.list',
 						type: 'table',
 						identifierColumn: 'csc.form.sections.accessibility.sections.villages.fields.index',
 						columns: {
@@ -296,7 +316,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 								type: 'number'
 							},
 							observations: {
-								key: 'csc.form.sections.accessibility.sections.villages.fields.obsvervations',
+								key: 'csc.form.sections.accessibility.sections.villages.fields.observations',
 								type: 'text',
 							}
 						}
@@ -461,7 +481,8 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 						{
 							key: 'csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms',
 							type: 'boolean'
-						}, {
+						},
+						{
 							key: 'csc.form.sections.areas.sections.general.fields.moving_plans',
 							type: 'boolean',
 							relevance: {
@@ -472,9 +493,10 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 					]
 				},
 				{
+					id: 'csc.form.sections.areas.sections.rooms',
 					fields: [
 						{
-							key: 'csc.form.sections.areas.sections.rooms',
+							key: 'csc.form.sections.areas.sections.rooms.fields.list',
 							type: 'table',
 							relevance: {
 								dependencies: ['csc.form.sections.identification.fields.is_functional'],
@@ -487,22 +509,258 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 									type: 'number',
 									key: 'csc.form.sections.areas.sections.rooms.fields.index',
 								},
-								number: {
-									type: 'number',
-									key: 'csc.form.sections.areas.sections.rooms.fields.number'
-								},
+								// number: {
+								// 	type: 'number',
+								// 	key: 'csc.form.sections.areas.sections.rooms.fields.number'
+								// },
 								condition: {
 									type: 'single-selection',
 									optionGroupKey: 'hg4oe04',
 									key: 'csc.form.sections.areas.sections.rooms.fields.condition'
+								},
+								area: {
+									type: 'number',
+									key: 'csc.form.sections.areas.sections.rooms.fields.area',
+									relevance: {
+										dependencies: [
+											'csc.form.sections.areas.sections.rooms.fields.condition'
+										],
+										predicate: RelevancePredicateSchema.implement(deps => {
+											return deps['csc.form.sections.areas.sections.rooms.fields.condition'] === true;
+										})
+									}
+								},
+								renovation_nature: {
+									key: 'csc.form.sections.areas.sections.rooms.fields.renovation_nature',
+									type: 'multi-selection',
+									optionGroupKey: 'se9tm32',
+									relevance: {
+										dependencies: [
+											'csc.form.sections.areas.sections.rooms.fields.condition'
+										],
+										predicate: RelevancePredicateSchema.implement(deps => {
+											return deps['csc.form.sections.areas.sections.rooms.fields.condition'] === true;
+										})
+									}
 								}
 							}
 						}
 					]
 				}
 			]
-		}
+		},
 		//#endregion
+		// #region Equipment
+		{
+			id: 'csc.form.sections.equipment',
+			relevance: relevanceMap.centerIsFunctional,
+			fields: [
+				{
+					key: 'csc.form.sections.equipment.fields.pc_count',
+					type: 'int',
+					min: 0,
+					max: 1000,
+				},
+				{
+					key: 'csc.form.sections.equipment.fields.server_count',
+					type: 'int',
+					min: 0,
+					max: 1000,
+				},
+				{
+					key: 'csc.form.sections.equipment.fields.printer_count',
+					type: 'int',
+					min: 0,
+					max: 1000,
+				},
+				...([
+					'csc.form.sections.equipment.fields.scanner_count',
+					'csc.form.sections.equipment.fields.inverter_count',
+					'csc.form.sections.equipment.fields.ac_count',
+					'csc.form.sections.equipment.fields.fan_count',
+					'csc.form.sections.equipment.fields.projector_count',
+					'csc.form.sections.equipment.fields.office_table_count',
+					'csc.form.sections.equipment.fields.chair_count',
+				] as FieldKey[]).map(key => ({ key, type: 'int', min: 0 })),
+				{
+					key: 'csc.form.sections.equipment.fields.tablet_count',
+					type: 'int',
+					min: 0,
+					max: 1000,
+				},
+				{
+					key: 'csc.form.sections.equipment.fields.car_count',
+					type: 'int',
+					min: 0,
+					max: 100,
+				},
+				{
+					key: 'csc.form.sections.equipment.fields.bike_count',
+					type: 'int',
+					min: 0,
+					max: 100,
+				}
+			]
+		},
+		// #endregion
+		// #region Digitization
+		{
+			id: 'csc.form.sections.digitization',
+			relevance: relevanceMap.centerIsFunctional,
+			fields: [
+				{
+					key: 'csc.form.sections.digitization.fields.external_service_from_cr',
+					type: 'boolean',
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.external_cr_uses_internet',
+					type: 'boolean',
+					relevance: {
+						dependencies: ['csc.form.sections.digitization.fields.external_service_from_cr'],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.digitization.fields.external_service_from_cr'] === true)
+					}
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.has_cs_software',
+					type: 'boolean'
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.cs_software_name',
+					type: 'text',
+					required: true,
+					relevance: relevanceMap.centerHasCsSoftware
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.cs_software_license_sponsor',
+					required: true,
+					type: 'single-selection',
+					relevance: relevanceMap.centerHasCsSoftware,
+					optionsGroupKey: 'pt2hk19',
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.other_cs_software_license_sponsor',
+					type: 'text',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.digitization.fields.cs_software_license_sponsor'],
+						predicate: RelevancePredicateSchema.implement(deps => intersection(['4'], deps['csc.form.sections.digitization.fields.cs_software_license_sponsor'] as any[] ?? []).length > 0)
+					}
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.users_receive_digital_acts',
+					type: 'boolean',
+					relevance: relevanceMap.centerHasCsSoftware
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.software_activation_date',
+					type: 'date',
+					requied: true,
+					relevance: relevanceMap.centerHasCsSoftware
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.software_feedback',
+					type: 'single-selection',
+					optionsGroupKey: 'ja3ja10',
+					required: true,
+					relevance: relevanceMap.centerHasCsSoftware
+				},
+				...([
+					'csc.form.sections.digitization.fields.software_trained_user_count',
+					'csc.form.sections.digitization.fields.software_recorded_marriage_count',
+					'csc.form.sections.digitization.fields.software_recorded_births_count',
+					'csc.form.sections.digitization.fields.software_recorded_death_count',
+				] as FieldKey[]).map(k => ({
+					relevance: relevanceMap.centerHasCsSoftware,
+					key: k,
+					required: true,
+					type: 'int',
+					min: 0
+				})),
+				{
+					key: 'csc.form.sections.digitization.fields.is_software_functioning',
+					type: 'boolean',
+				},
+				{
+					key: 'csc.form.sections.digitization.fields.software_non_functioning_reason',
+					type: 'text',
+					relevance: {
+						dependencies: ['csc.form.sections.digitization.fields.is_software_functioning'],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.digitization.fields.is_software_functioning'] !== true)
+					}
+				}
+			]
+		},
+		// #endregion
+		// #region Record Indexing
+		{
+			id: 'csc.form.sections.record_indexing',
+			relevance: relevanceMap.centerIsFunctional,
+			fields: [
+				{
+					key: 'csc.form.sections.record_indexing.fields.records_scanned',
+					type: 'single-selection',
+					optionsGroupKey: 'jk4rp06',
+					required: true
+				},
+				{
+					key: 'csc.form.sections.record_indexing.fields.staff_trained',
+					type: 'single-selection',
+					optionsGroupKey: 'fv5nn38',
+					required: true
+				},
+				{
+					key: 'csc.form.sections.record_indexing.fields.document_scan_start_date',
+					type: 'int',
+					min: 1980,
+					max: 2025,
+					relevance: relevanceMap.documentsScanned,
+					required: true
+				},
+				{
+					key: 'csc.form.sections.record_indexing.fields.data_indexed',
+					type: 'single-selection',
+					optionsGroupKey: 'fw78n80',
+					required: true,
+					relevance: relevanceMap.documentsScanned
+				},
+				...([
+					'csc.form.sections.record_indexing.fields.births_scanned',
+					'csc.form.sections.record_indexing.fields.marriages_scanned',
+					'csc.form.sections.record_indexing.fields.deaths_scanned',
+				] as FieldKey[]).map(key => ({
+					key,
+					relevance: relevanceMap.documentsScanned,
+					type: 'int',
+					min: 0,
+					required: true
+				})),
+				...([
+					'csc.form.sections.record_indexing.fields.births_indexed',
+					'csc.form.sections.record_indexing.fields.marriages_indexed',
+					'csc.form.sections.record_indexing.fields.deaths_indexed'
+				] as FieldKey[]).map(key => ({
+					key,
+					relevance: relevanceMap.dataIndexed,
+					type: 'int',
+					min: 0,
+					required: true
+				})),
+				{
+					key: 'csc.form.sections.record_indexing.fields.is_data_used_by_csc',
+					type: 'boolean'
+				},
+				{
+					key: 'csc.form.sections.record_indexing.fields.data_usage',
+					type: 'text',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.record_indexing.fields.is_data_used_by_csc'],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.record_indexing.fields.is_data_used_by_csc'] === true)
+					}
+				}
+			]
+		},
+		// #endregion
 	] as SectionSchema[],
 	meta: {
 		form: 'csc' as FormType

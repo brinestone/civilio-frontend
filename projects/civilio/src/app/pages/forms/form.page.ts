@@ -6,6 +6,7 @@ import {
 	Component,
 	computed,
 	effect,
+	EffectRef,
 	inject,
 	Injector,
 	linkedSignal,
@@ -158,6 +159,7 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 	});
 	protected readonly formOptions: Record<string, Signal<Option[]>> = {};
 	protected relevanceRegistry: Record<string, () => boolean> = {};
+	private relevanceEffects: Record<string, EffectRef> = {};
 	protected valueProviders: Record<string, Signal<ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[]>> = {};
 	private controlValidatorRegistry: Record<string, ValidatorFn[]> = {};
 	protected currentTab = linkedSignal(() => {
@@ -265,6 +267,9 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 				this.setupFieldDependencies(schema);
 			} else {
 				this.setupFieldRelevanceWatch(schema);
+				if (schema.type == 'single-selection' || schema.type == 'multi-selection') {
+					this.formOptions[schema.key] = this.createDropdownSource(schema);
+				}
 			}
 		}
 
@@ -407,16 +412,20 @@ export class FormPage implements AfterViewInit, HasPendingChanges {
 		if (!this.relevanceRegistry[schema.key])
 			this.relevanceRegistry[schema.key] = relevanceSignal;
 
-		effect(() => {
-			const isRelevant = relevanceSignal();
-			const control = this.form.controls[schema.key];
-			if (isRelevant && !control) {
-				setTimeout(() => this.addFieldControl(schema), 0);
-			} else if (!isRelevant && !!control) {
-				this.removeFieldControl(schema);
-			}
-			setTimeout(() => this.cdr.markForCheck(), 0);
-		}, { injector: this.injector });
+		if (!this.relevanceEffects[schema.key]) {
+			this.relevanceEffects[schema.key] = effect(() => {
+				const isRelevant = relevanceSignal();
+				const control = this.form.controls[schema.key];
+				if (isRelevant && !control) {
+					setTimeout(() => this.addFieldControl(schema), 0);
+				} else if (!isRelevant && !!control) {
+					this.removeFieldControl(schema);
+				}
+				setTimeout(() => this.cdr.markForCheck(), 0);
+			}, { injector: this.injector });
+		} else {
+			console.log(`Field: ${schema.key} already has a relevance effect`);
+		}
 	}
 
 	private extractSubFormData(schema: Extract<FieldSchema, {

@@ -159,7 +159,7 @@ const GroupBaseSchema = z.object({
 	relevance: RelevanceDefinitionSchema.optional(),
 });
 export const FormGroupSchema = GroupBaseSchema.extend({
-	children: GroupBaseSchema.extend({ id: AllSectionKeysSchema.optional() }).array().optional(),
+	children: GroupBaseSchema.array().optional(),
 	columns: z.union([
 		z.int(),
 		z.string().array()
@@ -184,6 +184,7 @@ export type FormSchema = z.output<typeof FormModelDefinitionSchema>;
 export type SectionSchema = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;
 export type RelevanceFn = z.output<typeof RelevancePredicateSchema>;
+export type RelevanceDefinition = z.output<typeof RelevanceDefinitionSchema>;
 export type ColumnDefinition = z.output<typeof ColumnDefinitionSchema>;
 export type DefinitionLike = {
 	type: FieldSchema['type'] | ColumnDefinition['type'],
