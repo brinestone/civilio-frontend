@@ -523,7 +523,7 @@ export namespace CSC {
 			'cs_software_license_sponsor',
 			'other_cs_software_license_sponsor',
 			'users_receive_digital_acts',
-			'software_activation-date',
+			'software_activation_date',
 			'software_feedback',
 			'software_trained_user_count',
 			'software_recorded_marriage_count',
@@ -545,6 +545,7 @@ export namespace CSC {
 			'inverter_count',
 			'ac_count',
 			'fan_count',
+			'car_count',
 			'projector_count',
 			'office_table_count',
 			'chair_count',
@@ -554,12 +555,12 @@ export namespace CSC {
 	])
 
 	export const AreaFieldKeysSchema = z.union([
-		SectionKeysSchema.extract(['csc.form.sections.areas.sections.rooms']),
 		z.templateLiteral([
 			SectionKeysSchema.extract(['csc.form.sections.areas.sections.rooms']),
 			'.fields.',
 			z.enum([
 				'index',
+				'list',
 				'number',
 				'name',
 				'condition',
@@ -605,16 +606,14 @@ export namespace CSC {
 
 	export const AccessibilityFieldKeysSchema = z.union([
 		z.templateLiteral([
-			SectionKeysSchema.extract(['csc.form.sections.accessibility.sections.villages'])
-		]),
-		z.templateLiteral([
 			SectionKeysSchema.extract(['csc.form.sections.accessibility.sections.villages']),
 			'.fields.',
 			z.enum([
 				'index',
 				'name',
 				'avg_dist',
-				'obsvervations'
+				'list',
+				'observations',
 			])
 		]),
 		z.templateLiteral([
