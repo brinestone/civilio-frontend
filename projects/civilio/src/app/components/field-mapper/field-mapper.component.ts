@@ -83,7 +83,7 @@ export class FieldMapperComponent implements OnInit {
 	private loadColumns = dispatch(LoadDbColumns);
 	protected doRemoveMapping = dispatch(RemoveMapping);
 
-	readonly formModel = input.required<FormSchema>();
+	readonly formModel = input<FormSchema>();
 	readonly form = input<FormType>();
 
 	private mappingsNotifier = createNotifier();
@@ -101,12 +101,16 @@ export class FieldMapperComponent implements OnInit {
 		return this.store.selectSnapshot(formColumns)?.[form] ?? [];
 	});
 	protected sectionMap = computed(() => {
-		return cloneDeep(flattenSections(this.formModel())).map((s) => {
+		const model = this.formModel();
+		if (!model) return {};
+		return cloneDeep(flattenSections(model)).map((s) => {
 			return s as unknown as Exclude<typeof s, 'fields'>;
 		}).reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {} as Record<string, Exclude<SectionSchema, 'fields'>>);
 	});
 	protected fieldSchemaMap = computed(() => {
-		return cloneDeep(extractAllFields(this.formModel()))
+		const model = this.formModel();
+		if (!model) return {};
+		return cloneDeep(extractAllFields(model))
 			.reduce((acc, curr) => ({ ...acc, [curr.key]: curr }), {} as Record<string, FieldSchema>)
 	});
 	protected inputForm: FormGroup<{
@@ -141,6 +145,7 @@ export class FieldMapperComponent implements OnInit {
 	constructor(actions$: Actions) {
 		effect(() => {
 			const model = this.formModel();
+			if (!model) return;
 			setTimeout(() => this.setupForm(model), 100);
 		});
 		merge(

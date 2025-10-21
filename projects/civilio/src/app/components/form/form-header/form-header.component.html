@@ -1,1 +1,60 @@
-<p>form-header works!</p>
+<div class="flex items-center gap-2">
+	<a hlmBtn size="sm" variant="outline" [routerLink]="[]">
+		<ng-icon name="lucideChevronLeft" />
+		<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
+	</a>
+	<a hlmBtn size="sm" variant="outline" [routerLink]="[]">
+		<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
+		<ng-icon name="lucideChevronRight" />
+	</a>
+	<hlm-autocomplete
+		[(search)]="indexInputFilter"
+		[filteredOptions]="indexSuggestions.value()"
+		[loading]="indexSuggestions.isLoading()"
+		[value]="submissionIndex()"
+		(valueChange)="onAutoCompleteIndexValueChanged($event)"
+		[emptyText]="'tmpl.autocomplete.empty_text' | translate"
+		[loadingText]="'loading.txt' | translate"
+		[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
+	/>
+</div>
+<div class="flex items-center gap-2">
+	<button hlmBtn size="sm">
+		<ng-icon name="lucideSave" />
+		<span>{{ "forms.header.actions.save_changes" | translate }}</span>
+	</button>
+	<button hlmBtn size="sm" variant="destructive">
+		<ng-icon name="lucideTrash2" />
+		<span>{{ "forms.header.actions.discard" | translate }}</span>
+	</button>
+	<hlm-sheet
+		#sheet
+		[state]="mapperSheetState()"
+		(stateChanged)="mapperSheetState.set($event)"
+		side="right"
+	>
+		<button hlmBtn size="sm" variant="ghost" brnSheetTrigger>
+			<ng-icon name="lucideUnlink" />
+			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>
+		</button>
+		<hlm-sheet-content
+			class="min-w-[70vw] @container"
+			*brnSheetContent="let ctx"
+		>
+			<hlm-sheet-header>
+				<h3 hlmSheetTitle>{{ "field_mapper.title" | translate }}</h3>
+				<p hlmSheetDescription>
+					{{ "field_mapper.description" | translate }}
+				</p>
+			</hlm-sheet-header>
+			<div class="max-h-[600px] overflow-y-auto">
+				@defer (when mapperSheetState() == 'open') {
+					@let schema = formSchema();
+					@if (schema) {
+						<cv-field-mapper [formModel]="schema" [form]="formType()" />
+					}
+				}
+			</div>
+		</hlm-sheet-content>
+	</hlm-sheet>
+</div>

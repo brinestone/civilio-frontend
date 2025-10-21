@@ -1,5 +1,10 @@
 <div class="border-b border-border">
-	<cv-form-header />
+	<cv-form-header
+		[index]="submissionIndex()"
+		[formType]="formType()"
+		[formSchema]="formModel()"
+		(indexChange)="onIndexChanged($event)"
+	/>
 </div>
 <div class="grid grid-cols-[minmax(auto,240px)_1fr]">
 	<div class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto">
