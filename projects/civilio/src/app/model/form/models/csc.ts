@@ -3,6 +3,14 @@ import { intersection, isEqual } from 'lodash';
 import { FormModelDefinitionSchema, RelevanceDefinition, RelevancePredicateSchema, SectionSchema } from "../schemas";
 
 const relevanceMap = {
+	centerIsNotPrimaryOrSecondary: {
+		dependencies: ['csc.form.sections.identification.fields.category'],
+		predicate: RelevancePredicateSchema.implement(deps => !deps['csc.form.sections.identification.fields.category'] || ['3', '4'].includes(deps['csc.form.sections.identification.fields.category'] as string))
+	} as RelevanceDefinition,
+	centerIsPrimaryOrSecondary: {
+		dependencies: ['csc.form.sections.identification.fields.category'],
+		predicate: RelevancePredicateSchema.implement(deps => ['1', '2'].includes(deps['csc.form.sections.identification.fields.category'] as string))
+	} as RelevanceDefinition,
 	dataIndexed: {
 		dependencies: ['csc.form.sections.record_indexing.fields.data_indexed'],
 		predicate: RelevancePredicateSchema.implement(deps => ['1', '2'].includes(deps['csc.form.sections.record_indexing.fields.data_indexed'] as string))
@@ -65,6 +73,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Identification
 		{
 			id: 'csc.form.sections.identification',
@@ -250,6 +261,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Accessibility
 		{
 			fields: [],
@@ -325,6 +339,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Infrastructure
 		{
 			id: 'csc.form.sections.infra',
@@ -466,6 +483,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Areas
 		{
 			id: 'csc.form.sections.areas',
@@ -550,6 +570,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		//#endregion
+
+
+
 		// #region Equipment
 		{
 			id: 'csc.form.sections.equipment',
@@ -603,6 +626,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Digitization
 		{
 			id: 'csc.form.sections.digitization',
@@ -691,6 +717,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
+
+
+
 		// #region Record Indexing
 		{
 			id: 'csc.form.sections.record_indexing',
@@ -757,6 +786,224 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 						dependencies: ['csc.form.sections.record_indexing.fields.is_data_used_by_csc'],
 						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.record_indexing.fields.is_data_used_by_csc'] === true)
 					}
+				}
+			]
+		},
+		// #endregion
+
+
+
+		// #region Record Procurement
+		{
+			id: 'csc.form.sections.record_procurement',
+			relevance: relevanceMap.centerIsFunctional,
+			fields: [
+				{
+					key: 'csc.form.sections.record_procurement.fields.has_there_been_lack_off_registers',
+					type: 'multi-selection',
+					required: true,
+					optionsGroupKey: 'tw32q01'
+				},
+				{
+					key: 'csc.form.sections.record_procurement.fields.records_provider',
+					type: 'multi-selection',
+					required: true,
+					optionsGroupKey: 'sl8yh95'
+				},
+				{
+					key: 'csc.form.sections.record_procurement.fields.other_records_provider',
+					type: 'text',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.record_procurement.fields.records_provider'],
+						predicate: RelevancePredicateSchema.implement(deps => intersection(['4'], deps['csc.form.sections.record_procurement.fields.records_provider'] as string[]).length > 0)
+					}
+				},
+				{
+					key: 'csc.form.sections.record_procurement.fields.uses_non_compliant_reigsters',
+					type: 'boolean'
+				},
+				...([
+					'csc.form.sections.record_procurement.fields.blank_births',
+					'csc.form.sections.record_procurement.fields.blank_marriages',
+					'csc.form.sections.record_procurement.fields.blank_deaths'
+				] as FieldKey[]).map(key => ({
+					key, type: 'int', min: 0, required: true
+				}))
+			]
+		},
+		// #endregion
+
+
+
+		// #region Financial resources
+		{
+			id: 'csc.form.sections.financial_stats',
+			relevance: {
+				dependencies: [
+					'csc.form.sections.identification.fields.category',
+					'csc.form.sections.identification.fields.is_functional'
+				],
+				predicate: RelevancePredicateSchema.implement(deps => {
+					const functional = deps['csc.form.sections.identification.fields.is_functional'] === true;
+					const primaryOrSecondary = intersection(['1', '2'], [deps['csc.form.sections.identification.fields.category'] as string]).length > 0;
+					return functional && primaryOrSecondary;
+				})
+			},
+			fields: [
+				...([
+					'csc.form.sections.financial_stats.fields.birth_cert_cost',
+					'csc.form.sections.financial_stats.fields.birth_cert_copy_cost',
+					'csc.form.sections.financial_stats.fields.marriage_cert_copy_cost',
+					'csc.form.sections.financial_stats.fields.death_cert_copy_cost',
+					'csc.form.sections.financial_stats.fields.celibacy_cert_copy_cost',
+					'csc.form.sections.financial_stats.fields.non_registered_certs'
+				] as FieldKey[]).map(key => ({
+					key,
+					type: 'int',
+					min: 0,
+					required: true
+				})),
+				{
+					key: 'csc.form.sections.financial_stats.fields.rates_under_deliberation',
+					type: 'boolean',
+				},
+				{
+					key: 'csc.form.sections.financial_stats.fields.prices_displayed',
+					type: 'boolean'
+				},
+				{
+					key: 'csc.form.sections.financial_stats.fields.municipality_budget_2024',
+					type: 'int',
+					min: 0,
+					required: true
+				},
+				{
+					key: 'csc.form.sections.financial_stats.fields.cs_budget_2024',
+					type: 'int',
+					min: 0,
+					required: true
+				}
+			]
+		},
+		// #endregion
+
+
+
+		// #region Archiving Function
+		{
+			id: 'csc.form.sections.archiving_function',
+			fields: [],
+			relevance: relevanceMap.centerIsFunctional,
+			children: [
+				{
+					id: 'csc.form.sections.archiving_function.sections.general',
+					fields: [
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.has_archiving_room',
+							type: 'boolean',
+							relevance: relevanceMap.centerIsPrimaryOrSecondary
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.archive_room_electric_condition',
+							type: 'single-selection',
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+							optionsGroupKey: 'hv1un42',
+							required: true
+						},
+						...([
+							'csc.form.sections.archiving_function.sections.general.fields.has_fire_extinguisher',
+							'csc.form.sections.archiving_function.sections.general.fields.locked_door',
+							'csc.form.sections.archiving_function.sections.general.fields.is_archive_room_access_limited',
+							'csc.form.sections.archiving_function.sections.general.fields.room_has_humidity'
+						] as FieldKey[]).map(key => ({
+							key,
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+							type: 'boolean'
+						})),
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.register_archiving_type',
+							type: 'multi-selection',
+							optionsGroupKey: 'xi0eq24',
+							required: true,
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.other_archiving_type',
+							type: 'text',
+							required: true,
+							relevance: {
+								dependencies: ['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'],
+								predicate: RelevancePredicateSchema.implement(deps => intersection(['7'], deps['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'] as string[]).length > 0)
+							}
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.has_written_archiving_plan',
+							type: 'boolean',
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited',
+							type: 'single-selection',
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+							optionsGroupKey: 'gw85g70',
+							required: true
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited_systematically',
+							type: 'boolean',
+							relevance: relevanceMap.centerIsNotPrimaryOrSecondary
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.is_vandalized',
+							type: 'boolean'
+						},
+						{
+							key: 'csc.form.sections.archiving_function.sections.general.fields.vandalization_date',
+							type: 'text',
+							required: true,
+							relevance: {
+								dependencies: ['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'],
+								predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'] === true)
+							}
+						}
+					]
+				},
+				{
+					id: 'csc.form.sections.archiving_function.sections.archive_stats',
+					relevance: relevanceMap.centerIsFunctional,
+					fields: [
+						{
+							key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.list',
+							type: 'table',
+							relevance: relevanceMap.centerIsPrimaryOrSecondary,
+							identifierColumn: 'csc.form.sections.archiving_function.sections.archive_stats.fields.index',
+							columns: {
+								index: {
+									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.index',
+									editable: false,
+									type: 'number'
+								},
+								year: {
+									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.year',
+									optionGroupKey: 'ue0vo43',
+									type: 'single-selection'
+								},
+								birth_count: {
+									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.birth_count',
+									type: 'number',
+								},
+								marriage_count: {
+									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.marriage_count',
+									type: 'number'
+								},
+								death_count: {
+									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.death_count',
+									type: 'number'
+								}
+							}
+						}
+					]
 				}
 			]
 		},

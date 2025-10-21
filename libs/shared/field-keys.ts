@@ -351,9 +351,9 @@ export namespace CSC {
 		'csc.form.sections.record_indexing',
 		"csc.form.sections.record_procurement",
 		"csc.form.sections.financial_stats",
-		"csc.form.sections.archving_function",
-		"csc.form.sections.archving_function.sections.general",
-		"csc.form.sections.archving_function.sections.archive_stats",
+		"csc.form.sections.archiving_function",
+		"csc.form.sections.archiving_function.sections.general",
+		"csc.form.sections.archiving_function.sections.archive_stats",
 		"csc.form.sections.deeds",
 		"csc.form.sections.employees",
 		"csc.form.sections.employees.sections.general",
@@ -431,7 +431,7 @@ export namespace CSC {
 
 	export const ArchivingFieldKeysSchema = z.union([
 		z.templateLiteral([
-			SectionKeysSchema.extract(['csc.form.sections.archving_function.sections.general']),
+			SectionKeysSchema.extract(['csc.form.sections.archiving_function.sections.general']),
 			'.fields.',
 			z.enum([
 				'has_archiving_room',
@@ -450,10 +450,12 @@ export namespace CSC {
 			])
 		]),
 		z.templateLiteral([
-			SectionKeysSchema.extract(['csc.form.sections.archving_function.sections.archive_stats']),
+			SectionKeysSchema.extract(['csc.form.sections.archiving_function.sections.archive_stats']),
 			'.fields.',
 			z.enum([
 				'year',
+				'list',
+				'index',
 				'birth_count',
 				'marriage_count',
 				'death_count'
@@ -470,7 +472,7 @@ export namespace CSC {
 			'marriage_cert_copy_cost',
 			'death_cert_copy_cost',
 			'celibacy_cert_copy_cost',
-			'non_registerd_certs',
+			'non_registered_certs',
 			'rates_under_deliberation',
 			'prices_displayed',
 			'municipality_budget_2024',

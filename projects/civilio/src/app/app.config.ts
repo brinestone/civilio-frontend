@@ -14,13 +14,10 @@ import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
 import { MissingTranslationHandlerImpl, provideTranslationLoader } from './adapters/ngx-translate';
 import { routes } from './app.routes';
-import { provideDomainForms } from './services/form';
-import { ConfigState } from './store/config';
 import { provideDomainConfig } from './services/config';
+import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
-import { isDesktop } from './util';
-import { ElectronTranslationLoader } from './adapters/electron/ngx-translate';
-import { WebTranslationLoader } from './adapters/web/ngx-translate';
+import { ConfigState } from './store/config';
 
 export const appConfig: ApplicationConfig = {
 	providers: [

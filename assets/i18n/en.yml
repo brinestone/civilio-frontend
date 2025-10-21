@@ -315,21 +315,108 @@ csc:
           data_indexed:
             title: Has the data been indexed?
           marriages_indexed:
-            title: '#  scanned births indexed'
+            title: "#  scanned births indexed"
           deaths_indexed:
-            title: '# scanned death indexed'
+            title: "# scanned death indexed"
           births_indexed:
-            title: '# of births indexed'
+            title: "# of births indexed"
           marriages_scanned:
-            title: '# of scanned marriage certificates'
+            title: "# of scanned marriage certificates"
           births_scanned:
-            title: '# of scanned birth certificates'
+            title: "# of scanned birth certificates"
           deaths_scanned:
-            title: '# of scanned death certificates'
+            title: "# of scanned death certificates"
           is_data_used_by_csc:
             title: Are the digitized data used by the Civil Registry Center?
           data_usage:
             title: If yes, then how?
+      record_procurement:
+        title: Procurement of civil status records
+        fields:
+          has_there_been_lack_off_registers:
+            title: Have you encountered any problems with missing records during those years?
+          records_provider:
+            title: Who supplied you with registers for the year 2025?
+          other_records_provider:
+            title: Please specify the sources of registers.
+          uses_non_compliant_reigsters:
+            title: Have you often had to buy registers on the market for drawing up deeds?
+          blank_births:
+            title: How many birth registers are currently in use or blank at this time?
+          blank_marriages:
+            title: How many marriage registers are currently in use or blank at this time?
+          blank_deaths:
+            title: How many death registers are currently in use or blank at this time?
+      financial_stats:
+        title: Financial resources related to civil status documents
+        fields:
+          birth_cert_cost:
+            title: Cost of Birth Certificate Extracts
+          birth_cert_copy_cost:
+            title: Cost of a copy of a birth certificate
+          marriage_cert_copy_cost:
+            title: Cost of a copy of a marriage certificate
+          death_cert_copy_cost:
+            title: Cost of copying a death certificate
+          celibacy_cert_copy_cost:
+            title: Certificate of Single Status
+          non_registered_certs:
+            title: Certificate of non-entry in the register
+          rates_under_deliberation:
+            title: Are these rates currently being discussed by the city council?
+          prices_displayed:
+            title: Are prices displayed?
+          municipality_budget_2024:
+            title: What is the municipality's budget for 2024?
+          cs_budget_2024:
+            title: What was the share allocated to civil status in 2024?
+      archiving_function:
+        title: Archiving function
+        sections:
+          general:
+            title: General
+            fields:
+              has_archiving_room:
+                title: Does the center have a specific room for archiving records?
+              archive_room_electric_condition:
+                title: What is the condition of the electrical circuit in the main archive room?
+              has_fire_extinguisher:
+                title: Does the archive room have a fire extinguisher?
+              locked_door:
+                title: Is the archive room door locked?
+              is_archive_room_access_limited:
+                title: Is access to the archive room limited?
+              room_has_humidity:
+                title: Does the archive room have humidity issues?
+              register_archiving_type:
+                title: What type of archiving is used for the registers?
+              other_archiving_type:
+                title: Please specify the type of archiving used for the registers.
+              has_written_archiving_plan:
+                title: Does the center have a written archiving plan?
+              are_registers_deposited:
+                title: Have all the sub-prefecture records been filed at the town hall?
+              are_registers_deposited_systematically:
+                title: Are the registers systematically submitted to the Town Hall at the end of the year?
+              is_vandalized:
+                title: Has the archive room been vandalized?
+              vandalization_date:
+                title: When did the vandalism occur?
+          archive_stats:
+            fields:
+              list:
+                title: Number of archived records (period from 2020 to 2024)
+              index:
+                title: Index
+              year:
+                title: Year
+              birth_count:
+                title: "# of births archived"
+              marriage_count:
+                title: "# of marriages archived"
+              death_count:
+                title: "# of deaths archived"
+
 fosa:
   submissions:
     title: Submissions

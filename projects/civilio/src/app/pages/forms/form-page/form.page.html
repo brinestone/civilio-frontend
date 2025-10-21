@@ -1,0 +1,25 @@
+<div class="border-b border-border">
+	<cv-form-header />
+</div>
+<div class="grid grid-cols-[minmax(auto,240px)_1fr]">
+	<div class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto">
+		<ul class="list-none space-y-2">
+			@for(section of formModel().sections; track $index) { @let
+			shouldShowSection = !relevanceRegistry[section.id] ||
+			relevanceRegistry[section.id](); @if(shouldShowSection) {
+			<li class="form-section">
+				<a [routerLink]="[section.id]" routerLinkActive="active">
+					<p>{{ section.id + '.title' | translate }}</p>
+					<ng-icon name="lucideCircleAlert" class="!text-red-500" />
+				</a>
+			</li>
+			} }
+		</ul>
+	</div>
+	<div class="grid-rows-[80vh_auto] grid">
+		<div class="overflow-y-auto">
+			<router-outlet />
+		</div>
+		<div class="border-t border-border flex-shrink-0">bottom</div>
+	</div>
+</div>
