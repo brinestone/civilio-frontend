@@ -1,6 +1,5 @@
 import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { FieldMapperComponent } from '@app/components/field-mapper/field-mapper.component';
+import { FieldMapperComponent } from '@app/components';
 import { FormSchema } from '@app/model/form';
 import { FORM_SERVICE } from '@app/services/form';
 import { FormType } from '@civilio/shared';
@@ -30,7 +29,6 @@ import z from 'zod';
 	],
 	imports: [
 		HlmButton,
-		RouterLink,
 		NgIcon,
 		TranslatePipe,
 		FieldMapperComponent,
@@ -46,7 +44,11 @@ export class FormHeaderComponent {
 	readonly formType = input<FormType>();
 	readonly formSchema = input<FormSchema>();
 	readonly index = input<number | string>();
-	readonly indexChange = output<number>();
+	readonly canGoNextPage = input<boolean>();
+	readonly canGoPrevPage = input<boolean>();
+	readonly nextSubmission = output();
+	readonly prevSubmission = output();
+	readonly indexJump = output<number>();
 
 	private readonly formService = inject(FORM_SERVICE);
 
@@ -72,6 +74,6 @@ export class FormHeaderComponent {
 
 	protected onAutoCompleteIndexValueChanged(index: number | null) {
 		if (index === null) return;
-		this.indexChange.emit(index);
+		this.indexJump.emit(index);
 	}
 }

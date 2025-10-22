@@ -1,0 +1,11 @@
+<div class="px-2 pt-4 pb-2">
+	<h1 class="font-extrabold text-3xl">{{ id() + '.title' | translate }}</h1>
+</div>
+@defer(when !!formType() && !!schema()) {
+<form
+	[formGroup]="form"
+	ngxsForm="form.activeSections.{{id() | replace:'.':'_'}}"
+>
+
+</form>
+}

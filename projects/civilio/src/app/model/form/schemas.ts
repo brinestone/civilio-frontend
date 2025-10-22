@@ -188,5 +188,6 @@ export type RelevanceDefinition = z.output<typeof RelevanceDefinitionSchema>;
 export type ColumnDefinition = z.output<typeof ColumnDefinitionSchema>;
 export type DefinitionLike = {
 	type: FieldSchema['type'] | ColumnDefinition['type'],
+	relevance?: RelevanceDefinition,
 	default?: any
 };

@@ -238,13 +238,14 @@ export async function findFormData(form: FormType, index: number) {
 
 	for (const [tableName, mappings] of Object.entries(tableGroups)) {
 		const isDataTable = tableName == 'data';
-		const selection = mappings.map(f => (`d."${f.col}"::TEXT AS "${f.field}"`)).join(',\n\t\t\t\t');
+		const tableAlias = 'res';
+		const selection = mappings.map(f => (`${tableAlias}."${f.col}"::TEXT AS "${f.field}"`)).join(',\n\t\t\t\t');
 		const indexCol = isDataTable ? '_index' : '_parent_index';
-		const whereClause = `d."${indexCol}" = ${index}`;
+		const whereClause = `${tableAlias}."${indexCol}" = ${index}`;
 		const promise = db.execute(sql.raw(`
 			SELECT
 				${selection}
-			FROM "${form}"."${tableName}" d
+			FROM "${form}"."${tableName}" ${tableAlias}
 			WHERE
 				${whereClause};
 			`)).then(result => {
@@ -279,8 +280,6 @@ export async function findFormData(form: FormType, index: number) {
 	}
 
 	await Promise.all(tablePromises);
-
-	console.log(map);
 	return FindSubmissionDataResponseSchema.parse(map);
 }
 
@@ -339,6 +338,7 @@ export async function findFormOptions(form: FormType) {
 		group: choices.group
 	}).from(choices)
 		.where(eq(choices.version, form))
+		.$withCache()
 		.then(v => {
 			const map: Record<string, Option[]> = {};
 			v.forEach(x => {

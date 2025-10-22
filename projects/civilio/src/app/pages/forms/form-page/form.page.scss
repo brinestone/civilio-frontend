@@ -1,17 +1,17 @@
 @reference "tailwindcss";
 
 :host {
-	@apply grid grid-rows-[auto_1fr] h-full;
+  @apply grid grid-rows-[auto_1fr] h-full;
 }
 
 .form-section {
-	& > a {
-		@apply grid grid-cols-[1fr_auto] gap-x-2 text-[var(--muted-foreground)] max-w-full text-sm hover:text-inherit transition-colors;
-		& > p {
-			@apply block line-clamp-1 w-full text-ellipsis text-nowrap;
-		}
-		&.active {
-			@apply text-[var(--primary)];
-		}
-	}
+  & > a {
+    @apply grid grid-cols-[1fr_auto] items-center gap-x-2 text-[var(--muted-foreground)] max-w-full text-sm hover:text-inherit transition-colors;
+    & > p {
+      @apply block line-clamp-1 w-full text-ellipsis text-nowrap;
+    }
+    &.active {
+      @apply text-[var(--primary)];
+    }
+  }
 }

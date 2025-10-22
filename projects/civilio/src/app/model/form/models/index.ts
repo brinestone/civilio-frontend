@@ -1,6 +1,5 @@
 import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO } from 'date-fns';
-import { cloneDeep } from 'lodash';
 import z from 'zod';
 import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
 
@@ -23,17 +22,17 @@ export function extractAllFields(schema: FormSchema) {
 	const list = Array<FieldSchema>();
 
 	for (const section of schema.sections) {
-		list.push(...listFieldsInSection(section));
+		list.push(...extractFields(section));
 	}
 
 	return list;
 }
 
-function listFieldsInSection(section: SectionSchema) {
+export function extractFields(section: SectionSchema) {
 	const result = [...section.fields];
 	if (section.children) {
 		for (const child of section.children) {
-			result.push(...listFieldsInSection(child as any));
+			result.push(...extractFields(child as any));
 		}
 	}
 	return result;
@@ -60,7 +59,7 @@ export function defaultValueForType(type: DefinitionLike['type']) {
 }
 
 export type ParsedValue = boolean | null | Date | GeoPoint | number | string;
-export type RawInput = (string | null)[] | string;
+export type RawValue = (string | null)[] | string;
 
 export function serializeValue(definition: DefinitionLike, value: any): any {
 	if (value == null) return null;
@@ -80,7 +79,7 @@ export function serializeValue(definition: DefinitionLike, value: any): any {
 	}
 }
 
-export function parseValue(definition: DefinitionLike, raw: RawInput | null): ParsedValue | ParsedValue[] {
+export function parseValue(definition: DefinitionLike, raw: RawValue | null): ParsedValue | ParsedValue[] {
 	if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
 	switch (definition.type) {
 		case 'boolean': {

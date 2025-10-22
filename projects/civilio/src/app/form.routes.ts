@@ -9,7 +9,7 @@ const dataResolver: ResolveFn<{ form: FormType, model: FormSchema }> = (route, s
 
 const sectionRoutes: Routes = [
 	{
-		resolve: { target: dataResolver }, path: ':id', loadComponent: () => import('./pages/forms/section-page/section-page.page').then(m => m.SectionPagePage)
+		resolve: { target: dataResolver }, path: ':id', loadComponent: () => import('./pages/forms/section-page/section.page').then(m => m.SectionPage)
 	},
 	{
 		path: '', pathMatch: 'full', redirectTo: ({ data }) => {

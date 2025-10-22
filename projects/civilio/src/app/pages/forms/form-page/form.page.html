@@ -3,19 +3,25 @@
 		[index]="submissionIndex()"
 		[formType]="formType()"
 		[formSchema]="formModel()"
-		(indexChange)="onIndexChanged($event)"
+		(indexJump)="onIndexJump($event)"
+		[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.hasValue() && neighboringRefs.value()?.[1] !== null"
+		[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.hasValue() && neighboringRefs.value()?.[0] !== null"
+		(nextSubmission)="onNextSubmissionRequested()"
+		(prevSubmission)="onPrevSubmissionRequested()"
 	/>
 </div>
 <div class="grid grid-cols-[minmax(auto,240px)_1fr]">
 	<div class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto">
 		<ul class="list-none space-y-2">
 			@for(section of formModel().sections; track $index) { @let
-			shouldShowSection = !relevanceRegistry[section.id] ||
-			relevanceRegistry[section.id](); @if(shouldShowSection) {
+			shouldShowSection = relevanceRegistry()[section.id];
+			@if(shouldShowSection) {
 			<li class="form-section">
 				<a [routerLink]="[section.id]" routerLinkActive="active">
 					<p>{{ section.id + '.title' | translate }}</p>
+					@if(sectionValidity()[section.id] == 'INVALID') {
 					<ng-icon name="lucideCircleAlert" class="!text-red-500" />
+					}
 				</a>
 			</li>
 			} }
@@ -25,6 +31,8 @@
 		<div class="overflow-y-auto">
 			<router-outlet />
 		</div>
-		<div class="border-t border-border flex-shrink-0">bottom</div>
+		<div class="border-t border-border flex-shrink-0 overflow-y-auto">
+			<cv-form-footer />
+		</div>
 	</div>
 </div>

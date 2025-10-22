@@ -1,12 +1,24 @@
 <div class="flex items-center gap-2">
-	<a hlmBtn size="sm" variant="outline" [routerLink]="[]">
+	<button
+		(click)="prevSubmission.emit()"
+		[disabled]="canGoPrevPage()"
+		hlmBtn
+		size="sm"
+		variant="outline"
+	>
 		<ng-icon name="lucideChevronLeft" />
 		<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
-	</a>
-	<a hlmBtn size="sm" variant="outline" [routerLink]="[]">
+	</button>
+	<button
+		(click)="nextSubmission.emit()"
+		[disabled]="canGoNextPage()"
+		hlmBtn
+		size="sm"
+		variant="outline"
+	>
 		<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
 		<ng-icon name="lucideChevronRight" />
-	</a>
+	</button>
 	<hlm-autocomplete
 		[(search)]="indexInputFilter"
 		[filteredOptions]="indexSuggestions.value()"
