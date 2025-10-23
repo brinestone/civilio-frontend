@@ -1,19 +1,18 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-  booleanAttribute,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  forwardRef,
-  inject,
-  input,
-  linkedSignal,
-  output,
-  TemplateRef,
-  viewChild,
+	booleanAttribute,
+	ChangeDetectionStrategy,
+	Component,
+	computed,
+	ElementRef,
+	forwardRef,
+	inject,
+	input,
+	linkedSignal,
+	output,
+	TemplateRef,
+	viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -25,8 +24,6 @@ import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmPopoverContent } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import type { ClassValue } from 'clsx';
-import { derivedFrom } from 'ngxtension/derived-from';
-import { identity, mergeMap, pipe } from 'rxjs';
 import { HlmAutocompleteEmpty } from './hlm-autocomplete-empty';
 import { HlmAutocompleteGroup } from './hlm-autocomplete-group';
 import { HlmAutocompleteItem } from './hlm-autocomplete-item';
@@ -37,38 +34,36 @@ import { HlmAutocompleteTrigger } from './hlm-autocomplete-trigger';
 import { injectHlmAutocompleteConfig } from './hlm-autocomplete.token';
 
 export const HLM_AUTOCOMPLETE_VALUE_ACCESSOR = {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => HlmAutocomplete),
-  multi: true,
+	provide: NG_VALUE_ACCESSOR,
+	useExisting: forwardRef(() => HlmAutocomplete),
+	multi: true,
 };
 
 @Component({
-  selector: 'hlm-autocomplete',
-  imports: [
-    NgTemplateOutlet,
+	selector: 'hlm-autocomplete',
+	imports: [
+		NgTemplateOutlet,
 
-    BrnPopover,
-    BrnPopoverContent,
-    HlmPopoverContent,
+		BrnPopover,
+		BrnPopoverContent,
+		HlmPopoverContent,
 
-    BrnAutocomplete,
-    BrnAutocompleteEmpty,
-    HlmAutocompleteEmpty,
-    HlmAutocompleteGroup,
-    HlmAutocompleteItem,
-    HlmAutocompleteList,
-    HlmAutocompleteSearch,
-    HlmAutocompleteSearchInput,
-    HlmAutocompleteTrigger,
-    NgIcon,
-    HlmIcon,
-  ],
-  providers: [HLM_AUTOCOMPLETE_VALUE_ACCESSOR, provideIcons({ lucideSearch, lucideChevronDown })],
-  template: `
-		@if(readonly()) {
-      {{ _value() }}
-    } @else {
-      <brn-popover
+		BrnAutocomplete,
+		BrnAutocompleteEmpty,
+		HlmAutocompleteEmpty,
+		HlmAutocompleteGroup,
+		HlmAutocompleteItem,
+		HlmAutocompleteList,
+		HlmAutocompleteSearch,
+		HlmAutocompleteSearchInput,
+		HlmAutocompleteTrigger,
+
+		NgIcon,
+		HlmIcon,
+	],
+	providers: [HLM_AUTOCOMPLETE_VALUE_ACCESSOR, provideIcons({ lucideSearch, lucideChevronDown })],
+	template: `
+		<brn-popover
 			#popover
 			align="start"
 			autoFocus="first-heading"
@@ -137,174 +132,155 @@ export const HLM_AUTOCOMPLETE_VALUE_ACCESSOR = {
 				</div>
 			</div>
 		</brn-popover>
-    }
 	`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[class]': '_computedClass()',
-  },
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	host: {
+		'[class]': '_computedClass()',
+	},
 })
 export class HlmAutocomplete<T> implements ControlValueAccessor {
-  private static _id = 0;
-  private readonly _config = injectHlmAutocompleteConfig<T>();
+	private static _id = 0;
+	private readonly _config = injectHlmAutocompleteConfig<T>();
 
-  private readonly _brnPopover = viewChild.required(BrnPopover);
-  private readonly _inputRef = viewChild.required('input', { read: ElementRef });
+	private readonly _brnPopover = viewChild.required(BrnPopover);
+	private readonly _inputRef = viewChild.required('input', { read: ElementRef });
 
-  protected readonly _elementRef = inject(ElementRef<HTMLElement>);
+	protected readonly _elementRef = inject(ElementRef<HTMLElement>);
 
-  /** The control is readonly */
-  public readonly readonly = input<boolean>();
-  protected readonly _readonly = linkedSignal(() => this.readonly() ?? false);
+	/** The user defined class  */
+	public readonly userClass = input<ClassValue>('', { alias: 'class' });
+	protected readonly _computedClass = computed(() => hlm('block w-full', this.userClass()));
 
-  /** The user defined class  */
-  public readonly userClass = input<ClassValue>('', { alias: 'class' });
-  protected readonly _computedClass = computed(() => hlm('block w-full', this.userClass()));
+	/** Custom class for the autocomplete list. */
+	public readonly autocompleteListClass = input<ClassValue>('');
+	protected readonly _computedAutocompleteListClass = computed(() => hlm('', this.autocompleteListClass()));
 
-  /** Custom class for the autocomplete list. */
-  public readonly autocompleteListClass = input<ClassValue>('');
-  protected readonly _computedAutocompleteListClass = computed(() => hlm('', this.autocompleteListClass()));
+	/** Custom class for the empty and loading state container. */
+	public readonly autocompleteEmptyClass = input<ClassValue>('');
+	protected readonly _computedAutocompleteEmptyClass = computed(() => hlm('', this.autocompleteEmptyClass()));
 
-  /** Custom class for the empty and loading state container. */
-  public readonly autocompleteEmptyClass = input<ClassValue>('');
-  protected readonly _computedAutocompleteEmptyClass = computed(() => hlm('', this.autocompleteEmptyClass()));
+	/** The list of filtered options to display in the autocomplete. */
+	public readonly filteredOptions = input<T[]>([]);
 
-  /** The list of filtered options to display in the autocomplete. */
-  public readonly filteredOptions = input<T[]>([]);
+	/** The selected value. */
+	public readonly value = input<T>();
+	protected readonly _value = linkedSignal(() => this.value());
 
-  /** The selected value. */
-  public readonly value = input<T>();
-  protected readonly _value = linkedSignal(() => this.value());
+	/** The search query. */
+	public readonly search = input<string>();
+	protected readonly _search = linkedSignal(() => this.search() || '');
 
-  /** The search query. */
-  public readonly search = input<string>();
-  protected readonly _search = linkedSignal(() => this.search() || '');
+	/** Function to transform an option value to a search string. Defaults to identity function for strings. */
+	public readonly transformValueToSearch = input<(value: T) => string>(this._config.transformValueToSearch);
 
-  /** Function to transform an option value to a search string. Defaults to identity function for strings. */
-  public readonly transformValueToSearch = input<(value: T) => string>(this._config.transformValueToSearch);
+	/** Optional template for rendering each option. */
+	public readonly optionTemplate = input<TemplateRef<HlmAutocompleteOption<T>>>();
 
-  /** Optional template for rendering each option. */
-  public readonly optionTemplate = input<TemplateRef<HlmAutocompleteOption<T>>>();
+	/** Whether the autocomplete is in a loading state. */
+	public readonly loading = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 
-  /** Whether the autocomplete is in a loading state. */
-  public readonly loading = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	/** Placeholder text for the input field. */
+	public readonly searchPlaceholderText = input('Select an option');
 
-  /** Placeholder text for the input field. */
-  public readonly searchPlaceholderText = input('Select an option');
+	/** Text to display when loading options. */
+	public readonly loadingText = input('Loading options...');
 
-  /** Text to display when loading options. */
-  public readonly loadingText = input('Loading options...');
+	/** Text to display when no options are found. */
+	public readonly emptyText = input('No options found');
 
-  /** Text to display when no options are found. */
-  public readonly emptyText = input('No options found');
+	/** Aria label for the toggle button. */
+	public readonly ariaLabelToggleButton = input<string>('Toggle options');
 
-  /** Aria label for the toggle button. */
-  public readonly ariaLabelToggleButton = input<string>('Toggle options');
+	/** The id of the input field. */
+	public readonly inputId = input<string>(`hlm-autocomplete-input-${++HlmAutocomplete._id}`);
 
-  /** The id of the input field. */
-  public readonly inputId = input<string>(`hlm-autocomplete-input-${++HlmAutocomplete._id}`);
+	/** Whether the autocomplete is disabled. */
+	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	protected readonly _disabled = linkedSignal(() => this.disabled());
 
-  /** Whether the autocomplete is disabled. */
-  public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
-  protected readonly _disabled = linkedSignal(() => this.disabled());
+	/** Emitted when the selected value changes. */
+	public readonly valueChange = output<T | null>();
 
-  /** Emitted when the selected value changes. */
-  public readonly valueChange = output<T | null>();
+	/** Emitted when the search query changes. */
+	public readonly searchChange = output<string>();
 
-  /** Emitted when the search query changes. */
-  public readonly searchChange = output<string>();
+	protected _onChange?: ChangeFn<T | null>;
+	protected _onTouched?: TouchFn;
 
-  private readonly actualValue = derivedFrom([this._search, this._value], pipe(
-    mergeMap(identity)
-  ));
+	protected _setPopoverState(state: 'open' | 'closed') {
+		if (state === 'open') {
+			this._brnPopover().open();
+		} else {
+			this._brnPopover().close();
+		}
+	}
 
-  /** Emits with the value of either the search or the selected value */
-  public readonly actualValueChange = output<string | T | undefined>();
+	protected _openPopover() {
+		if (this._search() || this.filteredOptions().length > 0) {
+			// only open if there's a search term or options to show
+			this._brnPopover().open();
+		}
+	}
 
-  protected _onChange?: ChangeFn<T | null>;
-  protected _onTouched?: TouchFn;
+	protected _toggleOptions() {
+		if (this._search() || this.filteredOptions().length > 0) {
+			// only toggle if there's a search term or options to show
+			const state = this._brnPopover().stateComputed();
+			this._setPopoverState(state === 'open' ? 'closed' : 'open');
+		}
 
-  protected _setPopoverState(state: 'open' | 'closed') {
-    if (state === 'open') {
-      this._brnPopover().open();
-    } else {
-      this._brnPopover().close();
-    }
-  }
+		this._inputRef().nativeElement.focus();
+	}
 
-  protected _openPopover() {
-    if (this._search() || this.filteredOptions().length > 0) {
-      // only open if there's a search term or options to show
-      this._brnPopover().open();
-    }
-  }
+	protected _onSearchChanged(event: Event) {
+		const input = event.target as HTMLInputElement;
+		this._search.set(input.value);
+		this.searchChange.emit(input.value);
 
-  protected _toggleOptions() {
-    if (this._search() || this.filteredOptions().length > 0) {
-      // only toggle if there's a search term or options to show
-      const state = this._brnPopover().stateComputed();
-      this._setPopoverState(state === 'open' ? 'closed' : 'open');
-    }
+		this._clearOption();
 
-    this._inputRef().nativeElement.focus();
-  }
+		if (this._brnPopover().stateComputed() !== 'open' && input.value.length > 0) {
+			this._setPopoverState('open');
+		}
+	}
 
-  protected _onSearchChanged(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this._search.set(input.value);
-    this.searchChange.emit(input.value);
+	protected _clearOption() {
+		this._value.set(undefined);
+		this._onChange?.(null);
+		this.valueChange.emit(null);
+	}
 
-    this._clearOption();
+	protected _optionSelected(option: T) {
+		this._value.set(option);
+		this._onChange?.(option);
+		this.valueChange.emit(option);
 
-    if (this._brnPopover().stateComputed() !== 'open' && input.value.length > 0) {
-      this._setPopoverState('open');
-    }
-  }
+		const searchValue = this.transformValueToSearch()(option);
 
-  protected _clearOption() {
-    this._value.set(undefined);
-    this._onChange?.(null);
-    this.valueChange.emit(null);
-  }
+		this._search.set(searchValue);
+		this.searchChange.emit(searchValue);
 
-  protected _optionSelected(option: T) {
-    this._value.set(option);
-    this._onChange?.(option);
-    this.valueChange.emit(option);
+		this._setPopoverState('closed');
+	}
 
-    const searchValue = this.transformValueToSearch()(option);
+	/** CONTROL VALUE ACCESSOR */
+	public writeValue(value: T | null): void {
+		this._value.set(value ? value : undefined);
+	}
 
-    this._search.set(searchValue);
-    this.searchChange.emit(searchValue);
+	public registerOnChange(fn: ChangeFn<T | null>): void {
+		this._onChange = fn;
+	}
 
-    this._setPopoverState('closed');
-  }
+	public registerOnTouched(fn: TouchFn): void {
+		this._onTouched = fn;
+	}
 
-  /** CONTROL VALUE ACCESSOR */
-  public writeValue(value: T | null): void {
-    this._value.set(value ? value : undefined);
-  }
-
-  public registerOnChange(fn: ChangeFn<T | null>): void {
-    this._onChange = fn;
-  }
-
-  public registerOnTouched(fn: TouchFn): void {
-    this._onTouched = fn;
-  }
-
-  public setDisabledState(isDisabled: boolean): void {
-    this._disabled.set(isDisabled);
-  }
-
-  constructor() {
-    effect(() => {
-      this.actualValueChange.emit(this.actualValue());
-    });
-
-  }
+	public setDisabledState(isDisabled: boolean): void {
+		this._disabled.set(isDisabled);
+	}
 }
 
 interface HlmAutocompleteOption<T> {
-  $implicit: T;
+	$implicit: T;
 }
