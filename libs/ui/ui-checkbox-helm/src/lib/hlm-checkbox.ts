@@ -44,7 +44,7 @@ export const HLM_CHECKBOX_VALUE_ACCESSOR = {
 		>
 			@if (checked()) {
 				<span class="flex items-center justify-center text-current transition-none">
-					<ng-icon hlm size="14px" name="lucideCheck" />
+					<ng-icon hlm size="11px" name="lucideCheck" />
 				</span>
 			}
 		</brn-checkbox>

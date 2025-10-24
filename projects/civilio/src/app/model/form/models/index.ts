@@ -1,11 +1,102 @@
+import { ValidatorFn, Validators } from '@angular/forms';
 import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
-import { formatISO } from 'date-fns';
+import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
 import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
 
 export * from './chiefdom';
 export * from './csc';
 export * from './fosa';
+
+export function extractValidators(schema: FieldSchema) {
+	const validators: ValidatorFn[] = [];
+
+	if ('required' in schema && !schema.relevance) {
+		validators.push(Validators.required);
+	}
+
+	if (schema.type == 'text') {
+		if (schema.validValues) {
+			validators.push(c => {
+				const value = c.value;
+				if (!value) return null;
+
+				return schema.validValues?.includes(String(value).trim()) ? null : {
+					invalidValue: {
+						validValues: schema.validValues,
+					}
+				};
+			});
+		}
+
+		if (schema.pattern) {
+			const regex = new RegExp(schema.pattern);
+			validators.push(Validators.pattern(regex));
+		}
+	}
+
+	if (schema.type == 'date') {
+		const dateValidationSchema = z.union([z.iso.date(), z.date()]);
+		if (schema.max) {
+			validators.push(c => {
+				if (!c.value) return null;
+				const { success, data: rawDate } = dateValidationSchema.safeParse(c.value);
+				if (!success) {
+					return { invalidDate: 'Invalid date value' };
+				}
+
+				const maxDate = toDate(schema.max as string | number);
+				return isAfter(toDate(rawDate), maxDate) ? { maxDate } : null;
+			})
+		}
+
+		if (schema.min) {
+			validators.push(c => {
+				if (!c.value) return null;
+
+				const { success, data: rawDate } = dateValidationSchema.safeParse(c.value);
+				if (!success) {
+					return { date: 'Invalid date value' };
+				}
+
+				const minDate = toDate(schema.min as string | number);
+				return isBefore(toDate(rawDate), minDate) ? { minDate } : null;
+			})
+		}
+	}
+
+	if (schema.type == 'int' || schema.type == 'float') {
+		if (schema.type == 'int') {
+			validators.push(control => {
+				if (!control.value) return null;
+				const stringValue = String(control.value ?? '').trim();
+
+				if (!stringValue) return null;
+				return z.coerce.number().int().safeParse(stringValue).success ? null : { int: true };
+			})
+		}
+		if (schema.min) {
+			validators.push(Validators.min(schema.min));
+		}
+
+		if (schema.max) {
+			validators.push(Validators.max(schema.max));
+		}
+	}
+	if (schema.validate) {
+		validators.push(c => {
+			const stringValue = z.string().nullable().optional().parse(c.value);
+			if (!stringValue) {
+				return null;
+			}
+
+			const msg = schema.validate!(stringValue);
+			return msg ? { predicateFailed: msg } : null;
+		});
+	}
+
+	return validators;
+}
 
 export function flattenSections(schema: FormSchema) {
 	return schema.sections.flatMap(s => {

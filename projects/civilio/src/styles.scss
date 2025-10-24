@@ -106,7 +106,7 @@ hlm-option {
 	}
 
 	& > .page-section > .section-title {
-		@apply text-xl font-bold text-[var(--muted-foreground)];
+		@apply text-xl font-bold text-(--muted-foreground);
 	}
 
 	& > .page-section {

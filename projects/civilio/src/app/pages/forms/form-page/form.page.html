@@ -4,8 +4,8 @@
 		[formType]="formType()"
 		[formSchema]="formModel()"
 		(indexJump)="onIndexJump($event)"
-		[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.hasValue() && neighboringRefs.value()?.[1] !== null"
-		[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.hasValue() && neighboringRefs.value()?.[0] !== null"
+		[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] !== null"
+		[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] !== null"
 		(nextSubmission)="onNextSubmissionRequested()"
 		(prevSubmission)="onPrevSubmissionRequested()"
 	/>
@@ -20,7 +20,9 @@
 				<a [routerLink]="[section.id]" routerLinkActive="active">
 					<p>{{ section.id + '.title' | translate }}</p>
 					@if(sectionValidity()[section.id] == 'INVALID') {
-					<ng-icon name="lucideCircleAlert" class="!text-red-500" />
+					<span hlmBadge variant="destructive" class="uppercase"
+						>{{sectionValidity()[section.id]}}</span
+					>
 					}
 				</a>
 			</li>
@@ -31,7 +33,7 @@
 		<div class="overflow-y-auto">
 			<router-outlet />
 		</div>
-		<div class="border-t border-border flex-shrink-0 overflow-y-auto">
+		<div class="border-t border-border shrink-0 overflow-y-auto">
 			<cv-form-footer />
 		</div>
 	</div>

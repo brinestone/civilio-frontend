@@ -20,7 +20,7 @@ import {
 import { FormFooterComponent, FormHeaderComponent } from "@app/components/form";
 import { FormSchema, HasPendingChanges } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
-import { ActivateForm, LoadOptions, LoadSubmissionData } from "@app/store/form";
+import { ActivateForm, LoadOptions, LoadSubmissionData, UpdateMappings } from "@app/store/form";
 import { relevanceRegistry, sectionValidity } from "@app/store/selectors";
 import { isActionLoading } from "@app/util";
 import { FormType } from "@civilio/shared";
@@ -30,11 +30,12 @@ import {
 } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
-import { dispatch, select } from "@ngxs/store";
+import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
 import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher,
 } from "@spartan-ng/brain/forms";
+import { HlmBadge } from "@spartan-ng/helm/badge";
 import { last } from "lodash";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable } from "rxjs";
@@ -49,12 +50,12 @@ import { concatMap, filter, map, Observable } from "rxjs";
 	],
 	imports: [
 		TranslatePipe,
-		NgIcon,
 		RouterLink,
 		RouterOutlet,
 		FormFooterComponent,
 		FormHeaderComponent,
 		RouterLinkActive,
+		HlmBadge
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -89,7 +90,14 @@ export class FormPage implements AfterViewInit, HasPendingChanges, OnInit {
 			if (index === null) return null;
 			return await this.formService.findSurroundingSubmissionRefs(form, Number(index));
 		}
-	})
+	});
+
+	constructor(actions$: Actions) {
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(UpdateMappings)
+		).subscribe(() => this.loadData(this.formType(), this.submissionIndex()));
+	}
 
 	ngAfterViewInit(): void { }
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {

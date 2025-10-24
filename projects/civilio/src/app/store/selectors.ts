@@ -1,8 +1,8 @@
 import { FormSectionKey, FormType } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
+import { entries } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { FORM_STATE } from "./form";
-import { entries, toPlainObject } from "lodash";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);
@@ -31,12 +31,16 @@ export function dbColumnsFor(form: FormType) {
 	})
 }
 
+export function sectionValue(section: string) {
+	return createSelector([formSlices.activeSections], sections => {
+		return sections[section]?.model ?? {};
+	})
+}
+
 export function rawData(section: FormSectionKey) {
 	return createSelector([formSlices.rawData], data => {
-		const selectedEntries = entries(data?.[section] ?? {}).filter(([k]) => k.startsWith(section));
-		const result = Object.fromEntries(selectedEntries);
-		debugger;
-		return result;
+		const selectedEntries = entries(data ?? {}).filter(([k]) => k.startsWith(section));
+		return Object.fromEntries(selectedEntries);
 	})
 }
 export const sectionValidity = createSelector([formSlices.activeSections], sections => {

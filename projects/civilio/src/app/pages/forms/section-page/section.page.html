@@ -4,8 +4,25 @@
 @defer(when !!formType() && !!schema()) {
 <form
 	[formGroup]="form"
-	ngxsForm="form.activeSections.{{id() | replace:'.':'_'}}"
+	[ngxsForm]="formPath()"
+	[ngxsFormClearOnDestroy]="true"
+	class="grid grid-cols-[1fr_1fr] gap-3 px-2"
 >
-
+	@for(field of schema()?.fields ?? []; track $index) {
+	<ng-container>
+		@let shouldShow = relevanceRegistry()[field.key] &&
+		form.contains(field.key);
+		<ng-container>
+			@if(shouldShow) { @let parentValue = rawData()[$any(field).parent];
+			<cv-field
+				[schema]="field"
+				[formControlName]="field.key"
+				[options]="formOptions()"
+				[parentValue]="parentValue"
+			/>
+			}
+		</ng-container>
+	</ng-container>
+	}
 </form>
 }

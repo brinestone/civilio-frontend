@@ -1,14 +1,16 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
 import { ValidationErrors } from "@angular/forms";
-import { DefinitionLike, extractAllFields, flattenSections, FormSchema, lookupFieldSchema, ParsedValue, parseValue, RawValue, RelevanceDefinition } from "@app/model/form";
+import { DefinitionLike, extractAllFields, FieldSchema, flattenSections, FormSchema, lookupFieldSchema, ParsedValue, parseValue, RawValue, RelevanceDefinition } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import {
 	FieldKey,
 	FieldMapping,
 	FindDbColumnsResponse,
 	FindFormOptionsResponse,
+	FindSubmissionDataResponse,
 	FormSectionKey,
 	FormType,
+	toRowMajor,
 } from "@civilio/shared";
 import { UpdateFormValue } from "@ngxs/form-plugin";
 import {
@@ -31,7 +33,7 @@ import {
 	UpdateMappings,
 	UpdateRelevance
 } from "./actions";
-import { keys, values } from "lodash";
+import { keys, last, values } from "lodash";
 export * from "./actions";
 export type SectionForm = {
 	model: Record<string, ParsedValue | ParsedValue[]>;
@@ -45,13 +47,35 @@ type FormStateModel = {
 	options?: Record<FormType, FindFormOptionsResponse>;
 	columns?: Record<FormType, FindDbColumnsResponse>;
 	lastFocusedFormType: FormType;
-	rawData?: Record<string, string | (string | null)[] | null>,
+	rawData?: Record<string, ParsedValue[] | ParsedValue | Record<string, ParsedValue[] | ParsedValue | null>[] | null>,
 	schemas: Record<string, FormSchema>,
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
 };
 export const FORM_STATE = new StateToken<FormStateModel>("form");
 type Context = StateContext<FormStateModel>;
+
+function computeRelevance(
+	rawValueSupplier: (k: string) => ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[] | null,
+	formValueSupplier: (k: string) => ParsedValue | ParsedValue[],
+	formSchema: FormSchema,
+	definition?: RelevanceDefinition
+) {
+	if (!definition) {
+		return true;
+	}
+
+	const { dependencies, predicate } = definition;
+	const deps = dependencies.reduce((acc, curr) => {
+		const _schema = lookupFieldSchema(curr, formSchema);
+		if (!_schema) return acc;
+		const formValue = formValueSupplier(curr);
+		const pristineValue = rawValueSupplier(curr);
+		return { ...acc, [curr]: formValue ?? pristineValue };
+	}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
+
+	return predicate(deps as any);
+}
 
 @Injectable()
 @State({
@@ -81,7 +105,7 @@ class FormState {
 			sections = sections.filter(s => s.relevance && s.relevance.dependencies.includes(affectedField));
 		}
 		for (const field of fields) {
-			const isRelevant = this.computeRelevance(
+			const isRelevant = computeRelevance(
 				rawValueSupplier,
 				formValuesupplier,
 				formSchema,
@@ -95,7 +119,7 @@ class FormState {
 		}
 
 		for (const section of sections) {
-			const isRelevant = this.computeRelevance(
+			const isRelevant = computeRelevance(
 				rawValueSupplier,
 				formValuesupplier,
 				formSchema,
@@ -109,30 +133,7 @@ class FormState {
 		}
 	}
 
-	private computeRelevance(
-		rawValueSupplier: (k: string) => string | (string | null)[] | null,
-		formValueSupplier: (k: string) => ParsedValue | ParsedValue[],
-		formSchema: FormSchema,
-		definition?: RelevanceDefinition
-	) {
-		if (!definition) {
-			return true;
-		}
-
-		const { dependencies, predicate } = definition;
-		const deps = dependencies.reduce((acc, curr) => {
-			const _schema = lookupFieldSchema(curr, formSchema);
-			if (!_schema) return acc;
-			// values(activeSections).find(({ model }) => keys(model).includes(curr))?.model[curr]
-			const formValue = formValueSupplier(curr);
-			const pristineValue = parseValue(_schema, rawValueSupplier(curr));
-			return { ...acc, [curr]: formValue ?? pristineValue };
-		}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
-
-		return predicate(deps as any);
-	}
-
-	@Action(UpdateFormValue)
+	@Action(UpdateFormValue, { cancelUncompleted: true })
 	onUpdateFormValue(ctx: Context, { payload: { path, propertyPath } }: UpdateFormValue) {
 		const [form] = path.substring(20).split('_', 2);
 		const sectionKey = path.substring(20).replaceAll('_', '.') as FormSectionKey;
@@ -150,17 +151,49 @@ class FormState {
 
 	@Action(LoadSubmissionData)
 	onLoadSubmissionData(ctx: Context, { form, index }: LoadSubmissionData) {
+		const schema = ctx.getState().schemas[form];
 		return from(this.formService.findSubmissionData(form, Number(index))).pipe(
 			tap(data => {
 				if (!data) return;
 				ctx.setState(patch({
 					rawData: patch({
-						...data
+						...this.parseRawData(schema, data)
 					})
 				}));
 				ctx.dispatch(new UpdateRelevance(form));
 			})
 		)
+	}
+
+	private extractSubFormData(schema: Extract<FieldSchema, { type: 'table' }>, rawData: Record<string, string | (string | null)[] | null> | null) {
+		if (!rawData) return [];
+
+		const transformFn = (k: string, value: unknown) => {
+			const lastPart = last(k.split('.')) as string;
+			const columnDefinition = schema.columns[lastPart];
+			return parseValue(columnDefinition, value as RawValue);
+		}
+
+		const temp: Record<string, unknown[]> = {};
+		for (const [k, v] of Object.entries(rawData)) {
+			if (!k.startsWith(schema.key)) continue;
+			temp[k] = v as unknown[];
+		}
+
+		return toRowMajor(temp, transformFn);
+	}
+
+	private parseRawData(formSchema: FormSchema, data: FindSubmissionDataResponse) {
+		const fields = extractAllFields(formSchema);
+		const result: Record<string, ParsedValue[] | ParsedValue | Record<string, ParsedValue[] | ParsedValue | null>[] | null> = {};
+		for (const field of fields) {
+			if (field.type !== 'table') {
+				result[field.key] = parseValue(field, data?.[field.key] ?? null);
+			} else {
+				result[field.key] = this.extractSubFormData(field, data);
+			}
+		}
+		return result;
 	}
 
 	@Action(RemoveMapping)
