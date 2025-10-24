@@ -1,3 +1,4 @@
+import { DecimalPipe } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -15,12 +16,14 @@ import {
 import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
 import { extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
+import { JoinArrayPipe } from "@app/pipes";
 import { LoadOptions, LoadSubmissionData, UpdateRelevance } from "@app/store/form";
 import { optionsSelector, rawData, relevanceRegistry, sectionValue } from "@app/store/selectors";
 import { FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
 import { NgxsFormDirective, UpdateFormValue } from "@ngxs/form-plugin";
 import { Actions, ofActionSuccessful, select, Store } from "@ngxs/store";
+import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher } from "@spartan-ng/brain/forms";
 import { first, keys } from "lodash";
 import { createNotifier } from "ngxtension/create-notifier";
 import { derivedFrom } from "ngxtension/derived-from";
@@ -31,11 +34,17 @@ const ID_CHANGED_LOCK = 'id-changed';
 @Component({
 	selector: "cv-section-page",
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	providers: [
+		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
+
+	],
 	imports: [
 		ReactiveFormsModule,
 		NgxsFormDirective,
 		FieldComponent,
+		JoinArrayPipe,
 		TranslatePipe,
+		DecimalPipe
 	],
 	templateUrl: "./section.page.html",
 	styleUrl: "./section.page.scss",
@@ -130,23 +139,11 @@ export class SectionPage {
 			if (locks.held?.find(lock => lock.name == ID_CHANGED_LOCK)) return;
 			this.refreshControls();
 		});
-
-
-		// effect(() => {
-		// 	console.log('section id = ', this.id());
-		// 	this.clearAllControls();
-		// 	setTimeout(() => {
-		// 		this.refreshControls();
-		// 		this.form.updateValueAndValidity();
-		// 		this.cdr.markForCheck();
-		// 		this.idChangedNotifier.notify();
-		// 	}, 20);
-		// })
 	}
 
 
 	private addFieldControl(field: FieldSchema) {
-		const initialValue = this.rawData()[field.key];
+		const initialValue = this.formValue()[field.key] ?? this.rawData()[field.key];
 		const control = new UntypedFormControl(initialValue);
 		this.form.addControl(field.key, control, { emitEvent: false });
 

@@ -13,13 +13,66 @@
 		@let shouldShow = relevanceRegistry()[field.key] &&
 		form.contains(field.key);
 		<ng-container>
-			@if(shouldShow) { @let parentValue = rawData()[$any(field).parent];
-			<cv-field
-				[schema]="field"
-				[formControlName]="field.key"
-				[options]="formOptions()"
-				[parentValue]="parentValue"
-			/>
+			@if(shouldShow) {
+			<ng-container>
+				@let parentValue = rawData()[$any(field).parent];
+			</ng-container>
+			<div class="space-y-1">
+				<cv-field
+					[schema]="field"
+					[formControlName]="field.key"
+					[options]="formOptions()"
+					[parentValue]="parentValue"
+				/>
+				@let control = form.controls[field.key]; @if(control.invalid) {
+				<small class="text-red-500 block text-sm">
+					@if(control.hasError('required')) {
+					<ng-container>
+						{{ 'validation.msg.field_required' | translate }}
+					</ng-container>
+					}@else if (control.hasError('invalidValue')) {
+					<ng-container>
+						{{ 'validation.msg.value_unsupported' | translate:{validValues:
+						control.getError('invalidValue').validValues | join} }}
+					</ng-container>
+					} @else if (control.hasError('pattern') || control.hasError('int')) {
+					<ng-container>
+						{{ 'validation.msg.pattern_mismatch' | translate }}
+					</ng-container>
+					} @else if (control.hasError('minDate')) {
+					<ng-container>
+						{{ 'validation.msg.min_date' | translate: {minDate:
+						control.getError('minDate')} }}
+					</ng-container>
+					}@else if (control.hasError('maxDate')) {
+					<ng-container>
+						{{'validation.msg.max_date' | translate: {maxDate:
+						control.getError('maxDate')} }}
+					</ng-container>
+					} @else if (control.hasError('invalidDate')) {
+					<ng-container>
+						{{'validation.msg.invalid_date' | translate}}
+					</ng-container>
+					}@else if (control.hasError('min')) {
+					<ng-container>
+						@let meta = { min:control.getError('min').min | number, suffix:
+						$any(field).unit ?? '' | translate };
+					</ng-container>
+					<ng-container>
+						{{ 'validation.msg.min' | translate:meta }}
+					</ng-container>
+					} @else if (control.hasError('max')) {
+					<ng-container>
+						@let meta = { max:control.getError('max').max | number, suffix:
+						$any(field).unit ?? '' | translate };
+					</ng-container>
+					<ng-container>
+						{{ 'validation.msg.max' | translate:meta }}
+					</ng-container>
+					}
+				</small>
+				}
+			</div>
 			}
 		</ng-container>
 	</ng-container>

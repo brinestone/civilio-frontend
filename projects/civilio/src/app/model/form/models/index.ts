@@ -1,5 +1,5 @@
 import { ValidatorFn, Validators } from '@angular/forms';
-import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
+import { FieldKey, FormSectionKey, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
 import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
@@ -96,6 +96,10 @@ export function extractValidators(schema: FieldSchema) {
 	}
 
 	return validators;
+}
+
+export function flattenKey(key: FormSectionKey | FieldKey) {
+	return key.replaceAll('.', '_');
 }
 
 export function flattenSections(schema: FormSchema) {

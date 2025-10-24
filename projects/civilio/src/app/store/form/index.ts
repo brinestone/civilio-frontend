@@ -1,6 +1,6 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
-import { ValidationErrors } from "@angular/forms";
-import { DefinitionLike, extractAllFields, FieldSchema, flattenSections, FormSchema, lookupFieldSchema, ParsedValue, parseValue, RawValue, RelevanceDefinition } from "@app/model/form";
+import { FormRecord, UntypedFormControl, ValidationErrors } from "@angular/forms";
+import { DefinitionLike, extractAllFields, extractValidators, FieldSchema, flattenKey, flattenSections, FormSchema, lookupFieldSchema, ParsedValue, parseValue, RawValue, RelevanceDefinition } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import {
 	FieldKey,
@@ -12,7 +12,7 @@ import {
 	FormType,
 	toRowMajor,
 } from "@civilio/shared";
-import { UpdateFormValue } from "@ngxs/form-plugin";
+import { UpdateFormErrors, UpdateFormStatus, UpdateFormValue } from "@ngxs/form-plugin";
 import {
 	Action,
 	provideStates,
@@ -31,15 +31,16 @@ import {
 	RemoveMapping,
 	SetFormType,
 	UpdateMappings,
-	UpdateRelevance
+	UpdateRelevance,
+	UpdateValidity
 } from "./actions";
 import { keys, last, values } from "lodash";
 export * from "./actions";
 export type SectionForm = {
 	model: Record<string, ParsedValue | ParsedValue[]>;
 	dirty: boolean;
-	status: "INVALID" | "VALID";
-	errors: Record<string, ValidationErrors>;
+	status: "INVALID" | "VALID" | 'PENDING' | 'DISABLED';
+	errors: ValidationErrors | null;
 };
 
 type FormStateModel = {
@@ -77,6 +78,10 @@ function computeRelevance(
 	return predicate(deps as any);
 }
 
+function computeForSectionFlatKey(k: FormSectionKey) {
+	return `${FORM_STATE.getName()}.activeSections.${flattenKey(k)}`;
+}
+
 @Injectable()
 @State({
 	name: FORM_STATE,
@@ -89,6 +94,48 @@ function computeRelevance(
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(UpdateValidity, { cancelUncompleted: true })
+	onUpdateValidity(ctx: Context, { form }: UpdateValidity) {
+		const { schemas, relevanceRegistry, activeSections } = ctx.getState();
+		const formSchema = schemas[form];
+		const sections = flattenSections(formSchema);
+
+		const batchedEvents = Array<any>();
+		for (const section of sections) {
+			const isRelevant = relevanceRegistry[section.id];
+			const formKey = computeForSectionFlatKey(section.id);
+			const form = activeSections[flattenKey(section.id)];
+			if (!isRelevant || !form) continue;
+
+			const group = new FormRecord<UntypedFormControl>({});
+			for (const field of section.fields) {
+				const isRelevant = relevanceRegistry[field.key];
+				if (!isRelevant) continue;
+
+				const value = form.model[field.key];
+				const tempControl = new UntypedFormControl(value);
+				tempControl.addValidators(extractValidators(field));
+				group.addControl(field.key, tempControl);
+			}
+
+			group.updateValueAndValidity();
+			form.status = group.status;
+			form.errors = group.errors;
+
+			batchedEvents.push(...[
+				new UpdateFormStatus({
+					path: formKey,
+					status: group.status
+				}), new UpdateFormErrors({
+					path: formKey,
+					errors: group.errors
+				})
+			])
+		}
+
+		ctx.dispatch(batchedEvents);
+	}
 
 	@Action(UpdateRelevance, { cancelUncompleted: true })
 	onUpdateRelevance(ctx: Context, { form, field: affectedField }: UpdateRelevance) {
@@ -137,15 +184,26 @@ class FormState {
 	onUpdateFormValue(ctx: Context, { payload: { path, propertyPath } }: UpdateFormValue) {
 		const [form] = path.substring(20).split('_', 2);
 		const sectionKey = path.substring(20).replaceAll('_', '.') as FormSectionKey;
-		ctx.dispatch(new UpdateRelevance(form as FormType, sectionKey, propertyPath as FieldKey | undefined));
+		ctx.dispatch([
+			new UpdateRelevance(form as FormType, sectionKey, propertyPath as FieldKey | undefined),
+		]);
 	}
 
 	@Action(ActivateForm)
 	onActivateForm(ctx: Context, { schema }: ActivateForm) {
+		const sections = flattenSections(schema);
 		ctx.setState(patch({
 			schemas: patch({
 				[schema.meta.form]: schema
-			})
+			}),
+			activeSections: sections.reduce((acc, curr) => ({
+				...acc, [curr.id.replaceAll('.', '_')]: {
+					model: {},
+					status: 'VALID',
+					errors: {},
+					dirty: false
+				}
+			}), {})
 		}))
 	}
 
@@ -155,12 +213,22 @@ class FormState {
 		return from(this.formService.findSubmissionData(form, Number(index))).pipe(
 			tap(data => {
 				if (!data) return;
+				const parsedData = this.parseRawData(schema, data);
 				ctx.setState(patch({
 					rawData: patch({
-						...this.parseRawData(schema, data)
+						...parsedData
 					})
 				}));
-				ctx.dispatch(new UpdateRelevance(form));
+				const sections = flattenSections(schema);
+				for (const section of sections) {
+					const formKey = computeForSectionFlatKey(section.id);
+					const formData = section.fields.reduce((acc, curr) => ({ ...acc, [curr.key]: parsedData[curr.key] }), {} as typeof parsedData);
+					ctx.dispatch(new UpdateFormValue({ path: formKey, value: formData }));
+				}
+				ctx.dispatch([
+					new UpdateRelevance(form),
+					new UpdateValidity(form as FormType)
+				]);
 			})
 		)
 	}

@@ -43,7 +43,6 @@ import { concatMap, filter, map, Observable } from "rxjs";
 @Component({
 	selector: "cv-form-page",
 	viewProviders: [
-		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
 		provideIcons({
 			lucideCircleAlert,
 		}),

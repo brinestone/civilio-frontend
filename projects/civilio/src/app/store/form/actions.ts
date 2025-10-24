@@ -18,6 +18,11 @@ export class LoadSubmissionData {
 	constructor(readonly form: FormType, readonly index: number | string) { }
 }
 
+export class UpdateValidity {
+	static type = `${prefix} Update validity`;
+	constructor(readonly form: FormType) { }
+}
+
 export class UpdateRelevance {
 	static type = `${prefix} Update relevance`;
 	constructor(
