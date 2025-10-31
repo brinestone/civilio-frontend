@@ -1,13 +1,16 @@
+import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { Component, effect, ElementRef, forwardRef, linkedSignal, model, resource, signal, viewChild } from '@angular/core';
+import { booleanAttribute, Component, computed, effect, ElementRef, input, linkedSignal, model, output, resource, untracked, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { sendRpcMessageAsync } from '@app/util';
 import { GeoPoint, GeopointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleAlert } from '@ng-icons/lucide';
-import { Control, control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, TileLayer, tileLayer } from 'leaflet';
-import { fromEvent, merge } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
+import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
+import { createNotifier } from 'ngxtension/create-notifier';
+import { distinctUntilChanged, fromEvent, merge } from 'rxjs';
+import { injectNetwork } from 'ngxtension/inject-network'
 
 @Component({
 	selector: 'cv-geo-point',
@@ -16,29 +19,30 @@ import { fromEvent, merge } from 'rxjs';
 			lucideCircleAlert
 		})
 	],
-	providers: [
-		{ multi: true, provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => GeoPointComponent) }
-	],
 	imports: [
 		DecimalPipe,
+		TranslatePipe,
 		NgIcon
 	],
 	templateUrl: './geo-point.component.html',
 	styleUrl: './geo-point.component.scss'
 })
-export class GeoPointComponent implements ControlValueAccessor {
+export class GeoPointComponent {
+	public readonly value = model<GeoPoint>();
+	public readonly touched = output();
+	public readonly changed = output<GeoPoint>();
+	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+
 	private map?: Map;
 	private initialized = false;
 	private marker?: Marker;
-	private touchedCallback?: any;
-	private changeCallback?: any;
-	private externalChange = false;
+	private eventTriggeredChange = false;
+	private onlineNotifier = createNotifier();
 
-	protected readonly online = signal(navigator.onLine);
+	protected readonly network = injectNetwork()
 	protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
-	protected readonly disabled = signal(false);
-	protected readonly _value = model<GeoPoint>();
-	protected readonly resolvedCoords = linkedSignal(() => [this._value()?.lat ?? 5.5366959, this._value()?.long ?? 9.9126102] as [number, number]);
+	protected readonly _value = computed(() => GeopointSchema.parse({}));
+	protected readonly resolvedCoords = linkedSignal(() => latLng(this._value().lat, this._value().long));
 	protected readonly markerIconUrl = resource({
 		loader: async () => {
 			return await sendRpcMessageAsync('resource:read', 'img/marker-icon.png');
@@ -53,8 +57,10 @@ export class GeoPointComponent implements ControlValueAccessor {
 	private onMapClicked({
 		latlng
 	}: LeafletMouseEvent) {
+		this.eventTriggeredChange = true;
 		this.moveMarker(latlng);
-		this.touchedCallback?.();
+		this.eventTriggeredChange = false;
+		this.touched.emit();
 	}
 
 	private moveMarker(coords: LatLng) {
@@ -64,8 +70,8 @@ export class GeoPointComponent implements ControlValueAccessor {
 	private initMarker() {
 		if (!this.map) return;
 
-		const coords = latLng(this.resolvedCoords());
-		this.marker = marker(coords, {
+
+		this.marker = marker(untracked(this.resolvedCoords), {
 			icon: icon({
 				shadowUrl: this.markerShadowIconUrl.value() as string,
 				iconUrl: this.markerIconUrl.value() as string,
@@ -76,11 +82,11 @@ export class GeoPointComponent implements ControlValueAccessor {
 			}),
 		}).addTo(this.map)
 			.on('move', ({ latlng: { lat, lng } }: any) => {
-				if (this.externalChange) return;
-				this.changeCallback?.({ lat, long: lng });
-				this._value.set({ lat, long: lng });
+				if (!this.eventTriggeredChange) return;
+				this.value.set({ lat, long: lng });
+				this.changed.emit({ lat, long: lng });
 			});
-		this.map.setView(coords);
+		this.map.setView(untracked(this.resolvedCoords));
 	}
 
 	private initScale() {
@@ -96,39 +102,12 @@ export class GeoPointComponent implements ControlValueAccessor {
 		}).addTo(this.map);
 	}
 
-	writeValue(obj: any): void {
-		this.externalChange = true;
-		const coords = GeopointSchema.parse(obj ?? {});
-		this._value.set(coords);
-		if (coords) {
-			const _coords = latLng(coords?.lat, coords?.long);
-			this.moveMarker(_coords);
-			this.map?.setView(_coords);
-		}
-		this.externalChange = false;
-	}
-	registerOnChange(fn: any): void {
-		this.changeCallback = fn;
-	}
-	registerOnTouched(fn: any): void {
-		this.touchedCallback = fn;
-	}
-	setDisabledState?(isDisabled: boolean): void {
-		this.disabled.set(isDisabled);
-	}
-
 	constructor() {
-		merge(
-			fromEvent(window, 'online'),
-			fromEvent(window, 'offline'),
-		).pipe(
-			takeUntilDestroyed(),
-		).subscribe(() => this.online.set(navigator.onLine));
 
 		effect(() => {
 			const markerIconUrlStatus = this.markerIconUrl.status()
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
-			const _ = this.online();
+			this.onlineNotifier.listen();
 
 			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved' || this.initialized) return;
 			this.map = map(this.mapContainer().nativeElement,
@@ -141,5 +120,29 @@ export class GeoPointComponent implements ControlValueAccessor {
 			this.initMarker();
 			this.initialized = true;
 		});
+
+		effect(() => {
+			const disabled = this.disabled();
+			const online = this.network.online();
+			const components = [
+				this.map?.dragging,
+				this.map?.touchZoom,
+				this.map?.doubleClickZoom,
+				this.map?.scrollWheelZoom,
+				this.map?.boxZoom,
+				this.map?.keyboard,
+			];
+			if (disabled || !online) {
+				components.forEach(c => c?.disable());
+			} else {
+				components.forEach(c => c?.enable());
+			}
+
+			if (disabled) {
+				components.forEach(c => c?.disable());
+			} else {
+				components.forEach(c => c?.enable());
+			}
+		})
 	}
 }

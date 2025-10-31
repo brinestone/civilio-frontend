@@ -16,6 +16,7 @@ units:
     long: meters
 validation:
   msg:
+    int: Value must be an integer
     field_required: This field is required
     value_unsupported: Value is unsupported. It must be one of {{validValues}}
     pattern_mismatch: Invalid format

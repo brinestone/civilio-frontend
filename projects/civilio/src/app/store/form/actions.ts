@@ -1,4 +1,5 @@
-import { FormSchema, ParsedValue, RawValue } from "@app/model/form";
+import { FormControl, ValidationErrors } from "@angular/forms";
+import { FormSchema, ParsedValue } from "@app/model/form";
 import {
 	FieldKey,
 	FieldUpdateSpec,
@@ -7,6 +8,21 @@ import {
 } from "@civilio/shared";
 
 const prefix = "[form]";
+
+export class DeactivateForm {
+	static type = `${prefix} Deactivate form`;
+	constructor(readonly form: FormType) { }
+}
+
+export class UpdateSectionStatus {
+	static type = `${prefix} Update Form Status`;
+	constructor(
+		readonly section: FormSectionKey,
+		readonly status: FormControl['status'],
+		readonly dirty: boolean,
+		readonly errors: Record<string, ValidationErrors | null>
+	) { }
+}
 
 export class ActivateForm {
 	static type = `${prefix} Activate form`;
@@ -29,17 +45,26 @@ export class UpdateRelevance {
 		readonly form: FormType,
 		readonly section?: FormSectionKey,
 		readonly field?: FieldKey,
-		// readonly value?: RawValue | ParsedValue | ParsedValue[]
 	) { }
 }
 
-// export class ActivateSection {
-// 	static type = `${prefix} Activate section`;
-// 	constructor(
-// 		readonly sectionId: FormSectionKey,
-// 		readonly form: FormType
-// 	) { }
-// }
+export class UpdateSection {
+	static type = `${prefix} Update section`;
+	constructor(
+		readonly section: FormSectionKey,
+		readonly form: FormType,
+		readonly field: FieldKey,
+		readonly value?: ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[]
+	) { }
+}
+
+export class ActivateSection {
+	static type = `${prefix} Activate section`;
+	constructor(
+		readonly section: FormSectionKey,
+		readonly form: FormType
+	) { }
+}
 
 export class LoadMappings {
 	static type = `${prefix} load mappings`;

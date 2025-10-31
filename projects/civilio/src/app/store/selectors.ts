@@ -44,7 +44,7 @@ export function rawData(section: FormSectionKey) {
 	})
 }
 export const sectionValidity = createSelector([formSlices.activeSections], sections => {
-	const _entries = entries(sections).map(([k, { status }]) => [k.replaceAll('_', '.'), status] as [string, 'VALID' | 'INVALID'])
+	const _entries = entries(sections).map(([k, { status }]) => [k, status])
 	return Object.fromEntries(_entries);
 });
 

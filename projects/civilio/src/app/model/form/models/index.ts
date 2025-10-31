@@ -1,5 +1,5 @@
-import { ValidatorFn, Validators } from '@angular/forms';
-import { FieldKey, FormSectionKey, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
+import { ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
 import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
@@ -7,6 +7,90 @@ import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schem
 export * from './chiefdom';
 export * from './csc';
 export * from './fosa';
+
+export function extractRawValidators(schema: FieldSchema) {
+	const truthinessSchema = z.coerce.boolean();
+	const validators: ((v: unknown) => ValidationErrors | null)[] = [];
+
+	if ('required' in schema && !schema.relevance) {
+		validators.push((v) => {
+			return truthinessSchema.parse(v) ? null : { required: 'validation.msg.field_required' };
+		});
+	}
+
+	if (schema.type == 'text') {
+		if (schema.validValues) {
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				return schema.validValues?.includes(String(v).trim()) ? null : { invalidValue: 'validation.msg.value_unsupported' };
+			})
+		}
+
+		if (schema.pattern) {
+			const regexSchema = z.string().regex(new RegExp(schema.pattern));
+			validators.push(v => regexSchema.safeParse(v).success ? null : { pattern: 'validation.msg.pattern_mismatch' });
+		}
+	}
+
+	if (schema.type == 'date') {
+		const dateValidationSchema = z.union([z.iso.date(), z.date()]);
+		if (schema.max) {
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
+				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
+				const maxDate = toDate(schema.max as string | number);
+				return isBefore(toDate(rawDate), maxDate) ? null : { msg: 'validation.msg.max_date', maxDate };
+			})
+		}
+
+		if (schema.min) {
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
+				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
+				const minDate = toDate(schema.max as string | number);
+				return isAfter(toDate(rawDate), minDate) ? null : { msg: 'validation.msg.min_date', maxDate: minDate };
+			})
+		}
+	}
+	if (schema.type == 'int' || schema.type == 'float') {
+		if (schema.type == 'int') {
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				const stringValue = String(v).trim();
+				return z.coerce.number().int().safeParse(stringValue).success ? null : { int: 'validation.msg.int' };
+			})
+		}
+
+		if (schema.min) {
+			const min = schema.min;
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				return z.number().safeParse(v).success && Number(v) >= min ? null : { msg: 'validation.msg.min', min };
+			})
+		}
+
+		if (schema.max) {
+			const max = schema.max;
+			validators.push(v => {
+				if (!truthinessSchema.parse(v)) return null;
+				return z.number().safeParse(v).success && Number(v) <= max ? null : { msg: 'validation.msg.max', max };
+			});
+		}
+	}
+
+	if (schema.validate) {
+		const fn = schema.validate;
+		validators.push(v => {
+			const stringValue = z.coerce.string().nullable().optional().parse(v);
+			const msg = fn(stringValue);
+			return msg === null ? null : { msg };
+		})
+	}
+
+	return validators;
+}
 
 export function extractValidators(schema: FieldSchema) {
 	const validators: ValidatorFn[] = [];
@@ -96,10 +180,6 @@ export function extractValidators(schema: FieldSchema) {
 	}
 
 	return validators;
-}
-
-export function flattenKey(key: FormSectionKey | FieldKey) {
-	return key.replaceAll('.', '_');
 }
 
 export function flattenSections(schema: FormSchema) {
@@ -202,7 +282,7 @@ export function parseValue(definition: DefinitionLike, raw: RawValue | null): Pa
 			try {
 				return z.coerce.number().nullable().parse(raw ?? definition.default);
 			} catch (e) {
-				return defaultValueForType(definition.type) as number;
+				return 'min' in definition ? Math.max(definition.min as number, defaultValueForType(definition.type) as number) : defaultValueForType(definition.type) as number;
 			}
 		}
 		case 'multi-selection':

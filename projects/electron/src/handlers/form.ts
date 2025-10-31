@@ -280,6 +280,7 @@ export async function findFormData(form: FormType, index: number) {
 	}
 
 	await Promise.all(tablePromises);
+	console.log(map);
 	return FindSubmissionDataResponseSchema.parse(map);
 }
 

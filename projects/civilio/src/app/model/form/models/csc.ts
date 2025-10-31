@@ -48,11 +48,13 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				{
 					key: 'csc.form.sections.respondent.fields.phone',
-					type: 'text'
+					type: 'text',
+					pattern: '^(((\\+?237)?([62][0-9]{8}))(((, ?)|( ?/ ?))(\\+?237)?([62][0-9]{8}))*)$'
 				},
 				{
 					key: 'csc.form.sections.respondent.fields.email',
-					type: 'text'
+					type: 'text',
+					pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})?$'
 				},
 				{
 					key: 'csc.form.sections.respondent.fields.knows_creation_date',

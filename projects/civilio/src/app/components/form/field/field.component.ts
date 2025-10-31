@@ -1,6 +1,8 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
+import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
 import { FieldSchema } from '@app/model/form';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -10,6 +12,7 @@ import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { ClassValue } from 'clsx';
 
 @Component({
 	selector: 'cv-field',
@@ -19,7 +22,10 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 		HlmSelectImports,
 		HlmInput,
 		NgTemplateOutlet,
+		TabularFieldComponent,
 		TranslatePipe,
+		GeoPointComponent,
+		JsonPipe,
 		HlmCheckbox,
 		HlmDatePicker
 	],
@@ -34,6 +40,7 @@ export class FieldComponent implements ControlValueAccessor {
 	readonly schema = input.required<FieldSchema>();
 	readonly options = input<Record<string, Option[]>>();
 	readonly parentValue = input<any>();
+	readonly userClass = input<ClassValue>('', { alias: 'class' });
 
 	private cdr = inject(ChangeDetectorRef);
 
@@ -46,10 +53,12 @@ export class FieldComponent implements ControlValueAccessor {
 		effect(() => {
 			const _ = this._value();
 			this.cdr.markForCheck();
-		})
+		});
 	}
 
 	writeValue(obj: any): void {
+		if (this.schema().key == 'csc.form.sections.identification.fields.gps_coords')
+			console.log('key,,,', obj);
 		this._value.set(obj);
 	}
 	registerOnChange(fn: any): void {

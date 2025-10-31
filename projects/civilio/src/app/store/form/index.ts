@@ -1,6 +1,19 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
-import { FormRecord, UntypedFormControl, ValidationErrors } from "@angular/forms";
-import { DefinitionLike, extractAllFields, extractValidators, FieldSchema, flattenKey, flattenSections, FormSchema, lookupFieldSchema, ParsedValue, parseValue, RawValue, RelevanceDefinition } from "@app/model/form";
+import {
+	ValidationErrors
+} from "@angular/forms";
+import {
+	extractAllFields,
+	extractRawValidators,
+	FieldSchema,
+	flattenSections,
+	FormSchema,
+	lookupFieldSchema,
+	ParsedValue,
+	parseValue,
+	RawValue,
+	RelevanceDefinition
+} from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import {
 	FieldKey,
@@ -12,7 +25,6 @@ import {
 	FormType,
 	toRowMajor,
 } from "@civilio/shared";
-import { UpdateFormErrors, UpdateFormStatus, UpdateFormValue } from "@ngxs/form-plugin";
 import {
 	Action,
 	provideStates,
@@ -21,9 +33,12 @@ import {
 	StateToken,
 } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
+import { keys, last, values } from "lodash";
 import { EMPTY, from, tap } from "rxjs";
+import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
+	DeactivateForm,
 	LoadDbColumns,
 	LoadMappings,
 	LoadOptions,
@@ -32,15 +47,16 @@ import {
 	SetFormType,
 	UpdateMappings,
 	UpdateRelevance,
-	UpdateValidity
+	UpdateSection,
+	UpdateSectionStatus,
+	UpdateValidity,
 } from "./actions";
-import { keys, last, values } from "lodash";
 export * from "./actions";
 export type SectionForm = {
-	model: Record<string, ParsedValue | ParsedValue[]>;
+	model: Record<string, unknown>;
 	dirty: boolean;
-	status: "INVALID" | "VALID" | 'PENDING' | 'DISABLED';
-	errors: ValidationErrors | null;
+	status: "INVALID" | "VALID" | "PENDING" | "DISABLED";
+	errors: Record<string, ValidationErrors | null>;
 };
 
 type FormStateModel = {
@@ -48,8 +64,14 @@ type FormStateModel = {
 	options?: Record<FormType, FindFormOptionsResponse>;
 	columns?: Record<FormType, FindDbColumnsResponse>;
 	lastFocusedFormType: FormType;
-	rawData?: Record<string, ParsedValue[] | ParsedValue | Record<string, ParsedValue[] | ParsedValue | null>[] | null>,
-	schemas: Record<string, FormSchema>,
+	rawData?: Record<
+		string,
+		| ParsedValue[]
+		| ParsedValue
+		| Record<string, ParsedValue[] | ParsedValue | null>[]
+		| null
+	>;
+	schemas: Record<string, FormSchema>;
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
 };
@@ -57,29 +79,38 @@ export const FORM_STATE = new StateToken<FormStateModel>("form");
 type Context = StateContext<FormStateModel>;
 
 function computeRelevance(
-	rawValueSupplier: (k: string) => ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[] | null,
+	rawValueSupplier: (
+		k: string,
+	) =>
+		| ParsedValue
+		| ParsedValue[]
+		| Record<string, ParsedValue | ParsedValue[]>[]
+		| null,
 	formValueSupplier: (k: string) => ParsedValue | ParsedValue[],
 	formSchema: FormSchema,
-	definition?: RelevanceDefinition
+	definition?: RelevanceDefinition,
 ) {
 	if (!definition) {
 		return true;
 	}
 
 	const { dependencies, predicate } = definition;
-	const deps = dependencies.reduce((acc, curr) => {
-		const _schema = lookupFieldSchema(curr, formSchema);
-		if (!_schema) return acc;
-		const formValue = formValueSupplier(curr);
-		const pristineValue = rawValueSupplier(curr);
-		return { ...acc, [curr]: formValue ?? pristineValue };
-	}, {} as Record<FieldKey, ParsedValue | ParsedValue[]>);
+	const deps = dependencies.reduce(
+		(acc, curr) => {
+			const _schema = lookupFieldSchema(curr, formSchema);
+			if (!_schema) return acc;
+			const formValue = formValueSupplier(curr);
+			const pristineValue = rawValueSupplier(curr);
+			return { ...acc, [curr]: formValue ?? pristineValue };
+		},
+		{} as Record<FieldKey, ParsedValue | ParsedValue[]>,
+	);
 
 	return predicate(deps as any);
 }
 
 function computeForSectionFlatKey(k: FormSectionKey) {
-	return `${FORM_STATE.getName()}.activeSections.${flattenKey(k)}`;
+	return k;
 }
 
 @Injectable()
@@ -89,11 +120,42 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 		lastFocusedFormType: "csc",
 		activeSections: {},
 		schemas: {},
-		relevanceRegistry: {}
+		relevanceRegistry: {},
 	},
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(DeactivateForm)
+	onDeactivateForm(ctx: Context, { form }: DeactivateForm) {
+		ctx.setState(
+			patch({
+				activeSections: {},
+				schemas: deleteByKey(form),
+				relevanceRegistry: {},
+				options: deleteByKey(form),
+				rawData: {},
+			}),
+		);
+	}
+
+	@Action(UpdateSectionStatus)
+	onUpdateSectionStatus(
+		ctx: Context,
+		{ dirty, section, status, errors }: UpdateSectionStatus,
+	) {
+		ctx.setState(
+			patch({
+				activeSections: patch({
+					[section]: patch({
+						dirty,
+						errors,
+						status,
+					}),
+				}),
+			}),
+		);
+	}
 
 	@Action(UpdateValidity, { cancelUncompleted: true })
 	onUpdateValidity(ctx: Context, { form }: UpdateValidity) {
@@ -101,146 +163,211 @@ class FormState {
 		const formSchema = schemas[form];
 		const sections = flattenSections(formSchema);
 
-		const batchedEvents = Array<any>();
 		for (const section of sections) {
 			const isRelevant = relevanceRegistry[section.id];
 			const formKey = computeForSectionFlatKey(section.id);
-			const form = activeSections[flattenKey(section.id)];
+			const form = activeSections[section.id];
 			if (!isRelevant || !form) continue;
 
-			const group = new FormRecord<UntypedFormControl>({});
+			let isValid = true;
 			for (const field of section.fields) {
 				const isRelevant = relevanceRegistry[field.key];
 				if (!isRelevant) continue;
 
 				const value = form.model[field.key];
-				const tempControl = new UntypedFormControl(value);
-				tempControl.addValidators(extractValidators(field));
-				group.addControl(field.key, tempControl);
+				const validators = extractRawValidators(field);
+				const errors = validators
+					.map((fn) => fn(value))
+					.filter((v) => v != null);
+				isValid = isValid && errors.length == 0;
+				if (errors.length > 0)
+					ctx.setState(
+						patch({
+							activeSections: patch({
+								[formKey]: patch({
+									errors: patch({
+										[field.key]: errors.reduce((acc, curr) => ({
+											...acc,
+											...curr,
+										})),
+									}),
+								}),
+							}),
+						}),
+					);
+				else
+					ctx.setState(
+						patch({
+							activeSections: patch({
+								[formKey]: patch({
+									errors: deleteByKey(field.key),
+								}),
+							}),
+						}),
+					);
 			}
 
-			group.updateValueAndValidity();
-			form.status = group.status;
-			form.errors = group.errors;
-
-			batchedEvents.push(...[
-				new UpdateFormStatus({
-					path: formKey,
-					status: group.status
-				}), new UpdateFormErrors({
-					path: formKey,
-					errors: group.errors
-				})
-			])
+			ctx.setState(
+				patch({
+					activeSections: patch({
+						[formKey]: patch({
+							status: isValid ? "VALID" : "INVALID",
+						}),
+					}),
+				}),
+			);
 		}
-
-		ctx.dispatch(batchedEvents);
 	}
 
 	@Action(UpdateRelevance, { cancelUncompleted: true })
-	onUpdateRelevance(ctx: Context, { form, field: affectedField }: UpdateRelevance) {
+	onUpdateRelevance(
+		ctx: Context,
+		{ form, field: affectedField }: UpdateRelevance,
+	) {
 		const { schemas, rawData, activeSections } = ctx.getState();
 
 		const formSchema = schemas[form];
 		let fields = extractAllFields(formSchema);
 		let sections = flattenSections(formSchema);
-		const formValuesupplier = (k: string) => values(activeSections).find(({ model }) => keys(model).includes(k))?.model[k] ?? null;
+		const formValueSupplier = (k: string) =>
+			values(activeSections).find(({ model }) => keys(model).includes(k))
+				?.model[k] ?? null;
 		const rawValueSupplier = (k: string) => rawData?.[k] ?? null;
 
 		if (affectedField) {
-			fields = fields.filter(f => f.relevance && f.relevance.dependencies.includes(affectedField));
-			sections = sections.filter(s => s.relevance && s.relevance.dependencies.includes(affectedField));
+			fields = fields.filter(
+				(f) => f.relevance && f.relevance.dependencies.includes(affectedField),
+			);
+			sections = sections.filter(
+				(s) => s.relevance && s.relevance.dependencies.includes(affectedField),
+			);
 		}
 		for (const field of fields) {
 			const isRelevant = computeRelevance(
 				rawValueSupplier,
-				formValuesupplier,
+				formValueSupplier as any,
 				formSchema,
-				field.relevance
+				field.relevance,
 			);
-			ctx.setState(patch({
-				relevanceRegistry: patch({
-					[field.key]: isRelevant
-				})
-			}))
+			ctx.setState(
+				patch({
+					relevanceRegistry: patch({
+						[field.key]: isRelevant,
+					}),
+				}),
+			);
 		}
 
 		for (const section of sections) {
 			const isRelevant = computeRelevance(
 				rawValueSupplier,
-				formValuesupplier,
+				formValueSupplier as any,
 				formSchema,
-				section.relevance
+				section.relevance,
 			);
-			ctx.setState(patch({
-				relevanceRegistry: patch({
-					[section.id]: isRelevant
-				})
-			}))
+			ctx.setState(
+				patch({
+					relevanceRegistry: patch({
+						[section.id]: isRelevant,
+					}),
+				}),
+			);
 		}
+		// ctx.dispatch(new UpdateValidity(form));
 	}
 
-	@Action(UpdateFormValue, { cancelUncompleted: true })
-	onUpdateFormValue(ctx: Context, { payload: { path, propertyPath } }: UpdateFormValue) {
-		const [form] = path.substring(20).split('_', 2);
-		const sectionKey = path.substring(20).replaceAll('_', '.') as FormSectionKey;
-		ctx.dispatch([
-			new UpdateRelevance(form as FormType, sectionKey, propertyPath as FieldKey | undefined),
-		]);
+	@Action(UpdateSection, { cancelUncompleted: true })
+	onUpdateFormValue(
+		ctx: Context,
+		{ section, form, value, field }: UpdateSection,
+	) {
+		ctx.setState(
+			patch({
+				activeSections: patch({
+					[section]: patch({
+						model: patch({
+							[field]: value,
+						}),
+					}),
+				}),
+			}),
+		);
+		ctx.dispatch([new UpdateRelevance(form, section)]);
 	}
 
 	@Action(ActivateForm)
 	onActivateForm(ctx: Context, { schema }: ActivateForm) {
-		const sections = flattenSections(schema);
-		ctx.setState(patch({
-			schemas: patch({
-				[schema.meta.form]: schema
+		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
+		ctx.setState(
+			patch({
+				schemas: patch({
+					[schema.meta.form]: schema,
+				}),
+				activeSections: sections.reduce(
+					(acc, curr) => ({
+						...acc,
+						[curr.id]: {
+							model: {},
+							status: "VALID",
+							errors: {},
+							dirty: false,
+						},
+					}),
+					{},
+				),
 			}),
-			activeSections: sections.reduce((acc, curr) => ({
-				...acc, [curr.id.replaceAll('.', '_')]: {
-					model: {},
-					status: 'VALID',
-					errors: {},
-					dirty: false
-				}
-			}), {})
-		}))
+		);
 	}
 
 	@Action(LoadSubmissionData)
 	onLoadSubmissionData(ctx: Context, { form, index }: LoadSubmissionData) {
 		const schema = ctx.getState().schemas[form];
 		return from(this.formService.findSubmissionData(form, Number(index))).pipe(
-			tap(data => {
+			tap((data) => {
 				if (!data) return;
 				const parsedData = this.parseRawData(schema, data);
-				ctx.setState(patch({
-					rawData: patch({
-						...parsedData
-					})
-				}));
+				ctx.setState(
+					patch({
+						rawData: patch({
+							...parsedData,
+						}),
+					}),
+				);
 				const sections = flattenSections(schema);
 				for (const section of sections) {
-					const formKey = computeForSectionFlatKey(section.id);
-					const formData = section.fields.reduce((acc, curr) => ({ ...acc, [curr.key]: parsedData[curr.key] }), {} as typeof parsedData);
-					ctx.dispatch(new UpdateFormValue({ path: formKey, value: formData }));
+					if (section.fields.length == 0) continue;
+					const formData = section.fields.reduce(
+						(acc, curr) => ({ ...acc, [curr.key]: parsedData[curr.key] }),
+						{} as typeof parsedData,
+					);
+
+					ctx.setState(
+						patch({
+							activeSections: patch({
+								[section.id]: patch({
+									model: formData,
+								}),
+							}),
+						}),
+					);
 				}
-				ctx.dispatch([
-					new UpdateRelevance(form),
-					new UpdateValidity(form as FormType)
-				]);
-			})
-		)
+				ctx.dispatch(new UpdateRelevance(form));
+				setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
+			}),
+		);
 	}
 
-	private extractSubFormData(schema: Extract<FieldSchema, { type: 'table' }>, rawData: Record<string, string | (string | null)[] | null> | null) {
+	private extractSubFormData(
+		schema: Extract<FieldSchema, { type: "table" }>,
+		rawData: Record<string, string | (string | null)[] | null> | null,
+	) {
 		if (!rawData) return [];
 
 		const transformFn = (k: string, value: unknown) => {
-			const lastPart = last(k.split('.')) as string;
+			const lastPart = last(k.split(".")) as string;
 			const columnDefinition = schema.columns[lastPart];
 			return parseValue(columnDefinition, value as RawValue);
-		}
+		};
 
 		const temp: Record<string, unknown[]> = {};
 		for (const [k, v] of Object.entries(rawData)) {
@@ -251,11 +378,20 @@ class FormState {
 		return toRowMajor(temp, transformFn);
 	}
 
-	private parseRawData(formSchema: FormSchema, data: FindSubmissionDataResponse) {
+	private parseRawData(
+		formSchema: FormSchema,
+		data: FindSubmissionDataResponse,
+	) {
 		const fields = extractAllFields(formSchema);
-		const result: Record<string, ParsedValue[] | ParsedValue | Record<string, ParsedValue[] | ParsedValue | null>[] | null> = {};
+		const result: Record<
+			string,
+			| ParsedValue[]
+			| ParsedValue
+			| Record<string, ParsedValue[] | ParsedValue | null>[]
+			| null
+		> = {};
 		for (const field of fields) {
-			if (field.type !== 'table') {
+			if (field.type !== "table") {
 				result[field.key] = parseValue(field, data?.[field.key] ?? null);
 			} else {
 				result[field.key] = this.extractSubFormData(field, data);
