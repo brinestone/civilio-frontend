@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block;
+}
+
+.cdk-option-active {
+	@apply bg-(--muted) border-(--primary);
+}

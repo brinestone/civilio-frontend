@@ -8,10 +8,6 @@
 	@apply select-none;
 }
 
-html {
-	font-size: 13px;
-}
-
 html,
 body {
 	@apply h-full m-0 antialiased bg-background text-foreground;

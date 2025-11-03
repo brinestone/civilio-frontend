@@ -4,7 +4,7 @@ import { AppConfig, AppConfigSchema, DbConfigSchema } from '@civilio/shared';
 import { Action, NgxsOnInit, State, StateContext, StateToken } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 import { concatMap, from, tap, throwError } from 'rxjs';
-import { LoadConfig, SetLocale, SetTheme, TestDb } from './actions';
+import { LoadConfig, SetFontSize, SetLocale, SetTheme, TestDb } from './actions';
 import { TranslateService } from '@ngx-translate/core';
 
 export * from './actions';
@@ -29,6 +29,16 @@ export class ConfigState implements NgxsOnInit {
 		const state = ctx.getState();
 		const lang = (state.config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 		this.translateService.use(lang);
+	}
+
+	@Action(SetFontSize)
+	onSetFontSize(ctx: Context, { size }: SetFontSize) {
+		return from(this.configService.setFontSize(size)).pipe(
+			tap(config => ctx.setState(patch({
+				config,
+				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
+			})))
+		)
 	}
 
 	@Action(TestDb, { cancelUncompleted: true })

@@ -55,6 +55,9 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  font-size:
+    title: Font size
+    placeholder: Select font size
   theme: Theme
   lang: Language
   field_mapper: Mapper
@@ -1233,3 +1236,11 @@ range_0_100: "min "
 range_1_50: "min "
 range_1980_current_year: "min "
 range_0_80000: "min "
+
+form:
+  footer:
+    tabs:
+      errors:
+        title: Errors
+      description:
+        title: Description

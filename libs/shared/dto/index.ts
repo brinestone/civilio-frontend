@@ -201,3 +201,4 @@ export type UpdateSubmissionSubFormDataRequest = z.output<typeof UpdateSubmissio
 export type UpdateSubmissionSubFormDataResponse = z.output<typeof UpdateSubmissionSubFormDataResponseSchema>;
 export type RemoveFieldMappingRequest = z.output<typeof RemoveFieldMappingRequestSchema>;
 export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;
+export type FindFormSubmissionsRequest = z.output<typeof FindFormSubmissionsRequestSchema>;

@@ -9,47 +9,64 @@ const formSlices = createPropertySelectors(FORM_STATE);
 
 export const isConfigValid = configSlices.configured;
 export const currentTheme = createSelector([configSlices.config], (config) => {
-	return config?.prefs?.theme ?? 'system';
+	return config?.prefs?.theme ?? "system";
 });
-export const currentLocale = createSelector([configSlices.config], config => {
-	return config?.prefs?.locale ?? navigator.language as Locale;
+export const currentLocale = createSelector([configSlices.config], (config) => {
+	return config?.prefs?.locale ?? (navigator.language as Locale);
 });
 export function optionsSelector(form: FormType) {
-	return createSelector([formSlices.options], options => {
-		return options?.[form] ?? {}
-	})
+	return createSelector([formSlices.options], (options) => {
+		return options?.[form] ?? {};
+	});
 }
 export function fieldMappingsfor(formType: FormType) {
-	return createSelector([formSlices.mappings], mappings => {
+	return createSelector([formSlices.mappings], (mappings) => {
 		return mappings?.[formType];
-	})
+	});
 }
 
 export function dbColumnsFor(form: FormType) {
-	return createSelector([formSlices.columns], cols => {
-		return cols?.[form] ?? []
-	})
+	return createSelector([formSlices.columns], (cols) => {
+		return cols?.[form] ?? [];
+	});
 }
 
 export function sectionValue(section: string) {
-	return createSelector([formSlices.activeSections], sections => {
+	return createSelector([formSlices.activeSections], (sections) => {
 		return sections[section]?.model ?? {};
-	})
+	});
 }
 
 export function rawData(section: FormSectionKey) {
-	return createSelector([formSlices.rawData], data => {
-		const selectedEntries = entries(data ?? {}).filter(([k]) => k.startsWith(section));
+	return createSelector([formSlices.rawData], (data) => {
+		const selectedEntries = entries(data ?? {}).filter(([k]) =>
+			k.startsWith(section),
+		);
 		return Object.fromEntries(selectedEntries);
-	})
+	});
 }
-export const sectionValidity = createSelector([formSlices.activeSections], sections => {
-	const _entries = entries(sections).map(([k, { status }]) => [k, status])
-	return Object.fromEntries(_entries);
-});
+export const sectionValidity = createSelector(
+	[formSlices.activeSections],
+	(sections) => {
+		const _entries = entries(sections).map(([k, { status }]) => [k, status]);
+		return Object.fromEntries(_entries);
+	},
+);
+
+export const currentSectionErrors = createSelector(
+	[formSlices.activeSections, formSlices.currentSection],
+	(activeSections, currentSection) => {
+		if (!currentSection) return {};
+		return activeSections[currentSection].errors;
+	},
+);
 
 export const formMappings = formSlices.mappings;
 export const formColumns = formSlices.columns;
 export const lastFocusedFormType = formSlices.lastFocusedFormType;
 export const relevanceRegistry = formSlices.relevanceRegistry;
 export const activeSections = formSlices.activeSections;
+export const currentFormSection = formSlices.currentSection;
+export const fontSize = createSelector([configSlices.config], (cfg) => {
+	return cfg?.prefs?.fontSize;
+})
