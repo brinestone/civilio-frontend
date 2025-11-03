@@ -18,7 +18,8 @@
 		</button>
 		<brn-select
 			[disabled]="submissions.isLoading()"
-			[(value)]="formType"
+			[value]="formType()"
+			(valueChange)="onFormTypeChanged($any($event))"
 			class="inline-block"
 			[placeholder]="'misc.form_type.placeholder' | translate"
 		>
