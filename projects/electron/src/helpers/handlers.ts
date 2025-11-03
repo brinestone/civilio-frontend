@@ -1,4 +1,4 @@
-import { createChannelHandler, createPushHandler, findAutocompleteSuggestions, findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findIndexSuggestions, findSubmissionRef, findTranslationsFor, getAppConfig, getResourceUrl, processChangeRequest, processSubFormChangeRequest, removeFieldMapping, updateFieldMappings, updateTheme, watchAssets } from "@civilio/handlers";
+import { createChannelHandler, createPushHandler, findAutocompleteSuggestions, findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findIndexSuggestions, findSubmissionRef, findTranslationsFor, getAppConfig, getResourceUrl, processChangeRequest, processSubFormChangeRequest, removeFieldMapping, updateFieldMappings, updateLocale, updateTheme, watchAssets } from "@civilio/handlers";
 import { AppConfigPaths } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
@@ -19,6 +19,9 @@ export function registerProductionIpcHandlers() {
 	})
 	createChannelHandler('resource:read', (name) => {
 		return getResourceUrl(name);
+	})
+	createChannelHandler('locale:update', ({ locale }) => {
+		return updateLocale(locale);
 	})
 	createChannelHandler('theme:update', ({ theme }) => {
 		return updateTheme(theme);

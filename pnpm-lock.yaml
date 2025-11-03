@@ -98,6 +98,9 @@ importers:
       mime-types:
         specifier: ^3.0.1
         version: 3.0.1
+      mustargs:
+        specifier: ^1.0.8
+        version: 1.0.8
       ngx-sonner:
         specifier: '>=3.0.0'
         version: 3.1.0(@angular/common@20.3.6(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))
@@ -162,9 +165,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.13
         version: 4.1.15
-      '@types/argparse':
-        specifier: ^2.0.17
-        version: 2.0.17
       '@types/jasmine':
         specifier: ~5.1.0
         version: 5.1.12
@@ -180,9 +180,6 @@ importers:
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5
-      argparse:
-        specifier: ^2.0.1
-        version: 2.0.1
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
@@ -3393,9 +3390,6 @@ packages:
 
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
-
-  '@types/argparse@2.0.17':
-    resolution: {integrity: sha512-fueJssTf+4dW4HODshEGkIZbkLKHzgu1FvCI4cTc/MKum/534Euo3SrN+ilq8xgyHnOjtmg33/hee8iXLRg1XA==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -6646,6 +6640,9 @@ packages:
   multicast-dns@7.2.5:
     resolution: {integrity: sha512-2eznPJP8z2BFLX50tf0LuODrpINqP1RVIm/CObbTcBRITQgmC/TjcREF1NeTBzIcR5XO/ukWo+YHOjBbFwIupg==}
     hasBin: true
+
+  mustargs@1.0.8:
+    resolution: {integrity: sha512-kylBAuNt3gY3+aTSL4ew9K7gkMgWVFChU+Oz3D//C0oWYa310+GYhgylgBHb9PQd+ErlWgkKg8t/rm+65uEPOg==}
 
   mute-stream@1.0.0:
     resolution: {integrity: sha512-avsJQhyd+680gKXyG/sQc0nXaC6rBkPOfyHYcFb9+hdkqQkR9bdnkJ0AMZhke0oesPqIO+mFFJ+IdBc7mst4IA==}
@@ -12814,8 +12811,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@types/argparse@2.0.17': {}
-
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
@@ -16520,6 +16515,8 @@ snapshots:
     dependencies:
       dns-packet: 5.6.1
       thunky: 1.1.0
+
+  mustargs@1.0.8: {}
 
   mute-stream@1.0.0: {}
 

@@ -31,6 +31,7 @@ import {
 	DeactivateForm,
 	LoadOptions,
 	LoadSubmissionData,
+	SubmissionIndexChanged,
 	UpdateRelevance
 } from "@app/store/form";
 import { relevanceRegistry, sectionValidity } from "@app/store/selectors";
@@ -119,7 +120,8 @@ export class FormPage
 		})
 
 		effect(async () => {
-			const _ = this.submissionIndex();
+			const index = this.submissionIndex();
+
 			if (await isLockHeld(LOADING_LOCK)) return;
 			this.reloadDataAndOptions();
 		});

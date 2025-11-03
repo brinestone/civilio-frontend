@@ -1,10 +1,28 @@
-import { writeFile, rename, appendFile } from "node:fs/promises";
-import { createInterface } from "node:readline";
-import { dirname, join, sep } from "node:path";
-import { createReadStream, existsSync } from "node:fs";
-import { DatabaseSync } from "node:sqlite";
+import _ from "lodash";
+import mustargs from "mustargs";
 import { createHash } from "node:crypto";
-import { set } from "lodash";
+import { createReadStream, existsSync } from "node:fs";
+import { readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, join, resolve, sep } from "node:path";
+import { createInterface } from "node:readline";
+import { DatabaseSync } from "node:sqlite";
+import { parse, stringify } from "yaml";
+
+function flattenObjectKeys(obj, prefix = "", separator = ".") {
+	return _.reduce(
+		obj,
+		(acc, value, key) => {
+			const newKey = prefix ? prefix + separator + key : key;
+			if (_.isObject(value) && !_.isArray(value)) {
+				Object.assign(acc, flattenObjectKeys(value, newKey, separator));
+			} else {
+				acc[newKey] = value;
+			}
+			return acc;
+		},
+		{},
+	);
+}
 
 const database = new DatabaseSync(join(import.meta.dirname, "temp.db"));
 
@@ -20,6 +38,7 @@ async function prepareDatabase() {
             src_locale  TEXT NOT NULL,
             src_value   TEXT NOT NULL,
             dest_locale TEXT NOT NULL,
+						src_digest  TEXT,
             dest_value  TEXT NOT NULL
         );
         CREATE UNIQUE INDEX IF NOT EXISTS translation_key_src_locale_dest_locale_idx_uq ON translations (key, src_locale, dest_locale);
@@ -53,9 +72,10 @@ async function translateValue(value, sourceLocale, targetLocales) {
 	for (const targetLocale of targetLocales) {
 		if (targetLocale === sourceLocale) {
 			result.set(targetLocale, value);
-			console.debug(
-				`Skipping translation for ${targetLocale} as it is the same as source locale ${sourceLocale}`,
-			);
+			if (verbose)
+				console.debug(
+					`Skipping translation for ${targetLocale} as it is the same as source locale ${sourceLocale}`,
+				);
 			continue;
 		}
 		try {
@@ -71,8 +91,7 @@ async function translateValue(value, sourceLocale, targetLocales) {
 			}
 			result.set(targetLocale, translatedText);
 			console.debug(
-				`Translated "${value}" from ${sourceLocale} to ${targetLocale}:`,
-				translatedText,
+				`Translated "${value}" from ${sourceLocale} to ${targetLocale}: "${translatedText}"`,
 			);
 			await sleep(1000); // Sleep for 1 second to avoid rate limiting
 		} catch (e) {
@@ -80,7 +99,8 @@ async function translateValue(value, sourceLocale, targetLocales) {
 				`Error translating value "${value}" from ${sourceLocale} to ${targetLocale}:`,
 				e,
 			);
-			result.set(targetLocale, "");
+			throw e;
+			// result.set(targetLocale, "");
 		}
 	}
 	return result;
@@ -96,12 +116,11 @@ async function clearFile(filePath) {
 	} catch (e) {}
 }
 
-async function appendTranslationsToFile(filePath, translations) {
-	try {
-		await appendFile(filePath, translations, "utf-8");
-	} catch (e) {
-		console.error(e);
-	}
+async function writeTranslationsToFile(path, translations) {
+	const yaml = stringify(translations);
+	const keyCount = _.keys(flattenObjectKeys(translations)).length;
+	await writeFile(path, yaml, "utf-8");
+	console.log(`Wrote ${keyCount} translations to file: ${path}`);
 }
 
 async function translateFile(filePath, sourceLocale, targetLocales) {
@@ -142,71 +161,86 @@ async function translateFile(filePath, sourceLocale, targetLocales) {
 				);
 			}
 		}
-		for await (const line of streamLines(filePath)) {
-			const [key, value] = line.split("=", 2);
+		const obj = await readYaml(filePath);
+		const translations = {};
+		for (const [key, value] of _.entries(obj)) {
 			if (!key || !value) {
-				console.warn(`Skipping invalid line: ${line}`);
 				continue;
 			}
-			const trimmedKey = key.trim();
-			const trimmedValue = value.trim();
-			const existingDigest = await findExistingDigestFor(trimmedKey, srcLocale);
-			const currentDigest = computeDigest(trimmedValue);
-			let cacheHit = existingDigest === currentDigest;
-			let targetLocalesCopy = [...targetLocales];
-			const existingTranslations = await findExistingTranslationsFor(
-				trimmedKey,
-				srcLocale,
-			);
-			if (cacheHit && existingTranslations.length > 0)
-				targetLocalesCopy = targetLocalesCopy.filter(
-					(t) =>
-						existingTranslations.find(
-							({ dest_locale }) => dest_locale !== t,
-						) !== undefined,
-				);
-			let translatedValues;
-			if (
-				cacheHit &&
-				existingTranslations.length > 0 &&
-				targetLocalesCopy.length === 0
-			) {
-				cacheHit = true;
-				translatedValues = new Map();
-				existingTranslations.forEach(({ dest_locale, dest_value }) => {
-					translatedValues.set(dest_locale, dest_value);
-				});
-				console.log(
-					"skipped translation - " +
-						trimmedKey +
-						", using cached values: " +
-						existingTranslations.map((v) => v.dest_value).join(", "),
-				);
-			} else
-				translatedValues = await translateValue(
-					trimmedValue,
+			try {
+				const trimmedKey = key.trim();
+				const trimmedValue = value.trim();
+				const existingDigest = await findExistingDigestFor(
+					trimmedKey,
 					sourceLocale,
-					targetLocalesCopy,
 				);
-			for (const [
-				targetLocale,
-				translatedValue,
-			] of translatedValues.entries()) {
-				if (translatedValue) {
-					await cacheTranslationsFor(
-						trimmedKey,
-						srcLocale,
-						trimmedValue,
-						targetLocale,
-						translatedValue,
+				const currentDigest = computeDigest(trimmedValue);
+				let cacheHit = existingDigest === currentDigest;
+				let targetLocalesCopy = [...targetLocales];
+				const existingTranslations = await findExistingTranslationsFor(
+					trimmedKey,
+					sourceLocale,
+				);
+				if (cacheHit && existingTranslations.length > 0)
+					targetLocalesCopy = targetLocalesCopy.filter(
+						(t) =>
+							existingTranslations.find(
+								({ dest_locale }) => dest_locale !== t,
+							) !== undefined,
 					);
+				let translatedValues;
+				if (
+					cacheHit &&
+					existingTranslations.length > 0 &&
+					targetLocalesCopy.length === 0
+				) {
+					cacheHit = true;
+					translatedValues = new Map();
+					existingTranslations.forEach(({ dest_locale, dest_value }) => {
+						translatedValues.set(dest_locale, dest_value);
+					});
+					if (verbose)
+						console.log(
+							"skipped translation - " +
+								trimmedKey +
+								", using cached values: " +
+								existingTranslations.map((v) => v.dest_value).join(", "),
+						);
+				} else
+					translatedValues = await translateValue(
+						trimmedValue,
+						sourceLocale,
+						targetLocalesCopy,
+					);
+
+				for (const [
+					targetLocale,
+					translatedValue,
+				] of translatedValues.entries()) {
+					if (translatedValue) {
+						await cacheTranslationsFor(
+							trimmedKey,
+							sourceLocale,
+							trimmedValue,
+							targetLocale,
+							translatedValue,
+						);
+					}
+					const entry = translations[targetLocale] ?? {};
+					_.set(entry, trimmedKey, translatedValue);
+					translations[targetLocale] = entry;
 				}
-				const entry = `${trimmedKey}=${translatedValue}`;
-				await appendTranslationsToFile(
-					join(dirname(filePath), `${prefix}_${targetLocale}.properties`),
-					entry + "\n",
-				);
+			} catch (e) {
+				console.error(e);
+				throw e;
 			}
+		}
+
+		console.log("writing translations...");
+
+		for (const [locale, entry] of _.entries(translations)) {
+			const path = join(dirname(filePath), `${locale}.yml`);
+			await writeTranslationsToFile(path, entry);
 		}
 		console.log("Translation completed successfully.");
 	} catch (e) {
@@ -242,15 +276,16 @@ async function cacheTranslationsFor(
 	destLocale,
 	destValue,
 ) {
-	return new Promise(async (resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		try {
-			await database.exec("BEGIN TRANSACTION;");
+			database.exec("BEGIN TRANSACTION;");
 			// language=sqlite
 			const query = database.prepare(`
-                INSERT INTO translations (key, dest_locale, dest_value, src_locale, src_value, src_digest)
-                VALUES (:key, :destLocale, :destValue, :srcLocale, :srcValue, :srcDigest)
+                INSERT INTO translations (digest, key, dest_locale, dest_value, src_locale, src_value, src_digest)
+                VALUES (:destDigest, :key, :destLocale, :destValue, :srcLocale, :srcValue, :srcDigest)
                 ON CONFLICT (key, src_locale, dest_locale) DO UPDATE SET src_value  = excluded.src_value,
                                                                          dest_value = excluded.dest_value,
+																																				 digest     = excluded.digest,
                                                                          src_digest = excluded.src_digest;
             `);
 			query.run({
@@ -259,13 +294,14 @@ async function cacheTranslationsFor(
 				destValue,
 				srcLocale,
 				srcValue,
+				destDigest: computeDigest(destValue),
 				srcDigest: computeDigest(srcValue),
 			});
-			await database.exec("COMMIT;");
+			database.exec("COMMIT;");
 			resolve();
 		} catch (e) {
 			reject(e);
-			await database.exec("ROLLBACK;");
+			database.exec("ROLLBACK;");
 		}
 	});
 }
@@ -336,45 +372,28 @@ async function* streamLines(filePath) {
 	}
 }
 
-const args = process.argv.slice(2);
-if (args.length < 2) {
-	console.error(
-		"Usage: translate.mjs <source_locale> <target_locale1> [<target_locale2> ...]",
+async function readYaml(path) {
+	const content = (await readFile(path)).toString("utf-8");
+	const parsed = flattenObjectKeys(parse(content));
+	return parsed;
+}
+
+const { input, output, verbose } = mustargs(process.argv.slice(2));
+
+if (!input || !output) {
+	console.log(
+		"Usage: node translate.mjs --input path=./relative/path/to/input-file.yml lang=en|fr --output lang=fr,es,...",
 	);
 	process.exit(1);
 }
 
-const [srcLocale, ...targetLocales] = args.slice();
-if (targetLocales.length === 0) {
-	console.error("No target locales provided.");
-	process.exit(1);
-}
-
-function isValidLocale(locale) {
-	// ISO 639-1: two lowercase letters, optionally followed by a dash and two uppercase letters (region)
-	return /^[a-z]{2}(-[A-Z]{2})?$/.test(locale);
-}
-
-const invalidLocales = args.filter((l) => !isValidLocale(l));
-if (invalidLocales.length > 0) {
-	console.error(
-		`Invalid locale(s) detected: ${invalidLocales.join(", ")}. Locales must be in ISO 639 format (e.g., "en", "fr", "es", "de", "en-US").`,
-	);
-	process.exit(1);
-}
-
-let fileName = "messages.properties";
-if (!srcLocale.startsWith("en")) {
-	fileName = `messages_${srcLocale}.properties`;
-}
+const srcPath = resolve(import.meta.dirname, input["path"]);
+const srcLocale = input.lang;
+const targetLocales = Array.isArray(output.lang) ? output.lang : [output.lang];
 
 const start = Date.now();
 prepareDatabase().then(() => console.log("prepared database"));
-translateFile(
-	join(import.meta.dirname, "src", "main", "resources", fileName),
-	srcLocale,
-	targetLocales,
-)
+translateFile(srcPath, srcLocale, targetLocales)
 	.catch((e) => console.error(e))
 	.finally(() => {
 		database.close();

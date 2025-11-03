@@ -10,6 +10,15 @@ misc:
     stay: Stay here
   placeholder:
     jump_to_index: Jump to index
+    filter_submissions: Filter submissions...
+  row:
+    dbl_click: Double-click to open the submission form
+  form_type:
+    placeholder: Select a form type
+  pagination:
+    next: Next page
+    prev: Previous page
+    template: Showing {{start}} to {{end}} of {{total}} submissions.
 units:
   meters:
     short: m
@@ -46,6 +55,11 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  theme: Theme
+  lang: Language
+  field_mapper: Mapper
+  filter:
+    placeholder: Filter
   advanced:
     title: Advanced
     db:
@@ -78,7 +92,7 @@ csc:
   form:
     sections:
       respondent:
-        title: Respondent
+        title: Respondent Info
         fields:
           names:
             title: The respondent's name
@@ -434,24 +448,9 @@ fosa:
     recorded_at: Recorded at
     last_updated_by: Last updated by
     last_updated_at: Last updated at
-    year:
-      - Year
-      - Year
-      - Year
-      - Year
-      - Year
-    births:
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
-      - "# of births registered"
-    deaths:
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
-      - "# of deaths registered"
+    year: Year
+    births: "# of births registered"
+    deaths: "# of deaths registered"
     observation: Observations
     validation_code: Validation Code
     recorded_by: Recorded by
@@ -461,7 +460,7 @@ fosa:
     title: FOSA Submission
     sections:
       respondent:
-        title: Respondent
+        title: The Respondent
         description: Information about the respondent
         fields:
           knows_creation_date:
@@ -736,7 +735,7 @@ forms:
       navigation:
         prev: Prev
         next: Next
-      field_mapper: Field mapper
+      field_mapper: Mapper
     controls:
       index: Index
       validation_code: Validation Code
@@ -941,7 +940,7 @@ mapper:
             infrastructure:
               title: Infrastructure and equipment of the Centre
             respondent:
-              title: The Respondent
+              title: Respondent Info
             identification:
               title: Identification of the centre
             accessibility:
@@ -991,7 +990,7 @@ chefferie:
   form:
     sections:
       respondent:
-        title: Respondent
+        title: The Respondent
       structure_identification:
         title: Structure identification
       service_offered_and_amenities:
@@ -1210,12 +1209,24 @@ services:
   auth:
     user_not_found: Invalid username or password
 submissions:
+  title: Form Submissions
   context_menu:
     actions:
       delete: Delete
   columns:
-    index: Index
-    facility_name: Facility Name
+    index:
+      title: Index
+    facility_name:
+      title: Facility Name
+    validation_code:
+      title: Validation code
+    submission_date:
+      title: Submission Date
+    validation_status:
+      title: Validation Status
+      options:
+        approved: Approved
+        unapproved: Unapproved
   filter:
     prompt: Filter by "Facility Name", "Validation Code", "Index"
 range_0_100: "min "

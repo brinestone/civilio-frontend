@@ -6,7 +6,7 @@
       autocomplete="off"
       type="search"
       hlmInput
-      placeholder="Filter"
+      [placeholder]="'settings.filter.placeholder' | translate"
       [(ngModel)]="sectionFilter"
     />
   </div>
@@ -20,11 +20,11 @@
           [routerLinkActiveOptions]="{ exact: false }"
         >
           <ng-icon [name]="section.icon" />
-          <span>{{ section.label }}</span>
+          <span>{{ section.label | translate }}</span>
         </a>
       </li>
     } @empty {
-      <li class="text-center">Nothing found</li>
+      <li class="text-center">{{ 'tmpl.autocomplete.empty_text' | translate }}</li>
     }
   </ul>
 </div>
@@ -39,10 +39,10 @@
 >
   <h1 class="text-2xl font-bold flex gap-2 items-center">
     <ng-icon name="lucideSettings" />
-    <span>Settings</span>
+    <span>{{ 'settings.title' | translate }}</span>
   </h1>
-  <p class="text-[var(--muted-foreground)] flex items-center text-sm gap-2">
+  <!-- <p class="text-(--muted-foreground) flex items-center text-sm gap-2">
     <ng-icon name="lucideSave" />
     <span>Saved</span>
-  </p>
+  </p> -->
 </div>

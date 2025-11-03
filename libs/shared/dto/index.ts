@@ -2,6 +2,10 @@ import z from "zod";
 import { FieldKeySchema } from "../field-keys";
 import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema, ThemeSchema } from "../schema";
 
+export const UpdateLocaleRequestSchema = z.object({
+	locale: LocaleSchema
+})
+
 export const RemoveFieldMappingResponseSchema = z.boolean();
 
 export const RemoveFieldMappingRequestSchema = z.object({

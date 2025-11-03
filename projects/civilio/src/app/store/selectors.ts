@@ -1,4 +1,4 @@
-import { FormSectionKey, FormType } from "@civilio/shared";
+import { FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries } from "lodash";
 import { CONFIG_STATE } from "./config";
@@ -12,7 +12,7 @@ export const currentTheme = createSelector([configSlices.config], (config) => {
 	return config?.prefs?.theme ?? 'system';
 });
 export const currentLocale = createSelector([configSlices.config], config => {
-	return config?.prefs?.locale ?? navigator.language;
+	return config?.prefs?.locale ?? navigator.language as Locale;
 });
 export function optionsSelector(form: FormType) {
 	return createSelector([formSlices.options], options => {
