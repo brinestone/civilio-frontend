@@ -14,7 +14,7 @@
 		"build:ng": "ng build --output-path ./dist/angular --configuration production",
 		"wait-on:ng": "wait-on http://localhost:4200",
 		"predev": "pnpm clean",
-		"dev": "concurrently -n \"angular-dev,electron\" \"pnpm start:ng\" \"nodemon\"",
+		"dev": "concurrently -n \"angular-dev,electron,translate\" \"pnpm start:ng\" \"nodemon\" \"pnpm translate:watch\"",
 		"start:electron": "electron-forge start",
 		"build:electron": "pnpm build:electron:webpack",
 		"build:electron:webpack": "webpack --config webpack.main.config.js && webpack --config webpack.preload.config.js",

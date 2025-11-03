@@ -31,11 +31,9 @@ import {
 	DeactivateForm,
 	LoadOptions,
 	LoadSubmissionData,
-	SubmissionIndexChanged,
 	UpdateRelevance
 } from "@app/store/form";
 import { relevanceRegistry, sectionValidity } from "@app/store/selectors";
-import { isLockHeld } from "@app/util";
 import { FormType } from "@civilio/shared";
 import { provideIcons } from "@ng-icons/core";
 import { lucideCircleAlert } from "@ng-icons/lucide";
@@ -83,6 +81,7 @@ export class FormPage
 	private loadData = dispatch(LoadSubmissionData);
 	private activate = dispatch(ActivateForm);
 	private deactivate = dispatch(DeactivateForm);
+	private initialized = false;
 
 	protected readonly loadingSubmissionData = signal(false);
 	// protected readonly relevantSections = computed(() => flattenSections(this.formModel()).filter(({ id }) => this.relevanceRegistry()[id]))
@@ -120,9 +119,8 @@ export class FormPage
 		})
 
 		effect(async () => {
+			if (!this.initialized) return;
 			const index = this.submissionIndex();
-
-			if (await isLockHeld(LOADING_LOCK)) return;
 			this.reloadDataAndOptions();
 		});
 		effect(() => {
@@ -141,35 +139,49 @@ export class FormPage
 		});
 	}
 
-	ngAfterViewInit(): void { }
+	ngAfterViewInit(): void {
+
+	}
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
 		return false;
 	}
 	ngOnDestroy(): void {
 		this.deactivate(this.formType());
 	}
-	async ngOnInit() {
-		await navigator.locks.request(LOADING_LOCK, () => {
-			this.activate(this.formModel())
-				.pipe(
-					concatMap(() => this.loadOptions(this.formType())),
-					concatMap(() =>
-						this.loadData(this.formType(), this.submissionIndex()!),
-					),
-				)
-				.subscribe();
-		});
+	ngOnInit() {
+		this.activate(this.formModel())
+			.pipe(
+				concatMap(() => this.loadOptions(this.formType())),
+				concatMap(() =>
+					this.loadData(this.formType(), this.submissionIndex()!),
+				),
+			)
+			.subscribe({
+				error: () => {
+					this.initialized = true;
+				},
+				complete: () => {
+					this.initialized = true;
+				}
+			});
 	}
 
 	private reloadDataAndOptions() {
 		this.loadData(this.formType(), this.submissionIndex()!).pipe(
 			concatMap(() => this.loadOptions(this.formType())),
-		);
+		).subscribe();
+	}
+
+	private reloadDataOnly() {
+		this.loadData(this.formType(), this.submissionIndex()!)
+			.subscribe();
 	}
 
 	protected onIndexJump(index: number) {
 		this.navigate(["..", index, this.activeSection()], undefined, {
 			relativeTo: this.route,
+		}).subscribe(() => {
+			this.reloadDataOnly();
 		});
 	}
 	protected onNextSubmissionRequested() {
@@ -178,14 +190,17 @@ export class FormPage
 		const section = this.activeSection();
 		this.navigate(["..", index, section ? section : this.formModel().sections[0].id], undefined, {
 			relativeTo: this.route,
+		}).subscribe(() => {
+			this.reloadDataOnly();
 		});
 	}
 	protected onPrevSubmissionRequested() {
-		// debugger;
 		const index = this.neighboringRefs.value()![0] as number;
 		const section = this.activeSection();
 		this.navigate(["..", index, section ? section : this.formModel().sections[0].id], undefined, {
 			relativeTo: this.route,
+		}).subscribe(() => {
+			this.reloadDataOnly();
 		});
 	}
 }

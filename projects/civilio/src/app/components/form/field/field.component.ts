@@ -1,5 +1,5 @@
 import { JsonPipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, signal } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
 import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
@@ -41,6 +41,7 @@ export class FieldComponent implements ControlValueAccessor {
 	readonly options = input<Record<string, Option[]>>();
 	readonly parentValue = input<any>();
 	readonly userClass = input<ClassValue>('', { alias: 'class' });
+	readonly changed = output<any>();
 
 	private cdr = inject(ChangeDetectorRef);
 
@@ -57,8 +58,6 @@ export class FieldComponent implements ControlValueAccessor {
 	}
 
 	writeValue(obj: any): void {
-		if (this.schema().key == 'csc.form.sections.identification.fields.gps_coords')
-			console.log('key,,,', obj);
 		this._value.set(obj);
 	}
 	registerOnChange(fn: any): void {
@@ -75,6 +74,7 @@ export class FieldComponent implements ControlValueAccessor {
 		this.onControlTouched();
 		this._value.set(update);
 		this.changeCallback?.(update);
+		this.changed.emit(update);
 	}
 
 	protected onControlTouched() {

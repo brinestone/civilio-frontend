@@ -52,3 +52,4 @@ export const formMappings = formSlices.mappings;
 export const formColumns = formSlices.columns;
 export const lastFocusedFormType = formSlices.lastFocusedFormType;
 export const relevanceRegistry = formSlices.relevanceRegistry;
+export const activeSections = formSlices.activeSections;

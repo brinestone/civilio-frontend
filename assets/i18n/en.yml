@@ -840,7 +840,7 @@ filters:
 loading:
   txt: Loading...
 refresh:
-  txt: Refresh
+  txt: Reload
 Dialog:
   filters:
     clear: Reset

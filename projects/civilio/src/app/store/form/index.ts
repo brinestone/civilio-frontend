@@ -273,7 +273,7 @@ class FormState {
 				}),
 			);
 		}
-		// ctx.dispatch(new UpdateValidity(form));
+		ctx.dispatch(new UpdateValidity(form));
 	}
 
 	@Action(UpdateSection, { cancelUncompleted: true })
@@ -352,7 +352,7 @@ class FormState {
 					);
 				}
 				ctx.dispatch(new UpdateRelevance(form));
-				setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
+				// setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
 			}),
 		);
 	}

@@ -844,7 +844,7 @@ filters:
 loading:
   txt: Chargement...
 refresh:
-  txt: Rafraîchir
+  txt: Recharger
 Dialog:
   filters:
     clear: Réinitialiser

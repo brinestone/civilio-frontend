@@ -31,7 +31,7 @@ export const appConfig: ApplicationConfig = {
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
 				disabled: !isDevMode(),
-				collapsed: true
+				collapsed: false
 			}),
 			withNgxsFormPlugin()
 		),
