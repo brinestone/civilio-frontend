@@ -68,5 +68,5 @@ export const relevanceRegistry = formSlices.relevanceRegistry;
 export const activeSections = formSlices.activeSections;
 export const currentFormSection = formSlices.currentSection;
 export const fontSize = createSelector([configSlices.config], (cfg) => {
-	return cfg?.prefs?.fontSize;
+	return cfg?.prefs?.fontSize ?? 16;
 })

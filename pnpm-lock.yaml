@@ -47,6 +47,9 @@ importers:
       '@ngxs/router-plugin':
         specifier: ^20.1.0
         version: 20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(@angular/router@20.3.6(@angular/common@20.3.6(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(@angular/platform-browser@20.3.6(@angular/common@20.3.6(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2)))(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)
+      '@ngxs/storage-plugin':
+        specifier: ^20.1.0
+        version: 20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)(ts-morph@25.0.1)
       '@ngxs/store':
         specifier: ^20.1.0
         version: 20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2)
@@ -2593,6 +2596,14 @@ packages:
       '@angular/router': '>=20.0.0 <21.0.0'
       '@ngxs/store': ^20.1.0 || ^20.1.0-dev
       rxjs: '>=7.0.0'
+
+  '@ngxs/storage-plugin@20.1.0':
+    resolution: {integrity: sha512-sO/CmhOdDWprZttrv2bjeDtauOx3g5oTQ+8TDSX3WiA24I+8bOx7Pe9aLfUn/H7GjD0kYMz29RUTcEBmnREa5w==}
+    peerDependencies:
+      '@angular/core': '>=20.0.0 <21.0.0'
+      '@ngxs/store': ^20.1.0 || ^20.1.0-dev
+      rxjs: '>=7.0.0'
+      ts-morph: 21.0.1
 
   '@ngxs/store@20.1.0':
     resolution: {integrity: sha512-Ypceg/FS8NBFxQqiKCa1PzLVLevklHSC2marvwcLwv+ZWpSn43qFSRCeDdcpdxmrZuqdilCLpD45IY3+/1METQ==}
@@ -11777,6 +11788,14 @@ snapshots:
       '@angular/router': 20.3.6(@angular/common@20.3.6(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(@angular/platform-browser@20.3.6(@angular/common@20.3.6(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2)))(rxjs@7.8.2)
       '@ngxs/store': 20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2)
       rxjs: 7.8.2
+      tslib: 2.8.1
+
+  '@ngxs/storage-plugin@20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(@ngxs/store@20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2))(rxjs@7.8.2)(ts-morph@25.0.1)':
+    dependencies:
+      '@angular/core': 20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2)
+      '@ngxs/store': 20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2)
+      rxjs: 7.8.2
+      ts-morph: 25.0.1
       tslib: 2.8.1
 
   '@ngxs/store@20.1.0(@angular/core@20.3.6(@angular/compiler@20.3.6)(rxjs@7.8.2))(rxjs@7.8.2)':

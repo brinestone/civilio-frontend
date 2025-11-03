@@ -58,8 +58,8 @@ login:
   welcome_back: Content de te revoir
 settings:
   font-size:
-    title: Taille de la police
-    placeholder: Sélectionnez la taille de la police
+    title: Taille du texte
+    placeholder: Sélectionnez la taille du texte
   theme: Thème
   lang: Langue
   field_mapper: Mappeur

@@ -1,4 +1,5 @@
-import { CdkListbox, CdkListboxModule, CdkOption } from "@angular/cdk/listbox";
+import { CdkListboxModule } from "@angular/cdk/listbox";
+import { JsonPipe } from "@angular/common";
 import { Component, signal } from "@angular/core";
 import { currentSectionErrors } from "@app/store/selectors";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -14,7 +15,7 @@ import { select } from "@ngxs/store";
 			lucideInfo,
 		}),
 	],
-	imports: [TranslatePipe, NgIcon, CdkListboxModule],
+	imports: [TranslatePipe, NgIcon, CdkListboxModule, JsonPipe],
 	templateUrl: "./form-footer.component.html",
 	styleUrl: "./form-footer.component.scss",
 })

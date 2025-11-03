@@ -45,8 +45,7 @@ import { find } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable, pipe } from "rxjs";
-
-const LOADING_LOCK = "loading";
+// import { HlmResizableImports } from '@spartan-ng/helm/resizable';
 
 @Component({
 	selector: "cv-form-page",

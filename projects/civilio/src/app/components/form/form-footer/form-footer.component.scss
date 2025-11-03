@@ -5,5 +5,5 @@
 }
 
 .cdk-option-active {
-	@apply bg-(--muted) border-(--primary);
+	@apply bg-(--muted) border-(--primary) font-semibold;
 }

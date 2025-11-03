@@ -51,6 +51,7 @@
 		"@ngxs/form-plugin": "^20.1.0",
 		"@ngxs/logger-plugin": "^20.1.0",
 		"@ngxs/router-plugin": "^20.1.0",
+		"@ngxs/storage-plugin": "^20.1.0",
 		"@ngxs/store": "^20.1.0",
 		"@spartan-ng/brain": "0.0.1-alpha.533",
 		"@spartan-ng/cli": "0.0.1-alpha.533",
