@@ -1,0 +1,154 @@
+@switch (schema().type) {
+	@case ("text") {
+		<ng-container [ngTemplateOutlet]="textFieldTemplate" />
+	}
+	@case ("boolean") {
+		<ng-container [ngTemplateOutlet]="booleanFieldTemplate" />
+	}
+	@case ("date") {
+		<ng-container [ngTemplateOutlet]="datePickerTemplate" />
+	}
+	@case ("single-selection") {
+		<ng-container
+			[ngTemplateOutlet]="selectTemplate"
+			[ngTemplateOutletContext]="{ multiple: false }"
+		/>
+	}
+	@case ("multi-selection") {
+		<ng-container
+			[ngTemplateOutlet]="selectTemplate"
+			[ngTemplateOutletContext]="{ multiple: true }"
+		/>
+	}
+	@case ("float") {
+		<ng-container [ngTemplateOutlet]="numberTemplate" />
+	}
+	@case ("int") {
+		<ng-container [ngTemplateOutlet]="numberTemplate" />
+	}
+	@case ("point") {
+		{{ _value() | json }}
+		<ng-container [ngTemplateOutlet]="geoPointTemplate" />
+	}
+	@case ("table") {
+		<ng-container [ngTemplateOutlet]="tableTemplate" />
+	}
+}
+
+<ng-template #tableTemplate>
+	<cv-tabular-field [optionSource]="options() ?? {}" [class]="userClass()" />
+</ng-template>
+
+<ng-template #geoPointTemplate>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<cv-geo-point
+		[(value)]="_value"
+		(touched)="onControlTouched()"
+		(changed)="onInput($event)"
+		[disabled]="_disabled()"
+	/>
+</ng-template>
+
+<ng-template #numberTemplate>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<input
+		[id]="schema().key"
+		type="number"
+		[min]="$any(schema()).min"
+		[max]="$any(schema()).max"
+		[class]="userClass()"
+		(blur)="onControlTouched()"
+		[value]="_value()"
+		(input)="onInput($event.target.value)"
+		[disabled]="_disabled()"
+		hlmInput
+		[placeholder]="schema().key + '.description' | translate"
+	/>
+</ng-template>
+
+<ng-template #optionValueTemplate let-option>
+	@if (option.i18nKey) {
+		<ng-container>
+			{{ option.i18nKey | translate }}
+		</ng-container>
+	} @else {
+		{{ option.label }}
+	}
+</ng-template>
+
+<ng-template #selectTemplate let-multi="multiple">
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	@let hasParent = $any(schema()).parent != null && parentValue() != null;
+	<brn-select
+		[id]="schema().key"
+		[class]="userClass()"
+		[(value)]="_value"
+		(valueChange)="onInput($event)"
+		[placeholder]="'tmpl.dropdown.placeholder' | translate"
+		[multiple]="multi"
+	>
+		<hlm-select-trigger class="w-full">
+			<hlm-select-value />
+		</hlm-select-trigger>
+		<hlm-select-content>
+			@let key = $any(schema()).optionsGroupKey;
+			@for (option of options()?.[key] ?? []; track $index) {
+				@if (!hasParent || (hasParent && option.parent == parentValue())) {
+					<hlm-option [value]="option.value">
+						@if (option.i18nKey) {
+							<ng-container>
+								{{ option.i18nKey | translate }}
+							</ng-container>
+						} @else {
+							{{ option.label || option.value }}
+						}
+					</hlm-option>
+				}
+			}
+		</hlm-select-content>
+	</brn-select>
+</ng-template>
+
+<ng-template #datePickerTemplate>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<hlm-date-picker
+		[buttonId]="schema().key"
+		[date]="_value()"
+		class="w-full {{ userClass() }}"
+		(dateChange)="onInput($event)"
+		[min]="$any(schema()).min"
+		[max]="$any(schema()).max"
+		[disabled]="_disabled()"
+	/>
+</ng-template>
+
+<ng-template #booleanFieldTemplate>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<hlm-checkbox
+		[id]="schema().key"
+		[(checked)]="_value"
+		[class]="userClass()"
+		(click)="onInput(!_value())"
+		[disabled]="_disabled()"
+	/>
+</ng-template>
+
+<ng-template #textFieldTemplate>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<input
+		[id]="schema().key"
+		(blur)="onControlTouched()"
+		[value]="_value()"
+		[class]="userClass()"
+		(input)="onInput($event.target.value)"
+		[disabled]="_disabled()"
+		hlmInput
+		[placeholder]="schema().key + '.description' | translate"
+	/>
+</ng-template>
+
+<ng-template #labelTemplate>
+	<label class="block" hlmLabel [for]="schema().key">
+		{{ schema()!.key + ".title" | translate }}
+	</label>
+</ng-template>

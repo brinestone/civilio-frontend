@@ -1,21 +1,11 @@
-import { FieldKey, FormType, GeoPoint, GeopointSchema, Option } from '@civilio/shared';
-import z from 'zod';
-import {
-	DefinitionLike,
-	FieldDefinition,
-	FormModelDefinition,
-	FormModelDefinitionSchema,
-	FormSection,
-	RelevancePredicateSchema
-} from './schemas';
-import { formatISO } from 'date-fns';
+import { FormModelDefinitionSchema, FormSchema, RelevancePredicateSchema } from "@app/model/form";
 
-export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema.parse({
+// #region Fosa
+export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 	meta: {
 		form: 'fosa'
 	},
 	sections: [
-		// #region Respondent
 		{
 			id: 'fosa.form.sections.respondent',
 			fields: [
@@ -24,7 +14,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
 					required: true,
 					type: 'text',
 					span: 3
-				} as FieldDefinition,
+				},
 				{
 					key: 'fosa.form.sections.respondent.fields.device',
 					required: true,
@@ -67,8 +57,6 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
 				}
 			]
 		},
-		// #endregion
-		// #region Identification
 		{
 			id: 'fosa.form.sections.identification',
 			fields: [
@@ -135,7 +123,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
 						}),
 						dependencies: ['fosa.form.sections.identification.fields.category']
 					}
-				} as FieldDefinition,
+				},
 				{
 					key: 'fosa.form.sections.identification.fields.status',
 					type: 'single-selection',
@@ -401,7 +389,7 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
 							type: 'text'
 						}
 					}
-				} as FieldDefinition
+				}
 			],
 		},
 		{
@@ -444,135 +432,4 @@ export const FosaFormDefinition: FormModelDefinition = FormModelDefinitionSchema
 		}
 	],
 });
-
-export const ChefferieFormDefinition = FormModelDefinitionSchema.parse({
-	sections: [],
-	meta: {
-		form: 'chefferie' as FormType
-	}
-});
-
-export const CscFormDefinition = FormModelDefinitionSchema.parse({
-	sections: [],
-	meta: {
-		form: 'csc' as FormType
-	}
-});
-
-export function lookupFieldSchema(key: string, model: FormModelDefinition) {
-	const allFields = extractAllFields(model);
-	return allFields.find(f => f.key == key);
-}
-
-export function extractAllFields(model: FormModelDefinition) {
-	const list = Array<FieldDefinition>();
-
-	for (const section of model.sections) {
-		list.push(...listFieldsInSection(section));
-	}
-
-	return list;
-}
-
-function listFieldsInSection(section: FormSection) {
-	const result = [...section.fields];
-	if (section.children) {
-		for (const child of section.children) {
-			result.push(...listFieldsInSection(child));
-		}
-	}
-	return result;
-}
-
-export function defaultValueForType(type: DefinitionLike['type']) {
-	switch (type) {
-		case 'boolean':
-			return false;
-		case 'date':
-			return new Date();
-		case 'float':
-		case 'int':
-			return 0;
-		case 'multi-selection':
-			return Array<Option>()
-		case 'point':
-			return GeopointSchema.parse({})
-		case 'text':
-			return '';
-		default:
-			return null;
-	}
-}
-
-export type ParsedValue = boolean | null | Date | GeoPoint | number | string;
-export type RawInput = (string | null)[] | string;
-
-export function serializeValue(definition: DefinitionLike, value: any): any {
-	if (value == null) return null;
-	if (Array.isArray(value) && definition.type == 'table') {
-		return value.map(serializeValue);
-	}
-	switch (definition.type) {
-		case 'boolean': return value === true ? '1' : '2';
-		case 'multi-selection': return value.join(' ');
-		case 'date': {
-			if (value instanceof Date) {
-				return formatISO(value, { representation: 'date' });
-			} return z.iso.date().nullable().parse(value);
-		}
-		case 'point': return `${value.lat} ${value.long}`;
-		default: return String(value);
-	}
-}
-
-export function parseValue(definition: DefinitionLike, raw: RawInput | null): ParsedValue | ParsedValue[] {
-	if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
-	switch (definition.type) {
-		case 'boolean': {
-			try {
-				const result = z.union(
-					[
-						z.boolean(),
-						z.literal('1').transform(() => true),
-						z.literal('2').transform(() => false),
-						z.null().transform(() => false)
-					]).parse(raw);
-				return result;
-			} catch (e) {
-				return false;
-			}
-		}
-		case 'date':
-			return z.union([
-				z.iso.date().pipe(z.coerce.date()),
-				z.date().nullable().default(new Date())
-			]).parse(raw);
-		case 'float':
-		case 'number':
-		case 'int': {
-			try {
-				return z.coerce.number().nullable().parse(raw ?? definition.default);
-			} catch (e) {
-				return defaultValueForType(definition.type) as number;
-			}
-		}
-		case 'multi-selection':
-			return raw?.split(' ') ?? []
-		case "point": {
-			if (!raw) return GeopointSchema.parse({});
-			if (typeof raw == 'string') {
-				const [lat, long] = raw?.split(' ', 2) ?? [];
-				return GeopointSchema.parse({ lat, long });
-			}
-			return raw;
-		}
-		case 'text': {
-			if (!raw) return defaultValueForType('text') as string;
-			return String(raw);
-		}
-		case 'single-selection':
-			return raw;
-		default:
-			return null;
-	}
-}
+// #endregion Fosa

@@ -2,6 +2,17 @@ import z from "zod";
 import { FieldKeySchema } from "../field-keys";
 import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema, ThemeSchema } from "../schema";
 
+export const UpdateLocaleRequestSchema = z.object({
+	locale: LocaleSchema
+})
+
+export const RemoveFieldMappingResponseSchema = z.boolean();
+
+export const RemoveFieldMappingRequestSchema = z.object({
+	form: FormTypeSchema,
+	field: FieldKeySchema
+});
+
 export const ChangeRequestBaseSchema = z.object({
 	form: FormTypeSchema,
 	index: z.int().optional()
@@ -188,3 +199,5 @@ export type FormSubmissionUpdateRequest = z.output<typeof FormSubmissionUpdateRe
 export type UpdateSubmissionFormDataResponse = z.output<typeof UpdateSubmissionFormDataResponseSchema>;
 export type UpdateSubmissionSubFormDataRequest = z.output<typeof UpdateSubmissionSubFormDataRequestSchema>;
 export type UpdateSubmissionSubFormDataResponse = z.output<typeof UpdateSubmissionSubFormDataResponseSchema>;
+export type RemoveFieldMappingRequest = z.output<typeof RemoveFieldMappingRequestSchema>;
+export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;

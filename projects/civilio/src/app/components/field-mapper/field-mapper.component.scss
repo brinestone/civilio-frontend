@@ -9,4 +9,8 @@
   &.child-group-title {
     @apply text-xl font-bold;
   }
+
+	&.table {
+		@apply text-lg font-bold;
+	}
 }

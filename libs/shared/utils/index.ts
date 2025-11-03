@@ -2,6 +2,8 @@ import { cloneDeepWith, isArray, isObject, isString, last } from 'lodash';
 import z from "zod";
 import { Channel } from "../channels";
 
+export type UnwrapArray<T> = T extends (infer U)[] ? U : T;
+
 export type InferOutput<T extends z.ZodType> = z.output<T>;
 export function computeReplyChannel(channel: Channel) {
 	return `${channel}-reply` as const;

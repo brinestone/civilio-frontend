@@ -1,6 +1,55 @@
+misc:
+  dialogs:
+    pending_changes:
+      title: Supprimer les modifications non enregistrées ?
+      description: Vous avez apporté des modifications non enregistrées qui seront
+        perdues si vous continuez. Etes-vous vraiment sûr ?
+  actions:
+    modify: Modifier
+    discard: Ignorer les modifications
+    save_and_exit: Enregistrez les modifications et quittez
+    stay: Reste ici
+  placeholder:
+    jump_to_index: Aller à l'index
+    filter_submissions: Filtrer les soumissions...
+  row:
+    dbl_click: Double-cliquez pour ouvrir le formulaire de soumission
+  form_type:
+    placeholder: Sélectionnez un type de formulaire
+  pagination:
+    next: Page suivante
+    prev: Page précédente
+    template: Affichage de {{start}} à {{end}} sur {{total}} soumissions.
+units:
+  meters:
+    short: m
+    long: mètres
+validation:
+  msg:
+    int: La valeur doit être un entier
+    field_required: Ce champ est obligatoire
+    value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de l'une
+      des {{validValues}}
+    pattern_mismatch: Format invalide
+    invalid_date: Date invalide
+    max_date: La date ne peut pas être postérieure au {{maxDate}}
+    min_date: La date ne peut pas être antérieure au {{minDate}}
+    min: La valeur doit être d'au moins {{min}}{{suffix}}
+    max: La valeur doit être au maximum de {{max}}{{suffix}}
+tmpl:
+  dropdown:
+    placeholder: Sélectionner une valeur
+  autocomplete:
+    empty_text: Aucun résultat n'a pu être trouvé
+  table:
+    no_data: Aucune donnée
+    actions:
+      add_new:
+        title: Ajouter un nouveau
+        description: Ajouter une nouvelle ligne
 login:
   username: Nom d'utilisateur
-  forgot_password: Mot de passe oublié?
+  forgot_password: Mot de passe oublié ?
   lets_continue_your_journey: Continuons votre voyage
   password: Mot de passe
   powered_by: Alimenté par
@@ -8,6 +57,11 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
+  theme: Thème
+  lang: Langue
+  field_mapper: Mappeur
+  filter:
+    placeholder: Filtre
   advanced:
     title: Avancé
     db:
@@ -17,10 +71,10 @@ settings:
       title: Base de données
       port: Port
       ssl: SSL
-      name: Nom de base de données
+      name: Nom de la base de données
     storage:
       title: Stockage
-      endpoint: Point de terminaison API (S3 compatible)
+      endpoint: Point de terminaison API (compatible S3)
       access_key: Clé d'accès
       secret_key: Clé secrète
     api:
@@ -32,617 +86,629 @@ settings:
     fr: Français
   title: Paramètres
   msg:
-    invalid_port: 'Numéro de port non valide (plage: 1025 - 65535)'
+    invalid_port: "Numéro de port invalide (plage : 1025 - 65535)"
     value_required: Ce champ est obligatoire
-    invalid_url: URL non valide
+    invalid_url: URL invalide
     value_too_short: La valeur est trop courte
 csc:
-  add_new: Ajouter un nouveau
-  submissions:
-    title: Soumissions - CSC
-  add_submission: Ajouter la soumission
-  columns:
-    submitted: Soumis
-    recorded_at: Enregistré à
-    last_updated_by: Dernière mise à jour par
-    last_updated_at: Dernière mise à jour à
   form:
     sections:
       respondent:
-        title: Intimé
+        title: Informations sur le répondant
         fields:
+          names:
+            title: Le nom du répondant
           position:
             title: Position
-            description: Rôle du répondant au sein du CSC
+            description: La position du répondant au centre
           phone:
-            description: Inscrivez-vous (de préférence WhatsApp)
-            title: Numéro de téléphone
+            title: Téléphone
+            description: Le numéro de téléphone du répondant
           email:
-            title: Adresse email
-            description: E-mail couramment utilisé ou professionnel du répondant
+            title: E-mail
+            description: L'adresse e-mail professionnelle du répondant
           knows_creation_date:
-            description: Connaissez-vous la date de création du CSC?
-            title: Connaît la date de création?
+            title: Connaissez-vous la date de création du centre ?
           creation_date:
-            title: Date de création
-          name:
-            title: Noms de premier et de famille
+            title: Quelle est la date de création du centre ?
       identification:
         title: Identification de la structure
         fields:
           division:
-            description: Choisissez le département auquel appartient le Civil Status Center
             title: Division
           municipality:
-            title: Commune / Municipalité
-            description: Indiquez la municipalité du Civil Status Center
+            title: Municipalité/Commune
           quarter:
             title: Quart
-            description: Entrez le nom du quartier où se trouve le CSC
-          facility:
-            title: Nom de l'installation
+          degree:
+            title: Degré
+          facility_name:
+            title: Nom de l'établissement
           category:
             title: Catégorie
-          council_size:
-            title: Taille de la municipalité du Conseil
+          is_chiefdom:
+            title: Le centre est-il une chefferie ?
           milieu:
             title: Milieu
-          attached_centers:
-            title: Nombre de centres attachés
-          locality:
-            title: Localité
-          creation_date:
-            title: Date de création
-          functional:
-            title: Le centre est-il fonctionnel?
+          is_functional:
+            title: Le centre est-il fonctionnel ?
           non_function_reason:
-            title: Pourquoi le centre n'est-il pas fonctionnel?
-          chiefdom_degree:
-            title: Chefferie
-          other_non_function_reason:
-            title: Spécifiez la raison de la non-fonctionnalité
-          fields:
-            is_chiefdom:
-              title: Le centre est-il une chefferie?
+            title: Pourquoi le centre ne fonctionne-t-il pas ?
+          custom_non_function_reason:
+            title: Veuillez préciser pourquoi le centre n'est pas fonctionnel.
           non_function_duration:
-            title: Depuis combien de temps le centre est-il non fonctionnel?
-          sec_creation_order:
-            title: Ordre de création secondaire
-          officer_appointment_order:
-            title: Ordonnance de nomination des officiers
-          officer_appointed:
-            title: L'officier est-il nommé?
-          photo_url:
-            title: Photo du centre
+            title: Depuis combien de temps le centre n’est-il pas fonctionnel ?
+          csc_creation_declaration:
+            title: Quel est l'arrêté de déclaration pour la création du centre ?
+          officer_declaration:
+            title: Officier de nomination par ordonnance déclaratoire
+          is_officer_appointed:
+            title: Le centre a-t-il un responsable nommé ?
           gps_coords:
-            title: Coordonnées GPS
+            title: Localisation GPS
+          size:
+            title: Taille de la commune CSC
+          attached_csc_count:
+            title: Combien de centres rattachés ?
       accessibility:
         title: Accessibilité du centre
-        fields:
-          road_type:
-            title: Type de routes servant le centre
-          road_deteriorates:
-            title: La route se détériore-t-elle périodiquement?
-          obstacle:
-            title: Barrières limitant l'accès au centre
-          attached_villages_num:
-            title: Nombre de villages attachés au centre
-          cover_radius:
-            title: Rayon de couverture centrale
-        sub_forms:
+        sections:
+          general:
+            title: Général
+            fields:
+              serving_roads:
+                title: Type de voies de communication desservant le centre ?
+              is_road_degradable:
+                title: Les routes sont-elles dégradables ?
+              attached_villages_count:
+                title: Combien de villages sont rattachés au centre ?
+              cover_radius:
+                title: Rayon de couverture
+              has_obstacles:
+                title: Type d'obstacles limitant l'accès au centre
           villages:
             fields:
+              list:
+                title: Villages rattachés
+              index:
+                title: Indice
               name:
-                title: Nom du village
-              avg_distance:
-                title: Distance moyenne de la CSC (en km)
-        sections:
-          general:
-            title: Général
-          villages:
-            title: Villages attachés
-      infrastructure:
-        title: Infrastructure et équipement du centre
-      areas:
-        title: Zones consacrées au statut civil
-        fields:
-          office_count:
-            title: '# des bureaux'
-            description: Combien de chambres sont dédiées au statut civil?
-          dedicated_cs_rooms:
-            title: Rooms CS dédiés?
-            description: Y a-t-il d'autres chambres dédiées pour le statut civil?
-          moving:
-            title: Y a-t-il des plans émouvants?
-            description: Est-il prévu d'emménager dans un nouveau bâtiment dans les prochains mois?
-        sub_forms:
-          rooms:
-            fields:
-              number:
-                title: Numéro de chambre
-              name:
-                title: Nom de chambre
-              condition:
-                title: Condition
-              dimension:
-                title: Dimensions
-              renovation:
-                title: Nature du travail de rénovation
-      equipment:
-        title: Installations du Civil Registry Center (équipement fonctionnel)
-        fields:
-          pc_count:
-            title: '# des ordinateurs'
-          server_count:
-            title: '# des serveurs'
-          printer_count:
-            title: '# des imprimantes'
-          scanner_count:
-            title: '# de scanners'
-          inverters:
-            title: '# des onduleurs'
-          conditioners:
-            title: '# de conditionneurs'
-          fans:
-            title: '# de fans'
-          projectors:
-            title: '# de projecteurs'
-          office_tables:
-            title: '# des tables de bureau'
-          chairs:
-            title: '# de chaises'
-          cars:
-            title: '# de voitures'
-          bikes:
-            title: '# de vélos'
-          tablets:
-            title: '# de tablettes'
-      digitization:
-        title: Numérisation / informatisation du statut civil
-        fields:
-          using_info_sys_outside_cs:
-            title: Utilisation d'un système à l'extérieur de CR
-            description: En dehors du registre civil, tout autre département du centre utilise-t-il un système informatisé
-          external_cr_uses_internet:
-            title: Si oui, ce système utilise-t-il Internet?
-          has_cs_software:
-            title: Logiciel équipé?
-            description: Le centre est-il équipé d'un ou plusieurs logiciels pour le statut civil?
-          cs_software_name:
-            title: Quel est le (s) nom (s) du logiciel?
-          cs_software_license_sponsor:
-            title: Comment le logiciel a-t-il été acquis?
-          other_cs_software_license_sponsor:
-            title: Spécifiez la méthode d'acquisition du logiciel
-          users_receive_digital_acts:
-            title: Les documents numériques sont-ils donnés aux utilisateurs?
-          software_activation_date:
-            title: Date d'activation du logiciel
-          software_feedback:
-            title: Quels sont vos commentaires sur le logiciel?
-          software_trained_user_count:
-            title: "# d'utilisateurs formés"
-          software_recorded_marriage_count:
-            title: '# de certificats de mariage'
-            description: '# des certificats de mariage enregistrer dans le logiciel'
-          software_recorded_birth_count:
-            title: '# des certificats de naissance'
-            description: '# des certificats de naissance Registre dans le logiciel'
-          software_recorded_death_count:
-            title: '# des certificats de décès'
-            description: '# des certificats de décès enregistrer dans le logiciel'
-          software_is_functional:
-            title: Le logiciel est-il fonctionnel?
-          software_dysfunction_reason:
-            title: Pourquoi le logiciel n'est-il pas fonctionnel?
-      record_procurement:
-        title: L'approvisionnement des dossiers
-        fields:
-          lack_of_registers:
-            title: Y a-t-il eu un manque de registres?
-            description: Y a-t-il eu un manque de registres au cours de ces années?
-          records_provider:
-            title: Fournisseur de dossiers
-            description: Qui vous a fourni des records pour cette année 2025
-          other_records_provider:
-            title: Veuillez spécifier le fournisseur de dossiers
-          non_compliant_registers_used:
-            title: Utilisation des registres personnalisés
-            description: Avez-vous souvent dû acheter les registres sur le marché pour la création des actes?
-          blank_registries:
-            title: Registres vierges
-          blank_marriages:
-            title: '# de registres de mariage vide'
-          blank_births:
-            title: '# de registres de naissance vierges'
-          blank_deaths:
-            title: '# de registres de mort vierges'
-      vital_stats:
-        title: Ressources financières liées aux documents de statistiques cibles
-        fields:
-          birth_cert_cost:
-            title: Coût des certificats de naissance (FCFA)
-          birth_cert_copy_cost:
-            title: Coût de la copie des certificats de naissance (FCFA)
-          marriage_cert_copy_cost:
-            title: Coût de la copie des certificats de mariage (FCFA)
-          death_cert_copy_cost:
-            title: Coût de la copie des certificats de décès (FCFA)
-          celibacy_cert_copy_cost:
-            title: Coût du certificat de célibat (FCFA)
-          non_registered_certs:
-            title: '# de certificats non enregistrés'
-          rates_under_deliberation:
-            title: Les tarifs sont-ils sous délibération?
-            description: Ces taux sont-ils actuellement l'objet d'une délibération par le Conseil municipal?
-          prices_displayed:
-            title: Ces prix sont-ils affichés?
-          municipality_budget:
-            title: 2024 Budget
-            description: Quel est le budget de la municipalité pour l'année 2024?
-          cs_budget:
-            title: Part de statut civil
-            description: Quelle a été la part consacrée au statut civil en 2024?
-      deeds:
-        title: Les actes réunis, non retirés au cours des 5 dernières années
-        fields:
-          year:
-            title: Année
-          birth_certs_drawn:
-            title: Certificats de naissance rédigés
-          births_certs_not_withdrawn:
-            title: Certificats de naissance non retirés
-          marriage_certs_drawn:
-            title: Certificats de mariage rédigés
-          marriage_certs_not_withdrawn:
-            title: Certificats de mariage non retirés
-          death_certs_drawn:
-            title: Certificats de décès tirés
-          death_certs_not_withdrawn:
-            title: Certificats de décès non retirés
-      status_of_archived_records:
-        title: Statut des enregistrements archivés
-      archiving_function:
-        title: Archivage
-      personnel_info:
-        title: Statut du personnel
-        fields:
-          male_count:
-            title: '# des hommes'
-          female_count:
-            title: '# des femmes'
-          non_officer_male_count:
-            title: Non-officiers masculins
-          non_officer_female_count:
-            title: Non-officiers féminins
-        sub_forms:
-          officers:
-            fields:
-              other_position:
-                title: Position alternative
-              status:
-                title: Statut
-              other_status:
-                title: Statut alternatif
-              allowance_2022:
-                title: Allocation (2022)
-              revenue_2022:
-                title: Revenus (2022)
-              archiving_training:
-                title: A une formation d'archivage
-              seniority:
-                title: Ancienneté
-      comments:
-        title: Commentaires et supplémentaires
-        fields:
-          relevant_info:
-            title: Informations pertinentes
-      infra:
-        fields:
-          occupancy_status:
-            title: Occupation
-            description: Statut d'occupation du bâtiment central
-          other_building:
-            title: Y a-t-il un autre bâtiment public?
-          eneo_connection:
-            title: Zone de connexion
-            description: Le centre est-il connecté au réseau national d'électricité (ENEO)?
-          power_outages:
-            title: Interruptions de puissance fréquentes?
-            description: Y a-t-il souvent des interruptions de l'énergie électrique?
-          stable_power:
-            title: L'alimentation en électricité est-elle stable?
-          backup_power_available:
-            title: Y a-t-il d'autres sources d'énergie électrique?
-          backup_power:
-            title: Sélectionnez les sources d'énergie complémentaires fonctionnelles
-          other_backup_power:
-            title: Spécifiez la source complémentaire
-          water_sources:
-            title: Quelle source d'eau est disponible au centre?
-          toilets_available:
-            title: Y a-t-il des toilettes disponibles?
-          separate_toilets_available:
-            title: Les toilettes sont-elles séparées par sexe?
-          zone_operators:
-            title: Quels opérateurs de télécommunications sont dans la zone?
-          has_fiber:
-            title: Y a-t-il une connexion à fibre optique?
-          other_zone_operators:
-            title: Spécifiez les opérateurs de télécommunications dans la zone
-          has_internet:
-            title: Y a-t-il une connexion Internet?
-          internet_type:
-            title: Quels opérateurs de télécommunications fournissent la connexion Internet?
-          other_internet_type:
-            title: Spécifiez le type de fournisseur Internet
-          internet_sponsor:
-            title: Qui paie pour la connexion Internet?
-      indexing:
-        fields:
-          records_scanned:
-            title: CS Records scanned?
-            description: Les dossiers du statut civil ont-ils été numérisés (scannés) dans ce centre de statut civil?
-          staff_trained:
-            title: Le personnel formé?
-            description: Le personnel du Civil Status Center a-t-il été formé à l'utilisation du logiciel de numérisation?
-          document_scan_start_date:
-            title: Analyser la date de début
-          is_data_indexed:
-            title: Les données ont-elles été indexées?
-          marriages_indexed:
-            title: '# des mariages indexés'
-          deaths_indexed:
-            title: '# des décès indexés'
-          births_indexed:
-            title: '# des naissances indexées'
-          marriages_scanned:
-            title: '# des mariages numérisés'
-          births_scanned:
-            title: '# des naissances scannées'
-          deaths_scanned:
-            title: '# de décès scannés'
-          is_data_in_use:
-            title: Les données sont-elles utilisées?
-          data_usage:
-            title: Comment les données sont-elles utilisées?
-        title: Analyse des enregistrements et indexation
-      archiving:
-        fields:
-          archiving_room:
-            title: Le centre a-t-il une salle d'archivage?
-          archiving_room_electric_condition:
-            title: Quel est l'état du circuit électrique dans la salle d'archives principale?
-          fire_extinguishers:
-            title: La salle a-t-elle un ou plusieurs extincteurs?
-          locked_door:
-            title: Est-ce que la pièce dans laquelle les registres sont archivés ont une porte verrouillée
-          access_limited:
-            title: L'accès à la salle des archives est-il limité à une catégorie de personnel?
-          room_has_humidity:
-            title: Problèmes d'étanchéité?
-            description: La pièce dans laquelle les registres sont archivés montrent-ils des traces d'humidité (problèmes d'étanchéité)?
-          register_archiving_type:
-            title: Comment les registres sont-ils archivés?
-          other_register_archiving_type:
-            title: Façon alternative d'archiver les dossiers
-          written_archiving_plan:
-            title: Y a-t-il un plan d'archivage enregistré écrit?
-          registers_deposited:
-            title: Tous les registres de la sous-préfecture ont-ils été déposés à la mairie?
-          registers_deposited_systematically:
-            title: Les registres sont-ils systématiquement soumis à la mairie à la fin de l'année?
-          vandalized:
-            title: Vandalisation
-            description: Les archives ont-elles fait l'objet de vols ou d'actes de vandalisme?
-          vandalized_date:
-            title: Pouvez-vous décrire le contexte et la date?
-        sections:
-          general:
-            title: Général
-          deeds:
-            title: Les actes réunis, non retirés au cours des 5 dernières années
-      personnel:
-        sections:
-          general:
-            title: Général
-          personnel:
-            title: Liste du personnel (officiers et non-officiers)
-      archive_stats:
-        fields:
-          year:
-            title: Année
-          birth_count:
-            title: '# des registres de naissance archivés'
-          marriage_count:
-            title: '# des registres de mariage archivés'
-          death_count:
-            title: '# des registres de la mort archivés'
-    fields:
-      index:
-        title: Indice
-      validation_code:
-        title: Code de validation
-    section:
-      accessibility:
-        sub_forms:
-          villages:
-            fields:
+                title: Nom
+              avg_dist:
+                title: Distance moyenne au centre
               observations:
                 title: Observations
-    base_fields:
-      sections:
-        accessibility:
-          sub_forms:
-            villages:
-              title: Liste des villages ci-joints
-        areas:
-          sub_forms:
-            rooms:
-              title: Statut des espaces dédiés au statut civil
-shell:
-  filter: Filtre
-  sign_out: se déconnecter
-  menu:
-    forms:
-      fosa: Forme fossante
-      chefferie: CHEFFERIE Form
-      title: Formes
-      csc: Formulaire CSC
+      infra:
+        title: Infrastructures du centre
+        fields:
+          status:
+            title: Statut d'occupation du bâtiment abritant le centre de l'état civil
+          other_building:
+            title: Autre bâtiment public
+          eneo_connection:
+            title: Connexion de zone ?
+            description: Le centre est-il connecté au réseau électrique national (ENEO) ?
+          has_power_outages:
+            title: Y a-t-il souvent des interruptions d’énergie électrique ?
+          has_stable_power:
+            title: L’approvisionnement en électricité est-il stable ?
+          has_backup_power:
+            title: Existe-t-il d'autres sources d'énergie électrique ?
+          backup_power_sources:
+            title: Vérifier les sources d'énergie complémentaires fonctionnelles
+          other_power_source:
+            title: Veuillez préciser les sources d'alimentation de secours
+          water_sources:
+            title: Quelle est la principale source d’approvisionnement en eau du Centre ?
+          toilets_available:
+            title: Le centre dispose-t-il de toilettes ?
+          are_toilets_separated:
+            title: Les toilettes sont-elles séparées par sexe ?
+          has_fiber_connection:
+            title: Le réseau de fibre optique dessert-il le Centre ?
+          network_type:
+            title: Quels opérateurs couvrent le territoire ?
+          other_network_type:
+            title: Merci de préciser l'opérateur dans la zone.
+          has_internet:
+            title: Le bâtiment abritant le Centre est-il connecté à Internet ?
+          internet_type:
+            title: Quels opérateurs donnent accès à Internet ?
+          other_internet_type:
+            title: Veuillez préciser l'opérateur de la connexion Internet.
+          internet_sponsor:
+            title: Qui paie les frais de connexion ?
+      areas:
+        title: Espaces consacrés à l'état civil
+        sections:
+          general:
+            title: Général
+            fields:
+              dedicated_cs_rooms:
+                title: Des salles d’état civil dédiées ?
+                description: Y a-t-il d'autres locaux qu'il est prévu d'attribuer à l'état civil
+                  ?
+              moving_plans:
+                title: Des projets de déménagement ?
+                description: Avez-vous prévu d'emménager dans un nouveau bâtiment dans les mois
+                  à venir ?
+          rooms:
+            fields:
+              list:
+                title: Salles dédiées à l'état civil
+              index:
+                title: Indice
+              number:
+                title: Numéro de chambre
+              condition:
+                title: État de la chambre
+              area:
+                title: Zone
+              renovation_nature:
+                title: Nature de la rénovation
+      equipment:
+        title: Équipement fonctionnel
+        fields:
+          pc_count:
+            title: "# d'ordinateurs"
+          server_count:
+            title: "# de serveurs"
+          printer_count:
+            title: "# d'imprimantes"
+          scanner_count:
+            title: "# de scanners"
+          inverter_count:
+            title: "# d'onduleurs"
+          ac_count:
+            title: "# de climatiseurs"
+          fan_count:
+            title: "# de fans"
+          projector_count:
+            title: "# de vidéoprojecteurs"
+          office_table_count:
+            title: "# de tables de bureau"
+          chair_count:
+            title: "# de chaises"
+          tablet_count:
+            title: "# de comprimés"
+          car_count:
+            title: "# de voitures"
+          bike_count:
+            title: "# de vélos"
+      digitization:
+        title: Numérisation/Informatisation des actes d'état civil
+        fields:
+          external_service_from_cr:
+            title: Hormis l’état civil, d’autres services du centre utilisent-ils un système
+              informatisé ?
+          external_cr_uses_internet:
+            title: Si oui, ce système utilise-t-il Internet ?
+          has_cs_software:
+            title: Le CSC est-il actuellement équipé d'un ou plusieurs logiciels d'état
+              civil ?
+          cs_software_name:
+            title: Saisissez le(s) nom(s) du(des) logiciel(s) d'état civil disponible
+          cs_software_license_sponsor:
+            title: Dans quel contexte le système a-t-il été acquis ?
+          other_cs_software_license_sponsor:
+            title: Autre cadre d'acquisition de système
+          users_receive_digital_acts:
+            title: Les documents numériques sont-ils fournis aux utilisateurs ?
+          software_activation_date:
+            title: Date de lancement du logiciel
+          software_feedback:
+            title: Que pensez-vous des fonctionnalités offertes par ce logiciel ?
+          software_trained_user_count:
+            title: Combien de personnes ont été formées à l’utilisation de ce logiciel ?
+          software_recorded_marriage_count:
+            title: Nombre d'actes de mariage enregistrés dans le logiciel
+          software_recorded_births_count:
+            title: Nombre d'actes de naissance enregistrés dans le logiciel
+          software_recorded_death_count:
+            title: Nombre d'actes de décès enregistrés dans le logiciel
+          is_software_functioning:
+            title: Ce logiciel fonctionne-t-il toujours ?
+          software_non_functioning_reason:
+            title: Pourquoi ça ne marche pas ?
+      record_indexing:
+        title: Numérisation de documents et indexation
+        fields:
+          records_scanned:
+            title: Les actes d'état civil ont-ils été scannés dans ce bureau d'état civil ?
+          staff_trained:
+            title: Les agents du Centre ont-ils été formés à la numérisation ?
+          document_scan_start_date:
+            title: En quelle année a commencé la numérisation ?
+          data_indexed:
+            title: Les données ont-elles été indexées ?
+          marriages_indexed:
+            title: "# naissances scannées indexées"
+          deaths_indexed:
+            title: "# décès scanné indexé"
+          births_indexed:
+            title: "# de naissances indexées"
+          marriages_scanned:
+            title: Nombre d'actes de mariage numérisés
+          births_scanned:
+            title: Nombre d'actes de naissance numérisés
+          deaths_scanned:
+            title: Nombre de certificats de décès numérisés
+          is_data_used_by_csc:
+            title: Les données numérisées sont-elles utilisées par le Centre de l'état civil
+              ?
+          data_usage:
+            title: Si oui, comment ?
+      record_procurement:
+        title: Acquisition d'actes d'état civil
+        fields:
+          has_there_been_lack_off_registers:
+            title: Avez-vous rencontré des problèmes de dossiers manquants au cours de ces
+              années ?
+          records_provider:
+            title: Qui vous a fourni les registres pour l’année 2025 ?
+          other_records_provider:
+            title: Veuillez préciser les sources des registres.
+          uses_non_compliant_reigsters:
+            title: Avez-vous souvent dû acheter des registres sur le marché pour établir des
+              actes ?
+          blank_births:
+            title: Combien de registres de naissance sont actuellement utilisés ou vierges à
+              l’heure actuelle ?
+          blank_marriages:
+            title: Combien de registres de mariage sont actuellement utilisés ou vierges à
+              l’heure actuelle ?
+          blank_deaths:
+            title: Combien de registres de décès sont actuellement utilisés ou vierges à
+              l’heure actuelle ?
+      financial_stats:
+        title: Ressources financières liées aux actes d'état civil
+        fields:
+          birth_cert_cost:
+            title: Coût des extraits d’acte de naissance
+          birth_cert_copy_cost:
+            title: Coût d'une copie d'acte de naissance
+          marriage_cert_copy_cost:
+            title: Coût d'une copie d'acte de mariage
+          death_cert_copy_cost:
+            title: Coût de copie d'un acte de décès
+          celibacy_cert_copy_cost:
+            title: Certificat de statut de célibataire
+          non_registered_certs:
+            title: Certificat de non-inscription au registre
+          rates_under_deliberation:
+            title: Ces tarifs sont-ils actuellement en discussion au conseil municipal ?
+          prices_displayed:
+            title: Les prix sont-ils affichés ?
+          municipality_budget_2024:
+            title: Quel est le budget de la commune pour 2024 ?
+          cs_budget_2024:
+            title: Quelle a été la part allouée à l’état civil en 2024 ?
+      archiving_function:
+        title: Fonction d'archivage
+        sections:
+          general:
+            title: Général
+            fields:
+              has_archiving_room:
+                title: Le centre dispose-t-il d'un local spécifique pour l'archivage des
+                  dossiers ?
+              archive_room_electric_condition:
+                title: Quel est l’état du circuit électrique dans la salle principale des
+                  archives ?
+              has_fire_extinguisher:
+                title: La salle des archives est-elle équipée d'un extincteur ?
+              locked_door:
+                title: La porte de la salle des archives est-elle verrouillée ?
+              is_archive_room_access_limited:
+                title: L'accès à la salle des archives est-il limité ?
+              room_has_humidity:
+                title: La salle d’archives a-t-elle des problèmes d’humidité ?
+              register_archiving_type:
+                title: Quel type d'archivage est utilisé pour les registres ?
+              other_archiving_type:
+                title: Veuillez préciser le type d'archivage utilisé pour les registres.
+              has_written_archiving_plan:
+                title: Le centre dispose-t-il d'un plan d'archivage écrit ?
+              are_registers_deposited:
+                title: Tous les dossiers sous-préfectoraux ont-ils été déposés en mairie ?
+              are_registers_deposited_systematically:
+                title: Les registres sont-ils systématiquement déposés en Mairie en fin d'année
+                  ?
+              is_vandalized:
+                title: La salle des archives a-t-elle été vandalisée ?
+              vandalization_date:
+                title: Quand le vandalisme a-t-il eu lieu ?
+          archive_stats:
+            fields:
+              list:
+                title: Nombre de dossiers archivés (période de 2020 à 2024)
+              index:
+                title: Indice
+              year:
+                title: Année
+              birth_count:
+                title: "# de naissances archivées"
+              marriage_count:
+                title: "# de mariages archivés"
+              death_count:
+                title: "# de décès archivés"
 fosa:
   submissions:
     title: Soumissions
     form_type:
-      prompt_text: Sélectionner le type de formulaire
+      prompt_text: Sélectionnez le type de formulaire
     msg:
-      delete_confirmation: Êtes-vous sûr de vouloir supprimer les éléments sélectionnés?
+      delete_confirmation: Êtes-vous sûr de vouloir supprimer le ou les éléments sélectionnés ?
     context_menu:
       actions:
         edit: Modifier
-  add_submission: Ajouter la soumission
+  add_submission: Ajouter une soumission
   columns:
     validated: Est valide
     recorded_at: Enregistré à
     last_updated_by: Dernière mise à jour par
     last_updated_at: Dernière mise à jour à
-    year:
-      - Année
-      - Année
-      - Année
-      - Année
-      - Année
-    births:
-      - '# des naissances enregistrées'
-      - '# des naissances enregistrées'
-      - '# des naissances enregistrées'
-      - '# des naissances enregistrées'
-      - '# des naissances enregistrées'
-    deaths:
-      - '# des décès enregistrés'
-      - '# des décès enregistrés'
-      - '# des décès enregistrés'
-      - '# des décès enregistrés'
-      - '# des décès enregistrés'
+    year: Année
+    births: "# de naissances enregistrées"
+    deaths: Nombre de décès enregistrés
     observation: Observations
     validation_code: Code de validation
     recorded_by: Enregistré par
     recorded_on: Date
   form:
     filter: Filtre
-    title: Soumission des pieds
+    title: Soumission PIED
     sections:
       respondent:
-        title: Intimé
-        description: Des informations sur le répondant
-      structure_identification:
-        title: Identification de la structure
+        title: Le défendeur
+        description: Informations sur le répondant
+        fields:
+          knows_creation_date:
+            description: Connaissez-vous la date de création du Centre de Santé ?
+            title: Connaît la date de création ?
+          device:
+            title: Quel appareil utilisez-vous pour remplir le questionnaire ?
+          names:
+            title: Nom et prénom
+          position:
+            title: Fonction
+            description: Poste/fonction dans l’établissement de santé
+          phone:
+            title: Numéro de téléphone
+            description: Numéro de téléphone (de préférence WhatsApp)
+          email:
+            title: E-mail
+            description: Adresse e-mail (e-mail professionnel)
+          creation_date:
+            title: Créé à
+            description: Année de création de l'établissement de santé (jj/MM/AAAA)
+      identification:
+        title: Identification des structures
+        fields:
+          division:
+            title: Division
+            description: Division dans la région
+          municipality:
+            title: Ville/Ville
+          quarter:
+            title: Quart
+            description: Quartier/village
+          locality:
+            title: Localité
+          facility_name:
+            title: Nom de l'établissement
+            description: Nom complet de l'établissement FOSA
+          district:
+            title: District de santé
+            description: District de santé associé
+          health_area:
+            title: Espace santé
+          milieu:
+            title: Milieu
+            options:
+              urban:
+                title: Urbain
+              rural:
+                title: Rural
+          category:
+            title: Type d'établissement
+          other_category:
+            title: Préciser le type d'établissement
+          status:
+            title: Statut de l'établissement
+          has_maternity:
+            title: A une maternité
+            description: Existence d'une maternité dans la formation sanitaire
+          attached_cs:
+            title: SCC associé
+            description: Bureau d'état civil local
+          cs_proximity:
+            title: Distance au SCC (mètres)
+            description: Distance moyenne du bureau d'état civil
+          knows_gps_coords:
+            title: Pouvez-vous prendre l'emplacement ?
+          gps_coords:
+            title: Coordonnées GPS
+      stats:
+        title: Statistiques de l'état civil des 5 dernières années
+        line_1:
+          title: Ligne 1
+          fields:
+            stats_year_1:
+              title: Année
+            stats_births_1:
+              title: "# de naissances enregistrées"
+            stats_deaths_1:
+              title: Nombre de décès enregistrés
+        line_2:
+          title: Ligne 2
+          fields:
+            stats_year_2:
+              title: Année
+            stats_births_2:
+              title: "# de naissances enregistrées"
+            stats_deaths_2:
+              title: Nombre de décès enregistrés
+        line_3:
+          title: Ligne 3
+          fields:
+            stats_year_3:
+              title: Année
+            stats_births_3:
+              title: "# de naissances enregistrées"
+            stats_deaths_3:
+              title: Nombre de décès enregistrés
+        line_4:
+          title: Ligne 4
+          fields:
+            stats_year_4:
+              title: Année
+            stats_births_4:
+              title: "# de naissances enregistrées"
+            stats_deaths_4:
+              title: Nombre de décès enregistrés
+        line_5:
+          title: Ligne 5
+          fields:
+            stats_year_5:
+              title: Année
+            stats_births_5:
+              title: "# de naissances enregistrées"
+            stats_deaths_5:
+              title: Nombre de décès enregistrés
       reg_cs_events:
-        title: Enregistrement des événements de statut civil
-      infra_eq:
-        title: Infrastructure et équipement
-      personnel_status:
-        title: Personnel Status
-      geo_point:
-        title: Coordonnées GPS
-      extra:
-        title: Commentaires et supplémentaires
+        title: Enregistrement des faits d'état civil
+        fields:
+          dhis2_usage:
+            title: DHIS2 Usage
+            description: Utiliser DHIS2 dans la formation en santé
+          uses_bunec_birth_form:
+            title: Utilise le formulaire de naissance du BUNEC
+            description: Enregistrement des naissances sur le formulaire standardisé fourni
+              par le BUNEC
+          dhis2_form_training:
+            title: Formation DHIS2
+            description: Formation à l'utilisation du formulaire standardisé DHIS2
+          birth_declaration_transmission_to_csc:
+            title: Les déclarations de naissance sont-elles transmises au SCC?
+            description: Transmission des déclarations de naissance à l'état civil
+          csc_event_reg_type:
+            title: Enregistrer les événements de l'état civil ?
+            description: Comment enregistrer les événements de l’état civil ?
+      infra:
+        title: Infrastructures et équipements
+        sections:
+          eq:
+            title: Équipement fonctionnel
+            fields:
+              tablet_count:
+                title: "# de comprimés"
+              pc_count:
+                title: Nombre d'ordinateurs
+              printer_count:
+                title: "# d'imprimantes"
+              scanner_count:
+                title: Nombre de scanners
+              car_count:
+                title: "# de voitures"
+              bike_count:
+                title: "# de vélos"
+        fields:
+          toilet_present:
+            title: Y a-t-il des toilettes ?
+            description: Présence de toilettes accessibles aux usagers dans l'établissement
+          eneo_connection:
+            title: Connexion de zone ?
+            description: L'installation est-elle connectée au réseau électrique (ENEO) ?
+          backup_power_available:
+            title: Dispose-t-il d'une source d'alimentation de secours ?
+            description: Le centre dispose-t-il d'une source d'énergie de secours ou
+              alternative
+          backup_power:
+            title: Sources d'alimentation de secours
+          has_internet:
+            title: Dispose-t-il d'une connexion Internet ?
+          water_source_available:
+            title: Y a-t-il une source d'eau ?
+            description: Disponibilité de l'approvisionnement en eau pour l'installation
+          water_sources:
+            title: Sources d'eau
+            description: Liste des sources d'eau disponibles pour l'installation
+      staff:
+        title: Staff & Personnel Status
+        fields:
+          employee_count:
+            title: "# d'employés"
+        sections:
+          employees:
+            title: Liste du personnel de l'état civil
+            fields:
+              index:
+                title: Indice
+              names:
+                title: Noms
+              position:
+                title: Position
+              gender:
+                title: Genre
+              phone:
+                title: Numéro de téléphone (WhatsApp)
+              age:
+                title: Âge
+              has_cs_training:
+                title: Formation CS
+                description: Le personnel a-t-il reçu une formation en matière d'état civil ?
+              ed_level:
+                title: Niveau d'éducation
+                description: Niveau d'éducation le plus élevé atteint par le membre du personnel
+              computer_level:
+                title: Compétences informatiques
+                description: Compétences en connaissances informatiques
+      extras:
+        title: Commentaires et plus
+        fields:
+          relevant_info:
+            title: Informations pertinentes
+            description: Toute information supplémentaire pertinente sur l’installation
     fields:
-      names:
-        title: Noms de premier et de famille
-      position:
-        title: Fonction
-        description: Position / fonction dans l'établissement de santé
-      phone:
-        title: Numéro de téléphone
-        description: Numéro de téléphone (de préférence WhatsApp)
-      email:
-        title: E-mail
-        description: Adresse e-mail (e-mail de travail)
-      creation_date:
-        title: Créé à
-        description: Année de création de l'établissement de santé (DD / mm / yyyy)
-      department:
-        title: Division
-        description: Division dans la région
-      communes:
-        title: Ville / ville
-      quarter:
-        title: Quartier
-      locality:
-        title: Localité
-      fosa_name:
-        title: Nom de l'installation
-        description: Nom complet de l'installation FOSA
-      district:
-        title: District de santé
-        description: District de santé associé
-      health_area:
-        title: Domaine de santé
-      environment:
-        title: Type d'environnement
-        options:
-          urban:
-            title: Urbain
-          rural:
-            title: Rural
-      fosa_type:
-        title: Type d'installation
-      fosa_status:
-        title: Statut de l'établissement
-      has_maternity:
-        title: A la maternité
-        description: Existence d'une maternité dans l'établissement de santé
-      csc_reg:
-        title: CSC associé
-        description: Bureau de registre local
-      distance_csc:
-        title: Proximité du CSC
-        description: Distance moyenne du bureau du registre
+      index:
+        title: Indice
+      validation_code:
+        title: Code de validation
+        description: Le code de validation est utilisé pour vérifier l'authenticité de
+          la soumission. Il doit s'agir d'une chaîne alphanumérique unique.
       region:
         title: Région
-      dhis2_usage:
-        title: DHIS2 Usage
-        description: Utilisation de DHIS2 dans la formation en santé
-      uses_bunec_birth_form:
-        title: Utilise le formulaire de naissance de Bunec
-        description: Enregistrement des naissances sur le formulaire standardisé fourni par BUNEC
-      uses_dhis2_form:
-        title: Utilise des formulaires DHIS2
-        description: Formation à l'utilisation du formulaire standardisé DHIS2
-      birth_declaration_transmission_to_csc:
-        title: Déclarations de naissance à CSC
-        description: Transmission des déclarations de naissance au bureau du registre
-      csc_event_reg_type:
-        title: Enregistrer les événements de statut civil?
-        description: Comment enregistrez-vous les événements de statut civil?
       stats:
-        title: Statistiques essentielles depuis 5 ans
+        title: Statistiques de l'état civil des 5 dernières années
       toilet_present:
-        title: A des toilettes?
+        title: Y a-t-il des toilettes ?
       toilet_resent:
-        description: Présence de toilettes accessibles pour les utilisateurs de l'établissement
+        description: Présence de toilettes accessibles aux usagers dans l'établissement
       has_eneo_connection:
-        title: Connexion d'emplacement?
-        description: L'installation est-elle connectée au réseau électrique (ENEO)?
+        title: Connexion de zone ?
+        description: L'installation est-elle connectée au réseau électrique (ENEO) ?
       has_power_source:
-        title: A une source d'alimentation d'urgence?
-        description: Le centre a-t-il une source d'urgence ou alternative de puissance
+        title: Dispose-t-il d'une source d'alimentation de secours ?
+        description: Le centre dispose-t-il d'une source d'énergie de secours ou alternative
       alternative_power:
-        title: Sources d'alimentation de sauvegarde
+        title: Sources d'alimentation de secours
       internet_conn:
-        title: A une connexion Internet?
+        title: Dispose-t-il d'une connexion Internet ?
       has_water_source:
-        title: Source d'eau alternative?
-        description: Disponibilité d'un alternative en eau pour l'installation
+        title: Source d’eau alternative ?
+        description: Disponibilité d'un approvisionnement en eau alternatif pour
+          l'installation
       water_source:
         title: Sources d'eau
       inventory:
-        title: Équipement fonctionnel dans l'inventaire
+        title: Équipements fonctionnels en inventaire
       personnel_status:
-        title: Liste du personnel du registre civil
+        title: Liste du personnel de l'état civil
       key_personnel_count:
-        title: Personnel clé pour les décès / naissances
-        description: Combien de membres du personnel clé sont en charge du registre civil (départements de maternité et de décès)
+        title: Personnel clé en cas de décès/naissances
+        description: Combien de membres du personnel clé sont en charge de l'état civil
+          (services de maternité et de décès)
       bike_count:
         title: Vélos
       car_count:
@@ -652,41 +718,40 @@ fosa:
       printer_count:
         title: Imprimantes
       pc_count:
-        title: Ordinateur
-      index: Indice
-      validation_code: Code de validation
-      responding_device:
-        title: Quel appareil utilisez-vous pour remplir le questionnaire?
+        title: Ordinateurs
     msg:
-      value_out_of_range: Valeur hors de portée
+      value_out_of_range: Valeur hors plage
   open_filters: Filtres
 forms:
   validation:
     msg:
       field_required: Ce champ est obligatoire
   msg:
-    invalid_value: Valeur non valide
+    invalid_value: Valeur invalide
   footer:
     actions:
       finish: Enregistrer les modifications
-      discard: Jeter les changements
+      discard: Ignorer les modifications
   header:
     actions:
+      save_changes: Enregistrer les modifications
+      discard: Ignorer les modifications
       navigation:
-        prev: Crévuré
+        prev: Précédent
         next: Suivant
+      field_mapper: Mappeur
     controls:
       index: Indice
       validation_code: Code de validation
     date:
       new: Nouvelle soumission
     index_search:
-      prompt: Recherche d'index
+      prompt: Index de recherche
 controls:
   stats_collector:
     actions:
       add_new: Ajouter
-      remove_selection: Supprimer sélectionné
+      remove_selection: Supprimer la sélection
   inventory:
     columns:
       quantity: Quantité
@@ -723,13 +788,13 @@ data_personnel:
     status:
       title: Statut professionnel
     ec_training:
-      title: A une formation sur le statut civil
+      title: Possède une formation en Etat Civil
     has_pc_training:
-      title: A une formation informatique
+      title: Possède une formation en informatique
     archiving_training:
-      title: A une formation d'archivage
+      title: A une formation en archivage
     monthly_revenue:
-      title: Revenus mensuels
+      title: Revenu mensuel
 data_chefferie_personnel:
   columns:
     name:
@@ -773,28 +838,30 @@ filters:
   sorting:
     title: Tri
   facility_name:
-    title: Nom de l'installation
+    title: Nom de l'établissement
   index:
     title: Indice
 loading:
   txt: Chargement...
+refresh:
+  txt: Recharger
 Dialog:
   filters:
     clear: Réinitialiser
 filter:
   operators:
-    eq: Équivaut à
+    eq: Égal à
     ne: Pas égal à
-    gt: Supérieur à
+    gt: Plus grand que
     lt: Moins que
     before: Avant
-    before_or_today: Avant ou sur
+    before_or_today: Avant ou le
     after: Après
     after_or_today: Après ou sur
     between: Entre
     contains: Contient
-    gte: Plus grand ou égal
-    lte: Moins que ou égaux
+    gte: Supérieur ou égal
+    lte: Inférieur ou égal
     start_with: Commence par
     ends_with: Se termine par
     in: Dans
@@ -802,10 +869,19 @@ filter:
     nn: N'est pas nul
 and: et
 msg:
-  restart_notice: Configuration à l'échelle du système mise à jour. L'application doit être redémarrée pour appliquer les modifications.
+  error:
+    title: Une erreur s'est produite
+  restart_notice: Configuration à l'échelle du système mise à jour. L'application
+    doit être redémarrée pour appliquer les modifications.
   discard_msg:
-    txt: Êtes-vous sûr de vouloir éliminer les modifications que vous avez apportées?
+    txt: Êtes-vous sûr de vouloir annuler les modifications que vous avez
+      apportées ?
   ok: D'accord
+  changes_saved:
+    title: Succès
+    description: Modifications enregistrées avec succès
+  saving_changes:
+    description: Enregistrement des modifications...
 stage:
   notificationPane:
     restart:
@@ -813,8 +889,8 @@ stage:
         text: Redémarrage
 choices:
   region:
-    west: Région ouest
-    south_west: Sud-ouest
+    west: Région Ouest
+    south_west: Sud-Ouest
   gender:
     male: Homme
     female: Femme
@@ -829,7 +905,9 @@ choices:
     none: Aucun
     good: Bien
 field_mapper:
-  title: Formez du mappeur sur le terrain
+  title: Mappeur de champs de formulaire
+  description: Mappez les champs du formulaire aux colonnes de la base de données
+    pour un stockage de données précis.
 mapper:
   categories:
     forms:
@@ -841,15 +919,15 @@ mapper:
           data_personnel:
             title: Personnel Info
           stats_0:
-            title: Statistiques vitales (ligne 1)
+            title: Statistiques de l'état civil (ligne 1)
           stats_1:
-            title: Statistiques vitales (ligne 2)
+            title: Statistiques de l'état civil (ligne 2)
           stats_2:
-            title: Statistiques vitales (ligne 3)
+            title: Statistiques de l'état civil (ligne 3)
           stats_3:
-            title: Statistiques vitales (ligne 4)
+            title: Statistiques de l'état civil (ligne 4)
           stats_4:
-            title: Statistiques vitales (ligne 5)
+            title: Statistiques de l'état civil (ligne 5)
       any:
         sub_forms:
           title: Sous-formulaires
@@ -864,39 +942,39 @@ mapper:
         base_fields:
           sections:
             deeds:
-              title: Les actes réunis, non retirés au cours des 5 dernières années
+              title: Actes établis, non retirés au cours des 5 dernières années
             infrastructure:
-              title: Infrastructure et équipement du centre
+              title: Infrastructures et équipements du Centre
             respondent:
-              title: L'intimé
+              title: Informations sur le répondant
             identification:
               title: Identification du centre
             accessibility:
               title: Accessibilité au centre
               sub_forms:
                 villages:
-                  title: Villages attachés
+                  title: Villages Attachés
             areas:
-              title: Zones consacrées au statut civil
+              title: Espaces consacrés à l'état civil
               sub_forms:
                 rooms:
-                  title: État des chambres consacrées au statut civil
+                  title: Etat des salles consacrées à l'état civil
             equipment:
-              title: Installations du Civil Registry Center (équipement fonctionnel)
+              title: Installations du Centre de l'État Civil (Équipements Fonctionnels)
             digitization:
-              title: Numérisation / informatisation du statut civil
+              title: Numérisation/Informatisation de l'état civil
             record_procurement:
-              title: L'approvisionnement des dossiers
+              title: Acquisition de dossiers
             stats:
-              title: Ressources financières liées aux documents de statistiques cibles
+              title: Ressources financières liées aux documents de l'état civil
             indexing:
-              title: Analyse / indexation des documents
+              title: Numérisation/indexation de documents
             archiving:
               title: Archivage
             records:
               title: Nombre de dossiers archivés (2020 à 2024)
             comments:
-              title: Commentaires et supplémentaires
+              title: Commentaires et plus
             personnel:
               sub_forms:
                 personnel_info:
@@ -910,7 +988,7 @@ chefferie:
   submissions:
     title: Submission - CHEFFERIE
   columns:
-    submitted: Ajouter la soumission
+    submitted: Ajouter une soumission
     recorded_at: Soumis
     last_updated_by: Enregistré à
     last_updated_at: Dernière mise à jour par
@@ -918,42 +996,42 @@ chefferie:
   form:
     sections:
       respondent:
-        title: Intimé
+        title: Le défendeur
       structure_identification:
-        title: Identification de la structure
+        title: Identification des structures
       service_offered_and_amenities:
-        title: Services offerts et équipements
+        title: Services offerts et commodités
       infra_eq:
-        title: Infrastructure et équipement
+        title: Infrastructures et équipements
       personnel_status:
         title: Personnel Status
       geo_point:
         title: Coordonnées géographiques
       extra:
-        title: Commentaires et supplémentaires
+        title: Commentaires et plus
       equipment:
         sections:
           equipment:
             title: Informations sur l'équipement
         structure_info:
-          title: Informations et installations du bâtiment
+          title: Informations sur le bâtiment et installations
     finish: Finition
     discard: Jeter
     fields:
       names:
-        title: Noms de premier et de famille
+        title: Nom et prénom
       position:
         title: Fonction
-        description: Position / fonction dans l'établissement de santé
+        description: Poste/fonction dans l’établissement de santé
       phone:
         title: Numéro de téléphone
         description: Numéro de téléphone (de préférence WhatsApp)
       email:
         title: E-mail
-        description: Adresse e-mail (e-mail de travail)
+        description: Adresse e-mail (e-mail professionnel)
       creation_date:
         title: Créé à
-        description: Année de création de l'établissement de santé (DD / mm / yyyy)
+        description: Année de création de l'établissement de santé (jj/MM/AAAA)
       environment:
         options:
           urban:
@@ -966,71 +1044,73 @@ chefferie:
         title: Division
         description: Division dans la région
       communes:
-        title: Ville / ville
+        title: Ville/Ville
       quarter:
         title: Quartier
       name:
-        title: Nom de la Cheffery
+        title: Nom de la CHEFFERIE
       classification:
         title: Classification
         description: Classification of the chefferie
         option:
           first: 1ier degr� ou Lamidat
-          second: 2e degr
+          second: 2e degré
       distance:
-        title: Distance du centre de statut civil le plus proche
+        title: Distance au centre d'état civil le plus proche
       fonction:
-        title: Fonction de statut civil
-        description: Fonction de statut civil exercé par le chef ou une notable dans la chefferie
+        title: Fonction d'état civil
+        description: Fonction d'état civil exercée par le chef ou un notable de la chefferie
         option:
-          first: Oui, officier de statut civil
-          second: Oui, secrétaire du statut civil
+          first: Oui, Officier de l'Etat Civil
+          second: Oui, Secrétaire à l'Etat Civil
           third: Non
       benefit:
         title: Prestation de serment
-        description: Jurer dans le chef ou notable de la chefferie
+        description: Prestation de serment du chef ou d'un notable de la chefferie
         option:
           first: Oui
           second: Non
       conservation_place:
         title: Lieu de conservation
-        description: Lieu de conservation des registres de statut civil
+        description: Lieu de conservation des registres de l'état civil
         option:
-          first: Dans une pièce réservée
+          first: Dans une salle réservée
           second: Dans la maison du chef
-          third: D'autres (veuillez spécifier)
+          third: Autres (veuillez préciser)
       training:
-        title: L'officier de statut civil est-il formé
-        description: Formation reçue sur le statut civil du chef ou une notable de la chefferie
+        title: L'officier de l'état civil est-il formé
+        description: Formation reçue sur l'état civil du chef ou d'un notable de la
+          chefferie
         option:
           first: Oui
           second: Non
       waiting_room:
         title: Espace ou salle d'attente disponible
-        description: Espace ou salle d'attente disponible pour les utilisateurs
+        description: Espace ou salle d'attente disponible pour les usagers
         option:
           first: Oui
           second: Non
       cs_actor_is_chief:
-        title: Le chef exerce-t-il le statut civil?
-        description: La fonction de statut civil est-elle remplie par le chef ou notable dans la chefferie?
+        title: Le chef exerce-t-il la fonction d’état civil ?
+        description: La fonction d'état civil est-elle exercée par le chef ou un notable
+          de la chefferie ?
       reception_location:
-        description: Zone de réception des utilisateurs dans la chefferie
+        description: Aire d'accueil des usagers dans la chefferie
         option:
           first: Dans une salle r�serv�e
           second: Dans le domicile du chef
           third: Autres (A pr�ciser)
       toilets_accessible:
         title: Disponibilité des toilettes
-        description: Disponibilité des toilettes accessibles aux utilisateurs
+        description: Disponibilité de toilettes accessibles aux usagers
         option:
           first: Oui
           second: Non
       Functional_equipment:
         title: Équipement fonctionnel
-        description: 'Équipement fonctionnel dans la chefferie: types et quantités'
+        description: "Équipements fonctionnels dans la chefferie : types et quantités"
       equipment_question:
-        title: 'Équipement fonctionnel dans la chefferie: types et quantités'
+        title: "Équipements fonctionnels dans la chefferie : types et quantités"
       equipment_quantity:
         computers:
           description: Nombre d'ordinateurs
@@ -1043,14 +1123,14 @@ chefferie:
         motorcycles:
           description: Nombre de motos
       structure:
-        title: La chefferie est-elle la résidence du chef?
-        description: Le bâtiment de chefferie est-il, la résidence du chef?
+        title: La chefferie construit-elle la résidence du chef ?
+        description: Le bâtiment de la chefferie est-il la résidence du chef ?
         option:
           first: Oui
           second: Non
       connexion:
         title: accès Internet
-        description: Chefferie connexion Internet
+        description: Connexion Internet de la Chefferie
         option:
           first: Oui
           second: Non
@@ -1059,16 +1139,16 @@ chefferie:
         description: Type de connexion Internet disponible
       eneoConnexion:
         title: Accès ENEO
-        description: Connexion de la chefferie au réseau d'électricité (ENEO)
+        description: Raccordement de la chefferie au réseau électrique (ENEO)
       waterAcces:
         title: Disponibilité de l'eau
         description: Disponibilité d'une source d'approvisionnement en eau dans la chefferie
       waterType:
-        title: Source d'eau disponible (s) disponible
-        description: Type de source d'alimentation en eau
+        title: Source(s) d'eau disponible(s)
+        description: Type de source d'approvisionnement en eau
       extinguisher:
-        title: Extincteur de feu
-        description: Extincteur de feu de travail disponible dans la chefferie
+        title: Extincteur fonctionnel
+        description: Extincteur fonctionnel disponible dans la chefferie
         option:
           first: Oui
           second: Non
@@ -1076,8 +1156,8 @@ chefferie:
         connexion:
           option:
             first: 2G
-            second: Zg
-            third: Hgu
+            second: ZG
+            third: ChG
             fourth: ADSL (téléphone filaire)
             fith: Fibre optique
       eneo:
@@ -1092,30 +1172,31 @@ chefferie:
             second: Non
         type:
           option:
-            first: Ewater
-            second: Bien construit / forage
-            third: Puits non développé / traditionnel
+            first: CAMWATER
+            second: Bien construit/Forage
+            third: Puits non développé/traditionnel
             fourth: Cours d'eau
-            fith: D'autres (veuillez spécifier)
+            fith: Autres (veuillez préciser)
       employer:
-        title: Personnel en charge de l'état civil
-        description: Combien de membres du personnel sont chargés du statut civil dans la chefferie?
+        title: Personnel chargé de l'état civil
+        description: Combien de personnels sont chargés de l’état civil dans la chefferie ?
       facility_name:
         title: Nom complet de la chefferie
       extra_info:
-        description: Veuillez utiliser l'espace fourni pour ajouter toute information pertinente supplémentaire.
-        title: Des informations supplémentaires
+        description: Veuillez utiliser l'espace prévu pour ajouter toute information
+          supplémentaire pertinente.
+        title: Informations supplémentaires
       index: Indice
       validation_code: Code de validation
       other_water_source:
-        description: Autres aliments disponibles en eau potable
-        title: Spécifiez la source d'eau
+        description: Autre approvisionnement en eau potable disponible
+        title: Préciser la source d'eau
       oath:
-        title: Le chef ou le notable a-t-il prêté serment?
+        title: Le chef ou le notable a-t-il prêté serment ?
       cs_reg_location:
-        title: Emplacement des registres civils
+        title: Localisation des registres d'état civil
       other_cs_reg_location:
-        title: Spécifiez le lieu du registre de l'état civil
+        title: Préciser le lieu de l'état civil
       other_internet_type:
         title: Spécifiez le type de connexion Internet
       degree:
@@ -1125,25 +1206,37 @@ chefferie:
           second_degree:
             title: Deuxième degré
       other_waiting_room:
-        title: Spécifiez l'emplacement de la salle d'attente
+        title: Préciser l'emplacement de la salle d'attente
       reception:
         title: Réception des utilisateurs
       other_recep:
-        title: Spécifiez la zone de réception
+        title: Préciser la zone d'accueil
     msg:
-      invalid_value: Valeur non valide
+      invalid_value: Valeur invalide
 services:
   auth:
-    user_not_found: Nom d'utilisateur ou mot de passe non valide
+    user_not_found: Nom d'utilisateur ou mot de passe invalide
 submissions:
+  title: Soumissions de formulaires
   context_menu:
     actions:
       delete: Supprimer
   columns:
-    index: Indice
-    facility_name: Nom de l'installation
+    index:
+      title: Indice
+    facility_name:
+      title: Nom de l'établissement
+    validation_code:
+      title: Code de validation
+    submission_date:
+      title: Date de soumission
+    validation_status:
+      title: Statut de validation
+      options:
+        approved: Approuvé
+        unapproved: Non approuvé
   filter:
-    prompt: Filtre par "nom de l'installation", "code de validation", "index"
+    prompt: Filtrer par « Nom de l'établissement », « Code de validation », « Index »
 range_0_100: min
 range_1_50: min
 range_1980_current_year: min

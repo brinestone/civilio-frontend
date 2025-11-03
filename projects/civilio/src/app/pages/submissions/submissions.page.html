@@ -1,150 +1,145 @@
-<div class="page-header !justify-start gap-4 items-center">
-  <!-- <h1 class="page-title">Form Submissions</h1> -->
-  <div class="flex gap-2 items-center">
-    <button
-      [disabled]="submissions.isLoading()"
-      hlmBtn
-      variant="outline"
-      (click)="submissions.reload()"
-    >
-      <ng-icon
-        name="lucideRefreshCw"
-        [class.animate-spin]="submissions.isLoading()"
-      />
-      <span>
-        @if (submissions.isLoading()) {
-          {{ "loading.txt" | translate }}
-        } @else {
-          {{ "refresh.txt" | translate }}
-        }
-      </span>
-    </button>
-    <brn-select
-      [disabled]="submissions.isLoading()"
-      [(value)]="formType"
-      class="inline-block"
-      placeholder="Select a Form type"
-    >
-      <hlm-select-trigger>
-        <hlm-select-value
-          class="uppercase cursor-pointer placeholder:capitalize"
-        />
-      </hlm-select-trigger>
-      <hlm-select-content class="w-56">
-        @for (option of formTypeOptions; track $index) {
-          <hlm-option [value]="option" class="uppercase">{{
-            option
-          }}</hlm-option>
-        }
-      </hlm-select-content>
-    </brn-select>
-  </div>
+<div class="page-header justify-start! gap-4 items-center">
+	<!-- <h1 class="page-title">Form Submissions</h1> -->
+	<div class="flex gap-2 items-center">
+		<button
+			[disabled]="submissions.isLoading()"
+			hlmBtn
+			variant="outline"
+			(click)="submissions.reload()"
+		>
+			<ng-icon
+				name="lucideRefreshCw"
+				[class.animate-spin]="submissions.isLoading()"
+			/>
+			<span>
+				@if (submissions.isLoading()) { {{ "loading.txt" | translate }} } @else
+				{ {{ "refresh.txt" | translate }} }
+			</span>
+		</button>
+		<brn-select
+			[disabled]="submissions.isLoading()"
+			[(value)]="formType"
+			class="inline-block"
+			[placeholder]="'misc.form_type.placeholder' | translate"
+		>
+			<hlm-select-trigger>
+				<hlm-select-value
+					class="uppercase cursor-pointer placeholder:capitalize"
+				/>
+			</hlm-select-trigger>
+			<hlm-select-content class="w-56">
+				@for (option of formTypeOptions; track $index) {
+				<hlm-option [value]="option" class="uppercase">{{ option }}</hlm-option>
+				}
+			</hlm-select-content>
+		</brn-select>
+	</div>
 </div>
 <section class="page-section">
-  <div class="justify-between flex items-center">
-    <input
-      type="search"
-      hlmInput
-      placeholder="Filter submissions..."
-      [(ngModel)]="filter"
-    />
-    <div></div>
-  </div>
-  <div
-    class="border-border block w-full rounded-md max-h-[35rem] overflow-y-auto relative border"
-  >
-    <table hlmTable class="w-full">
-      <thead
-        hlmTHead
-        class="sticky top-0 border-b border-border backdrop-blur-md"
-      >
-        @for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
-          <tr hlmTr>
-            @for (header of headerGroup.headers; track header.id) {
-              <th hlmTh [attr.colspan]="header.colSpan">
-                @if (!header.isPlaceholder) {
-                  <ng-container
-                    *flexRender="
+	<div class="justify-between flex items-center">
+		<input
+			type="search"
+			hlmInput
+			[placeholder]="'misc.placeholder.filter_submissions' | translate"
+			[(ngModel)]="filter"
+		/>
+		<div></div>
+	</div>
+	<div
+		class="border-border block w-full rounded-md max-h-140 overflow-y-auto relative border"
+	>
+		<table hlmTable class="w-full">
+			<thead
+				hlmTHead
+				class="sticky top-0 border-b border-border backdrop-blur-md"
+			>
+				@for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+				<tr hlmTr>
+					@for (header of headerGroup.headers; track header.id) {
+					<th hlmTh [attr.colspan]="header.colSpan">
+						@if (!header.isPlaceholder) {
+						<ng-container
+							*flexRender="
                       header.column.columnDef.header;
                       props: header.getContext();
                       let headerText
                     "
-                  >
-                    <p>{{ headerText }}</p>
-                  </ng-container>
-                }
-              </th>
-            }
-          </tr>
-        }
-      </thead>
-      <tbody hlmTBody>
-        @for (row of table.getRowModel().rows; track row.id) {
-          <tr
-            hlmTr
-            [attr.key]="row.id"
-            [attr.data-state]="row.getIsSelected() && 'selected'"
-            (dblclick)="openSubmission(row.original.index)"
-            class="cursor-pointer"
-            title="Double click to open the submission form"
-          >
-            @for (cell of row.getVisibleCells(); track $index) {
-              <td hlmTd>
-                <ng-container
-                  *flexRender="
+						>
+							<p>{{ headerText | translate }}</p>
+						</ng-container>
+						}
+					</th>
+					}
+				</tr>
+				}
+			</thead>
+			<tbody hlmTBody>
+				@for (row of table.getRowModel().rows; track row.id) {
+				<tr
+					hlmTr
+					[attr.key]="row.id"
+					[attr.data-state]="row.getIsSelected() && 'selected'"
+					(dblclick)="openSubmission(row.original.index)"
+					class="cursor-pointer"
+					[title]="'misc.row.dbl_click' | translate"
+				>
+					@for (cell of row.getVisibleCells(); track $index) {
+					<td hlmTd>
+						<ng-container
+							*flexRender="
                     cell.column.columnDef.cell;
                     props: cell.getContext();
                     let cell
                   "
-                >
-                  {{ cell }}
-                </ng-container>
-              </td>
-            }
-          </tr>
-        } @empty {
-          <tr hlmTr>
-            <td
-              hlmTd
-              [attr.colspan]="columnConfig.length"
-              class="h-24 text-center"
-            >
-              @if (submissions.isLoading()) {
-                {{ "loading.txt" | translate }}
-              } @else {
-                {{ "tmpl.table.no_data" | translate }}
-              }
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-  <div class="flex justify-between items-center">
-    <p class="text-sm text-[var(--muted-foreground)]">
-      Showing from {{ currentRange()[0] + 1 | number }} to
-      {{ currentRange()[1] | number }} of
-      {{ submissions.value()?.totalRecords ?? 0 | number }} records.
-    </p>
-    <div class="flex gap-3 items-center justify-end">
-      <button
-        size="sm"
-        [disabled]="pagination().pageIndex === 0"
-        (click)="table.previousPage()"
-        hlmBtn
-        variant="outline"
-      >
-        Previous
-      </button>
-      <button
-        size="sm"
-        [disabled]="pagination().pageIndex + 1 >= totalPages()"
-        (click)="table.nextPage()"
-        hlmBtn
-        variant="outline"
-      >
-        Next
-      </button>
-    </div>
-  </div>
+						>
+							{{ cell }}
+						</ng-container>
+					</td>
+					}
+				</tr>
+				} @empty {
+				<tr hlmTr>
+					<td
+						hlmTd
+						[attr.colspan]="columnConfig.length"
+						class="h-24 text-center"
+					>
+						@if (submissions.isLoading()) { {{ "loading.txt" | translate }} }
+						@else { {{ "tmpl.table.no_data" | translate }} }
+					</td>
+				</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div class="flex justify-between items-center">
+		<p class="text-sm text-(--muted-foreground)">
+			{{'misc.pagination.template' | translate:{ start: currentRange()[0] + 1 |
+			number, end: currentRange()[1] | number, total:
+			submissions.value()?.totalRecords ?? 0 | number } }}
+			<!-- Showing from {{ currentRange()[0] + 1 | number }} to {{ currentRange()[1]
+			| number }} of {{ submissions.value()?.totalRecords ?? 0 | number }}
+			records. -->
+		</p>
+		<div class="flex gap-3 items-center justify-end">
+			<button
+				size="sm"
+				[disabled]="pagination().pageIndex === 0"
+				(click)="table.previousPage()"
+				hlmBtn
+				variant="outline"
+			>
+				{{'misc.pagination.prev' | translate}}
+			</button>
+			<button
+				size="sm"
+				[disabled]="pagination().pageIndex + 1 >= totalPages()"
+				(click)="table.nextPage()"
+				hlmBtn
+				variant="outline"
+			>
+				{{ 'misc.pagination.next' | translate }}
+			</button>
+		</div>
+	</div>
 </section>

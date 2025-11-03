@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply flex justify-between items-center py-1 px-4;
+}

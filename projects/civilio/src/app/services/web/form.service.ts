@@ -1,11 +1,14 @@
 import { Injectable } from "@angular/core";
-import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse } from "@civilio/shared";
+import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse, RemoveFieldMappingRequest, RemoveFieldMappingResponse } from "@civilio/shared";
 import { FormService } from "../form";
 
 @Injectable({
   providedIn: null
 })
 export class WebFormService implements FormService {
+	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse> {
+		throw new Error("Method not implemented.");
+	}
 	updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse> {
 		throw new Error("Method not implemented.");
 	}
