@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import {
 	AfterViewInit,
+	ChangeDetectionStrategy,
 	Component,
 	computed,
 	effect,
@@ -45,7 +46,6 @@ import { find } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable, pipe } from "rxjs";
-// import { HlmResizableImports } from '@spartan-ng/helm/resizable';
 
 @Component({
 	selector: "cv-form-page",
@@ -64,7 +64,7 @@ import { concatMap, filter, map, Observable, pipe } from "rxjs";
 		NgTemplateOutlet,
 		HlmBadge,
 	],
-	// changeDetection: ChangeDetectionStrategy.OnPush,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
 	styleUrl: "./form.page.scss",
 })

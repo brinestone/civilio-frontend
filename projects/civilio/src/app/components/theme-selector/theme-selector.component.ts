@@ -3,9 +3,10 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideComputer, lucideMoon, lucideSun } from "@ng-icons/lucide";
 import { dispatch, select } from "@ngxs/store";
 import { BrnToggleGroupImports } from "@spartan-ng/brain/toggle-group";
-import { HlmToggleGroupModule } from "@spartan-ng/helm/toggle-group";
+import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { SetTheme } from "../../store/config";
 import { currentTheme } from "../../store/selectors";
+
 
 @Component({
 	selector: 'cv-theme-selector',
@@ -17,7 +18,7 @@ import { currentTheme } from "../../store/selectors";
 		})
 	],
 	imports: [
-		HlmToggleGroupModule, NgIcon, BrnToggleGroupImports
+		HlmToggleGroupImports, NgIcon, BrnToggleGroupImports
 	],
 	templateUrl: './theme-selector.component.html',
 	styleUrl: './theme-selector.component.scss'

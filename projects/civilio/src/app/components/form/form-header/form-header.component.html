@@ -24,7 +24,7 @@
 		[filteredOptions]="indexSuggestions.value()"
 		[loading]="indexSuggestions.isLoading()"
 		[value]="submissionIndex()"
-		(valueChange)="onAutoCompleteIndexValueChanged($event)"
+		(valueChange)="onAutoCompleteIndexValueChanged($any($event))"
 		[emptyText]="'tmpl.autocomplete.empty_text' | translate"
 		[loadingText]="'loading.txt' | translate"
 		[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
