@@ -11,7 +11,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
-import { dispatch, select, Store } from '@ngxs/store';
+import { dispatch, select } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { BadgeVariants, HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -125,19 +125,22 @@ export class ButtonCell {
 })
 export class SubmissionsPage implements OnInit {
 	private navigate = dispatch(Navigate);
+	private setFormType = dispatch(SetFormType);
 
 	private readonly injector = inject(Injector);
 	private formService = inject(ElectronFormService);
 	protected readonly formTypeOptions = FormTypeSchema.options
-	protected readonly formType = signal<FormType>('fosa');
+	protected readonly formType = select(lastFocusedFormType);
 	protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
 	protected readonly filter = model('');
 	private readonly filterQuery = debounceSignal(this.filter);
 	protected submissions = resource({
 		params: () => ({ filter: this.filterQuery()?.trim(), form: this.formType(), pagination: this.pagination() }),
-		loader: ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
-			return this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
-		}
+		loader: async ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
+			if (!form) return { data: [], totalRecords: 0 };
+			return await this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
+		},
+		defaultValue: { data: [], totalRecords: 0 }
 	});
 	protected readonly currentRange = computed(() => [
 		this.pagination().pageIndex * this.pagination().pageSize,
@@ -221,14 +224,9 @@ export class SubmissionsPage implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.formType.set(this.store.selectSnapshot(lastFocusedFormType) ?? 'csc');
 	}
 
-	constructor(private store: Store) {
-		effect(() => {
-			const form = this.formType();
-			this.filter.set('');
-			store.dispatch(new SetFormType(form));
-		});
+	protected onFormTypeChanged(type: FormType) {
+		this.setFormType(type);
 	}
 }

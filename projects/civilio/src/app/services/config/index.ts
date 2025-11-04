@@ -5,6 +5,7 @@ import { ElectronConfigService } from "../electron/config.service";
 import { WebConfigService } from "../web/config.service";
 
 export interface ConfigService {
+	setFontSize(size: number): Promise<AppConfigResponse>;
   setDbConfig(dbConfig: DbConfig): Promise<AppConfigResponse>;
   testDb(input: TestDbConnectionRequest): Promise<TestDbConnectionResponse>;
   setLocale(locale: Locale): Promise<AppConfigResponse>;

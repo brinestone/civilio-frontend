@@ -1,1 +1,21 @@
-<p>form-footer works!</p>
+<div class="px-3 flex justify-between bg-(--card) border-y border-border h-8">
+	<ul
+		cdkListbox
+		[cdkListboxValue]="[currentTab()]"
+		(cdkListboxValueChange)="onTabChange($event.value[0])"
+		class="list-none flex items-center"
+	>
+		@for (tab of tabs; track $index) {
+			<li
+				[cdkOption]="tab.key"
+				class="inline-flex items-center border-b-2 border-transparent gap-2 p-1 cursor-pointer hover:bg-muted px-3 text-sm"
+			>
+				<ng-icon [name]="tab.icon" />
+				<span>{{ tab.key + ".title" | translate }}</span>
+			</li>
+		}
+	</ul>
+</div>
+<div class="overflow-y-auto h-[calc(100%-2rem)]">
+
+</div>

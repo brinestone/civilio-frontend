@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import {
 	AfterViewInit,
+	ChangeDetectionStrategy,
 	Component,
 	computed,
 	effect,
@@ -46,8 +47,6 @@ import { derivedFrom } from "ngxtension/derived-from";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable, pipe } from "rxjs";
 
-const LOADING_LOCK = "loading";
-
 @Component({
 	selector: "cv-form-page",
 	viewProviders: [
@@ -65,7 +64,7 @@ const LOADING_LOCK = "loading";
 		NgTemplateOutlet,
 		HlmBadge,
 	],
-	// changeDetection: ChangeDetectionStrategy.OnPush,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
 	styleUrl: "./form.page.scss",
 })

@@ -2,6 +2,7 @@ ignoredBuiltDependencies:
   - nx
 
 onlyBuiltDependencies:
+  - '@bitdisaster/exe-icon-extractor'
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
   - electron

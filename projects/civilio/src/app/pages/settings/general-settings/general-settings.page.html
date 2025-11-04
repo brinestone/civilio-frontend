@@ -9,3 +9,22 @@
 	<h2 class="section-title">{{ 'settings.lang' | translate }}</h2>
 	<cv-locale-selector />
 </section>
+<section class="page-section">
+	<h2 class="section-title">{{ 'settings.font-size.title' | translate }}</h2>
+	<brn-select
+		class="inline-block"
+		[value]="fontSize()"
+		scrollable="true"
+		(valueChange)="onFontSizeChanged($any($event))"
+		[placeholder]="'settings.font-size.placeholder' | translate"
+	>
+		<hlm-select-trigger class="w-40">
+			<hlm-select-value />
+		</hlm-select-trigger>
+		<hlm-select-content>
+			@for(size of fontSizes; track $index) {
+			<hlm-option [value]="size">{{ size }}</hlm-option>
+			}
+		</hlm-select-content>
+	</brn-select>
+</section>

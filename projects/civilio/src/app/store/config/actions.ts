@@ -2,28 +2,33 @@ import { Locale, ThemeMode } from "@civilio/shared";
 
 const prefix = '[config]';
 
+export class SetFontSize {
+	static type = `${prefix} set font size`;
+	constructor(readonly size: number) { }
+}
+
 export class LoadConfig {
-  static type = `${prefix} load configs`
+	static type = `${prefix} load configs`
 }
 
 export class SetTheme {
-  static type = `${prefix} set theme`;
-  constructor(readonly value: ThemeMode) { }
+	static type = `${prefix} set theme`;
+	constructor(readonly value: ThemeMode) { }
 }
 
 export class SetLocale {
-  static type = `${prefix} set locale`;
-  constructor(readonly locale: Locale) { }
+	static type = `${prefix} set locale`;
+	constructor(readonly locale: Locale) { }
 }
 
 export class TestDb {
-  static type = `${prefix} test connection`;
-  constructor(
-    readonly host: string,
-    readonly port: number,
-    readonly database: string,
-    readonly username: string,
-    readonly password: string,
-    readonly ssl: boolean = false
-  ) { }
+	static type = `${prefix} test connection`;
+	constructor(
+		readonly host: string,
+		readonly port: number,
+		readonly database: string,
+		readonly username: string,
+		readonly password: string,
+		readonly ssl: boolean = false
+	) { }
 }

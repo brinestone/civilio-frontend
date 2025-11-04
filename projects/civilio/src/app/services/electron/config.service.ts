@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AppConfigPaths, AppConfigSchema, DbConfig, Locale, TestDbConnectionRequest, TestDbConnectionResponseSchema, ThemeMode, UpdateConfigRequest } from '@civilio/shared';
+import { AppConfigPaths, AppConfigResponse, AppConfigSchema, DbConfig, Locale, TestDbConnectionRequest, TestDbConnectionResponseSchema, ThemeMode, UpdateConfigRequest } from '@civilio/shared';
 import { sendRpcMessageAsync } from '../../util';
 import { ConfigService } from '../config';
 
@@ -7,6 +7,12 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async setFontSize(size: number): Promise<AppConfigResponse> {
+		return await sendRpcMessageAsync('config:update', {
+			path: 'prefs.fontSize' as AppConfigPaths,
+			value: size
+		});
+	}
 	async setDbConfig(dbConfig: DbConfig) {
 		return await sendRpcMessageAsync('config:update', {
 			path: 'db' as AppConfigPaths,

@@ -18,7 +18,8 @@
 		</button>
 		<brn-select
 			[disabled]="submissions.isLoading()"
-			[(value)]="formType"
+			[value]="formType()"
+			(valueChange)="onFormTypeChanged($any($event))"
 			class="inline-block"
 			[placeholder]="'misc.form_type.placeholder' | translate"
 		>
@@ -46,7 +47,7 @@
 		<div></div>
 	</div>
 	<div
-		class="border-border block w-full rounded-md max-h-140 overflow-y-auto relative border"
+		class="border-border block w-full rounded-md max-h-[72vh] overflow-y-auto relative border"
 	>
 		<table hlmTable class="w-full">
 			<thead
@@ -116,10 +117,7 @@
 		<p class="text-sm text-(--muted-foreground)">
 			{{'misc.pagination.template' | translate:{ start: currentRange()[0] + 1 |
 			number, end: currentRange()[1] | number, total:
-			submissions.value()?.totalRecords ?? 0 | number } }}
-			<!-- Showing from {{ currentRange()[0] + 1 | number }} to {{ currentRange()[1]
-			| number }} of {{ submissions.value()?.totalRecords ?? 0 | number }}
-			records. -->
+			submissions.value().totalRecords | number } }}
 		</p>
 		<div class="flex gap-3 items-center justify-end">
 			<button

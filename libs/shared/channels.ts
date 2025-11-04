@@ -16,22 +16,22 @@ import {
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequestSchema,
 	FindSubmissionRefResponseSchema,
+	FormSubmissionUpdateRequestSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
 	LoadTranslationRequestSchema,
 	LoadTranslationResponseSchema,
+	RemoveFieldMappingRequestSchema,
+	RemoveFieldMappingResponseSchema,
 	TestDbConnectionRequestSchema,
 	TestDbConnectionResponseSchema,
 	UpdateConfigRequestSchema,
 	UpdateFieldMappingRequestSchema,
-	FormSubmissionUpdateRequestSchema,
+	UpdateLocaleRequestSchema,
 	UpdateSubmissionFormDataResponseSchema,
 	UpdateSubmissionSubFormDataRequestSchema,
 	UpdateSubmissionSubFormDataResponseSchema,
-	UpdateThemeRequestSchema,
-	RemoveFieldMappingRequestSchema,
-	RemoveFieldMappingResponseSchema,
-	UpdateLocaleRequestSchema
+	UpdateThemeRequestSchema
 } from './dto';
 import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
 
@@ -69,7 +69,7 @@ export const channelArgs = {
 	'submission-data:update': FormSubmissionUpdateRequestSchema,
 	'submission-sub-data:update': UpdateSubmissionSubFormDataRequestSchema,
 	'field-mapping:clear': RemoveFieldMappingRequestSchema,
-	'locale:update': UpdateLocaleRequestSchema
+	'locale:update': UpdateLocaleRequestSchema,
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,

@@ -1,4 +1,6 @@
-<div class="border-b border-border">
+<div
+	class="border-b border-border max-h-(--header-height) col-start-1 col-span-2 row-start-1 row-span-1"
+>
 	@let _index = submissionIndex();
 	<ng-container>
 		@if(_index) {
@@ -15,28 +17,27 @@
 		}
 	</ng-container>
 </div>
-<div class="grid grid-cols-[minmax(auto,240px)_1fr]">
-	<div class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto">
-		<ul class="list-none space-y-2">
-			@for(section of formModel().sections; track $index) {
-			<ng-container
-				[ngTemplateOutlet]="sectionItemTemplate"
-				[ngTemplateOutletContext]="{
-				$implicit: section
-			}"
-			/>
-			}
-		</ul>
-	</div>
-	<div class="grid-rows-[75vh_auto] grid">
-		<div class="overflow-y-auto">
-			<router-outlet />
-		</div>
-		<div class="border-t border-border shrink-0 overflow-y-auto">
-			<cv-form-footer />
-		</div>
-	</div>
+
+<div
+	class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto h-full col-start-1 col-span-1 row-start-2 row-span-2"
+>
+	<ul class="list-none space-y-2">
+		@for(section of formModel().sections; track $index) {
+		<ng-container
+			[ngTemplateOutlet]="sectionItemTemplate"
+			[ngTemplateOutletContext]="{
+			$implicit: section
+		}"
+		/>
+		}
+	</ul>
 </div>
+<div class="overflow-y-auto col-start-2 col-span-1 row-start-2 row-span-1">
+	<router-outlet />
+</div>
+<cv-form-footer
+	class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
+/>
 
 <ng-template #sectionItemTemplate let-parent="parent" let-section>
 	<ng-container>

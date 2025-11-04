@@ -6,6 +6,7 @@ const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
   {
     canActivate: [dbConfigValidGuardFn],
+		providers: [provideFormStore()],
     title: 'Form Submissions',
     path: 'submissions', loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
   },

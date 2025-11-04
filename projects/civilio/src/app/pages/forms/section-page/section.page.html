@@ -3,7 +3,7 @@
 		{{ sectionKey() + '.title' | translate }}
 	</h1>
 </div>
-form data: {{sectionData() | json}}
+<!-- form data: {{sectionData() | json}} -->
 <form [formGroup]="form" class="grid grid-cols-[1fr_1fr] gap-3 px-2">
 	@for(field of sectionSchema().fields; track $index) {
 	<ng-container>

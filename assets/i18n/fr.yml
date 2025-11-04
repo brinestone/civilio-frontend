@@ -57,6 +57,9 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
+  font-size:
+    title: Taille du texte
+    placeholder: Sélectionnez la taille du texte
   theme: Thème
   lang: Langue
   field_mapper: Mappeur
@@ -1241,3 +1244,10 @@ range_0_100: min
 range_1_50: min
 range_1980_current_year: min
 range_0_80000: min
+form:
+  footer:
+    tabs:
+      errors:
+        title: Erreurs
+      description:
+        title: Description

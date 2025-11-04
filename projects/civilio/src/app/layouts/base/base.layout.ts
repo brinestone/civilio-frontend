@@ -36,7 +36,7 @@ export class BaseLayout {
 	];
 	protected readonly wideLogoUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/LogoWide.png');
+			return await sendRpcMessageAsync('resource:read', 'img/outlined-logo.svg');
 		}
 	});
 }

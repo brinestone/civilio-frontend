@@ -1,7 +1,8 @@
 @reference "tailwindcss";
 
 :host {
-	@apply grid grid-rows-[auto_1fr] h-full;
+	--header-height: 2.826923076923077rem;
+	@apply grid grid-rows-[auto_1fr_20vh] grid-cols-[minmax(auto,240px)_1fr] overflow-hidden h-full;
 }
 
 .form-section {
