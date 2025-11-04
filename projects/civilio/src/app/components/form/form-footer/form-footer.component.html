@@ -8,14 +8,73 @@
 		@for (tab of tabs; track $index) {
 			<li
 				[cdkOption]="tab.key"
-				class="inline-flex items-center border-b-2 border-transparent gap-2 p-1 cursor-pointer hover:bg-muted px-3 text-sm"
+				class="gap-3 inline-flex items-center justify-between border-b-2 border-transparent p-1 cursor-pointer hover:bg-muted px-3 text-sm"
 			>
-				<ng-icon [name]="tab.icon" />
-				<span>{{ tab.key + ".title" | translate }}</span>
+				<div class="inline-flex items-center gap-1">
+					<ng-icon [name]="tab.icon" />
+					<span>{{ tab.key + ".title" | translate }}</span>
+				</div>
+				@if (tab.badgeValue) {
+					<span
+						class="rounded-full pt-0.5 size-5 text-xs text-center"
+						[ngClass]="{
+							'bg-red-500 text-white':
+								tab.badgeVariant == 'destructive' && currentTab() == tab.key,
+							'bg-muted': currentTab() != tab.key,
+						}"
+						>{{ tab.badgeValue() | number }}</span
+					>
+				}
 			</li>
 		}
 	</ul>
 </div>
-<div class="overflow-y-auto h-[calc(100%-2rem)]">
-
+<div class="overflow-y-auto h-[calc(100%-2rem)] px-4 pt-1 relative">
+	@switch (currentTab()) {
+		@case (errorTab.key) {
+			<ng-container [ngTemplateOutlet]="errorsTemplate" />
+		}
+		@case (descriptionTab.key) {
+			<ng-container [ngTemplateOutlet]="descriptionTemplate" />
+		}
+	}
 </div>
+
+<ng-template #descriptionTemplate>
+	<pre>
+		{{ allSectionErrors() | json }}
+	</pre
+	>
+</ng-template>
+
+<ng-template #errorsTemplate>
+	<div class="grid grid-cols-[minmax(auto,20%)_1fr] gap-x-3 gap-y-1">
+		@for (h of ["Field", "Message"]; track $index) {
+			<p
+				class="sticky top-0 font-semibold bg-(--background) border-b border-border"
+			>
+				{{ h }}
+			</p>
+		}
+
+		@let list = currentSectionErrors() | keyvalue;
+		@for (entry of list; track $index) {
+			<p class="line-clamp-1">{{ entry.key + ".title" | translate }}</p>
+			<p>
+				@for (err of entry.value | keyvalue; track $index) {
+					@switch (err.key) {
+						@case ("required") {
+							{{ err.value | translate }}
+						}
+						@case ("pattern") {
+							{{ err.value | translate }}
+						}
+						@default {
+							{{ err | json }}
+						}
+					}
+				}
+			</p>
+		}
+	</div>
+</ng-template>

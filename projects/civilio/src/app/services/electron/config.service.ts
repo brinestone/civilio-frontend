@@ -7,6 +7,12 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async updateMisc(path: string, value: unknown): Promise<AppConfigResponse> {
+		return await sendRpcMessageAsync('config:update', {
+			path: `${'misc' as AppConfigPaths}.${path}`,
+			value
+		})
+	}
 	async setFontSize(size: number): Promise<AppConfigResponse> {
 		return await sendRpcMessageAsync('config:update', {
 			path: 'prefs.fontSize' as AppConfigPaths,

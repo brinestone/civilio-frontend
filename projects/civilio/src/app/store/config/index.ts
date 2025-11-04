@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
 import { AppConfig, AppConfigSchema, DbConfigSchema } from '@civilio/shared';
+import { TranslateService } from '@ngx-translate/core';
 import { Action, NgxsOnInit, State, StateContext, StateToken } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
 import { concatMap, from, tap, throwError } from 'rxjs';
-import { LoadConfig, SetFontSize, SetLocale, SetTheme, TestDb } from './actions';
-import { TranslateService } from '@ngx-translate/core';
+import { LoadConfig, SetFontSize, SetLocale, SetTheme, TestDb, UpdateMiscConfig } from './actions';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -29,6 +29,16 @@ export class ConfigState implements NgxsOnInit {
 		const state = ctx.getState();
 		const lang = (state.config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 		this.translateService.use(lang);
+	}
+
+	@Action(UpdateMiscConfig)
+	onUpdateMiscConfig(ctx: Context, { path, value }: UpdateMiscConfig) {
+		return from(this.configService.updateMisc(path, value)).pipe(
+			tap(config => ctx.setState(patch({
+				config,
+				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
+			}))),
+		);
 	}
 
 	@Action(SetFontSize)

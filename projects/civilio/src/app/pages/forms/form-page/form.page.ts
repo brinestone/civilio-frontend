@@ -11,7 +11,7 @@ import {
 	OnInit,
 	resource,
 	signal,
-	untracked,
+	untracked
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -27,6 +27,7 @@ import {
 	HasPendingChanges,
 } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
+import { UpdateMiscConfig } from "@app/store/config";
 import {
 	ActivateForm,
 	DeactivateForm,
@@ -34,32 +35,44 @@ import {
 	LoadSubmissionData,
 	UpdateRelevance
 } from "@app/store/form";
-import { relevanceRegistry, sectionValidity } from "@app/store/selectors";
+import { miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
 import { FormType } from "@civilio/shared";
-import { provideIcons } from "@ng-icons/core";
-import { lucideCircleAlert } from "@ng-icons/lucide";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideCircleAlert, lucidePanelBottomClose, lucidePanelBottomOpen } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
 import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
 import { HlmBadge } from "@spartan-ng/helm/badge";
+import { HlmToggleImports } from "@spartan-ng/helm/toggle";
 import { find } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable, pipe } from "rxjs";
+// import { HlmResizableImports } from '@spartan-ng/helm/resizable';
+// import { BrnResizableGroup } from "@spartan-ng/brain/resizable";
+
+
+const miscConfigKeys = {
+	bottomPanelOpenState: 'form-page.bottom-panel-open'
+} as const;
 
 @Component({
 	selector: "cv-form-page",
 	viewProviders: [
 		provideIcons({
 			lucideCircleAlert,
+			lucidePanelBottomOpen,
+			lucidePanelBottomClose,
 		}),
 	],
 	imports: [
 		TranslatePipe,
+		NgIcon,
 		RouterLink,
 		RouterOutlet,
 		FormFooterComponent,
 		FormHeaderComponent,
+		HlmToggleImports,
 		RouterLinkActive,
 		NgTemplateOutlet,
 		HlmBadge,
@@ -80,10 +93,11 @@ export class FormPage
 	private loadData = dispatch(LoadSubmissionData);
 	private activate = dispatch(ActivateForm);
 	private deactivate = dispatch(DeactivateForm);
+	private updateMisc = dispatch(UpdateMiscConfig);
 	private initialized = false;
 
+	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
-	// protected readonly relevantSections = computed(() => flattenSections(this.formModel()).filter(({ id }) => this.relevanceRegistry()[id]))
 	protected relevanceRegistry = select(relevanceRegistry);
 	protected formModel = computed(() => this.routeData()["model"] as FormSchema);
 	protected readonly activeSection = derivedFrom([this.route.firstChild!.params], pipe(
@@ -106,7 +120,11 @@ export class FormPage
 	});
 
 	constructor(actions$: Actions) {
-
+		effect(() => {
+			const status = this.bottomPanelStatus();
+			if (status) return;
+			this.onBottomPanelOpenStateChanged('open');
+		})
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateRelevance),
@@ -201,5 +219,9 @@ export class FormPage
 		}).subscribe(() => {
 			this.reloadDataOnly();
 		});
+	}
+
+	protected onBottomPanelOpenStateChanged(state: 'open' | 'closed') {
+		this.updateMisc(miscConfigKeys.bottomPanelOpenState, state);
 	}
 }
