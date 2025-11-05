@@ -35,9 +35,29 @@
 <div class="overflow-y-auto col-start-2 col-span-1 row-start-2 row-span-1">
 	<router-outlet />
 </div>
+@if(bottomPanelStatus() == 'open') {
 <cv-form-footer
 	class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
 />
+}
+<div
+	class="flex justify-between items-stretch px-2 border-t border-border col-start-1 col-span-2 row-start-4 row-span-1"
+>
+	<div class="flex items-center gap-2 py-1">
+		<button
+			hlmToggle
+			[state]="bottomPanelStatus() == 'open' ? 'on' : 'off'"
+			variant="outline"
+			size="sm"
+			(stateChange)="onBottomPanelOpenStateChanged($event == 'on' ? 'open' : 'closed')"
+			class="text-muted-foreground data-[state=on]:text-primary cursor-pointer"
+		>
+			<ng-icon
+				[name]="bottomPanelStatus() != 'open' ? 'lucidePanelBottomOpen' : 'lucidePanelBottomClose'"
+			/>
+		</button>
+	</div>
+</div>
 
 <ng-template #sectionItemTemplate let-parent="parent" let-section>
 	<ng-container>

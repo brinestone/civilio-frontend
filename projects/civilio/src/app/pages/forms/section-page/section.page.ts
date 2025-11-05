@@ -20,7 +20,7 @@ import { extractValidators, FieldSchema, flattenSections, FormSchema } from "@ap
 import { JoinArrayPipe } from "@app/pipes";
 import { ActivateSection } from "@app/store/form";
 import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
-import {  FormSectionKey, FormType } from "@civilio/shared";
+import { FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
 import { dispatch, select } from "@ngxs/store";
 import {
@@ -74,11 +74,17 @@ export class SectionPage implements AfterViewInit {
 			this.sectionSchema();
 
 			this.refreshControls();
+		});
+
+		effect(() => {
+			const currentSection = this.sectionKey();
+			if (!currentSection) return;
+			this.activate(currentSection, this.formType());
 		})
 	}
 
 	ngAfterViewInit(): void {
-		this.activate(this.sectionKey()!, this.formType());
+		// this.activate(this.sectionKey()!, this.formType());
 	}
 
 	private removeNonRelevantControls() {

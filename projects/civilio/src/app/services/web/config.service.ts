@@ -6,6 +6,9 @@ import { Injectable } from "@angular/core";
   providedIn: null
 })
 export class WebConfigService implements ConfigService {
+	updateMisc(path: string, value: unknown): Promise<AppConfigResponse> {
+		throw new Error("Method not implemented.");
+	}
 	setFontSize(size: number): Promise<AppConfigResponse> {
 		throw new Error("Method not implemented.");
 	}

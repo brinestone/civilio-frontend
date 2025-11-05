@@ -1,8 +1,9 @@
-import { FormSectionKey, FormType, Locale } from "@civilio/shared";
+import { AppConfigPaths, FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
-import { entries } from "lodash";
+import { entries, get, isEmpty } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { FORM_STATE } from "./form";
+import { ValidationErrors } from "@angular/forms";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);
@@ -53,6 +54,12 @@ export const sectionValidity = createSelector(
 	},
 );
 
+export const allSectionErrors = createSelector([formSlices.activeSections], (sections) => {
+	return entries(sections)
+		.filter(([_, form]) => !isEmpty(form.errors))
+		.reduce((acc, [k, form]) => ({ ...acc, [k]: form.errors }), {} as Record<string, Record<string, ValidationErrors | null>>)
+})
+
 export const currentSectionErrors = createSelector(
 	[formSlices.activeSections, formSlices.currentSection],
 	(activeSections, currentSection) => {
@@ -60,6 +67,12 @@ export const currentSectionErrors = createSelector(
 		return activeSections[currentSection].errors;
 	},
 );
+
+export function miscConfig<T = unknown>(path: string) {
+	return createSelector([configSlices.config], (config) => {
+		return get(config?.misc, path) as T | undefined;
+	})
+}
 
 export const formMappings = formSlices.mappings;
 export const formColumns = formSlices.columns;

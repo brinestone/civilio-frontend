@@ -58,7 +58,8 @@ export const DbConfigSchema = z.object({
 });
 export const AppConfigSchema = z.object({
 	db: DbConfigSchema.partial().optional(),
-	prefs: AppPrefsSchema.partial().optional()
+	prefs: AppPrefsSchema.partial().optional(),
+	misc: z.record(z.string(), z.unknown()).optional()
 }).default({});
 
 export const GeopointSchema = z.object({

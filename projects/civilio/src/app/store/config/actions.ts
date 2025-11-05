@@ -2,6 +2,11 @@ import { Locale, ThemeMode } from "@civilio/shared";
 
 const prefix = '[config]';
 
+export class UpdateMiscConfig {
+	static type = `${prefix} update misc config`;
+	constructor(readonly path: string, readonly value: unknown) { };
+}
+
 export class SetFontSize {
 	static type = `${prefix} set font size`;
 	constructor(readonly size: number) { }
