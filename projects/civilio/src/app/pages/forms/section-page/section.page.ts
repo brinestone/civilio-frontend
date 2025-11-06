@@ -131,7 +131,8 @@ export class SectionPage implements AfterViewInit {
 		for (const { key } of fields) {
 			const isRelevant = rr[key];
 			const controlExists = this.form.contains(key);
-			const shouldRemove = !isRelevant && controlExists;
+			const isFieldInSection = untracked(this.sectionSchema).fields.some(f => f.key === key);
+			const shouldRemove = !isRelevant && controlExists || !isFieldInSection;
 
 			if (!shouldRemove) continue;
 			this.form.removeControl(key);

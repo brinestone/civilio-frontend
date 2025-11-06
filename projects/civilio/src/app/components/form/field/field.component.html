@@ -27,7 +27,6 @@
 		<ng-container [ngTemplateOutlet]="numberTemplate" />
 	}
 	@case ("point") {
-		{{ _value() | json }}
 		<ng-container [ngTemplateOutlet]="geoPointTemplate" />
 	}
 	@case ("table") {
@@ -42,7 +41,7 @@
 <ng-template #geoPointTemplate>
 	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<cv-geo-point
-		[(value)]="_value"
+		[value]="_value()"
 		(touched)="onControlTouched()"
 		(changed)="onInput($event)"
 		[disabled]="_disabled()"

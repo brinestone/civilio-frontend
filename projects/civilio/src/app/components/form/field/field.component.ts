@@ -1,5 +1,5 @@
 import { BooleanInput } from '@angular/cdk/coercion';
-import { DatePipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
@@ -27,7 +27,6 @@ import { ClassValue } from 'clsx';
 		TranslatePipe,
 		GeoPointComponent,
 		DatePipe,
-		JsonPipe,
 		HlmCheckbox,
 		HlmDatePicker
 	],

@@ -43,7 +43,6 @@ import { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import { PgSequence, PgTransaction } from "drizzle-orm/pg-core";
 import { entries } from "lodash";
 import { provideDatabase } from "../helpers/db";
-import { hashThese } from "@civilio/helpers/hashing";
 
 type Transaction = PgTransaction<
 	NodePgQueryResultHKT,
@@ -346,17 +345,11 @@ export async function findFormData(form: FormType, index: number) {
 			col: fieldMappings.dbColumn,
 			table: fieldMappings.dbTable,
 			field: fieldMappings.field,
+			alias: fieldMappings.aliasHash
 		})
 		.from(fieldMappings)
 		.where(eq(fieldMappings.form, form))
 		.$withCache();
-
-	// A map that associates field names with an alias to prevent drizzle trimming
-	const mappingAliases = mappings.reduce((acc, mapping) => {
-		const hash = hashThese(mapping.field);
-		acc[mapping.field] = `_${hash}`;
-		return acc;
-	}, {} as Record<string, string>)
 
 	const tableGroups = mappings.reduce(
 		(acc, mapping) => {
@@ -376,7 +369,7 @@ export async function findFormData(form: FormType, index: number) {
 		const isDataTable = tableName == "data";
 		const tableAlias = "res";
 		const selection = mappings
-			.map((f) => `${tableAlias}."${f.col}"::TEXT AS "${mappingAliases[f.field]}"`)
+			.map((f) => `${tableAlias}."${f.col}"::TEXT AS "${f.alias}"`)
 			.join(",\n\t\t\t\t");
 		const indexCol = isDataTable ? "_index" : "_parent_index";
 		const whereClause = `${tableAlias}."${indexCol}" = ${index}`;
@@ -395,18 +388,18 @@ export async function findFormData(form: FormType, index: number) {
 				if (isDataTable) {
 					const row = rows[0] as Record<string, string> | undefined;
 					if (row) {
-						for (const field of mappings.map(({ field }) => field)) {
-							map[field] = row[mappingAliases[field]] ?? null;
+						for (const { field, alias } of mappings.map(({ field, alias }) => ({ field, alias }))) {
+							map[field] = row[alias] ?? null;
 						}
 					}
 				} else {
 					const valuesByField: Record<string, string[]> = {};
 					for (const row of rows as Record<string, string>[]) {
-						for (const field of mappings.map(({ field }) => field)) {
+						for (const { field, alias } of mappings.map(({ field, alias }) => ({ field, alias }))) {
 							if (!valuesByField[field]) {
 								valuesByField[field] = [];
 							}
-							valuesByField[field].push(row[mappingAliases[field]] ?? null);
+							valuesByField[field].push(row[alias] ?? null);
 						}
 					}
 
