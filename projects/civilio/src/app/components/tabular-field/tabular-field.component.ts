@@ -1,34 +1,24 @@
-import { DecimalPipe, NgClass, NgTemplateOutlet } from "@angular/common";
 import {
-  Component,
-  computed,
-  forwardRef,
-  input,
-  Signal,
-  signal,
+	Component,
+	forwardRef,
+	input,
+	Signal
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
-import { ParsedValue, parseValue } from "@app/model/form";
+import { NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Option } from "@civilio/shared";
-import { NgIcon, provideIcons } from "@ng-icons/core";
+import { provideIcons } from "@ng-icons/core";
 import {
-  lucideCheck,
-  lucideCheckCheck,
-  lucidePencil,
-  lucidePlus,
-  lucideTrash2,
-  lucideX,
+	lucideCheck,
+	lucideCheckCheck,
+	lucidePencil,
+	lucidePlus,
+	lucideTrash2,
+	lucideX,
 } from "@ng-icons/lucide";
-import { TranslatePipe } from "@ngx-translate/core";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
-import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmCheckboxImports } from "@spartan-ng/helm/checkbox";
-import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmTableImports } from "@spartan-ng/helm/table";
-import { derivedFrom } from "ngxtension/derived-from";
-import { map, pipe } from "rxjs";
-import z from "zod";
 
 export type RowAction<T> = {
   class?: string;
@@ -95,17 +85,10 @@ export type TableDefinition<T> = {
 @Component({
   selector: "cv-tabular-field",
   imports: [
-    TranslatePipe,
     HlmTableImports,
     HlmSelectImports,
     HlmCheckboxImports,
-    DecimalPipe,
     BrnSelectImports,
-    HlmInput,
-    HlmButton,
-    NgTemplateOutlet,
-    NgIcon,
-    NgClass,
   ],
   templateUrl: "./tabular-field.component.html",
   styleUrl: "./tabular-field.component.scss",

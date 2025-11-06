@@ -1,7 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
 import { booleanAttribute, Component, computed, effect, ElementRef, input, linkedSignal, model, output, resource, untracked, viewChild } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { sendRpcMessageAsync } from '@app/util';
 import { GeoPoint, GeopointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -9,8 +8,7 @@ import { lucideCircleAlert } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
 import { createNotifier } from 'ngxtension/create-notifier';
-import { distinctUntilChanged, fromEvent, merge } from 'rxjs';
-import { injectNetwork } from 'ngxtension/inject-network'
+import { injectNetwork } from 'ngxtension/inject-network';
 
 @Component({
 	selector: 'cv-geo-point',
@@ -28,7 +26,7 @@ import { injectNetwork } from 'ngxtension/inject-network'
 	styleUrl: './geo-point.component.scss'
 })
 export class GeoPointComponent {
-	public readonly value = model<GeoPoint>();
+	public readonly value = input<GeoPoint>();
 	public readonly touched = output();
 	public readonly changed = output<GeoPoint>();
 	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
@@ -41,7 +39,7 @@ export class GeoPointComponent {
 
 	protected readonly network = injectNetwork()
 	protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
-	protected readonly _value = computed(() => GeopointSchema.parse({}));
+	protected readonly _value = computed(() => GeopointSchema.parse(this.value() ?? {}));
 	protected readonly resolvedCoords = linkedSignal(() => latLng(this._value().lat, this._value().long));
 	protected readonly markerIconUrl = resource({
 		loader: async () => {
@@ -83,7 +81,6 @@ export class GeoPointComponent {
 		}).addTo(this.map)
 			.on('move', ({ latlng: { lat, lng } }: any) => {
 				if (!this.eventTriggeredChange) return;
-				this.value.set({ lat, long: lng });
 				this.changed.emit({ lat, long: lng });
 			});
 		this.map.setView(untracked(this.resolvedCoords));
@@ -105,14 +102,21 @@ export class GeoPointComponent {
 	constructor() {
 
 		effect(() => {
-			const markerIconUrlStatus = this.markerIconUrl.status()
+			const _ = this.value();
+			const coords = untracked(this.resolvedCoords);
+			this.moveMarker(coords);
+			this.map?.setView(coords);
+		})
+
+		effect(() => {
+			const markerIconUrlStatus = this.markerIconUrl.status();
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
 			this.onlineNotifier.listen();
 
 			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved' || this.initialized) return;
 			this.map = map(this.mapContainer().nativeElement,
 				{
-					center: this.resolvedCoords(),
+					center: untracked(this.resolvedCoords),
 					zoom: 16
 				}).on('click', this.onMapClicked.bind(this));
 			this.initTileLayer();
