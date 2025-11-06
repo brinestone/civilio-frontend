@@ -51,7 +51,7 @@ import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, Observable, pipe, skipWhile } from "rxjs";
 
 const miscConfigKeys = {
-	bottomPanelOpenState: 'form-page.bottom-panel-open'
+	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
 } as const;
 
 @Component({

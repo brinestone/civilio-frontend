@@ -3,17 +3,21 @@ import { DecimalPipe, JsonPipe, KeyValuePipe, NgClass, NgTemplateOutlet } from "
 import {
 	Component,
 	computed,
-	linkedSignal,
-	TemplateRef,
-	viewChildren,
+	effect,
+	linkedSignal
 } from "@angular/core";
-import { allSectionErrors, currentSectionErrors } from "@app/store/selectors";
+import { UpdateMiscConfig } from "@app/store/config";
+import { allSectionErrors, currentSectionErrors, miscConfig } from "@app/store/selectors";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideInfo, lucideTriangleAlert } from "@ng-icons/lucide";
+import { lucideHistory, lucideInfo, lucideTriangleAlert } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
-import { select } from "@ngxs/store";
+import { dispatch, select } from "@ngxs/store";
 import { HlmBadgeImports } from "@spartan-ng/helm/badge";
 import { isEmpty, size } from "lodash";
+
+const miscKeys = {
+	currentTab: 'form-prefs.footer.current-tab'
+} as const;
 
 @Component({
 	selector: "cv-form-footer",
@@ -21,6 +25,7 @@ import { isEmpty, size } from "lodash";
 		provideIcons({
 			lucideTriangleAlert,
 			lucideInfo,
+			lucideHistory,
 		}),
 	],
 	imports: [
@@ -38,6 +43,9 @@ import { isEmpty, size } from "lodash";
 	styleUrl: "./form-footer.component.scss",
 })
 export class FormFooterComponent {
+	private readonly updateMisc = dispatch(UpdateMiscConfig);
+	private changingTab = false;
+
 	protected readonly allSectionErrors = select(allSectionErrors);
 	protected readonly currentSectionErrors = select(currentSectionErrors);
 	protected readonly tabs = [
@@ -57,20 +65,40 @@ export class FormFooterComponent {
 				| "outline",
 			badgeValue: computed(() => size(this.currentSectionErrors())),
 		},
+		{
+			key: 'form.footer.tabs.history',
+			icon: 'lucideHistory'
+		},
 	];
-	protected readonly currentTab = linkedSignal(() => {
-		const errors = this.currentSectionErrors();
-		if (isEmpty(errors)) return this.tabs[0].key;
-		return this.tabs[1].key;
-	});
+	protected readonly currentTab = select(miscConfig<string>(miscKeys.currentTab));
+
 	protected get errorTab() {
 		return this.tabs[1];
 	}
 	protected get descriptionTab() {
 		return this.tabs[0];
 	}
+	protected get historyTab() {
+		return this.tabs[2];
+	}
 
-	protected onTabChange(tab: string) {
-		this.currentTab.set(tab);
+	constructor() {
+		effect(() => {
+			const errors = this.currentSectionErrors();
+			if (isEmpty(errors)) return;
+			this.updateStoreTab(this.errorTab.key);
+		})
+	}
+
+	protected onTabChange(tab?: string) {
+		this.updateStoreTab(tab ?? this.descriptionTab.key);
+	}
+
+	protected updateStoreTab(key: string) {
+		if (this.changingTab) return;
+		this.changingTab = true;
+		this.updateMisc(miscKeys.currentTab, key).subscribe({
+			complete: () => this.changingTab = false
+		});
 	}
 }

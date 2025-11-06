@@ -1236,6 +1236,7 @@ range_0_100: "min "
 range_1_50: "min "
 range_1980_current_year: "min "
 range_0_80000: "min "
+coming_soon: Feature coming soon...
 
 form:
   footer:
@@ -1247,3 +1248,9 @@ form:
           msg: Error message
       description:
         title: Description
+      history:
+        title: Change History
+        columns:
+          date: Date
+          user: User
+          revision: Revision

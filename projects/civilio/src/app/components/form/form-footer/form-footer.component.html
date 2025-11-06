@@ -1,7 +1,7 @@
 <div class="px-3 flex justify-between bg-(--card) border-y border-border h-8">
 	<ul
 		cdkListbox
-		[cdkListboxValue]="[currentTab()]"
+		[cdkListboxValue]="[currentTab() ?? descriptionTab.key]"
 		(cdkListboxValueChange)="onTabChange($event.value[0])"
 		class="list-none flex items-center"
 	>
@@ -39,14 +39,19 @@
 		@case (descriptionTab.key) {
 			<ng-container [ngTemplateOutlet]="descriptionTemplate" />
 		}
+		@case (historyTab.key) {
+			<ng-container [ngTemplateOutlet]="historyTemplate" />
+		}
+		@default {
+			{{ "coming_soon" | translate }}
+		}
 	}
 </div>
 
+<ng-template #historyTemplate> history </ng-template>
+
 <ng-template #descriptionTemplate>
-	<pre>
-		{{ allSectionErrors() | json }}
-	</pre
-	>
+	{{ "coming_soon" | translate }}
 </ng-template>
 
 <ng-template #errorsTemplate>

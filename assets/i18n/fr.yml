@@ -1244,6 +1244,7 @@ range_0_100: min
 range_1_50: min
 range_1980_current_year: min
 range_0_80000: min
+coming_soon: Fonctionnalité à venir...
 form:
   footer:
     tabs:
@@ -1254,3 +1255,9 @@ form:
           msg: Message d'erreur
       description:
         title: Description
+      history:
+        title: Historique des modifications
+        columns:
+          date: Date
+          user: Utilisateur
+          revision: Révision
