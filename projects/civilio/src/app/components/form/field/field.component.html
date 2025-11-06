@@ -132,7 +132,7 @@
 	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<hlm-checkbox
 		[id]="schema().key"
-		[(checked)]="_value"
+		[checked]="_value()"
 		[class]="userClass()"
 		(click)="onInput(!_value())"
 		[disabled]="_disabled() || isReadonly()"

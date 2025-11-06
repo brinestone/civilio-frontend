@@ -1,13 +1,10 @@
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	computed,
-	effect,
 	inject,
-	input,
 	untracked
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
@@ -17,21 +14,23 @@ import {
 	ReactiveFormsModule,
 	UntypedFormControl
 } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
 import { extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
 import { JoinArrayPipe } from "@app/pipes";
-import { ActivateSection, SubmissionIndexChanged, UpdateRelevance, UpdateSection } from "@app/store/form";
+import { ActivateSection, LoadSubmissionData, SubmissionIndexChanged, UpdateRelevance, UpdateSection } from "@app/store/form";
 import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
 import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
-import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
+import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
 import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher,
 } from "@spartan-ng/brain/forms";
 import { entries } from "lodash";
+import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
-import { debounceTime, switchMap, take } from "rxjs";
+import { debounceTime, filter, map, switchMap, take } from "rxjs";
 
 @Component({
 	selector: "cv-section-page",
@@ -50,8 +49,8 @@ import { debounceTime, switchMap, take } from "rxjs";
 	templateUrl: "./section.page.html",
 	styleUrl: "./section.page.scss",
 })
-export class SectionPage implements AfterViewInit {
-	public readonly sectionKey = input<FormSectionKey>(undefined, { alias: 'id' });
+export class SectionPage {
+	public readonly sectionKey = injectParams<FormSectionKey>('id');
 
 	// #region Flags
 	private refreshingControls = false;
@@ -72,7 +71,7 @@ export class SectionPage implements AfterViewInit {
 
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
-	constructor(actions$: Actions) {
+	constructor(actions$: Actions, route: ActivatedRoute) {
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(SubmissionIndexChanged),
@@ -81,27 +80,53 @@ export class SectionPage implements AfterViewInit {
 				debounceTime(10),
 				take(1),
 			)),
+			// d(() => !this.refreshingControls)
 		).subscribe(() => {
 			this.refreshFieldValues();
 		});
 
-		effect(() => {
-			this.relevanceRegistry();
-			this.sectionSchema();
-
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(ActivateSection),
+			debounceTime(10),
+			filter(() => !this.refreshingControls)
+		).subscribe((event) => {
 			this.refreshControls();
-			console.log('controls refreshed')
+		});
+
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionDispatched(UpdateSection),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
+				take(1),
+			)),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshControls();
 		})
 
-		effect(() => {
-			const currentSection = this.sectionKey();
-			if (!currentSection) return;
-			this.activate(currentSection, this.formType());
+		route.params.pipe(
+			takeUntilDestroyed(),
+			debounceTime(0),
+			map(({ id }) => id as FormSectionKey)
+		).subscribe((id) => {
+			this.activate(id, this.formType());
+			this.cdr.markForCheck();
+		});
+
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(LoadSubmissionData),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshControls();
 		})
 	}
 
-	ngAfterViewInit(): void {
-	}
+	// ngOnInit(): void {
+	// 	this.activate(this.sectionKey()!, this.formType());
+	// }
 
 	private refreshFieldValues() {
 		console.log('refreshing field values');
@@ -128,11 +153,10 @@ export class SectionPage implements AfterViewInit {
 		const { fields } = untracked(this.sectionSchema);
 		const rr = untracked(this.relevanceRegistry);
 
-		for (const { key } of fields) {
+		for (const [key] of entries(this.form.controls)) {
 			const isRelevant = rr[key];
-			const controlExists = this.form.contains(key);
-			const isFieldInSection = untracked(this.sectionSchema).fields.some(f => f.key === key);
-			const shouldRemove = !isRelevant && controlExists || !isFieldInSection;
+			const isFieldInSection = fields.some(f => f.key == key);
+			const shouldRemove = !isRelevant || !isFieldInSection;
 
 			if (!shouldRemove) continue;
 			this.form.removeControl(key);
