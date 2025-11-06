@@ -14,7 +14,7 @@ export function extractRawValidators(schema: FieldSchema) {
 
 	if ('required' in schema && !schema.relevance) {
 		validators.push((v) => {
-			return truthinessSchema.parse(v) ? null : { required: 'validation.msg.field_required' };
+			return v !== null && v !== undefined ? null : { required: 'validation.msg.field_required' };
 		});
 	}
 
