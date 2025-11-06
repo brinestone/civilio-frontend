@@ -1,7 +1,8 @@
-import { pgTable, pgSchema, integer, timestamp, unique, text, primaryKey, date, boolean } from "drizzle-orm/pg-core"
-import { inArray, SQL, sql } from "drizzle-orm"
+import { inArray, SQL, sql } from "drizzle-orm";
+import { boolean, date, integer, jsonb, pgSchema, primaryKey, text, timestamp, unique } from "drizzle-orm/pg-core";
 
 export const civilio = pgSchema("civilio");
+export const revision = pgSchema('revisions');
 export const formTypes = civilio.enum("form_types", ['fosa', 'chefferie', 'csc'])
 
 export const chefferieIdSeqInCivilio = civilio.sequence("chefferie_id_seq", { startWith: "457502754", increment: "1", minValue: "1", maxValue: "9223372036854775807", cache: "1", cycle: false })
@@ -70,3 +71,17 @@ export const vwDbColumns = civilio.view('vw_db_columns', {
 	tableName: text('table_name'),
 	form: formTypes('form')
 }).as(sql`SELECT c.column_name, c.data_type, c.table_name, CAST(c.table_schema as ${formTypes}) as form FROM information_schema.columns c WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`)
+
+export const deltas = revision.table('deltas', {
+	index: integer().notNull(),
+	field: text().notNull(),
+	hash: text().notNull(),
+	createdAt: timestamp().notNull().defaultNow(),
+	form: formTypes().notNull(),
+	update: jsonb(),
+	recordedBy: text()
+}, t => [
+	primaryKey({
+		columns: [t.index, t.field, t.hash]
+	})
+]);
