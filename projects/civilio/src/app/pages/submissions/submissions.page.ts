@@ -21,8 +21,7 @@ import { HlmTableImports } from '@spartan-ng/helm/table';
 import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
 import { ElectronFormService } from '../../services/electron/form.service';
 
-registerLocaleData(localeFr);
-registerLocaleData(localeEn);
+
 
 @Component({
 	selector: 'cv-badge-cell',

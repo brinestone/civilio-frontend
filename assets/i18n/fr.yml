@@ -115,7 +115,7 @@ csc:
           creation_date:
             title: Quelle est la date de création du centre ?
       identification:
-        title: Identification de la structure
+        title: Identification des structures
         fields:
           division:
             title: Division
@@ -535,7 +535,7 @@ fosa:
       stats:
         title: Statistiques de l'état civil des 5 dernières années
         line_1:
-          title: Ligne 1
+          title: Année 1
           fields:
             stats_year_1:
               title: Année
@@ -544,7 +544,7 @@ fosa:
             stats_deaths_1:
               title: Nombre de décès enregistrés
         line_2:
-          title: Ligne 2
+          title: Année 2
           fields:
             stats_year_2:
               title: Année
@@ -553,7 +553,7 @@ fosa:
             stats_deaths_2:
               title: Nombre de décès enregistrés
         line_3:
-          title: Ligne 3
+          title: Année 3
           fields:
             stats_year_3:
               title: Année
@@ -562,7 +562,7 @@ fosa:
             stats_deaths_3:
               title: Nombre de décès enregistrés
         line_4:
-          title: Ligne 4
+          title: Année 4
           fields:
             stats_year_4:
               title: Année
@@ -571,7 +571,7 @@ fosa:
             stats_deaths_4:
               title: Nombre de décès enregistrés
         line_5:
-          title: Ligne 5
+          title: Année 5
           fields:
             stats_year_5:
               title: Année
@@ -1249,5 +1249,8 @@ form:
     tabs:
       errors:
         title: Erreurs
+        columns:
+          field: Champ
+          msg: Message d'erreur
       description:
         title: Description

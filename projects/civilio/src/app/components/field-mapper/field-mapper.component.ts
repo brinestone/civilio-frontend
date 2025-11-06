@@ -1,10 +1,9 @@
-import { JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
 	computed,
-	DestroyRef,
 	effect,
 	inject,
 	input,
@@ -16,11 +15,11 @@ import { extractAllFields, FieldSchema, flattenSections, FormSchema, SectionSche
 import { ValuesPipe } from '@app/pipes';
 import { LoadDbColumns, LoadMappings, RemoveMapping, UpdateMappings } from '@app/store/form';
 import { formColumns, formMappings } from '@app/store/selectors';
-import { DbColumnSpec, FieldKey, FormType, UnwrapArray } from '@civilio/shared';
+import { DbColumnSpec, FieldKey, FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChevronsUpDown, lucideSearch, lucideX } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Actions, dispatch, ofActionCompleted, ofActionSuccessful, Store } from '@ngxs/store';
+import { Actions, dispatch, ofActionSuccessful, Store } from '@ngxs/store';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
 import { BrnPopover, BrnPopoverContent, BrnPopoverTrigger } from '@spartan-ng/brain/popover';
 import { HlmBadge } from '@spartan-ng/helm/badge';
@@ -29,11 +28,11 @@ import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmPopoverContent } from '@spartan-ng/helm/popover';
-import { cloneDeep, difference, differenceWith, entries, values } from 'lodash';
+import { cloneDeep, differenceWith, entries, values } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { createNotifier } from 'ngxtension/create-notifier';
 import { derivedFrom } from 'ngxtension/derived-from';
-import { concatMap, map, merge, pipe, takeUntil, tap } from 'rxjs';
+import { concatMap, map, merge, pipe, tap } from 'rxjs';
 
 type FieldControl = FormControl<DbColumnSpec | null>;
 

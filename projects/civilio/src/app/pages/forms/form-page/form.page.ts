@@ -1,12 +1,10 @@
-import { NgTemplateOutlet } from "@angular/common";
+import { NgClass, NgTemplateOutlet } from "@angular/common";
 import {
 	AfterViewInit,
-	ChangeDetectionStrategy,
 	Component,
 	computed,
 	effect,
 	inject,
-	input,
 	OnDestroy,
 	OnInit,
 	resource,
@@ -33,6 +31,8 @@ import {
 	DeactivateForm,
 	LoadOptions,
 	LoadSubmissionData,
+	SubmissionIndexChanged,
+	UpdateMappings,
 	UpdateRelevance
 } from "@app/store/form";
 import { miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
@@ -46,11 +46,9 @@ import { HlmBadge } from "@spartan-ng/helm/badge";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
 import { find } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
+import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from "ngxtension/inject-route-data";
-import { concatMap, filter, map, Observable, pipe } from "rxjs";
-// import { HlmResizableImports } from '@spartan-ng/helm/resizable';
-// import { BrnResizableGroup } from "@spartan-ng/brain/resizable";
-
+import { concatMap, filter, map, Observable, pipe, skipWhile } from "rxjs";
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-page.bottom-panel-open'
@@ -74,28 +72,30 @@ const miscConfigKeys = {
 		FormHeaderComponent,
 		HlmToggleImports,
 		RouterLinkActive,
+		NgClass,
 		NgTemplateOutlet,
 		HlmBadge,
 	],
-	changeDetection: ChangeDetectionStrategy.OnPush,
+	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
 	styleUrl: "./form.page.scss",
 })
 export class FormPage
 	implements AfterViewInit, HasPendingChanges, OnInit, OnDestroy {
-	readonly submissionIndex = input<string>();
 
-	private routeData = injectRouteData();
-	private route = inject(ActivatedRoute);
-	private formService = inject(FORM_SERVICE);
-	private navigate = dispatch(Navigate);
-	private loadOptions = dispatch(LoadOptions);
-	private loadData = dispatch(LoadSubmissionData);
-	private activate = dispatch(ActivateForm);
-	private deactivate = dispatch(DeactivateForm);
-	private updateMisc = dispatch(UpdateMiscConfig);
+	private readonly routeData = injectRouteData();
+	private readonly route = inject(ActivatedRoute);
+	private readonly indexChanged = dispatch(SubmissionIndexChanged);
+	private readonly formService = inject(FORM_SERVICE);
+	private readonly navigate = dispatch(Navigate);
+	private readonly loadOptions = dispatch(LoadOptions);
+	private readonly loadData = dispatch(LoadSubmissionData);
+	private readonly activate = dispatch(ActivateForm);
+	private readonly deactivate = dispatch(DeactivateForm);
+	private readonly updateMisc = dispatch(UpdateMiscConfig);
 	private initialized = false;
 
+	protected submissionIndex = injectParams('submissionIndex');
 	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
 	protected relevanceRegistry = select(relevanceRegistry);
@@ -124,7 +124,8 @@ export class FormPage
 			const status = this.bottomPanelStatus();
 			if (status) return;
 			this.onBottomPanelOpenStateChanged('open');
-		})
+		});
+
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateRelevance),
@@ -133,12 +134,23 @@ export class FormPage
 			this.navigate(['..', this.submissionIndex(), this.formModel().sections[0].id], undefined, {
 				relativeTo: this.route
 			});
-		})
+		});
+
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(UpdateMappings),
+			skipWhile(() => !this.initialized)
+		).subscribe(() => {
+			this.reloadDataOnly();
+		});
 
 		effect(async () => {
-			if (!this.initialized) return;
 			const index = this.submissionIndex();
+			if (!this.initialized) return;
 			this.reloadDataAndOptions();
+
+			if (index === undefined) return;
+			this.indexChanged(Number(index));
 		});
 		effect(() => {
 			const relevanceRegistry = untracked(this.relevanceRegistry);

@@ -4,7 +4,7 @@
 	</h1>
 </div>
 <!-- form data: {{sectionData() | json}} -->
-<form [formGroup]="form" class="grid grid-cols-[1fr_1fr] gap-3 px-2">
+<form [formGroup]="form" class="grid lg:grid-cols-[1fr_1fr] gap-3 px-2">
 	@for(field of sectionSchema().fields; track $index) {
 	<ng-container>
 		@let shouldShow = relevanceRegistry()[field.key] &&
@@ -16,10 +16,11 @@
 			</ng-container>
 			<div class="space-y-1">
 				<cv-field
+					[readonly]="field.readonly"
 					[schema]="field"
 					[formControlName]="field.key"
 					[options]="options()"
-					(changed)="onFieldValueChanged($event)"
+					(changed)="onFieldValueChanged(field.key, $event)"
 					[parentValue]="parentValue ?? null"
 				/>
 				@let control = form.controls[field.key]; @if(control.invalid) {

@@ -1,11 +1,10 @@
 <div
 	class="border-b border-border max-h-(--header-height) col-start-1 col-span-2 row-start-1 row-span-1"
 >
-	@let _index = submissionIndex();
 	<ng-container>
-		@if(_index) {
+		@if(submissionIndex()) {
 		<cv-form-header
-			[index]="_index"
+			[submissionIndex]="submissionIndex()!"
 			[formType]="formType()"
 			[formSchema]="formModel()"
 			(indexJump)="onIndexJump($event)"
@@ -32,7 +31,13 @@
 		}
 	</ul>
 </div>
-<div class="overflow-y-auto col-start-2 col-span-1 row-start-2 row-span-1">
+<div
+	class="overflow-y-auto col-start-2 col-span-1 row-start-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+	[ngClass]="{
+	'row-span-1': bottomPanelStatus() == 'open',
+	'row-span-2': bottomPanelStatus() == 'closed'
+}"
+>
 	<router-outlet />
 </div>
 @if(bottomPanelStatus() == 'open') {

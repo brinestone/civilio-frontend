@@ -1,3 +1,6 @@
+import { isPlatformBrowser, registerLocaleData } from '@angular/common';
+import localeEn from '@angular/common/locales/en-CM';
+import localeFr from '@angular/common/locales/fr-CM';
 import { Component, DOCUMENT, effect, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
@@ -8,8 +11,12 @@ import { dispatch, select } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
 import { FORM_SERVICE } from './services/form';
 import { ThemeService } from './services/theme.service';
-import { isPlatformBrowser } from '@angular/common';
 import { fontSize } from './store/selectors';
+
+registerLocaleData(localeFr);
+registerLocaleData(localeEn);
+
+
 @Component({
 	selector: 'cv-root',
 	imports: [RouterOutlet, BaseLayout, HlmToaster],

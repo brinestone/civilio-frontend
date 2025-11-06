@@ -1,4 +1,4 @@
-import { DecimalPipe, JsonPipe, NgTemplateOutlet } from "@angular/common";
+import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
@@ -10,7 +10,9 @@ import {
 	input,
 	untracked
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
+	AbstractControl,
 	FormRecord,
 	ReactiveFormsModule,
 	UntypedFormControl
@@ -18,16 +20,18 @@ import {
 import { FieldComponent } from "@app/components/form";
 import { extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
 import { JoinArrayPipe } from "@app/pipes";
-import { ActivateSection } from "@app/store/form";
+import { ActivateSection, SubmissionIndexChanged, UpdateRelevance, UpdateSection } from "@app/store/form";
 import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
-import { FormSectionKey, FormType } from "@civilio/shared";
+import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
-import { dispatch, select } from "@ngxs/store";
+import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
 import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher,
 } from "@spartan-ng/brain/forms";
+import { entries } from "lodash";
 import { injectRouteData } from "ngxtension/inject-route-data";
+import { debounceTime, switchMap, take } from "rxjs";
 
 @Component({
 	selector: "cv-section-page",
@@ -40,7 +44,6 @@ import { injectRouteData } from "ngxtension/inject-route-data";
 		JoinArrayPipe,
 		NgTemplateOutlet,
 		TranslatePipe,
-		JsonPipe,
 		DecimalPipe,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +58,7 @@ export class SectionPage implements AfterViewInit {
 	// #endregion
 
 	private readonly activate = dispatch(ActivateSection);
+	private readonly updateSection = dispatch(UpdateSection);
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly routeData = injectRouteData<Record<string, any>>('target');
 	private readonly formType = computed(() => this.routeData()?.['form'] as FormType)
@@ -68,13 +72,26 @@ export class SectionPage implements AfterViewInit {
 
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
-	constructor() {
+	constructor(actions$: Actions) {
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(SubmissionIndexChanged),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
+				debounceTime(10),
+				take(1),
+			)),
+		).subscribe(() => {
+			this.refreshFieldValues();
+		});
+
 		effect(() => {
 			this.relevanceRegistry();
 			this.sectionSchema();
 
 			this.refreshControls();
-		});
+			console.log('controls refreshed')
+		})
 
 		effect(() => {
 			const currentSection = this.sectionKey();
@@ -84,7 +101,27 @@ export class SectionPage implements AfterViewInit {
 	}
 
 	ngAfterViewInit(): void {
-		// this.activate(this.sectionKey()!, this.formType());
+	}
+
+	private refreshFieldValues() {
+		console.log('refreshing field values');
+		for (const [key, control] of entries(this.form.controls)) {
+			const existingValue = control.value;
+			const storeValue = untracked(this.sectionData)[key];
+			const shouldUpdateControlValue = existingValue !== storeValue;
+			if (!shouldUpdateControlValue) continue;
+
+			control.setValue(storeValue);
+			this.markControlAsPristine(control);
+			console.log(`Refreshed value for field: ${key} from "${existingValue}" to "${storeValue}"`);
+		}
+		this.cdr.markForCheck();
+	}
+
+	private markControlAsPristine(control: AbstractControl) {
+		control.markAsUntouched();
+		control.markAsPristine();
+		control.updateValueAndValidity();
 	}
 
 	private removeNonRelevantControls() {
@@ -133,7 +170,9 @@ export class SectionPage implements AfterViewInit {
 		this.cdr.markForCheck();
 	}
 
-	protected onFieldValueChanged(update: any) {
-
+	protected onFieldValueChanged(field: FieldKey, update: any) {
+		this.updateSection(this.sectionKey()!, this.formType(), field, update).subscribe({
+			complete: () => this.cdr.markForCheck()
+		});
 	}
 }

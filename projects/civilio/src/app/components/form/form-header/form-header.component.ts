@@ -1,4 +1,4 @@
-import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
+import { Component, effect, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
 import { FieldMapperComponent } from '@app/components';
 import { FormSchema } from '@app/model/form';
 import { FORM_SERVICE } from '@app/services/form';
@@ -43,7 +43,7 @@ import z from 'zod';
 export class FormHeaderComponent {
 	readonly formType = input<FormType>();
 	readonly formSchema = input<FormSchema>();
-	readonly index = input<number | string>();
+	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
 	readonly canGoNextPage = input<boolean>();
 	readonly canGoPrevPage = input<boolean>();
 	readonly nextSubmission = output();

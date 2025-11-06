@@ -114,7 +114,7 @@ csc:
           creation_date:
             title: What was the date of creation of the centre?
       identification:
-        title: Identification of the structure
+        title: Structure identification
         fields:
           division:
             title: Division
@@ -486,7 +486,7 @@ fosa:
             title: Created at
             description: Year of creation of the health facility (dd/MM/YYYY)
       identification:
-        title: Structure identification
+        title: Structure Identification
         fields:
           division:
             title: Division
@@ -535,7 +535,7 @@ fosa:
       stats:
         title: Vital statistics for the last 5 years
         line_1:
-          title: Line 1
+          title: Year 1
           fields:
             stats_year_1:
               title: Year
@@ -544,7 +544,7 @@ fosa:
             stats_deaths_1:
               title: "# of deaths registered"
         line_2:
-          title: Line 2
+          title: Year 2
           fields:
             stats_year_2:
               title: Year
@@ -553,7 +553,7 @@ fosa:
             stats_deaths_2:
               title: "# of deaths registered"
         line_3:
-          title: Line 3
+          title: Year 3
           fields:
             stats_year_3:
               title: Year
@@ -562,7 +562,7 @@ fosa:
             stats_deaths_3:
               title: "# of deaths registered"
         line_4:
-          title: Line 4
+          title: Year 4
           fields:
             stats_year_4:
               title: Year
@@ -571,7 +571,7 @@ fosa:
             stats_deaths_4:
               title: "# of deaths registered"
         line_5:
-          title: Line 5
+          title: Year 5
           fields:
             stats_year_5:
               title: Year
@@ -1242,5 +1242,8 @@ form:
     tabs:
       errors:
         title: Errors
+        columns:
+          field: Field
+          msg: Error message
       description:
         title: Description
