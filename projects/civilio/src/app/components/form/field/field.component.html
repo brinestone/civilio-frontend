@@ -61,6 +61,7 @@
 		[value]="_value()"
 		(input)="onInput($event.target.value)"
 		[disabled]="_disabled()"
+		[readOnly]="isReadonly()"
 		hlmInput
 		[placeholder]="schema().key + '.description' | translate"
 	/>
@@ -111,15 +112,21 @@
 
 <ng-template #datePickerTemplate>
 	<ng-container [ngTemplateOutlet]="labelTemplate" />
-	<hlm-date-picker
-		[buttonId]="schema().key"
-		[date]="_value()"
-		class="w-full {{ userClass() }}"
-		(dateChange)="onInput($event)"
-		[min]="$any(schema()).min"
-		[max]="$any(schema()).max"
-		[disabled]="_disabled()"
-	/>
+	@if (isReadonly()) {
+		<span>
+			{{ _value() | date: "mediumDate" : "" : locale() }}
+		</span>
+	} @else {
+		<hlm-date-picker
+			[buttonId]="schema().key"
+			[date]="_value()"
+			class="w-full {{ userClass() }}"
+			(dateChange)="onInput($event)"
+			[min]="$any(schema()).min"
+			[max]="$any(schema()).max"
+			[disabled]="_disabled()"
+		/>
+	}
 </ng-template>
 
 <ng-template #booleanFieldTemplate>
@@ -129,7 +136,7 @@
 		[(checked)]="_value"
 		[class]="userClass()"
 		(click)="onInput(!_value())"
-		[disabled]="_disabled()"
+		[disabled]="_disabled() || isReadonly()"
 	/>
 </ng-template>
 
@@ -142,6 +149,7 @@
 		[class]="userClass()"
 		(input)="onInput($event.target.value)"
 		[disabled]="_disabled()"
+		[readonly]="isReadonly()"
 		hlmInput
 		[placeholder]="schema().key + '.description' | translate"
 	/>

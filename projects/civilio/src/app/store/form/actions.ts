@@ -9,9 +9,9 @@ import {
 
 const prefix = "[form]";
 
-export class SubmissionIndexChanged{
+export class SubmissionIndexChanged {
 	static type = `${prefix} Index changed`;
-	constructor(readonly index: number){}
+	constructor(readonly index: number) { }
 }
 
 export class DeactivateForm {

@@ -1,5 +1,6 @@
-import { JsonPipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, output, signal } from '@angular/core';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { DatePipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, output, signal } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
 import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
@@ -25,6 +26,7 @@ import { ClassValue } from 'clsx';
 		TabularFieldComponent,
 		TranslatePipe,
 		GeoPointComponent,
+		DatePipe,
 		JsonPipe,
 		HlmCheckbox,
 		HlmDatePicker
@@ -41,6 +43,8 @@ export class FieldComponent implements ControlValueAccessor {
 	readonly options = input<Record<string, Option[]>>();
 	readonly parentValue = input<any>();
 	readonly userClass = input<ClassValue>('', { alias: 'class' });
+	readonly isReadonly = input<boolean, BooleanInput>(false, { alias: 'readonly', transform: booleanAttribute });
+	readonly locale = input<any>();
 	readonly changed = output<any>();
 
 	private cdr = inject(ChangeDetectorRef);

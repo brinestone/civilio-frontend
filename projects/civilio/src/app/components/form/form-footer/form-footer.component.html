@@ -29,7 +29,9 @@
 		}
 	</ul>
 </div>
-<div class="overflow-y-auto h-[calc(100%-2rem)] px-4 pt-1 relative">
+<div
+	class="overflow-y-auto h-[calc(100%-2rem)] px-4 pt-1 relative scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
 	@switch (currentTab()) {
 		@case (errorTab.key) {
 			<ng-container [ngTemplateOutlet]="errorsTemplate" />
@@ -49,18 +51,26 @@
 
 <ng-template #errorsTemplate>
 	<div class="grid grid-cols-[minmax(auto,20%)_1fr] gap-x-3 gap-y-1">
-		@for (h of ["Field", "Message"]; track $index) {
+		@for (
+			h of [
+				"form.footer.tabs.errors.columns.field",
+				"form.footer.tabs.errors.columns.msg",
+			];
+			track $index
+		) {
 			<p
 				class="sticky top-0 font-semibold bg-(--background) border-b border-border"
 			>
-				{{ h }}
+				{{ h | translate }}
 			</p>
 		}
 
 		@let list = currentSectionErrors() | keyvalue;
 		@for (entry of list; track $index) {
-			<p class="line-clamp-1">{{ entry.key + ".title" | translate }}</p>
-			<p>
+			<p class="line-clamp-1 text-sm font-light">
+				{{ entry.key + ".title" | translate }}
+			</p>
+			<p class="text-sm font-light">
 				@for (err of entry.value | keyvalue; track $index) {
 					@switch (err.key) {
 						@case ("required") {
