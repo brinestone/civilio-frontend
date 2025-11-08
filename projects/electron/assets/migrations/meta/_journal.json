@@ -29,6 +29,13 @@
       "when": 1762430076262,
       "tag": "0003_sharp_hellfire_club",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762602108578,
+      "tag": "0004_far_joshua_kane",
+      "breakpoints": true
     }
   ]
 }
