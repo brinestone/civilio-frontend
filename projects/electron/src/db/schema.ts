@@ -1,6 +1,5 @@
 import { inArray, SQL, sql } from "drizzle-orm";
 import {
-	bigserial,
 	boolean,
 	date,
 	integer,
@@ -9,7 +8,8 @@ import {
 	primaryKey,
 	text,
 	timestamp,
-	unique, uuid,
+	unique,
+	index
 } from "drizzle-orm/pg-core";
 
 export const civilio = pgSchema("civilio");
@@ -281,4 +281,11 @@ export const deltas = revision.table("deltas", {
 	primaryKey({
 		columns: [t.hash, t.submissionIndex, t.index, t.form, t.table]
 	}),
+	index().on(t.submissionIndex),
+	index().on(t.index),
+	index().on(t.form),
+	index().on(t.hash),
+	index().on(t.changedAt),
+	index().on(t.parent, t.hash),
+	index().on(t.submissionIndex, t.form, t.changedAt),
 ]);
