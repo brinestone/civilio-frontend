@@ -57,6 +57,20 @@
       "when": 1762604818310,
       "tag": "0007_windy_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1762607728367,
+      "tag": "0008_lame_dragon_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1762629827662,
+      "tag": "0009_unknown_unus",
+      "breakpoints": true
     }
   ]
 }

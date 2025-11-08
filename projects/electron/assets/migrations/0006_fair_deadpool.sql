@@ -42,7 +42,7 @@ BEGIN
 
 	FOR k IN SELECT skeys(diff_store)
 		LOOP
-			CONTINUE WHEN k IN ('_index', '_parent_index', 'created_at', 'updated_at', '_submission_time', '_version_',
+			CONTINUE WHEN k IN ('_index', '_parent_index', 'created_at', 'updated_at', '_submission_time',
 													'_submission_version');
 
 			old_val := to_jsonb(old_store -> k);
@@ -60,7 +60,6 @@ BEGIN
 																											 ELSE NULL END
 																									 ));
 		END LOOP;
-	RAISE NOTICE 'table name %', TG_TABLE_NAME;
 	IF diff_json = '{}'::JSONB AND TG_OP <> 'DELETE' THEN
 		RETURN COALESCE(NEW, OLD);
 	END IF;
@@ -79,9 +78,10 @@ BEGIN
 					diff_json,
 					actor,
 					tg_op::revisions.change_op,
-					OLD._version)
+					OLD._version_)
 	ON CONFLICT (hash, submission_index, index, form, table_name) DO NOTHING
 	RETURNING hash INTO _new_version;
+--     RAISE NOTICE 'old._version_ = %, new._version_ = %, _new_version=%', old._version_, new._version_, _new_version;
 
 	IF tg_op IN ('INSERT', 'UPDATE') THEN
 		IF tg_table_name = 'data' THEN
