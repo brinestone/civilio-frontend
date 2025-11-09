@@ -1,0 +1,1 @@
+ALTER TYPE "revisions"."sync_status" ADD VALUE 'failed';

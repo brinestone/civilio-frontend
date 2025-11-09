@@ -1,0 +1,1 @@
+ALTER TYPE "revisions"."change_op" ADD VALUE 'REVERT';

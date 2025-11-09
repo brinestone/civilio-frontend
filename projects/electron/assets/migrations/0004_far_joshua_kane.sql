@@ -16,8 +16,8 @@ CREATE TABLE "revisions"."deltas" (
 	CONSTRAINT "deltas_hash_submission_index_index_form_table_name_pk" PRIMARY KEY("hash","submission_index","index","form","table_name")
 );
 --> statement-breakpoint
-DROP VIEW "civilio"."vw_db_columns";--> statement-breakpoint
-DROP VIEW "civilio"."vw_submissions";--> statement-breakpoint
+DROP VIEW IF EXISTS "civilio"."vw_db_columns";--> statement-breakpoint
+DROP VIEW IF EXISTS "civilio"."vw_submissions";--> statement-breakpoint
 ALTER TABLE "civilio"."form_field_mappings" drop column "alias_hash";--> statement-breakpoint
 ALTER TABLE "civilio"."form_field_mappings" ADD COLUMN "alias_hash" text GENERATED ALWAYS AS (md5
 				("civilio"."form_field_mappings"."field")) STORED;--> statement-breakpoint

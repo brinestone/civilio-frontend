@@ -9,8 +9,10 @@ import {
 	text,
 	timestamp,
 	unique,
-	index
+	index, foreignKey,
+	uniqueIndex
 } from "drizzle-orm/pg-core";
+import { sync } from 'rimraf';
 
 export const civilio = pgSchema("civilio");
 export const revision = pgSchema("revisions");
@@ -264,10 +266,10 @@ export const vwDbColumns = civilio
 				WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`,
 	);
 
-export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE']);
+export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE', 'REVERT']);
+export const versionSyncStatus = revision.enum('sync_status', ['pending', 'synced', 'failed']);
 export const deltas = revision.table("deltas", {
-	hash: text().generatedAlwaysAs((): SQL => sql<string>`MD5
-		((${deltas.deltaData}):: TEXT)`),
+	hash: text().notNull(),
 	submissionIndex: integer("submission_index").notNull(),
 	index: integer("index").notNull(),
 	form: formTypes().notNull(),
@@ -277,14 +279,15 @@ export const deltas = revision.table("deltas", {
 	changedBy: text("changed_by"),
 	op: changeOp().notNull(),
 	parent: text('parent'),
+	syncStatus: versionSyncStatus('sync_status').default('pending'),
 }, t => [
+	uniqueIndex().on(t.hash),
 	primaryKey({
 		columns: [t.hash, t.submissionIndex, t.index, t.form, t.table]
 	}),
 	index().on(t.submissionIndex),
 	index().on(t.index),
 	index().on(t.form),
-	index().on(t.hash),
 	index().on(t.changedAt),
 	index().on(t.parent, t.hash),
 	index().on(t.submissionIndex, t.form, t.changedAt),

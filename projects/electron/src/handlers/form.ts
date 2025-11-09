@@ -30,25 +30,11 @@ import {
 	UnwrapArray,
 	UpdateSubmissionSubFormDataRequest,
 } from "@civilio/shared";
-import {
-	and,
-	countDistinct,
-	eq,
-	ExtractTablesWithRelations,
-	like,
-	or,
-	sql,
-} from "drizzle-orm";
-import { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
-import { PgSequence, PgTransaction } from "drizzle-orm/pg-core";
+import { and, countDistinct, eq, like, or, sql, } from "drizzle-orm";
+import { PgSequence } from "drizzle-orm/pg-core";
 import { entries } from "lodash";
 import { provideDatabase } from "../helpers/db";
-
-type Transaction = PgTransaction<
-	NodePgQueryResultHKT,
-	Record<string, unknown>,
-	ExtractTablesWithRelations<Record<string, unknown>>
->;
+import { Transaction } from '../types';
 
 const sequences: Record<
 	string,
