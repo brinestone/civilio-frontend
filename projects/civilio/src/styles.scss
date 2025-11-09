@@ -120,19 +120,4 @@ hlm-option {
 
 .scroll-box {
 	@apply overflow-y-auto;
-	&:-webkit-scrollbar-thumb {
-		@apply rounded-full bg-gray-300 dark:bg-neutral-500;
-	}
-	&:-webkit-scrollbar:horizontal {
-		@apply h-2;
-	}
-	&:-webkit-scrollbar-track {
-		@apply bg-gray-100 dark:bg-neutral-700;
-	}
-	&:-webkit-scrollbar:vertical {
-		@apply w-2;
-	}
-	&:-webkit-scrollbar-track {
-		@apply rounded-full;
-	}
 }

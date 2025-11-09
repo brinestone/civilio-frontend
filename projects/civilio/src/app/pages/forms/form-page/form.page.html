@@ -2,17 +2,17 @@
 	class="border-b border-border max-h-(--header-height) col-start-1 col-span-2 row-start-1 row-span-1"
 >
 	<ng-container>
-		@if(submissionIndex()) {
-		<cv-form-header
-			[submissionIndex]="submissionIndex()!"
-			[formType]="formType()"
-			[formSchema]="formModel()"
-			(indexJump)="onIndexJump($event)"
-			[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
-			[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
-			(nextSubmission)="onNextSubmissionRequested()"
-			(prevSubmission)="onPrevSubmissionRequested()"
-		/>
+		@if (submissionIndex()) {
+			<cv-form-header
+				[submissionIndex]="submissionIndex()!"
+				[formType]="formType()"
+				[formSchema]="formModel()"
+				(indexJump)="onIndexJump($event)"
+				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
+				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
+				(nextSubmission)="onNextSubmissionRequested()"
+				(prevSubmission)="onPrevSubmissionRequested()"
+			/>
 		}
 	</ng-container>
 </div>
@@ -21,13 +21,13 @@
 	class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto h-full col-start-1 col-span-1 row-start-2 row-span-2"
 >
 	<ul class="list-none space-y-2">
-		@for(section of formModel().sections; track $index) {
-		<ng-container
-			[ngTemplateOutlet]="sectionItemTemplate"
-			[ngTemplateOutletContext]="{
+		@for (section of formModel().sections; track $index) {
+			<ng-container
+				[ngTemplateOutlet]="sectionItemTemplate"
+				[ngTemplateOutletContext]="{
 			$implicit: section
 		}"
-		/>
+			/>
 		}
 	</ul>
 </div>
@@ -38,12 +38,12 @@
 	'row-span-2': bottomPanelStatus() == 'closed'
 }"
 >
-	<router-outlet />
+	<router-outlet/>
 </div>
-@if(bottomPanelStatus() == 'open') {
-<cv-form-footer
-	class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
-/>
+@if (bottomPanelStatus() == 'open') {
+	<cv-form-footer
+		class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
+	/>
 }
 <div
 	class="flex justify-between items-stretch px-2 border-t border-border col-start-1 col-span-2 row-start-4 row-span-1"
@@ -71,41 +71,42 @@
 	<ng-container>
 		@let hasChildren = section.children?.length > 0;
 	</ng-container>
-	@if(shouldShowSection) {
-	<ng-container>
-		<li class="form-section" [class.pl-3]="parent != null">
-			@let hasNoFields = hasChildren && section.fields.length == 0;
-			<a
-				[routerLink]="hasNoFields ? [section.children[0].id] : section.id"
-				queryParamsHandling="replace"
-				[queryParams]="{parent: parent ?? null}"
-				routerLinkActive="active"
-			>
-				<p>{{ section.id + '.title' | translate }}</p>
-				@if (sectionValidity()[section.id] == 'INVALID') {
-				<span hlmBadge variant="destructive" class="uppercase"
-					>{{sectionValidity()[section.id]}}</span
-				>
-				}
-			</a>
-		</li>
-		@if(hasChildren) {
+	@if (shouldShowSection) {
 		<ng-container>
-			@for(child of section.children; track $index) {
-			<ng-container>
-				@let shouldShowSection = relevanceRegistry()[child.id];
-			</ng-container>
-			@if(shouldShowSection) {
-			<ng-container
-				[ngTemplateOutlet]="sectionItemTemplate"
-				[ngTemplateOutletContext]="{
+			<li class="form-section" [class.pl-3]="parent != null">
+				@let hasNoFields = hasChildren && section.fields.length == 0;
+				<a
+					[routerLink]="hasNoFields ? [section.children[0].id] : section.id"
+					queryParamsHandling="replace"
+					[queryParams]="{parent: parent ?? null}"
+					routerLinkActive="active"
+				>
+					<p>{{ section.id + '.title' | translate }}</p>
+					@if (sectionValidity()[section.id] == 'INVALID') {
+						<span hlmBadge variant="destructive" class="uppercase"
+						>{{ sectionValidity()[section.id] }}</span
+						>
+					}
+				</a>
+			</li>
+			@if (hasChildren) {
+				<ng-container>
+					@for (child of section.children; track $index) {
+						<ng-container>
+							@let shouldShowSection = relevanceRegistry()[child.id];
+						</ng-container>
+						@if (shouldShowSection) {
+							<ng-container
+								[ngTemplateOutlet]="sectionItemTemplate"
+								[ngTemplateOutletContext]="{
 						$implicit: child,
 						parent: section.id
 					}"
-			/>
-			} }
+							/>
+						}
+					}
+				</ng-container>
+			}
 		</ng-container>
-		}
-	</ng-container>
 	}
 </ng-template>

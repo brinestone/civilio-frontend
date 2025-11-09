@@ -35,10 +35,18 @@ import {
 	UpdateMappings,
 	UpdateRelevance
 } from "@app/store/form";
-import { miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
+import {
+	miscConfig,
+	relevanceRegistry,
+	sectionValidity
+} from "@app/store/selectors";
 import { FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCircleAlert, lucidePanelBottomClose, lucidePanelBottomOpen } from "@ng-icons/lucide";
+import {
+	lucideCircleAlert,
+	lucidePanelBottomClose,
+	lucidePanelBottomOpen
+} from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
 import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
@@ -83,10 +91,10 @@ const miscConfigKeys = {
 export class FormPage
 	implements AfterViewInit, HasPendingChanges, OnInit, OnDestroy {
 
+	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
 	private readonly route = inject(ActivatedRoute);
 	private readonly indexChanged = dispatch(SubmissionIndexChanged);
-	private readonly formService = inject(FORM_SERVICE);
 	private readonly navigate = dispatch(Navigate);
 	private readonly loadOptions = dispatch(LoadOptions);
 	private readonly loadData = dispatch(LoadSubmissionData);
@@ -102,8 +110,7 @@ export class FormPage
 	protected formModel = computed(() => this.routeData()["model"] as FormSchema);
 	protected readonly activeSection = derivedFrom([this.route.firstChild!.params], pipe(
 		map(([params]) => {
-			const id = params['id'] as string;
-			return id;
+			return params['id'] as string;
 		})
 	));
 	protected sectionValidity = select(sectionValidity);
@@ -171,12 +178,15 @@ export class FormPage
 	ngAfterViewInit(): void {
 
 	}
+
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
 		return false;
 	}
+
 	ngOnDestroy(): void {
 		this.deactivate(this.formType());
 	}
+
 	ngOnInit() {
 		this.activate(this.formModel())
 			.pipe(
@@ -213,6 +223,7 @@ export class FormPage
 			this.reloadDataOnly();
 		});
 	}
+
 	protected onNextSubmissionRequested() {
 		// debugger;
 		const index = this.neighboringRefs.value()![1] as number;
@@ -223,6 +234,7 @@ export class FormPage
 			this.reloadDataOnly();
 		});
 	}
+
 	protected onPrevSubmissionRequested() {
 		const index = this.neighboringRefs.value()![0] as number;
 		const section = this.activeSection();

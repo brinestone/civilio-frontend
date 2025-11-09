@@ -1,9 +1,8 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
-import { MakerRpm } from '@electron-forge/maker-rpm';
-import { MakerSquirrel } from '@electron-forge/maker-squirrel';
-import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerWix } from '@electron-forge/maker-wix';
-import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives';
+import {
+	AutoUnpackNativesPlugin
+} from '@electron-forge/plugin-auto-unpack-natives';
 import { PublisherGithub } from '@electron-forge/publisher-github';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { existsSync } from 'fs';
@@ -57,21 +56,21 @@ const config: ForgeConfig = {
 		// windowsSign: true,
 		extraResource: ['./dist/assets'],
 		// Explicitly set the main entry point
-		executableName: 'civilio'
+		executableName: 'CivilIO'
 	},
 	rebuildConfig: {},
 	makers: [
 		new MakerWix({
 			icon: iconIcoPath,
 			features: {
-				autoUpdate: false,
+				autoUpdate: true,
 				autoLaunch: false
 			},
+			defaultInstallMode: 'perUser',
 			shortcutName: 'CivilIO',
 			programFilesFolderName: 'CivilIO',
 			language: 1033,
 			ui: {
-				chooseDirectory: true,
 			}
 		}),
 		new MakerDeb({
