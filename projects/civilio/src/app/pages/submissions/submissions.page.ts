@@ -1,11 +1,9 @@
-import { DatePipe, DecimalPipe, registerLocaleData } from '@angular/common';
-import localeEn from '@angular/common/locales/en-CM';
-import localeFr from '@angular/common/locales/fr-CM';
-import { Component, computed, effect, inject, Injector, input, model, OnInit, output, resource, signal } from '@angular/core';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { Component, computed, inject, Injector, input, model, OnInit, output, resource, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SetFormType } from '@app/store/form';
 import { currentLocale, lastFocusedFormType } from '@app/store/selectors';
-import { debounceSignal } from '@app/util';
+import { debounceSignal, maskString } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
@@ -18,21 +16,26 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-import { createAngularTable, createColumnHelper, FlexRender, flexRenderComponent, getCoreRowModel } from '@tanstack/angular-table';
-import { ElectronFormService } from '../../services/electron/form.service';
-
+import {
+	createAngularTable,
+	createColumnHelper,
+	FlexRender,
+	flexRenderComponent,
+	getCoreRowModel
+} from '@tanstack/angular-table';
+import { ElectronFormService } from '@app/services/electron/form.service';
 
 
 @Component({
 	selector: 'cv-badge-cell',
 	imports: [HlmBadgeImports, TranslatePipe],
 	template: `
-	@if(_static()) {
-    <span hlmBadge [variant]="variant()"> {{ text() }}</span>
-	}@else {
-		<span hlmBadge [variant]="variant()">{{text() | translate }}</span>
-	}
-  `
+		@if (_static()) {
+			<span hlmBadge [variant]="variant()"> {{ text() }}</span>
+		} @else {
+			<span hlmBadge [variant]="variant()">{{ text() | translate }}</span>
+		}
+	`
 })
 export class BadgeCell {
 	readonly variant = input<BadgeVariants['variant']>();
@@ -46,11 +49,11 @@ export class BadgeCell {
 	selector: 'cv-date-cell',
 	imports: [DatePipe],
 	template: `
-    <span>{{ text() | date:'mediumDate':'':locale() }}</span>
-  `,
+		<span>{{ date() | date:'mediumDate':'':locale() }}</span>
+	`,
 })
 export class DateCell {
-	readonly text = input.required<Date>();
+	readonly date = input<Date>();
 	readonly locale = select(currentLocale);
 
 	protected tz = undefined;
@@ -69,24 +72,25 @@ type Action = {
 	selector: 'cv-actions-cell',
 	imports: [HlmButton, NgIcon, TranslatePipe],
 	template: `
-    @if((actions() ?? []).length > 0) {
-      @for(action of actions(); track action.id) {
-        <button (click)="actionTriggered.emit(action.id)" hlmBtn variant="ghost" [size]="!action.label && action.icon ? 'icon' : 'default'">
-          @if(action.icon) {
-            <ng-icon [name]="action.icon"/>
-          }
-          @if(action.label) {
-            <span>{{ _static() ?  action.label : (action.label | translate) }} </span>
-          }
-        </button>
-      }
-    }
-  `,
+		@if ((actions() ?? []).length > 0) {
+			@for (action of actions(); track action.id) {
+				<button (click)="actionTriggered.emit(action.id)" hlmBtn variant="ghost"
+								[size]="!action.label && action.icon ? 'icon' : 'default'">
+					@if (action.icon) {
+						<ng-icon [name]="action.icon"/>
+					}
+					@if (action.label) {
+						<span>{{ _static() ? action.label : (action.label | translate) }} </span>
+					}
+				</button>
+			}
+		}
+	`,
 	styles: `
-    :host {
-      @apply inline-flex justify-start items-center;
-    }
-  `
+		:host {
+			@apply inline-flex justify-start items-center;
+		}
+	`
 })
 export class ButtonCell {
 	readonly actions = input<Action[]>();
@@ -173,14 +177,33 @@ export class SubmissionsPage implements OnInit {
 			accessorKey: 'facilityName',
 			header: 'submissions.columns.facility_name.title'
 		},
-		this.columnHelper.accessor('validationCode', { id: 'validationCode', header: 'submissions.columns.validation_code.title' }),
+		this.columnHelper.accessor('validationCode', {
+			id: 'validationCode',
+			header: 'submissions.columns.validation_code.title'
+		}),
 		this.columnHelper.accessor('submissionTime', {
 			header: 'submissions.columns.submission_date.title',
 			cell: ({ getValue }) => flexRenderComponent(DateCell, {
 				inputs: {
-					text: getValue(),
+					date: getValue(),
 				}
 			})
+		}),
+		this.columnHelper.accessor('lastModifiedAt', {
+			header: 'submissions.columns.last_modified_at.title',
+			cell: ({ getValue }) => flexRenderComponent(DateCell, {
+				inputs: { date: getValue() ?? undefined }
+			})
+		}),
+		this.columnHelper.accessor('lastModifiedBy', {
+			header: 'submissions.columns.last_modified_by.title',
+		}),
+		this.columnHelper.accessor('currentVersion', {
+			header: 'submissions.columns.version.title',
+			cell: ({renderValue}) =>{
+				const rv = renderValue();
+				return rv ?  maskString(rv) : rv;
+			}
 		}),
 		this.columnHelper.display({
 			id: 'actions',

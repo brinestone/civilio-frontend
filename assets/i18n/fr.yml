@@ -1238,6 +1238,12 @@ submissions:
       title: Code de validation
     submission_date:
       title: Date de soumission
+    last_modified_at:
+      title: Dernière modification
+    last_modified_by:
+      title: Modifié par
+    version:
+      title: Version
     validation_status:
       title: Statut de validation
       options:

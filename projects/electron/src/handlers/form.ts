@@ -428,7 +428,7 @@ export async function updateFieldMappings(
 					spec.dbColumn,
 				);
 			}
-			return await tx
+			return tx
 				.insert(fieldMappings)
 				.values({
 					dbColumn: spec.dbColumn,
@@ -454,7 +454,7 @@ export async function updateFieldMappings(
 
 export async function findDbColumns(form: FormType) {
 	const db = provideDatabase({ vwDbColumns });
-	return await db
+	return db
 		.select({
 			name: vwDbColumns.name,
 			dataType: vwDbColumns.dataType,
@@ -466,7 +466,7 @@ export async function findDbColumns(form: FormType) {
 
 export async function findFormOptions(form: FormType) {
 	const db = provideDatabase({ choices });
-	const result = await db
+	return await db
 		.select({
 			label: choices.label,
 			value: choices.name,
@@ -486,7 +486,6 @@ export async function findFormOptions(form: FormType) {
 			});
 			return map;
 		});
-	return result;
 }
 
 export async function findFieldMappings(type: FormType) {
