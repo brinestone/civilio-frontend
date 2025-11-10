@@ -1226,6 +1226,12 @@ submissions:
       title: Validation code
     submission_date:
       title: Submission Date
+    last_modified_at:
+      title: Last modified
+    last_modified_by:
+      title: Modified by
+    version:
+      title: Version
     validation_status:
       title: Validation Status
       options:

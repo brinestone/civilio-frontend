@@ -2,6 +2,7 @@ import { inArray, SQL, sql } from "drizzle-orm";
 import {
 	boolean,
 	date,
+	index,
 	integer,
 	jsonb,
 	pgSchema,
@@ -9,10 +10,8 @@ import {
 	text,
 	timestamp,
 	unique,
-	index, foreignKey,
 	uniqueIndex
 } from "drizzle-orm/pg-core";
-import { sync } from 'rimraf';
 
 export const civilio = pgSchema("civilio");
 export const revision = pgSchema("revisions");
@@ -204,7 +203,7 @@ export const vwFormSubmissions = civilio
 		isValid: boolean("is_valid"),
 		currentVersion: text('current_version'),
 		lastModifiedAt: timestamp("last_modified_at"),
-		lastModifiedBy: timestamp("last_modified_by"),
+		lastModifiedBy: text("last_modified_by"),
 	})
 	.as(
 		sql`SELECT _id,

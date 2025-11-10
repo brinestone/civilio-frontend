@@ -40,7 +40,10 @@ export const FormSubmissionSchema = z.object({
 	facilityName: z.string().nullable(),
 	submissionTime: z.coerce.date(),
 	form: FormTypeSchema,
-	isValid: z.boolean()
+	isValid: z.boolean(),
+	lastModifiedAt: z.coerce.date().nullable(),
+	lastModifiedBy: z.string().nullable(),
+	currentVersion: z.string().nullable(),
 });
 export const AppPrefsSchema = z.object({
 	theme: ThemeSchema,
