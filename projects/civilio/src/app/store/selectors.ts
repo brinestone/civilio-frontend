@@ -1,6 +1,6 @@
-import { AppConfigPaths, FormSectionKey, FormType, Locale } from "@civilio/shared";
+import { AppConfigPaths, FieldKey, FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
-import { entries, get, isEmpty } from "lodash";
+import { entries, get, intersection, isEmpty, values } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { FORM_STATE } from "./form";
 import { ValidationErrors } from "@angular/forms";
@@ -15,11 +15,13 @@ export const currentTheme = createSelector([configSlices.config], (config) => {
 export const currentLocale = createSelector([configSlices.config], (config) => {
 	return config?.prefs?.locale ?? (navigator.language as Locale);
 });
+
 export function optionsSelector(form: FormType) {
 	return createSelector([formSlices.options], (options) => {
 		return options?.[form] ?? {};
 	});
 }
+
 export function fieldMappingsfor(formType: FormType) {
 	return createSelector([formSlices.mappings], (mappings) => {
 		return mappings?.[formType];
@@ -46,6 +48,7 @@ export function rawData(section: FormSectionKey) {
 		return Object.fromEntries(selectedEntries);
 	});
 }
+
 export const sectionValidity = createSelector(
 	[formSlices.activeSections],
 	(sections) => {
@@ -57,7 +60,10 @@ export const sectionValidity = createSelector(
 export const allSectionErrors = createSelector([formSlices.activeSections], (sections) => {
 	return entries(sections)
 		.filter(([_, form]) => !isEmpty(form.errors))
-		.reduce((acc, [k, form]) => ({ ...acc, [k]: form.errors }), {} as Record<string, Record<string, ValidationErrors | null>>)
+		.reduce((acc, [k, form]) => ({
+			...acc,
+			[k]: form.errors
+		}), {} as Record<string, Record<string, ValidationErrors | null>>)
 })
 
 export const currentSectionErrors = createSelector(
@@ -82,4 +88,20 @@ export const activeSections = formSlices.activeSections;
 export const currentFormSection = formSlices.currentSection;
 export const fontSize = createSelector([configSlices.config], (cfg) => {
 	return cfg?.prefs?.fontSize ?? 16;
+});
+export const facilityName = createSelector([formSlices.rawData], (record) => {
+	const facilityNameKeys = [
+		['fosa.form.sections.identification', 'fosa.form.sections.identification.fields.facility_name'],
+		['csc.form.sections.identification', 'csc.form.sections.identification.fields.facility_name']
+		// TODO: add for chefferie
+	] as [FormSectionKey, FieldKey][];
+
+	for (const [_, nameKey] of facilityNameKeys) {
+		const facilityName = record?.[nameKey];
+		if (facilityName) {
+			return (facilityName ?? 'N/A') as string;
+		}
+	}
+
+	return 'N/A';
 })

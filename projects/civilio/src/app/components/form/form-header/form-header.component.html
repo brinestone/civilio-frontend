@@ -6,7 +6,7 @@
 		size="sm"
 		variant="outline"
 	>
-		<ng-icon name="lucideChevronLeft" />
+		<ng-icon name="lucideChevronLeft"/>
 		<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
 	</button>
 	<button
@@ -17,9 +17,10 @@
 		variant="outline"
 	>
 		<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
-		<ng-icon name="lucideChevronRight" />
+		<ng-icon name="lucideChevronRight"/>
 	</button>
 	<hlm-autocomplete
+		class="max-w-[158px]"
 		[(search)]="indexInputFilter"
 		[filteredOptions]="indexSuggestions.value()"
 		[loading]="indexSuggestions.isLoading()"
@@ -29,14 +30,16 @@
 		[loadingText]="'loading.txt' | translate"
 		[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
 	/>
+	<span>-</span>
+	<p class="line-clamp-1 max-w-[450px]" [title]="facilityName()" hlmH4>{{ facilityName() }}</p>
 </div>
 <div class="flex items-center gap-2">
 	<button hlmBtn size="sm">
-		<ng-icon name="lucideSave" />
+		<ng-icon name="lucideSave"/>
 		<span>{{ "forms.header.actions.save_changes" | translate }}</span>
 	</button>
 	<button hlmBtn size="sm" variant="destructive">
-		<ng-icon name="lucideTrash2" />
+		<ng-icon name="lucideTrash2"/>
 		<span>{{ "forms.header.actions.discard" | translate }}</span>
 	</button>
 	<hlm-sheet
@@ -46,7 +49,7 @@
 		side="right"
 	>
 		<button hlmBtn size="sm" variant="ghost" brnSheetTrigger>
-			<ng-icon name="lucideUnlink" />
+			<ng-icon name="lucideUnlink"/>
 			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>
 		</button>
 		<hlm-sheet-content
@@ -63,7 +66,7 @@
 				@defer (when mapperSheetState() == 'open') {
 					@let schema = formSchema();
 					@if (schema) {
-						<cv-field-mapper [formModel]="schema" [form]="formType()" />
+						<cv-field-mapper [formModel]="schema" [form]="formType()"/>
 					}
 				}
 			</div>

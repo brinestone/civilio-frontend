@@ -37,7 +37,7 @@ import {
 import { entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
-import { debounceTime, filter, map, switchMap, take } from "rxjs";
+import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
 
 @Component({
 	selector: "cv-section-page",
@@ -63,6 +63,7 @@ export class SectionPage {
 
 	// #region Flags
 	private refreshingControls = false;
+	private indexChanged = false;
 	// #endregion
 
 	private readonly activate = dispatch(ActivateSection);
@@ -84,6 +85,7 @@ export class SectionPage {
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(SubmissionIndexChanged),
+			tap(() => this.indexChanged = true),
 			switchMap(() => actions$.pipe(
 				ofActionSuccessful(UpdateRelevance),
 				debounceTime(10),
@@ -91,7 +93,9 @@ export class SectionPage {
 			)),
 			// d(() => !this.refreshingControls)
 		).subscribe(() => {
+			debugger;
 			this.refreshFieldValues();
+			this.indexChanged = false;
 		});
 
 		actions$.pipe(
@@ -151,7 +155,7 @@ export class SectionPage {
 			const existingValue = control.value;
 			const storeValue = untracked(this.sectionData)[key];
 			const isControlDirty = control.dirty;
-			const shouldUpdateControlValue = !isEqual(existingValue, storeValue) && !isControlDirty;
+			const shouldUpdateControlValue = (!isEqual(existingValue, storeValue) && !isControlDirty) || this.indexChanged;
 			if (!shouldUpdateControlValue) {
 				if (isControlDirty) {
 					console.log('Ignoring value update for dirty field: ', key);
