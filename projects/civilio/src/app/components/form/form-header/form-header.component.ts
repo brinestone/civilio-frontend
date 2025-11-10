@@ -1,4 +1,4 @@
-import { Component, effect, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
+import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
 import { FieldMapperComponent } from '@app/components';
 import { FormSchema } from '@app/model/form';
 import { FORM_SERVICE } from '@app/services/form';
@@ -6,7 +6,6 @@ import { FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronLeft, lucideChevronRight, lucideSave, lucideTrash2, lucideUnlink2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { BrnAutocompleteImports } from '@spartan-ng/brain/autocomplete';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
@@ -15,6 +14,9 @@ import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { debounceTime, map, pipe } from 'rxjs';
 import z from 'zod';
+import { HlmH4 } from '@spartan-ng/helm/typography';
+import { select } from '@ngxs/store';
+import { facilityName } from '@app/store/selectors';
 
 @Component({
 	selector: 'cv-form-header',
@@ -35,7 +37,7 @@ import z from 'zod';
 		BrnSheetImports,
 		HlmSheetImports,
 		HlmAutocompleteImports,
-		BrnAutocompleteImports
+		HlmH4,
 	],
 	templateUrl: './form-header.component.html',
 	styleUrl: './form-header.component.scss'
@@ -52,6 +54,7 @@ export class FormHeaderComponent {
 
 	private readonly formService = inject(FORM_SERVICE);
 
+	protected readonly facilityName = select(facilityName);
 	protected readonly mapperSheetState = signal<BrnDialogState>('closed');
 	protected readonly submissionIndex = linkedSignal(() => {
 		const index = this.index();
