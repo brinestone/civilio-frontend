@@ -160,6 +160,9 @@
       ],
       "@spartan-ng/helm/input-group": [
         "./libs/ui/input-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/field": [
+        "./libs/ui/field/src/index.ts"
       ]
     }
   },

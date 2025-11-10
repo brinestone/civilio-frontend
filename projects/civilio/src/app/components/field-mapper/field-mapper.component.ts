@@ -12,7 +12,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
 import { extractAllFields, FieldSchema, flattenSections, FormSchema, SectionSchema } from '@app/model/form';
-import { ValuesPipe } from '@app/pipes';
+import { IsStringPipe, ValuesPipe } from '@app/pipes';
 import { LoadDbColumns, LoadMappings, RemoveMapping, UpdateMappings } from '@app/store/form';
 import { formColumns, formMappings } from '@app/store/selectors';
 import { DbColumnSpec, FieldKey, FormType } from '@civilio/shared';
@@ -69,6 +69,7 @@ type SectionForm = FormGroup<{
 		HlmPopoverContent,
 		NgTemplateOutlet,
 		BrnPopoverContent,
+		IsStringPipe,
 	],
 	templateUrl: './field-mapper.component.html',
 	styleUrl: './field-mapper.component.scss'
@@ -110,7 +111,7 @@ export class FieldMapperComponent implements OnInit {
 		const model = this.formModel();
 		if (!model) return {};
 		return cloneDeep(extractAllFields(model))
-			.reduce((acc, curr) => ({ ...acc, [curr.key]: curr }), {} as Record<string, FieldSchema>)
+			.reduce((acc, curr) => ({ ...acc, [typeof curr.key == 'string'? curr.key : curr.key.value]: curr }), {} as Record<string, FieldSchema>)
 	});
 	protected inputForm: FormGroup<{
 		groups: FormArray<SectionForm>
@@ -178,7 +179,8 @@ export class FieldMapperComponent implements OnInit {
 	}
 
 	private setupField(schema: FieldSchema) {
-		const mapping = this.loadedMappings()[schema.key];
+		const key = typeof schema.key == 'string'? schema.key : schema.key.value;
+		const mapping = this.loadedMappings()[key];
 		let initialValue: DbColumnSpec | null = null;
 		if (mapping) {
 			initialValue = this.columns().find(({ name, tableName }) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
@@ -193,7 +195,8 @@ export class FieldMapperComponent implements OnInit {
 		const _fields = new FormRecord(fields
 			.map(f => {
 				if (f.type == 'table') return this.setupTablularField(f);
-				return ({ [f.key]: this.setupField(f) });
+				const key = typeof f.key == 'string'? f.key : f.key.value;
+				return ({ [key]: this.setupField(f) });
 			})
 			.reduce((acc, curr) => {
 				return ({ ...acc, ...curr });

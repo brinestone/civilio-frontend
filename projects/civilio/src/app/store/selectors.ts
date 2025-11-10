@@ -64,7 +64,7 @@ export const currentSectionErrors = createSelector(
 	[formSlices.activeSections, formSlices.currentSection],
 	(activeSections, currentSection) => {
 		if (!currentSection) return {};
-		return activeSections[currentSection].errors;
+		return activeSections[currentSection]?.errors ?? {};
 	},
 );
 

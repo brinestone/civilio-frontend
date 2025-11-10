@@ -45,7 +45,12 @@
 <ng-template #tableFieldTemplate let-schema let-fg="formGroup">
 	<div class="flex items-center gap-3 col-span-2">
 		<h2 class="group-title table">
-			{{ schema.key + ".title" | translate }}
+			@let fieldKey = ($any(schema.key) | isString) ? schema.key : $any(schema.key).value;
+			@if (schema.key | isString) {
+				{{ fieldKey + ".title" | translate }}
+			} @else {
+				{{ fieldKey + '.title' | translate:$any(schema!.key).titleArgs }}
+			}
 		</h2>
 		<span hlmBadge variant="outline" class="uppercase">Sub-form</span>
 	</div>
@@ -62,11 +67,11 @@
 	<ng-container [formGroup]="fg">
 		@if (schema.type != "table") {
 			<label [for]="schema.key + '_mapper_selector'" hlmLabel class="block">{{
-				schema.key + ".title" | translate
-			}}</label>
+					schema.key + ".title" | translate
+				}}</label>
 			<div class="flex items-center gap-2 group">
 				<brn-popover sideOffset="5" class="w-full">
-					<input class="hidden" [formControlName]="schema.key" />
+					<input class="hidden" [formControlName]="schema.key"/>
 					<button
 						hlmBtn
 						class="w-full justify-between overflow-ellipsis line-clamp-1 !text-start"
@@ -82,8 +87,8 @@
 					>
 						{{
 							fg.controls[schema.key].value?.name ||
-								$any(loadedMappings()[schema.key])?.dbColumn ||
-								"Select column"
+							$any(loadedMappings()[schema.key])?.dbColumn ||
+							"Select column"
 						}}
 					</button>
 					<hlm-command
@@ -92,8 +97,8 @@
 						class="w-full p-0"
 					>
 						<hlm-command-search>
-							<ng-icon hlm name="lucideSearch" />
-							<input placeholder="Search Column..." hlm-command-search-input />
+							<ng-icon hlm name="lucideSearch"/>
+							<input placeholder="Search Column..." hlm-command-search-input/>
 						</hlm-command-search>
 						<div class="w-full" *brnCommandEmpty hlmCommandEmpty>
 							No results found
@@ -113,16 +118,14 @@
 											<p class="block text-start w-full">{{ spec.name }}</p>
 											<span
 												class="block text-start text-sm text-[var(--muted-foreground)]"
-												>table: {{ spec.tableName }}</span
+											>table: {{ spec.tableName }}</span
 											>
 										</div>
-										@if (
-											fg.controls[schema.key].value ===
-												$any(loadedMappings()[schema.key])?.dbColumn &&
-											fg.controls[schema.key].value !== undefined &&
-											fg.controls[schema.key].value !== null
-										) {
-											<ng-icon name="lucideCheck" />
+										@if (fg.controls[schema.key].value ===
+										$any(loadedMappings()[schema.key])?.dbColumn &&
+										fg.controls[schema.key].value !== undefined &&
+										fg.controls[schema.key].value !== null) {
+											<ng-icon name="lucideCheck"/>
 										}
 									</button>
 								}
@@ -139,7 +142,7 @@
 					variant="ghost"
 					class="opacity-0 group-hover:opacity-100"
 				>
-					<ng-icon name="lucideX" />
+					<ng-icon name="lucideX"/>
 				</button>
 			</div>
 		} @else {

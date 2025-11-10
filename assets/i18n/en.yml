@@ -173,7 +173,7 @@ csc:
               has_obstacles:
                 title: Type of obstacles limiting access to the centre
           villages:
-            title: ""
+            title: "List of Associated Villages"
             fields:
               list:
                 title: Attached villages
@@ -240,7 +240,7 @@ csc:
                 title: Moving plans?
                 description: Are there plans to move into a new building in the coming months?
           rooms:
-            title: ""
+            title: List of rooms dedicated to civil status (Civil status office and reception area, archive room)
             fields:
               list:
                 title: Rooms dedicated to civil status
@@ -421,9 +421,10 @@ csc:
               vandalization_date:
                 title: When did the vandalism occur?
           archive_stats:
+            title: Number of archived records
             fields:
               list:
-                title: Number of archived records (period from 2020 to 2024)
+                title: Number of archived records (period from {{startYear}} to {{endYear}})
               index:
                 title: Index
               year:

@@ -8,6 +8,10 @@ export * from './chiefdom';
 export * from './csc';
 export * from './fosa';
 
+export function extractFieldKey(key: FieldSchema['key']) {
+	return typeof key == 'string' ? key : key.value;
+}
+
 export function extractRawValidators(schema: FieldSchema) {
 	const truthinessSchema = z.coerce.boolean();
 	const validators: ((v: unknown) => ValidationErrors | null)[] = [];

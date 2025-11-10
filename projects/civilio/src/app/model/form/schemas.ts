@@ -29,7 +29,10 @@ const ValidateFnSchema = z.function({
 });
 
 const BaseFieldDefinitionSchema = z.object({
-	key: FieldKeySchema,
+	key: z.union([FieldKeySchema, z.object({
+		value: FieldKeySchema,
+		titleArgs: z.record(z.string(), z.unknown())
+	})]),
 	required: z.literal(true).optional(),
 	validate: ValidateFnSchema.optional(),
 	relevance: z.object({

@@ -14,6 +14,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ClassValue } from 'clsx';
+import { IsStringPipe } from '@app/pipes';
 
 @Component({
 	selector: 'cv-field',
@@ -28,7 +29,8 @@ import { ClassValue } from 'clsx';
 		GeoPointComponent,
 		DatePipe,
 		HlmCheckbox,
-		HlmDatePicker
+		HlmDatePicker,
+		IsStringPipe
 	],
 	templateUrl: './field.component.html',
 	styleUrl: './field.component.scss',

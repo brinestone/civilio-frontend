@@ -77,7 +77,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		// #endregion
 
 
-
 		// #region Identification
 		{
 			id: 'csc.form.sections.identification',
@@ -265,7 +264,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		// #endregion
 
 
-
 		// #region Accessibility
 		{
 			fields: [],
@@ -341,7 +339,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
-
 
 
 		// #region Infrastructure
@@ -487,7 +484,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		// #endregion
 
 
-
 		// #region Areas
 		{
 			id: 'csc.form.sections.areas',
@@ -574,7 +570,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		//#endregion
 
 
-
 		// #region Equipment
 		{
 			id: 'csc.form.sections.equipment',
@@ -628,7 +623,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
-
 
 
 		// #region Digitization
@@ -694,8 +688,8 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				...([
 					'csc.form.sections.digitization.fields.software_trained_user_count',
-					'csc.form.sections.digitization.fields.software_recorded_marriage_count',
 					'csc.form.sections.digitization.fields.software_recorded_births_count',
+					'csc.form.sections.digitization.fields.software_recorded_marriage_count',
 					'csc.form.sections.digitization.fields.software_recorded_death_count',
 				] as FieldKey[]).map(k => ({
 					relevance: relevanceMap.centerHasCsSoftware,
@@ -719,7 +713,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
-
 
 
 		// #region Record Indexing
@@ -794,7 +787,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		// #endregion
 
 
-
 		// #region Record Procurement
 		{
 			id: 'csc.form.sections.record_procurement',
@@ -835,7 +827,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
-
 
 
 		// #region Financial resources
@@ -889,7 +880,6 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 			]
 		},
 		// #endregion
-
 
 
 		// #region Archiving Function
@@ -976,7 +966,13 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 					relevance: relevanceMap.centerIsFunctional,
 					fields: [
 						{
-							key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.list',
+							key: {
+								value: 'csc.form.sections.archiving_function.sections.archive_stats.fields.list',
+								titleArgs: {
+									startYear: new Date().getFullYear() - 5,
+									endYear: new Date().getFullYear(),
+								}
+							},
 							type: 'table',
 							relevance: relevanceMap.centerIsPrimaryOrSecondary,
 							identifierColumn: 'csc.form.sections.archiving_function.sections.archive_stats.fields.index',

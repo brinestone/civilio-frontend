@@ -17,7 +17,7 @@ BEGIN
 		index_col_name := '_parent_index';
 	end if;
 	query :=
-		format('SELECT d.%I FROM %I.%I d WHERE d.%I = %L', version_col_name, form::TEXT, table_name, index_col_name,
+		format('SELECT d.%I FROM %I.%I d WHERE d.%I = %L LIMIT 1', version_col_name, form::TEXT, table_name, index_col_name,
 					 _submission_index);
 	EXECUTE query INTO ans;
 	RETURN ans;

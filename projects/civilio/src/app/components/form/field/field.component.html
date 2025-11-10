@@ -1,12 +1,13 @@
+@let fieldKey = ($any(schema().key) | isString) ? schema().key : $any(schema().key).value;
 @switch (schema().type) {
 	@case ("text") {
-		<ng-container [ngTemplateOutlet]="textFieldTemplate" />
+		<ng-container [ngTemplateOutlet]="textFieldTemplate"/>
 	}
 	@case ("boolean") {
-		<ng-container [ngTemplateOutlet]="booleanFieldTemplate" />
+		<ng-container [ngTemplateOutlet]="booleanFieldTemplate"/>
 	}
 	@case ("date") {
-		<ng-container [ngTemplateOutlet]="datePickerTemplate" />
+		<ng-container [ngTemplateOutlet]="datePickerTemplate"/>
 	}
 	@case ("single-selection") {
 		<ng-container
@@ -21,25 +22,25 @@
 		/>
 	}
 	@case ("float") {
-		<ng-container [ngTemplateOutlet]="numberTemplate" />
+		<ng-container [ngTemplateOutlet]="numberTemplate"/>
 	}
 	@case ("int") {
-		<ng-container [ngTemplateOutlet]="numberTemplate" />
+		<ng-container [ngTemplateOutlet]="numberTemplate"/>
 	}
 	@case ("point") {
-		<ng-container [ngTemplateOutlet]="geoPointTemplate" />
+		<ng-container [ngTemplateOutlet]="geoPointTemplate"/>
 	}
 	@case ("table") {
-		<ng-container [ngTemplateOutlet]="tableTemplate" />
+		<ng-container [ngTemplateOutlet]="tableTemplate"/>
 	}
 }
 
 <ng-template #tableTemplate>
-	<cv-tabular-field [optionSource]="options() ?? {}" [class]="userClass()" />
+	<cv-tabular-field [optionSource]="options() ?? {}" [class]="userClass()"/>
 </ng-template>
 
 <ng-template #geoPointTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	<cv-geo-point
 		[value]="_value()"
 		(touched)="onControlTouched()"
@@ -49,20 +50,20 @@
 </ng-template>
 
 <ng-template #numberTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	<input
-		[id]="schema().key"
+		[id]="fieldKey"
 		type="number"
 		[min]="$any(schema()).min"
 		[max]="$any(schema()).max"
 		[class]="userClass()"
 		(blur)="onControlTouched()"
 		[value]="_value()"
-		(input)="onInput($event.target.value)"
+		(input)="onInput($any($event.target!).value)"
 		[disabled]="_disabled()"
 		[readOnly]="isReadonly()"
 		hlmInput
-		[placeholder]="schema().key + '.description' | translate"
+		[placeholder]="fieldKey + '.description' | translate"
 	/>
 </ng-template>
 
@@ -77,10 +78,10 @@
 </ng-template>
 
 <ng-template #selectTemplate let-multi="multiple">
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	@let hasParent = $any(schema()).parent != null && parentValue() != null;
 	<brn-select
-		[id]="schema().key"
+		[id]="fieldKey"
 		[class]="userClass()"
 		[(value)]="_value"
 		(valueChange)="onInput($event)"
@@ -88,11 +89,11 @@
 		[multiple]="multi"
 	>
 		<hlm-select-trigger class="w-full">
-			<hlm-select-value />
+			<hlm-select-value/>
 		</hlm-select-trigger>
 		<hlm-select-content>
-			@let key = $any(schema()).optionsGroupKey;
-			@for (option of options()?.[key] ?? []; track $index) {
+			@let groupKey = $any(schema()).optionsGroupKey;
+			@for (option of options()?.[groupKey] ?? []; track $index) {
 				@if (!hasParent || (hasParent && option.parent == parentValue())) {
 					<hlm-option [value]="option.value">
 						@if (option.i18nKey) {
@@ -110,14 +111,14 @@
 </ng-template>
 
 <ng-template #datePickerTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	@if (isReadonly()) {
 		<span>
 			{{ _value() | date: "mediumDate" : "" : locale() }}
 		</span>
 	} @else {
 		<hlm-date-picker
-			[buttonId]="schema().key"
+			[buttonId]="fieldKey"
 			[date]="_value()"
 			class="w-full {{ userClass() }}"
 			(dateChange)="onInput($event)"
@@ -129,9 +130,9 @@
 </ng-template>
 
 <ng-template #booleanFieldTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	<hlm-checkbox
-		[id]="schema().key"
+		[id]="fieldKey"
 		[checked]="_value()"
 		[class]="userClass()"
 		(click)="onInput(!_value())"
@@ -140,22 +141,26 @@
 </ng-template>
 
 <ng-template #textFieldTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate" />
+	<ng-container [ngTemplateOutlet]="labelTemplate"/>
 	<input
-		[id]="schema().key"
+		[id]="fieldKey"
 		(blur)="onControlTouched()"
 		[value]="_value()"
 		[class]="userClass()"
-		(input)="onInput($event.target.value)"
+		(input)="onInput($any($event.target!).value)"
 		[disabled]="_disabled()"
 		[readonly]="isReadonly()"
 		hlmInput
-		[placeholder]="schema().key + '.description' | translate"
+		[placeholder]="fieldKey + '.description' | translate"
 	/>
 </ng-template>
 
 <ng-template #labelTemplate>
-	<label class="block" hlmLabel [for]="schema().key">
-		{{ schema()!.key + ".title" | translate }}
+	<label class="block" hlmLabel [for]="fieldKey">
+		@if (schema().key | isString) {
+			{{ fieldKey + ".title" | translate }}
+		} @else {
+			{{ fieldKey + '.title' | translate:$any(schema()!.key).titleArgs }}
+		}
 	</label>
 </ng-template>

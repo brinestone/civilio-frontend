@@ -1,83 +1,100 @@
 <div class="px-2 pt-4 pb-2">
-	<h1 class="font-extrabold text-3xl">
+	<h1 class="font-extrabold text-2xl line-clamp-1" [title]="sectionKey() + '.title' | translate">
 		{{ sectionKey() + '.title' | translate }}
 	</h1>
 </div>
-<!-- form data: {{sectionData() | json}} -->
 <form [formGroup]="form" class="grid lg:grid-cols-[1fr_1fr] gap-3 px-2">
-	@for(field of sectionSchema().fields; track $index) {
-	<ng-container>
-		@let shouldShow = relevanceRegistry()[field.key] &&
-		form.contains(field.key);
+	@for (field of sectionSchema().fields; track $index) {
 		<ng-container>
-			@if(shouldShow) {
+			@let key = (field.key | isString) ? $any(field.key) : $any(field.key).value;
+			@let shouldShow = relevanceRegistry()[key] &&
+				form.contains(key);
 			<ng-container>
-				@let parentValue = sectionData()[$any(field).parent];
-			</ng-container>
-			<div class="space-y-1">
-				<cv-field
-					[readonly]="field.readonly"
-					[schema]="field"
-					[formControlName]="field.key"
-					[options]="options()"
-					(changed)="onFieldValueChanged(field.key, $event)"
-					[parentValue]="parentValue ?? null"
-				/>
-				@let control = form.controls[field.key]; @if(control.invalid) {
-				<ng-container
-					[ngTemplateOutlet]="errorMessageTemplate"
-					[ngTemplateOutletContext]="{
+				@if (shouldShow) {
+					<ng-container>
+						@let parentValue = sectionData()[$any(field).parent];
+					</ng-container>
+					<div hlmField [class.col-span-2]="field.type == 'table'">
+						<cv-field
+							[readonly]="field.readonly"
+							[schema]="field"
+							[formControlName]="key"
+							[options]="options()"
+							(changed)="onFieldValueChanged(key, $event)"
+							[parentValue]="parentValue ?? null"
+						/>
+						@let control = form.controls[key];
+						@if (control.invalid) {
+							<ng-container
+								[ngTemplateOutlet]="errorMessageTemplate"
+								[ngTemplateOutletContext]="{
 						$implicit: control,
 						schema: field
 					}"
-				/>
+							/>
+						}
+					</div>
 				}
-			</div>
-			}
+			</ng-container>
 		</ng-container>
-	</ng-container>
 	}
 </form>
 
 <ng-template #errorMessageTemplate let-control let-field="schema">
-	<small class="text-red-500 block text-sm">
-		@if(control.hasError('required')) {
-		<ng-container>
-			{{ 'validation.msg.field_required' | translate }}
-		</ng-container>
-		}@else if (control.hasError('invalidValue')) {
-		<ng-container>
-			{{ 'validation.msg.value_unsupported' | translate:{validValues:
-			control.getError('invalidValue').validValues | join} }}
-		</ng-container>
+	<hlm-field-error>
+		@if (control.hasError('required')) {
+			<ng-container>
+				{{ 'validation.msg.field_required' | translate }}
+			</ng-container>
+		} @else if (control.hasError('invalidValue')) {
+			<ng-container>
+				{{
+					'validation.msg.value_unsupported' | translate:{
+						validValues:
+							control.getError('invalidValue').validValues | join
+					}
+				}}
+			</ng-container>
 		} @else if (control.hasError('pattern') || control.hasError('int')) {
-		<ng-container>
-			{{ 'validation.msg.pattern_mismatch' | translate }}
-		</ng-container>
+			<ng-container>
+				{{ 'validation.msg.pattern_mismatch' | translate }}
+			</ng-container>
 		} @else if (control.hasError('minDate')) {
-		<ng-container>
-			{{ 'validation.msg.min_date' | translate: {minDate:
-			control.getError('minDate')} }}
-		</ng-container>
-		}@else if (control.hasError('maxDate')) {
-		<ng-container>
-			{{'validation.msg.max_date' | translate: {maxDate:
-			control.getError('maxDate')} }}
-		</ng-container>
+			<ng-container>
+				{{
+					'validation.msg.min_date' | translate: {
+						minDate:
+							control.getError('minDate')
+					}
+				}}
+			</ng-container>
+		} @else if (control.hasError('maxDate')) {
+			<ng-container>
+				{{
+					'validation.msg.max_date' | translate: {
+						maxDate:
+							control.getError('maxDate')
+					}
+				}}
+			</ng-container>
 		} @else if (control.hasError('invalidDate')) {
-		<ng-container> {{'validation.msg.invalid_date' | translate}} </ng-container>
-		}@else if (control.hasError('min')) {
-		<ng-container>
-			@let meta = { min:control.getError('min').min | number, suffix:
-			$any(field).unit ?? '' | translate };
-		</ng-container>
-		<ng-container> {{ 'validation.msg.min' | translate:meta }} </ng-container>
+			<ng-container> {{ 'validation.msg.invalid_date' | translate }}</ng-container>
+		} @else if (control.hasError('min')) {
+			<ng-container>
+				@let meta = {
+					min: control.getError('min').min | number, suffix:
+						$any(field).unit ?? '' | translate
+				};
+			</ng-container>
+			<ng-container> {{ 'validation.msg.min' | translate:meta }}</ng-container>
 		} @else if (control.hasError('max')) {
-		<ng-container>
-			@let meta = { max:control.getError('max').max | number, suffix:
-			$any(field).unit ?? '' | translate };
-		</ng-container>
-		<ng-container> {{ 'validation.msg.max' | translate:meta }} </ng-container>
+			<ng-container>
+				@let meta = {
+					max: control.getError('max').max | number, suffix:
+						$any(field).unit ?? '' | translate
+				};
+			</ng-container>
+			<ng-container> {{ 'validation.msg.max' | translate:meta }}</ng-container>
 		}
-	</small>
+	</hlm-field-error>
 </ng-template>

@@ -7,6 +7,7 @@ import {
 	inject,
 	untracked
 } from "@angular/core";
+import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
 	AbstractControl,
@@ -16,9 +17,15 @@ import {
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
-import { extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
-import { JoinArrayPipe } from "@app/pipes";
-import { ActivateSection, LoadSubmissionData, SubmissionIndexChanged, UpdateRelevance, UpdateSection } from "@app/store/form";
+import { extractFieldKey, extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
+import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
+import {
+	ActivateSection,
+	LoadSubmissionData,
+	SubmissionIndexChanged,
+	UpdateRelevance,
+	UpdateSection
+} from "@app/store/form";
 import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
 import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
@@ -27,7 +34,7 @@ import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher,
 } from "@spartan-ng/brain/forms";
-import { entries } from "lodash";
+import { entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { debounceTime, filter, map, switchMap, take } from "rxjs";
@@ -44,6 +51,8 @@ import { debounceTime, filter, map, switchMap, take } from "rxjs";
 		NgTemplateOutlet,
 		TranslatePipe,
 		DecimalPipe,
+		HlmFieldImports,
+		IsStringPipe
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./section.page.html",
@@ -121,24 +130,38 @@ export class SectionPage {
 			filter(() => !this.refreshingControls)
 		).subscribe(() => {
 			this.refreshControls();
-		})
-	}
+		});
 
-	// ngOnInit(): void {
-	// 	this.activate(this.sectionKey()!, this.formType());
-	// }
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionDispatched(LoadSubmissionData),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
+				take(1)
+			)),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues();
+		});
+	}
 
 	private refreshFieldValues() {
 		console.log('refreshing field values');
 		for (const [key, control] of entries(this.form.controls)) {
 			const existingValue = control.value;
 			const storeValue = untracked(this.sectionData)[key];
-			const shouldUpdateControlValue = existingValue !== storeValue;
-			if (!shouldUpdateControlValue) continue;
+			const isControlDirty = control.dirty;
+			const shouldUpdateControlValue = !isEqual(existingValue, storeValue) && !isControlDirty;
+			if (!shouldUpdateControlValue) {
+				if (isControlDirty) {
+					console.log('Ignoring value update for dirty field: ', key);
+				}
+				continue
+			}
 
 			control.setValue(storeValue);
 			this.markControlAsPristine(control);
-			console.log(`Refreshed value for field: ${key} from "${existingValue}" to "${storeValue}"`);
+			console.log(`Refreshed value for field: ${key} from ${JSON.stringify(existingValue)} to ${JSON.stringify(storeValue)}`);
 		}
 		this.cdr.markForCheck();
 	}
@@ -166,9 +189,9 @@ export class SectionPage {
 
 	private addFieldControl(schema: FieldSchema) {
 		const validators = extractValidators(schema);
-		const initialValue = untracked(this.sectionData)[schema.key];
+		const initialValue = untracked(this.sectionData)[extractFieldKey(schema.key)];
 		const control = new UntypedFormControl(initialValue, { validators });
-		this.form.addControl(schema.key, control);
+		this.form.addControl(extractFieldKey(schema.key), control);
 	}
 
 	private addRelevantControls() {
@@ -176,8 +199,8 @@ export class SectionPage {
 		const rr = untracked(this.relevanceRegistry);
 
 		for (const { key, ...rest } of fields) {
-			const isRelevant = rr[key];
-			const controlExists = this.form.contains(key);
+			const isRelevant = rr[extractFieldKey(key)];
+			const controlExists = this.form.contains(extractFieldKey(key));
 			const shouldAdd = isRelevant && !controlExists;
 
 			if (!shouldAdd) continue;

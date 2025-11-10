@@ -170,6 +170,7 @@ csc:
               has_obstacles:
                 title: Type d'obstacles limitant l'accès au centre
           villages:
+            title: Liste des villages associés
             fields:
               list:
                 title: Villages rattachés
@@ -236,6 +237,8 @@ csc:
                 description: Avez-vous prévu d'emménager dans un nouveau bâtiment dans les mois
                   à venir ?
           rooms:
+            title: Liste des locaux dédiés à l'état civil (Bureau de l'état civil et espace
+              d'accueil, salle des archives)
             fields:
               list:
                 title: Salles dédiées à l'état civil
@@ -422,9 +425,11 @@ csc:
               vandalization_date:
                 title: Quand le vandalisme a-t-il eu lieu ?
           archive_stats:
+            title: Nombre de dossiers archivés
             fields:
               list:
-                title: Nombre de dossiers archivés (période de 2020 à 2024)
+                title: Nombre d'enregistrements archivés (période du {{startYear}} au
+                  {{endYear}})
               index:
                 title: Indice
               year:

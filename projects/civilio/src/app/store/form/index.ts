@@ -1,16 +1,16 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
 import { ValidationErrors } from "@angular/forms";
 import {
-  extractAllFields,
-  extractRawValidators,
-  FieldSchema,
-  flattenSections,
-  FormSchema,
-  lookupFieldSchema,
-  ParsedValue,
-  parseValue,
-  RawValue,
-  RelevanceDefinition,
+	extractAllFields, extractFieldKey,
+	extractRawValidators,
+	FieldSchema,
+	flattenSections,
+	FormSchema,
+	lookupFieldSchema,
+	ParsedValue,
+	parseValue,
+	RawValue,
+	RelevanceDefinition,
 } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import {
@@ -181,10 +181,11 @@ class FormState {
 
       let isValid = true;
       for (const field of section.fields) {
-        const isRelevant = relevanceRegistry[field.key];
+				const fieldKey = extractFieldKey(field.key);
+        const isRelevant = relevanceRegistry[fieldKey];
         if (!isRelevant) continue;
 
-        const value = form.model[field.key];
+        const value = form.model[fieldKey];
         const validators = extractRawValidators(field);
         const errors = validators
           .map((fn) => fn(value))
@@ -196,7 +197,7 @@ class FormState {
               activeSections: patch({
                 [formKey]: patch({
                   errors: patch({
-                    [field.key]: errors.reduce((acc, curr) => ({
+                    [fieldKey]: errors.reduce((acc, curr) => ({
                       ...acc,
                       ...curr,
                     })),
@@ -210,7 +211,7 @@ class FormState {
             patch({
               activeSections: patch({
                 [formKey]: patch({
-                  errors: deleteByKey(field.key),
+                  errors: deleteByKey(fieldKey),
                 }),
               }),
             }),
@@ -262,7 +263,7 @@ class FormState {
       ctx.setState(
         patch({
           relevanceRegistry: patch({
-            [field.key]: isRelevant,
+            [extractFieldKey(field.key)]: isRelevant,
           }),
         }),
       );
@@ -347,7 +348,7 @@ class FormState {
         for (const section of sections) {
           if (section.fields.length == 0) continue;
           const formData = section.fields.reduce(
-            (acc, curr) => ({ ...acc, [curr.key]: parsedData[curr.key] }),
+            (acc, curr) => ({ ...acc, [extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)] }),
             {} as typeof parsedData,
           );
 
@@ -381,7 +382,7 @@ class FormState {
 
     const temp: Record<string, unknown[]> = {};
     for (const [k, v] of Object.entries(rawData)) {
-      if (!k.startsWith(schema.key)) continue;
+      if (!k.startsWith(extractFieldKey(schema.key))) continue;
       temp[k] = v as unknown[];
     }
 
@@ -402,9 +403,9 @@ class FormState {
     > = {};
     for (const field of fields) {
       if (field.type !== "table") {
-        result[field.key] = parseValue(field, data?.[field.key] ?? null);
+        result[extractFieldKey(field.key)] = parseValue(field, data?.[extractFieldKey(field.key)] ?? null);
       } else {
-        result[field.key] = this.extractSubFormData(field, data);
+        result[extractFieldKey(field.key)] = this.extractSubFormData(field, data);
       }
     }
     return result;
