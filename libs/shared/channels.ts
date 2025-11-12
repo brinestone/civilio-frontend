@@ -12,10 +12,13 @@ import {
 	FindFormSubmissionsRequestSchema,
 	FindIndexSuggestionsRequestSchema,
 	FindIndexSuggestionsResponseSchema,
+	FindSubmissionCurrentVersionRequestSchema, FindSubmissionCurrentVersionResponseSchema,
 	FindSubmissionDataRequestSchema,
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequestSchema,
 	FindSubmissionRefResponseSchema,
+	FindSubmissionVersionsRequestSchema,
+	FindSubmissionVersionsResponseSchema,
 	FormSubmissionUpdateRequestSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
@@ -70,6 +73,8 @@ export const channelArgs = {
 	'submission-sub-data:update': UpdateSubmissionSubFormDataRequestSchema,
 	'field-mapping:clear': RemoveFieldMappingRequestSchema,
 	'locale:update': UpdateLocaleRequestSchema,
+	'submission-versions:read': FindSubmissionVersionsRequestSchema,
+	'submission-version:read': FindSubmissionCurrentVersionRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -98,12 +103,31 @@ export const channelResponses = {
 	'submission-data:update': UpdateSubmissionFormDataResponseSchema,
 	'submission-sub-data:update': UpdateSubmissionSubFormDataResponseSchema,
 	'locale:update': AppConfigResponseSchema,
+	'submission-versions:read': FindSubmissionVersionsResponseSchema,
+	'submission-version:read': FindSubmissionCurrentVersionResponseSchema
 } as const;
 
 type InferZod<T extends z.ZodType> = z.infer<T>;
 export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
 export type PushEvent = z.output<typeof PushEventSchema>;
-export type Channel = z.output<typeof ChannelSchema> | 'locale:update' | 'field-mapping:clear' | 'submission-sub-data:update' | 'submission-data:update' | 'resource:read' | 'theme:update' | 'index-suggestions:read' | 'submission-ref:read' | 'suggestions:read' | 'db:test' | 'translations:read' | 'options:read' | 'columns:read' | 'submission-data:read';
+export type Channel =
+	z.output<typeof ChannelSchema>
+	| 'submission-version:read'
+	| 'submission-versions:read'
+	| 'locale:update'
+	| 'field-mapping:clear'
+	| 'submission-sub-data:update'
+	| 'submission-data:update'
+	| 'resource:read'
+	| 'theme:update'
+	| 'index-suggestions:read'
+	| 'submission-ref:read'
+	| 'suggestions:read'
+	| 'db:test'
+	| 'translations:read'
+	| 'options:read'
+	| 'columns:read'
+	| 'submission-data:read';
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
 export const RequestOptionsSchema = z.object({

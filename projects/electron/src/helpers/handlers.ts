@@ -1,4 +1,27 @@
-import { createChannelHandler, createPushHandler, findAutocompleteSuggestions, findDbColumns, findFieldMappings, findFormData, findFormOptions, findFormSubmissions, findIndexSuggestions, findSubmissionRef, findTranslationsFor, getAppConfig, getResourceUrl, processChangeRequest, processSubFormChangeRequest, removeFieldMapping, updateFieldMappings, updateLocale, updateTheme, watchAssets } from "@civilio/handlers";
+import {
+	createChannelHandler,
+	createPushHandler,
+	findAutocompleteSuggestions,
+	findCurrentSubmissionVersion,
+	findDbColumns,
+	findFieldMappings,
+	findFormData,
+	findFormOptions,
+	findFormSubmissions,
+	findIndexSuggestions,
+	findSubmissionRef,
+	findSubmissionVersions,
+	findTranslationsFor,
+	getAppConfig,
+	getResourceUrl,
+	processChangeRequest,
+	processSubFormChangeRequest,
+	removeFieldMapping,
+	updateFieldMappings,
+	updateLocale,
+	updateTheme,
+	watchAssets
+} from "@civilio/handlers";
 import { AppConfigPaths } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
@@ -8,6 +31,12 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('submission-version:read', async arg => {
+		return await findCurrentSubmissionVersion(arg);
+	})
+	createChannelHandler('submission-versions:read', async arg => {
+		return await findSubmissionVersions(arg);
+	});
 	createChannelHandler('field-mapping:clear', async arg => {
 		return await removeFieldMapping(arg);
 	})
@@ -51,8 +80,7 @@ export function registerProductionIpcHandlers() {
 		return findTranslationsFor(locale);
 	});
 	createChannelHandler('config:read', () => {
-		const config = getAppConfig();
-		return config;
+		return getAppConfig();
 	});
 	createChannelHandler('submissions:read', async ({ form, page, size, filter }) => {
 		return await findFormSubmissions(form, page, size, filter);

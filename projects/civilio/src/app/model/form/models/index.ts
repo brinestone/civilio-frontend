@@ -3,6 +3,7 @@ import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
 import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
+import { isEmpty, isObjectLike } from 'lodash';
 
 export * from './chiefdom';
 export * from './csc';
@@ -18,7 +19,13 @@ export function extractRawValidators(schema: FieldSchema) {
 
 	if ('required' in schema && !schema.relevance) {
 		validators.push((v) => {
-			return v !== null && v !== undefined ? null : { required: 'validation.msg.field_required' };
+			const err = { required: 'validation.msg.field_required' };
+			if (v === null || v === undefined) return err;
+			else if (typeof v == 'string' && isEmpty(v.trim())) return err;
+			else if (typeof v != 'number' && isEmpty(v)) return err;
+			else if (isObjectLike(v) && isEmpty(v)) return err;
+
+			return null;
 		});
 	}
 
@@ -246,15 +253,20 @@ export function serializeValue(definition: DefinitionLike, value: any): any {
 		return value.map(serializeValue);
 	}
 	switch (definition.type) {
-		case 'boolean': return value === true ? '1' : '2';
-		case 'multi-selection': return value.join(' ');
+		case 'boolean':
+			return value === true ? '1' : '2';
+		case 'multi-selection':
+			return value.join(' ');
 		case 'date': {
 			if (value instanceof Date) {
 				return formatISO(value, { representation: 'date' });
-			} return z.iso.date().nullable().parse(value);
+			}
+			return z.iso.date().nullable().parse(value);
 		}
-		case 'point': return `${value.lat} ${value.long}`;
-		default: return String(value);
+		case 'point':
+			return `${value.lat} ${value.long}`;
+		default:
+			return String(value);
 	}
 }
 
@@ -263,14 +275,13 @@ export function parseValue(definition: DefinitionLike, raw: RawValue | null): Pa
 	switch (definition.type) {
 		case 'boolean': {
 			try {
-				const result = z.union(
+				return z.union(
 					[
 						z.boolean(),
 						z.literal('1').transform(() => true),
 						z.literal('2').transform(() => false),
 						z.null().transform(() => false)
 					]).parse(raw);
-				return result;
 			} catch (e) {
 				return false;
 			}
@@ -293,11 +304,8 @@ export function parseValue(definition: DefinitionLike, raw: RawValue | null): Pa
 			return raw?.split(' ') ?? []
 		case "point": {
 			if (!raw) return GeopointSchema.parse({});
-			if (typeof raw == 'string') {
-				const [lat, long] = raw?.split(' ', 2) ?? [];
-				return GeopointSchema.parse({ lat, long });
-			}
-			return raw;
+			const [lat, long] = raw?.split(' ', 2) ?? [];
+			return GeopointSchema.parse({ lat, long });
 		}
 		case 'text': {
 			if (!raw) return defaultValueForType('text') as string;

@@ -24,6 +24,7 @@ import {
 	getCoreRowModel
 } from '@tanstack/angular-table';
 import { ElectronFormService } from '@app/services/electron/form.service';
+import { AgoDatePipePipe } from '@app/pipes';
 
 
 @Component({
@@ -47,18 +48,16 @@ export class BadgeCell {
 
 @Component({
 	selector: 'cv-date-cell',
-	imports: [DatePipe],
+	imports: [DatePipe, AgoDatePipePipe],
 	template: `
-		<span>{{ date() | date:'mediumDate':'':locale() }}</span>
+		<span [title]="date() | date:'dd/MM/yyyy HH:mm'">{{ date() | ago_date:actualLocale() }}</span>
 	`,
 })
 export class DateCell {
 	readonly date = input<Date>();
 	readonly locale = select(currentLocale);
-
-	protected tz = undefined;
 	protected readonly actualLocale = computed(() => {
-		return this.locale().startsWith('en') ? 'en-CM' : 'fr-CM';
+		return (this.locale().startsWith('en') ? 'en-CM' : 'fr-CM').slice(0, 2);
 	})
 }
 
@@ -200,9 +199,9 @@ export class SubmissionsPage implements OnInit {
 		}),
 		this.columnHelper.accessor('currentVersion', {
 			header: 'submissions.columns.version.title',
-			cell: ({renderValue}) =>{
+			cell: ({ renderValue }) => {
 				const rv = renderValue();
-				return rv ?  maskString(rv) : rv;
+				return rv ? maskString(rv) : rv;
 			}
 		}),
 		this.columnHelper.display({
@@ -219,7 +218,7 @@ export class SubmissionsPage implements OnInit {
 					outputs: {
 						actionTriggered: (value) => {
 							if (value == 'open') {
-								this.openSubmission(row.original.index);
+								this.openSubmission(row.original.index, row.original.currentVersion);
 							}
 						},
 					}
@@ -241,8 +240,8 @@ export class SubmissionsPage implements OnInit {
 		}
 	});
 
-	protected openSubmission(index: number) {
-		this.navigate(['/forms', this.formType(), index]);
+	protected openSubmission(index: number, version: string | null) {
+		this.navigate(['/forms', this.formType(), index], version ? { version } : undefined);
 	}
 
 	ngOnInit(): void {

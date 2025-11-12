@@ -1,11 +1,20 @@
 import { Injectable } from "@angular/core";
-import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse, RemoveFieldMappingRequest, RemoveFieldMappingResponse } from "@civilio/shared";
+import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse, RemoveFieldMappingRequest, RemoveFieldMappingResponse, FindSubmissionVersionsRequest, FindSubmissionVersionsResponse, FindSubmissionCurrentVersionRequest, FindSubmissionCurrentVersionResponse, FindSubmissionDataRequest } from "@civilio/shared";
 import { FormService } from "../form";
 
 @Injectable({
-  providedIn: null
+	providedIn: null
 })
 export class WebFormService implements FormService {
+    findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse> {
+        throw new Error("Method not implemented.");
+    }
+    findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse> {
+        throw new Error("Method not implemented.");
+    }
+    findSubmissionVersions(req: FindSubmissionVersionsRequest): Promise<FindSubmissionVersionsResponse> {
+        throw new Error("Method not implemented.");
+    }
 	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse> {
 		throw new Error("Method not implemented.");
 	}
@@ -23,10 +32,6 @@ export class WebFormService implements FormService {
     throw new Error("Method not implemented.");
   }
   findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse> {
-    throw new Error("Method not implemented.");
-  }
-
-  findSubmissionData(form: FormType, index: number): Promise<FindSubmissionDataResponse> {
     throw new Error("Method not implemented.");
   }
   updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]): Promise<FindFieldMappingsResponse> {

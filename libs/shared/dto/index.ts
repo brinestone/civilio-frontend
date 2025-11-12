@@ -1,6 +1,28 @@
 import z from "zod";
 import { FieldKeySchema } from "../field-keys";
-import { AppConfigSchema, DbColumnSpecSchema, FieldMappingSchema, FormTypeSchema, LocaleSchema, OptionSchema, ThemeSchema } from "../schema";
+import {
+	AppConfigSchema,
+	DbColumnSpecSchema,
+	FieldMappingSchema,
+	FormTypeSchema,
+	LocaleSchema,
+	OptionSchema,
+	SubmissionVersionInfoSchema,
+	ThemeSchema
+} from "../schema";
+
+export const FindSubmissionCurrentVersionResponseSchema = SubmissionVersionInfoSchema.nullable();
+export const FindSubmissionCurrentVersionRequestSchema = z.object({
+	form: FormTypeSchema,
+	index: z.coerce.number()
+})
+export const FindSubmissionVersionsResponseSchema = SubmissionVersionInfoSchema.array();
+export const FindSubmissionVersionsRequestSchema = z.object({
+	form: FormTypeSchema,
+	index: z.coerce.number(),
+	changeOffset: z.date().optional(),
+	limit: z.number().optional().default(50),
+})
 
 export const UpdateLocaleRequestSchema = z.object({
 	locale: LocaleSchema
@@ -85,7 +107,8 @@ export const GetAutoCompletionSuggestionsResponseSchema = z.string().array();
 
 export const FindSubmissionDataRequestSchema = z.object({
 	form: FormTypeSchema,
-	index: z.number()
+	index: z.number(),
+	version: z.string().optional()
 });
 
 export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
@@ -187,6 +210,7 @@ export type LoadTranslationResponse = z.output<typeof LoadTranslationResponseSch
 export type FindDbColumnsResponse = z.infer<typeof FindDbColumnsResponseSchema>;
 export type UpdateFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
 export type FieldUpdateSpec = z.output<typeof FieldUpdateSpecSchema>;
+export type FindSubmissionDataRequest = z.output<typeof FindSubmissionDataRequestSchema>;
 export type FindSubmissionDataResponse = z.output<typeof FindSubmissionDataResponseSchema>;
 export type FindFieldMappingsResponse = z.output<typeof FindFieldMappingsResponseSchema>;
 export type GetAutoCompletionSuggestionsRequest = z.infer<typeof GetAutoCompletionSuggestionsRequestSchema>;
@@ -202,3 +226,7 @@ export type UpdateSubmissionSubFormDataResponse = z.output<typeof UpdateSubmissi
 export type RemoveFieldMappingRequest = z.output<typeof RemoveFieldMappingRequestSchema>;
 export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;
 export type FindFormSubmissionsRequest = z.output<typeof FindFormSubmissionsRequestSchema>;
+export type FindSubmissionVersionsRequest = z.output<typeof FindSubmissionVersionsRequestSchema>;
+export type FindSubmissionVersionsResponse = z.output<typeof FindSubmissionVersionsResponseSchema>;
+export type FindSubmissionCurrentVersionRequest = z.output<typeof FindSubmissionCurrentVersionRequestSchema>;
+export type FindSubmissionCurrentVersionResponse = z.output<typeof FindSubmissionCurrentVersionResponseSchema>;

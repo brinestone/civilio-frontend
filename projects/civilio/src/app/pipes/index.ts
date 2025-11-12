@@ -4,3 +4,5 @@ export * from './values-pipe';
 export * from './join-array-pipe'
 export * from './replace-in-string-pipe';
 export * from './is-string-pipe';
+export * from './mask-pipe';
+export * from './ago-date-pipe'

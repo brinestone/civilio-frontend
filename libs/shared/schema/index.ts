@@ -1,5 +1,19 @@
 import { z } from 'zod';
 
+const VersionChangeOpSchema = z.union([
+	z.literal("INSERT"),
+	z.literal("UPDATE"),
+	z.literal("DELETE"),
+	z.string() // Fallback if the enum has more values
+]);
+export const SubmissionVersionInfoSchema = z.object({
+	changed_at: z.coerce.date(),
+	operation: VersionChangeOpSchema,
+	version: z.string(),
+	parent_version: z.string().nullable(),
+	changed_by: z.string().nullable(),
+	is_current: z.boolean()
+});
 export const ThemeSchema = z.enum(['light', 'system', 'dark']);
 export const LocaleSchema = z.enum(['en-CM', 'fr-CM']);
 export const FormTypeSchema = z.enum(['csc', 'fosa', 'chefferie']);
@@ -84,12 +98,14 @@ export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
 type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
 type DropInitDot<T> = T extends `.${infer U}` ? U : T;
 type _DeepKeys<T> = T extends object ? (
-	{ [K in (string | number) & keyof T]:
+	{
+		[K in (string | number) & keyof T]:
 		`${(
 			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
-		)}${"" | _DeepKeys<FixArr<T[K]>>}` }[
-	(string | number) & keyof T]
-) : never;
+			)}${"" | _DeepKeys<FixArr<T[K]>>}`
+	}[
+		(string | number) & keyof T]
+	) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
 export type Paginated<T extends z.ZodType> = {
@@ -99,17 +115,18 @@ export type Paginated<T extends z.ZodType> = {
 
 type IsObject<T> = T extends object
 	? T extends ReadonlyArray<any>
-	? false
-	: true
+		? false
+		: true
 	: false;
 
 export type DeepLeafKeys<T> = T extends object
 	? {
 		[K in keyof T]-?: K extends string | number
-		? IsObject<T[K]> extends true
-		? `${K}.${DeepLeafKeys<T[K]>}`
-		: `${K}`
-		: never;
+			? IsObject<T[K]> extends true
+				? `${K}.${DeepLeafKeys<T[K]>}`
+				: `${K}`
+			: never;
 	}[keyof T]
 	: never;
 export type Nullable<T> = T | null;
+export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
