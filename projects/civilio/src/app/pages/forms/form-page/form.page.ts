@@ -1,29 +1,9 @@
-import { NgClass, NgTemplateOutlet } from "@angular/common";
-import {
-	AfterViewInit,
-	Component,
-	computed,
-	effect,
-	inject,
-	OnDestroy,
-	OnInit,
-	resource,
-	signal,
-	untracked
-} from "@angular/core";
+import { NgClass, NgTemplateOutlet, SlicePipe } from "@angular/common";
+import { Component, computed, effect, inject, OnDestroy, OnInit, resource, signal, untracked } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-	ActivatedRoute,
-	RouterLink,
-	RouterLinkActive,
-	RouterOutlet
-} from "@angular/router";
+import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { FormFooterComponent, FormHeaderComponent } from "@app/components/form";
-import {
-	flattenSections,
-	FormSchema,
-	HasPendingChanges,
-} from "@app/model/form";
+import { flattenSections, FormSchema, HasPendingChanges, } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import { UpdateMiscConfig } from "@app/store/config";
 import {
@@ -35,28 +15,25 @@ import {
 	UpdateMappings,
 	UpdateRelevance
 } from "@app/store/form";
-import {
-	miscConfig,
-	relevanceRegistry,
-	sectionValidity
-} from "@app/store/selectors";
-import { FormType } from "@civilio/shared";
+import { currentLocale, miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
+import { FindSubmissionVersionsRequestSchema, FindSubmissionVersionsResponse, FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import {
-	lucideCircleAlert,
-	lucidePanelBottomClose,
-	lucidePanelBottomOpen
-} from "@ng-icons/lucide";
+import { lucideCircleAlert, lucidePanelBottomClose, lucidePanelBottomOpen } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
-import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
+import { Actions, dispatch, ofActionCompleted, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
 import { HlmBadge } from "@spartan-ng/helm/badge";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
 import { find } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from "ngxtension/inject-route-data";
-import { concatMap, filter, map, Observable, pipe, skipWhile } from "rxjs";
+import { concatMap, filter, map, merge, Observable, pipe, skipWhile } from "rxjs";
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { AgoDatePipePipe, MaskPipePipe } from '@app/pipes';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { injectQueryParams } from 'ngxtension/inject-query-params';
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -83,13 +60,19 @@ const miscConfigKeys = {
 		NgClass,
 		NgTemplateOutlet,
 		HlmBadge,
+		HlmSelectImports,
+		BrnSelectImports,
+		MaskPipePipe,
+		HlmSeparatorImports,
+		AgoDatePipePipe,
+		SlicePipe
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
 	styleUrl: "./form.page.scss",
 })
 export class FormPage
-	implements AfterViewInit, HasPendingChanges, OnInit, OnDestroy {
+	implements HasPendingChanges, OnInit, OnDestroy {
 
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
@@ -101,9 +84,25 @@ export class FormPage
 	private readonly activate = dispatch(ActivateForm);
 	private readonly deactivate = dispatch(DeactivateForm);
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
+	private readonly versionParam = injectQueryParams('version', { parse: (v) => (v ?? null) as string | null });
 	private initialized = false;
+	private loadingData = false;
 
+	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
+	protected currentVersion = resource({
+		defaultValue: null,
+		params: () => ({ form: this.formType(), index: this.submissionIndex(), versionParam: this.versionParam() }),
+		loader: async ({ params: { index, form, versionParam } }) => {
+			if (index === null) return null;
+			if (versionParam != null) return versionParam;
+			const v = await this.formService.findCurrentSubmissionVersion({
+				index: Number(index),
+				form,
+			});
+			return v?.version ?? null;
+		}
+	})
 	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
 	protected relevanceRegistry = select(relevanceRegistry);
@@ -115,6 +114,16 @@ export class FormPage
 	));
 	protected sectionValidity = select(sectionValidity);
 	protected formType = computed(() => this.routeData()["form"] as FormType);
+	protected readonly versions = resource({
+		defaultValue: [],
+		params: () => ({ index: this.submissionIndex(), form: this.formType() }),
+		loader: async ({ params: { form, index } }) => {
+			if (index == null) return [] as FindSubmissionVersionsResponse;
+			return await this.formService.findSubmissionVersions(FindSubmissionVersionsRequestSchema.parse({
+				form, index: index, limit: 50
+			}));
+		},
+	})
 	protected readonly neighboringRefs = resource({
 		params: () => ({ index: this.submissionIndex(), form: this.formType() }),
 		loader: async ({ params: { form, index } }) => {
@@ -132,6 +141,20 @@ export class FormPage
 			if (status) return;
 			this.onBottomPanelOpenStateChanged('open');
 		});
+
+		effect(() => {
+			console.debug("reloading data due to user changing version");
+			this.currentVersion.value();
+			if (this.loadingData) return;
+			this.reloadDataOnly();
+		});
+
+		merge(
+			actions$.pipe(ofActionDispatched(LoadSubmissionData), map(() => true)),
+			actions$.pipe(ofActionCompleted(LoadSubmissionData), map(() => false)),
+		).pipe(
+			takeUntilDestroyed(),
+		).subscribe((v) => this.loadingData = v);
 
 		actions$.pipe(
 			takeUntilDestroyed(),
@@ -175,10 +198,6 @@ export class FormPage
 		});
 	}
 
-	ngAfterViewInit(): void {
-
-	}
-
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
 		return false;
 	}
@@ -192,7 +211,7 @@ export class FormPage
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
 				concatMap(() =>
-					this.loadData(this.formType(), this.submissionIndex()!),
+					this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined),
 				),
 			)
 			.subscribe({
@@ -206,13 +225,13 @@ export class FormPage
 	}
 
 	private reloadDataAndOptions() {
-		this.loadData(this.formType(), this.submissionIndex()!).pipe(
+		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined).pipe(
 			concatMap(() => this.loadOptions(this.formType())),
 		).subscribe();
 	}
 
 	private reloadDataOnly() {
-		this.loadData(this.formType(), this.submissionIndex()!)
+		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined)
 			.subscribe();
 	}
 

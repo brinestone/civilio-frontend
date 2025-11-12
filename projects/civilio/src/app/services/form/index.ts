@@ -1,14 +1,36 @@
 import { InjectionToken, makeEnvironmentProviders } from "@angular/core";
 import { isDesktop } from "@app/util";
-import { FieldKey, FieldUpdateSpec, FindDbColumnsResponse, FindFieldMappingsResponse, FindFormOptionsResponse, FindSubmissionDataResponse, FindSubmissionRefResponse, FormSubmissionSchema, FormType, GetAutoCompletionSuggestionsResponse, Paginated, FormSubmissionUpdateRequest, UpdateSubmissionFormDataResponse, UpdateSubmissionSubFormDataRequest, UpdateSubmissionSubFormDataResponse, RemoveFieldMappingRequest, RemoveFieldMappingResponse } from "@civilio/shared";
+import {
+	FieldKey,
+	FieldUpdateSpec,
+	FindDbColumnsResponse,
+	FindFieldMappingsResponse,
+	FindFormOptionsResponse, FindSubmissionCurrentVersionRequest, FindSubmissionCurrentVersionResponse,
+	FindSubmissionDataRequest,
+	FindSubmissionDataResponse,
+	FindSubmissionRefResponse,
+	FindSubmissionVersionsRequest, FindSubmissionVersionsResponse,
+	FormSubmissionSchema,
+	FormSubmissionUpdateRequest,
+	FormType,
+	GetAutoCompletionSuggestionsResponse,
+	Paginated,
+	RemoveFieldMappingRequest,
+	RemoveFieldMappingResponse,
+	UpdateSubmissionFormDataResponse,
+	UpdateSubmissionSubFormDataRequest,
+	UpdateSubmissionSubFormDataResponse
+} from "@civilio/shared";
 import { ElectronFormService } from "../electron/form.service";
 import { WebFormService } from "../web/form.service";
 
 export interface FormService {
+	findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse>;
+	findSubmissionVersions(req: FindSubmissionVersionsRequest): Promise<FindSubmissionVersionsResponse>;
 	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse>;
 	updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse>;
 	updateSubmissionFormData(req: FormSubmissionUpdateRequest): Promise<UpdateSubmissionSubFormDataResponse>;
-	findSubmissionData(form: FormType, index: number): Promise<FindSubmissionDataResponse>;
+	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse>;
 	updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]): Promise<FindFieldMappingsResponse>;
 	loadDbColumnSpecsFor(form: FormType): Promise<FindDbColumnsResponse>;
 	loadFormOptionsFor(form: FormType): Promise<FindFormOptionsResponse>;

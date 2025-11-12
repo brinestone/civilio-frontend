@@ -76,11 +76,12 @@
 			</thead>
 			<tbody hlmTBody>
 				@for (row of table.getRowModel().rows; track row.id) {
-				<tr
+				<!--suppress HtmlUnknownAttribute -->
+					<tr
 					hlmTr
 					[attr.key]="row.id"
 					[attr.data-state]="row.getIsSelected() && 'selected'"
-					(dblclick)="openSubmission(row.original.index)"
+					(dblclick)="openSubmission(row.original.index, row.original.currentVersion)"
 					class="cursor-pointer"
 					[title]="'misc.row.dbl_click' | translate"
 				>

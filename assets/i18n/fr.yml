@@ -1272,3 +1272,7 @@ form:
           date: Date
           user: Utilisateur
           revision: Révision
+  header:
+    version_selector:
+      placeholder: Sélectionnez la version
+      revision: Révision

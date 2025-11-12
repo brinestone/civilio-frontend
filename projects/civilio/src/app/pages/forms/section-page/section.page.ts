@@ -1,20 +1,8 @@
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
-import {
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	Component,
-	computed,
-	inject,
-	untracked
-} from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, untracked } from "@angular/core";
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-	AbstractControl,
-	FormRecord,
-	ReactiveFormsModule,
-	UntypedFormControl
-} from "@angular/forms";
+import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
 import { extractFieldKey, extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
@@ -23,17 +11,15 @@ import {
 	ActivateSection,
 	LoadSubmissionData,
 	SubmissionIndexChanged,
+	UpdateFormDirty,
 	UpdateRelevance,
 	UpdateSection
 } from "@app/store/form";
 import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
 import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
-import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
-import {
-	ErrorStateMatcher,
-	ShowOnDirtyErrorStateMatcher,
-} from "@spartan-ng/brain/forms";
+import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select, Store } from "@ngxs/store";
+import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher, } from "@spartan-ng/brain/forms";
 import { entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
@@ -67,8 +53,8 @@ export class SectionPage {
 	// #endregion
 
 	private readonly activate = dispatch(ActivateSection);
-	private readonly updateSection = dispatch(UpdateSection);
 	private readonly cdr = inject(ChangeDetectorRef);
+	private readonly store = inject(Store);
 	private readonly routeData = injectRouteData<Record<string, any>>('target');
 	private readonly formType = computed(() => this.routeData()?.['form'] as FormType)
 	private readonly formSchema = computed(() => this.routeData()?.['model'] as FormSchema);
@@ -93,7 +79,6 @@ export class SectionPage {
 			)),
 			// d(() => !this.refreshingControls)
 		).subscribe(() => {
-			debugger;
 			this.refreshFieldValues();
 			this.indexChanged = false;
 		});
@@ -103,8 +88,8 @@ export class SectionPage {
 			ofActionSuccessful(ActivateSection),
 			debounceTime(10),
 			filter(() => !this.refreshingControls)
-		).subscribe((event) => {
-			this.refreshControls();
+		).subscribe(() => {
+			this.refreshControls(true);
 		});
 
 		actions$.pipe(
@@ -133,7 +118,7 @@ export class SectionPage {
 			ofActionSuccessful(LoadSubmissionData),
 			filter(() => !this.refreshingControls)
 		).subscribe(() => {
-			this.refreshControls();
+			this.refreshControls(true);
 		});
 
 		actions$.pipe(
@@ -213,18 +198,20 @@ export class SectionPage {
 		}
 	}
 
-	private refreshControls() {
+	private refreshControls(markPristine = false) {
 		this.refreshingControls = true;
 		console.log('refreshing controls');
 		this.removeNonRelevantControls();
 		this.addRelevantControls();
 		this.refreshingControls = false;
+		if (markPristine) this.markControlAsPristine(this.form);
 		this.cdr.markForCheck();
 	}
 
 	protected onFieldValueChanged(field: FieldKey, update: any) {
-		this.updateSection(this.sectionKey()!, this.formType(), field, update).subscribe({
-			complete: () => this.cdr.markForCheck()
-		});
+		this.store.dispatch([
+			new UpdateSection(this.sectionKey()!, this.formType(), field, update),
+			new UpdateFormDirty(this.sectionKey()!, this.form.dirty)
+		]).subscribe(() => this.cdr.markForCheck());
 	}
 }

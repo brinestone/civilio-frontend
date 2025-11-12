@@ -17,8 +17,12 @@ import {
 	FieldUpdateSpec,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponseSchema,
+	FindSubmissionCurrentVersionRequest,
+	FindSubmissionCurrentVersionResponseSchema,
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequest,
+	FindSubmissionVersionsRequest,
+	FindSubmissionVersionsResponseSchema,
 	FormSubmissionSchema,
 	FormSubmissionUpdateRequest,
 	FormType,
@@ -30,7 +34,7 @@ import {
 	UnwrapArray,
 	UpdateSubmissionSubFormDataRequest,
 } from "@civilio/shared";
-import { and, countDistinct, eq, like, or, sql, } from "drizzle-orm";
+import { and, countDistinct, eq, like, or, sql } from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
 import { entries } from "lodash";
 import { provideDatabase } from "../helpers/db";
@@ -58,10 +62,35 @@ const sequences: Record<
 	},
 };
 
+export async function findCurrentSubmissionVersion({ form, index }: FindSubmissionCurrentVersionRequest) {
+	const db = provideDatabase({});
+	const queryResult = await db.execute(sql`
+		SELECT d.*
+		FROM revisions.get_version_chain(${index}, ${form}::civilio.form_types) d
+		WHERE d.is_current = true
+		LIMIT 1;
+	`);
+
+	return FindSubmissionCurrentVersionResponseSchema.parse(queryResult.rows[0] ?? null);
+}
+
+export async function findSubmissionVersions({ form, index, limit, changeOffset }: FindSubmissionVersionsRequest) {
+	const db = provideDatabase({});
+
+	const queryResult = await db.execute(sql`
+		SELECT d.*
+		FROM revisions.get_version_chain(${index}, ${form}::civilio.form_types) d
+		WHERE d.changed_at <= COALESCE(${changeOffset ?? null}, NOW())
+		LIMIT ${limit};
+	`);
+
+	return FindSubmissionVersionsResponseSchema.parse(queryResult.rows);
+}
+
 export async function removeFieldMapping({
-	form,
-	field,
-}: RemoveFieldMappingRequest) {
+																					 form,
+																					 field,
+																				 }: RemoveFieldMappingRequest) {
 	const db = provideDatabase({ fieldMappings });
 	return await db.transaction(async (tx) => {
 		const result = await tx
@@ -91,10 +120,10 @@ async function processSubFormDeletionRequest(
 
 		await tx.execute(
 			sql.raw(`
-			DELETE FROM
-				"${form}"."${mapping.dbTable}"
-			WHERE
-				"_index" = ${index} AND "_parent_index" = ${parentIndex};
+				DELETE
+				FROM "${form}"."${mapping.dbTable}"
+				WHERE "_index" = ${index}
+					AND "_parent_index" = ${parentIndex};
 			`),
 		);
 	}
@@ -129,9 +158,10 @@ async function processSubFormUpdateRequest(
 			const mapping = await lookupMapping(key, form, tx);
 			await tx.execute(
 				sql.raw(`
-				UPDATE "${form}"."${mapping.dbTable}"
-				SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
-				WHERE _parent_index = ${parentIndex} AND _index = ${_index};
+					UPDATE "${form}"."${mapping.dbTable}"
+					SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
+					WHERE _parent_index = ${parentIndex}
+						AND _index = ${_index};
 				`),
 			);
 		}
@@ -161,16 +191,10 @@ async function assertRow(
 	if (index !== undefined) {
 		let result = await tx.execute(
 			sql.raw(`
-			SELECT
-				EXISTS (
-					SELECT
-						_index
-					FROM
-						"${form}"."${table}"
-					WHERE
-						_index = ${index}
-				);
-		`),
+				SELECT EXISTS (SELECT _index
+											 FROM "${form}"."${table}"
+											 WHERE _index = ${index});
+			`),
 		);
 
 		const [{ exists }] = result.rows;
@@ -181,12 +205,11 @@ async function assertRow(
 	const cols = sequences[form][table];
 	const result = await tx.execute(
 		sql.raw(`
-    INSERT INTO "${form}"."${table}"
-        (${[...cols, ...additionalFields.map(([k]) => ({ column: k }))].map(({ column }) => `"${column}"`).join(",")})
-    VALUES
-        (${[...cols.map(({ sequence }) => `nextval('${sequence.schema}.${sequence.seqName}')`), ...additionalFields.map(([_, v]) => v)].join(",")})
-    RETURNING _index;
-`),
+			INSERT INTO "${form}"."${table}"
+				(${[...cols, ...additionalFields.map(([k]) => ({ column: k }))].map(({ column }) => `"${column}"`).join(",")})
+			VALUES (${[...cols.map(({ sequence }) => `nextval('${sequence.schema}.${sequence.seqName}')`), ...additionalFields.map(([_, v]) => v)].join(",")})
+			RETURNING _index;
+		`),
 	);
 	const [{ _index }] = result.rows;
 	return Number(_index);
@@ -214,7 +237,9 @@ async function deleteSubmission(
 	if (index.length == 0) return;
 	await tx.execute(
 		sql.raw(
-			`DELETE FROM "${form}"."data" WHERE _index IN (${index.join(",")}); `,
+			`DELETE
+			 FROM "${form}"."data"
+			 WHERE _index IN (${index.join(",")}); `,
 		),
 	);
 }
@@ -241,7 +266,9 @@ async function updateSubmission(
 
 		await tx.execute(
 			sql.raw(
-				`UPDATE "${form}"."${mapping.dbTable}" SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType}) WHERE _index = ${index};`,
+				`UPDATE "${form}"."${mapping.dbTable}"
+				 SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
+				 WHERE _index = ${index};`,
 			),
 		);
 	}
@@ -256,9 +283,9 @@ export async function processChangeRequest(arg: FormSubmissionUpdateRequest) {
 }
 
 export async function findIndexSuggestions({
-	form,
-	query,
-}: FindIndexSuggestionsRequest) {
+																						 form,
+																						 query,
+																					 }: FindIndexSuggestionsRequest) {
 	const db = provideDatabase({ vwFormSubmissions });
 	const result = await db
 		.select({
@@ -280,9 +307,9 @@ export async function findIndexSuggestions({
 }
 
 export async function findSubmissionRef({
-	form,
-	index,
-}: FindSubmissionRefRequest) {
+																					form,
+																					index,
+																				}: FindSubmissionRefRequest) {
 	const db = provideDatabase({ vwFormSubmissions });
 	const [result] = await db
 		.select({
@@ -298,11 +325,11 @@ export async function findSubmissionRef({
 }
 
 export async function findAutocompleteSuggestions({
-	form,
-	query,
-	resultSize,
-	field,
-}: GetAutoCompletionSuggestionsRequest) {
+																										form,
+																										query,
+																										resultSize,
+																										field,
+																									}: GetAutoCompletionSuggestionsRequest) {
 	const db = provideDatabase({ fieldMappings });
 	const [mapping] = await db
 		.select()
@@ -314,7 +341,10 @@ export async function findAutocompleteSuggestions({
 		throw new Error(`Mapping not found for field: ${field} and form: ${form}`);
 
 	let resultSet = await db.execute(
-		sql`SELECT FORMAT('SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY UPPER(d.%I::TEXT) ASC LIMIT %L::INTEGER', ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT, ${"%" + query + "%"}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`,
+		sql`SELECT FORMAT(
+								 'SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY UPPER(d.%I::TEXT) ASC LIMIT %L::INTEGER',
+								 ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT,
+								 ${"%" + query + "%"}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`,
 	);
 	const [{ format }] = resultSet.rows;
 
@@ -362,12 +392,10 @@ export async function findFormData(form: FormType, index: number) {
 		const promise = db
 			.execute(
 				sql.raw(`
-			SELECT
-				${selection}
-			FROM "${form}"."${tableName}" ${tableAlias}
-			WHERE
-				${whereClause};
-			`),
+					SELECT ${selection}
+					FROM "${form}"."${tableName}" ${tableAlias}
+					WHERE ${whereClause};
+				`),
 			)
 			.then((result) => {
 				const { rows } = result;
@@ -411,6 +439,7 @@ export async function updateFieldMappings(
 ) {
 	const db = provideDatabase({ vwDbColumns, fieldMappings });
 	return await db.transaction(async (tx) => {
+		const retVal: any[] = [];
 		for (const spec of specs) {
 			const [dbSpec] = await tx
 				.select()
@@ -428,7 +457,7 @@ export async function updateFieldMappings(
 					spec.dbColumn,
 				);
 			}
-			return tx
+			retVal.push(await tx
 				.insert(fieldMappings)
 				.values({
 					dbColumn: spec.dbColumn,
@@ -447,8 +476,9 @@ export async function updateFieldMappings(
 						i18nKey: spec.field,
 					},
 				})
-				.returning();
+				.returning());
 		}
+		return retVal;
 	});
 }
 
@@ -510,9 +540,12 @@ export async function findFormSubmissions(
 		? and(
 			eq(vwFormSubmissions.form, form),
 			or(
-				like(sql`LOWER(${vwFormSubmissions.index}::TEXT)`, q),
-				like(sql`LOWER(${vwFormSubmissions.validationCode})`, q),
-				like(sql`LOWER(${vwFormSubmissions.facilityName})`, q),
+				like(sql`LOWER
+					(${vwFormSubmissions.index}::TEXT)`, q),
+				like(sql`LOWER
+					(${vwFormSubmissions.validationCode})`, q),
+				like(sql`LOWER
+					(${vwFormSubmissions.facilityName})`, q),
 			),
 		)
 		: eq(vwFormSubmissions.form, form);

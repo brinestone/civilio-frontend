@@ -18,8 +18,38 @@
 </div>
 
 <div
-	class="border-r border-border pt-4 pr-2 pl-4 overflow-y-auto h-full col-start-1 col-span-1 row-start-2 row-span-2"
+	class="space-y-3 border-r border-border pt-4 pr-2 pl-4 overflow-y-auto h-full col-start-1 col-span-1 row-start-2 row-span-2"
 >
+	<div>
+		@defer (when versions.hasValue()) {
+			<brn-select [(value)]="currentVersion.value" class="w-full"
+									[placeholder]="'form.header.version_selector.placeholder' | translate">
+				<hlm-select-trigger class="w-full">
+					<hlm-select-value>
+						<div class="flex items-center gap-2" *brnSelectValue="let value">
+							<span
+								class="text-muted-foreground text-xs">{{ 'form.header.version_selector.revision' | translate }}</span>
+							<span>{{ value | mask }}</span>
+						</div>
+					</hlm-select-value>
+				</hlm-select-trigger>
+				<hlm-select-content class="w-full">
+					<hlm-select-scroll-up/>
+					@for (versionInfo of versions.value(); track versionInfo.version) {
+						<hlm-option [value]="versionInfo.version">
+							<div class="space-y-2 inline-block">
+								<span class="block">{{ versionInfo.version | mask }}</span>
+								<span
+									class="text-xs text-muted-foreground block">{{ versionInfo.changed_at | ago_date:(locale()|slice:0:2) }}</span>
+							</div>
+						</hlm-option>
+					}
+					<hlm-select-scroll-down/>
+				</hlm-select-content>
+			</brn-select>
+		}
+	</div>
+	<hlm-separator/>
 	<ul class="list-none space-y-2">
 		@for (section of formModel().sections; track $index) {
 			<ng-container
