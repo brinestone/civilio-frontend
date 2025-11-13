@@ -1,6 +1,6 @@
-import { AppConfigPaths, FieldKey, FormSectionKey, FormType, Locale } from "@civilio/shared";
+import { FieldKey, FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
-import { entries, get, intersection, isEmpty, values } from "lodash";
+import { entries, get, isEmpty } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { FORM_STATE } from "./form";
 import { ValidationErrors } from "@angular/forms";
@@ -91,17 +91,15 @@ export const fontSize = createSelector([configSlices.config], (cfg) => {
 });
 export const facilityName = createSelector([formSlices.rawData], (record) => {
 	const facilityNameKeys = [
-		['fosa.form.sections.identification', 'fosa.form.sections.identification.fields.facility_name'],
-		['csc.form.sections.identification', 'csc.form.sections.identification.fields.facility_name']
+		 'fosa.form.sections.identification.fields.facility_name',
+		'csc.form.sections.identification.fields.facility_name'
 		// TODO: add for chefferie
-	] as [FormSectionKey, FieldKey][];
+	] as FieldKey[];
 
-	for (const [_, nameKey] of facilityNameKeys) {
+	for (const nameKey of facilityNameKeys) {
 		const facilityName = record?.[nameKey];
-		if (facilityName) {
-			return (facilityName ?? 'N/A') as string;
-		}
+		if (facilityName) return facilityName as string;
 	}
 
-	return 'N/A';
+	return null;
 })

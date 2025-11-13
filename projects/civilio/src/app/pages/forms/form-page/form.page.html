@@ -7,9 +7,10 @@
 				[submissionIndex]="submissionIndex()!"
 				[formType]="formType()"
 				[formSchema]="formModel()"
-				(indexJump)="onIndexJump($event)"
 				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
 				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
+				[version]="currentVersion.value()"
+				(indexJump)="onIndexJump($event)"
 				(nextSubmission)="onNextSubmissionRequested()"
 				(prevSubmission)="onPrevSubmissionRequested()"
 			/>
@@ -22,8 +23,8 @@
 >
 	<div>
 		@defer (when versions.hasValue()) {
-			<brn-select [(value)]="currentVersion.value" class="w-full"
-									[placeholder]="'form.header.version_selector.placeholder' | translate">
+			<brn-select [disabled]="versions.value().length == 0" [(value)]="currentVersion.value" class="w-full"
+									[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate">
 				<hlm-select-trigger class="w-full">
 					<hlm-select-value>
 						<div class="flex items-center gap-2" *brnSelectValue="let value">
@@ -47,6 +48,8 @@
 					<hlm-select-scroll-down/>
 				</hlm-select-content>
 			</brn-select>
+		} @loading {
+			<hlm-skeleton class="w-full block h-8"/>
 		}
 	</div>
 	<hlm-separator/>

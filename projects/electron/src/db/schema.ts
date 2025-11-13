@@ -235,7 +235,8 @@ export const vwFormSubmissions = civilio
 							 FROM csc.data df
 											LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								 AND rd.form = 'csc'::civilio.form_types
-								 AND rd.submission_index = df._index)
+								 AND rd.submission_index = df._index
+								 AND rd.table_name = 'data')
 							UNION
 							(SELECT df._id::double precision::integer                 AS _id,
 											df._index,
@@ -252,7 +253,8 @@ export const vwFormSubmissions = civilio
 							 FROM fosa.data df
 											LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								 AND rd.form = 'fosa'::civilio.form_types
-								 AND rd.submission_index = df._index)
+								 AND rd.submission_index = df._index
+								 AND rd.table_name = 'data')
 							UNION
 							SELECT df._id::double precision::integer                      AS _id,
 										 df._index,
@@ -269,7 +271,8 @@ export const vwFormSubmissions = civilio
 							FROM chefferie.data df
 										 LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								AND rd.form = 'chefferie'::civilio.form_types
-								AND rd.submission_index = df._index) result
+								AND rd.submission_index = df._index
+								AND rd.table_name = 'data') result
 				ORDER BY _submission_time DESC`,
 	);
 
@@ -304,10 +307,10 @@ export const deltas = revision.table("deltas", {
 	parent: text('parent'),
 	syncStatus: versionSyncStatus('sync_status').default('pending'),
 }, t => [
-	uniqueIndex().on(t.hash),
 	primaryKey({
 		columns: [t.hash, t.submissionIndex, t.index, t.form, t.table]
 	}),
+	index().on(t.hash),
 	index().on(t.submissionIndex),
 	index().on(t.index),
 	index().on(t.form),

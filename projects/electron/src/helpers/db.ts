@@ -1,4 +1,9 @@
-import { DbConfigSchema, MalConfigurationError, TestDbConnectionRequest } from '@civilio/shared';
+import {
+	DbConfigSchema,
+	MalConfigurationError,
+	TestDbConnectionRequest,
+	TestDbConnectionRequestSchema
+} from '@civilio/shared';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client, Pool } from 'pg';
 import { getStoreValue } from './store';
@@ -11,14 +16,14 @@ import { getTableName, is, Table } from 'drizzle-orm';
 let pool: Pool | null = null;
 
 export async function testConnection({ database, host, password, port, ssl, username }: TestDbConnectionRequest) {
-	const client = new Client({
+	const client = new Client(TestDbConnectionRequestSchema.parse({
 		user: username,
 		host,
 		database,
 		password,
 		port,
 		ssl
-	});
+	}));
 	const url = new URL(`/${database}`, `postgresql://${username}:redacted@${host}:${port}`);
 	if (ssl) url.searchParams.set('sslmode', 'required');
 

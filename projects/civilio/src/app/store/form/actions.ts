@@ -1,7 +1,20 @@
 import { FormSchema, ParsedValue } from "@app/model/form";
-import { FieldKey, FieldUpdateSpec, FormSectionKey, FormType, } from "@civilio/shared";
+import {
+	FieldKey,
+	FieldUpdateSpec,
+	FormSectionKey,
+	FormType,
+	InitializeSubmissionVersionRequest,
+} from "@civilio/shared";
 
 const prefix = "[form]";
+
+export class InitVersioning implements InitializeSubmissionVersionRequest {
+	static type = `${prefix} Init versioning`;
+
+	constructor(readonly index: unknown, readonly form: FormType) {
+	}
+}
 
 export class SubmissionIndexChanged {
 	static type = `${prefix} Index changed`;

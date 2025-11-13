@@ -22,16 +22,28 @@
 	<hlm-autocomplete
 		class="max-w-[158px]"
 		[(search)]="indexInputFilter"
-		[filteredOptions]="indexSuggestions.value()"
-		[loading]="indexSuggestions.isLoading()"
+		[filteredOptions]="refSuggestions.value()"
+		[loading]="refSuggestions.isLoading()"
 		[value]="submissionIndex()"
 		(valueChange)="onAutoCompleteIndexValueChanged($any($event))"
 		[emptyText]="'tmpl.autocomplete.empty_text' | translate"
 		[loadingText]="'loading.txt' | translate"
 		[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
 	/>
-	<span>-</span>
-	<p class="line-clamp-1 max-w-[450px]" [title]="facilityName()" hlmH4>{{ facilityName() }}</p>
+	@if (facilityName()) {
+		<span>-</span>
+		<p class="line-clamp-1 max-w-[450px]" [title]="facilityName()" hlmH4>{{ facilityName() }}</p>
+	}
+	@if (version()) {
+		<span>-</span>
+		<div class="inline-flex items-center gap-2 text-sm">
+			<span class="font-semibold">{{ version() | mask }}</span>
+			<button [title]="'misc.actions.copy_version' | translate" (click)="onCopyVersionButtonClicked()" hlmBtn size="sm"
+							variant="ghost">
+				<ng-icon name="lucideCopy"/>
+			</button>
+		</div>
+	}
 </div>
 <div class="flex items-center gap-2">
 	<button hlmBtn size="sm">

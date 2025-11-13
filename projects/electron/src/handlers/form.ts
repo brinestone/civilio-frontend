@@ -3,7 +3,7 @@ import {
 	cscIdSeqInCivilio,
 	cscIndexSeqInCivilio,
 	cscPersonnelIndexSeqInCivilio,
-	fieldMappings,
+	fieldMappings, formTypes,
 	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
@@ -27,7 +27,8 @@ import {
 	FormSubmissionUpdateRequest,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
-	GetAutoCompletionSuggestionsResponseSchema,
+	GetAutoCompletionSuggestionsResponseSchema, InitializeSubmissionVersionRequest,
+	InitializeSubmissionVersionResponseSchema,
 	Option,
 	OptionSchema,
 	RemoveFieldMappingRequest,
@@ -61,6 +62,12 @@ const sequences: Record<
 		],
 	},
 };
+
+export async function initializeSubmissionVersioning({ form, index }: InitializeSubmissionVersionRequest) {
+	const db = provideDatabase({});
+	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(${index}, ${form}::civilio.form_types) AS version`);
+	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
+}
 
 export async function findCurrentSubmissionVersion({ form, index }: FindSubmissionCurrentVersionRequest) {
 	const db = provideDatabase({});
@@ -536,16 +543,17 @@ export async function findFormSubmissions(
 ) {
 	const db = provideDatabase({ vwFormSubmissions });
 	const q = `%${filterQuery.toLowerCase()}%`;
+	const searchColumns = [
+		vwFormSubmissions.index,
+		vwFormSubmissions.validationCode,
+		vwFormSubmissions.facilityName,
+		vwFormSubmissions.currentVersion
+	];
 	const filter = filterQuery
 		? and(
 			eq(vwFormSubmissions.form, form),
 			or(
-				like(sql`LOWER
-					(${vwFormSubmissions.index}::TEXT)`, q),
-				like(sql`LOWER
-					(${vwFormSubmissions.validationCode})`, q),
-				like(sql`LOWER
-					(${vwFormSubmissions.facilityName})`, q),
+				...searchColumns.map(col => like(sql`LOWER(${col}::TEXT)`, q))
 			),
 		)
 		: eq(vwFormSubmissions.form, form);

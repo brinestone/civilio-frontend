@@ -6,6 +6,7 @@ misc:
   actions:
     modify: Modify
     discard: Discard changes
+    copy_version: Copy version hash
     save_and_exit: Save changes and leave
     stay: Stay here
   placeholder:
@@ -880,6 +881,7 @@ msg:
     description: Changes saved successfully
   saving_changes:
     description: Saving changes...
+  clipboard_copied_text: "{{value}} copied to clipboard successfully"
 
 stage:
   notificationPane:
@@ -1264,4 +1266,5 @@ form:
   header:
     version_selector:
       placeholder: Select version
+      no_versions: New submission
       revision: Revision

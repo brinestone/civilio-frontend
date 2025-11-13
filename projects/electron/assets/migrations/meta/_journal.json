@@ -239,6 +239,41 @@
       "when": 1762720061398,
       "tag": "0034_neat_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1762974550883,
+      "tag": "0035_absent_jack_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1762979052694,
+      "tag": "0036_romantic_miek",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1762979118799,
+      "tag": "0037_gorgeous_leech",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1762979898678,
+      "tag": "0038_tough_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1763031345872,
+      "tag": "0039_far_morg",
+      "breakpoints": true
     }
   ]
 }

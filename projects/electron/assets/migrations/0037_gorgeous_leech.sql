@@ -1,0 +1,1 @@
+ALTER TABLE "revisions"."deltas" ADD CONSTRAINT "deltas_hash_submission_index_index_form_table_name_pk" PRIMARY KEY("hash","submission_index","index","form","table_name");

@@ -9,6 +9,7 @@ import { UpdateMiscConfig } from "@app/store/config";
 import {
 	ActivateForm,
 	DeactivateForm,
+	InitVersioning,
 	LoadOptions,
 	LoadSubmissionData,
 	SubmissionIndexChanged,
@@ -24,16 +25,16 @@ import { Navigate } from "@ngxs/router-plugin";
 import { Actions, dispatch, ofActionCompleted, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
 import { HlmBadge } from "@spartan-ng/helm/badge";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
-import { find } from "lodash";
+import { find, intersection } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { concatMap, filter, map, merge, Observable, pipe, skipWhile } from "rxjs";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { AgoDatePipePipe, MaskPipePipe } from '@app/pipes';
+import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
-import { injectQueryParams } from 'ngxtension/inject-query-params';
+import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -62,10 +63,11 @@ const miscConfigKeys = {
 		HlmBadge,
 		HlmSelectImports,
 		BrnSelectImports,
-		MaskPipePipe,
+		MaskPipe,
 		HlmSeparatorImports,
 		AgoDatePipePipe,
-		SlicePipe
+		SlicePipe,
+		HlmSkeletonImports
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -77,6 +79,7 @@ export class FormPage
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
 	private readonly route = inject(ActivatedRoute);
+	private readonly initVersioning = dispatch(InitVersioning);
 	private readonly indexChanged = dispatch(SubmissionIndexChanged);
 	private readonly navigate = dispatch(Navigate);
 	private readonly loadOptions = dispatch(LoadOptions);
@@ -84,7 +87,7 @@ export class FormPage
 	private readonly activate = dispatch(ActivateForm);
 	private readonly deactivate = dispatch(DeactivateForm);
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
-	private readonly versionParam = injectQueryParams('version', { parse: (v) => (v ?? null) as string | null });
+	// private readonly versionParam = injectQueryParams('version', { parse: (v) => (v ?? null) as string | null });
 	private initialized = false;
 	private loadingData = false;
 
@@ -92,12 +95,11 @@ export class FormPage
 	protected submissionIndex = injectParams('submissionIndex');
 	protected currentVersion = resource({
 		defaultValue: null,
-		params: () => ({ form: this.formType(), index: this.submissionIndex(), versionParam: this.versionParam() }),
-		loader: async ({ params: { index, form, versionParam } }) => {
+		params: () => ({ form: this.formType(), index: this.submissionIndex() }),
+		loader: async ({ params: { index, form } }) => {
 			if (index === null) return null;
-			if (versionParam != null) return versionParam;
 			const v = await this.formService.findCurrentSubmissionVersion({
-				index: Number(index),
+				index,
 				form,
 			});
 			return v?.version ?? null;
@@ -136,6 +138,16 @@ export class FormPage
 	});
 
 	constructor(actions$: Actions) {
+		effect(() => {
+			const status = this.versions.status()
+			if (intersection([status], ['resolved']).length == 0 || this.versions.value().length > 0) return;
+			this.initVersioning(untracked(this.submissionIndex), untracked(this.formType)).subscribe({
+				complete: () => {
+					this.versions.reload();
+					this.currentVersion.reload();
+				}
+			});
+		});
 		effect(() => {
 			const status = this.bottomPanelStatus();
 			if (status) return;
