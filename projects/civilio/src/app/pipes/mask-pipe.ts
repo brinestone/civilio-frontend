@@ -4,7 +4,7 @@ import { maskString } from '@app/util';
 @Pipe({
 	name: 'mask'
 })
-export class MaskPipePipe implements PipeTransform {
+export class MaskPipe implements PipeTransform {
 
 	transform(value: string | null | undefined, maxCount = 3, sep = '.'): string {
 		if (value === null || value === undefined) return ''

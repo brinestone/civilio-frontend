@@ -3,7 +3,7 @@ import { FieldKeySchema } from "../field-keys";
 import {
 	AppConfigSchema,
 	DbColumnSpecSchema,
-	FieldMappingSchema,
+	FieldMappingSchema, FormSubmissionSchema,
 	FormTypeSchema,
 	LocaleSchema,
 	OptionSchema,
@@ -11,6 +11,20 @@ import {
 	ThemeSchema
 } from "../schema";
 
+export const SubmissionRefSchema = FormSubmissionSchema.pick({
+	facilityName: true,
+	index: true
+}).nullable();
+export const FindSubmissionRefSuggestionsRequestSchema = z.object({
+	form: FormTypeSchema,
+	query: z.string()
+});
+export const FindSubmissionRefSuggestionsResponseSchema = SubmissionRefSchema.array();
+export const InitializeSubmissionVersionResponseSchema = z.string().nullable();
+export const InitializeSubmissionVersionRequestSchema = z.object({
+	index: z.coerce.number(),
+	form: FormTypeSchema,
+});
 export const FindSubmissionCurrentVersionResponseSchema = SubmissionVersionInfoSchema.nullable();
 export const FindSubmissionCurrentVersionRequestSchema = z.object({
 	form: FormTypeSchema,
@@ -121,11 +135,9 @@ export const FindSubmissionRefRequestSchema = z.object({
 	index: z.int()
 });
 
-export const SubmissionRefSchema = z.int().nullable();
-
 export const FindSubmissionRefResponseSchema = z.tuple([
-	SubmissionRefSchema.nullable(),
-	SubmissionRefSchema.nullable()
+	z.int().nullable(),
+	z.int().nullable()
 ]).nullable();
 
 export const LoadTranslationRequestSchema = z.object({
@@ -198,35 +210,39 @@ export const FindFormSubmissionsRequestSchema = z.object({
 	filter: z.string().optional()
 });
 
-export type FindFieldMappingsRequest = z.infer<typeof FindFieldMappingsRequestSchema>;
-export type FieldMappingRequest = z.infer<typeof FieldMappingRequestSchema>;
-export type UpdateConfigRequest = z.infer<typeof UpdateConfigRequestSchema>;
+export type FindFieldMappingsRequest = z.input<typeof FindFieldMappingsRequestSchema>;
+export type FieldMappingRequest = z.input<typeof FieldMappingRequestSchema>;
+export type UpdateConfigRequest = z.input<typeof UpdateConfigRequestSchema>;
 export type AppConfigResponse = z.infer<typeof AppConfigResponseSchema>;
 export type FindFormOptionsResponse = z.infer<typeof FindFormOptionsResponseSchema>;
-export type TestDbConnectionRequest = z.infer<typeof TestDbConnectionRequestSchema>;
+export type TestDbConnectionRequest = z.input<typeof TestDbConnectionRequestSchema>;
 export type TestDbConnectionResponse = z.infer<typeof TestDbConnectionResponseSchema>;
 export type LoadTranslationRequest = z.input<typeof LoadTranslationRequestSchema>;
 export type LoadTranslationResponse = z.output<typeof LoadTranslationResponseSchema>;
 export type FindDbColumnsResponse = z.infer<typeof FindDbColumnsResponseSchema>;
-export type UpdateFieldMappingRequest = z.infer<typeof UpdateFieldMappingRequestSchema>;
+export type UpdateFieldMappingRequest = z.input<typeof UpdateFieldMappingRequestSchema>;
 export type FieldUpdateSpec = z.output<typeof FieldUpdateSpecSchema>;
-export type FindSubmissionDataRequest = z.output<typeof FindSubmissionDataRequestSchema>;
+export type FindSubmissionDataRequest = z.input<typeof FindSubmissionDataRequestSchema>;
 export type FindSubmissionDataResponse = z.output<typeof FindSubmissionDataResponseSchema>;
 export type FindFieldMappingsResponse = z.output<typeof FindFieldMappingsResponseSchema>;
-export type GetAutoCompletionSuggestionsRequest = z.infer<typeof GetAutoCompletionSuggestionsRequestSchema>;
+export type GetAutoCompletionSuggestionsRequest = z.input<typeof GetAutoCompletionSuggestionsRequestSchema>;
 export type GetAutoCompletionSuggestionsResponse = z.infer<typeof GetAutoCompletionSuggestionsResponseSchema>;
-export type FindSubmissionRefRequest = z.output<typeof FindSubmissionRefRequestSchema>;
+export type FindSubmissionRefRequest = z.input<typeof FindSubmissionRefRequestSchema>;
 export type FindSubmissionRefResponse = z.output<typeof FindSubmissionRefResponseSchema>;
-export type FindIndexSuggestionsRequest = z.output<typeof FindIndexSuggestionsRequestSchema>;
+export type FindIndexSuggestionsRequest = z.input<typeof FindIndexSuggestionsRequestSchema>;
 export type FindIndexSuggestionsResponse = z.output<typeof FindIndexSuggestionsResponseSchema>;
-export type FormSubmissionUpdateRequest = z.output<typeof FormSubmissionUpdateRequestSchema>;
+export type FormSubmissionUpdateRequest = z.input<typeof FormSubmissionUpdateRequestSchema>;
 export type UpdateSubmissionFormDataResponse = z.output<typeof UpdateSubmissionFormDataResponseSchema>;
-export type UpdateSubmissionSubFormDataRequest = z.output<typeof UpdateSubmissionSubFormDataRequestSchema>;
+export type UpdateSubmissionSubFormDataRequest = z.input<typeof UpdateSubmissionSubFormDataRequestSchema>;
 export type UpdateSubmissionSubFormDataResponse = z.output<typeof UpdateSubmissionSubFormDataResponseSchema>;
-export type RemoveFieldMappingRequest = z.output<typeof RemoveFieldMappingRequestSchema>;
+export type RemoveFieldMappingRequest = z.input<typeof RemoveFieldMappingRequestSchema>;
 export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;
-export type FindFormSubmissionsRequest = z.output<typeof FindFormSubmissionsRequestSchema>;
-export type FindSubmissionVersionsRequest = z.output<typeof FindSubmissionVersionsRequestSchema>;
+export type FindFormSubmissionsRequest = z.input<typeof FindFormSubmissionsRequestSchema>;
+export type FindSubmissionVersionsRequest = z.input<typeof FindSubmissionVersionsRequestSchema>;
 export type FindSubmissionVersionsResponse = z.output<typeof FindSubmissionVersionsResponseSchema>;
-export type FindSubmissionCurrentVersionRequest = z.output<typeof FindSubmissionCurrentVersionRequestSchema>;
+export type FindSubmissionCurrentVersionRequest = z.input<typeof FindSubmissionCurrentVersionRequestSchema>;
 export type FindSubmissionCurrentVersionResponse = z.output<typeof FindSubmissionCurrentVersionResponseSchema>;
+export type InitializeSubmissionVersionResponse = z.infer<typeof InitializeSubmissionVersionResponseSchema>;
+export type InitializeSubmissionVersionRequest = z.input<typeof InitializeSubmissionVersionRequestSchema>;
+export type FindSubmissionRefSuggestionsResponse = z.output<typeof FindSubmissionRefSuggestionsResponseSchema>;
+export type FindSubmissionRefSuggestionsRequest = z.input<typeof FindSubmissionRefSuggestionsRequestSchema>;

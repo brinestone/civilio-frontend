@@ -4,8 +4,15 @@ import { FormSchema } from '@app/model/form';
 import { FORM_SERVICE } from '@app/services/form';
 import { FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideChevronLeft, lucideChevronRight, lucideSave, lucideTrash2, lucideUnlink2 } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+import {
+	lucideChevronLeft,
+	lucideCopy,
+	lucideChevronRight,
+	lucideSave,
+	lucideTrash2,
+	lucideUnlink2
+} from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
@@ -17,6 +24,8 @@ import z from 'zod';
 import { HlmH4 } from '@spartan-ng/helm/typography';
 import { select } from '@ngxs/store';
 import { facilityName } from '@app/store/selectors';
+import { MaskPipe } from '@app/pipes';
+import { toast } from 'ngx-sonner';
 
 @Component({
 	selector: 'cv-form-header',
@@ -24,6 +33,7 @@ import { facilityName } from '@app/store/selectors';
 		provideIcons({
 			lucideChevronRight,
 			lucideChevronLeft,
+			lucideCopy,
 			lucideUnlink2,
 			lucideSave,
 			lucideTrash2
@@ -37,6 +47,7 @@ import { facilityName } from '@app/store/selectors';
 		BrnSheetImports,
 		HlmSheetImports,
 		HlmAutocompleteImports,
+		MaskPipe,
 		HlmH4,
 	],
 	templateUrl: './form-header.component.html',
@@ -48,11 +59,13 @@ export class FormHeaderComponent {
 	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
 	readonly canGoNextPage = input<boolean>();
 	readonly canGoPrevPage = input<boolean>();
+	readonly version = input<string | null>();
 	readonly nextSubmission = output();
 	readonly prevSubmission = output();
 	readonly indexJump = output<number>();
 
 	private readonly formService = inject(FORM_SERVICE);
+	private readonly ts = inject(TranslateService);
 
 	protected readonly facilityName = select(facilityName);
 	protected readonly mapperSheetState = signal<BrnDialogState>('closed');
@@ -65,18 +78,23 @@ export class FormHeaderComponent {
 		map(([v]) => v),
 		debounceTime(500)
 	), { initialValue: '' });
-	protected readonly indexSuggestions = resource({
+	protected readonly refSuggestions = resource({
 		defaultValue: [],
 		params: () => ({ form: this.formType(), filter: this.debouncedIndexFilter() }),
 		loader: async ({ params: { filter, form } }) => {
 			if (!form) return [];
 			if (!filter || !z.string().regex(/^\d+$/).safeParse(filter).success) return [];
-			return this.formService.findIndexSuggestions(form, filter);
+			return this.formService.findIndexSuggestions({ form, query: filter });
 		}
 	});
 
 	protected onAutoCompleteIndexValueChanged(index: number | null) {
 		if (index === null) return;
 		this.indexJump.emit(index);
+	}
+
+	protected async onCopyVersionButtonClicked() {
+		await navigator.clipboard.writeText(this.version() as string);
+		toast.info(this.ts.instant('msg.clipboard_copied_text', { value: 'Version' }));
 	}
 }

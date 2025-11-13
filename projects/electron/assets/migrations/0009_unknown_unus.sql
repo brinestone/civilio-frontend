@@ -57,6 +57,7 @@ BEGIN
 
 		FROM revisions.deltas d
 		WHERE d.submission_index = _index
+			AND d.table_name = 'data'
 		ORDER BY d.changed_at DESC;
 END;
 $$ LANGUAGE plpgsql;

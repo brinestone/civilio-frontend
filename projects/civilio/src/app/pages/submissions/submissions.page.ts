@@ -1,13 +1,25 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, inject, Injector, input, model, OnInit, output, resource, signal } from '@angular/core';
+import {
+	Component,
+	computed,
+	HostBinding,
+	inject,
+	Injector,
+	input,
+	model,
+	OnInit,
+	output,
+	resource,
+	signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SetFormType } from '@app/store/form';
 import { currentLocale, lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal, maskString } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+import { lucideCopy, lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch, select } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
@@ -24,8 +36,44 @@ import {
 	getCoreRowModel
 } from '@tanstack/angular-table';
 import { ElectronFormService } from '@app/services/electron/form.service';
-import { AgoDatePipePipe } from '@app/pipes';
+import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
+import { toast } from 'ngx-sonner';
 
+@Component({
+	selector: 'cv-version-cell',
+	imports: [HlmButton, NgIcon, MaskPipe, TranslatePipe],
+	viewProviders: [
+		provideIcons({
+			lucideCopy
+		})
+	],
+	host: {
+		class: 'text-sm'
+	},
+	template: `
+		@if (version()) {
+			<span>{{ version() | mask }}</span>
+			<button [title]="'misc.actions.copy_version' | translate" (click)="onCopyVersionButtonClicked()" size="sm"
+							variant="ghost" hlmBtn>
+				<ng-icon name="lucideCopy"/>
+			</button>
+		}
+	`
+})
+export class VersionCell {
+	readonly version = input<string>();
+	@HostBinding('class.inline-flex')
+	@HostBinding('class.gap-2')
+	@HostBinding('class.items-center')
+	protected readonly versionDefined = computed(() => !!this.version())
+
+	private ts = inject(TranslateService);
+
+	protected async onCopyVersionButtonClicked() {
+		await navigator.clipboard.writeText(this.version() as string);
+		toast.info(this.ts.instant('msg.clipboard_copied_text', {value: 'Version'}));
+	}
+}
 
 @Component({
 	selector: 'cv-badge-cell',
@@ -199,9 +247,12 @@ export class SubmissionsPage implements OnInit {
 		}),
 		this.columnHelper.accessor('currentVersion', {
 			header: 'submissions.columns.version.title',
-			cell: ({ renderValue }) => {
-				const rv = renderValue();
-				return rv ? maskString(rv) : rv;
+			cell: ({ row }) => {
+				return flexRenderComponent(VersionCell, {
+					inputs: {
+						version: row.original.currentVersion ?? undefined
+					}
+				})
 			}
 		}),
 		this.columnHelper.display({

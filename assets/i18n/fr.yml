@@ -7,6 +7,7 @@ misc:
   actions:
     modify: Modifier
     discard: Ignorer les modifications
+    copy_version: Copier le hachage de la version
     save_and_exit: Enregistrez les modifications et quittez
     stay: Reste ici
   placeholder:
@@ -890,6 +891,7 @@ msg:
     description: Modifications enregistrées avec succès
   saving_changes:
     description: Enregistrement des modifications...
+  clipboard_copied_text: "{{value}} copié avec succès dans le presse-papiers"
 stage:
   notificationPane:
     restart:
@@ -1275,4 +1277,5 @@ form:
   header:
     version_selector:
       placeholder: Sélectionnez la version
+      no_versions: Nouvelle soumission
       revision: Révision

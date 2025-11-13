@@ -32,7 +32,7 @@ import {
 } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
 import { keys, last, values } from "lodash";
-import { EMPTY, from, tap } from "rxjs";
+import { concatMap, EMPTY, from, tap } from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
@@ -48,7 +48,7 @@ import {
 	UpdateRelevance,
 	UpdateSection,
 	UpdateFormDirty,
-	UpdateValidity,
+	UpdateValidity, InitVersioning,
 } from "./actions";
 
 export * from "./actions";
@@ -127,6 +127,19 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(InitVersioning)
+	onInitVersioning(ctx: Context, arg: InitVersioning) {
+		return from(this.formService.initializeSubmissionVersion(arg)).pipe(
+			concatMap((version) => {
+				if (version == null) {
+					console.log(`submission does not exist with index: ${arg.index} in form ${arg.form}`);
+					return EMPTY;
+				}
+				return ctx.dispatch(new LoadSubmissionData(arg.form, arg.index as any, version));
+			})
+		)
+	}
 
 	@Action(ActivateSection)
 	onActivateSection(ctx: Context, { section }: ActivateSection) {

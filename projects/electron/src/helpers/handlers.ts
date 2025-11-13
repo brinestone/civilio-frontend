@@ -14,6 +14,7 @@ import {
 	findTranslationsFor,
 	getAppConfig,
 	getResourceUrl,
+	initializeSubmissionVersioning,
 	processChangeRequest,
 	processSubFormChangeRequest,
 	removeFieldMapping,
@@ -31,6 +32,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('submission-version:init', async arg => {
+		return await initializeSubmissionVersioning(arg);
+	})
 	createChannelHandler('submission-version:read', async arg => {
 		return await findCurrentSubmissionVersion(arg);
 	})

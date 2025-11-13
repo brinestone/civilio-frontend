@@ -5,15 +5,22 @@ import {
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
 	FindFieldMappingsResponse,
-	FindFormOptionsResponse, FindSubmissionCurrentVersionRequest, FindSubmissionCurrentVersionResponse,
+	FindFormOptionsResponse,
+	FindSubmissionCurrentVersionRequest,
+	FindSubmissionCurrentVersionResponse,
 	FindSubmissionDataRequest,
 	FindSubmissionDataResponse,
 	FindSubmissionRefResponse,
-	FindSubmissionVersionsRequest, FindSubmissionVersionsResponse,
+	FindSubmissionRefSuggestionsRequest,
+	FindSubmissionRefSuggestionsResponse,
+	FindSubmissionVersionsRequest,
+	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
 	FormSubmissionUpdateRequest,
 	FormType,
 	GetAutoCompletionSuggestionsResponse,
+	InitializeSubmissionVersionRequest,
+	InitializeSubmissionVersionResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
@@ -25,20 +32,35 @@ import { ElectronFormService } from "../electron/form.service";
 import { WebFormService } from "../web/form.service";
 
 export interface FormService {
+	initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse>;
+
 	findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse>;
+
 	findSubmissionVersions(req: FindSubmissionVersionsRequest): Promise<FindSubmissionVersionsResponse>;
+
 	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse>;
+
 	updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse>;
+
 	updateSubmissionFormData(req: FormSubmissionUpdateRequest): Promise<UpdateSubmissionSubFormDataResponse>;
+
 	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse>;
+
 	updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]): Promise<FindFieldMappingsResponse>;
+
 	loadDbColumnSpecsFor(form: FormType): Promise<FindDbColumnsResponse>;
+
 	loadFormOptionsFor(form: FormType): Promise<FindFormOptionsResponse>;
+
 	findFieldMappings(form: FormType): Promise<FindFieldMappingsResponse>;
+
 	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<typeof FormSubmissionSchema>>;
+
 	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
+
 	findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse>;
-	findIndexSuggestions(form: FormType, query: string): Promise<number[]>;
+
+	findIndexSuggestions(req: FindSubmissionRefSuggestionsRequest): Promise<FindSubmissionRefSuggestionsResponse>;
 }
 
 export const FORM_SERVICE = new InjectionToken<FormService>('Form Service');

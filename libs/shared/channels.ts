@@ -12,16 +12,21 @@ import {
 	FindFormSubmissionsRequestSchema,
 	FindIndexSuggestionsRequestSchema,
 	FindIndexSuggestionsResponseSchema,
-	FindSubmissionCurrentVersionRequestSchema, FindSubmissionCurrentVersionResponseSchema,
+	FindSubmissionCurrentVersionRequestSchema,
+	FindSubmissionCurrentVersionResponseSchema,
 	FindSubmissionDataRequestSchema,
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequestSchema,
 	FindSubmissionRefResponseSchema,
+	FindSubmissionRefSuggestionsRequestSchema,
+	FindSubmissionRefSuggestionsResponseSchema,
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponseSchema,
 	FormSubmissionUpdateRequestSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
+	InitializeSubmissionVersionRequestSchema,
+	InitializeSubmissionVersionResponseSchema,
 	LoadTranslationRequestSchema,
 	LoadTranslationResponseSchema,
 	RemoveFieldMappingRequestSchema,
@@ -66,7 +71,7 @@ export const channelArgs = {
 	'submission-data:read': FindSubmissionDataRequestSchema,
 	'suggestions:read': GetAutoCompletionSuggestionsRequestSchema,
 	'submission-ref:read': FindSubmissionRefRequestSchema,
-	'index-suggestions:read': FindIndexSuggestionsRequestSchema,
+	'index-suggestions:read': FindSubmissionRefSuggestionsRequestSchema,
 	'theme:update': UpdateThemeRequestSchema,
 	'resource:read': z.string(),
 	'submission-data:update': FormSubmissionUpdateRequestSchema,
@@ -74,7 +79,8 @@ export const channelArgs = {
 	'field-mapping:clear': RemoveFieldMappingRequestSchema,
 	'locale:update': UpdateLocaleRequestSchema,
 	'submission-versions:read': FindSubmissionVersionsRequestSchema,
-	'submission-version:read': FindSubmissionCurrentVersionRequestSchema
+	'submission-version:read': FindSubmissionCurrentVersionRequestSchema,
+	'submission-version:init': InitializeSubmissionVersionRequestSchema,
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -97,14 +103,15 @@ export const channelResponses = {
 	'submission-data:read': FindSubmissionDataResponseSchema,
 	'suggestions:read': GetAutoCompletionSuggestionsResponseSchema,
 	'submission-ref:read': FindSubmissionRefResponseSchema,
-	'index-suggestions:read': FindIndexSuggestionsResponseSchema,
+	'index-suggestions:read': FindSubmissionRefSuggestionsResponseSchema,
 	'theme:update': AppConfigResponseSchema,
 	'resource:read': z.string().nullable(),
 	'submission-data:update': UpdateSubmissionFormDataResponseSchema,
 	'submission-sub-data:update': UpdateSubmissionSubFormDataResponseSchema,
 	'locale:update': AppConfigResponseSchema,
 	'submission-versions:read': FindSubmissionVersionsResponseSchema,
-	'submission-version:read': FindSubmissionCurrentVersionResponseSchema
+	'submission-version:read': FindSubmissionCurrentVersionResponseSchema,
+	'submission-version:init': InitializeSubmissionVersionResponseSchema
 } as const;
 
 type InferZod<T extends z.ZodType> = z.infer<T>;
@@ -112,6 +119,7 @@ export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'submission-version:init'
 	| 'submission-version:read'
 	| 'submission-versions:read'
 	| 'locale:update'
@@ -128,18 +136,12 @@ export type Channel =
 	| 'options:read'
 	| 'columns:read'
 	| 'submission-data:read';
-export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? InferZod<typeof channelArgs[T]> : never;
+export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? z.input<typeof channelArgs[T]> : never;
 export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
 export const RequestOptionsSchema = z.object({
 	timeout: z.number().default(30_000) // 30 seconds
 });
 export type RequestOptions = z.infer<typeof RequestOptionsSchema>;
-
-export function createChannelRequestFn<TChannel extends Channel>(channel: TChannel, procFn: (c: TChannel, param: ChannelArg<TChannel>, opts?: RequestOptions) => MaybeAsync<ChannelResponse<TChannel>>, options?: RequestOptions) {
-	return (arg: ChannelArg<TChannel>) => {
-		return procFn(channel, arg, options);
-	}
-}
 
 export const RpcHeadersSchema = z.object({
 	ts: z.any().optional(),

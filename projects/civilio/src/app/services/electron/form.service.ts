@@ -9,12 +9,14 @@ import {
 	FindSubmissionCurrentVersionRequest,
 	FindSubmissionCurrentVersionResponse, FindSubmissionDataRequest,
 	FindSubmissionDataResponseSchema,
-	FindSubmissionRefResponse,
+	FindSubmissionRefResponse, FindSubmissionRefSuggestionsRequest, FindSubmissionRefSuggestionsResponse,
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
 	FormSubmissionUpdateRequest,
 	FormType,
+	InitializeSubmissionVersionRequest,
+	InitializeSubmissionVersionResponse,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	UpdateSubmissionSubFormDataRequest
@@ -26,6 +28,10 @@ import { FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse> {
+		return await sendRpcMessageAsync('submission-version:init', req);
+	}
+
 	async findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse> {
 		return await sendRpcMessageAsync('submission-version:read', req);
 	}
@@ -46,8 +52,8 @@ export class ElectronFormService implements FormService {
 		return await sendRpcMessageAsync('submission-data:update', arg);
 	}
 
-	async findIndexSuggestions(form: FormType, query: string): Promise<number[]> {
-		return await sendRpcMessageAsync('index-suggestions:read', { form, query });
+	async findIndexSuggestions(req: FindSubmissionRefSuggestionsRequest): Promise<FindSubmissionRefSuggestionsResponse> {
+		return await sendRpcMessageAsync('index-suggestions:read', req);
 	}
 
 	async findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse> {
