@@ -18,7 +18,7 @@ import {
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponseSchema,
 	FindSubmissionCurrentVersionRequest,
-	FindSubmissionCurrentVersionResponseSchema,
+	FindSubmissionCurrentVersionResponseSchema, FindSubmissionDataRequest,
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequest,
 	FindSubmissionVersionsRequest,
@@ -361,83 +361,14 @@ export async function findAutocompleteSuggestions({
 	return GetAutoCompletionSuggestionsResponseSchema.parse(result);
 }
 
-export async function findFormData(form: FormType, index: number) {
+export async function findFormData({ form, index, version }: FindSubmissionDataRequest) {
 	const db = provideDatabase({ fieldMappings });
-	const mappings = await db
-		.select({
-			col: fieldMappings.dbColumn,
-			table: fieldMappings.dbTable,
-			field: fieldMappings.field,
-			alias: fieldMappings.aliasHash
-		})
-		.from(fieldMappings)
-		.where(eq(fieldMappings.form, form))
-		.$withCache();
 
-	const tableGroups = mappings.reduce(
-		(acc, mapping) => {
-			if (!acc[mapping.table]) {
-				acc[mapping.table] = [];
-			}
-			acc[mapping.table].push(mapping);
-			return acc;
-		},
-		{} as Record<string, UnwrapArray<typeof mappings>[]>,
-	);
-
-	const map: Record<string, any> = {};
-	const tablePromises: Promise<void>[] = [];
-
-	for (const [tableName, mappings] of Object.entries(tableGroups)) {
-		const isDataTable = tableName == "data";
-		const tableAlias = "res";
-		const selection = mappings
-			.map((f) => `${tableAlias}."${f.col}"::TEXT AS "${f.alias}"`)
-			.join(",\n\t\t\t\t");
-		const indexCol = isDataTable ? "_index" : "_parent_index";
-		const whereClause = `${tableAlias}."${indexCol}" = ${index}`;
-		const promise = db
-			.execute(
-				sql.raw(`
-					SELECT ${selection}
-					FROM "${form}"."${tableName}" ${tableAlias}
-					WHERE ${whereClause};
-				`),
-			)
-			.then((result) => {
-				const { rows } = result;
-				if (isDataTable) {
-					const row = rows[0] as Record<string, string> | undefined;
-					if (row) {
-						for (const { field, alias } of mappings.map(({ field, alias }) => ({ field, alias }))) {
-							map[field] = row[alias] ?? null;
-						}
-					}
-				} else {
-					const valuesByField: Record<string, string[]> = {};
-					for (const row of rows as Record<string, string>[]) {
-						for (const { field, alias } of mappings.map(({ field, alias }) => ({ field, alias }))) {
-							if (!valuesByField[field]) {
-								valuesByField[field] = [];
-							}
-							valuesByField[field].push(row[alias] ?? null);
-						}
-					}
-
-					for (const field of mappings) {
-						map[field.field] = [
-							...(map[field.field] ?? []),
-							...(valuesByField[field.field] ?? []),
-						];
-					}
-				}
-			});
-		tablePromises.push(promise);
-	}
-
-	await Promise.all(tablePromises);
-	console.log(map);
-	return FindSubmissionDataResponseSchema.parse(map);
+	const queryResult = await db.execute(sql`
+		SELECT
+		revisions.get_version_data(${form}::civilio.form_types, ${index}, ${version ?? null}) AS "data";
+	`);
+	return FindSubmissionDataResponseSchema.parse(queryResult.rows[0]?.data ?? {});
 }
 
 export async function updateFieldMappings(

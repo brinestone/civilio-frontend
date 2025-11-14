@@ -127,7 +127,7 @@ export const FindSubmissionDataRequestSchema = z.object({
 
 export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
 	z.string().nullable(),
-	z.string().nullable().array()
+	z.coerce.string().nullable().array()
 ])).nullable();
 
 export const FindSubmissionRefRequestSchema = z.object({

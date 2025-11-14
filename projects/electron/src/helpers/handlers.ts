@@ -23,7 +23,7 @@ import {
 	updateTheme,
 	watchAssets
 } from "@civilio/handlers";
-import { AppConfigPaths } from "@civilio/shared";
+import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
 import { testConnection } from "./db";
 import { storeValue } from "./store";
 
@@ -68,8 +68,8 @@ export function registerProductionIpcHandlers() {
 	createChannelHandler('suggestions:read', async (dto) => {
 		return await findAutocompleteSuggestions(dto);
 	})
-	createChannelHandler('submission-data:read', async ({ form, index }) => {
-		return await findFormData(form, index);
+	createChannelHandler('submission-data:read', async (req: FindSubmissionDataRequest) => {
+		return await findFormData(req);
 	});
 	createChannelHandler('field-mappings:update', async ({ form, updates }) => {
 		return await updateFieldMappings(form, updates);
