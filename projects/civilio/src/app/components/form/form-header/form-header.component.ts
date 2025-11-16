@@ -6,8 +6,8 @@ import { FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideChevronLeft,
-	lucideCopy,
 	lucideChevronRight,
+	lucideCopy,
 	lucideSave,
 	lucideTrash2,
 	lucideUnlink2
@@ -21,7 +21,6 @@ import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { debounceTime, map, pipe } from 'rxjs';
 import z from 'zod';
-import { HlmH4 } from '@spartan-ng/helm/typography';
 import { select } from '@ngxs/store';
 import { facilityName } from '@app/store/selectors';
 import { MaskPipe } from '@app/pipes';
@@ -48,7 +47,6 @@ import { toast } from 'ngx-sonner';
 		HlmSheetImports,
 		HlmAutocompleteImports,
 		MaskPipe,
-		HlmH4,
 	],
 	templateUrl: './form-header.component.html',
 	styleUrl: './form-header.component.scss'

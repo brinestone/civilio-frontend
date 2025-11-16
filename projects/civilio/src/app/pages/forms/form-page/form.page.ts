@@ -19,7 +19,7 @@ import {
 import { currentLocale, miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
 import { FindSubmissionVersionsRequestSchema, FindSubmissionVersionsResponse, FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCircleAlert, lucidePanelBottomClose, lucidePanelBottomOpen } from "@ng-icons/lucide";
+import { lucideCircleAlert, lucidePanelBottomClose,lucideHistory, lucidePanelBottomOpen } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
 import { Actions, dispatch, ofActionCompleted, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
@@ -35,6 +35,7 @@ import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
+import { HlmButton } from '@spartan-ng/helm/button';
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -47,6 +48,7 @@ const miscConfigKeys = {
 			lucideCircleAlert,
 			lucidePanelBottomOpen,
 			lucidePanelBottomClose,
+			lucideHistory
 		}),
 	],
 	imports: [
@@ -67,7 +69,8 @@ const miscConfigKeys = {
 		HlmSeparatorImports,
 		AgoDatePipePipe,
 		SlicePipe,
-		HlmSkeletonImports
+		HlmSkeletonImports,
+		HlmButton
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -93,7 +96,7 @@ export class FormPage
 
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
-	protected currentVersion = resource({
+	protected selectedVersion = resource({
 		defaultValue: null,
 		params: () => ({ form: this.formType(), index: this.submissionIndex() }),
 		loader: async ({ params: { index, form } }) => {
@@ -125,6 +128,12 @@ export class FormPage
 				form, index: index, limit: 50
 			}));
 		},
+	});
+	protected readonly isSelectedVersionCurrent = computed(() => {
+		const versions = this.versions.value();
+		const selectedVersion = this.selectedVersion.value();
+		const currentVersion = versions.find(v => v.is_current);
+		return currentVersion ? currentVersion.version == selectedVersion : false;
 	})
 	protected readonly neighboringRefs = resource({
 		params: () => ({ index: this.submissionIndex(), form: this.formType() }),
@@ -144,7 +153,7 @@ export class FormPage
 			this.initVersioning(untracked(this.submissionIndex), untracked(this.formType)).subscribe({
 				complete: () => {
 					this.versions.reload();
-					this.currentVersion.reload();
+					this.selectedVersion.reload();
 				}
 			});
 		});
@@ -156,7 +165,7 @@ export class FormPage
 
 		effect(() => {
 			console.debug("reloading data due to user changing version");
-			this.currentVersion.value();
+			this.selectedVersion.value();
 			if (this.loadingData) return;
 			this.reloadDataOnly();
 		});
@@ -223,7 +232,7 @@ export class FormPage
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
 				concatMap(() =>
-					this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined),
+					this.loadData(this.formType(), this.submissionIndex()!, this.selectedVersion.value() ?? undefined),
 				),
 			)
 			.subscribe({
@@ -237,13 +246,13 @@ export class FormPage
 	}
 
 	private reloadDataAndOptions() {
-		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined).pipe(
+		this.loadData(this.formType(), this.submissionIndex()!, this.selectedVersion.value() ?? undefined).pipe(
 			concatMap(() => this.loadOptions(this.formType())),
 		).subscribe();
 	}
 
 	private reloadDataOnly() {
-		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined)
+		this.loadData(this.formType(), this.submissionIndex()!, this.selectedVersion.value() ?? undefined)
 			.subscribe();
 	}
 

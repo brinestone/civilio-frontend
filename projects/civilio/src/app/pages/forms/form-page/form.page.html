@@ -9,7 +9,7 @@
 				[formSchema]="formModel()"
 				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
 				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
-				[version]="currentVersion.value()"
+				[version]="selectedVersion.value()"
 				(indexJump)="onIndexJump($event)"
 				(nextSubmission)="onNextSubmissionRequested()"
 				(prevSubmission)="onPrevSubmissionRequested()"
@@ -21,9 +21,9 @@
 <div
 	class="space-y-3 border-r border-border pt-4 pr-2 pl-4 overflow-y-auto h-full col-start-1 col-span-1 row-start-2 row-span-2"
 >
-	<div>
+	<div class="space-y-2">
 		@defer (when versions.hasValue()) {
-			<brn-select [disabled]="versions.value().length == 0" [(value)]="currentVersion.value" class="w-full"
+			<brn-select [disabled]="versions.value().length == 0" [(value)]="selectedVersion.value" class="w-full block"
 									[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate">
 				<hlm-select-trigger class="w-full">
 					<hlm-select-value>
@@ -51,8 +51,14 @@
 		} @loading {
 			<hlm-skeleton class="w-full block h-8"/>
 		}
+		@if (!isSelectedVersionCurrent() && versions.hasValue() && !versions.isLoading()) {
+			<button hlmBtn class="flex w-full" variant="outline" size="sm">
+				<ng-icon name="lucideHistory"/>
+				<span>{{ 'form.header.version_revert.title' | translate }}</span>
+			</button>
+		}
+		<hlm-separator/>
 	</div>
-	<hlm-separator/>
 	<ul class="list-none space-y-2">
 		@for (section of formModel().sections; track $index) {
 			<ng-container
