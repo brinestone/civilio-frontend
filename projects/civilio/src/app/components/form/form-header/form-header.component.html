@@ -32,7 +32,7 @@
 	/>
 	@if (facilityName()) {
 		<span>-</span>
-		<p class="line-clamp-1 max-w-[450px]" [title]="facilityName()" hlmH4>{{ facilityName() }}</p>
+		<p class="line-clamp-1 max-w-[450px] text-lg font-semibold" [title]="facilityName()">{{ facilityName() }}</p>
 	}
 	@if (version()) {
 		<span>-</span>
@@ -55,7 +55,6 @@
 		<span>{{ "forms.header.actions.discard" | translate }}</span>
 	</button>
 	<hlm-sheet
-		#sheet
 		[state]="mapperSheetState()"
 		(stateChanged)="mapperSheetState.set($event)"
 		side="right"
