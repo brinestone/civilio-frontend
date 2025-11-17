@@ -67,7 +67,7 @@ export class FieldComponent implements ControlValueAccessor {
 
 	constructor() {
 		effect(() => {
-			const _ = this._value();
+			this._value();
 			this.cdr.markForCheck();
 		});
 	}

@@ -1268,3 +1268,5 @@ form:
       placeholder: Select version
       no_versions: New submission
       revision: Revision
+    version_revert:
+      title: Revert to this version

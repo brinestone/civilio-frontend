@@ -1,5 +1,5 @@
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, untracked } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, untracked } from "@angular/core";
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl } from "@angular/forms";

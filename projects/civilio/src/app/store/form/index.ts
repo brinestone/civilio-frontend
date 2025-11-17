@@ -387,7 +387,6 @@ class FormState {
 	) {
 		if (!rawData) return [];
 
-		const schemaKey = extractFieldKey(schema.key);
 		const columns = entries(schema.columns)
 			.reduce((acc, [_, { key, ...rest }]) => {
 				acc[key] = { key, ...rest };

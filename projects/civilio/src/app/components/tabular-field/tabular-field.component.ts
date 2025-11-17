@@ -1,18 +1,8 @@
-import {
-	Component,
-	computed,
-	effect,
-	forwardRef,
-	input,
-	linkedSignal,
-	output,
-	signal,
-	Signal,
-	untracked
-} from "@angular/core";
+import { Component, computed, forwardRef, input, linkedSignal, output, signal, untracked } from "@angular/core";
 import {
 	ControlValueAccessor,
-	FormArray, FormGroup,
+	FormArray,
+	FormGroup,
 	FormRecord,
 	NG_VALUE_ACCESSOR,
 	ReactiveFormsModule,
@@ -46,11 +36,6 @@ export type RowContext<T> = {
 	selected: boolean;
 	editing: boolean;
 };
-
-type ValueTransformer<T> = {
-	toString: (v: T) => string | null;
-	fromString: (v: string | null) => T | null;
-}
 
 export type ColumnEditor<T> = {
 	enable?: boolean | ((ctx: ColumnDefinition<T>) => boolean);
