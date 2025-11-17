@@ -1,11 +1,19 @@
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, untracked } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, inject, untracked } from "@angular/core";
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
-import { extractFieldKey, extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
+import {
+	extractFieldKey,
+	extractFields,
+	extractValidators,
+	FieldSchema,
+	flattenSections,
+	FormSchema,
+	ParsedValue
+} from "@app/model/form";
 import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
 import {
 	ActivateSection,
@@ -20,10 +28,13 @@ import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select, Store } from "@ngxs/store";
 import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher, } from "@spartan-ng/brain/forms";
-import { entries, isEqual } from "lodash";
+import { entries, isEqual, values } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
+import { columns, TableDefinition, TabularFieldComponent } from '@app/components';
+
+type TableCellValue = Extract<ParsedValue, boolean | string | null | number>;
 
 @Component({
 	selector: "cv-section-page",
@@ -38,7 +49,8 @@ import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
 		TranslatePipe,
 		DecimalPipe,
 		HlmFieldImports,
-		IsStringPipe
+		IsStringPipe,
+		TabularFieldComponent,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./section.page.html",
@@ -64,7 +76,70 @@ export class SectionPage {
 	protected readonly sectionSchema = computed(() => flattenSections(this.formSchema()).find(s => s.id == this.sectionKey()!)!);
 	protected readonly options = select(optionsSelector(this.formType()));
 	protected readonly sectionData = computed(() => this.formData()[this.sectionKey()!].model);
-
+	protected readonly tableDefinitions = computed(() => {
+		const tabularSchemas = extractFields(this.sectionSchema()).filter(s => s.type == 'table');
+		const definitions: Record<string, TableDefinition<TableCellValue>> = {};
+		for (const schema of tabularSchemas) {
+			if (schema.type != 'table') continue;
+			const key = extractFieldKey(schema.key);
+			const columnDefinitions = values(schema.columns);
+			definitions[key] = {
+				rowActions: [],
+				title: `${key}.title`,
+				titleI18n: true,
+				rowAddition: { maxRows: Number.MAX_SAFE_INTEGER },
+				selection: true,
+				editable: true,
+				columns: columnDefinitions.map(c => {
+					switch (c.type) {
+						case "boolean":
+							return columns.boolean({
+								accessor: c.key,
+								header: `${c.key}.title`,
+								editor: {
+									enable: c.editable,
+								},
+								headerI18n: true,
+							})
+						case 'number':
+							return columns.number({
+								accessor: c.key,
+								header: `${c.key}.title`,
+								headerI18n: true,
+								editor: {
+									enable: c.editable,
+									max: c.max,
+									min: c.min,
+								}
+							})
+						default:
+							return columns.text({
+								accessor: c.key,
+								header: `${c.key}.title`,
+								headerI18n: true,
+								editor: {
+									enable: c.editable,
+								}
+							})
+						case 'multi-selection':
+						case 'single-selection':
+							return columns.select<ParsedValue | ParsedValue[]>({
+								header: `${c.key}.title`,
+								headerI18n: true,
+								optionsKey: '',
+								accessor: c.key,
+								editor: {
+									enable: c.editable,
+									multi: c.type == 'multi-selection',
+									optionsKey: c.optionGroupKey
+								}
+							})
+					}
+				}) as any
+			};
+		}
+		return definitions;
+	})
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
 	constructor(actions$: Actions, route: ActivatedRoute) {

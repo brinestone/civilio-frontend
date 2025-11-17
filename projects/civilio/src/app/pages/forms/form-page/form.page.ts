@@ -87,7 +87,6 @@ export class FormPage
 	private readonly activate = dispatch(ActivateForm);
 	private readonly deactivate = dispatch(DeactivateForm);
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
-	// private readonly versionParam = injectQueryParams('version', { parse: (v) => (v ?? null) as string | null });
 	private initialized = false;
 	private loadingData = false;
 
@@ -155,9 +154,9 @@ export class FormPage
 		});
 
 		effect(() => {
-			console.debug("reloading data due to user changing version");
-			this.currentVersion.value();
-			if (this.loadingData) return;
+			const version = this.currentVersion.value();
+			console.debug(`reloading data due to user changing version to: ${version}`);
+			if (this.loadingData || !version) return;
 			this.reloadDataOnly();
 		});
 
@@ -181,7 +180,7 @@ export class FormPage
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateMappings),
-			skipWhile(() => !this.initialized)
+			skipWhile(() => !this.initialized || !this.currentVersion.value())
 		).subscribe(() => {
 			this.reloadDataOnly();
 		});
@@ -222,8 +221,10 @@ export class FormPage
 		this.activate(this.formModel())
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
-				concatMap(() =>
-					this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined),
+				map(() => this.currentVersion.value()),
+				filter((version) => !!version),
+				concatMap((version) =>
+					this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined),
 				),
 			)
 			.subscribe({
@@ -237,13 +238,15 @@ export class FormPage
 	}
 
 	private reloadDataAndOptions() {
-		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined).pipe(
+		const version = untracked(this.currentVersion.value) ?? undefined;
+		this.loadData(this.formType(), this.submissionIndex()!, version).pipe(
 			concatMap(() => this.loadOptions(this.formType())),
 		).subscribe();
 	}
 
 	private reloadDataOnly() {
-		this.loadData(this.formType(), this.submissionIndex()!, this.currentVersion.value() ?? undefined)
+		const version = untracked(this.currentVersion.value) ?? undefined;
+		this.loadData(this.formType(), this.submissionIndex()!, version)
 			.subscribe();
 	}
 
@@ -256,7 +259,6 @@ export class FormPage
 	}
 
 	protected onNextSubmissionRequested() {
-		// debugger;
 		const index = this.neighboringRefs.value()![1] as number;
 		const section = this.activeSection();
 		this.navigate(["..", index, section ? section : this.formModel().sections[0].id], undefined, {

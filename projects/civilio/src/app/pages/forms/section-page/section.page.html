@@ -15,14 +15,19 @@
 						@let parentValue = sectionData()[$any(field).parent];
 					</ng-container>
 					<div hlmField [class.col-span-2]="field.type == 'table'">
-						<cv-field
-							[readonly]="field.readonly"
-							[schema]="field"
-							[formControlName]="key"
-							[options]="options()"
-							(changed)="onFieldValueChanged(key, $event)"
-							[parentValue]="parentValue ?? null"
-						/>
+						@if (field.type == 'table') {
+							<cv-tabular-field [formControlName]="key" [definition]="tableDefinitions()[key]"
+																[optionSource]="options()"/>
+						} @else {
+							<cv-field
+								[readonly]="field.readonly"
+								[schema]="field"
+								[options]="options()"
+								[formControlName]="key"
+								(changed)="onFieldValueChanged(key, $event)"
+								[parentValue]="parentValue ?? null"
+							/>
+						}
 						@let control = form.controls[key];
 						@if (control.invalid) {
 							<ng-container

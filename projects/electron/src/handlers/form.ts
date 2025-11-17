@@ -363,7 +363,6 @@ export async function findAutocompleteSuggestions({
 
 export async function findFormData({ form, index, version }: FindSubmissionDataRequest) {
 	const db = provideDatabase({ fieldMappings });
-
 	const queryResult = await db.execute(sql`
 		SELECT
 		revisions.get_version_data(${form}::civilio.form_types, ${index}, ${version ?? null}) AS "data";

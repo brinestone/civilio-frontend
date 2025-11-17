@@ -65,10 +65,10 @@ export class FormFooterComponent {
 				| "outline",
 			badgeValue: computed(() => size(this.currentSectionErrors())),
 		},
-		{
-			key: 'form.footer.tabs.history',
-			icon: 'lucideHistory'
-		},
+		// {
+		// 	key: 'form.footer.tabs.history',
+		// 	icon: 'lucideHistory'
+		// },
 	];
 	protected readonly currentTab = select(miscConfig<string>(miscKeys.currentTab));
 

@@ -1,9 +1,20 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, forwardRef, inject, input, model, output, signal } from '@angular/core';
+import {
+	booleanAttribute,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	effect,
+	forwardRef,
+	inject,
+	input,
+	model,
+	output,
+	signal
+} from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
-import { TabularFieldComponent } from '@app/components/tabular-field/tabular-field.component';
 import { FieldSchema } from '@app/model/form';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -24,7 +35,6 @@ import { IsStringPipe } from '@app/pipes';
 		HlmSelectImports,
 		HlmInput,
 		NgTemplateOutlet,
-		TabularFieldComponent,
 		TranslatePipe,
 		GeoPointComponent,
 		DatePipe,
@@ -65,12 +75,15 @@ export class FieldComponent implements ControlValueAccessor {
 	writeValue(obj: any): void {
 		this._value.set(obj);
 	}
+
 	registerOnChange(fn: any): void {
 		this.changeCallback = fn;
 	}
+
 	registerOnTouched(fn: any): void {
 		this.touchedCallback = fn;
 	}
+
 	setDisabledState(isDisabled: boolean): void {
 		this._disabled.set(isDisabled);
 	}

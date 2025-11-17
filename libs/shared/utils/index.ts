@@ -1,4 +1,4 @@
-import { cloneDeepWith, isArray, isObject, isString, last } from 'lodash';
+import { cloneDeepWith, isArray, isObject, isString } from 'lodash';
 import z from "zod";
 import { Channel } from "../channels";
 
@@ -24,12 +24,10 @@ export function toRowMajor<R>(data: Record<string, unknown[]>, transform: (key: 
 		.map(([_, entry]) => entry?.length ?? 0)
 		.reduce((max, curr) => Math.max(curr, max), Number.MIN_SAFE_INTEGER);
 
-	const result = Array.from({ length: rowCount }, (_, index) => {
+	return Array.from({ length: rowCount }, (_, index) => {
 		return entries.reduce((acc, [k, v]) => {
-			const transformedValue = transform(k, v[index]);
-			acc[k] = transformedValue;
+			acc[k] = transform(k, v[index]);
 			return acc;
 		}, {} as Record<string, R>)
 	});
-	return result;
 }
