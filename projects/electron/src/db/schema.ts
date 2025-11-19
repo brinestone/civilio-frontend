@@ -9,8 +9,7 @@ import {
 	primaryKey,
 	text,
 	timestamp,
-	unique,
-	uniqueIndex
+	unique
 } from "drizzle-orm/pg-core";
 
 export const civilio = pgSchema("civilio");
@@ -306,6 +305,7 @@ export const deltas = revision.table("deltas", {
 	op: changeOp().notNull(),
 	parent: text('parent'),
 	syncStatus: versionSyncStatus('sync_status').default('pending'),
+	changeNotes: text('change_notes')
 }, t => [
 	primaryKey({
 		columns: [t.hash, t.submissionIndex, t.index, t.form, t.table]
