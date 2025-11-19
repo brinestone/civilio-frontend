@@ -11,7 +11,9 @@ import {
 	ActivateSection,
 	LoadSubmissionData,
 	RecordDeltaChange,
+	Redo,
 	SubmissionIndexChanged,
+	Undo,
 	UpdateFormDirty,
 	UpdateRelevance,
 	UpdateSection
@@ -73,6 +75,13 @@ export class SectionPage {
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
 	constructor(actions$: Actions, route: ActivatedRoute) {
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(Undo, Redo),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues(true);
+		})
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(SubmissionIndexChanged),
@@ -155,13 +164,13 @@ export class SectionPage {
 		this.form.addControl(extractFieldKey(schema.key), control);
 	}
 
-	private refreshFieldValues() {
+	private refreshFieldValues(ignoreDirtyState = false) {
 		console.log('refreshing field values');
 		for (const [key, control] of entries(this.form.controls)) {
 			const existingValue = control.value;
 			const storeValue = untracked(this.sectionData)[key];
 			const isControlDirty = control.dirty;
-			const shouldUpdateControlValue = (!isEqual(existingValue, storeValue) && !isControlDirty) || this.indexChanged;
+			const shouldUpdateControlValue = (!isEqual(existingValue, storeValue) && !isControlDirty) || this.indexChanged || ignoreDirtyState;
 			if (!shouldUpdateControlValue) {
 				if (isControlDirty) {
 					console.log('Ignoring value update for dirty field: ', key);
@@ -217,7 +226,7 @@ export class SectionPage {
 	}
 
 	private deltaChangeHandler(event: DeltaChangeEvent<any>) {
-		this.store.dispatch(new RecordDeltaChange(event));
+		this.store.dispatch(new RecordDeltaChange({ ...event, path: [this.sectionKey()!, ...event.path] }));
 	}
 
 	private fieldChangeHandler(field: FieldKey, update: any) {

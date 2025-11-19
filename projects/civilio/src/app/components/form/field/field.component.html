@@ -37,7 +37,7 @@
 	<cv-geo-point
 		[value]="_value()"
 		(touched)="onControlTouched()"
-		(changed)="onInput($event)"
+		(valueChange)="onInput($event)"
 		[disabled]="_disabled()"
 	/>
 </ng-template>
@@ -52,22 +52,12 @@
 		[class]="userClass()"
 		(blur)="onControlTouched()"
 		[value]="_value()"
-		(input)="onInput($any($event.target!).value)"
+		(input)="onInput($any($event.target!).valueAsNumber)"
 		[disabled]="_disabled()"
 		[readOnly]="isReadonly()"
 		hlmInput
 		[placeholder]="fieldKey + '.description' | translate"
 	/>
-</ng-template>
-
-<ng-template #optionValueTemplate let-option>
-	@if (option.i18nKey) {
-		<ng-container>
-			{{ option.i18nKey | translate }}
-		</ng-container>
-	} @else {
-		{{ option.label }}
-	}
 </ng-template>
 
 <ng-template #selectTemplate let-multi="multiple">
@@ -76,7 +66,7 @@
 	<brn-select
 		[id]="fieldKey"
 		[class]="userClass()"
-		[(value)]="_value"
+		[value]="_value()"
 		(valueChange)="onInput($event)"
 		[placeholder]="'tmpl.dropdown.placeholder' | translate"
 		[multiple]="multi"
@@ -128,7 +118,7 @@
 		[id]="fieldKey"
 		[checked]="_value()"
 		[class]="userClass()"
-		(click)="onInput(!_value())"
+		(checkedChange)="onInput($event)"
 		[disabled]="_disabled() || isReadonly()"
 	/>
 </ng-template>
@@ -140,7 +130,7 @@
 		(blur)="onControlTouched()"
 		[value]="_value()"
 		[class]="userClass()"
-		(input)="onInput($any($event.target!).value)"
+		(input)="onInput($any($event.target!).value?.trim())"
 		[disabled]="_disabled()"
 		[readonly]="isReadonly()"
 		hlmInput

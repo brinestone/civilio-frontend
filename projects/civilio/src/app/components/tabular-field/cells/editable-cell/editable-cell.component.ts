@@ -10,6 +10,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
+import { debounce } from 'lodash';
 
 @Component({
 	selector: 'cv-editable-cell',
@@ -38,5 +39,10 @@ export class EditableCellComponent<T> {
 		if (!options || !value || !schema) return undefined;
 		if (Array.isArray(value)) return options[schema.optionGroupKey]?.filter(o => value.includes(o.value));
 		return options[schema.optionGroupKey]?.filter(o => o.value === value);
-	})
+	});
+	protected readonly onChange = debounce(this.changeHandler.bind(this), 300);
+
+	private changeHandler(value: any) {
+		this.change.emit(value);
+	}
 }

@@ -2,11 +2,11 @@
 @if (editing() && schema().editable != false) {
 	@switch (schema().type) {
 		@case ('boolean') {
-			<hlm-checkbox (blur)="blur.emit()" (checkedChange)="change.emit($any($event))" (click)="blur.emit()"
+			<hlm-checkbox (blur)="blur.emit()" (checkedChange)="onChange($any($event))" (click)="blur.emit()"
 										[checked]="$any(value)"/>
 		}
 		@case ('single-selection') {
-			<brn-select (valueChange)="change.emit($any($event))" [placeholder]="'tmpl.dropdown.placeholder' | translate"
+			<brn-select (valueChange)="onChange($any($event))" [placeholder]="'tmpl.dropdown.placeholder' | translate"
 									[value]="value">
 				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
 					<hlm-select-value/>
@@ -25,7 +25,7 @@
 			</brn-select>
 		}
 		@case ('multi-selection') {
-			<brn-select (valueChange)="change.emit($any($event))" [multiple]="true"
+			<brn-select (valueChange)="onChange($any($event))" [multiple]="true"
 									[placeholder]="'tmpl.dropdown.placeholder' | translate"
 									[value]="value">
 				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
@@ -46,26 +46,26 @@
 		}
 		@case ('text') {
 			<input (blur)="blur.emit()"
-						 (change)="change.emit($any($event.target)?.value)"
+						 (input)="onChange($any($event.target)?.value)"
 						 [placeholder]="schema().key + '.description' | translate"
-						 [value]="value"
+						 [value]="value ?? ''"
 						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
 						 hlmInput type="text">
 		}
 		@case ('number') {
 			<input (blur)="blur.emit()"
-						 (change)="change.emit($any($event.target)?.valueAsNumber)"
+						 (input)="onChange($any($event.target)?.valueAsNumber)"
 						 [max]="$any(schema()).max"
 						 [min]="$any(schema()).min"
 						 [placeholder]="schema().key + '.description' | translate"
-						 [value]="value"
+						 [value]="value ?? ''"
 						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
 						 hlmInput
 						 type="number">
 		}
 		@case ('date') {
 			<hlm-date-picker (blur)="blur.emit()"
-											 (dateChange)="change.emit($any($event))"
+											 (dateChange)="onChange($any($event))"
 											 [date]="$any(value)"
 											 [max]="$any(schema()).max"
 											 [min]="$any(schema()).min"/>

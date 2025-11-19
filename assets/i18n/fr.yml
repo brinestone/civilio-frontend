@@ -755,6 +755,8 @@ forms:
         prev: Précédent
         next: Suivant
       field_mapper: Mappeur
+      undo: Défaire
+      redo: Refaire
     controls:
       index: Indice
       validation_code: Code de validation

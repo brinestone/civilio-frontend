@@ -17,7 +17,7 @@ import { lucideCheck, lucideCheckCheck, lucidePencil, lucidePlus, lucideTrash2, 
 import { TranslatePipe } from '@ngx-translate/core';
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmTableContainer, HlmTableImports } from '@spartan-ng/helm/table';
-import { ParsedValue, TabularFieldSchema } from '@app/model/form';
+import { extractFieldKey, ParsedValue, TabularFieldSchema } from '@app/model/form';
 import { entries, isEmpty, values } from 'lodash';
 import {
 	CellContext,
@@ -45,7 +45,7 @@ declare module '@tanstack/angular-table' {
 
 type TrackedChanges = Record<string, any[]>;
 
-const separator = '/';
+const separator = '#';
 
 function flattenKey(k: FieldKey, sep = separator) {
 	return k.replaceAll('.', sep);
@@ -87,7 +87,7 @@ const deleteIdentifier = Symbol('delete');
 	],
 	hostDirectives: []
 })
-export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[]>> implements ControlValueAccessor {
+export class TabularFieldComponent<T extends Record<string, ParsedValue | ParsedValue[]>> implements ControlValueAccessor {
 	public readonly loadingData = input<boolean>();
 	public readonly optionSource = input.required<Record<string, Option[]>>();
 	public readonly schema = input.required<TabularFieldSchema>();
@@ -96,7 +96,7 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 	public readonly enableMutation = input<boolean>();
 	public readonly maxRows = input<number>();
 	public readonly changed = output<T[]>();
-	public readonly deltaChange = output<DeltaChangeEvent<T[]>>();
+	public readonly deltaChange = output<DeltaChangeEvent<any>>();
 	public readonly actionTriggered = output<ActionTriggeredEvent<T>>();
 
 	protected readonly editing = signal<boolean>(false);
@@ -119,70 +119,6 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 		return v;
 	});
 	protected readonly disabled = signal<boolean>(false);
-	protected readonly tableDefinition = computed(() => {
-		const cols = this.columnDefinitions();
-		const schema = this.schema();
-		return createAngularTable<T>(() => ({
-			getCoreRowModel: getCoreRowModel(),
-			data: this.data(),
-			columns: cols,
-			state: {
-				rowSelection: this.rowSelection(),
-				columnVisibility: this.columnVisibility()
-			},
-			enableRowSelection: this.enableSelection(),
-			onRowSelectionChange: updaterOrValue => {
-				this.rowSelection.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.rowSelection()) : updaterOrValue);
-			},
-			onColumnVisibilityChange: updaterOrValue => {
-				this.columnVisibility.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.columnVisibility()) : updaterOrValue)
-			},
-			getRowId: (row) => {
-				const k = flattenKey(schema.identifierColumn);
-				return `${ k }${ separator }${ (row as any)[k] }`;
-			},
-			defaultColumn: {
-				maxSize: 250,
-			},
-			meta: {
-				deleteRow: (index) => {
-					this.data.update(old => old.filter((_, i) => i != index));
-					const exportingValue = this.transformKeys(this.data(), separator, '.') as any;
-					this.changed.emit(exportingValue);
-					this.changeCallback?.(exportingValue);
-					this.deltaChange.emit({
-						changeType: 'delete',
-						path: [schema.key as string, index]
-					});
-				},
-				updateData: (rowIndex, columnId, value) => {
-					this.data.update(old =>
-						old.map((row, index) => {
-							if (index === rowIndex) {
-								return {
-									...old[rowIndex],
-									[columnId]: value,
-								}
-							}
-							return row
-						})
-					);
-					const exportingValue = this.transformKeys(this.data(), separator, '.') as any;
-					this.changeCallback?.(exportingValue);
-					this.changed.emit(exportingValue);
-					this.deltaChange.emit({
-						changeType: 'update',
-						path: [schema.key as string, rowIndex, columnId],
-						value: value as any
-					});
-				}
-			}
-		}))
-	})
-	private cols = createColumnHelper<T>();
-
-	private touchCallback?: () => void;
-	private changeCallback?: (v: T[]) => void;
 	protected readonly columnDefinitions = computed(() => {
 		const schema = this.schema();
 		const defs = values(schema.columns);
@@ -218,9 +154,8 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 							outputs: {
 								blur: () => this.touchCallback?.(),
 								change: (v) => {
-									if (table.options.meta?.updateData) {
-										table.options.meta.updateData(row.index, column.id, v);
-									}
+									this.touchCallback?.();
+									table.options.meta?.updateData(row.index, column.id, v);
 								}
 							}
 						}),
@@ -235,9 +170,12 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 							actions
 						},
 						outputs: {
-							actionTriggered: ({ index, identifier }) => {
+							actionTriggered: ({ index, identifier, ...rest }) => {
+								this.touchCallback?.();
 								if (identifier === deleteIdentifier) {
 									table.options.meta?.deleteRow(index);
+								} else {
+									this.actionTriggered.emit({ index, identifier, ...rest });
 								}
 							}
 						}
@@ -246,6 +184,77 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 			})
 		];
 	});
+	private cols = createColumnHelper<T>();
+	protected readonly tableDefinition = computed(() => {
+		const cols = this.columnDefinitions();
+		const schema = this.schema();
+		return createAngularTable<T>(() => ({
+			getCoreRowModel: getCoreRowModel(),
+			data: this.data(),
+			columns: cols,
+			state: {
+				rowSelection: this.rowSelection(),
+				columnVisibility: this.columnVisibility()
+			},
+			enableRowSelection: this.enableSelection(),
+			onRowSelectionChange: updaterOrValue => {
+				this.rowSelection.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.rowSelection()) : updaterOrValue);
+			},
+			onColumnVisibilityChange: updaterOrValue => {
+				this.columnVisibility.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.columnVisibility()) : updaterOrValue)
+			},
+			getRowId: (row) => {
+				const k = flattenKey(schema.identifierColumn);
+				return `${ k }${ separator }${ (row as any)[k] }`;
+			},
+			defaultColumn: {
+				maxSize: 250,
+			},
+			meta: {
+				addRow: () => {
+
+				},
+				deleteRow: (index) => {
+					const old = this.transformKeys(this.data()[index], separator, '.');
+					this.data.update(old => old.filter((_, i) => i != index));
+					const exportingValue = this.data().map(d => this.transformKeys(d, separator, '.') as any);
+					this.changed.emit(exportingValue);
+					this.changeCallback?.(exportingValue);
+					this.deltaChange.emit({
+						changeType: 'delete',
+						path: [schema.key as string, index],
+						oldValue: old as any,
+					});
+				},
+				updateData: (rowIndex, columnId, value) => {
+					const old = (this.data()[rowIndex] as any)[columnId];
+					this.data.update(old =>
+						old.map((row, index) => {
+							if (index === rowIndex) {
+								return {
+									...old[rowIndex],
+									[columnId]: value,
+								}
+							}
+							return row
+						})
+					);
+					const exportingValue = this.data().map(d => this.transformKeys(d, separator, '.') as any);
+					this.changeCallback?.(exportingValue);
+					this.changed.emit(exportingValue);
+					this.deltaChange.emit({
+						changeType: 'update',
+						path: [schema.key as string, rowIndex, columnId],
+						newValue: value as any,
+						oldValue: old
+					});
+				}
+			}
+		}))
+	})
+	private touchCallback?: () => void;
+	private changeCallback?: (v: T[]) => void;
+	private newCounter = signal(0);
 
 	constructor() {
 		effect(() => {
@@ -268,6 +277,24 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 
 	protected addRow() {
 		this.touchCallback?.();
+		const row = this.createRowObj();
+		this.data.update(old => [...old, this.transformKeys(row, '.') as any]);
+		this.changeCallback?.(this.data().map(v => this.transformKeys(v, separator, '.') as any));
+		this.deltaChange.emit({
+			changeType: 'add',
+			newValue: row,
+			path: [extractFieldKey(this.schema().key), this.data().length - 1]
+		});
+	}
+
+	private createRowObj() {
+		const obj = values(this.schema().columns).reduce((acc, col) => {
+			(acc as any)[extractFieldKey(col.key)] = null;
+			return acc;
+		}, {} as T);
+		this.newCounter.update(v => v + 1);
+		(obj as any)[this.schema().identifierColumn] = `new-${ this.newCounter() }`;
+		return obj;
 	}
 
 	registerOnChange(fn: any): void {
@@ -282,10 +309,10 @@ export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[
 		this.disabled.set(isDisabled);
 	}
 
-	private transformKeys(data: any[], target: string, replacement: string = separator) {
-		return data.map((row: any) => entries(row).reduce((acc, [k, v]) => {
+	private transformKeys(data: T, target: string, replacement: string = separator) {
+		return entries(data as any).reduce((acc, [k, v]) => {
 			acc[k.replaceAll(target, replacement)] = v as ParsedValue | ParsedValue[];
 			return acc;
-		}, {} as Record<string, ParsedValue | ParsedValue[]>));
+		}, {} as Record<string, ParsedValue | ParsedValue[]>);
 	}
 }

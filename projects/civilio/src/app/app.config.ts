@@ -8,7 +8,6 @@ import {
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideNgIconLoader } from '@ng-icons/core';
 import { provideMissingTranslationHandler, provideTranslateService } from '@ngx-translate/core';
-import { withNgxsFormPlugin } from '@ngxs/form-plugin';
 import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
@@ -33,7 +32,6 @@ export const appConfig: ApplicationConfig = {
 				disabled: !isDevMode(),
 				collapsed: false
 			}),
-			withNgxsFormPlugin()
 		),
 		provideNgIconLoader(async name => {
 			return await fetch(`/${name}.svg`).then(r => r.text());

@@ -28,7 +28,7 @@ import {
 } from "@civilio/shared";
 import { Action, provideStates, State, StateContext, StateToken, } from "@ngxs/store";
 import { insertItem, patch } from "@ngxs/store/operators";
-import { entries, keys, values } from "lodash";
+import { cloneDeep, entries, get, keys, last, set, values } from "lodash";
 import { concatMap, EMPTY, from, tap } from "rxjs";
 import { deleteByKey } from "../operators";
 import {
@@ -41,9 +41,11 @@ import {
 	LoadOptions,
 	LoadSubmissionData,
 	RecordDeltaChange,
+	Redo,
 	RemoveMapping,
 	SetFormType,
 	SubmissionIndexChanged,
+	Undo,
 	UpdateFormDirty,
 	UpdateMappings,
 	UpdateRelevance,
@@ -59,6 +61,7 @@ export type SectionForm = {
 	errors: Record<string, ValidationErrors | null>;
 };
 
+type DeltaChange = { path: string, oldValue: any, newValue: any, op: 'update' | 'delete' | 'add' };
 type FormStateModel = {
 	mappings?: Record<FormType, Record<string, FieldMapping>>;
 	options?: Record<FormType, FindFormOptionsResponse>;
@@ -76,7 +79,8 @@ type FormStateModel = {
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
 	workingVersion?: SubmissionVersionInfo;
-	changeStack: { path: string, value: any, op: 'update' | 'delete' | 'add' }[]
+	undoStack: DeltaChange[];
+	redoStack: DeltaChange[];
 };
 export const FORM_STATE = new StateToken<FormStateModel>("form");
 type Context = StateContext<FormStateModel>;
@@ -132,22 +136,112 @@ function splitChangePath(path: string) {
 		activeSections: {},
 		schemas: {},
 		relevanceRegistry: {},
-		changeStack: []
+		undoStack: [],
+		redoStack: []
 	},
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
 
+	// NOTE: redo-ing an addition is the same as undo-ing a deletion and vice versa
+
+	/**
+	 * Re-applies the change moved from the redoStack to the undoStack.
+	 */
+	@Action(Redo)
+	onRedo(ctx: Context, { form }: Redo) {
+		const state = ctx.getState();
+		if (state.redoStack.length == 0) return;
+		const [lastChange, ...newRedoStack] = state.redoStack;
+		const [section, ...path] = splitChangePath(lastChange.path);
+
+		// CRITICAL: Clone activeSections to maintain state immutability
+		let activeSectionsClone = cloneDeep(state.activeSections);
+
+		const actualPath = [section, 'model', ...path];
+
+		if (lastChange.op == 'update') {
+			// Redo update: apply the newValue
+			set(activeSectionsClone, actualPath, lastChange.newValue);
+		} else if (lastChange.op == 'delete') {
+			// Redo delete: remove the item at the specific index
+			const parentPath = actualPath.slice(0, -1);
+			const index = Number(last(actualPath));
+			const arr = get(activeSectionsClone, parentPath) as any[];
+			// Immutable array deletion using filter
+			const updatedArr = arr.filter((_, i) => i !== index);
+			set(activeSectionsClone, parentPath, updatedArr);
+		} else { // op == 'add'
+			// Redo add: insert the item (newValue) back at the specific index
+			const index = Number(last(actualPath));
+			const parentPath = actualPath.slice(0, -1);
+			const arr = get(activeSectionsClone, parentPath) as any[];
+			// Use splice on the array clone to insert the added item (newValue)
+			arr.splice(index, 0, lastChange.newValue);
+			set(activeSectionsClone, parentPath, arr);
+		}
+
+		ctx.setState(patch({
+			activeSections: activeSectionsClone, // Use the updated clone
+			redoStack: newRedoStack,
+			undoStack: insertItem(lastChange, 0)
+		}));
+		ctx.dispatch(new UpdateRelevance(form));
+	}
+
+	/**
+	 * Reverses the change moved from the undoStack to the redoStack.
+	 */
+	@Action(Undo)
+	onUndo(ctx: Context, { form }: Undo) {
+		const state = ctx.getState();
+		if (state.undoStack.length == 0) return;
+		const [lastChange, ...newUndoStack] = state.undoStack;
+		const [section, ...path] = splitChangePath(lastChange.path);
+
+		// CRITICAL: Clone activeSections to maintain state immutability
+		let activeSectionsClone = cloneDeep(state.activeSections);
+
+		const actualPath = [section, 'model', ...path];
+
+		if (lastChange.op == 'update') {
+			// Undo update: restore the oldValue
+			set(activeSectionsClone, actualPath, lastChange.oldValue);
+		} else if (lastChange.op == 'delete') {
+			// Undo delete: restore the deleted item (oldValue) back at the specific index
+			const index = Number(last(actualPath));
+			const parentPath = actualPath.slice(0, -1);
+			const arr = get(activeSectionsClone, parentPath) as any[];
+			// Use splice on the array clone to insert the old value
+			arr.splice(index, 0, lastChange.oldValue);
+			set(activeSectionsClone, parentPath, arr);
+		} else {
+			const parentPath = actualPath.slice(0, -1);
+			const index = Number(last(actualPath));
+			const arr = get(activeSectionsClone, parentPath) as any[];
+			const updatedArr = arr.filter((_, i) => i !== index);
+			set(activeSectionsClone, parentPath, updatedArr);
+		}
+
+		ctx.setState(patch({
+			activeSections: activeSectionsClone, // Use the updated clone
+			undoStack: newUndoStack,
+			redoStack: insertItem(lastChange, 0)
+		}));
+		ctx.dispatch(new UpdateRelevance(form));
+	}
+
 	@Action(SubmissionIndexChanged)
 	onSubmissionIndexChanged(ctx: Context) {
-		ctx.setState(patch({ changeStack: [] }));
+		ctx.setState(patch({ redoStack: [], undoStack: [] }));
 	}
 
 	@Action(RecordDeltaChange, { cancelUncompleted: true })
-	onRecordDeltaChange(ctx: Context, { event: { changeType, value, path } }: RecordDeltaChange) {
+	onRecordDeltaChange(ctx: Context, { event: { changeType, newValue, oldValue, path } }: RecordDeltaChange) {
 		ctx.setState(patch({
-			changeStack: insertItem({ path: makeChangePath(path), value, op: changeType }, 0)
-		}))
+			undoStack: insertItem({ path: makeChangePath(path), newValue, oldValue, op: changeType }, 0),
+			redoStack: []
+		}));
 	}
 
 	@Action(InitVersioning)
@@ -182,7 +276,8 @@ class FormState {
 				options: deleteByKey(form),
 				rawData: {},
 				currentSection: undefined,
-				changeStack: []
+				undoStack: [],
+				redoStack: []
 			}),
 		);
 	}
@@ -347,7 +442,8 @@ class FormState {
 		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
 		ctx.setState(
 			patch({
-				changeStack: [],
+				undoStack: [],
+				redoStack: [],
 				schemas: patch({
 					[schema.meta.form]: schema,
 				}),

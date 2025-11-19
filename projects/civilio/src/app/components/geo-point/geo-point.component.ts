@@ -1,6 +1,19 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe } from '@angular/common';
-import { booleanAttribute, Component, computed, effect, ElementRef, input, linkedSignal, model, output, resource, untracked, viewChild } from '@angular/core';
+import {
+	booleanAttribute,
+	Component,
+	computed,
+	effect,
+	ElementRef,
+	input,
+	linkedSignal,
+	model,
+	output,
+	resource,
+	untracked,
+	viewChild
+} from '@angular/core';
 import { sendRpcMessageAsync } from '@app/util';
 import { GeoPoint, GeopointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -26,9 +39,9 @@ import { injectNetwork } from 'ngxtension/inject-network';
 	styleUrl: './geo-point.component.scss'
 })
 export class GeoPointComponent {
-	public readonly value = input<GeoPoint>();
+	public readonly value = model<GeoPoint>();
 	public readonly touched = output();
-	public readonly changed = output<GeoPoint>();
+	// public readonly changed = output<GeoPoint>();
 	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 
 	private map?: Map;
@@ -65,44 +78,10 @@ export class GeoPointComponent {
 		this.marker?.setLatLng(coords);
 	}
 
-	private initMarker() {
-		if (!this.map) return;
-
-
-		this.marker = marker(untracked(this.resolvedCoords), {
-			icon: icon({
-				shadowUrl: this.markerShadowIconUrl.value() as string,
-				iconUrl: this.markerIconUrl.value() as string,
-				iconAnchor: [12, 41],
-				popupAnchor: [12, 41],
-				tooltipAnchor: [12, 44],
-				shadowAnchor: [13, 41]
-			}),
-		}).addTo(this.map)
-			.on('move', ({ latlng: { lat, lng } }: any) => {
-				if (!this.eventTriggeredChange) return;
-				this.changed.emit({ lat, long: lng });
-			});
-		this.map.setView(untracked(this.resolvedCoords));
-	}
-
-	private initScale() {
-		if (!this.map) return;
-		control.scale().addTo(this.map);
-	}
-
-	private initTileLayer() {
-		if (!this.map) return;
-
-		tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 20
-		}).addTo(this.map);
-	}
-
 	constructor() {
 
 		effect(() => {
-			const _ = this.value();
+			this.value();
 			const coords = untracked(this.resolvedCoords);
 			this.moveMarker(coords);
 			this.map?.setView(coords);
@@ -148,5 +127,39 @@ export class GeoPointComponent {
 				components.forEach(c => c?.enable());
 			}
 		})
+	}
+
+	private initScale() {
+		if (!this.map) return;
+		control.scale().addTo(this.map);
+	}
+
+	private initTileLayer() {
+		if (!this.map) return;
+
+		tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom: 20
+		}).addTo(this.map);
+	}
+
+	private initMarker() {
+		if (!this.map) return;
+
+
+		this.marker = marker(untracked(this.resolvedCoords), {
+			icon: icon({
+				shadowUrl: this.markerShadowIconUrl.value() as string,
+				iconUrl: this.markerIconUrl.value() as string,
+				iconAnchor: [12, 41],
+				popupAnchor: [12, 41],
+				tooltipAnchor: [12, 44],
+				shadowAnchor: [13, 41]
+			}),
+		}).addTo(this.map)
+			.on('move', (/*{ latlng: { lat, lng } }: any*/) => {
+				if (!this.eventTriggeredChange) return;
+				// this.changed.emit({ lat, long: lng });
+			});
+		this.map.setView(untracked(this.resolvedCoords));
 	}
 }
