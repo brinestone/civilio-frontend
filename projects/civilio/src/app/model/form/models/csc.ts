@@ -317,6 +317,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 						identifierColumn: 'csc.form.sections.accessibility.sections.villages.fields.index',
 						columns: {
 							index: {
+								visible: false,
 								key: 'csc.form.sections.accessibility.sections.villages.fields.index',
 								type: 'number',
 								editable: false,
@@ -524,13 +525,14 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							columns: {
 								index: {
 									editable: false,
+									visible: false,
 									type: 'number',
 									key: 'csc.form.sections.areas.sections.rooms.fields.index',
 								},
-								// number: {
-								// 	type: 'number',
-								// 	key: 'csc.form.sections.areas.sections.rooms.fields.number'
-								// },
+								name: {
+									type: 'text',
+									key: 'csc.form.sections.areas.sections.rooms.fields.name'
+								},
 								condition: {
 									type: 'single-selection',
 									optionGroupKey: 'hg4oe04',
@@ -978,6 +980,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							identifierColumn: 'csc.form.sections.archiving_function.sections.archive_stats.fields.index',
 							columns: {
 								index: {
+									visible: false,
 									key: 'csc.form.sections.archiving_function.sections.archive_stats.fields.index',
 									editable: false,
 									type: 'number'

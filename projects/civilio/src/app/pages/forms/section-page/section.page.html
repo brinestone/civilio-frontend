@@ -16,8 +16,13 @@
 					</ng-container>
 					<div hlmField [class.col-span-2]="field.type == 'table'">
 						@if (field.type == 'table') {
-							<cv-tabular-field [formControlName]="key" [definition]="tableDefinitions()[key]"
-																[optionSource]="options()"/>
+							<cv-tabular-field (changed)="onFieldValueChanged(key, $event)"
+																(deltaChange)="onDeltaChange($event)"
+																[enableMutation]="true"
+																[enableSelection]="true"
+																[formControlName]="key"
+																[optionSource]="options()"
+																[schema]="field"/>
 						} @else {
 							<cv-field
 								[readonly]="field.readonly"
@@ -25,6 +30,7 @@
 								[options]="options()"
 								[formControlName]="key"
 								(changed)="onFieldValueChanged(key, $event)"
+								(deltaChange)="onDeltaChange($event)"
 								[parentValue]="parentValue ?? null"
 							/>
 						}

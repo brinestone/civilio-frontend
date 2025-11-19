@@ -45,9 +45,13 @@ tmpl:
   table:
     no_data: Aucune donnée
     actions:
+      discard: Jeter
+      cancel: Annuler
       add_new:
-        title: Ajouter un nouveau
+        title: Ajouter
         description: Ajouter une nouvelle ligne
+      enable_mutation:
+        title: Modifier
 login:
   username: Nom d'utilisateur
   forgot_password: Mot de passe oublié ?
@@ -180,7 +184,7 @@ csc:
               name:
                 title: Nom
               avg_dist:
-                title: Distance moyenne au centre
+                title: Distance approximative au centre (kilomètres)
               observations:
                 title: Observations
       infra:
@@ -241,6 +245,8 @@ csc:
             title: Liste des locaux dédiés à l'état civil (Bureau de l'état civil et espace
               d'accueil, salle des archives)
             fields:
+              name:
+                title: Nom de la pièce
               list:
                 title: Salles dédiées à l'état civil
               index:
@@ -250,7 +256,7 @@ csc:
               condition:
                 title: État de la chambre
               area:
-                title: Zone
+                title: Superficie (mètres carrés)
               renovation_nature:
                 title: Nature de la rénovation
       equipment:

@@ -27,7 +27,7 @@ import {
 	toRowMajor,
 } from "@civilio/shared";
 import { Action, provideStates, State, StateContext, StateToken, } from "@ngxs/store";
-import { patch } from "@ngxs/store/operators";
+import { insertItem, patch } from "@ngxs/store/operators";
 import { entries, keys, values } from "lodash";
 import { concatMap, EMPTY, from, tap } from "rxjs";
 import { deleteByKey } from "../operators";
@@ -40,8 +40,10 @@ import {
 	LoadMappings,
 	LoadOptions,
 	LoadSubmissionData,
+	RecordDeltaChange,
 	RemoveMapping,
 	SetFormType,
+	SubmissionIndexChanged,
 	UpdateFormDirty,
 	UpdateMappings,
 	UpdateRelevance,
@@ -74,6 +76,7 @@ type FormStateModel = {
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
 	workingVersion?: SubmissionVersionInfo;
+	changeStack: { path: string, value: any, op: 'update' | 'delete' | 'add' }[]
 };
 export const FORM_STATE = new StateToken<FormStateModel>("form");
 type Context = StateContext<FormStateModel>;
@@ -113,6 +116,14 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 	return k;
 }
 
+function makeChangePath(segments: (string | number)[]) {
+	return segments.join('/');
+}
+
+function splitChangePath(path: string) {
+	return path.split("/");
+}
+
 @Injectable()
 @State({
 	name: FORM_STATE,
@@ -121,17 +132,30 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 		activeSections: {},
 		schemas: {},
 		relevanceRegistry: {},
+		changeStack: []
 	},
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(SubmissionIndexChanged)
+	onSubmissionIndexChanged(ctx: Context) {
+		ctx.setState(patch({ changeStack: [] }));
+	}
+
+	@Action(RecordDeltaChange, { cancelUncompleted: true })
+	onRecordDeltaChange(ctx: Context, { event: { changeType, value, path } }: RecordDeltaChange) {
+		ctx.setState(patch({
+			changeStack: insertItem({ path: makeChangePath(path), value, op: changeType }, 0)
+		}))
+	}
 
 	@Action(InitVersioning)
 	onInitVersioning(ctx: Context, arg: InitVersioning) {
 		return from(this.formService.initializeSubmissionVersion(arg)).pipe(
 			concatMap((version) => {
 				if (version == null) {
-					console.log(`submission does not exist with index: ${arg.index} in form ${arg.form}`);
+					console.log(`submission does not exist with index: ${ arg.index } in form ${ arg.form }`);
 					return EMPTY;
 				}
 				return ctx.dispatch(new LoadSubmissionData(arg.form, arg.index as any, version));
@@ -158,6 +182,7 @@ class FormState {
 				options: deleteByKey(form),
 				rawData: {},
 				currentSection: undefined,
+				changeStack: []
 			}),
 		);
 	}
@@ -322,6 +347,7 @@ class FormState {
 		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
 		ctx.setState(
 			patch({
+				changeStack: [],
 				schemas: patch({
 					[schema.meta.form]: schema,
 				}),

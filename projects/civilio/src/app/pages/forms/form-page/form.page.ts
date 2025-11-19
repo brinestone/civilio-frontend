@@ -16,10 +16,17 @@ import {
 	UpdateMappings,
 	UpdateRelevance
 } from "@app/store/form";
-import { currentLocale, miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
+import { changesPending, currentLocale, miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
 import { FindSubmissionVersionsRequestSchema, FindSubmissionVersionsResponse, FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCircleAlert, lucidePanelBottomClose,lucideHistory, lucidePanelBottomOpen } from "@ng-icons/lucide";
+import {
+	lucideCircleAlert,
+	lucideHistory,
+	lucidePanelBottomClose,
+	lucidePanelBottomOpen,
+	lucideSave,
+	lucideTrash2
+} from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
 import { Actions, dispatch, ofActionCompleted, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
@@ -48,6 +55,8 @@ const miscConfigKeys = {
 			lucideCircleAlert,
 			lucidePanelBottomOpen,
 			lucidePanelBottomClose,
+			lucideSave,
+			lucideTrash2,
 			lucideHistory
 		}),
 	],
@@ -93,6 +102,7 @@ export class FormPage
 	private initialized = false;
 	private loadingData = false;
 
+	protected hasUnsavedChanges = select(changesPending);
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
 	protected selectedVersion = resource({
@@ -189,7 +199,7 @@ export class FormPage
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateMappings),
-			skipWhile(() => !this.initialized || !this.currentVersion.value())
+			skipWhile(() => !this.initialized || !this.selectedVersion.value())
 		).subscribe(() => {
 			this.reloadDataOnly();
 		});
@@ -230,7 +240,7 @@ export class FormPage
 		this.activate(this.formModel())
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
-				map(() => this.currentVersion.value()),
+				map(() => this.selectedVersion.value()),
 				filter((version) => !!version),
 				concatMap((version) =>
 					this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined),
@@ -247,14 +257,14 @@ export class FormPage
 	}
 
 	private reloadDataAndOptions() {
-		const version = untracked(this.currentVersion.value) ?? undefined;
+		const version = untracked(this.selectedVersion.value) ?? undefined;
 		this.loadData(this.formType(), this.submissionIndex()!, version).pipe(
 			concatMap(() => this.loadOptions(this.formType())),
 		).subscribe();
 	}
 
 	private reloadDataOnly() {
-		const version = untracked(this.currentVersion.value) ?? undefined;
+		const version = untracked(this.selectedVersion.value) ?? undefined;
 		this.loadData(this.formType(), this.submissionIndex()!, version)
 			.subscribe();
 	}

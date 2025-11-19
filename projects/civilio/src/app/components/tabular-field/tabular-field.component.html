@@ -1,77 +1,93 @@
-<form [formGroup]="form">
-	<div hlmTableContainer>
-		<table hlmTable class="caption-top">
-			<caption hlmCaption class="py-1 m-0 px-2 sticky top-0 backdrop-blur-md">
-				<div class="flex items-center m-0 justify-between">
-					<p class="text-lg font-semibold">
-						@if (definition().titleI18n) {
-							{{ definition().title | translate }}
-						} @else {
-							{{ definition().title }}
-						}
-					</p>
-					@if (enableCreationActions()) {
-						<div class="flex items-center gap-3">
+<!--<form [formGroup]="form">-->
+<div hlmTableContainer>
+	<table class="caption-top" hlmTable>
+		<caption class="py-1 h-[35px] m-0 px-2 sticky top-0 backdrop-blur-md" hlmCaption>
+			<div class="flex items-center m-0 justify-between">
+				<p class="text-lg font-semibold">
+					{{ title() | translate }}
+				</p>
+				@if (enableMutation()) {
+					<div class="flex items-center gap-3">
+						@if (editing()) {
 							<button
 								type="button"
 								[disabled]="
-							maxRows() === undefined ? false : $any(maxRows()) <= (form.value.rows?.length ?? 0)
+							maxRows() === undefined ? false : $any(maxRows()) <= data().length
 						"
-								size="sm"
+								size="icon"
 								variant="outline"
 								(click)="addRow()"
 								hlmBtn
 								[title]="'tmpl.table.actions.add_new.description' | translate"
 							>
 								<ng-icon name="lucidePlus"/>
-								<span>{{ "tmpl.table.actions.add_new.title" | translate }}</span>
+								<!--								<span>{{  }}</span>-->
 							</button>
-						</div>
-					}
-				</div>
-			</caption>
-			<thead hlmTHead class="sticky top-[29.25px] backdrop-blur-md">
-			<tr hlmTr>
-				@if (selectionEnabled()) {
-					<th hlmTh class="w-8">
-						<hlm-checkbox class="cursor-pointer"/>
-					</th>
-				}
-				@for (h of headers(); track $index) {
-					<th hlmTh>
-						@if (h.headerI18n) {
-							{{ h.header | translate }}
+							@if (changesTracked()) {
+								<button [disabled]="!changesTracked()" [title]="'forms.header.actions.discard' | translate"
+												hlmBtn size="icon" type="button" variant="destructive">
+									<ng-icon name="lucideTrash2"/>
+									<!--									<span>{{  }}</span>-->
+								</button>
+							} @else {
+								<button (click)="editing.set(false)" [title]="'tmpl.table.actions.cancel' | translate" hlmBtn
+												size="icon"
+												type="button" variant="outline">
+									<ng-icon name="lucideX"/>
+									<!--									<span>{{  }}</span>-->
+								</button>
+							}
 						} @else {
-							{{ h.header }}
+							<button (click)="editing.set(true)" hlmBtn size="sm" type="button" variant="outline">
+								<ng-icon name="lucidePencil"/>
+								<span>{{ 'tmpl.table.actions.enable_mutation.title' | translate }}</span>
+							</button>
 						}
-					</th>
+					</div>
 				}
-			</tr>
-			</thead>
-			<tbody hlmTBody formArrayName="rows">
-				@for (row of form.controls.rows.controls; track $index) {
-					<tr hlmTr>
-						@if (selectionEnabled()) {
-							<td hlmTd class="w-8">
-								<hlm-checkbox class="cursor-pointer"/>
-							</td>
-						}
-						@for (col of columns(); track $index) {
-							<td hlmTd>
-								{{ row.value[col.accessor] }}
-							</td>
-						}
-					</tr>
-				} @empty {
-					<tr hlmTr>
-						<td hlmTd class="text-center" [colSpan]="headers().length + 1">
-							{{
-								(loadingData() ? "loading.txt" : "tmpl.table.no_data") | translate
-							}}
+			</div>
+		</caption>
+		<thead class="sticky top-[35px] backdrop-blur-md" hlmTHead>
+			@for (hg of tableDefinition().getHeaderGroups(); track hg.id) {
+				<tr hlmTr>
+					@for (header of hg.headers; track header.id) {
+						<th [attr.colspan]="header.colSpan" hlmTh>
+							@if (!header.isPlaceholder) {
+								<ng-container
+									*flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+									<span>{{ headerText | translate }}</span>
+								</ng-container>
+							}
+						</th>
+					}
+				</tr>
+			}
+		</thead>
+		<tbody hlmTBody>
+			@for (row of tableDefinition().getRowModel().rows; track row.id) {
+				<!--suppress HtmlUnknownAttribute -->
+				<tr [attr.data-state]="row.getIsSelected() && 'selected'" [attr.key]="row.id" hlmTr>
+					@for (cell of row.getVisibleCells(); track $index) {
+						<td class="overflow-x-hidden" hlmTd>
+							<div *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cell"
+									 class="max-w-full [{{cell.column.columnDef.maxSize}}px]">
+								{{ cell }}
+							</div>
 						</td>
-					</tr>
-				}
-			</tbody>
-		</table>
-	</div>
-</form>
+					}
+				</tr>
+			} @empty {
+				<tr hlmTr>
+					<td
+						[attr.colspan]="columnDefinitions().length"
+						class="h-24 text-center"
+						hlmTd
+					>
+						{{ "tmpl.table.no_data" | translate }}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<!--</form>-->

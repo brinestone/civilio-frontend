@@ -9,13 +9,12 @@ import {
 	forwardRef,
 	inject,
 	input,
-	model,
 	output,
 	signal
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
-import { FieldSchema } from '@app/model/form';
+import { extractFieldKey, FieldSchema } from '@app/model/form';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
@@ -26,6 +25,7 @@ import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ClassValue } from 'clsx';
 import { IsStringPipe } from '@app/pipes';
+import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 
 @Component({
 	selector: 'cv-field',
@@ -57,13 +57,14 @@ export class FieldComponent implements ControlValueAccessor {
 	readonly isReadonly = input<boolean, BooleanInput>(false, { alias: 'readonly', transform: booleanAttribute });
 	readonly locale = input<any>();
 	readonly changed = output<any>();
+	readonly deltaChange = output<DeltaChangeEvent<any>>()
 
 	private cdr = inject(ChangeDetectorRef);
 
 	protected changeCallback?: (v: any) => void;
 	protected touchedCallback?: () => void;
 	protected readonly _disabled = signal(false);
-	protected readonly _value = model<any>();
+	protected readonly _value = signal<any>(undefined);
 
 	constructor() {
 		effect(() => {
@@ -93,6 +94,11 @@ export class FieldComponent implements ControlValueAccessor {
 		this._value.set(update);
 		this.changeCallback?.(update);
 		this.changed.emit(update);
+		this.deltaChange.emit({
+			value: update,
+			path: [extractFieldKey(this.schema().key)],
+			changeType: 'update'
+		});
 	}
 
 	protected onControlTouched() {

@@ -46,14 +46,6 @@
 	}
 </div>
 <div class="flex items-center gap-2">
-	<button hlmBtn size="sm">
-		<ng-icon name="lucideSave"/>
-		<span>{{ "forms.header.actions.save_changes" | translate }}</span>
-	</button>
-	<button hlmBtn size="sm" variant="destructive">
-		<ng-icon name="lucideTrash2"/>
-		<span>{{ "forms.header.actions.discard" | translate }}</span>
-	</button>
 	<hlm-sheet
 		[state]="mapperSheetState()"
 		(stateChanged)="mapperSheetState.set($event)"
