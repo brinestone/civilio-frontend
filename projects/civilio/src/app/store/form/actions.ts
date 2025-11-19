@@ -10,6 +10,20 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class Undo {
+	static type = `${ prefix } undo`;
+
+	constructor(readonly form: FormType) {
+	}
+}
+
+export class Redo {
+	static type = `${ prefix } redo`;
+
+	constructor(readonly form: FormType) {
+	}
+}
+
 export class RecordDeltaChange {
 	static type = `${ prefix } record delta change`
 

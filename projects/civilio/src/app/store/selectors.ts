@@ -74,6 +74,9 @@ export const facilityName = createSelector([formSlices.rawData], (record) => {
 
 	return null;
 });
-export const changesPending = createSelector([formSlices.changeStack], stack => {
-	return stack.length > 0;
-})
+export const undoAvailable = createSelector([formSlices.undoStack], r => r.length > 0);
+export const redoAvailable = createSelector([formSlices.redoStack], r => r.length > 0);
+
+export const changesPending = createSelector([undoAvailable, redoAvailable], (u, r) => {
+	return u || r;
+});

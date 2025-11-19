@@ -2,14 +2,14 @@ import { ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
-import { DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
+import { ColumnDefinition, DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
 import { isEmpty, isObjectLike } from 'lodash';
 
 export * from './chiefdom';
 export * from './csc';
 export * from './fosa';
 
-export function extractFieldKey(key: FieldSchema['key']) {
+export function extractFieldKey(key: (FieldSchema | ColumnDefinition)['key']) {
 	return typeof key == 'string' ? key : key.value;
 }
 

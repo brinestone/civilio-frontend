@@ -8,8 +8,10 @@ import {
 	lucideChevronLeft,
 	lucideChevronRight,
 	lucideCopy,
+	lucideRedo2,
 	lucideSave,
 	lucideTrash2,
+	lucideUndo2,
 	lucideUnlink2
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -35,7 +37,9 @@ import { toast } from 'ngx-sonner';
 			lucideCopy,
 			lucideUnlink2,
 			lucideSave,
-			lucideTrash2
+			lucideTrash2,
+			lucideUndo2,
+			lucideRedo2,
 		})
 	],
 	imports: [
@@ -57,10 +61,14 @@ export class FormHeaderComponent {
 	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
 	readonly canGoNextPage = input<boolean>();
 	readonly canGoPrevPage = input<boolean>();
+	readonly canUndo = input<boolean>();
+	readonly canRedo = input<boolean>();
 	readonly version = input<string | null>();
 	readonly nextSubmission = output();
 	readonly prevSubmission = output();
 	readonly indexJump = output<number>();
+	readonly undo = output();
+	readonly redo = output();
 
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly ts = inject(TranslateService);

@@ -747,6 +747,8 @@ forms:
         prev: Prev
         next: Next
       field_mapper: Mapper
+      undo: Undo
+      redo: Redo
     controls:
       index: Index
       validation_code: Validation Code

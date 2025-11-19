@@ -12,11 +12,21 @@ import {
 	InitVersioning,
 	LoadOptions,
 	LoadSubmissionData,
+	Redo,
 	SubmissionIndexChanged,
+	Undo,
 	UpdateMappings,
 	UpdateRelevance
 } from "@app/store/form";
-import { changesPending, currentLocale, miscConfig, relevanceRegistry, sectionValidity } from "@app/store/selectors";
+import {
+	changesPending,
+	currentLocale,
+	miscConfig,
+	redoAvailable,
+	relevanceRegistry,
+	sectionValidity,
+	undoAvailable
+} from "@app/store/selectors";
 import { FindSubmissionVersionsRequestSchema, FindSubmissionVersionsResponse, FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -102,6 +112,10 @@ export class FormPage
 	private initialized = false;
 	private loadingData = false;
 
+	protected readonly undo = dispatch(Undo);
+	protected readonly redo = dispatch(Redo);
+	protected readonly canUndo = select(undoAvailable);
+	protected readonly canRedo = select(redoAvailable);
 	protected hasUnsavedChanges = select(changesPending);
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');

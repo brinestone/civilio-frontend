@@ -46,6 +46,16 @@
 	}
 </div>
 <div class="flex items-center gap-2">
+	@if (canUndo() || canRedo()) {
+		<button (click)="undo.emit()" [disabled]="!canUndo()" [title]="'forms.header.actions.undo' | translate" hlmBtn
+						size="icon" variant="ghost">
+			<ng-icon name="lucideUndo2"/>
+		</button>
+		<button (click)="redo.emit()" [disabled]="!canRedo()" [title]="'forms.header.actions.redo' | translate" hlmBtn
+						size="icon" variant="ghost">
+			<ng-icon name="lucideRedo2"/>
+		</button>
+	}
 	<hlm-sheet
 		[state]="mapperSheetState()"
 		(stateChanged)="mapperSheetState.set($event)"

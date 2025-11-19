@@ -26,6 +26,7 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ClassValue } from 'clsx';
 import { IsStringPipe } from '@app/pipes';
 import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
+import { debounce } from 'lodash';
 
 @Component({
 	selector: 'cv-field',
@@ -89,13 +90,17 @@ export class FieldComponent implements ControlValueAccessor {
 		this._disabled.set(isDisabled);
 	}
 
-	protected onInput(update: any) {
+	protected onInput = debounce(this.onInputHandler.bind(this), 300);
+
+	private onInputHandler(update: any) {
 		this.onControlTouched();
+		const previousValue = this._value();
 		this._value.set(update);
 		this.changeCallback?.(update);
 		this.changed.emit(update);
 		this.deltaChange.emit({
-			value: update,
+			newValue: update,
+			oldValue: previousValue,
 			path: [extractFieldKey(this.schema().key)],
 			changeType: 'update'
 		});
