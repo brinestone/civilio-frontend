@@ -288,6 +288,13 @@
       "when": 1763281147288,
       "tag": "0041_worthless_retro_girl",
       "breakpoints": true
+		},
+		{
+			"idx": 42,
+			"version": "7",
+			"when": 1763542750734,
+			"tag": "0042_supreme_joshua_kane",
+			"breakpoints": true
     }
   ]
 }
