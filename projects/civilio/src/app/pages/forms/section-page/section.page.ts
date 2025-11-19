@@ -10,6 +10,7 @@ import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
 import {
 	ActivateSection,
 	LoadSubmissionData,
+	RecordDeltaChange,
 	SubmissionIndexChanged,
 	UpdateFormDirty,
 	UpdateRelevance,
@@ -20,10 +21,13 @@ import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
 import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select, Store } from "@ngxs/store";
 import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher, } from "@spartan-ng/brain/forms";
-import { entries, isEqual } from "lodash";
+import { debounce, entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
+import { TabularFieldComponent } from '@app/components';
+import { DeltaChangeEvent } from '@app/model/form/events';
+
 
 @Component({
 	selector: "cv-section-page",
@@ -38,7 +42,8 @@ import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
 		TranslatePipe,
 		DecimalPipe,
 		HlmFieldImports,
-		IsStringPipe
+		IsStringPipe,
+		TabularFieldComponent,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./section.page.html",
@@ -48,23 +53,23 @@ export class SectionPage {
 	public readonly sectionKey = injectParams<FormSectionKey>('id');
 
 	// #region Flags
+
 	private refreshingControls = false;
 	private indexChanged = false;
 	// #endregion
-
 	private readonly activate = dispatch(ActivateSection);
+
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly store = inject(Store);
 	private readonly routeData = injectRouteData<Record<string, any>>('target');
 	private readonly formType = computed(() => this.routeData()?.['form'] as FormType)
 	private readonly formSchema = computed(() => this.routeData()?.['model'] as FormSchema);
 	private readonly formData = select(activeSections);
-
 	protected readonly relevanceRegistry = select(relevanceRegistry);
+
 	protected readonly sectionSchema = computed(() => flattenSections(this.formSchema()).find(s => s.id == this.sectionKey()!)!);
 	protected readonly options = select(optionsSelector(this.formType()));
 	protected readonly sectionData = computed(() => this.formData()[this.sectionKey()!].model);
-
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
 	constructor(actions$: Actions, route: ActivatedRoute) {
@@ -134,6 +139,22 @@ export class SectionPage {
 		});
 	}
 
+	protected onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), 500);
+	protected readonly onDeltaChange = debounce(this.deltaChangeHandler.bind(this), 500);
+
+	private markControlAsPristine(control: AbstractControl) {
+		control.markAsUntouched();
+		control.markAsPristine();
+		control.updateValueAndValidity();
+	}
+
+	private addFieldControl(schema: FieldSchema) {
+		const validators = extractValidators(schema);
+		const initialValue = untracked(this.sectionData)[extractFieldKey(schema.key)];
+		const control = new UntypedFormControl(initialValue, { validators });
+		this.form.addControl(extractFieldKey(schema.key), control);
+	}
+
 	private refreshFieldValues() {
 		console.log('refreshing field values');
 		for (const [key, control] of entries(this.form.controls)) {
@@ -150,15 +171,19 @@ export class SectionPage {
 
 			control.setValue(storeValue);
 			this.markControlAsPristine(control);
-			console.log(`Refreshed value for field: ${key} from ${JSON.stringify(existingValue)} to ${JSON.stringify(storeValue)}`);
+			console.log(`Refreshed value for field: ${ key } from ${ JSON.stringify(existingValue) } to ${ JSON.stringify(storeValue) }`);
 		}
 		this.cdr.markForCheck();
 	}
 
-	private markControlAsPristine(control: AbstractControl) {
-		control.markAsUntouched();
-		control.markAsPristine();
-		control.updateValueAndValidity();
+	private refreshControls(markPristine = false) {
+		this.refreshingControls = true;
+		console.log('refreshing controls');
+		this.removeNonRelevantControls();
+		this.addRelevantControls();
+		this.refreshingControls = false;
+		if (markPristine) this.markControlAsPristine(this.form);
+		this.cdr.markForCheck();
 	}
 
 	private removeNonRelevantControls() {
@@ -172,15 +197,8 @@ export class SectionPage {
 
 			if (!shouldRemove) continue;
 			this.form.removeControl(key);
-			console.log(`Removed non-relevant field: ${key}`);
+			console.log(`Removed non-relevant field: ${ key }`);
 		}
-	}
-
-	private addFieldControl(schema: FieldSchema) {
-		const validators = extractValidators(schema);
-		const initialValue = untracked(this.sectionData)[extractFieldKey(schema.key)];
-		const control = new UntypedFormControl(initialValue, { validators });
-		this.form.addControl(extractFieldKey(schema.key), control);
 	}
 
 	private addRelevantControls() {
@@ -194,21 +212,15 @@ export class SectionPage {
 
 			if (!shouldAdd) continue;
 			this.addFieldControl({ key, ...rest });
-			console.log(`Added relevant field: ${key}`);
+			console.log(`Added relevant field: ${ key }`);
 		}
 	}
 
-	private refreshControls(markPristine = false) {
-		this.refreshingControls = true;
-		console.log('refreshing controls');
-		this.removeNonRelevantControls();
-		this.addRelevantControls();
-		this.refreshingControls = false;
-		if (markPristine) this.markControlAsPristine(this.form);
-		this.cdr.markForCheck();
+	private deltaChangeHandler(event: DeltaChangeEvent<any>) {
+		this.store.dispatch(new RecordDeltaChange(event));
 	}
 
-	protected onFieldValueChanged(field: FieldKey, update: any) {
+	private fieldChangeHandler(field: FieldKey, update: any) {
 		this.store.dispatch([
 			new UpdateSection(this.sectionKey()!, this.formType(), field, update),
 			new UpdateFormDirty(this.sectionKey()!, this.form.dirty)

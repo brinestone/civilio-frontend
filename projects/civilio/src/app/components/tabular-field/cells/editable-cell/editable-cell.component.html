@@ -1,0 +1,112 @@
+@let value = context.cell.getValue();
+@if (editing() && schema().editable != false) {
+	@switch (schema().type) {
+		@case ('boolean') {
+			<hlm-checkbox (blur)="blur.emit()" (checkedChange)="change.emit($any($event))" (click)="blur.emit()"
+										[checked]="$any(value)"/>
+		}
+		@case ('single-selection') {
+			<brn-select (valueChange)="change.emit($any($event))" [placeholder]="'tmpl.dropdown.placeholder' | translate"
+									[value]="value">
+				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
+					<hlm-select-value/>
+				</hlm-select-trigger>
+				<hlm-select-content class="max-w-[{{context.column.columnDef.maxSize}}px]">
+					@for (o of options()?.[$any(schema()).optionGroupKey]; track $index) {
+						<hlm-option [value]="o.value">
+							@if (o.i18nKey) {
+								{{ o.i18nKey | translate }}
+							} @else {
+								{{ o.label }}
+							}
+						</hlm-option>
+					}
+				</hlm-select-content>
+			</brn-select>
+		}
+		@case ('multi-selection') {
+			<brn-select (valueChange)="change.emit($any($event))" [multiple]="true"
+									[placeholder]="'tmpl.dropdown.placeholder' | translate"
+									[value]="value">
+				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
+					<hlm-select-value/>
+				</hlm-select-trigger>
+				<hlm-select-content class="max-h-40 max-w-[{{context.column.columnDef.maxSize}}px]">
+					@for (o of options()?.[$any(schema()).optionGroupKey]; track $index) {
+						<hlm-option [value]="o.value">
+							@if (o.i18nKey) {
+								{{ o.i18nKey | translate }}
+							} @else {
+								{{ o.label }}
+							}
+						</hlm-option>
+					}
+				</hlm-select-content>
+			</brn-select>
+		}
+		@case ('text') {
+			<input (blur)="blur.emit()"
+						 (change)="change.emit($any($event.target)?.value)"
+						 [placeholder]="schema().key + '.description' | translate"
+						 [value]="value"
+						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
+						 hlmInput type="text">
+		}
+		@case ('number') {
+			<input (blur)="blur.emit()"
+						 (change)="change.emit($any($event.target)?.valueAsNumber)"
+						 [max]="$any(schema()).max"
+						 [min]="$any(schema()).min"
+						 [placeholder]="schema().key + '.description' | translate"
+						 [value]="value"
+						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
+						 hlmInput
+						 type="number">
+		}
+		@case ('date') {
+			<hlm-date-picker (blur)="blur.emit()"
+											 (dateChange)="change.emit($any($event))"
+											 [date]="$any(value)"
+											 [max]="$any(schema()).max"
+											 [min]="$any(schema()).min"/>
+		}
+	}
+} @else {
+	<span class="block max-w-[{{context.column.columnDef.maxSize}}px] text-ellipsis line-clamp-1">
+	@switch (schema().type) {
+		@case ('single-selection') {
+			@let so = selectedOptions();
+			@if (so) {
+				@for (o of so; track $index) {
+					@if (o.i18nKey) {
+						{{ o.i18nKey | translate }}
+					} @else {
+						{{ o.label }}
+					}
+				}
+			}
+		}
+		@case ('multi-selection') {
+			@let so = selectedOptions();
+			@if (so) {
+				@for (o of so; track $index) {
+					@if (o.i18nKey) {
+						{{ o.i18nKey | translate }}
+					} @else {
+						{{ o.label }}
+					}
+				}
+			}
+		}
+		@case ('number') {
+			{{ $any(value) | number:'1.0-4' }}
+		}
+		@case ('date') {
+			{{ $any(value) | ago_date:locale() }}
+		}
+		@default {
+			{{ value }}
+		}
+	}
+		</span>
+}

@@ -1,18 +1,12 @@
 import { CdkListboxModule } from "@angular/cdk/listbox";
 import { DecimalPipe, JsonPipe, KeyValuePipe, NgClass, NgTemplateOutlet } from "@angular/common";
-import {
-	Component,
-	computed,
-	effect,
-	linkedSignal
-} from "@angular/core";
+import { Component, computed, effect } from "@angular/core";
 import { UpdateMiscConfig } from "@app/store/config";
 import { allSectionErrors, currentSectionErrors, miscConfig } from "@app/store/selectors";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideHistory, lucideInfo, lucideTriangleAlert } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { dispatch, select } from "@ngxs/store";
-import { HlmBadgeImports } from "@spartan-ng/helm/badge";
 import { isEmpty, size } from "lodash";
 
 const miscKeys = {
@@ -32,7 +26,6 @@ const miscKeys = {
 		TranslatePipe,
 		NgIcon,
 		CdkListboxModule,
-		HlmBadgeImports,
 		DecimalPipe,
 		NgClass,
 		KeyValuePipe,
@@ -65,19 +58,21 @@ export class FormFooterComponent {
 				| "outline",
 			badgeValue: computed(() => size(this.currentSectionErrors())),
 		},
-		{
-			key: 'form.footer.tabs.history',
-			icon: 'lucideHistory'
-		},
+		// {
+		// 	key: 'form.footer.tabs.history',
+		// 	icon: 'lucideHistory'
+		// },
 	];
 	protected readonly currentTab = select(miscConfig<string>(miscKeys.currentTab));
 
 	protected get errorTab() {
 		return this.tabs[1];
 	}
+
 	protected get descriptionTab() {
 		return this.tabs[0];
 	}
+
 	protected get historyTab() {
 		return this.tabs[2];
 	}

@@ -1,7 +1,9 @@
 import { EnvironmentProviders, inject, Injectable } from "@angular/core";
 import { ValidationErrors } from "@angular/forms";
 import {
-	extractAllFields, extractFieldKey,
+	ColumnDefinition,
+	extractAllFields,
+	extractFieldKey,
 	extractRawValidators,
 	FieldSchema,
 	flattenSections,
@@ -20,35 +22,33 @@ import {
 	FindFormOptionsResponse,
 	FindSubmissionDataResponse,
 	FormSectionKey,
-	FormType, SubmissionVersionInfo,
+	FormType,
+	SubmissionVersionInfo,
 	toRowMajor,
 } from "@civilio/shared";
-import {
-	Action,
-	provideStates,
-	State,
-	StateContext,
-	StateToken,
-} from "@ngxs/store";
-import { patch } from "@ngxs/store/operators";
-import { keys, last, values } from "lodash";
+import { Action, provideStates, State, StateContext, StateToken, } from "@ngxs/store";
+import { insertItem, patch } from "@ngxs/store/operators";
+import { entries, keys, values } from "lodash";
 import { concatMap, EMPTY, from, tap } from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
 	ActivateSection,
 	DeactivateForm,
+	InitVersioning,
 	LoadDbColumns,
 	LoadMappings,
 	LoadOptions,
 	LoadSubmissionData,
+	RecordDeltaChange,
 	RemoveMapping,
 	SetFormType,
+	SubmissionIndexChanged,
+	UpdateFormDirty,
 	UpdateMappings,
 	UpdateRelevance,
 	UpdateSection,
-	UpdateFormDirty,
-	UpdateValidity, InitVersioning,
+	UpdateValidity,
 } from "./actions";
 
 export * from "./actions";
@@ -76,6 +76,7 @@ type FormStateModel = {
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
 	workingVersion?: SubmissionVersionInfo;
+	changeStack: { path: string, value: any, op: 'update' | 'delete' | 'add' }[]
 };
 export const FORM_STATE = new StateToken<FormStateModel>("form");
 type Context = StateContext<FormStateModel>;
@@ -115,6 +116,14 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 	return k;
 }
 
+function makeChangePath(segments: (string | number)[]) {
+	return segments.join('/');
+}
+
+function splitChangePath(path: string) {
+	return path.split("/");
+}
+
 @Injectable()
 @State({
 	name: FORM_STATE,
@@ -123,17 +132,30 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 		activeSections: {},
 		schemas: {},
 		relevanceRegistry: {},
+		changeStack: []
 	},
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(SubmissionIndexChanged)
+	onSubmissionIndexChanged(ctx: Context) {
+		ctx.setState(patch({ changeStack: [] }));
+	}
+
+	@Action(RecordDeltaChange, { cancelUncompleted: true })
+	onRecordDeltaChange(ctx: Context, { event: { changeType, value, path } }: RecordDeltaChange) {
+		ctx.setState(patch({
+			changeStack: insertItem({ path: makeChangePath(path), value, op: changeType }, 0)
+		}))
+	}
 
 	@Action(InitVersioning)
 	onInitVersioning(ctx: Context, arg: InitVersioning) {
 		return from(this.formService.initializeSubmissionVersion(arg)).pipe(
 			concatMap((version) => {
 				if (version == null) {
-					console.log(`submission does not exist with index: ${arg.index} in form ${arg.form}`);
+					console.log(`submission does not exist with index: ${ arg.index } in form ${ arg.form }`);
 					return EMPTY;
 				}
 				return ctx.dispatch(new LoadSubmissionData(arg.form, arg.index as any, version));
@@ -160,6 +182,7 @@ class FormState {
 				options: deleteByKey(form),
 				rawData: {},
 				currentSection: undefined,
+				changeStack: []
 			}),
 		);
 	}
@@ -324,6 +347,7 @@ class FormState {
 		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
 		ctx.setState(
 			patch({
+				changeStack: [],
 				schemas: patch({
 					[schema.meta.form]: schema,
 				}),
@@ -343,7 +367,7 @@ class FormState {
 		);
 	}
 
-	@Action(LoadSubmissionData)
+	@Action(LoadSubmissionData, { cancelUncompleted: true })
 	onLoadSubmissionData(ctx: Context, { form, index, version }: LoadSubmissionData) {
 		const schema = ctx.getState().schemas[form];
 		return from(this.formService.findSubmissionData({
@@ -389,15 +413,20 @@ class FormState {
 	) {
 		if (!rawData) return [];
 
+		const columns = entries(schema.columns)
+			.reduce((acc, [_, { key, ...rest }]) => {
+				acc[key] = { key, ...rest };
+				return acc;
+			}, {} as Record<string, ColumnDefinition>);
+		const columnKeys = keys(columns);
 		const transformFn = (k: string, value: unknown) => {
-			const lastPart = last(k.split(".")) as string;
-			const columnDefinition = schema.columns[lastPart];
+			const columnDefinition = columns[k];
 			return parseValue(columnDefinition, value as RawValue);
 		};
 
 		const temp: Record<string, unknown[]> = {};
-		for (const [k, v] of Object.entries(rawData)) {
-			if (!k.startsWith(extractFieldKey(schema.key))) continue;
+		for (const [k, v] of entries(rawData)) {
+			if (!columnKeys.includes(k)) continue;
 			temp[k] = v as unknown[];
 		}
 
@@ -417,10 +446,11 @@ class FormState {
 			| null
 		> = {};
 		for (const field of fields) {
+			const fieldKey = extractFieldKey(field.key);
 			if (field.type !== "table") {
-				result[extractFieldKey(field.key)] = parseValue(field, data?.[extractFieldKey(field.key)] ?? null);
+				result[fieldKey] = parseValue(field, data?.[fieldKey] ?? null);
 			} else {
-				result[extractFieldKey(field.key)] = this.extractSubFormData(field, data);
+				result[fieldKey] = this.extractSubFormData(field, data);
 			}
 		}
 		return result;

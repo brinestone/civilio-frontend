@@ -6,32 +6,40 @@ import {
 	FormType,
 	InitializeSubmissionVersionRequest,
 } from "@civilio/shared";
+import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class RecordDeltaChange {
+	static type = `${ prefix } record delta change`
+
+	constructor(readonly event: DeltaChangeEvent<any>) {
+	}
+}
+
 export class InitVersioning implements InitializeSubmissionVersionRequest {
-	static type = `${prefix} Init versioning`;
+	static type = `${ prefix } Init versioning`;
 
 	constructor(readonly index: unknown, readonly form: FormType) {
 	}
 }
 
 export class SubmissionIndexChanged {
-	static type = `${prefix} Index changed`;
+	static type = `${ prefix } Index changed`;
 
 	constructor(readonly index: number) {
 	}
 }
 
 export class DeactivateForm {
-	static type = `${prefix} Deactivate form`;
+	static type = `${ prefix } Deactivate form`;
 
 	constructor(readonly form: FormType) {
 	}
 }
 
 export class UpdateFormDirty {
-	static type = `${prefix} Update Form Status`;
+	static type = `${ prefix } Update Form Status`;
 
 	constructor(
 		readonly section: FormSectionKey,
@@ -41,28 +49,28 @@ export class UpdateFormDirty {
 }
 
 export class ActivateForm {
-	static type = `${prefix} Activate form`;
+	static type = `${ prefix } Activate form`;
 
 	constructor(readonly schema: FormSchema) {
 	}
 }
 
 export class LoadSubmissionData {
-	static type = `${prefix} Load submission data`;
+	static type = `${ prefix } Load submission data`;
 
 	constructor(readonly form: FormType, readonly index: number | string, readonly version?: string) {
 	}
 }
 
 export class UpdateValidity {
-	static type = `${prefix} Update validity`;
+	static type = `${ prefix } Update validity`;
 
 	constructor(readonly form: FormType) {
 	}
 }
 
 export class UpdateRelevance {
-	static type = `${prefix} Update relevance`;
+	static type = `${ prefix } Update relevance`;
 
 	constructor(
 		readonly form: FormType,
@@ -73,7 +81,7 @@ export class UpdateRelevance {
 }
 
 export class UpdateSection {
-	static type = `${prefix} Update section`;
+	static type = `${ prefix } Update section`;
 
 	constructor(
 		readonly section: FormSectionKey,
@@ -85,7 +93,7 @@ export class UpdateSection {
 }
 
 export class ActivateSection {
-	static type = `${prefix} Activate section`;
+	static type = `${ prefix } Activate section`;
 
 	constructor(
 		readonly section: FormSectionKey,
@@ -95,28 +103,28 @@ export class ActivateSection {
 }
 
 export class LoadMappings {
-	static type = `${prefix} load mappings`;
+	static type = `${ prefix } load mappings`;
 
 	constructor(readonly form: FormType) {
 	}
 }
 
 export class LoadOptions {
-	static type = `${prefix} load options`;
+	static type = `${ prefix } load options`;
 
 	constructor(readonly form: FormType) {
 	}
 }
 
 export class LoadDbColumns {
-	static type = `${prefix} load columns`;
+	static type = `${ prefix } load columns`;
 
 	constructor(readonly form: FormType) {
 	}
 }
 
 export class RemoveMapping {
-	static type = `${prefix} remove mapping`;
+	static type = `${ prefix } remove mapping`;
 
 	constructor(
 		readonly form: FormType,
@@ -126,7 +134,7 @@ export class RemoveMapping {
 }
 
 export class UpdateMappings {
-	static type = `${prefix} update mappings`;
+	static type = `${ prefix } update mappings`;
 	readonly mappings: FieldUpdateSpec[];
 
 	constructor(
@@ -138,7 +146,7 @@ export class UpdateMappings {
 }
 
 export class SetFormType {
-	static type = `${prefix} set form type`;
+	static type = `${ prefix } set form type`;
 
 	constructor(readonly form: FormType) {
 	}

@@ -43,9 +43,13 @@ tmpl:
   table:
     no_data: No data
     actions:
+      discard: Discard
+      cancel: Cancel
       add_new:
-        title: Add new
+        title: Add
         description: Add a new row
+      enable_mutation:
+        title: Edit
 login:
   username: Username
   forgot_password: Forgot password?
@@ -183,7 +187,7 @@ csc:
               name:
                 title: Name
               avg_dist:
-                title: Average distance to the centre
+                title: Approximate distance to the centre (kilometers)
               observations:
                 title: Observations
       infra:
@@ -243,6 +247,8 @@ csc:
           rooms:
             title: List of rooms dedicated to civil status (Civil status office and reception area, archive room)
             fields:
+              name:
+                title: Room name
               list:
                 title: Rooms dedicated to civil status
               index:
@@ -252,7 +258,7 @@ csc:
               condition:
                 title: Room condition
               area:
-                title: Area
+                title: Area (square meters)
               renovation_nature:
                 title: Renovation nature
       equipment:

@@ -13,9 +13,6 @@ DECLARE
 	_version           TEXT;
 	_version_timestamp TIMESTAMP;
 	_result            JSONB := '{}'::JSONB;
-	_mapping           civilio.form_field_mappings;
-	_temp_array        JSONB;
-	_element_data      JSONB;
 
 	-- Optimization variables
 	_element_indices   JSONB := '{}'::JSONB;

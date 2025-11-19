@@ -1,378 +1,291 @@
 import {
 	Component,
+	computed,
+	effect,
 	forwardRef,
 	input,
-	Signal
+	linkedSignal,
+	model,
+	output,
+	signal,
+	untracked
 } from "@angular/core";
-import { NG_VALUE_ACCESSOR } from "@angular/forms";
-import { Option } from "@civilio/shared";
-import { provideIcons } from "@ng-icons/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from "@angular/forms";
+import { FieldKey, Option } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideCheck, lucideCheckCheck, lucidePencil, lucidePlus, lucideTrash2, lucideX, } from "@ng-icons/lucide";
+import { TranslatePipe } from '@ngx-translate/core';
+import { HlmButton } from "@spartan-ng/helm/button";
+import { HlmTableContainer, HlmTableImports } from '@spartan-ng/helm/table';
+import { ParsedValue, TabularFieldSchema } from '@app/model/form';
+import { entries, isEmpty, values } from 'lodash';
 import {
-	lucideCheck,
-	lucideCheckCheck,
-	lucidePencil,
-	lucidePlus,
-	lucideTrash2,
-	lucideX,
-} from "@ng-icons/lucide";
-import { BrnSelectImports } from "@spartan-ng/brain/select";
-import { HlmCheckboxImports } from "@spartan-ng/helm/checkbox";
-import { HlmSelectImports } from "@spartan-ng/helm/select";
-import { HlmTableImports } from "@spartan-ng/helm/table";
+	CellContext,
+	createAngularTable,
+	createColumnHelper,
+	flexRenderComponent,
+	FlexRenderDirective,
+	getCoreRowModel,
+	RowData,
+	RowSelectionState,
+	VisibilityState
+} from '@tanstack/angular-table';
+import { TableHeadSelectionComponent } from './table-head-selection.component';
+import { TableRowSelectionComponent } from './table-row-selection.component';
+import { EditableCellComponent } from '@app/components/tabular-field/cells/editable-cell/editable-cell.component';
+import { ActionCell, ActionTriggeredEvent, RowAction } from '@app/components/tabular-field/cells';
+import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 
-export type RowAction<T> = {
-  class?: string;
-  identifier: string | Symbol;
-  icon?: string;
-  label?: string;
-};
+declare module '@tanstack/angular-table' {
+	interface TableMeta<TData extends RowData> {
+		updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+		deleteRow: (rowIndex: number) => void;
+	}
+}
 
-export type RowContext<T> = {
-  row: T;
-  index: number;
-  column: ColumnDefinition<T>;
-  selected: boolean;
-  editing: boolean;
-};
+type TrackedChanges = Record<string, any[]>;
 
-export type ColumnEditor<T> = {
-  enable?: boolean | ((ctx: ColumnDefinition<T>) => boolean);
-};
+const separator = '/';
 
-export type TextColumnEditor<T> = ColumnEditor<T> & {
-  kind: "text";
-  pattern?: string | RegExp;
-};
-export type BooleanColumnEditor<T> = ColumnDefinition<T> & {
-  kind: "boolean";
-} & (
-    | {
-        renderAs: "dropdown";
-        options: [
-          { label: string; value: true },
-          { label: string; value: false },
-        ];
-      }
-    | { renderAs: "checkbox" }
-  );
-export type SelectColumnEditor<T> = ColumnDefinition<T> & {
-  kind: "select";
-  multi?: boolean;
-  options: { label: string; value: any };
-};
+function flattenKey(k: FieldKey, sep = separator) {
+	return k.replaceAll('.', sep);
+}
 
-export type ColumnDefinition<T> = {
-  header?: string;
-  cell?: (ctx: RowContext<T>) => string;
-  accessor?: string;
-  accessorFn?: (row: T) => string | number | Symbol;
-  editing?:
-    | TextColumnEditor<T>
-    | BooleanColumnEditor<T>
-    | SelectColumnEditor<T>;
-};
-
-export type TableDefinition<T> = {
-  columns: ColumnDefinition<T>[];
-  editable?: boolean | (() => boolean);
-  rowAddition: { enable?: boolean };
-  selection?: {
-    enable?: boolean;
-  };
-  data: Signal<T[]>;
-};
+const deleteIdentifier = Symbol('delete');
 
 @Component({
-  selector: "cv-tabular-field",
-  imports: [
-    HlmTableImports,
-    HlmSelectImports,
-    HlmCheckboxImports,
-    BrnSelectImports,
-  ],
-  templateUrl: "./tabular-field.component.html",
-  styleUrl: "./tabular-field.component.scss",
-  viewProviders: [
-    provideIcons({
-      lucidePencil,
-      lucideCheck,
-      lucidePlus,
-      lucideTrash2,
-      lucideX,
-      lucideCheckCheck,
-    }),
-  ],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => TabularFieldComponent),
-      multi: true,
-    },
-  ],
+	selector: "cv-tabular-field",
+	imports: [
+		HlmTableImports,
+		TranslatePipe,
+		NgIcon,
+		HlmButton,
+		ReactiveFormsModule,
+		HlmTableContainer,
+		FlexRenderDirective
+	],
+	templateUrl: "./tabular-field.component.html",
+	styleUrl: "./tabular-field.component.scss",
+	viewProviders: [
+		provideIcons({
+			lucidePencil,
+			lucideCheck,
+			lucidePlus,
+			lucideX,
+			lucideCheckCheck,
+		}),
+	],
+	providers: [
+		provideIcons({
+			lucideTrash2,
+		}),
+		{
+			provide: NG_VALUE_ACCESSOR,
+			useExisting: forwardRef(() => TabularFieldComponent),
+			multi: true,
+		},
+	],
+	hostDirectives: []
 })
-export class TabularFieldComponent<T> {
-  public readonly optionSource = input.required<Record<string, Option[]>>();
-  // public readonly data = input<T[]>([]);
-  // public readonly tableDefinition =
-  //   input.required<Record<string, TableDefinition<T>>>();
-  // public readonly loadingData = input<boolean>();
-  // public readonly enableCreationActions = input<boolean>();
-  // public readonly maxRows = input<number>();
-  // public readonly title = input<string>();
-  // protected readonly _headers = computed(() =>
-  //   Object.keys(this._columnSchemas()),
-  // );
-  // protected readonly _data = signal<
-  //   Record<string, ParsedValue | ParsedValue[]>[]
-  // >([]);
-  // protected readonly _disabled = signal(false);
-  // protected readonly _editingRows = signal<number[]>([]);
-  // protected readonly _pendingUpdates = signal<
-  //   [number, Record<string, ParsedValue | ParsedValue[]>, boolean][]
-  // >([]);
-  // protected readonly _committedData = signal<
-  //   Record<string, ParsedValue | ParsedValue[]>[]
-  // >([]);
-  // protected readonly _hasPendingUpdates = derivedFrom(
-  //   [this._pendingUpdates, this._editingRows],
-  //   pipe(
-  //     map(
-  //       ([pending, rows]) =>
-  //         pending.length > 0 ||
-  //         pending.some(([_, __, isNew]) => isNew) ||
-  //         rows.length > 0,
-  //     ),
-  //   ),
-  // );
-  // protected updateValue(row: number, key: string, value: any) {
-  //   const schema = this._columnSchemas()[key];
-  //   const parsedValue = parseValue(schema, value);
-  //   this._pendingUpdates.update((data) => {
-  //     // Find existing update for this row
-  //     const existingUpdateIndex = data.findIndex(
-  //       ([rowIndex]) => rowIndex === row,
-  //     );
-  //     if (existingUpdateIndex !== -1) {
-  //       // Update existing pending update
-  //       data[existingUpdateIndex][1][key] = parsedValue;
-  //     } else {
-  //       // Create new pending update
-  //       data.push([row, { [key]: parsedValue }, false]);
-  //     }
-  //     return [...data];
-  //   });
-  // }
-  // protected cancelEditingRow(index: number) {
-  //   // Find the pending update for this row
-  //   const pendingUpdateIndex = this._pendingUpdates().findIndex(
-  //     ([rowIndex]) => rowIndex === index,
-  //   );
-  //   if (pendingUpdateIndex !== -1) {
-  //     const entry = this._pendingUpdates()[pendingUpdateIndex];
-  //     // If this was a new row (marked with true), remove it from the data
-  //     if (entry[2]) {
-  //       this._data.update((data) => {
-  //         const newData = data.filter((_, i) => i !== index);
-  //         // Update editing rows for rows that come after the removed row
-  //         this._editingRows.update((editingRows) =>
-  //           editingRows
-  //             .filter((i) => i !== index)
-  //             .map((i) => (i > index ? i - 1 : i)),
-  //         );
-  //         // Update pending updates for rows that come after the removed row
-  //         this._pendingUpdates.update((pendingUpdates) =>
-  //           pendingUpdates
-  //             .filter(([i]) => i !== index)
-  //             .map(([i, updates, isNew]) => [
-  //               i > index ? i - 1 : i,
-  //               updates,
-  //               isNew,
-  //             ]),
-  //         );
-  //         return newData;
-  //       });
-  //     } else {
-  //       // Just remove from pending updates and editing rows for existing rows
-  //       this._pendingUpdates.update((data) =>
-  //         data.filter((_, i) => i !== pendingUpdateIndex),
-  //       );
-  //       this._editingRows.update((arr) => arr.filter((x) => x !== index));
-  //     }
-  //   } else {
-  //     // No pending update, just remove from editing rows
-  //     this._editingRows.update((arr) => arr.filter((x) => x !== index));
-  //   }
-  // }
-  // protected commitEdit(index: number) {
-  //   const pendingUpdates = this._pendingUpdates();
-  //   const updateForRow = pendingUpdates.find(
-  //     ([rowIndex]) => rowIndex === index,
-  //   );
-  //   if (updateForRow) {
-  //     this._data.update((data) => {
-  //       const [rowIndex, updates, isNew] = updateForRow;
-  //       if (isNew) {
-  //         // For new rows, we already have the empty object, just update it
-  //         Object.assign(data[rowIndex], updates);
-  //       } else {
-  //         // For existing rows, merge the updates
-  //         data[rowIndex] = { ...data[rowIndex], ...updates };
-  //       }
-  //       return [...data];
-  //     });
-  //     // Update committed data with the changes
-  //     this._committedData.update((committedData) => {
-  //       const newCommittedData = [...committedData];
-  //       if (index >= newCommittedData.length) {
-  //         // If this is beyond current committed data length, extend the array
-  //         while (newCommittedData.length <= index) {
-  //           newCommittedData.push({});
-  //         }
-  //       }
-  //       const [rowIndex, updates, isNew] = updateForRow;
-  //       newCommittedData[rowIndex] = {
-  //         ...newCommittedData[rowIndex],
-  //         ...updates,
-  //       };
-  //       return newCommittedData;
-  //     });
-  //     // Send only the committed data via callback
-  //     this.changeCallback?.(this._committedData());
-  //   }
-  //   this._editingRows.update((arr) => arr.filter((x) => x !== index));
-  //   this._pendingUpdates.update((data) =>
-  //     data.filter(([rowIndex]) => rowIndex !== index),
-  //   );
-  // }
-  // protected startEditingRow(index: number) {
-  //   this._editingRows.update((arr) => {
-  //     return [...new Set([...arr, index])];
-  //   });
-  // }
-  // protected commitAllChanges() {
-  //   const pendingUpdates = this._pendingUpdates();
-  //   if (pendingUpdates.length === 0) {
-  //     return; // No changes to commit
-  //   }
-  //   this._data.update((data) => {
-  //     // Apply all pending updates to the data
-  //     pendingUpdates.forEach(([rowIndex, updates, isNew]) => {
-  //       if (rowIndex < data.length) {
-  //         if (isNew) {
-  //           // For new rows, merge the updates
-  //           data[rowIndex] = { ...data[rowIndex], ...updates };
-  //         } else {
-  //           // For existing rows, merge the updates
-  //           data[rowIndex] = { ...data[rowIndex], ...updates };
-  //         }
-  //       }
-  //     });
-  //     return [...data];
-  //   });
-  //   // Update committed data with all changes
-  //   this._committedData.update((committedData) => {
-  //     const newCommittedData = [...committedData];
-  //     pendingUpdates.forEach(([rowIndex, updates, isNew]) => {
-  //       // Ensure the array is long enough
-  //       if (rowIndex >= newCommittedData.length) {
-  //         while (newCommittedData.length <= rowIndex) {
-  //           newCommittedData.push({});
-  //         }
-  //       }
-  //       newCommittedData[rowIndex] = {
-  //         ...newCommittedData[rowIndex],
-  //         ...updates,
-  //       };
-  //     });
-  //     return newCommittedData;
-  //   });
-  //   // Clear all pending updates and editing states
-  //   this._pendingUpdates.set([]);
-  //   this._editingRows.set([]);
-  //   // Send the updated committed data via callback
-  //   this.changeCallback?.(this._committedData());
-  //   this.touchCallback?.();
-  // }
-  // protected discardAllChanges() {
-  //   const pendingUpdates = this._pendingUpdates();
-  //   if (pendingUpdates.length === 0) {
-  //     return; // No changes to discard
-  //   }
-  //   // Filter out new rows that haven't been committed yet
-  //   const newRows = pendingUpdates.filter(([_, __, isNew]) => isNew);
-  //   if (newRows.length > 0) {
-  //     // Remove all new rows from the data
-  //     this._data.update((data) => {
-  //       const rowsToRemove = newRows
-  //         .map(([rowIndex]) => rowIndex)
-  //         .sort((a, b) => b - a); // Sort descending for safe removal
-  //       let newData = [...data];
-  //       rowsToRemove.forEach((rowIndex) => {
-  //         newData = newData.filter((_, i) => i !== rowIndex);
-  //       });
-  //       return newData;
-  //     });
-  //   }
-  //   // Clear all pending updates and editing states
-  //   this._pendingUpdates.set([]);
-  //   this._editingRows.set([]);
-  //   // Notify parent of current committed state (no changes)
-  //   this.changeCallback?.(this._committedData());
-  //   this.touchCallback?.();
-  // }
-  // writeValue(obj: any): void {
-  //   const newData = [...(obj ?? [])];
-  //   this._data.set(newData);
-  //   this._committedData.set(newData); // Initialize committed data with the same values
-  // }
-  // registerOnChange(fn: any): void {
-  //   this.changeCallback = fn;
-  // }
-  // registerOnTouched(fn: any): void {
-  //   this.touchCallback = fn;
-  // }
-  // setDisabledState?(isDisabled: boolean): void {
-  //   this._disabled.set(isDisabled);
-  // }
-  // protected addRow() {
-  //   const index = this._data().length;
-  //   this._editingRows.update((arr) => [...new Set([...arr, index])]);
-  //   this._pendingUpdates.update((list) => [...list, [index, {}, true]]);
-  //   this._data.update((data) => [...data, {}]);
-  // }
-  // protected removeRow(index: number) {
-  //   this._data.update((data) => {
-  //     const newData = data.filter((_, i) => i !== index);
-  //     // Update editing rows for rows that come after the removed row
-  //     this._editingRows.update(
-  //       (editingRows) =>
-  //         editingRows
-  //           .filter((i) => i !== index) // Remove the deleted row
-  //           .map((i) => (i > index ? i - 1 : i)), // Adjust indices for rows after the removed one
-  //     );
-  //     // Update pending updates for rows that come after the removed row
-  //     this._pendingUpdates.update(
-  //       (pendingUpdates) =>
-  //         pendingUpdates
-  //           .filter(([i]) => i !== index) // Remove the deleted row's updates
-  //           .map(([i, updates, isNew]) => [
-  //             i > index ? i - 1 : i,
-  //             updates,
-  //             isNew,
-  //           ]), // Adjust indices
-  //     );
-  //     // Update committed data as well
-  //     this._committedData.update((committedData) => {
-  //       const newCommittedData = committedData.filter((_, i) => i !== index);
-  //       return newCommittedData;
-  //     });
-  //     return newData;
-  //   });
-  //   // Notify parent of the change
-  //   this.changeCallback?.(this._committedData());
-  //   this.touchCallback?.();
-  // }
-  // protected findOption(group: string, value: any) {
-  //   return this.optionSource()[group]?.find((o) => o.value == value);
-  // }
+export class TabularFieldComponent<T = Record<string, ParsedValue | ParsedValue[]>> implements ControlValueAccessor {
+	public readonly loadingData = input<boolean>();
+	public readonly optionSource = input.required<Record<string, Option[]>>();
+	public readonly schema = input.required<TabularFieldSchema>();
+	public readonly actions = input<RowAction<T>[]>();
+	public readonly enableSelection = input<boolean>();
+	public readonly enableMutation = input<boolean>();
+	public readonly maxRows = input<number>();
+	public readonly changed = output<T[]>();
+	public readonly deltaChange = output<DeltaChangeEvent<T[]>>();
+	public readonly actionTriggered = output<ActionTriggeredEvent<T>>();
+
+	protected readonly editing = signal<boolean>(false);
+	protected readonly title = computed(() => `${ this.schema().key }.title`)
+	protected readonly shouldShowActionsCol = computed(() => {
+		const mutationEnabled = this.enableMutation();
+		const customActions = this.actions();
+		return mutationEnabled || (customActions && customActions.length > 0);
+	})
+	protected readonly trackedChanges = signal<TrackedChanges>({});
+	protected readonly changesTracked = computed(() => !isEmpty(this.trackedChanges()))
+	protected readonly data = model<T[]>([]);
+	protected readonly rowSelection = signal<RowSelectionState>({});
+	private readonly columnVisibility = linkedSignal<VisibilityState>(() => {
+		const schema = this.schema();
+		const v = { selection: this.enableSelection() ?? false, actions: this.shouldShowActionsCol() } as VisibilityState;
+		values(schema.columns)
+			.filter(c => c.visible === false)
+			.forEach(c => v[c.key] = false);
+		return v;
+	});
+	protected readonly disabled = signal<boolean>(false);
+	protected readonly tableDefinition = computed(() => {
+		const cols = this.columnDefinitions();
+		const schema = this.schema();
+		return createAngularTable<T>(() => ({
+			getCoreRowModel: getCoreRowModel(),
+			data: this.data(),
+			columns: cols,
+			state: {
+				rowSelection: this.rowSelection(),
+				columnVisibility: this.columnVisibility()
+			},
+			enableRowSelection: this.enableSelection(),
+			onRowSelectionChange: updaterOrValue => {
+				this.rowSelection.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.rowSelection()) : updaterOrValue);
+			},
+			onColumnVisibilityChange: updaterOrValue => {
+				this.columnVisibility.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.columnVisibility()) : updaterOrValue)
+			},
+			getRowId: (row) => {
+				const k = flattenKey(schema.identifierColumn);
+				return `${ k }${ separator }${ (row as any)[k] }`;
+			},
+			defaultColumn: {
+				maxSize: 250,
+			},
+			meta: {
+				deleteRow: (index) => {
+					this.data.update(old => old.filter((_, i) => i != index));
+					const exportingValue = this.transformKeys(this.data(), separator, '.') as any;
+					this.changed.emit(exportingValue);
+					this.changeCallback?.(exportingValue);
+					this.deltaChange.emit({
+						changeType: 'delete',
+						path: [schema.key as string, index]
+					});
+				},
+				updateData: (rowIndex, columnId, value) => {
+					this.data.update(old =>
+						old.map((row, index) => {
+							if (index === rowIndex) {
+								return {
+									...old[rowIndex],
+									[columnId]: value,
+								}
+							}
+							return row
+						})
+					);
+					const exportingValue = this.transformKeys(this.data(), separator, '.') as any;
+					this.changeCallback?.(exportingValue);
+					this.changed.emit(exportingValue);
+					this.deltaChange.emit({
+						changeType: 'update',
+						path: [schema.key as string, rowIndex, columnId],
+						value: value as any
+					});
+				}
+			}
+		}))
+	})
+	private cols = createColumnHelper<T>();
+
+	private touchCallback?: () => void;
+	private changeCallback?: (v: T[]) => void;
+	protected readonly columnDefinitions = computed(() => {
+		const schema = this.schema();
+		const defs = values(schema.columns);
+		const actions = this.actions() ?? [];
+
+		if (this.enableMutation()) {
+			actions.push({
+				icon: 'lucideTrash2',
+				identifier: deleteIdentifier,
+			});
+		}
+		return [
+			this.cols.display({
+				id: 'selection',
+				header: () => flexRenderComponent(TableHeadSelectionComponent),
+				cell: () => flexRenderComponent(TableRowSelectionComponent),
+				enableHiding: true
+			}),
+			...defs.map(def => {
+				// noinspection JSUnusedGlobalSymbols
+				return {
+					id: def.key,
+					header: `${ def.key }.title`,
+					accessorKey: flattenKey(def.key),
+					enableHiding: def.visible === false,
+					cell: ({ table, column, row, }: CellContext<T, unknown>) =>
+						flexRenderComponent(EditableCellComponent, {
+							inputs: {
+								editing: untracked(this.editing),
+								schema: def,
+								options: untracked(this.optionSource)
+							},
+							outputs: {
+								blur: () => this.touchCallback?.(),
+								change: (v) => {
+									if (table.options.meta?.updateData) {
+										table.options.meta.updateData(row.index, column.id, v);
+									}
+								}
+							}
+						}),
+				};
+			}),
+			this.cols.display({
+				enableHiding: true,
+				id: 'actions',
+				cell: ({ table }) => {
+					return flexRenderComponent(ActionCell<T>, {
+						inputs: {
+							actions
+						},
+						outputs: {
+							actionTriggered: ({ index, identifier }) => {
+								if (identifier === deleteIdentifier) {
+									table.options.meta?.deleteRow(index);
+								}
+							}
+						}
+					})
+				}
+			})
+		];
+	});
+
+	constructor() {
+		effect(() => {
+			const mutationEnabled = this.enableMutation();
+			if (!mutationEnabled) {
+				untracked(() => {
+					this.editing.set(false);
+				})
+			}
+		})
+	}
+
+	writeValue(obj: any): void {
+		const transformedValue = obj.map((row: any) => entries(row).reduce((acc, [k, v]) => {
+			acc[flattenKey(k as FieldKey)] = v as ParsedValue | ParsedValue[];
+			return acc;
+		}, {} as Record<string, ParsedValue | ParsedValue[]>));
+		this.data.set(transformedValue);
+	}
+
+	protected addRow() {
+		this.touchCallback?.();
+	}
+
+	registerOnChange(fn: any): void {
+		this.changeCallback = fn;
+	}
+
+	registerOnTouched(fn: any): void {
+		this.touchCallback = fn;
+	}
+
+	setDisabledState?(isDisabled: boolean): void {
+		this.disabled.set(isDisabled);
+	}
+
+	private transformKeys(data: any[], target: string, replacement: string = separator) {
+		return data.map((row: any) => entries(row).reduce((acc, [k, v]) => {
+			acc[k.replaceAll(target, replacement)] = v as ParsedValue | ParsedValue[];
+			return acc;
+		}, {} as Record<string, ParsedValue | ParsedValue[]>));
+	}
 }

@@ -64,10 +64,11 @@ export class ElectronFormService implements FormService {
 		return await sendRpcMessageAsync('suggestions:read', { field, query, resultSize: 10, form });
 	}
 
-	async findSubmissionData({ form, index }: FindSubmissionDataRequest) {
+	async findSubmissionData({ form, index, version }: FindSubmissionDataRequest) {
 		return await sendRpcMessageAsync('submission-data:read', {
 			form,
-			index
+			index,
+			version
 		}).then(FindSubmissionDataResponseSchema.parse);
 	}
 

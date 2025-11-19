@@ -3,7 +3,7 @@ import {
 	cscIdSeqInCivilio,
 	cscIndexSeqInCivilio,
 	cscPersonnelIndexSeqInCivilio,
-	fieldMappings, formTypes,
+	fieldMappings,
 	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
@@ -18,7 +18,8 @@ import {
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponseSchema,
 	FindSubmissionCurrentVersionRequest,
-	FindSubmissionCurrentVersionResponseSchema, FindSubmissionDataRequest,
+	FindSubmissionCurrentVersionResponseSchema,
+	FindSubmissionDataRequest,
 	FindSubmissionDataResponseSchema,
 	FindSubmissionRefRequest,
 	FindSubmissionVersionsRequest,
@@ -27,12 +28,12 @@ import {
 	FormSubmissionUpdateRequest,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
-	GetAutoCompletionSuggestionsResponseSchema, InitializeSubmissionVersionRequest,
+	GetAutoCompletionSuggestionsResponseSchema,
+	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponseSchema,
 	Option,
 	OptionSchema,
 	RemoveFieldMappingRequest,
-	UnwrapArray,
 	UpdateSubmissionSubFormDataRequest,
 } from "@civilio/shared";
 import { and, countDistinct, eq, like, or, sql } from "drizzle-orm";
@@ -363,7 +364,6 @@ export async function findAutocompleteSuggestions({
 
 export async function findFormData({ form, index, version }: FindSubmissionDataRequest) {
 	const db = provideDatabase({ fieldMappings });
-
 	const queryResult = await db.execute(sql`
 		SELECT
 		revisions.get_version_data(${form}::civilio.form_types, ${index}, ${version ?? null}) AS "data";

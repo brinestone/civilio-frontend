@@ -19,20 +19,14 @@ function createStore() {
 }
 
 export function getStoreValue(path: AppConfigPaths) {
-  console.time('store::read');
-  console.debug('reading value in store at: ' + path);
   try {
     const store = assertStore();
     return (store as any).get(path);
   } finally {
-    console.timeEnd('store::read');
   }
 }
 
 export function storeValue(path: AppConfigPaths, value: unknown) {
-  console.time('store::write');
-  console.debug('storing value in store at: ' + path);
   const store = assertStore();
   (store as any).set(path, value);
-  console.timeEnd('store::read');
 }

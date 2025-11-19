@@ -1,315 +1,93 @@
-<!-- <table hlmTable class="caption-top">
-  <caption hlmCaption class="py-1 m-0 px-2 sticky top-0 backdrop-blur-md">
-    <div class="flex items-center m-0 justify-between">
-      <p class="text-lg font-semibold">{{ title() }}</p>
-      @if (enableCreationActions()) {
-        <div class="flex items-center gap-3">
-          @if (_hasPendingUpdates()) {
-            <button type="button"
-              (click)="commitAllChanges()"
-              hlmBtn
-              variant="outline"
-              size="sm"
-            >
-              <ng-icon name="lucideCheckCheck" />
-            </button>
-            <button type="button"
-              (click)="discardAllChanges()"
-              hlmBtn
-              variant="outline"
-              size="sm"
-            >
-              <ng-icon name="lucideX" />
-            </button>
-          }
-          <button type="button"
-            [disabled]="
-              maxRows() === undefined
-                ? false
-                : $any(maxRows()) <= _data().length
-            "
-            size="sm"
-            variant="outline"
-            (click)="addRow()"
-            hlmBtn
-            [title]="'tmpl.table.actions.add_new.description' | translate"
-          >
-            <ng-icon name="lucidePlus" />
-            <span>{{ "tmpl.table.actions.add_new.title" | translate }}</span>
-          </button>
-        </div>
-      }
-    </div>
-  </caption>
-  <thead hlmTHead class="sticky top-[29.25px] backdrop-blur-md">
-    <tr hlmTr>
-      @for (header of _headers(); track header) {
-        <th hlmTh>{{ header + ".title" | translate }}</th>
-      }
-      <th hlmTh></th>
-    </tr>
-  </thead>
-  <tbody hlmTBody>
-    @for (row of _data(); track $index; let rowIndex = $index) {
-      <tr hlmTr class="group">
-        @for (key of _headers(); track $index) {
-          <td hlmTd>
-            <ng-container
-              [ngTemplateOutlet]="cellTemplate"
-              [ngTemplateOutletContext]="{
-                $implicit: row[key],
-                schema: _columnSchemas()[key],
-                options:
-                  optionSource()[$any(_columnSchemas()[key]).optionGroupKey],
-                index: rowIndex,
-              }"
-            />
-          </td>
-        }
-        <td class="text-sm" hlmTd>
-          <div
-            [ngClass]="{
-              'opacity-100': _editingRows().includes($index),
-              'opacity-0 group-hover:opacity-100':
-                !_editingRows().includes($index),
-            }"
-            class="flex justify-center gap-2 items-center"
-          >
-            @if (_editingRows().includes($index)) {
-              <button type="button"
-                hlmBtn
-                size="sm"
-                variant="ghost"
-                (click)="commitEdit($index)"
-              >
-                <ng-icon name="lucideCheck" />
-              </button>
-              <button type="button"
-                hlmBtn
-                size="sm"
-                variant="ghost"
-                (click)="cancelEditingRow($index)"
-              >
-                <ng-icon name="lucideX" />
-              </button>
-            } @else {
-              <button type="button"
-                (click)="startEditingRow($index)"
-                hlmBtn
-                size="sm"
-                variant="ghost"
-              >
-                <ng-icon name="lucidePencil" />
-              </button>
-              <button type="button"
-                (click)="removeRow($index)"
-                size="sm"
-                variant="ghost"
-                hlmBtn
-              >
-                <ng-icon name="lucideTrash2" />
-              </button>
-            }
-          </div>
-        </td>
-      </tr>
-    } @empty {
-      <tr hlmTr>
-        <td hlmTd class="text-center" [colSpan]="_headers().length + 1">
-          {{
-            (loadingData() ? "loading.txt" : "tmpl.table.no_data") | translate
-          }}
-        </td>
-      </tr>
-    }
-  </tbody>
-</table>
-
-<ng-template
-  #cellTemplate
-  let-value
-  let-schema="schema"
-  let-options="options"
-  let-index="index"
->
-  @switch (schema.type) {
-    @case ("text") {
-      <ng-container
-        [ngTemplateOutlet]="textCellTemplate"
-        [ngTemplateOutletContext]="{
-          $implicit: value,
-          editing: _editingRows().includes(index) && (schema.editable ?? true),
-          id: schema.key + '_' + index,
-          index,
-          key: schema.key,
-        }"
-      />
-    }
-    @case ("number") {
-      <ng-container
-        [ngTemplateOutlet]="numberCellTemplate"
-        [ngTemplateOutletContext]="{
-          $implicit: value,
-          min: schema.min,
-          max: schema.max,
-          editing: _editingRows().includes(index) && (schema.editable ?? true),
-          id: schema.key + '_' + index,
-          index,
-          key: schema.key,
-        }"
-      />
-    }
-    @case ("single-selection") {
-      <ng-container
-        [ngTemplateOutlet]="selectionCellTemplate"
-        [ngTemplateOutletContext]="{
-          $implicit: value,
-          editing: _editingRows().includes(index) && (schema.editable ?? true),
-          options: options,
-          multiple: false,
-          id: schema.key + '_' + index,
-          group: schema.optionGroupKey,
-          index,
-          key: schema.key,
-        }"
-      />
-    }
-    @case ("multi-selection") {
-      <ng-container
-        [ngTemplateOutlet]="selectionCellTemplate"
-        [ngTemplateOutletContext]="{
-          $implicit: value,
-          editing: _editingRows().includes(index) && (schema.editable ?? true),
-          options: options,
-          multiple: true,
-          id: schema.key + '_' + index,
-          group: schema.optionGroupKey,
-          index,
-          key: schema.key,
-        }"
-      />
-    }
-    @case ("boolean") {
-      <ng-container
-        [ngTemplateOutlet]="booleanCellTemplate"
-        [ngTemplateOutletContext]="{
-          $implicit: value,
-          editing: _editingRows().includes(index) && (schema.editable ?? true),
-          index,
-          key: schema.key,
-        }"
-      />
-    }
-  }
-</ng-template>
-
-<ng-template
-  #numberCellTemplate
-  let-min="min"
-  let-max="max"
-  let-editing="editing"
-  let-value
-  let-index="index"
-  let-key="key"
->
-  @if (!editing) {
-    {{ value | number: "1.0-3" }}
-  } @else {
-    <input
-      hlmInput
-      [value]="value"
-      [min]="min"
-      type="number"
-      [max]="max"
-      (change)="updateValue(index, key, $any($event.target)?.value)"
-      (blur)="touchCallback?.()"
-      (focus)="touchCallback?.()"
-    />
-  }
-</ng-template>
-
-<ng-template
-  #booleanCellTemplate
-  let-editing="editing"
-  let-value
-  let-index="index"
-  let-key="key"
->
-  <hlm-checkbox
-    [disabled]="!editing"
-    [checked]="value"
-    (focus)="touchCallback?.()"
-    (checkedChange)="updateValue(index, key, $event); touchCallback?.()"
-  />
-</ng-template>
-
-<ng-template
-  #textCellTemplate
-  let-editing="editing"
-  let-value
-  let-id="id"
-  let-index="index"
-  let-key="key"
->
-  @if (!editing) {
-    {{ value }}
-  } @else {
-    <input
-      hlmInput
-      [value]="value ?? ''"
-      (change)="updateValue(index, key, $any($event.target)?.value)"
-      (focus)="touchCallback?.()"
-    />
-  }
-</ng-template>
-
-<ng-template
-  #selectionCellTemplate
-  let-editing="editing"
-  let-value
-  let-options="options"
-  let-multiple="multiple"
-  let-id="id"
-  let-group="group"
-  let-index="index"
-  let-key="key"
->
-  @if (editing) {
-    <brn-select
-      hlm
-      [id]="id"
-      class="w-full"
-      [value]="value"
-      [multiple]="multiple"
-      (valueChange)="updateValue(index, key, $event)"
-      (openChange)="touchCallback?.()"
-      (focus)="touchCallback?.()"
-    >
-      <hlm-select-trigger class="w-full">
-        <hlm-select-value />
-      </hlm-select-trigger>
-      <hlm-select-content class="w-full max-h-96">
-        @for (option of options; track $index) {
-          <hlm-option [value]="option.value">
-            <ng-container
-              [ngTemplateOutlet]="optionTemplate"
-              [ngTemplateOutletContext]="{ value, option }"
-            />
-          </hlm-option>
-        }
-      </hlm-select-content>
-    </brn-select>
-  } @else {
-    @let selectedOption = findOption(group, value);
-    @if (selectedOption) {
-      <ng-container
-        [ngTemplateOutlet]="optionTemplate"
-        [ngTemplateOutletContext]="{ value, option: selectedOption }"
-      />
-    }
-  }
-</ng-template>
-
-<ng-template #optionTemplate let-value="value" let-option="option">
-  {{ option.i18nKey ? (option.i18nKey | translate) : option.label }}
-</ng-template> -->
+<!--<form [formGroup]="form">-->
+<div hlmTableContainer>
+	<table class="caption-top" hlmTable>
+		<caption class="py-1 h-[35px] m-0 px-2 sticky top-0 backdrop-blur-md" hlmCaption>
+			<div class="flex items-center m-0 justify-between">
+				<p class="text-lg font-semibold">
+					{{ title() | translate }}
+				</p>
+				@if (enableMutation()) {
+					<div class="flex items-center gap-3">
+						@if (editing()) {
+							<button
+								type="button"
+								[disabled]="
+							maxRows() === undefined ? false : $any(maxRows()) <= data().length
+						"
+								size="icon"
+								variant="outline"
+								(click)="addRow()"
+								hlmBtn
+								[title]="'tmpl.table.actions.add_new.description' | translate"
+							>
+								<ng-icon name="lucidePlus"/>
+								<!--								<span>{{  }}</span>-->
+							</button>
+							@if (changesTracked()) {
+								<button [disabled]="!changesTracked()" [title]="'forms.header.actions.discard' | translate"
+												hlmBtn size="icon" type="button" variant="destructive">
+									<ng-icon name="lucideTrash2"/>
+									<!--									<span>{{  }}</span>-->
+								</button>
+							} @else {
+								<button (click)="editing.set(false)" [title]="'tmpl.table.actions.cancel' | translate" hlmBtn
+												size="icon"
+												type="button" variant="outline">
+									<ng-icon name="lucideX"/>
+									<!--									<span>{{  }}</span>-->
+								</button>
+							}
+						} @else {
+							<button (click)="editing.set(true)" hlmBtn size="sm" type="button" variant="outline">
+								<ng-icon name="lucidePencil"/>
+								<span>{{ 'tmpl.table.actions.enable_mutation.title' | translate }}</span>
+							</button>
+						}
+					</div>
+				}
+			</div>
+		</caption>
+		<thead class="sticky top-[35px] backdrop-blur-md" hlmTHead>
+			@for (hg of tableDefinition().getHeaderGroups(); track hg.id) {
+				<tr hlmTr>
+					@for (header of hg.headers; track header.id) {
+						<th [attr.colspan]="header.colSpan" hlmTh>
+							@if (!header.isPlaceholder) {
+								<ng-container
+									*flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
+									<span>{{ headerText | translate }}</span>
+								</ng-container>
+							}
+						</th>
+					}
+				</tr>
+			}
+		</thead>
+		<tbody hlmTBody>
+			@for (row of tableDefinition().getRowModel().rows; track row.id) {
+				<!--suppress HtmlUnknownAttribute -->
+				<tr [attr.data-state]="row.getIsSelected() && 'selected'" [attr.key]="row.id" hlmTr>
+					@for (cell of row.getVisibleCells(); track $index) {
+						<td class="overflow-x-hidden" hlmTd>
+							<div *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cell"
+									 class="max-w-full [{{cell.column.columnDef.maxSize}}px]">
+								{{ cell }}
+							</div>
+						</td>
+					}
+				</tr>
+			} @empty {
+				<tr hlmTr>
+					<td
+						[attr.colspan]="columnDefinitions().length"
+						class="h-24 text-center"
+						hlmTd
+					>
+						{{ "tmpl.table.no_data" | translate }}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+<!--</form>-->

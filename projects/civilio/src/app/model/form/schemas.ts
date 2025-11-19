@@ -94,10 +94,11 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 });
 
 export const BaseColumnDefinition = z.object({
+	visible: z.literal(false).optional(),
 	key: FieldKeySchema,
 	draggable: z.boolean().optional(),
 	width: z.int().optional(),
-	editable: z.boolean().optional(),
+	editable: z.literal(false).optional(),
 	default: z.any().optional(),
 	relevance: RelevanceDefinitionSchema.optional()
 });
@@ -183,6 +184,7 @@ export const FormModelDefinitionSchema = z.object({
 // });
 
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
+export type TabularFieldSchema = z.output<typeof TabularFieldDefinitionSchema>;
 export type FormSchema = z.output<typeof FormModelDefinitionSchema>;
 export type SectionSchema = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;

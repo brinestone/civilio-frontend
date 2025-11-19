@@ -1,4 +1,4 @@
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import {
 	Component,
 	computed,
@@ -8,14 +8,13 @@ import {
 	input,
 	model,
 	OnInit,
-	output,
 	resource,
 	signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SetFormType } from '@app/store/form';
-import { currentLocale, lastFocusedFormType } from '@app/store/selectors';
-import { debounceSignal, maskString } from '@app/util';
+import { lastFocusedFormType } from '@app/store/selectors';
+import { debounceSignal } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCopy, lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
@@ -36,8 +35,10 @@ import {
 	getCoreRowModel
 } from '@tanstack/angular-table';
 import { ElectronFormService } from '@app/services/electron/form.service';
-import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
+import { MaskPipe } from '@app/pipes';
 import { toast } from 'ngx-sonner';
+import { DateCell } from '@app/components/tabular-field/date-cell.component';
+import { ActionCell } from '@app/components/tabular-field/cells';
 
 @Component({
 	selector: 'cv-version-cell',
@@ -71,7 +72,7 @@ export class VersionCell {
 
 	protected async onCopyVersionButtonClicked() {
 		await navigator.clipboard.writeText(this.version() as string);
-		toast.info(this.ts.instant('msg.clipboard_copied_text', {value: 'Version'}));
+		toast.info(this.ts.instant('msg.clipboard_copied_text', { value: 'Version' }));
 	}
 }
 
@@ -89,59 +90,6 @@ export class VersionCell {
 export class BadgeCell {
 	readonly variant = input<BadgeVariants['variant']>();
 	readonly text = input.required<string>();
-	readonly shouldTranslateText = input<boolean>();
-
-	protected readonly _static = computed(() => !this.shouldTranslateText());
-}
-
-@Component({
-	selector: 'cv-date-cell',
-	imports: [DatePipe, AgoDatePipePipe],
-	template: `
-		<span [title]="date() | date:'dd/MM/yyyy HH:mm'">{{ date() | ago_date:actualLocale() }}</span>
-	`,
-})
-export class DateCell {
-	readonly date = input<Date>();
-	readonly locale = select(currentLocale);
-	protected readonly actualLocale = computed(() => {
-		return (this.locale().startsWith('en') ? 'en-CM' : 'fr-CM').slice(0, 2);
-	})
-}
-
-type Action = {
-	label?: string;
-	icon?: string;
-	id: string;
-}
-
-@Component({
-	selector: 'cv-actions-cell',
-	imports: [HlmButton, NgIcon, TranslatePipe],
-	template: `
-		@if ((actions() ?? []).length > 0) {
-			@for (action of actions(); track action.id) {
-				<button (click)="actionTriggered.emit(action.id)" hlmBtn variant="ghost"
-								[size]="!action.label && action.icon ? 'icon' : 'default'">
-					@if (action.icon) {
-						<ng-icon [name]="action.icon"/>
-					}
-					@if (action.label) {
-						<span>{{ _static() ? action.label : (action.label | translate) }} </span>
-					}
-				</button>
-			}
-		}
-	`,
-	styles: `
-		:host {
-			@apply inline-flex justify-start items-center;
-		}
-	`
-})
-export class ButtonCell {
-	readonly actions = input<Action[]>();
-	readonly actionTriggered = output<string>();
 	readonly shouldTranslateText = input<boolean>();
 
 	protected readonly _static = computed(() => !this.shouldTranslateText());
@@ -259,16 +207,16 @@ export class SubmissionsPage implements OnInit {
 			id: 'actions',
 			header: () => '',
 			cell: ({ row }) => {
-				return flexRenderComponent(ButtonCell, {
+				return flexRenderComponent(ActionCell, {
 					inputs: {
 						shouldTranslateText: true,
 						actions: [
-							{ id: 'open', icon: 'lucidePencil', label: 'misc.actions.modify' }
+							{ identifier: 'open', icon: 'lucidePencil', label: 'misc.actions.modify' }
 						]
 					},
 					outputs: {
-						actionTriggered: (value) => {
-							if (value == 'open') {
+						actionTriggered: ({ identifier }) => {
+							if (identifier == 'open') {
 								this.openSubmission(row.original.index, row.original.currentVersion);
 							}
 						},
