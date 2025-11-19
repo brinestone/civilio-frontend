@@ -1,18 +1,42 @@
 import { NgClass, NgTemplateOutlet, SlicePipe } from "@angular/common";
-import { Component, computed, effect, inject, OnDestroy, OnInit, resource, signal, untracked } from "@angular/core";
+import {
+	Component,
+	computed,
+	effect,
+	inject,
+	OnDestroy,
+	OnInit,
+	resource,
+	signal,
+	untracked
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
-import { FormFooterComponent, FormHeaderComponent } from "@app/components/form";
-import { flattenSections, FormSchema, HasPendingChanges, } from "@app/model/form";
+import {
+	ActivatedRoute,
+	RouterLink,
+	RouterLinkActive,
+	RouterOutlet
+} from "@angular/router";
+import {
+	FormFooterComponent,
+	FormHeaderComponent
+} from "@app/components/form";
+import {
+	flattenSections,
+	FormSchema,
+	HasPendingChanges,
+} from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import { UpdateMiscConfig } from "@app/store/config";
 import {
 	ActivateForm,
 	DeactivateForm,
+	DiscardChanges,
 	InitVersioning,
 	LoadOptions,
 	LoadSubmissionData,
 	Redo,
+	SaveChanges,
 	SubmissionIndexChanged,
 	Undo,
 	UpdateMappings,
@@ -27,7 +51,11 @@ import {
 	sectionValidity,
 	undoAvailable
 } from "@app/store/selectors";
-import { FindSubmissionVersionsRequestSchema, FindSubmissionVersionsResponse, FormType } from "@civilio/shared";
+import {
+	FindSubmissionVersionsRequestSchema,
+	FindSubmissionVersionsResponse,
+	FormType
+} from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideCircleAlert,
@@ -37,22 +65,43 @@ import {
 	lucideSave,
 	lucideTrash2
 } from "@ng-icons/lucide";
-import { TranslatePipe } from "@ngx-translate/core";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
-import { Actions, dispatch, ofActionCompleted, ofActionDispatched, ofActionSuccessful, select } from "@ngxs/store";
+import {
+	Actions,
+	dispatch,
+	ofActionCompleted,
+	ofActionDispatched,
+	ofActionSuccessful,
+	select
+} from "@ngxs/store";
 import { HlmBadge } from "@spartan-ng/helm/badge";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
 import { find, intersection } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
 import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from "ngxtension/inject-route-data";
-import { concatMap, filter, map, merge, Observable, pipe, skipWhile } from "rxjs";
+import {
+	concatMap,
+	filter,
+	map,
+	merge,
+	Observable,
+	pipe,
+	skipWhile
+} from "rxjs";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { FormsModule } from '@angular/forms';
+import { toast } from 'ngx-sonner';
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -85,11 +134,15 @@ const miscConfigKeys = {
 		HlmSelectImports,
 		BrnSelectImports,
 		MaskPipe,
+		FormsModule,
 		HlmSeparatorImports,
 		AgoDatePipePipe,
 		SlicePipe,
 		HlmSkeletonImports,
-		HlmButton
+		HlmButton,
+		HlmAlertDialogImports,
+		BrnAlertDialogImports,
+		HlmTextarea
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -98,6 +151,26 @@ const miscConfigKeys = {
 export class FormPage
 	implements HasPendingChanges, OnInit, OnDestroy {
 
+	protected pendingChangesActionCallback?: (options: {
+		type: 'close' | 'save' | 'discard',
+		close: () => void
+	}) => void;
+	protected selectedVersion = resource({
+		defaultValue: null,
+		params: () => ({
+			form: this.formType(),
+			index: this.submissionIndex()
+		}),
+		loader: async ({ params: { index, form } }) => {
+			if (index === null) return null;
+			const v = await this.formService.findCurrentSubmissionVersion({
+				index,
+				form,
+			});
+			return v?.version ?? null;
+		}
+	});
+	protected readonly changeNotes = signal<string>('');
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
 	private readonly route = inject(ActivatedRoute);
@@ -111,7 +184,7 @@ export class FormPage
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
 	private initialized = false;
 	private loadingData = false;
-
+	protected readonly changeNotesValid = computed(() => this.changeNotes().trim().length > 0);
 	protected readonly undo = dispatch(Undo);
 	protected readonly redo = dispatch(Redo);
 	protected readonly canUndo = select(undoAvailable);
@@ -119,18 +192,33 @@ export class FormPage
 	protected hasUnsavedChanges = select(changesPending);
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
-	protected selectedVersion = resource({
-		defaultValue: null,
-		params: () => ({ form: this.formType(), index: this.submissionIndex() }),
-		loader: async ({ params: { index, form } }) => {
+	protected readonly versions = resource({
+		defaultValue: [],
+		params: () => ({
+			index: this.submissionIndex(),
+			form: this.formType()
+		}),
+		loader: async ({ params: { form, index } }) => {
+			if (index == null) return [] as FindSubmissionVersionsResponse;
+			return await this.formService.findSubmissionVersions(FindSubmissionVersionsRequestSchema.parse({
+				form, index: index, limit: 50
+			}));
+		},
+	});
+	protected readonly neighboringRefs = resource({
+		params: () => ({
+			index: this.submissionIndex(),
+			form: this.formType()
+		}),
+		loader: async ({ params: { form, index } }) => {
 			if (index === null) return null;
-			const v = await this.formService.findCurrentSubmissionVersion({
-				index,
+			return await this.formService.findSurroundingSubmissionRefs(
 				form,
-			});
-			return v?.version ?? null;
-		}
-	})
+				Number(index),
+			);
+		},
+	});
+	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed')
 	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
 	protected relevanceRegistry = select(relevanceRegistry);
@@ -142,32 +230,15 @@ export class FormPage
 	));
 	protected sectionValidity = select(sectionValidity);
 	protected formType = computed(() => this.routeData()["form"] as FormType);
-	protected readonly versions = resource({
-		defaultValue: [],
-		params: () => ({ index: this.submissionIndex(), form: this.formType() }),
-		loader: async ({ params: { form, index } }) => {
-			if (index == null) return [] as FindSubmissionVersionsResponse;
-			return await this.formService.findSubmissionVersions(FindSubmissionVersionsRequestSchema.parse({
-				form, index: index, limit: 50
-			}));
-		},
-	});
+	private readonly ts = inject(TranslateService);
 	protected readonly isSelectedVersionCurrent = computed(() => {
 		const versions = this.versions.value();
 		const selectedVersion = this.selectedVersion.value();
 		const currentVersion = versions.find(v => v.is_current);
 		return currentVersion ? currentVersion.version == selectedVersion : false;
 	})
-	protected readonly neighboringRefs = resource({
-		params: () => ({ index: this.submissionIndex(), form: this.formType() }),
-		loader: async ({ params: { form, index } }) => {
-			if (index === null) return null;
-			return await this.formService.findSurroundingSubmissionRefs(
-				form,
-				Number(index),
-			);
-		},
-	});
+	private readonly saveChanges = dispatch(SaveChanges);
+	private readonly discardChanges = dispatch(DiscardChanges);
 
 	constructor(actions$: Actions) {
 		effect(() => {
@@ -205,9 +276,13 @@ export class FormPage
 			ofActionSuccessful(UpdateRelevance),
 			filter(() => !this.relevanceRegistry()[this.activeSection()]),
 		).subscribe(() => {
-			this.navigate(['..', this.submissionIndex(), this.formModel().sections[0].id], undefined, {
-				relativeTo: this.route
-			});
+			this.navigate([
+					'..',
+					this.submissionIndex(),
+					this.formModel().sections[0].id],
+				undefined, {
+					relativeTo: this.route
+				});
 		});
 
 		actions$.pipe(
@@ -243,8 +318,47 @@ export class FormPage
 	}
 
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
-		return false;
+		if (!this.hasUnsavedChanges()) return false;
+		this.pendingChangesDialogState.set('open');
+		return new Observable<boolean>(observer => {
+			this.pendingChangesActionCallback = ({ type, close }) => {
+				observer.add(() => {
+					close();
+					this.pendingChangesActionCallback = undefined;
+				});
+				if (type == 'close') {
+					observer.next(true);
+					observer.complete();
+				} else if (type == 'discard') {
+					this.discardChanges().subscribe({
+						error: (e: Error) => {
+							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
+							observer.next(true);
+							observer.complete();
+						},
+						complete: () => {
+							observer.next(false);
+							observer.complete();
+						}
+					})
+				} else {
+					this.saveChanges(this.changeNotes()).subscribe({
+						error: (e: Error) => {
+							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
+							observer.next(true);
+							observer.complete();
+						},
+						complete: () => {
+							toast.success(this.ts.instant('msg.changes_saved.title'), { description: this.ts.instant('msg.changes_saved.description') })
+							observer.next(false);
+							observer.complete();
+						}
+					})
+				}
+			};
+		});
 	}
+
 
 	ngOnDestroy(): void {
 		this.deactivate(this.formType());
@@ -296,8 +410,11 @@ export class FormPage
 		const section = this.activeSection();
 		this.navigate(["..", index, section ? section : this.formModel().sections[0].id], undefined, {
 			relativeTo: this.route,
-		}).subscribe(() => {
-			this.reloadDataOnly();
+		}).subscribe({
+			complete: () => {
+				if (!this.hasPendingChanges())
+					this.reloadDataOnly();
+			}
 		});
 	}
 
@@ -306,8 +423,11 @@ export class FormPage
 		const section = this.activeSection();
 		this.navigate(["..", index, section ? section : this.formModel().sections[0].id], undefined, {
 			relativeTo: this.route,
-		}).subscribe(() => {
-			this.reloadDataOnly();
+		}).subscribe({
+			complete: () => {
+				if (!this.hasPendingChanges())
+					this.reloadDataOnly();
+			}
 		});
 	}
 
