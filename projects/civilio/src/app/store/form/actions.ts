@@ -10,6 +10,17 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class SaveChanges {
+	static type = `${ prefix } save  changes`;
+
+	constructor(readonly changeNotes: string) {
+	}
+}
+
+export class DiscardChanges {
+	static type = `${ prefix } discard changes`;
+}
+
 export class Undo {
 	static type = `${ prefix } undo`;
 

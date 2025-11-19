@@ -8,8 +8,9 @@ misc:
     discard: Discard changes
     copy_version: Copy version hash
     save_and_exit: Save changes and leave
-    stay: Stay here
+    stay: Keep editing
   placeholder:
+    change_notes: Change Notes
     jump_to_index: Jump to index
     filter_submissions: Filter submissions...
   row:
@@ -879,7 +880,7 @@ filter:
 and: and
 msg:
   error:
-    title: "An error occured"
+    title: "An error occurred"
   restart_notice: System-wide configuration updated. The application needs to be restarted to apply the changes.
   discard_msg:
     txt: Are you sure you want to discard the changes you've made?

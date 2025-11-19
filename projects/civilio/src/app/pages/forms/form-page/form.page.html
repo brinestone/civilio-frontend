@@ -166,3 +166,33 @@
 		</ng-container>
 	}
 </ng-template>
+
+<hlm-alert-dialog (stateChanged)="pendingChangesDialogState.set($event)" [state]="pendingChangesDialogState()">
+	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>{{ 'misc.dialogs.pending_changes.title' | translate }}</h2>
+			<p hlmAlertDialogDescription>{{ 'misc.dialogs.pending_changes.description' | translate }}</p>
+		</hlm-alert-dialog-header>
+		<div>
+			<ng-container [ngTemplateOutlet]="changeNotesTemplate"/>
+		</div>
+		<hlm-alert-dialog-footer>
+			<button (click)="pendingChangesActionCallback?.({type: 'close', close: ctx.close})" class="cursor-pointer"
+							hlmAlertDialogCancel>{{ 'misc.actions.stay' | translate }}
+			</button>
+			<button (click)="pendingChangesActionCallback?.({type: 'save', close: ctx.close})"
+							[disabled]="!changeNotesValid()" class="cursor-pointer"
+							hlmAlertDialogAction>{{ 'misc.actions.save_and_exit' | translate }}
+			</button>
+			<button (click)="pendingChangesActionCallback?.({type: 'discard', close: ctx.close})" class="cursor-pointer"
+							hlmAlertDialogAction
+							variant="destructive">{{ 'misc.actions.discard' | translate }}
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<ng-template #changeNotesTemplate>
+	<textarea [(ngModel)]="changeNotes" hlmTextarea placeholder="{{'misc.placeholder.change_notes' | translate}} *"
+						rows="10"></textarea>
+</ng-template>

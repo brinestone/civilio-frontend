@@ -9,8 +9,9 @@ misc:
     discard: Ignorer les modifications
     copy_version: Copier le hachage de la version
     save_and_exit: Enregistrez les modifications et quittez
-    stay: Reste ici
+    stay: Continuer à éditer
   placeholder:
+    change_notes: Notes de modification
     jump_to_index: Aller à l'index
     filter_submissions: Filtrer les soumissions...
   row:
