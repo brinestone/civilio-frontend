@@ -1,8 +1,14 @@
 import { ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { GeoPoint, GeopointSchema, Option } from '@civilio/shared';
+import { GeoPoint, GeoPointSchema, Option } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
 import z from 'zod';
-import { ColumnDefinition, DefinitionLike, FieldSchema, FormSchema, SectionSchema } from '../schemas';
+import {
+	ColumnDefinition,
+	DefinitionLike,
+	FieldSchema,
+	FormSchema,
+	SectionSchema
+} from '../schemas';
 import { isEmpty, isObjectLike } from 'lodash';
 
 export * from './chiefdom';
@@ -51,7 +57,10 @@ export function extractRawValidators(schema: FieldSchema) {
 				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
 				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
 				const maxDate = toDate(schema.max as string | number);
-				return isBefore(toDate(rawDate), maxDate) ? null : { msg: 'validation.msg.max_date', maxDate };
+				return isBefore(toDate(rawDate), maxDate) ? null : {
+					msg: 'validation.msg.max_date',
+					maxDate
+				};
 			})
 		}
 
@@ -61,7 +70,10 @@ export function extractRawValidators(schema: FieldSchema) {
 				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
 				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
 				const minDate = toDate(schema.max as string | number);
-				return isAfter(toDate(rawDate), minDate) ? null : { msg: 'validation.msg.min_date', maxDate: minDate };
+				return isAfter(toDate(rawDate), minDate) ? null : {
+					msg: 'validation.msg.min_date',
+					maxDate: minDate
+				};
 			})
 		}
 	}
@@ -78,7 +90,10 @@ export function extractRawValidators(schema: FieldSchema) {
 			const min = schema.min;
 			validators.push(v => {
 				if (!truthinessSchema.parse(v)) return null;
-				return z.number().safeParse(v).success && Number(v) >= min ? null : { msg: 'validation.msg.min', min };
+				return z.number().safeParse(v).success && Number(v) >= min ? null : {
+					msg: 'validation.msg.min',
+					min
+				};
 			})
 		}
 
@@ -86,7 +101,10 @@ export function extractRawValidators(schema: FieldSchema) {
 			const max = schema.max;
 			validators.push(v => {
 				if (!truthinessSchema.parse(v)) return null;
-				return z.number().safeParse(v).success && Number(v) <= max ? null : { msg: 'validation.msg.max', max };
+				return z.number().safeParse(v).success && Number(v) <= max ? null : {
+					msg: 'validation.msg.max',
+					max
+				};
 			});
 		}
 	}
@@ -135,7 +153,10 @@ export function extractValidators(schema: FieldSchema) {
 		if (schema.max) {
 			validators.push(c => {
 				if (!c.value) return null;
-				const { success, data: rawDate } = dateValidationSchema.safeParse(c.value);
+				const {
+					success,
+					data: rawDate
+				} = dateValidationSchema.safeParse(c.value);
 				if (!success) {
 					return { invalidDate: 'Invalid date value' };
 				}
@@ -149,7 +170,10 @@ export function extractValidators(schema: FieldSchema) {
 			validators.push(c => {
 				if (!c.value) return null;
 
-				const { success, data: rawDate } = dateValidationSchema.safeParse(c.value);
+				const {
+					success,
+					data: rawDate
+				} = dateValidationSchema.safeParse(c.value);
 				if (!success) {
 					return { date: 'Invalid date value' };
 				}
@@ -214,6 +238,15 @@ export function extractAllFields(schema: FormSchema) {
 	return list;
 }
 
+export function extractFieldsAsMap(formSchema: FormSchema) {
+	return extractAllFields(formSchema)
+		.reduce((acc, schema) => {
+			const k = extractFieldKey(schema.key);
+			acc[k] = schema;
+			return acc;
+		}, {} as Record<string, FieldSchema>);
+}
+
 export function extractFields(section: SectionSchema) {
 	const result = [...section.fields];
 	if (section.children) {
@@ -236,7 +269,7 @@ export function defaultValueForType(type: DefinitionLike['type']) {
 		case 'multi-selection':
 			return Array<Option>()
 		case 'point':
-			return GeopointSchema.parse({})
+			return GeoPointSchema.parse({})
 		case 'text':
 			return '';
 		default:
@@ -264,7 +297,7 @@ export function serializeValue(definition: DefinitionLike, value: any): any {
 			return z.iso.date().nullable().parse(value);
 		}
 		case 'point':
-			return `${value.lat} ${value.long}`;
+			return `${ value.lat } ${ value.long }`;
 		default:
 			return String(value);
 	}
@@ -303,9 +336,9 @@ export function parseValue(definition: DefinitionLike, raw: RawValue | null): Pa
 		case 'multi-selection':
 			return raw?.split(' ') ?? []
 		case "point": {
-			if (!raw) return GeopointSchema.parse({});
+			if (!raw) return GeoPointSchema.parse({});
 			const [lat, long] = raw?.split(' ', 2) ?? [];
-			return GeopointSchema.parse({ lat, long });
+			return GeoPointSchema.parse({ lat, long });
 		}
 		case 'text': {
 			if (!raw) return defaultValueForType('text') as string;

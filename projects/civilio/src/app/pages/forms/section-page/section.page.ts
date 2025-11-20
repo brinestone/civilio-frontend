@@ -1,14 +1,33 @@
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, untracked } from "@angular/core";
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	computed,
+	inject,
+	untracked
+} from "@angular/core";
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, FormRecord, ReactiveFormsModule, UntypedFormControl } from "@angular/forms";
+import {
+	AbstractControl,
+	FormRecord,
+	ReactiveFormsModule,
+	UntypedFormControl
+} from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FieldComponent } from "@app/components/form";
-import { extractFieldKey, extractValidators, FieldSchema, flattenSections, FormSchema } from "@app/model/form";
+import {
+	extractFieldKey,
+	extractValidators,
+	FieldSchema,
+	flattenSections,
+	FormSchema
+} from "@app/model/form";
 import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
 import {
 	ActivateSection,
+	DiscardChanges,
 	LoadSubmissionData,
 	RecordDeltaChange,
 	Redo,
@@ -18,11 +37,25 @@ import {
 	UpdateRelevance,
 	UpdateSection
 } from "@app/store/form";
-import { activeSections, optionsSelector, relevanceRegistry } from "@app/store/selectors";
+import {
+	activeSections,
+	optionsSelector,
+	relevanceRegistry
+} from "@app/store/selectors";
 import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { TranslatePipe } from "@ngx-translate/core";
-import { Actions, dispatch, ofActionDispatched, ofActionSuccessful, select, Store } from "@ngxs/store";
-import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher, } from "@spartan-ng/brain/forms";
+import {
+	Actions,
+	dispatch,
+	ofActionDispatched,
+	ofActionSuccessful,
+	select,
+	Store
+} from "@ngxs/store";
+import {
+	ErrorStateMatcher,
+	ShowOnDirtyErrorStateMatcher,
+} from "@spartan-ng/brain/forms";
 import { debounce, entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
@@ -74,7 +107,17 @@ export class SectionPage {
 	protected readonly sectionData = computed(() => this.formData()[this.sectionKey()!].model);
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 
+	protected readonly onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), 500);
+
 	constructor(actions$: Actions, route: ActivatedRoute) {
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(DiscardChanges),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues(true);
+		});
+
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(Undo, Redo),
@@ -147,8 +190,6 @@ export class SectionPage {
 			this.refreshFieldValues();
 		});
 	}
-
-	protected onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), 500);
 	protected readonly onDeltaChange = debounce(this.deltaChangeHandler.bind(this), 500);
 
 	private markControlAsPristine(control: AbstractControl) {
@@ -226,7 +267,10 @@ export class SectionPage {
 	}
 
 	private deltaChangeHandler(event: DeltaChangeEvent<any>) {
-		this.store.dispatch(new RecordDeltaChange({ ...event, path: [this.sectionKey()!, ...event.path] }));
+		this.store.dispatch(new RecordDeltaChange({
+			...event,
+			path: [this.sectionKey()!, ...event.path]
+		}));
 	}
 
 	private fieldChangeHandler(field: FieldKey, update: any) {

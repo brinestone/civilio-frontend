@@ -7,16 +7,25 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideNgIconLoader } from '@ng-icons/core';
-import { provideMissingTranslationHandler, provideTranslateService } from '@ngx-translate/core';
+import {
+	provideMissingTranslationHandler,
+	provideTranslateService
+} from '@ngx-translate/core';
 import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
-import { MissingTranslationHandlerImpl, provideTranslationLoader } from './adapters/ngx-translate';
+import {
+	MissingTranslationHandlerImpl,
+	provideTranslationLoader
+} from './adapters/ngx-translate';
 import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
 import { ConfigState } from './store/config';
+import { isDesktop } from '@app/util';
+import { usingElectron } from '@app/services/electron';
+import { usingWeb } from '@app/services/web';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -25,7 +34,7 @@ export const appConfig: ApplicationConfig = {
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),
-		provideDomainForms(),
+		provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
 		provideStore([ConfigState],
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
@@ -34,7 +43,7 @@ export const appConfig: ApplicationConfig = {
 			}),
 		),
 		provideNgIconLoader(async name => {
-			return await fetch(`/${name}.svg`).then(r => r.text());
+			return await fetch(`/${ name }.svg`).then(r => r.text());
 		}),
 		provideNotifications(),
 		provideTranslateService({
