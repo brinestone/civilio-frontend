@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
 	FieldKey,
@@ -7,9 +8,12 @@ import {
 	FindFieldMappingsResponseSchema,
 	FindFormOptionsResponseSchema,
 	FindSubmissionCurrentVersionRequest,
-	FindSubmissionCurrentVersionResponse, FindSubmissionDataRequest,
+	FindSubmissionCurrentVersionResponse,
+	FindSubmissionDataRequest,
 	FindSubmissionDataResponseSchema,
-	FindSubmissionRefResponse, FindSubmissionRefSuggestionsRequest, FindSubmissionRefSuggestionsResponse,
+	FindSubmissionRefResponse,
+	FindSubmissionRefSuggestionsRequest,
+	FindSubmissionRefSuggestionsResponse,
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
@@ -21,7 +25,6 @@ import {
 	RemoveFieldMappingResponse,
 	UpdateSubmissionSubFormDataRequest
 } from '@civilio/shared';
-import { sendRpcMessageAsync } from '@app/util';
 import { FormService } from '../form';
 
 @Injectable({

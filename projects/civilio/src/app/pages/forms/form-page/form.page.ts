@@ -1,4 +1,9 @@
-import { NgClass, NgTemplateOutlet, SlicePipe } from "@angular/common";
+import {
+	DecimalPipe,
+	NgClass,
+	NgTemplateOutlet,
+	SlicePipe
+} from "@angular/common";
 import {
 	Component,
 	computed,
@@ -49,6 +54,7 @@ import {
 	redoAvailable,
 	relevanceRegistry,
 	sectionValidity,
+	totalErrorCount,
 	undoAvailable
 } from "@app/store/selectors";
 import {
@@ -63,7 +69,8 @@ import {
 	lucidePanelBottomClose,
 	lucidePanelBottomOpen,
 	lucideSave,
-	lucideTrash2
+	lucideTrash2,
+	lucideX
 } from "@ng-icons/lucide";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { Navigate } from "@ngxs/router-plugin";
@@ -102,6 +109,7 @@ import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { FormsModule } from '@angular/forms';
 import { toast } from 'ngx-sonner';
+import { HlmAlertImports } from '@spartan-ng/helm/alert';
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -116,7 +124,8 @@ const miscConfigKeys = {
 			lucidePanelBottomClose,
 			lucideSave,
 			lucideTrash2,
-			lucideHistory
+			lucideHistory,
+			lucideX
 		}),
 	],
 	imports: [
@@ -142,7 +151,9 @@ const miscConfigKeys = {
 		HlmButton,
 		HlmAlertDialogImports,
 		BrnAlertDialogImports,
-		HlmTextarea
+		DecimalPipe,
+		HlmTextarea,
+		HlmAlertImports
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -170,7 +181,6 @@ export class FormPage
 			return v?.version ?? null;
 		}
 	});
-	protected readonly changeNotes = signal<string>('');
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
 	private readonly route = inject(ActivatedRoute);
@@ -184,6 +194,9 @@ export class FormPage
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
 	private initialized = false;
 	private loadingData = false;
+	protected readonly changeNotes = signal<string>('');
+	protected readonly savingChanges = signal(false);
+	protected readonly totalErrors = select(totalErrorCount);
 	protected readonly changeNotesValid = computed(() => this.changeNotes().trim().length > 0);
 	protected readonly undo = dispatch(Undo);
 	protected readonly redo = dispatch(Redo);
@@ -219,6 +232,7 @@ export class FormPage
 		},
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed')
+	protected readonly submitChangesDialogState = signal<BrnDialogState>('closed');
 	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
 	protected relevanceRegistry = select(relevanceRegistry);
@@ -330,7 +344,7 @@ export class FormPage
 					observer.next(true);
 					observer.complete();
 				} else if (type == 'discard') {
-					this.discardChanges().subscribe({
+					this.discardChanges(this.formType()).subscribe({
 						error: (e: Error) => {
 							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
 							observer.next(true);
@@ -342,7 +356,7 @@ export class FormPage
 						}
 					})
 				} else {
-					this.saveChanges(this.changeNotes()).subscribe({
+					this.saveChanges(this.formType(), this.changeNotes()).subscribe({
 						error: (e: Error) => {
 							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
 							observer.next(true);
@@ -433,5 +447,33 @@ export class FormPage
 
 	protected onBottomPanelOpenStateChanged(state: 'open' | 'closed') {
 		this.updateMisc(miscConfigKeys.bottomPanelOpenState, state);
+	}
+
+	protected onSaveChangesButtonClicked() {
+		this.submitChangesDialogState.set('open');
+	}
+
+	protected onFinishButtonClicked(callback: () => void) {
+		this.savingChanges.set(true);
+		const toastId = toast.loading(this.ts.instant('msg.saving_changes.description'));
+		this.saveChanges(this.formType(), this.changeNotes()).subscribe({
+			error: (e: Error) => {
+				this.savingChanges.set(false);
+				callback();
+				toast.dismiss(toastId);
+				toast.error(this.ts.instant('msg.error.title'), { description: e.message });
+			},
+			complete: () => {
+				this.savingChanges.set(false);
+				callback();
+				this.changeNotes.set('');
+				toast.dismiss(toastId);
+				toast.success(this.ts.instant('msg.changes_saved.title'), { description: this.ts.instant('msg.changes_saved.description') })
+			}
+		})
+	}
+
+	protected onDiscardButtonClicked() {
+		this.discardChanges(this.formType());
 	}
 }

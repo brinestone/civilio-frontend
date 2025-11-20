@@ -1,10 +1,19 @@
 misc:
   dialogs:
+    finish_update:
+      title: Finaliser les modifications
+      description: Les modifications que vous avez apportées créeront une nouvelle
+        version à partir de
+      invalid_alert:
+        title: La soumission n'est pas valide
+        description: "{{count}} champ(s) invalide(s)"
     pending_changes:
       title: Supprimer les modifications non enregistrées ?
       description: Vous avez apporté des modifications non enregistrées qui seront
         perdues si vous continuez. Etes-vous vraiment sûr ?
   actions:
+    cancel: Annuler
+    finish: Finition
     modify: Modifier
     discard: Ignorer les modifications
     copy_version: Copier le hachage de la version

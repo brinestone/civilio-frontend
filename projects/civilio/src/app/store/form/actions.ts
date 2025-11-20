@@ -13,12 +13,15 @@ const prefix = "[form]";
 export class SaveChanges {
 	static type = `${ prefix } save  changes`;
 
-	constructor(readonly changeNotes: string) {
+	constructor(readonly form: FormType, readonly changeNotes: string) {
 	}
 }
 
 export class DiscardChanges {
 	static type = `${ prefix } discard changes`;
+
+	constructor(readonly form: FormType) {
+	}
 }
 
 export class Undo {

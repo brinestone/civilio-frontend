@@ -25,15 +25,20 @@
 <div
 	class="grid grid-rows-[auto_1fr_auto] border-r border-border pt-4 pr-2 pl-4 col-start-1 col-span-1 row-start-2 row-span-2"
 >
-	<div class="space-y-2  bg-(--background)">
+	<div class="space-y-2 bg-(--background)">
 		@defer (when versions.hasValue()) {
-			<brn-select [disabled]="versions.value().length == 0" [(value)]="selectedVersion.value" class="w-full block"
-									[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate">
+			<brn-select
+				[(value)]="selectedVersion.value"
+				[disabled]="versions.value().length == 0"
+				[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate"
+				class="w-full block"
+			>
 				<hlm-select-trigger class="w-full">
 					<hlm-select-value>
 						<div class="flex items-center gap-2" *brnSelectValue="let value">
-							<span
-								class="text-muted-foreground text-xs">{{ 'form.header.version_selector.revision' | translate }}</span>
+						<span class="text-muted-foreground text-xs"
+						>{{ 'form.header.version_selector.revision' | translate }}</span
+						>
 							<span>{{ value | mask }}</span>
 						</div>
 					</hlm-select-value>
@@ -44,8 +49,11 @@
 						<hlm-option [value]="versionInfo.version">
 							<div class="space-y-2 inline-block">
 								<span class="block">{{ versionInfo.version | mask }}</span>
-								<span
-									class="text-xs text-muted-foreground block">{{ versionInfo.changed_at | ago_date:(locale()|slice:0:2) }}</span>
+								<span class="text-xs text-muted-foreground block"
+								>{{
+										versionInfo.changed_at | ago_date:(locale()|slice:0:2)
+									}}</span
+								>
 							</div>
 						</hlm-option>
 					}
@@ -55,7 +63,8 @@
 		} @loading {
 			<hlm-skeleton class="w-full block h-8"/>
 		}
-		@if (!isSelectedVersionCurrent() && versions.hasValue() && !versions.isLoading()) {
+		@if (!isSelectedVersionCurrent() && versions.hasValue() &&
+		!versions.isLoading()) {
 			<button hlmBtn class="flex w-full" variant="outline" size="sm">
 				<ng-icon name="lucideHistory"/>
 				<span>{{ 'form.header.version_revert.title' | translate }}</span>
@@ -64,7 +73,8 @@
 		<hlm-separator/>
 	</div>
 	<ul
-		class="list-none space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto h-full">
+		class="list-none space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto h-full"
+	>
 		@for (section of formModel().sections; track $index) {
 			<ng-container
 				[ngTemplateOutlet]="sectionItemTemplate"
@@ -76,11 +86,16 @@
 	</ul>
 	<div class="space-y-2 bg-(--background)/50 py-1 backdrop-blur-md">
 		@if (hasUnsavedChanges()) {
-			<button class="flex w-full" hlmBtn>
+			<button (click)="onSaveChangesButtonClicked()" class="flex w-full" hlmBtn>
 				<ng-icon name="lucideSave"/>
 				<span>{{ "forms.header.actions.save_changes" | translate }}</span>
 			</button>
-			<button class="flex w-full" hlmBtn variant="destructive">
+			<button
+				(click)="onDiscardButtonClicked()"
+				class="flex w-full"
+				hlmBtn
+				variant="destructive"
+			>
 				<ng-icon name="lucideTrash2"/>
 				<span>{{ "forms.header.actions.discard" | translate }}</span>
 			</button>
@@ -167,32 +182,112 @@
 	}
 </ng-template>
 
-<hlm-alert-dialog (stateChanged)="pendingChangesDialogState.set($event)" [state]="pendingChangesDialogState()">
+<hlm-alert-dialog
+	#d1
+	(stateChanged)="pendingChangesDialogState.set($event)"
+	[state]="pendingChangesDialogState()"
+>
 	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
 		<hlm-alert-dialog-header>
-			<h2 hlmAlertDialogTitle>{{ 'misc.dialogs.pending_changes.title' | translate }}</h2>
-			<p hlmAlertDialogDescription>{{ 'misc.dialogs.pending_changes.description' | translate }}</p>
+			<h2 hlmAlertDialogTitle>
+				{{ 'misc.dialogs.pending_changes.title' | translate }}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{ 'misc.dialogs.pending_changes.description' | translate }}
+			</p>
 		</hlm-alert-dialog-header>
 		<div>
 			<ng-container [ngTemplateOutlet]="changeNotesTemplate"/>
 		</div>
 		<hlm-alert-dialog-footer>
-			<button (click)="pendingChangesActionCallback?.({type: 'close', close: ctx.close})" class="cursor-pointer"
-							hlmAlertDialogCancel>{{ 'misc.actions.stay' | translate }}
+			<button
+				(click)="pendingChangesActionCallback?.({type: 'close', close: ctx.close})"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+			>
+				{{ 'misc.actions.stay' | translate }}
 			</button>
-			<button (click)="pendingChangesActionCallback?.({type: 'save', close: ctx.close})"
-							[disabled]="!changeNotesValid()" class="cursor-pointer"
-							hlmAlertDialogAction>{{ 'misc.actions.save_and_exit' | translate }}
+			<button
+				(click)="pendingChangesActionCallback?.({type: 'save', close: ctx.close})"
+				[disabled]="!changeNotesValid()"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+			>
+				{{ 'misc.actions.save_and_exit' | translate }}
 			</button>
-			<button (click)="pendingChangesActionCallback?.({type: 'discard', close: ctx.close})" class="cursor-pointer"
-							hlmAlertDialogAction
-							variant="destructive">{{ 'misc.actions.discard' | translate }}
+			<button
+				(click)="pendingChangesActionCallback?.({type: 'discard', close: ctx.close})"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+				variant="destructive"
+			>
+				{{ 'misc.actions.discard' | translate }}
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog #d2 [state]="submitChangesDialogState()">
+	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="w-max">
+		<hlm-alert-dialog-header class="max-w-full">
+			<h2 hlmAlertDialogTitle>
+				{{ 'misc.dialogs.finish_update.title' | translate }}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{ 'misc.dialogs.finish_update.description' | translate }}<br/><strong
+				[title]="selectedVersion.value()"
+			>{{ selectedVersion.value() | mask }}</strong
+			>
+			</p>
+		</hlm-alert-dialog-header>
+		<div class="w-full">
+			<ng-container [ngTemplateOutlet]="changeNotesTemplate"/>
+		</div>
+		<hlm-alert-dialog-footer>
+			<button
+				(click)="onFinishButtonClicked(ctx.close)"
+				[disabled]="!changeNotesValid()"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+			>
+				<ng-icon name="lucideSave"/>
+				<span>{{ 'misc.actions.finish' | translate }}</span>
+			</button>
+			<button
+				(click)="ctx.close(); submitChangesDialogState.set('closed'); changeNotes.set('')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+				variant="destructive"
+			>
+				<ng-icon name="lucideX"/>
+				<span>{{ 'misc.actions.cancel' | translate }}</span>
 			</button>
 		</hlm-alert-dialog-footer>
 	</hlm-alert-dialog-content>
 </hlm-alert-dialog>
 
 <ng-template #changeNotesTemplate>
-	<textarea [(ngModel)]="changeNotes" hlmTextarea placeholder="{{'misc.placeholder.change_notes' | translate}} *"
-						rows="10"></textarea>
+	<div class="space-y-3 max-w-100">
+		@if (totalErrors() > 0) {
+			<div hlmAlert variant="destructive">
+				<ng-icon hlmAlertIcon name="lucideCircleAlert"/>
+				<h4 hlmAlertTitle>
+					{{ 'misc.dialogs.finish_update.invalid_alert.title' | translate }}
+				</h4>
+				<p hlmAlertDescription>
+					{{
+						'misc.dialogs.finish_update.invalid_alert.description' |
+							translate:{count: totalErrors() | number}
+					}}
+				</p>
+			</div>
+		}
+		<textarea
+			[(ngModel)]="changeNotes"
+			class="block max-h-[100px] space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+			hlmTextarea
+			placeholder="{{'misc.placeholder.change_notes' | translate}} *"
+			rows="15"
+		></textarea>
+	</div>
 </ng-template>

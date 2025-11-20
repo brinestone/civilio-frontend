@@ -26,15 +26,30 @@ import {
 	SubmissionVersionInfo,
 	toRowMajor,
 } from "@civilio/shared";
-import { Action, provideStates, State, StateContext, StateToken, } from "@ngxs/store";
+import {
+	Action,
+	provideStates,
+	State,
+	StateContext,
+	StateToken,
+} from "@ngxs/store";
 import { insertItem, patch } from "@ngxs/store/operators";
 import { cloneDeep, entries, get, keys, last, set, values } from "lodash";
-import { concatMap, EMPTY, from, tap } from "rxjs";
+import {
+	concat,
+	concatMap,
+	EMPTY,
+	filter,
+	from,
+	switchMap,
+	tap
+} from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
 	ActivateSection,
 	DeactivateForm,
+	DiscardChanges,
 	InitVersioning,
 	LoadDbColumns,
 	LoadMappings,
@@ -43,6 +58,7 @@ import {
 	RecordDeltaChange,
 	Redo,
 	RemoveMapping,
+	SaveChanges,
 	SetFormType,
 	SubmissionIndexChanged,
 	Undo,
@@ -61,7 +77,12 @@ export type SectionForm = {
 	errors: Record<string, ValidationErrors | null>;
 };
 
-type DeltaChange = { path: string, oldValue: any, newValue: any, op: 'update' | 'delete' | 'add' };
+type DeltaChange = {
+	path: string,
+	oldValue: any,
+	newValue: any,
+	op: 'update' | 'delete' | 'add'
+};
 type FormStateModel = {
 	mappings?: Record<FormType, Record<string, FieldMapping>>;
 	options?: Record<FormType, FindFormOptionsResponse>;
@@ -142,6 +163,44 @@ function splitChangePath(path: string) {
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(SaveChanges)
+	onSaveChanges(ctx: Context, { form, changeNotes }: SaveChanges) {
+
+	}
+
+	@Action(DiscardChanges)
+	onDiscardChanges(ctx: Context, { form }: DiscardChanges) {
+		const { activeSections, rawData } = ctx.getState();
+		return concat(
+			from(entries(activeSections)).pipe(
+				filter(([_, { dirty }]) => dirty),
+				tap(([sectionKey]) => ctx.setState(patch({
+					undoStack: [],
+					redoStack: [],
+					activeSections: patch({
+						[sectionKey]: patch({
+							dirty: false
+						})
+					})
+				}))),
+				switchMap(([sectionKey, section]) => from(entries(section.model)).pipe(
+					tap(([k]) => {
+						ctx.setState(patch({
+							activeSections: patch({
+								[sectionKey]: patch({
+									model: patch({
+										[k]: rawData?.[k]
+									})
+								})
+							})
+						}))
+					}),
+				))
+			),
+			ctx.dispatch(new UpdateRelevance(form))
+		);
+	}
 
 	// NOTE: redo-ing an addition is the same as undo-ing a deletion and vice versa
 
@@ -237,9 +296,21 @@ class FormState {
 	}
 
 	@Action(RecordDeltaChange, { cancelUncompleted: true })
-	onRecordDeltaChange(ctx: Context, { event: { changeType, newValue, oldValue, path } }: RecordDeltaChange) {
+	onRecordDeltaChange(ctx: Context, {
+		event: {
+			changeType,
+			newValue,
+			oldValue,
+			path
+		}
+	}: RecordDeltaChange) {
 		ctx.setState(patch({
-			undoStack: insertItem({ path: makeChangePath(path), newValue, oldValue, op: changeType }, 0),
+			undoStack: insertItem({
+				path: makeChangePath(path),
+				newValue,
+				oldValue,
+				op: changeType
+			}, 0),
 			redoStack: []
 		}));
 	}
@@ -464,7 +535,11 @@ class FormState {
 	}
 
 	@Action(LoadSubmissionData, { cancelUncompleted: true })
-	onLoadSubmissionData(ctx: Context, { form, index, version }: LoadSubmissionData) {
+	onLoadSubmissionData(ctx: Context, {
+		form,
+		index,
+		version
+	}: LoadSubmissionData) {
 		const schema = ctx.getState().schemas[form];
 		return from(this.formService.findSubmissionData({
 			form, index: Number(index), version
@@ -483,7 +558,10 @@ class FormState {
 				for (const section of sections) {
 					if (section.fields.length == 0) continue;
 					const formData = section.fields.reduce(
-						(acc, curr) => ({ ...acc, [extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)] }),
+						(acc, curr) => ({
+							...acc,
+							[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
+						}),
 						{} as typeof parsedData,
 					);
 

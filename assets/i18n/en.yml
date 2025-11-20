@@ -1,9 +1,17 @@
 misc:
   dialogs:
+    finish_update:
+      title: Finalize changes
+      description: "The changes you've made will create a new version from"
+      invalid_alert:
+        title: Submission is invalid
+        description: "{{count}} invalid field(s)"
     pending_changes:
       title: Discard unsaved changes?
       description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
   actions:
+    cancel: Cancel
+    finish: Finish
     modify: Modify
     discard: Discard changes
     copy_version: Copy version hash
