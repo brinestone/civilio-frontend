@@ -13,7 +13,7 @@ const prefix = "[form]";
 export class SaveChanges {
 	static type = `${ prefix } save  changes`;
 
-	constructor(readonly form: FormType, readonly changeNotes: string) {
+	constructor(readonly form: FormType, readonly changeNotes: string, readonly index?: number | string) {
 	}
 }
 

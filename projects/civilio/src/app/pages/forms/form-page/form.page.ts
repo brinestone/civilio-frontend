@@ -22,10 +22,7 @@ import {
 	RouterLinkActive,
 	RouterOutlet
 } from "@angular/router";
-import {
-	FormFooterComponent,
-	FormHeaderComponent
-} from "@app/components/form";
+import { FormFooterComponent, FormHeaderComponent } from "@app/components/form";
 import {
 	flattenSections,
 	FormSchema,
@@ -66,6 +63,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideCircleAlert,
 	lucideHistory,
+	lucideLoader,
 	lucidePanelBottomClose,
 	lucidePanelBottomOpen,
 	lucideSave,
@@ -119,6 +117,7 @@ const miscConfigKeys = {
 	selector: "cv-form-page",
 	viewProviders: [
 		provideIcons({
+			lucideLoader,
 			lucideCircleAlert,
 			lucidePanelBottomOpen,
 			lucidePanelBottomClose,
@@ -170,10 +169,11 @@ export class FormPage
 		defaultValue: null,
 		params: () => ({
 			form: this.formType(),
-			index: this.submissionIndex()
+			index: this.submissionIndex(),
+			isNew: this.isNewSubmission(),
 		}),
-		loader: async ({ params: { index, form } }) => {
-			if (index === null) return null;
+		loader: async ({ params: { isNew, index, form } }) => {
+			if (isNew || index === null) return null;
 			const v = await this.formService.findCurrentSubmissionVersion({
 				index,
 				form,
@@ -205,14 +205,16 @@ export class FormPage
 	protected hasUnsavedChanges = select(changesPending);
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
+	protected isNewSubmission = computed(() => !this.submissionIndex() || this.submissionIndex() == 'new');
 	protected readonly versions = resource({
 		defaultValue: [],
 		params: () => ({
+			isNew: this.isNewSubmission(),
 			index: this.submissionIndex(),
 			form: this.formType()
 		}),
-		loader: async ({ params: { form, index } }) => {
-			if (index == null) return [] as FindSubmissionVersionsResponse;
+		loader: async ({ params: { form, index, isNew } }) => {
+			if (isNew || index == null) return [] as FindSubmissionVersionsResponse;
 			return await this.formService.findSubmissionVersions(FindSubmissionVersionsRequestSchema.parse({
 				form, index: index, limit: 50
 			}));
@@ -220,15 +222,15 @@ export class FormPage
 	});
 	protected readonly neighboringRefs = resource({
 		params: () => ({
+			isNew: this.isNewSubmission(),
 			index: this.submissionIndex(),
 			form: this.formType()
 		}),
-		loader: async ({ params: { form, index } }) => {
-			if (index === null) return null;
-			return await this.formService.findSurroundingSubmissionRefs(
-				form,
-				Number(index),
-			);
+		loader: async ({ params: { isNew, form, index } }) => {
+			if (isNew || index === null) return null;
+			return await this.formService.findSurroundingSubmissionRefs({
+				form, index
+			});
 		},
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed')
@@ -256,6 +258,10 @@ export class FormPage
 
 	constructor(actions$: Actions) {
 		effect(() => {
+			console.log(this.neighboringRefs.error()?.cause)
+		})
+		effect(() => {
+			if (this.isNewSubmission()) return;
 			const status = this.versions.status()
 			if (intersection([status], ['resolved']).length == 0 || this.versions.value().length > 0) return;
 			this.initVersioning(untracked(this.submissionIndex), untracked(this.formType)).subscribe({
@@ -274,7 +280,7 @@ export class FormPage
 		effect(() => {
 			console.debug("reloading data due to user changing version");
 			const version = this.selectedVersion.value();
-			if (this.loadingData || !version) return;
+			if (this.loadingData || !version || this.isNewSubmission()) return;
 			this.reloadDataOnly();
 		});
 
@@ -302,7 +308,8 @@ export class FormPage
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateMappings),
-			skipWhile(() => !this.initialized || !this.selectedVersion.value())
+			skipWhile(() => !this.initialized || !this.selectedVersion.value()),
+			filter(() => this.isNewSubmission())
 		).subscribe(() => {
 			this.reloadDataOnly();
 		});
@@ -338,7 +345,9 @@ export class FormPage
 			this.pendingChangesActionCallback = ({ type, close }) => {
 				observer.add(() => {
 					close();
+					this.changeNotes.set('');
 					this.pendingChangesActionCallback = undefined;
+					this.pendingChangesDialogState.set('closed');
 				});
 				if (type == 'close') {
 					observer.next(true);
@@ -356,16 +365,25 @@ export class FormPage
 						}
 					})
 				} else {
-					this.saveChanges(this.formType(), this.changeNotes()).subscribe({
+					this.savingChanges.set(true);
+					this.saveChanges(this.formType(), this.changeNotes(), this.submissionIndex() ?? undefined).subscribe({
 						error: (e: Error) => {
+							this.savingChanges.set(false);
 							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
 							observer.next(true);
 							observer.complete();
 						},
 						complete: () => {
+							this.savingChanges.set(false);
 							toast.success(this.ts.instant('msg.changes_saved.title'), { description: this.ts.instant('msg.changes_saved.description') })
 							observer.next(false);
-							observer.complete();
+							this.discardChanges(this.formType()).subscribe({
+								complete: () => {
+									this.selectedVersion.reload();
+									this.versions.reload();
+									observer.complete();
+								}
+							})
 						}
 					})
 				}
@@ -383,7 +401,7 @@ export class FormPage
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
 				map(() => this.selectedVersion.value()),
-				filter((version) => !!version),
+				filter((version) => !!version && !this.isNewSubmission()),
 				concatMap((version) =>
 					this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined),
 				),
@@ -456,19 +474,28 @@ export class FormPage
 	protected onFinishButtonClicked(callback: () => void) {
 		this.savingChanges.set(true);
 		const toastId = toast.loading(this.ts.instant('msg.saving_changes.description'));
-		this.saveChanges(this.formType(), this.changeNotes()).subscribe({
+		const index = this.submissionIndex() == 'new' ? undefined : this.submissionIndex()!;
+		this.saveChanges(this.formType(), this.changeNotes(), index).subscribe({
 			error: (e: Error) => {
 				this.savingChanges.set(false);
 				callback();
+				this.submitChangesDialogState.set('closed');
 				toast.dismiss(toastId);
 				toast.error(this.ts.instant('msg.error.title'), { description: e.message });
 			},
 			complete: () => {
 				this.savingChanges.set(false);
 				callback();
+				this.submitChangesDialogState.set('closed');
 				this.changeNotes.set('');
 				toast.dismiss(toastId);
 				toast.success(this.ts.instant('msg.changes_saved.title'), { description: this.ts.instant('msg.changes_saved.description') })
+				this.discardChanges(this.formType()).subscribe({
+					complete: () => {
+						this.selectedVersion.reload();
+						this.versions.reload();
+					}
+				})
 			}
 		})
 	}

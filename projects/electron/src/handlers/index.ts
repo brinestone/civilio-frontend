@@ -1,6 +1,18 @@
 import { reportError } from '@civilio/helpers/error';
 import { logRequest, logResponse } from '@civilio/helpers/logger';
-import { AppErrorBase, Channel, ChannelArg, channelArgs, computeReplyChannel, ExecutionError, PushEvent, RpcBaseSchema, RpcInputHeaders, rpcMessageSchema } from '@civilio/shared';
+import {
+	AppErrorBase,
+	Channel,
+	ChannelArg,
+	channelArgs,
+	ChannelResponse,
+	computeReplyChannel,
+	ExecutionError,
+	PushEvent,
+	RpcBaseSchema,
+	RpcInputHeaders,
+	rpcMessageSchema
+} from '@civilio/shared';
 import { randomBytes } from 'crypto';
 import { ipcMain, ipcRenderer } from 'electron';
 import { isPromise } from 'util/types';
@@ -33,7 +45,7 @@ export async function createPushHandler<TEvent extends PushEvent>(ev: TEvent, ev
 	}
 }
 
-export function createChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => unknown) {
+export function createChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
 	console.time(channel);
 	const replyChannel = computeReplyChannel(channel);
 	ipcMain.on(channel, async (event, eventData) => {

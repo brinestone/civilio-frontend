@@ -15,8 +15,7 @@ import {
 	getAppConfig,
 	getResourceUrl,
 	initializeSubmissionVersioning,
-	processChangeRequest,
-	processSubFormChangeRequest,
+	processSubmissionDataUpdate,
 	removeFieldMapping,
 	updateFieldMappings,
 	updateLocale,
@@ -43,12 +42,9 @@ export function registerProductionIpcHandlers() {
 	});
 	createChannelHandler('field-mapping:clear', async arg => {
 		return await removeFieldMapping(arg);
-	})
-	createChannelHandler('submission-sub-data:update', async arg => {
-		return await processSubFormChangeRequest(arg);
-	})
+	});
 	createChannelHandler('submission-data:update', async arg => {
-		return await processChangeRequest(arg);
+		return await processSubmissionDataUpdate(arg);
 	})
 	createChannelHandler('resource:read', (name) => {
 		return getResourceUrl(name);
@@ -86,7 +82,12 @@ export function registerProductionIpcHandlers() {
 	createChannelHandler('config:read', () => {
 		return getAppConfig();
 	});
-	createChannelHandler('submissions:read', async ({ form, page, size, filter }) => {
+	createChannelHandler('submissions:read', async ({
+																										form,
+																										page,
+																										size,
+																										filter
+																									}) => {
 		return await findFormSubmissions(form, page, size, filter);
 	});
 	createChannelHandler('config:update', ({ path, value }) => {

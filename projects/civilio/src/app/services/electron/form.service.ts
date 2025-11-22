@@ -1,31 +1,33 @@
-import { Injectable } from '@angular/core';
+import { Injectable, makeEnvironmentProviders, Provider } from '@angular/core';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponseSchema,
+	FindFieldMappingsRequest,
 	FindFieldMappingsResponseSchema,
 	FindFormOptionsResponseSchema,
+	FindIndexSuggestionsRequest, FindIndexSuggestionsResponse,
 	FindSubmissionCurrentVersionRequest,
 	FindSubmissionCurrentVersionResponse,
 	FindSubmissionDataRequest,
-	FindSubmissionDataResponseSchema,
+	FindSubmissionDataResponseSchema, FindSubmissionRefRequest,
 	FindSubmissionRefResponse,
 	FindSubmissionRefSuggestionsRequest,
 	FindSubmissionRefSuggestionsResponse,
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
-	FormSubmissionUpdateRequest,
 	FormType,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
-	UpdateSubmissionSubFormDataRequest
+	UpdateSubmissionRequest,
+	UpdateSubmissionResponse
 } from '@civilio/shared';
-import { FormService } from '../form';
+import { FORM_SERVICE_IMPL, FormService } from '../form';
 
 @Injectable({
 	providedIn: null
@@ -47,27 +49,28 @@ export class ElectronFormService implements FormService {
 		return await sendRpcMessageAsync('field-mapping:clear', req);
 	}
 
-	async updateSubFormSubmissionFormData(arg: UpdateSubmissionSubFormDataRequest) {
-		return await sendRpcMessageAsync('submission-sub-data:update', arg);
-	}
-
-	async updateSubmissionFormData(arg: FormSubmissionUpdateRequest) {
-		return await sendRpcMessageAsync('submission-data:update', arg);
-	}
-
-	async findIndexSuggestions(req: FindSubmissionRefSuggestionsRequest): Promise<FindSubmissionRefSuggestionsResponse> {
+	async findIndexSuggestions(req: FindIndexSuggestionsRequest): Promise<FindIndexSuggestionsResponse> {
 		return await sendRpcMessageAsync('index-suggestions:read', req);
 	}
 
-	async findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse> {
-		return await sendRpcMessageAsync('submission-ref:read', { form, index });
+	async findSurroundingSubmissionRefs(req: FindSubmissionRefRequest): Promise<FindSubmissionRefResponse> {
+		return await sendRpcMessageAsync('submission-ref:read', req);
 	}
 
 	async findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string) {
-		return await sendRpcMessageAsync('suggestions:read', { field, query, resultSize: 10, form });
+		return await sendRpcMessageAsync('suggestions:read', {
+			field,
+			query,
+			resultSize: 10,
+			form
+		});
 	}
 
-	async findSubmissionData({ form, index, version }: FindSubmissionDataRequest) {
+	async findSubmissionData({
+														 form,
+														 index,
+														 version
+													 }: FindSubmissionDataRequest) {
 		return await sendRpcMessageAsync('submission-data:read', {
 			form,
 			index,
@@ -90,10 +93,9 @@ export class ElectronFormService implements FormService {
 		return await sendRpcMessageAsync('options:read', { form }).then(FindFormOptionsResponseSchema.parse);
 	}
 
-	async findFieldMappings(form: FormType) {
-		return await sendRpcMessageAsync('field-mappings:read', {
-			form
-		}).then(FindFieldMappingsResponseSchema.parse);
+	async findFieldMappings(req: FindFieldMappingsRequest) {
+		return await sendRpcMessageAsync('field-mappings:read', req)
+			.then(FindFieldMappingsResponseSchema.parse);
 
 	}
 
@@ -103,4 +105,17 @@ export class ElectronFormService implements FormService {
 			form, page, size, filter: filterQuery
 		}).then(resultSchema.parse);
 	}
+
+	async updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse> {
+		return sendRpcMessageAsync('submission-data:update', req);
+	}
+}
+
+export function usingElectron() {
+	return makeEnvironmentProviders([
+		ElectronFormService,
+		{
+			provide: FORM_SERVICE_IMPL,
+			useExisting: ElectronFormService
+		}]);
 }

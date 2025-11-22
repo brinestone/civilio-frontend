@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+export const SubmissionChangeDeltaSchema = z.object({
+	op: z.enum(['add', 'update', 'delete']),
+	field: z.string().optional(),
+	index: z.union([z.string(), z.number()]).optional(),
+	value: z.any().optional(),
+	identifierKey: z.string().optional(),
+})
 const VersionChangeOpSchema = z.union([
 	z.literal("INSERT"),
 	z.literal("UPDATE"),
@@ -79,14 +86,14 @@ export const AppConfigSchema = z.object({
 	misc: z.record(z.string(), z.unknown()).optional()
 }).default({});
 
-export const GeopointSchema = z.object({
+export const GeoPointSchema = z.object({
 	lat: z.coerce.number().min(-90).max(90).default(5.483401),
 	long: z.coerce.number().max(180).min(-180).default(47.88104)
 })
 
 export type AppPrefs = z.infer<typeof AppPrefsSchema>;
 export type FieldMapping = z.infer<typeof FieldMappingSchema>;
-export type GeoPoint = z.infer<typeof GeopointSchema>;
+export type GeoPoint = z.infer<typeof GeoPointSchema>;
 export type FormType = z.infer<typeof FormTypeSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 export type FormSubmission = z.infer<typeof FormSubmissionSchema>;
@@ -96,21 +103,21 @@ export type Locale = z.infer<typeof LocaleSchema>;
 export type DbConfig = z.infer<typeof DbConfigSchema>;
 export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
 type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
-type DropInitDot<T> = T extends `.${infer U}` ? U : T;
+type DropInitDot<T> = T extends `.${ infer U }` ? U : T;
 type _DeepKeys<T> = T extends object ? (
 	{
 		[K in (string | number) & keyof T]:
-		`${(
-			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
-			)}${"" | _DeepKeys<FixArr<T[K]>>}`
+		`${ (
+			`.${ K }` | (`${ K }` extends `${ number }` ? `[${ K }]` : never)
+			) }${ "" | _DeepKeys<FixArr<T[K]>> }`
 	}[
 		(string | number) & keyof T]
 	) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
-export type Paginated<T extends z.ZodType> = {
+export type Paginated<T> = {
 	totalRecords: number;
-	data: z.infer<T>[];
+	data: T extends z.ZodType ? z.output<T>[] : T[];
 }
 
 type IsObject<T> = T extends object
@@ -119,14 +126,6 @@ type IsObject<T> = T extends object
 		: true
 	: false;
 
-export type DeepLeafKeys<T> = T extends object
-	? {
-		[K in keyof T]-?: K extends string | number
-			? IsObject<T[K]> extends true
-				? `${K}.${DeepLeafKeys<T[K]>}`
-				: `${K}`
-			: never;
-	}[keyof T]
-	: never;
-export type Nullable<T> = T | null;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
+export type SubmissionChangeDelta = z.output<typeof SubmissionChangeDeltaSchema>;
+export type SubmissionChangeDeltaInput = z.input<typeof SubmissionChangeDeltaSchema>;

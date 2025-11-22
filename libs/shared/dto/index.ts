@@ -6,11 +6,19 @@ import {
 	FieldMappingSchema, FormSubmissionSchema,
 	FormTypeSchema,
 	LocaleSchema,
-	OptionSchema,
+	OptionSchema, SubmissionChangeDeltaSchema,
 	SubmissionVersionInfoSchema,
 	ThemeSchema
 } from "../schema";
 
+export const UpdateSubmissionResponseSchema = z.void();
+export const UpdateSubmissionRequestSchema = z.object({
+	deltas: SubmissionChangeDeltaSchema.array(),
+	form: FormTypeSchema,
+	changeNotes: z.string(),
+	parentVersion: z.string().nullable().optional(),
+	submissionIndex: z.coerce.number().optional()
+});
 export const SubmissionRefSchema = FormSubmissionSchema.pick({
 	facilityName: true,
 	index: true
@@ -29,121 +37,62 @@ export const FindSubmissionCurrentVersionResponseSchema = SubmissionVersionInfoS
 export const FindSubmissionCurrentVersionRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.coerce.number()
-})
+});
 export const FindSubmissionVersionsResponseSchema = SubmissionVersionInfoSchema.array();
 export const FindSubmissionVersionsRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.coerce.number(),
 	changeOffset: z.date().optional(),
 	limit: z.number().optional().default(50),
-})
-
+});
 export const UpdateLocaleRequestSchema = z.object({
 	locale: LocaleSchema
-})
-
+});
 export const RemoveFieldMappingResponseSchema = z.boolean();
-
 export const RemoveFieldMappingRequestSchema = z.object({
 	form: FormTypeSchema,
 	field: FieldKeySchema
 });
-
 export const ChangeRequestBaseSchema = z.object({
 	form: FormTypeSchema,
 	index: z.int().optional()
 });
-
-export const DeletionChangeRequestSchema = ChangeRequestBaseSchema.extend({
-	index: z.int().array(),
-	type: z.literal('delete')
-});
-
-export const UpdateChangeRequestSchema = ChangeRequestBaseSchema.extend({
-	changes: z.record(FieldKeySchema, z.any()).optional(),
-	type: z.literal('update')
-})
-
-export const FormSubmissionUpdateRequestSchema = z.discriminatedUnion('type', [
-	DeletionChangeRequestSchema,
-	UpdateChangeRequestSchema
-])
-
 export const UpdateSubmissionFormDataResponseSchema = z.void();
-
-export const SubFormUpdateBaseSchema = z.object({
-	parentIndex: z.int(),
-	form: FormTypeSchema
-});
-
-export const DeletionSubFormUpdateChangeSchema = SubFormUpdateBaseSchema.extend({
-	indexes: z.object({ identifierKey: FieldKeySchema, index: z.int() }).array(),
-	type: z.literal('delete')
-});
-
-export const UpdateSubFormChangeSchema = SubFormUpdateBaseSchema.extend({
-	type: z.literal('update'),
-	changes: z.object({
-		identifier: z.object({
-			value: z.int().optional(),
-			fieldKey: FieldKeySchema
-		}),
-		data: z.record(z.string(), z.union([z.string(), z.string().array()]).nullable())
-	}).array()
-})
-
-export const UpdateSubmissionSubFormDataRequestSchema = z.discriminatedUnion('type', [
-	UpdateSubFormChangeSchema,
-	DeletionSubFormUpdateChangeSchema
-]);
-
-export const UpdateSubmissionSubFormDataResponseSchema = z.void();
-
 export const UpdateThemeRequestSchema = z.object({
 	theme: ThemeSchema
-})
-
+});
 export const FindIndexSuggestionsRequestSchema = z.object({
 	form: FormTypeSchema,
 	query: z.string().regex(/^\d+$/)
 });
-
 export const FindIndexSuggestionsResponseSchema = z.number().array();
-
 export const GetAutoCompletionSuggestionsRequestSchema = z.object({
 	field: FieldKeySchema,
 	query: z.string(),
 	form: FormTypeSchema,
 	resultSize: z.number()
 });
-
 export const GetAutoCompletionSuggestionsResponseSchema = z.string().array();
-
 export const FindSubmissionDataRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.number(),
 	version: z.string().optional()
 });
-
 export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
 	z.string().nullable(),
 	z.coerce.string().nullable().array()
 ])).nullable();
-
 export const FindSubmissionRefRequestSchema = z.object({
 	form: FormTypeSchema,
-	index: z.int()
+	index: z.coerce.number()
 });
-
 export const FindSubmissionRefResponseSchema = z.tuple([
 	z.int().nullable(),
 	z.int().nullable()
 ]).nullable();
-
 export const LoadTranslationRequestSchema = z.object({
 	locale: LocaleSchema
 });
-
 const strictTranslationBaseSchema = z.union([
 	z.string(),
 	z.string().array(),
@@ -161,10 +110,8 @@ const TranslationSchema = z.union([
 	StrictTranslationSchema,
 	z.any()
 ]);
-
 export const LoadTranslationResponseSchema = TranslationSchema;
 export const TestDbConnectionResponseSchema = z.union([z.literal(true), z.string()]);
-
 export const TestDbConnectionRequestSchema = z.object({
 	host: z.string(),
 	port: z.coerce.number(),
@@ -194,7 +141,6 @@ export const UpdateFieldMappingRequestSchema = z.object({
 	updates: FieldUpdateSpecSchema.array(),
 	form: FormTypeSchema
 });
-
 export const FindFieldMappingsRequestSchema = z.object({
 	form: FormTypeSchema
 });
@@ -209,7 +155,6 @@ export const FindFormSubmissionsRequestSchema = z.object({
 	size: z.number(),
 	filter: z.string().optional()
 });
-
 export type FindFieldMappingsRequest = z.input<typeof FindFieldMappingsRequestSchema>;
 export type FieldMappingRequest = z.input<typeof FieldMappingRequestSchema>;
 export type UpdateConfigRequest = z.input<typeof UpdateConfigRequestSchema>;
@@ -231,10 +176,8 @@ export type FindSubmissionRefRequest = z.input<typeof FindSubmissionRefRequestSc
 export type FindSubmissionRefResponse = z.output<typeof FindSubmissionRefResponseSchema>;
 export type FindIndexSuggestionsRequest = z.input<typeof FindIndexSuggestionsRequestSchema>;
 export type FindIndexSuggestionsResponse = z.output<typeof FindIndexSuggestionsResponseSchema>;
-export type FormSubmissionUpdateRequest = z.input<typeof FormSubmissionUpdateRequestSchema>;
-export type UpdateSubmissionFormDataResponse = z.output<typeof UpdateSubmissionFormDataResponseSchema>;
-export type UpdateSubmissionSubFormDataRequest = z.input<typeof UpdateSubmissionSubFormDataRequestSchema>;
-export type UpdateSubmissionSubFormDataResponse = z.output<typeof UpdateSubmissionSubFormDataResponseSchema>;
+export type UpdateSubmissionRequest = z.input<typeof UpdateSubmissionRequestSchema>;
+export type UpdateSubmissionResponse = z.output<typeof UpdateSubmissionResponseSchema>;
 export type RemoveFieldMappingRequest = z.input<typeof RemoveFieldMappingRequestSchema>;
 export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;
 export type FindFormSubmissionsRequest = z.input<typeof FindFormSubmissionsRequestSchema>;

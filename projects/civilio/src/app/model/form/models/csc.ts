@@ -1,6 +1,11 @@
 import { FieldKey, FormType } from "@civilio/shared";
 import { intersection, isEqual } from 'lodash';
-import { FormModelDefinitionSchema, RelevanceDefinition, RelevancePredicateSchema, SectionSchema } from "../schemas";
+import {
+	FormModelDefinitionSchema,
+	RelevanceDefinition,
+	RelevancePredicateSchema,
+	SectionSchema
+} from "../schemas";
 
 const relevanceMap = {
 	centerIsNotPrimaryOrSecondary: {
@@ -328,7 +333,9 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							},
 							avg_dist: {
 								key: 'csc.form.sections.accessibility.sections.villages.fields.avg_dist',
-								type: 'number'
+								type: 'number',
+								min: 0,
+								max: 50
 							},
 							observations: {
 								key: 'csc.form.sections.accessibility.sections.villages.fields.observations',

@@ -7,8 +7,8 @@
 				[submissionIndex]="submissionIndex()!"
 				[formType]="formType()"
 				[formSchema]="formModel()"
-				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
-				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
+				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null || isNewSubmission()"
+				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null || isNewSubmission()"
 				(redo)="redo(formType())"
 				(undo)="undo(formType())"
 				[version]="selectedVersion.value()"
@@ -187,7 +187,7 @@
 	(stateChanged)="pendingChangesDialogState.set($event)"
 	[state]="pendingChangesDialogState()"
 >
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
+	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="max-w-[500px]!">
 		<hlm-alert-dialog-header>
 			<h2 hlmAlertDialogTitle>
 				{{ 'misc.dialogs.pending_changes.title' | translate }}
@@ -201,34 +201,39 @@
 		</div>
 		<hlm-alert-dialog-footer>
 			<button
+				[disabled]="savingChanges()"
 				(click)="pendingChangesActionCallback?.({type: 'close', close: ctx.close})"
 				class="cursor-pointer"
 				hlmAlertDialogCancel
 			>
-				{{ 'misc.actions.stay' | translate }}
+				<ng-icon name="lucideX"/>
+				<span>{{ 'misc.actions.stay' | translate }}</span>
 			</button>
 			<button
 				(click)="pendingChangesActionCallback?.({type: 'save', close: ctx.close})"
-				[disabled]="!changeNotesValid()"
+				[disabled]="!changeNotesValid() || savingChanges()"
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
-				{{ 'misc.actions.save_and_exit' | translate }}
+				<ng-icon [class.animate-spin]="savingChanges()" [name]="savingChanges() ? 'lucideLoader' :'lucideSave'"/>
+				<span>{{ 'misc.actions.save_and_exit' | translate }}</span>
 			</button>
 			<button
+				[disabled]="savingChanges()"
 				(click)="pendingChangesActionCallback?.({type: 'discard', close: ctx.close})"
 				class="cursor-pointer"
 				hlmAlertDialogAction
 				variant="destructive"
 			>
-				{{ 'misc.actions.discard' | translate }}
+				<ng-icon name="lucideTrash2"/>
+				<span>{{ 'misc.actions.discard' | translate }}</span>
 			</button>
 		</hlm-alert-dialog-footer>
 	</hlm-alert-dialog-content>
 </hlm-alert-dialog>
 
 <hlm-alert-dialog #d2 [state]="submitChangesDialogState()">
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="w-max">
+	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="max-w-[500px]!">
 		<hlm-alert-dialog-header class="max-w-full">
 			<h2 hlmAlertDialogTitle>
 				{{ 'misc.dialogs.finish_update.title' | translate }}
@@ -246,14 +251,15 @@
 		<hlm-alert-dialog-footer>
 			<button
 				(click)="onFinishButtonClicked(ctx.close)"
-				[disabled]="!changeNotesValid()"
+				[disabled]="!changeNotesValid() || savingChanges()"
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
-				<ng-icon name="lucideSave"/>
+				<ng-icon [class.animate-spin]="savingChanges()" [name]="savingChanges() ? 'lucideLoader' :'lucideSave'"/>
 				<span>{{ 'misc.actions.finish' | translate }}</span>
 			</button>
 			<button
+				[disabled]="savingChanges()"
 				(click)="ctx.close(); submitChangesDialogState.set('closed'); changeNotes.set('')"
 				class="cursor-pointer"
 				hlmAlertDialogCancel
@@ -267,7 +273,7 @@
 </hlm-alert-dialog>
 
 <ng-template #changeNotesTemplate>
-	<div class="space-y-3 max-w-100">
+	<div class="space-y-3 max-w-full">
 		@if (totalErrors() > 0) {
 			<div hlmAlert variant="destructive">
 				<ng-icon hlmAlertIcon name="lucideCircleAlert"/>

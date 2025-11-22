@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs';
 import z from 'zod';
 import {
 	AppConfigResponseSchema,
@@ -9,9 +8,7 @@ import {
 	FindFieldMappingsResponseSchema,
 	FindFormOptionsRequestSchema,
 	FindFormOptionsResponseSchema,
-	FindFormSubmissionsRequestSchema,
-	FindIndexSuggestionsRequestSchema,
-	FindIndexSuggestionsResponseSchema,
+	FindFormSubmissionsRequestSchema, FindIndexSuggestionsResponseSchema,
 	FindSubmissionCurrentVersionRequestSchema,
 	FindSubmissionCurrentVersionResponseSchema,
 	FindSubmissionDataRequestSchema,
@@ -22,7 +19,6 @@ import {
 	FindSubmissionRefSuggestionsResponseSchema,
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponseSchema,
-	FormSubmissionUpdateRequestSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
 	InitializeSubmissionVersionRequestSchema,
@@ -36,12 +32,15 @@ import {
 	UpdateConfigRequestSchema,
 	UpdateFieldMappingRequestSchema,
 	UpdateLocaleRequestSchema,
-	UpdateSubmissionFormDataResponseSchema,
-	UpdateSubmissionSubFormDataRequestSchema,
-	UpdateSubmissionSubFormDataResponseSchema,
+	UpdateSubmissionRequestSchema,
+	UpdateSubmissionResponseSchema,
 	UpdateThemeRequestSchema
 } from './dto';
-import { createPaginatedResultSchema, FieldMappingSchema, FormSubmissionSchema } from './schema';
+import {
+	createPaginatedResultSchema,
+	FieldMappingSchema,
+	FormSubmissionSchema
+} from './schema';
 
 const entities = z.enum(['field-mappings', 'config', 'submissions',]);
 const crudActions = z.enum(['create', 'read', 'update', 'delete']);
@@ -74,8 +73,7 @@ export const channelArgs = {
 	'index-suggestions:read': FindSubmissionRefSuggestionsRequestSchema,
 	'theme:update': UpdateThemeRequestSchema,
 	'resource:read': z.string(),
-	'submission-data:update': FormSubmissionUpdateRequestSchema,
-	'submission-sub-data:update': UpdateSubmissionSubFormDataRequestSchema,
+	'submission-data:update': UpdateSubmissionRequestSchema,
 	'field-mapping:clear': RemoveFieldMappingRequestSchema,
 	'locale:update': UpdateLocaleRequestSchema,
 	'submission-versions:read': FindSubmissionVersionsRequestSchema,
@@ -103,11 +101,10 @@ export const channelResponses = {
 	'submission-data:read': FindSubmissionDataResponseSchema,
 	'suggestions:read': GetAutoCompletionSuggestionsResponseSchema,
 	'submission-ref:read': FindSubmissionRefResponseSchema,
-	'index-suggestions:read': FindSubmissionRefSuggestionsResponseSchema,
+	'index-suggestions:read': FindIndexSuggestionsResponseSchema,
 	'theme:update': AppConfigResponseSchema,
 	'resource:read': z.string().nullable(),
-	'submission-data:update': UpdateSubmissionFormDataResponseSchema,
-	'submission-sub-data:update': UpdateSubmissionSubFormDataResponseSchema,
+	'submission-data:update': UpdateSubmissionResponseSchema,
 	'locale:update': AppConfigResponseSchema,
 	'submission-versions:read': FindSubmissionVersionsResponseSchema,
 	'submission-version:read': FindSubmissionCurrentVersionResponseSchema,
@@ -115,7 +112,6 @@ export const channelResponses = {
 } as const;
 
 type InferZod<T extends z.ZodType> = z.infer<T>;
-export type MaybeAsync<T> = Promise<T> | Observable<T> | T;
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
@@ -124,7 +120,6 @@ export type Channel =
 	| 'submission-versions:read'
 	| 'locale:update'
 	| 'field-mapping:clear'
-	| 'submission-sub-data:update'
 	| 'submission-data:update'
 	| 'resource:read'
 	| 'theme:update'
@@ -137,11 +132,7 @@ export type Channel =
 	| 'columns:read'
 	| 'submission-data:read';
 export type ChannelArg<T extends keyof typeof channelArgs> = typeof channelArgs[T] extends z.ZodType ? z.input<typeof channelArgs[T]> : never;
-export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? InferZod<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : never;
-export const RequestOptionsSchema = z.object({
-	timeout: z.number().default(30_000) // 30 seconds
-});
-export type RequestOptions = z.infer<typeof RequestOptionsSchema>;
+export type ChannelResponse<T extends keyof typeof channelResponses> = typeof channelResponses[T] extends z.ZodType ? z.output<typeof channelResponses[T]> : typeof channelResponses[T] extends {} ? void : void;
 
 export const RpcHeadersSchema = z.object({
 	ts: z.any().optional(),
