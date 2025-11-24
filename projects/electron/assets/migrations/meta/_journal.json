@@ -456,6 +456,48 @@
 			"when": 1763839326283,
 			"tag": "0067_nappy_mulholland_black",
 			"breakpoints": true
+		},
+		{
+			"idx": 68,
+			"version": "7",
+			"when": 1763843292332,
+			"tag": "0068_cold_punisher",
+			"breakpoints": true
+		},
+		{
+			"idx": 69,
+			"version": "7",
+			"when": 1763894315408,
+			"tag": "0069_demonic_gladiator",
+			"breakpoints": true
+		},
+		{
+			"idx": 70,
+			"version": "7",
+			"when": 1763895836477,
+			"tag": "0070_colossal_nitro",
+			"breakpoints": true
+		},
+		{
+			"idx": 71,
+			"version": "7",
+			"when": 1763959127573,
+			"tag": "0071_condemned_red_ghost",
+			"breakpoints": true
+		},
+		{
+			"idx": 72,
+			"version": "7",
+			"when": 1763982843866,
+			"tag": "0072_regular_vin_gonzales",
+			"breakpoints": true
+		},
+		{
+			"idx": 73,
+			"version": "7",
+			"when": 1763983186005,
+			"tag": "0073_premium_dark_phoenix",
+			"breakpoints": true
     }
   ]
 }

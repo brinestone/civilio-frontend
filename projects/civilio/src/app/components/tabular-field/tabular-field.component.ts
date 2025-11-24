@@ -27,10 +27,7 @@ import {
 } from "@ng-icons/lucide";
 import { TranslatePipe } from '@ngx-translate/core';
 import { HlmButton } from "@spartan-ng/helm/button";
-import {
-	HlmTableContainer,
-	HlmTableImports
-} from '@spartan-ng/helm/table';
+import { HlmTableContainer, HlmTableImports } from '@spartan-ng/helm/table';
 import {
 	extractFieldKey,
 	ParsedValue,
@@ -48,23 +45,15 @@ import {
 	RowSelectionState,
 	VisibilityState
 } from '@tanstack/angular-table';
-import {
-	TableHeadSelectionComponent
-} from './table-head-selection.component';
-import {
-	TableRowSelectionComponent
-} from './table-row-selection.component';
-import {
-	EditableCellComponent
-} from '@app/components/tabular-field/cells/editable-cell/editable-cell.component';
+import { TableHeadSelectionComponent } from './table-head-selection.component';
+import { TableRowSelectionComponent } from './table-row-selection.component';
 import {
 	ActionCell,
 	ActionTriggeredEvent,
+	EditableCellComponent,
 	RowAction
 } from '@app/components/tabular-field/cells';
-import {
-	DeltaChangeEvent
-} from '@app/model/form/events/delta-change-event';
+import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 
 declare module '@tanstack/angular-table' {
 	interface TableMeta<TData extends RowData> {

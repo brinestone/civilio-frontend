@@ -43,7 +43,6 @@ import { PgSequence } from "drizzle-orm/pg-core";
 import { provideDatabase } from "../helpers/db";
 import { hashThese } from '@civilio/helpers/hashing';
 import { entries, groupBy, intersectionBy } from 'lodash';
-import { pause } from '@civilio/helpers/utils';
 
 const sequences: Record<
 	string,
@@ -376,17 +375,12 @@ export async function findFormData({
 	for (const tableName of tableNames) {
 		queryResult = await db.execute(sql`
 		SELECT
-		revisions.get_version_data(${ form }::civilio.form_types, ${ index }, ${ tableName }, ${ version ?? null }) AS "data";
+		revisions.get_version_data(${ form }::civilio.form_types, ${ index }, ${ tableName }, ${ version || null }) AS "data";
 	`);
 		const row = queryResult.rows[0]?.data as any;
 		if (!row) continue;
-		if (!Array.isArray(row)) {
-			result = { ...result, ...row };
-		} else {
-			console.log('sub data = ', row);
-		}
+		result = { ...result, ...row };
 	}
-	console.log(result);
 	return FindSubmissionDataResponseSchema.parse(result);
 }
 

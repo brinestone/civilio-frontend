@@ -1,4 +1,4 @@
-import { Injectable, makeEnvironmentProviders, Provider } from '@angular/core';
+import { Injectable, makeEnvironmentProviders } from '@angular/core';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
@@ -8,14 +8,14 @@ import {
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponseSchema,
 	FindFormOptionsResponseSchema,
-	FindIndexSuggestionsRequest, FindIndexSuggestionsResponse,
+	FindIndexSuggestionsRequest,
+	FindIndexSuggestionsResponse,
 	FindSubmissionCurrentVersionRequest,
 	FindSubmissionCurrentVersionResponse,
 	FindSubmissionDataRequest,
-	FindSubmissionDataResponseSchema, FindSubmissionRefRequest,
+	FindSubmissionDataResponseSchema,
+	FindSubmissionRefRequest,
 	FindSubmissionRefResponse,
-	FindSubmissionRefSuggestionsRequest,
-	FindSubmissionRefSuggestionsResponse,
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
