@@ -1,0 +1,128 @@
+create or replace function revisions.get_version_data(p_form civilio.form_types, p_index integer, p_table text,
+																											p_version text DEFAULT NULL::text) returns jsonb
+	language plpgsql
+as
+$$
+DECLARE
+	_snapshot          JSONB   := '{}'::JSONB;
+	_c_delta           revisions.deltas;
+	_version           TEXT;
+	_version_timestamp TIMESTAMP;
+	_result            JSONB   := '{}'::JSONB;
+	_is_sub_table      BOOLEAN := p_table != 'data';
+	_table_array       JSONB;
+	_record_index      INTEGER;
+	_cached_index      INTEGER;
+	_element_indices   JSONB   := '{}'::JSONB;
+BEGIN
+	RAISE NOTICE 'Starting get_version_data for form %, index %, version %, table %', p_form, p_index, p_version, p_table;
+	_snapshot := CASE WHEN _is_sub_table THEN '[]'::JSONB ELSE '{}'::JSONB END;
+	_version := COALESCE(p_version, revisions.get_record_current_version(p_form, p_index));
+
+	RAISE NOTICE 'Resolved version: %', _version;
+
+	-- --- START FIX ---
+	-- 1. Get the changed_at timestamp for the specific version hash *and* the target table (p_table).
+	SELECT changed_at
+	INTO _version_timestamp
+	FROM revisions.deltas
+	WHERE hash = _version
+		AND table_name = p_table -- CRUCIAL FILTER ADDED HERE
+		AND submission_index = p_index
+	LIMIT 1;
+
+	-- 2. If no timestamp found, the target delta doesn't exist for this table.
+	IF _version_timestamp IS NULL THEN
+		RAISE NOTICE 'Target version % for table % does not exist. Returning empty object.', _version, p_table;
+		RETURN '{}'::JSONB;
+	END IF;
+	-- --- END FIX ---
+
+	FOR _c_delta IN SELECT *
+									FROM revisions.deltas
+									WHERE submission_index = p_index
+										AND form = p_form
+										AND table_name = p_table
+										AND (changed_at, hash) <= (_version_timestamp, _version)
+									ORDER BY changed_at, table_name, op, parent
+		LOOP
+			_record_index := _c_delta.index;
+			IF NOT _is_sub_table THEN
+				IF _c_delta.op = 'INSERT' THEN
+					_snapshot := _c_delta.delta_data;
+				ELSIF _c_delta.op IN ('UPDATE', 'REVERT') THEN
+					_snapshot := _snapshot || COALESCE(_c_delta.delta_data, '{}'::JSONB);
+				ELSIF _c_delta.op = 'DELETE' THEN
+					_snapshot := NULL;
+				end if;
+			ELSE
+				_table_array := _snapshot;
+				_cached_index := COALESCE((_element_indices -> _record_index::TEXT)::int, -1);
+				IF _cached_index = -1 THEN
+					FOR i IN 0..(jsonb_array_length(_table_array) - 1)
+						LOOP
+							-- Assuming '_index' is the correct primary key field name in the snapshot elements
+							IF (_table_array -> i) -> '_index' = to_jsonb(_record_index) THEN
+								_cached_index := i;
+								EXIT;
+							end if;
+						end loop;
+					_element_indices := jsonb_set(_element_indices, ARRAY [_record_index::text],
+																				to_jsonb(COALESCE(_cached_index, -1)), true);
+				end if;
+
+				IF _c_delta.op = 'INSERT' THEN
+					_snapshot := _table_array || _c_delta.delta_data;
+				ELSIF _c_delta.op IN ('UPDATE', 'REVERT') THEN
+					IF _cached_index >= 0 THEN
+						_snapshot := jsonb_set(_table_array, ARRAY [_cached_index::TEXT],
+																	 (_table_array -> _cached_index) || _c_delta.delta_data, false);
+					ELSE
+						_snapshot := _table_array || _c_delta.delta_data;
+					end if;
+				ELSIF _c_delta.op = 'DELETE' THEN
+					IF _cached_index >= 0 THEN
+						_snapshot := _table_array - _cached_index;
+					end if;
+				end if;
+			end if;
+
+			IF _c_delta.hash = _version THEN
+				EXIT;
+			end if;
+		end loop;
+
+	IF NOT _is_sub_table THEN
+		WITH mapping_data AS (SELECT m.field,
+																 COALESCE(_snapshot -> m.db_column, 'null'::JSONB) as field_value
+													FROM civilio.form_field_mappings m
+													WHERE m.form = p_form
+														AND m.db_table = p_table)
+		SELECT jsonb_object_agg(field, field_value)
+		INTO _result
+		FROM mapping_data;
+	ELSE
+		WITH unnested_mapped_data AS (
+			-- ... (CTE definition) ...
+			SELECT m.field,
+						 COALESCE(elem -> m.db_column, 'null'::JSONB) AS field_value,
+						 (elem -> '_index')::TEXT                     AS order_key
+			FROM jsonb_array_elements(_snapshot) AS elem,
+					 civilio.form_field_mappings m
+			WHERE m.form = p_form
+				AND m.db_table = p_table),
+				 column_arrays AS (SELECT field,
+																	jsonb_agg(field_value ORDER BY order_key::INTEGER) AS field_array
+													 FROM unnested_mapped_data
+													 GROUP BY field)
+		-- 3. Final Aggregation: Use COALESCE to ensure '{}' is returned if column_arrays is empty (no mappings found).
+		SELECT COALESCE(jsonb_object_agg(field, field_array), '{}'::JSONB)
+		INTO _result
+		FROM column_arrays;
+	end if;
+
+	RAISE NOTICE '_snapshot: %', _snapshot::TEXT;
+	RAISE NOTICE '_result: %', _result::TEXT;
+	RETURN _result;
+END;
+$$;

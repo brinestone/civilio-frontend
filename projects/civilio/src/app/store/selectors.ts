@@ -1,6 +1,6 @@
 import { FieldKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
-import { entries, get, isEmpty } from "lodash";
+import { entries, get, isEmpty, keys, values } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { FORM_STATE } from "./form";
 import { ValidationErrors } from "@angular/forms";
@@ -80,3 +80,9 @@ export const redoAvailable = createSelector([formSlices.redoStack], r => r.lengt
 export const changesPending = createSelector([undoAvailable, redoAvailable], (u, r) => {
 	return u || r;
 });
+export const isFormValid = createSelector([formSlices.activeSections], (sections) => {
+	return values(sections).map(({ status }) => status).every(v => v != 'INVALID');
+});
+export const totalErrorCount = createSelector([formSlices.activeSections], (sections) => {
+	return values(sections).map(({ errors }) => keys(errors).length).reduce((acc, curr) => curr + acc, 0);
+})

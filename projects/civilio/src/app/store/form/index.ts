@@ -4,6 +4,7 @@ import {
 	ColumnDefinition,
 	extractAllFields,
 	extractFieldKey,
+	extractFieldsAsMap,
 	extractRawValidators,
 	FieldSchema,
 	flattenSections,
@@ -13,6 +14,7 @@ import {
 	parseValue,
 	RawValue,
 	RelevanceDefinition,
+	serializeValue,
 } from "@app/model/form";
 import { FORM_SERVICE } from "@app/services/form";
 import {
@@ -23,18 +25,37 @@ import {
 	FindSubmissionDataResponse,
 	FormSectionKey,
 	FormType,
-	SubmissionVersionInfo,
+	SubmissionChangeDeltaInput,
+	SubmissionChangeDeltaSchema,
 	toRowMajor,
 } from "@civilio/shared";
-import { Action, provideStates, State, StateContext, StateToken, } from "@ngxs/store";
+import {
+	Action,
+	provideStates,
+	State,
+	StateContext,
+	StateToken,
+} from "@ngxs/store";
 import { insertItem, patch } from "@ngxs/store/operators";
-import { cloneDeep, entries, get, keys, last, set, values } from "lodash";
-import { concatMap, EMPTY, from, tap } from "rxjs";
+import {
+	cloneDeep,
+	differenceBy,
+	entries,
+	get,
+	intersectionBy,
+	keys,
+	last,
+	omit,
+	set,
+	values
+} from "lodash";
+import { concat, concatMap, EMPTY, filter, from, switchMap, tap } from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
 	ActivateSection,
 	DeactivateForm,
+	DiscardChanges,
 	InitVersioning,
 	LoadDbColumns,
 	LoadMappings,
@@ -43,6 +64,7 @@ import {
 	RecordDeltaChange,
 	Redo,
 	RemoveMapping,
+	SaveChanges,
 	SetFormType,
 	SubmissionIndexChanged,
 	Undo,
@@ -61,7 +83,12 @@ export type SectionForm = {
 	errors: Record<string, ValidationErrors | null>;
 };
 
-type DeltaChange = { path: string, oldValue: any, newValue: any, op: 'update' | 'delete' | 'add' };
+type DeltaChange = {
+	path: string,
+	oldValue: any,
+	newValue: any,
+	op: 'update' | 'delete' | 'add'
+};
 type FormStateModel = {
 	mappings?: Record<FormType, Record<string, FieldMapping>>;
 	options?: Record<FormType, FindFormOptionsResponse>;
@@ -78,7 +105,7 @@ type FormStateModel = {
 	schemas: Record<string, FormSchema>;
 	activeSections: Record<string, SectionForm>;
 	relevanceRegistry: Record<string, boolean>;
-	workingVersion?: SubmissionVersionInfo;
+	workingVersion?: string;
 	undoStack: DeltaChange[];
 	redoStack: DeltaChange[];
 };
@@ -142,6 +169,139 @@ function splitChangePath(path: string) {
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(SaveChanges)
+	onSaveChanges(ctx: Context, { form, changeNotes, index }: SaveChanges) {
+		const deltas = this.extractDeltas(ctx, ctx.getState().schemas[form], index);
+		const { activeSections } = ctx.getState();
+		return from(this.formService.updateFormSubmission({
+			changeNotes,
+			form,
+			submissionIndex: index,
+			deltas,
+			parentVersion: ctx.getState().workingVersion
+		})).pipe(
+			tap(() => ctx.setState(patch({
+				undoStack: [],
+				redoStack: [],
+				activeSections: patch({
+					...Object.fromEntries(
+						entries(activeSections)
+							.filter(([_, { dirty }]) => dirty)
+							.map(([k, s]) => ([k, { ...s, dirty: false }])))
+				})
+			})))
+		);
+	}
+
+	private extractDeltas(ctx: Context, formSchema: FormSchema, submissionIndex?: number | string) {
+		const deltas: SubmissionChangeDeltaInput[] = [];
+		const { activeSections, rawData } = ctx.getState();
+		const fields = extractFieldsAsMap(formSchema);
+		if (submissionIndex === undefined) {
+			for (const [fieldKey, value] of values(activeSections).flatMap(e => entries(e.model))) {
+				const schema = fields[fieldKey];
+				if (schema.type != 'table') {
+					deltas.push({
+						field: fieldKey,
+						op: 'add',
+						value: serializeValue(schema, value)
+					})
+				} else {
+					for (const row of (value as Record<string, any>[])) {
+						deltas.push({
+							op: 'add',
+							identifierKey: schema.identifierColumn,
+							value: omit(row, schema.identifierColumn)
+						});
+					}
+				}
+			}
+		} else {
+			for (const [fieldKey, value] of values(activeSections).filter(s => s.dirty).flatMap(e => entries(e.model))) {
+				const schema = fields[fieldKey];
+				if (schema.type != 'table') {
+					if (value === rawData?.[fieldKey]) continue;
+					deltas.push({
+						field: fieldKey,
+						op: 'update',
+						value: serializeValue(schema, value),
+						index: submissionIndex,
+					});
+				} else {
+					const collection = value as Record<string, any>[];
+					const deletedDeltas = differenceBy(rawData?.[fieldKey] as typeof collection, collection, schema.identifierColumn);
+					const addedRows = differenceBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierColumn);
+					const updatedRows = intersectionBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierColumn);
+
+					for (let i = 0; i < updatedRows.length; i++) {
+						const row = updatedRows[i];
+						const rawRow = (rawData?.[fieldKey] as Record<string, any>[]).find(r => r[schema.identifierColumn] == row[schema.identifierColumn])!;
+						for (const [colKey, colValue] of entries(row)) {
+							if (colKey == schema.identifierColumn) continue;
+							if (rawRow[colKey] == colValue) continue;
+							deltas.push({
+								index: row[schema.identifierColumn],
+								op: "update",
+								field: colKey,
+								value: colValue,
+							})
+						}
+					}
+
+					for (const row of deletedDeltas) {
+						deltas.push({
+							index: row[schema.identifierColumn],
+							op: 'delete',
+							field: schema.identifierColumn
+						});
+					}
+
+					for (const row of addedRows) {
+						deltas.push({
+							op: 'add',
+							identifierKey: schema.identifierColumn,
+							value: omit(row, schema.identifierColumn)
+						});
+					}
+				}
+			}
+		}
+		return SubmissionChangeDeltaSchema.array().parse(deltas);
+	}
+
+	@Action(DiscardChanges)
+	onDiscardChanges(ctx: Context, { form }: DiscardChanges) {
+		const { activeSections, rawData } = ctx.getState();
+		return concat(
+			from(entries(activeSections)).pipe(
+				filter(([_, { dirty }]) => dirty),
+				tap(([sectionKey]) => ctx.setState(patch({
+					undoStack: [],
+					redoStack: [],
+					activeSections: patch({
+						[sectionKey]: patch({
+							dirty: false
+						})
+					})
+				}))),
+				switchMap(([sectionKey, section]) => from(entries(section.model)).pipe(
+					tap(([k]) => {
+						ctx.setState(patch({
+							activeSections: patch({
+								[sectionKey]: patch({
+									model: patch({
+										[k]: rawData?.[k]
+									})
+								})
+							})
+						}))
+					}),
+				))
+			),
+			ctx.dispatch(new UpdateRelevance(form))
+		);
+	}
 
 	// NOTE: redo-ing an addition is the same as undo-ing a deletion and vice versa
 
@@ -237,9 +397,21 @@ class FormState {
 	}
 
 	@Action(RecordDeltaChange, { cancelUncompleted: true })
-	onRecordDeltaChange(ctx: Context, { event: { changeType, newValue, oldValue, path } }: RecordDeltaChange) {
+	onRecordDeltaChange(ctx: Context, {
+		event: {
+			changeType,
+			newValue,
+			oldValue,
+			path
+		}
+	}: RecordDeltaChange) {
 		ctx.setState(patch({
-			undoStack: insertItem({ path: makeChangePath(path), newValue, oldValue, op: changeType }, 0),
+			undoStack: insertItem({
+				path: makeChangePath(path),
+				newValue,
+				oldValue,
+				op: changeType
+			}, 0),
 			redoStack: []
 		}));
 	}
@@ -464,7 +636,11 @@ class FormState {
 	}
 
 	@Action(LoadSubmissionData, { cancelUncompleted: true })
-	onLoadSubmissionData(ctx: Context, { form, index, version }: LoadSubmissionData) {
+	onLoadSubmissionData(ctx: Context, {
+		form,
+		index,
+		version
+	}: LoadSubmissionData) {
 		const schema = ctx.getState().schemas[form];
 		return from(this.formService.findSubmissionData({
 			form, index: Number(index), version
@@ -474,6 +650,7 @@ class FormState {
 				const parsedData = this.parseRawData(schema, data);
 				ctx.setState(
 					patch({
+						workingVersion: version,
 						rawData: patch({
 							...parsedData,
 						}),
@@ -483,7 +660,10 @@ class FormState {
 				for (const section of sections) {
 					if (section.fields.length == 0) continue;
 					const formData = section.fields.reduce(
-						(acc, curr) => ({ ...acc, [extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)] }),
+						(acc, curr) => ({
+							...acc,
+							[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
+						}),
 						{} as typeof parsedData,
 					);
 
@@ -633,14 +813,14 @@ class FormState {
 	}
 
 	@Action(LoadMappings)
-	onLoadMappings(ctx: Context, { form }: LoadMappings) {
-		return from(this.formService.findFieldMappings(form)).pipe(
+	onLoadMappings(ctx: Context, action: LoadMappings) {
+		return from(this.formService.findFieldMappings(action)).pipe(
 			tap((mappings) => {
 				for (const mapping of mappings) {
 					ctx.setState(
 						patch({
 							mappings: patch({
-								[form]: patch({
+								[action.form]: patch({
 									[mapping.field]: mapping,
 								}),
 							}),

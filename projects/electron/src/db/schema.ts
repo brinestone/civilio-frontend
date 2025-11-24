@@ -1,4 +1,4 @@
-import { inArray, SQL, sql } from "drizzle-orm";
+import { inArray, isNotNull, SQL, sql } from "drizzle-orm";
 import {
 	boolean,
 	date,
@@ -178,7 +178,7 @@ export const fieldMappings = civilio.table(
 		dbColumnType: text("db_column_type").notNull(),
 		aliasHash: text("alias_hash").generatedAlwaysAs(
 			(): SQL => sql<string>`md5
-				(${fieldMappings.field})`,
+				(${ fieldMappings.field })`,
 		),
 	},
 	(table) => [
@@ -219,60 +219,63 @@ export const vwFormSubmissions = civilio
 							 current_version,
 							 last_modified_at,
 							 last_modified_by
-				FROM ((SELECT df._id::double precision::integer                AS _id,
+				FROM ((SELECT df._id::double precision::integer                       AS _id,
 											df._index,
-											df._validation_status::text                      AS _validation_status,
-											df.code_de_validation::text                      AS validation_code,
-											df.q2_4_officename::text                         AS facility_name,
-											df._submission_time::date                        AS _submission_time,
-											(SELECT 'csc'::civilio.form_types AS form_types) AS form,
-											lead(df._index) OVER (ORDER BY df._index)        AS next,
-											lag(df._index) OVER (ORDER BY df._index)         AS prev,
-											COALESCE(rd.hash, df._version_)                  AS current_version,
-											COALESCE(rd.changed_at, df._submission_time)     AS last_modified_at,
-											COALESCE(rd.changed_by, df._submitted_by)        AS last_modified_by
+											df._validation_status::text                             AS _validation_status,
+											df.code_de_validation::text                             AS validation_code,
+											df.q2_4_officename::text                                AS facility_name,
+											df._submission_time::date                               AS _submission_time,
+											(SELECT 'csc'::civilio.form_types AS form_types)        AS form,
+											lead(df._index) OVER (ORDER BY df._index)               AS next,
+											lag(df._index) OVER (ORDER BY df._index)                AS prev,
+											COALESCE(rd.hash, df._version_)                         AS current_version,
+											COALESCE(MAX(rd.changed_at),
+															 df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,
+											COALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by
 							 FROM csc.data df
 											LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								 AND rd.form = 'csc'::civilio.form_types
 								 AND rd.submission_index = df._index
-								 AND rd.table_name = 'data')
+							 GROUP BY df._id, df._index, rd.hash, rd.changed_by)
 							UNION
-							(SELECT df._id::double precision::integer                 AS _id,
+							(SELECT df._id::double precision::integer                       AS _id,
 											df._index,
-											df._validation_status::text                       AS _validation_status,
-											df.q14_02_validation_code::text                   AS validation_code,
-											df.q1_12_officename::text                         AS facility_name,
+											df._validation_status::text                             AS _validation_status,
+											df.q14_02_validation_code::text                         AS validation_code,
+											df.q1_12_officename::text                               AS facility_name,
 											df._submission_time,
-											(SELECT 'fosa'::civilio.form_types AS form_types) AS form,
-											lead(df._index) OVER (ORDER BY df._index)         AS next,
-											lag(df._index) OVER (ORDER BY df._index)          AS prev,
-											COALESCE(rd.hash, df._version_)                   AS current_version,
-											COALESCE(rd.changed_at, df._submission_time)      AS last_modified_at,
-											COALESCE(rd.changed_by, df._submitted_by)         AS last_modified_by
+											(SELECT 'fosa'::civilio.form_types AS form_types)       AS form,
+											lead(df._index) OVER (ORDER BY df._index)               AS next,
+											lag(df._index) OVER (ORDER BY df._index)                AS prev,
+											COALESCE(rd.hash, df._version_)                         AS current_version,
+											COALESCE(MAX(rd.changed_at),
+															 df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,
+											COALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by
 							 FROM fosa.data df
 											LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								 AND rd.form = 'fosa'::civilio.form_types
 								 AND rd.submission_index = df._index
-								 AND rd.table_name = 'data')
+							 GROUP BY df._id, df._index, rd.hash, rd.changed_by)
 							UNION
-							SELECT df._id::double precision::integer                      AS _id,
+							SELECT df._id::double precision::integer                       AS _id,
 										 df._index,
-										 df._validation_status::text                            AS _validation_status,
-										 df.q14_02_validation_code::text                        AS validation_code,
-										 df.q1_12_officename::text                              AS facility_name,
+										 df._validation_status::text                             AS _validation_status,
+										 df.q14_02_validation_code::text                         AS validation_code,
+										 df.q1_12_officename::text                               AS facility_name,
 										 df._submission_time,
-										 (SELECT 'chefferie'::civilio.form_types AS form_types) AS form,
-										 lead(df._index) OVER (ORDER BY df._index)              AS next,
-										 lag(df._index) OVER (ORDER BY df._index)               AS prev,
-										 COALESCE(rd.hash, df._version_)                        AS current_version,
-										 COALESCE(rd.changed_at, df._submission_time)           AS last_modified_at,
-										 COALESCE(rd.changed_by, df._submitted_by)              AS last_modified_by
+										 (SELECT 'chefferie'::civilio.form_types AS form_types)  AS form,
+										 lead(df._index) OVER (ORDER BY df._index)               AS next,
+										 lag(df._index) OVER (ORDER BY df._index)                AS prev,
+										 COALESCE(rd.hash, df._version_)                         AS current_version,
+										 COALESCE(MAX(rd.changed_at),
+															df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,
+										 COALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by
 							FROM chefferie.data df
 										 LEFT JOIN revisions.deltas rd ON rd.hash = df._version_
 								AND rd.form = 'chefferie'::civilio.form_types
 								AND rd.submission_index = df._index
-								AND rd.table_name = 'data') result
-				ORDER BY _submission_time DESC`,
+							GROUP BY df._id, df._index, rd.hash, rd.changed_by) result
+				ORDER BY last_modified_at DESC`,
 	);
 
 export const vwDbColumns = civilio
@@ -286,20 +289,23 @@ export const vwDbColumns = civilio
 		sql`SELECT c.column_name,
 							 c.data_type,
 							 c.table_name,
-							 CAST(c.table_schema as ${formTypes}) as form
+							 CAST(c.table_schema as ${ formTypes }) as form
 				FROM information_schema.columns c
-				WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`,
+				WHERE ${ inArray(sql`c.table_schema`, formTypes.enumValues) }`,
 	);
 
 export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE', 'REVERT']);
 export const versionSyncStatus = revision.enum('sync_status', ['pending', 'synced', 'failed']);
-export const deltas = revision.table("deltas", {
+export const deltaChanges = revision.table("deltas", {
 	hash: text().notNull(),
 	submissionIndex: integer("submission_index").notNull(),
 	index: integer("index").notNull(),
 	form: formTypes().notNull(),
 	table: text('table_name').notNull(),
-	changedAt: timestamp("changed_at", { mode: "string" }).defaultNow().notNull(),
+	changedAt: timestamp("changed_at", {
+		mode: "date",
+		withTimezone: true
+	}).defaultNow().notNull(),
 	deltaData: jsonb("delta_data").notNull(),
 	changedBy: text("changed_by"),
 	op: changeOp().notNull(),
@@ -315,6 +321,7 @@ export const deltas = revision.table("deltas", {
 	index().on(t.index),
 	index().on(t.form),
 	index().on(t.changedAt),
+	index().on(t.parent).where(isNotNull(t.parent)),
 	index().on(t.parent, t.hash),
 	index().on(t.submissionIndex, t.form, t.changedAt),
 ]);

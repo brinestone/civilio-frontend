@@ -1,22 +1,27 @@
-import { InjectionToken, makeEnvironmentProviders } from "@angular/core";
-import { isDesktop } from "@app/util";
+import {
+	EnvironmentProviders,
+	forwardRef,
+	InjectionToken,
+	makeEnvironmentProviders
+} from "@angular/core";
 import {
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
+	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
 	FindFormOptionsResponse,
+	FindIndexSuggestionsRequest,
+	FindIndexSuggestionsResponse,
 	FindSubmissionCurrentVersionRequest,
 	FindSubmissionCurrentVersionResponse,
 	FindSubmissionDataRequest,
 	FindSubmissionDataResponse,
+	FindSubmissionRefRequest,
 	FindSubmissionRefResponse,
-	FindSubmissionRefSuggestionsRequest,
-	FindSubmissionRefSuggestionsResponse,
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponse,
-	FormSubmissionSchema,
-	FormSubmissionUpdateRequest,
+	FormSubmission,
 	FormType,
 	GetAutoCompletionSuggestionsResponse,
 	InitializeSubmissionVersionRequest,
@@ -24,14 +29,13 @@ import {
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
-	UpdateSubmissionFormDataResponse,
-	UpdateSubmissionSubFormDataRequest,
-	UpdateSubmissionSubFormDataResponse
+	UpdateSubmissionRequest,
+	UpdateSubmissionResponse
 } from "@civilio/shared";
-import { ElectronFormService } from "../electron/form.service";
-import { WebFormService } from "../web/form.service";
 
 export interface FormService {
+	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse>;
+
 	initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse>;
 
 	findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse>;
@@ -39,10 +43,6 @@ export interface FormService {
 	findSubmissionVersions(req: FindSubmissionVersionsRequest): Promise<FindSubmissionVersionsResponse>;
 
 	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse>;
-
-	updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse>;
-
-	updateSubmissionFormData(req: FormSubmissionUpdateRequest): Promise<UpdateSubmissionSubFormDataResponse>;
 
 	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse>;
 
@@ -52,29 +52,26 @@ export interface FormService {
 
 	loadFormOptionsFor(form: FormType): Promise<FindFormOptionsResponse>;
 
-	findFieldMappings(form: FormType): Promise<FindFieldMappingsResponse>;
+	findFieldMappings(arg: FindFieldMappingsRequest): Promise<FindFieldMappingsResponse>;
 
-	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<typeof FormSubmissionSchema>>;
+	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
 
 	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
 
-	findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse>;
+	findSurroundingSubmissionRefs(req: FindSubmissionRefRequest): Promise<FindSubmissionRefResponse>;
 
-	findIndexSuggestions(req: FindSubmissionRefSuggestionsRequest): Promise<FindSubmissionRefSuggestionsResponse>;
+	findIndexSuggestions(req: FindIndexSuggestionsRequest): Promise<FindIndexSuggestionsResponse>;
 }
 
 export const FORM_SERVICE = new InjectionToken<FormService>('Form Service');
+export const FORM_SERVICE_IMPL = new InjectionToken<FormService>('concrete form service');
 
-export function provideDomainForms() {
-	const providers: any = [
+export function provideDomainForms(...providers: EnvironmentProviders[]) {
+	return makeEnvironmentProviders([
+		...providers,
 		{
-			provide: FORM_SERVICE, useExisting: isDesktop() ? ElectronFormService : WebFormService
+			provide: FORM_SERVICE,
+			useExisting: forwardRef(() => FORM_SERVICE_IMPL)
 		}
-	];
-	if (isDesktop()) {
-		providers.push({ provide: ElectronFormService, useClass: ElectronFormService });
-	} else {
-		providers.push({ provide: WebFormService, useClass: WebFormService });
-	}
-	return makeEnvironmentProviders(providers);
+	]);
 }

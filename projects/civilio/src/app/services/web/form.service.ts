@@ -1,47 +1,43 @@
-import { Injectable } from "@angular/core";
+import { Injectable, makeEnvironmentProviders } from "@angular/core";
+import { FORM_SERVICE_IMPL, FormService } from "../form";
 import {
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
+	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
 	FindFormOptionsResponse,
-	FindSubmissionDataResponse,
-	FindSubmissionRefResponse,
-	FormSubmissionSchema,
-	FormType,
-	GetAutoCompletionSuggestionsResponse,
-	Paginated,
-	FormSubmissionUpdateRequest,
-	UpdateSubmissionFormDataResponse,
-	UpdateSubmissionSubFormDataRequest,
-	UpdateSubmissionSubFormDataResponse,
-	RemoveFieldMappingRequest,
-	RemoveFieldMappingResponse,
-	FindSubmissionVersionsRequest,
-	FindSubmissionVersionsResponse,
+	FindIndexSuggestionsRequest,
+	FindIndexSuggestionsResponse,
 	FindSubmissionCurrentVersionRequest,
 	FindSubmissionCurrentVersionResponse,
 	FindSubmissionDataRequest,
+	FindSubmissionDataResponse,
+	FindSubmissionRefRequest,
+	FindSubmissionRefResponse,
+	FindSubmissionVersionsRequest,
+	FindSubmissionVersionsResponse,
+	FormSubmission,
+	FormType,
+	GetAutoCompletionSuggestionsResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
-	FindSubmissionRefSuggestionsRequest,
-	FindSubmissionRefSuggestionsResponse
-} from "@civilio/shared";
-import { FormService } from "../form";
+	Paginated,
+	RemoveFieldMappingRequest,
+	RemoveFieldMappingResponse,
+	UpdateSubmissionRequest,
+	UpdateSubmissionResponse
+} from '@civilio/shared';
 
 @Injectable({
 	providedIn: null
 })
 export class WebFormService implements FormService {
-	findIndexSuggestions(req: FindSubmissionRefSuggestionsRequest): Promise<FindSubmissionRefSuggestionsResponse> {
+	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse> {
 		throw new Error("Method not implemented.");
 	}
 
 	initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse> {
-		throw new Error("Method not implemented.");
-	}
-
-	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse> {
 		throw new Error("Method not implemented.");
 	}
 
@@ -57,19 +53,7 @@ export class WebFormService implements FormService {
 		throw new Error("Method not implemented.");
 	}
 
-	updateSubFormSubmissionFormData(req: UpdateSubmissionSubFormDataRequest): Promise<UpdateSubmissionFormDataResponse> {
-		throw new Error("Method not implemented.");
-	}
-
-	updateSubmissionFormData(req: FormSubmissionUpdateRequest): Promise<UpdateSubmissionSubFormDataResponse> {
-		throw new Error("Method not implemented.");
-	}
-
-	findSurroundingSubmissionRefs(form: FormType, index: number): Promise<FindSubmissionRefResponse> {
-		throw new Error("Method not implemented.");
-	}
-
-	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse> {
+	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse> {
 		throw new Error("Method not implemented.");
 	}
 
@@ -85,12 +69,34 @@ export class WebFormService implements FormService {
 		throw new Error("Method not implemented.");
 	}
 
-	findFieldMappings(form: FormType): Promise<FindFieldMappingsResponse> {
+	findFieldMappings(arg: FindFieldMappingsRequest): Promise<FindFieldMappingsResponse> {
 		throw new Error("Method not implemented.");
 	}
 
-	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<typeof FormSubmissionSchema>> {
+	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>> {
 		throw new Error("Method not implemented.");
 	}
 
+	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse> {
+		throw new Error("Method not implemented.");
+	}
+
+	findSurroundingSubmissionRefs(req: FindSubmissionRefRequest): Promise<FindSubmissionRefResponse> {
+		throw new Error("Method not implemented.");
+	}
+
+	findIndexSuggestions(req: FindIndexSuggestionsRequest): Promise<FindIndexSuggestionsResponse> {
+		throw new Error("Method not implemented.");
+	}
+
+}
+
+export function usingWeb() {
+	return makeEnvironmentProviders([
+		WebFormService,
+		{
+			provide: FORM_SERVICE_IMPL,
+			useExisting: WebFormService
+		}
+	]);
 }

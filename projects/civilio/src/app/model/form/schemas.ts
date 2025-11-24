@@ -1,4 +1,10 @@
-import { AllSectionKeysSchema, FieldKeySchema, FormTypeSchema, GeopointSchema, OptionSchema } from "@civilio/shared";
+import {
+	AllSectionKeysSchema,
+	FieldKeySchema,
+	FormTypeSchema,
+	GeoPointSchema,
+	OptionSchema
+} from "@civilio/shared";
 import z from "zod";
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
@@ -8,7 +14,7 @@ const ParsedValueSchema = z.union([
 	z.boolean(),
 	z.null(),
 	z.undefined().pipe(z.transform(() => null)),
-	GeopointSchema,
+	GeoPointSchema,
 	z.number()
 ])
 export const ValueProviderFnSchema = z.function({

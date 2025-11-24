@@ -1,10 +1,14 @@
 import {
+	chefferieIndexSeqInCivilio,
+	chefferiePersonnelIndexSeqInCivilio,
 	choices,
-	cscIdSeqInCivilio,
 	cscIndexSeqInCivilio,
 	cscPersonnelIndexSeqInCivilio,
+	cscPiecesIndexSeqInCivilio,
+	cscStatisticsIndexSeqInCivilio,
+	cscVillagesSeqInCivilio,
+	deltaChanges,
 	fieldMappings,
-	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
 	vwDbColumns,
@@ -12,7 +16,6 @@ import {
 } from "@civilio/schema";
 import {
 	createPaginatedResultSchema,
-	FieldMapping,
 	FieldMappingSchema,
 	FieldUpdateSpec,
 	FindIndexSuggestionsRequest,
@@ -25,7 +28,6 @@ import {
 	FindSubmissionVersionsRequest,
 	FindSubmissionVersionsResponseSchema,
 	FormSubmissionSchema,
-	FormSubmissionUpdateRequest,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
 	GetAutoCompletionSuggestionsResponseSchema,
@@ -34,13 +36,13 @@ import {
 	Option,
 	OptionSchema,
 	RemoveFieldMappingRequest,
-	UpdateSubmissionSubFormDataRequest,
+	UpdateSubmissionRequest,
 } from "@civilio/shared";
-import { and, countDistinct, eq, like, or, sql } from "drizzle-orm";
+import { and, countDistinct, eq, inArray, like, or, sql } from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
-import { entries } from "lodash";
 import { provideDatabase } from "../helpers/db";
-import { Transaction } from '../types';
+import { hashThese } from '@civilio/helpers/hashing';
+import { entries, groupBy, keys } from 'lodash';
 
 const sequences: Record<
 	string,
@@ -49,7 +51,6 @@ const sequences: Record<
 	fosa: {
 		data: [
 			{ column: "_index", sequence: fosaIndexSeqInCivilio },
-			{ column: "_id", sequence: fosaIdSeqInCivilio },
 		],
 		data_personnel: [
 			{ column: "_index", sequence: fosaPersonnelIndexSeqInCivilio },
@@ -58,23 +59,209 @@ const sequences: Record<
 	csc: {
 		data: [
 			{ column: "_index", sequence: cscIndexSeqInCivilio },
-			{ column: "_id", sequence: cscIdSeqInCivilio },
-			{ column: "data_personnel", sequence: cscPersonnelIndexSeqInCivilio },
+			// { column: "_id", sequence: cscIdSeqInCivilio },
 		],
+		data_personnel: [
+			{ column: '_index', sequence: cscPersonnelIndexSeqInCivilio }
+		],
+		data_pieces: [
+			{ column: '_index', sequence: cscPiecesIndexSeqInCivilio },
+			// { column: '_id', sequence: cscIdSeqInCivilio }
+		],
+		data_statistiques: [
+			{ column: '_index', sequence: cscStatisticsIndexSeqInCivilio }
+		],
+		data_villages: [
+			{ column: '_index', sequence: cscVillagesSeqInCivilio }
+		]
 	},
+	chefferie: {
+		data: [
+			{ column: '_index', sequence: chefferieIndexSeqInCivilio },
+			// { column: '_id', sequence: chefferieIdSeqInCivilio }
+		],
+		data_personnel: [
+			{ column: '_index', sequence: chefferiePersonnelIndexSeqInCivilio }
+		]
+	}
 };
 
-export async function initializeSubmissionVersioning({ form, index }: InitializeSubmissionVersionRequest) {
+export async function processSubmissionDataUpdate({
+																										submissionIndex,
+																										form,
+																										deltas,
+																										changeNotes,
+																										parentVersion
+																									}: UpdateSubmissionRequest) {
+	const db = provideDatabase({ fieldMappings, deltaChanges });
+	return await db.transaction(async tx => {
+		const newVersion = hashThese([JSON.stringify(deltas), Date.now()].join('|'));
+		console.log('new version = ', newVersion);
+		console.log('parent version = ', parentVersion);
+		const _configs = {
+			'session.working_version': newVersion,
+			'session.actor': 'civilio', // TODO: use the id from identity provider
+			'session.notes': changeNotes,
+			'session.parent_version': parentVersion,
+		};
+		for (const [k, v] of entries(_configs)) {
+			await tx.execute(sql`SELECT set_config(${ k }, ${ v }, true)`);
+		}
+
+		let _submission_index = Number(submissionIndex);
+		const allMappings = await tx.select().from(fieldMappings).where(
+			eq(fieldMappings.form, form)
+		);
+		if (submissionIndex !== undefined && deltas.some(d => {
+			const mapping = allMappings.find(m => m.field == d.field && m.dbTable == 'data');
+			return mapping && d.op == 'delete';
+		})) {
+			await tx.execute(sql`DELETE
+													 FROM ${ sql.identifier(form) }.${ sql.identifier('data') }
+													 WHERE _index = ${ Number(submissionIndex) }`);
+			return;
+		} else if (submissionIndex === undefined || isNaN(_submission_index)) {
+			const requiredCols = sequences[form].data;
+			const result = await tx.execute(sql.raw(`
+				INSERT INTO ${ form }.data (${ requiredCols.map(c => c.column).join(',') })
+				VALUES (${ requiredCols.map(c => `nextval(${ c.sequence.schema }.${ c.sequence.seqName })`).join(',') })
+				RETURNING _index;
+			`));
+			if (result.rows.length == 0) {
+				throw new Error('An unexpected error occurred. Please try again later or contact your administrator')
+			}
+			_submission_index = result.rows[0]._index as number;
+		}
+		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
+		console.log(`All deltas: ${ JSON.stringify(deltas) }`);
+		for (const [table, mappings] of entries(tableGroupedMappings)) {
+			const tableDeltas = deltas.filter(delta => {
+				const fieldToCheck = (delta.op === 'add' && delta.identifierKey)
+					? delta.identifierKey
+					: delta.field;
+				return mappings.some(mapping => mapping.field === fieldToCheck);
+			});
+			console.log(`Processing ${ tableDeltas.length } updates for table: ${ table }`);
+			console.log(`Table Deltas: ${ JSON.stringify(tableDeltas) }`);
+			if (table == 'data' && tableDeltas.length > 0) {
+				const kvm = new Map<string, [any, string]>();
+				for (const delta of tableDeltas) {
+					const mapping = mappings.find(m => m.field == delta.field);
+					if (!mapping) continue;
+					kvm.set(mapping.dbColumn, [delta.value, mapping.dbColumnType])
+				}
+				const updates = [...kvm.entries().map(([col, [v, t]]) => sql`${ sql.identifier(col) } = ${ v || null }::${ sql.raw(t) }`)];
+				await tx.execute(sql`
+					UPDATE ${ sql.identifier(form) }.${ sql.identifier('data') }
+					SET ${ sql.join(updates, sql`, `) }
+					WHERE _index = ${ _submission_index };
+				`);
+				// await pause(1000);
+			} else if (table != 'data' && tableDeltas.length > 0) {
+				const {
+					add: additions,
+					delete: deletions,
+					update: updates
+				} = groupBy(tableDeltas, 'op');
+				if (updates && updates.length > 0) {
+					console.log('processing "update" deltas');
+					for (const update of updates) {
+						const mapping = mappings.find(m => m.field == update.field);
+						if (!mapping) continue;
+						await tx.execute(sql`
+							UPDATE ${ sql.identifier(form) }.${ sql.identifier(table) }
+							SET ${ sql.identifier(mapping.dbColumn) } = ${ update.value || null }::${ sql.raw(mapping.dbColumnType) }
+							WHERE _parent_index = ${ _submission_index }
+								AND _index = ${ update.index };
+						`);
+						// await pause(1000);
+					}
+				}
+				if (additions && additions.length > 0) {
+					console.log('processing "add" deltas');
+					const uniqueMappings = additions.flatMap(a => keys(a.value))
+						.reduce((acc, k) => {
+							const mapping = mappings.find(m => m.field == k);
+							if (mapping) {
+								acc[k] = mapping;
+							}
+							return acc;
+						}, {} as Record<string, typeof allMappings[0]>);
+					const identifierMapping = mappings.find(m => m.field == additions[0].identifierKey);
+					if (!identifierMapping) {
+						throw new Error('Could not identify identifier mapping. Cannot proceed');
+					}
+					for (const row of additions) {
+						console.log('row', row);
+						const kvm = new Map<string, [any, string]>();
+						const rowEntries = entries(row.value);
+						console.log(rowEntries);
+						for (const [field, value] of rowEntries) {
+							const mapping = uniqueMappings[field];
+							if (mapping) {
+								kvm.set(mapping.dbColumn, [value, mapping.dbColumnType]);
+							}
+						}
+						console.log('kvm', kvm);
+						console.log('unique mappings', uniqueMappings);
+						const cols = [...sequences[form][table].map(({ column }) => column), ...kvm.keys(), '_parent_index'].map(c => sql.identifier(c));
+						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${ sql.join([sql.raw(sequence.schema), sql.raw(sequence.seqName)], sql`.`) }')`), ...[...kvm.values()].map(([v, t]) => sql`${ v || null }::${ sql.raw(t) }`), _submission_index];
+						await tx.execute(sql`
+							INSERT INTO ${ sql.identifier(form) }.${ sql.identifier(table) } (${ sql.join(cols, sql`, `) })
+							VALUES (${ sql.join(values, sql`,
+											`) });
+						`);
+					}
+				}
+				if (deletions && deletions.length > 0) {
+					console.log('processing "delete" deltas');
+					let identifierMapping = mappings.find(m => m.field == deletions[0].field);
+					if (!identifierMapping) {
+						throw new Error('Could not identify identifier mapping. Cannot proceed');
+					}
+					const indexes = deletions
+						.map(({
+										field,
+										index
+									}) => ({
+							mapping: mappings.find(m => m.field == field),
+							index
+						}))
+						.filter(({ mapping }) => !!mapping)
+						.map(({ index }) => index);
+					await tx.execute(sql`
+						DELETE
+						FROM ${ sql.identifier(form) }.${ sql.identifier(table) }
+						WHERE ${ and(
+							eq(sql.identifier('_parent_index'), _submission_index),
+							inArray(sql.identifier(identifierMapping.dbColumn), indexes)
+						) }
+					`);
+					// await pause(1000);
+				}
+			}
+		}
+	});
+}
+
+export async function initializeSubmissionVersioning({
+																											 form,
+																											 index
+																										 }: InitializeSubmissionVersionRequest) {
 	const db = provideDatabase({});
-	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(${index}, ${form}::civilio.form_types) AS version`);
+	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(${ index }, ${ form }::civilio.form_types) AS version`);
 	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
 }
 
-export async function findCurrentSubmissionVersion({ form, index }: FindSubmissionCurrentVersionRequest) {
+export async function findCurrentSubmissionVersion({
+																										 form,
+																										 index
+																									 }: FindSubmissionCurrentVersionRequest) {
 	const db = provideDatabase({});
 	const queryResult = await db.execute(sql`
 		SELECT d.*
-		FROM revisions.get_version_chain(${index}, ${form}::civilio.form_types) d
+		FROM revisions.get_version_chain(${ index },
+																		 ${ form }::civilio.form_types) d
 		WHERE d.is_current = true
 		LIMIT 1;
 	`);
@@ -82,14 +269,20 @@ export async function findCurrentSubmissionVersion({ form, index }: FindSubmissi
 	return FindSubmissionCurrentVersionResponseSchema.parse(queryResult.rows[0] ?? null);
 }
 
-export async function findSubmissionVersions({ form, index, limit, changeOffset }: FindSubmissionVersionsRequest) {
+export async function findSubmissionVersions({
+																							 form,
+																							 index,
+																							 limit,
+																							 changeOffset
+																						 }: FindSubmissionVersionsRequest) {
 	const db = provideDatabase({});
 
 	const queryResult = await db.execute(sql`
 		SELECT d.*
-		FROM revisions.get_version_chain(${index}, ${form}::civilio.form_types) d
-		WHERE d.changed_at <= COALESCE(${changeOffset ?? null}, NOW())
-		LIMIT ${limit};
+		FROM revisions.get_version_chain(${ index },
+																		 ${ form }::civilio.form_types) d
+		WHERE d.changed_at <= COALESCE(${ changeOffset ?? null }, NOW())
+		LIMIT ${ limit };
 	`);
 
 	return FindSubmissionVersionsResponseSchema.parse(queryResult.rows);
@@ -108,188 +301,6 @@ export async function removeFieldMapping({
 	});
 }
 
-async function processSubFormDeletionRequest(
-	tx: Transaction,
-	{
-		form,
-		indexes,
-		parentIndex,
-	}: Extract<UpdateSubmissionSubFormDataRequest, { type: "delete" }>,
-) {
-	if (indexes.length == 0) return;
-
-	const identifierMappingMap = new Map<string, FieldMapping>();
-	for (const { index, identifierKey } of indexes) {
-		let mapping = identifierMappingMap.get(identifierKey);
-		if (!identifierMappingMap.has(identifierKey)) {
-			mapping = await lookupMapping(identifierKey, form, tx);
-			identifierMappingMap.set(identifierKey, mapping);
-		}
-
-		await tx.execute(
-			sql.raw(`
-				DELETE
-				FROM "${form}"."${mapping.dbTable}"
-				WHERE "_index" = ${index}
-					AND "_parent_index" = ${parentIndex};
-			`),
-		);
-	}
-}
-
-async function lookupMapping(field: string, form: FormType, tx: Transaction) {
-	const [result] = await tx
-		.select()
-		.from(fieldMappings)
-		.where(and(eq(fieldMappings.form, form), eq(fieldMappings.field, field)))
-		.$withCache();
-	return result ?? null;
-}
-
-async function processSubFormUpdateRequest(
-	tx: Transaction,
-	{
-		changes,
-		form,
-		parentIndex,
-	}: Extract<UpdateSubmissionSubFormDataRequest, { type: "update" }>,
-) {
-	for (const {
-		identifier: { fieldKey, value: index },
-		data,
-	} of changes) {
-		let _index = await assertRowUsingKey(tx, index, fieldKey, form, [
-			"_parent_index",
-			parentIndex,
-		]);
-		for (const [key, value] of entries(data)) {
-			const mapping = await lookupMapping(key, form, tx);
-			await tx.execute(
-				sql.raw(`
-					UPDATE "${form}"."${mapping.dbTable}"
-					SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
-					WHERE _parent_index = ${parentIndex}
-						AND _index = ${_index};
-				`),
-			);
-		}
-	}
-}
-
-export async function processSubFormChangeRequest(
-	arg: UpdateSubmissionSubFormDataRequest,
-) {
-	const db = provideDatabase({ fieldMappings });
-	await db.transaction(async (tx) => {
-		if (arg.type == "delete") {
-			return await processSubFormDeletionRequest(tx, arg);
-		} else if (arg.type == "update") {
-			return await processSubFormUpdateRequest(tx, arg);
-		}
-	});
-}
-
-async function assertRow(
-	tx: Transaction,
-	table: string,
-	form: FormType,
-	index?: number,
-	...additionalFields: [string, any][]
-) {
-	if (index !== undefined) {
-		let result = await tx.execute(
-			sql.raw(`
-				SELECT EXISTS (SELECT _index
-											 FROM "${form}"."${table}"
-											 WHERE _index = ${index});
-			`),
-		);
-
-		const [{ exists }] = result.rows;
-
-		if (Boolean(exists)) return index;
-	}
-
-	const cols = sequences[form][table];
-	const result = await tx.execute(
-		sql.raw(`
-			INSERT INTO "${form}"."${table}"
-				(${[...cols, ...additionalFields.map(([k]) => ({ column: k }))].map(({ column }) => `"${column}"`).join(",")})
-			VALUES (${[...cols.map(({ sequence }) => `nextval('${sequence.schema}.${sequence.seqName}')`), ...additionalFields.map(([_, v]) => v)].join(",")})
-			RETURNING _index;
-		`),
-	);
-	const [{ _index }] = result.rows;
-	return Number(_index);
-}
-
-async function assertRowUsingKey(
-	tx: Transaction,
-	index: number,
-	sampleField: string,
-	form: FormType,
-	...additionalFields: [string, any][]
-) {
-	const mapping = await lookupMapping(sampleField, form, tx);
-	if (!mapping) throw new Error(`Mapping not found for field: ${sampleField}`);
-
-	const { dbTable: table } = mapping;
-
-	return await assertRow(tx, table, form, index, ...additionalFields);
-}
-
-async function deleteSubmission(
-	tx: Transaction,
-	{ form, index }: Extract<FormSubmissionUpdateRequest, { type: "delete" }>,
-) {
-	if (index.length == 0) return;
-	await tx.execute(
-		sql.raw(
-			`DELETE
-			 FROM "${form}"."data"
-			 WHERE _index IN (${index.join(",")}); `,
-		),
-	);
-}
-
-async function updateSubmission(
-	tx: Transaction,
-	{
-		changes,
-		form,
-		index,
-	}: Extract<FormSubmissionUpdateRequest, { type: "update" }>,
-) {
-	let _index = index;
-
-	for (const [key, value] of Object.entries(changes)) {
-		const [mapping] = await tx
-			.select()
-			.from(fieldMappings)
-			.where(and(eq(fieldMappings.form, form), eq(fieldMappings.field, key)));
-
-		if (!mapping)
-			throw new Error(`Mapping for key: ${key} not found. Update aborted`);
-		_index = await assertRow(tx, mapping.dbTable, form, _index);
-
-		await tx.execute(
-			sql.raw(
-				`UPDATE "${form}"."${mapping.dbTable}"
-				 SET "${mapping.dbColumn}" = CAST('${value}' as ${mapping.dbColumnType})
-				 WHERE _index = ${index};`,
-			),
-		);
-	}
-}
-
-export async function processChangeRequest(arg: FormSubmissionUpdateRequest) {
-	const db = provideDatabase({ fieldMappings });
-	await db.transaction(async (tx) => {
-		if (arg.type == "delete") await deleteSubmission(tx, arg);
-		else if (arg.type == "update") await updateSubmission(tx, arg);
-	});
-}
-
 export async function findIndexSuggestions({
 																						 form,
 																						 query,
@@ -303,7 +314,7 @@ export async function findIndexSuggestions({
 		.where(
 			and(
 				eq(vwFormSubmissions.form, form),
-				like(sql<string>`${vwFormSubmissions.index}::TEXT`, `%${query}%`),
+				like(sql<string>`${ vwFormSubmissions.index }::TEXT`, `%${ query }%`),
 			),
 		)
 		.orderBy(vwFormSubmissions.index)
@@ -326,7 +337,7 @@ export async function findSubmissionRef({
 		})
 		.from(vwFormSubmissions)
 		.where(
-			and(eq(vwFormSubmissions.index, index), eq(vwFormSubmissions.form, form)),
+			and(eq(vwFormSubmissions.index, Number(index)), eq(vwFormSubmissions.form, form)),
 		);
 
 	return [result?.prev ?? null, result?.next ?? null];
@@ -346,13 +357,15 @@ export async function findAutocompleteSuggestions({
 		.limit(1);
 
 	if (!mapping)
-		throw new Error(`Mapping not found for field: ${field} and form: ${form}`);
+		throw new Error(`Mapping not found for field: ${ field } and form: ${ form }`);
 
 	let resultSet = await db.execute(
 		sql`SELECT FORMAT(
 								 'SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY UPPER(d.%I::TEXT) ASC LIMIT %L::INTEGER',
-								 ${mapping.dbColumn}::TEXT, ${form}::TEXT, ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT,
-								 ${"%" + query + "%"}::TEXT, ${mapping.dbColumn}::TEXT, ${resultSize}::INTEGER);`,
+								 ${ mapping.dbColumn }::TEXT, ${ form }::TEXT,
+								 ${ mapping.dbTable }::TEXT, ${ mapping.dbColumn }::TEXT,
+								 ${ "%" + query + "%" }::TEXT, ${ mapping.dbColumn }::TEXT,
+								 ${ resultSize }::INTEGER);`,
 	);
 	const [{ format }] = resultSet.rows;
 
@@ -362,13 +375,29 @@ export async function findAutocompleteSuggestions({
 	return GetAutoCompletionSuggestionsResponseSchema.parse(result);
 }
 
-export async function findFormData({ form, index, version }: FindSubmissionDataRequest) {
+export async function findFormData({
+																		 form,
+																		 index,
+																		 version
+																	 }: FindSubmissionDataRequest) {
 	const db = provideDatabase({ fieldMappings });
-	const queryResult = await db.execute(sql`
-		SELECT
-		revisions.get_version_data(${form}::civilio.form_types, ${index}, ${version ?? null}) AS "data";
+	let result = {} as Record<string, any>;
+	let queryResult = await db.execute(sql`
+		SELECT DISTINCT t.table_name::TEXT as t
+		FROM information_schema.tables t
+		WHERE t.table_schema = ${ form };
 	`);
-	return FindSubmissionDataResponseSchema.parse(queryResult.rows[0]?.data ?? {});
+	const tableNames = queryResult.rows.map(row => row.t as string);
+	for (const tableName of tableNames) {
+		queryResult = await db.execute(sql`
+		SELECT
+		revisions.get_version_data(${ form }::civilio.form_types, ${ index }, ${ tableName }, ${ version || null }) AS "data";
+	`);
+		const row = queryResult.rows[0]?.data as any;
+		if (!row) continue;
+		result = { ...result, ...row };
+	}
+	return FindSubmissionDataResponseSchema.parse(result);
 }
 
 export async function updateFieldMappings(
@@ -473,7 +502,7 @@ export async function findFormSubmissions(
 	filterQuery: string = "",
 ) {
 	const db = provideDatabase({ vwFormSubmissions });
-	const q = `%${filterQuery.toLowerCase()}%`;
+	const q = `%${ filterQuery.toLowerCase() }%`;
 	const searchColumns = [
 		vwFormSubmissions.index,
 		vwFormSubmissions.validationCode,
@@ -484,7 +513,7 @@ export async function findFormSubmissions(
 		? and(
 			eq(vwFormSubmissions.form, form),
 			or(
-				...searchColumns.map(col => like(sql`LOWER(${col}::TEXT)`, q))
+				...searchColumns.map(col => like(sql`LOWER(${ col }::TEXT)`, q))
 			),
 		)
 		: eq(vwFormSubmissions.form, form);

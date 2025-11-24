@@ -10,14 +10,29 @@ import {
 	signal,
 	untracked
 } from "@angular/core";
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from "@angular/forms";
+import {
+	ControlValueAccessor,
+	NG_VALUE_ACCESSOR,
+	ReactiveFormsModule
+} from "@angular/forms";
 import { FieldKey, Option } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideCheck, lucideCheckCheck, lucidePencil, lucidePlus, lucideTrash2, lucideX, } from "@ng-icons/lucide";
+import {
+	lucideCheck,
+	lucideCheckCheck,
+	lucidePencil,
+	lucidePlus,
+	lucideTrash2,
+	lucideX,
+} from "@ng-icons/lucide";
 import { TranslatePipe } from '@ngx-translate/core';
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmTableContainer, HlmTableImports } from '@spartan-ng/helm/table';
-import { extractFieldKey, ParsedValue, TabularFieldSchema } from '@app/model/form';
+import {
+	extractFieldKey,
+	ParsedValue,
+	TabularFieldSchema
+} from '@app/model/form';
 import { entries, isEmpty, values } from 'lodash';
 import {
 	CellContext,
@@ -32,8 +47,12 @@ import {
 } from '@tanstack/angular-table';
 import { TableHeadSelectionComponent } from './table-head-selection.component';
 import { TableRowSelectionComponent } from './table-row-selection.component';
-import { EditableCellComponent } from '@app/components/tabular-field/cells/editable-cell/editable-cell.component';
-import { ActionCell, ActionTriggeredEvent, RowAction } from '@app/components/tabular-field/cells';
+import {
+	ActionCell,
+	ActionTriggeredEvent,
+	EditableCellComponent,
+	RowAction
+} from '@app/components/tabular-field/cells';
 import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 
 declare module '@tanstack/angular-table' {
@@ -273,6 +292,7 @@ export class TabularFieldComponent<T extends Record<string, ParsedValue | Parsed
 			return acc;
 		}, {} as Record<string, ParsedValue | ParsedValue[]>));
 		this.data.set(transformedValue);
+		this.editing.set(false);
 	}
 
 	protected addRow() {

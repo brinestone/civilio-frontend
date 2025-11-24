@@ -15,7 +15,7 @@ import {
 	viewChild
 } from '@angular/core';
 import { sendRpcMessageAsync } from '@app/util';
-import { GeoPoint, GeopointSchema } from '@civilio/shared';
+import { GeoPoint, GeoPointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleAlert } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -52,7 +52,7 @@ export class GeoPointComponent {
 
 	protected readonly network = injectNetwork()
 	protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
-	protected readonly _value = computed(() => GeopointSchema.parse(this.value() ?? {}));
+	protected readonly _value = computed(() => GeoPointSchema.parse(this.value() ?? {}));
 	protected readonly resolvedCoords = linkedSignal(() => latLng(this._value().lat, this._value().long));
 	protected readonly markerIconUrl = resource({
 		loader: async () => {
