@@ -27,7 +27,10 @@
       ],
       "@civilio/helpers/*": [
         "./src/helpers/*"
-      ]
+      ],
+			"@civilio/contracts": [
+				"../../libs/contracts/index.ts"
+			]
     }
   },
   "include": [

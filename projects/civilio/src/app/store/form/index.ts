@@ -49,7 +49,16 @@ import {
 	set,
 	values
 } from "lodash";
-import { concat, concatMap, EMPTY, filter, from, switchMap, tap } from "rxjs";
+import {
+	concat,
+	concatMap,
+	EMPTY,
+	filter,
+	from,
+	switchMap,
+	tap,
+	throwError
+} from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
@@ -64,6 +73,7 @@ import {
 	RecordDeltaChange,
 	Redo,
 	RemoveMapping,
+	RevertToVersion,
 	SaveChanges,
 	SetFormType,
 	SubmissionIndexChanged,
@@ -170,8 +180,31 @@ function splitChangePath(path: string) {
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
 
+	@Action(RevertToVersion)
+	onRevert(ctx: Context, {
+		changeNotes,
+		form,
+		index,
+		customVersion
+	}: RevertToVersion) {
+		const targetVersion = ctx.getState().workingVersion;
+		if (!targetVersion) return throwError(() => new Error('Please specify a version to revert to'));
+		return from(this.formService.revertSubmissionVersion({
+			form,
+			index,
+			targetVersion,
+			changeNotes,
+			customVersion
+		}))
+	}
+
 	@Action(SaveChanges)
-	onSaveChanges(ctx: Context, { form, changeNotes, index }: SaveChanges) {
+	onSaveChanges(ctx: Context, {
+		form,
+		changeNotes,
+		index,
+		customVersion
+	}: SaveChanges) {
 		const deltas = this.extractDeltas(ctx, ctx.getState().schemas[form], index);
 		const { activeSections } = ctx.getState();
 		return from(this.formService.updateFormSubmission({
@@ -179,7 +212,8 @@ class FormState {
 			form,
 			submissionIndex: index,
 			deltas,
-			parentVersion: ctx.getState().workingVersion
+			parentVersion: ctx.getState().workingVersion,
+			customVersion
 		})).pipe(
 			tap(() => ctx.setState(patch({
 				undoStack: [],

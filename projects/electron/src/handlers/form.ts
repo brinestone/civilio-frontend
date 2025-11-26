@@ -37,6 +37,7 @@ import {
 	OptionSchema,
 	RemoveFieldMappingRequest,
 	UpdateSubmissionRequest,
+	VersionRevertRequest,
 } from "@civilio/shared";
 import { and, countDistinct, eq, inArray, like, or, sql } from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
@@ -86,16 +87,39 @@ const sequences: Record<
 	}
 };
 
+export async function revertSubmissionVersion({
+																								customVersion,
+																								targetVersion,
+																								index,
+																								form,
+																								changeNotes
+																							}: VersionRevertRequest) {
+	const db = provideDatabase({ deltaChanges });
+	return await db.transaction(async tx => {
+		await tx.execute(sql`
+	CALL revisions.revert_submission(
+	       ${ form },
+	       ${ index },
+	       ${ targetVersion },
+	       ${ changeNotes },
+	       'civilio',
+	       ${ customVersion || null }
+	);
+	`);
+	});
+}
+
 export async function processSubmissionDataUpdate({
 																										submissionIndex,
 																										form,
 																										deltas,
 																										changeNotes,
-																										parentVersion
+																										parentVersion,
+																										customVersion
 																									}: UpdateSubmissionRequest) {
 	const db = provideDatabase({ fieldMappings, deltaChanges });
 	return await db.transaction(async tx => {
-		const newVersion = hashThese([JSON.stringify(deltas), Date.now()].join('|'));
+		const newVersion = customVersion || hashThese([JSON.stringify(deltas), Date.now()].join('|'));
 		console.log('new version = ', newVersion);
 		console.log('parent version = ', parentVersion);
 		const _configs = {

@@ -1,5 +1,8 @@
 misc:
   dialogs:
+    version_revert:
+      title: Revert to this version?
+      description: "Are you sure you want to revert to this version? This action cannot be undone."
     finish_update:
       title: Finalize changes
       description: "The changes you've made will create a new version from"
@@ -18,6 +21,7 @@ misc:
     save_and_exit: Save changes and leave
     stay: Keep editing
   placeholder:
+    custom_version: Specify a version (optional).
     change_notes: Change Notes
     jump_to_index: Jump to index
     filter_submissions: Filter submissions...
@@ -893,6 +897,8 @@ msg:
   discard_msg:
     txt: Are you sure you want to discard the changes you've made?
   ok: Ok
+  revert_success:
+    description: Changes reverted successfully
   changes_saved:
     title: Success
     description: Changes saved successfully

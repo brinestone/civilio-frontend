@@ -26,13 +26,18 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	UpdateSubmissionRequest,
-	UpdateSubmissionResponse
+	UpdateSubmissionResponse,
+	VersionRevertRequest,
+	VersionRevertResponse
 } from '@civilio/shared';
 
 @Injectable({
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse> {
+		throw new Error("Method not implemented.");
+	}
 	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse> {
 		throw new Error("Method not implemented.");
 	}

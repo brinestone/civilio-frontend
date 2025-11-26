@@ -1,5 +1,5 @@
 import z from 'zod';
-import { Channel } from '../channels';
+import { Channel } from '../contracts';
 
 export const ErrorCodeSchema = z.enum(['bad_request', 'mal_config', 'timeout', 'execution_error']);
 export const ErrorDataSchema = z.unknown();

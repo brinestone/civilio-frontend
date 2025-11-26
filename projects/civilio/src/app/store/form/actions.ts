@@ -10,10 +10,20 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class RevertToVersion {
+	static type = `${ prefix } revert to version`;
+
+	constructor(readonly form: FormType,
+							readonly changeNotes: string,
+							readonly index?: number | string,
+							readonly customVersion?: string) {
+	}
+}
+
 export class SaveChanges {
 	static type = `${ prefix } save  changes`;
 
-	constructor(readonly form: FormType, readonly changeNotes: string, readonly index?: number | string) {
+	constructor(readonly form: FormType, readonly changeNotes: string, readonly index?: number | string, readonly customVersion?: string) {
 	}
 }
 

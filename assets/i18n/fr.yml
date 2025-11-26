@@ -1,5 +1,9 @@
 misc:
   dialogs:
+    version_revert:
+      title: Revenir à cette version ?
+      description: Êtes-vous sûr de vouloir revenir à cette version ? Cette action ne
+        peut pas être annulée.
     finish_update:
       title: Finaliser les modifications
       description: Les modifications que vous avez apportées créeront une nouvelle
@@ -20,6 +24,7 @@ misc:
     save_and_exit: Enregistrez les modifications et quittez
     stay: Continuer à éditer
   placeholder:
+    custom_version: Spécifiez une version (facultatif).
     change_notes: Notes de modification
     jump_to_index: Aller à l'index
     filter_submissions: Filtrer les soumissions...
@@ -904,6 +909,8 @@ msg:
     txt: Êtes-vous sûr de vouloir annuler les modifications que vous avez
       apportées ?
   ok: D'accord
+  revert_success:
+    description: Les modifications ont été annulées avec succès
   changes_saved:
     title: Succès
     description: Modifications enregistrées avec succès
