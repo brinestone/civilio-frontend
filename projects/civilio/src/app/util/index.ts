@@ -35,6 +35,7 @@ import {
 } from "rxjs";
 
 export function maskString(value: string, maskChar = '.', maskMaxLength = 3) {
+	if (value.length <= 4) return value;
 	const start = Math.floor(.333 * value.length);
 	const end = Math.floor(.8 * value.length);
 	const mask = maskChar.repeat(Math.min(end - start, maskMaxLength));

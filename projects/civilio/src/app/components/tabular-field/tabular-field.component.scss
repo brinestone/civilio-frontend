@@ -1,5 +1,5 @@
 @reference "tailwindcss";
 
 :host {
-  @apply block border-[var] rounded-md max-h-[35rem] overflow-y-auto relative border;
+  @apply block border-[var] rounded-md max-h-140 overflow-y-auto relative border;
 }

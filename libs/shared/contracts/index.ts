@@ -8,7 +8,8 @@ import {
 	FindFieldMappingsResponseSchema,
 	FindFormOptionsRequestSchema,
 	FindFormOptionsResponseSchema,
-	FindFormSubmissionsRequestSchema, FindIndexSuggestionsResponseSchema,
+	FindFormSubmissionsRequestSchema,
+	FindIndexSuggestionsResponseSchema,
 	FindSubmissionCurrentVersionRequestSchema,
 	FindSubmissionCurrentVersionResponseSchema,
 	FindSubmissionDataRequestSchema,
@@ -16,7 +17,6 @@ import {
 	FindSubmissionRefRequestSchema,
 	FindSubmissionRefResponseSchema,
 	FindSubmissionRefSuggestionsRequestSchema,
-	FindSubmissionRefSuggestionsResponseSchema,
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponseSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
@@ -34,13 +34,14 @@ import {
 	UpdateLocaleRequestSchema,
 	UpdateSubmissionRequestSchema,
 	UpdateSubmissionResponseSchema,
-	UpdateThemeRequestSchema
-} from './dto';
+	UpdateThemeRequestSchema,
+	VersionRevertRequestSchema, VersionRevertResponseSchema
+} from '../dto';
 import {
 	createPaginatedResultSchema,
 	FieldMappingSchema,
 	FormSubmissionSchema
-} from './schema';
+} from '../schema';
 
 const entities = z.enum(['field-mappings', 'config', 'submissions',]);
 const crudActions = z.enum(['create', 'read', 'update', 'delete']);
@@ -79,6 +80,7 @@ export const channelArgs = {
 	'submission-versions:read': FindSubmissionVersionsRequestSchema,
 	'submission-version:read': FindSubmissionCurrentVersionRequestSchema,
 	'submission-version:init': InitializeSubmissionVersionRequestSchema,
+	'submission:revert': VersionRevertRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -108,13 +110,14 @@ export const channelResponses = {
 	'locale:update': AppConfigResponseSchema,
 	'submission-versions:read': FindSubmissionVersionsResponseSchema,
 	'submission-version:read': FindSubmissionCurrentVersionResponseSchema,
-	'submission-version:init': InitializeSubmissionVersionResponseSchema
+	'submission-version:init': InitializeSubmissionVersionResponseSchema,
+	'submission:revert': VersionRevertResponseSchema
 } as const;
 
-type InferZod<T extends z.ZodType> = z.infer<T>;
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'submission:revert'
 	| 'submission-version:init'
 	| 'submission-version:read'
 	| 'submission-versions:read'

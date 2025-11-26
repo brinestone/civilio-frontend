@@ -37,7 +37,7 @@ import {
 	InitVersioning,
 	LoadOptions,
 	LoadSubmissionData,
-	Redo,
+	Redo, RevertToVersion,
 	SaveChanges,
 	SubmissionIndexChanged,
 	Undo,
@@ -108,6 +108,7 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { FormsModule } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
+import { HlmInput } from "@spartan-ng/helm/input";
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -152,7 +153,8 @@ const miscConfigKeys = {
 		BrnAlertDialogImports,
 		DecimalPipe,
 		HlmTextarea,
-		HlmAlertImports
+		HlmAlertImports,
+		HlmInput
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -184,6 +186,7 @@ export class FormPage
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
 	private readonly route = inject(ActivatedRoute);
+	private readonly doRevert = dispatch(RevertToVersion);
 	private readonly initVersioning = dispatch(InitVersioning);
 	private readonly indexChanged = dispatch(SubmissionIndexChanged);
 	private readonly navigate = dispatch(Navigate);
@@ -195,6 +198,7 @@ export class FormPage
 	private initialized = false;
 	private loadingData = false;
 	protected readonly changeNotes = signal<string>('');
+	protected readonly customVersion = signal<string>('');
 	protected readonly savingChanges = signal(false);
 	protected readonly totalErrors = select(totalErrorCount);
 	protected readonly changeNotesValid = computed(() => this.changeNotes().trim().length > 0);
@@ -235,6 +239,7 @@ export class FormPage
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed')
 	protected readonly submitChangesDialogState = signal<BrnDialogState>('closed');
+	protected readonly revertDialogState = signal<BrnDialogState>('closed');
 	protected bottomPanelStatus = select(miscConfig<'open' | 'closed'>(miscConfigKeys.bottomPanelOpenState));
 	protected readonly loadingSubmissionData = signal(false);
 	protected relevanceRegistry = select(relevanceRegistry);
@@ -297,12 +302,12 @@ export class FormPage
 			filter(() => !this.relevanceRegistry()[this.activeSection()]),
 		).subscribe(() => {
 			this.navigate([
-					'..',
-					this.submissionIndex(),
-					this.formModel().sections[0].id],
+				'..',
+				this.submissionIndex(),
+				this.formModel().sections[0].id],
 				undefined, {
-					relativeTo: this.route
-				});
+				relativeTo: this.route
+			});
 		});
 
 		actions$.pipe(
@@ -366,7 +371,7 @@ export class FormPage
 					})
 				} else {
 					this.savingChanges.set(true);
-					this.saveChanges(this.formType(), this.changeNotes(), this.submissionIndex() ?? undefined).subscribe({
+					this.saveChanges(this.formType(), this.changeNotes(), this.submissionIndex() ?? undefined, this.customVersion() || undefined).subscribe({
 						error: (e: Error) => {
 							this.savingChanges.set(false);
 							toast.error(this.ts.instant('msg.error.title'), { description: e.message })
@@ -475,7 +480,7 @@ export class FormPage
 		this.savingChanges.set(true);
 		const toastId = toast.loading(this.ts.instant('msg.saving_changes.description'));
 		const index = this.submissionIndex() == 'new' ? undefined : this.submissionIndex()!;
-		this.saveChanges(this.formType(), this.changeNotes(), index).subscribe({
+		this.saveChanges(this.formType(), this.changeNotes(), index, this.customVersion() || undefined).subscribe({
 			error: (e: Error) => {
 				this.savingChanges.set(false);
 				callback();
@@ -502,5 +507,44 @@ export class FormPage
 
 	protected onDiscardButtonClicked() {
 		this.discardChanges(this.formType());
+	}
+
+	protected finishRevertButtonClicked() {
+		this.savingChanges.set(true);
+		this.doRevert(
+			this.formType(),
+			this.changeNotes(),
+			this.submissionIndex() ?? undefined,
+			this.customVersion() || undefined
+		).subscribe({
+			complete: () => {
+				this.savingChanges.set(false);
+				this.selectedVersion.reload();
+				this.versions.reload();
+				this.changeNotes.set('');
+				this.revertDialogState.set('closed');
+				toast.success(this.ts.instant('msg.changes_saved.title'), { description: this.ts.instant('msg.revert_success.description') });
+			},
+			error: (e: Error) => {
+				this.savingChanges.set(false);
+				toast.error(this.ts.instant('msg.error.title'), { description: e.message });
+			}
+		})
+	}
+
+	protected onSaveChangesDialogToggled(event: BrnDialogState) {
+		this.submitChangesDialogState.set(event);
+		if (event == 'closed') {
+			this.changeNotes.set('');
+			this.customVersion.set('');
+		}
+	}
+
+	protected onRevertDialogToggled(value: BrnDialogState) {
+		this.revertDialogState.set(value);
+		if (value == 'closed') {
+			this.changeNotes.set('');
+			this.customVersion.set('');
+		}
 	}
 }

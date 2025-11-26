@@ -16,7 +16,7 @@ import {
 	getResourceUrl,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
-	removeFieldMapping,
+	removeFieldMapping, revertSubmissionVersion,
 	updateFieldMappings,
 	updateLocale,
 	updateTheme,
@@ -31,6 +31,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('submission:revert', async arg => {
+		return await revertSubmissionVersion(arg);
+	})
 	createChannelHandler('submission-version:init', async arg => {
 		return await initializeSubmissionVersioning(arg);
 	})

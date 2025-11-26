@@ -1,4 +1,4 @@
-import { Channel } from "../channels";
+import { Channel } from "../contracts";
 
 export function computeReplyChannel(channel: Channel) {
 	return `${channel}-reply` as const;

@@ -30,10 +30,14 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	UpdateSubmissionRequest,
-	UpdateSubmissionResponse
+	UpdateSubmissionResponse,
+	VersionRevertRequest,
+	VersionRevertResponse
 } from "@civilio/shared";
 
 export interface FormService {
+	revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse>;
+
 	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse>;
 
 	initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse>;

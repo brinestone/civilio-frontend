@@ -11,13 +11,24 @@ import {
 	ThemeSchema
 } from "../schema";
 
+export const VersionRevertResponseSchema = z.void();
+
+export const VersionRevertRequestSchema = z.object({
+	index: z.coerce.number(),
+	form: FormTypeSchema,
+	targetVersion: z.string(),
+	customVersion: z.string().optional(),
+	changeNotes: z.string()
+})
+
 export const UpdateSubmissionResponseSchema = z.void();
 export const UpdateSubmissionRequestSchema = z.object({
 	deltas: SubmissionChangeDeltaSchema.array(),
 	form: FormTypeSchema,
 	changeNotes: z.string(),
 	parentVersion: z.string().nullable().optional(),
-	submissionIndex: z.coerce.number().optional()
+	submissionIndex: z.coerce.number().optional(),
+	customVersion: z.string().optional()
 });
 export const SubmissionRefSchema = FormSubmissionSchema.pick({
 	facilityName: true,
@@ -189,3 +200,5 @@ export type InitializeSubmissionVersionResponse = z.infer<typeof InitializeSubmi
 export type InitializeSubmissionVersionRequest = z.input<typeof InitializeSubmissionVersionRequestSchema>;
 export type FindSubmissionRefSuggestionsResponse = z.output<typeof FindSubmissionRefSuggestionsResponseSchema>;
 export type FindSubmissionRefSuggestionsRequest = z.input<typeof FindSubmissionRefSuggestionsRequestSchema>;
+export type VersionRevertRequest = z.input<typeof VersionRevertRequestSchema>;
+export type VersionRevertResponse = z.output<typeof VersionRevertResponseSchema>;

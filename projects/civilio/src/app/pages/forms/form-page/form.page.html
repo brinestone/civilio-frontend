@@ -3,21 +3,21 @@
 >
 	<ng-container>
 		@if (submissionIndex()) {
-			<cv-form-header
-				[submissionIndex]="submissionIndex()!"
-				[formType]="formType()"
-				[formSchema]="formModel()"
-				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null || isNewSubmission()"
-				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null || isNewSubmission()"
-				(redo)="redo(formType())"
-				(undo)="undo(formType())"
-				[version]="selectedVersion.value()"
-				[canRedo]="canRedo()"
-				[canUndo]="canUndo()"
-				(indexJump)="onIndexJump($event)"
-				(nextSubmission)="onNextSubmissionRequested()"
-				(prevSubmission)="onPrevSubmissionRequested()"
-			/>
+		<cv-form-header
+			[submissionIndex]="submissionIndex()!"
+			[formType]="formType()"
+			[formSchema]="formModel()"
+			[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null || isNewSubmission()"
+			[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null || isNewSubmission()"
+			(redo)="redo(formType())"
+			(undo)="undo(formType())"
+			[version]="selectedVersion.value()"
+			[canRedo]="canRedo()"
+			[canUndo]="canUndo()"
+			(indexJump)="onIndexJump($event)"
+			(nextSubmission)="onNextSubmissionRequested()"
+			(prevSubmission)="onPrevSubmissionRequested()"
+		/>
 		}
 	</ng-container>
 </div>
@@ -27,78 +27,82 @@
 >
 	<div class="space-y-2 bg-(--background)">
 		@defer (when versions.hasValue()) {
-			<brn-select
-				[(value)]="selectedVersion.value"
-				[disabled]="versions.value().length == 0"
-				[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate"
-				class="w-full block"
-			>
-				<hlm-select-trigger class="w-full">
-					<hlm-select-value>
-						<div class="flex items-center gap-2" *brnSelectValue="let value">
+		<brn-select
+			[(value)]="selectedVersion.value"
+			[disabled]="versions.value().length == 0"
+			[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate"
+			class="w-full block"
+		>
+			<hlm-select-trigger class="w-full">
+				<hlm-select-value>
+					<div class="flex items-center gap-2" *brnSelectValue="let value">
 						<span class="text-muted-foreground text-xs"
-						>{{ 'form.header.version_selector.revision' | translate }}</span
+							>{{ 'form.header.version_selector.revision' | translate }}</span
 						>
-							<span>{{ value | mask }}</span>
-						</div>
-					</hlm-select-value>
-				</hlm-select-trigger>
-				<hlm-select-content class="w-full">
-					<hlm-select-scroll-up/>
-					@for (versionInfo of versions.value(); track versionInfo.version) {
-						<hlm-option [value]="versionInfo.version">
-							<div class="space-y-2 inline-block">
-								<span class="block">{{ versionInfo.version | mask }}</span>
-								<span class="text-xs text-muted-foreground block"
-								>{{
-										versionInfo.changed_at | ago_date:(locale()|slice:0:2)
-									}}</span
-								>
-							</div>
-						</hlm-option>
-					}
-					<hlm-select-scroll-down/>
-				</hlm-select-content>
-			</brn-select>
+						<span>{{ value | mask }}</span>
+					</div>
+				</hlm-select-value>
+			</hlm-select-trigger>
+			<hlm-select-content class="w-full">
+				<hlm-select-scroll-up />
+				@for (versionInfo of versions.value(); track versionInfo.version) {
+				<hlm-option [value]="versionInfo.version">
+					<div class="space-y-2 inline-block">
+						<span class="block">{{ versionInfo.version | mask }}</span>
+						<span class="text-xs text-muted-foreground block"
+							>{{ versionInfo.changed_at | ago_date:(locale()|slice:0:2)
+							}}</span
+						>
+					</div>
+				</hlm-option>
+				}
+				<hlm-select-scroll-down />
+			</hlm-select-content>
+		</brn-select>
 		} @loading {
-			<hlm-skeleton class="w-full block h-8"/>
+		<hlm-skeleton class="w-full block h-8" />
+		} @if (!isSelectedVersionCurrent() && versions.hasValue() &&
+		!versions.isLoading() && false) {
+		<button
+			(click)="revertDialogState.set('open')"
+			hlmBtn
+			class="flex w-full"
+			variant="outline"
+			size="sm"
+		>
+			<ng-icon name="lucideHistory" />
+			<span>{{ 'form.header.version_revert.title' | translate }}</span>
+		</button>
 		}
-		@if (!isSelectedVersionCurrent() && versions.hasValue() &&
-		!versions.isLoading()) {
-			<button hlmBtn class="flex w-full" variant="outline" size="sm">
-				<ng-icon name="lucideHistory"/>
-				<span>{{ 'form.header.version_revert.title' | translate }}</span>
-			</button>
-		}
-		<hlm-separator/>
+		<hlm-separator />
 	</div>
 	<ul
 		class="list-none space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto h-full"
 	>
 		@for (section of formModel().sections; track $index) {
-			<ng-container
-				[ngTemplateOutlet]="sectionItemTemplate"
-				[ngTemplateOutletContext]="{
+		<ng-container
+			[ngTemplateOutlet]="sectionItemTemplate"
+			[ngTemplateOutletContext]="{
 			$implicit: section
 		}"
-			/>
+		/>
 		}
 	</ul>
 	<div class="space-y-2 bg-(--background)/50 py-1 backdrop-blur-md">
 		@if (hasUnsavedChanges()) {
-			<button (click)="onSaveChangesButtonClicked()" class="flex w-full" hlmBtn>
-				<ng-icon name="lucideSave"/>
-				<span>{{ "forms.header.actions.save_changes" | translate }}</span>
-			</button>
-			<button
-				(click)="onDiscardButtonClicked()"
-				class="flex w-full"
-				hlmBtn
-				variant="destructive"
-			>
-				<ng-icon name="lucideTrash2"/>
-				<span>{{ "forms.header.actions.discard" | translate }}</span>
-			</button>
+		<button (click)="onSaveChangesButtonClicked()" class="flex w-full" hlmBtn>
+			<ng-icon name="lucideSave" />
+			<span>{{ "forms.header.actions.save_changes" | translate }}</span>
+		</button>
+		<button
+			(click)="onDiscardButtonClicked()"
+			class="flex w-full"
+			hlmBtn
+			variant="destructive"
+		>
+			<ng-icon name="lucideTrash2" />
+			<span>{{ "forms.header.actions.discard" | translate }}</span>
+		</button>
 		}
 	</div>
 </div>
@@ -109,12 +113,12 @@
 	'row-span-2': bottomPanelStatus() == 'closed'
 }"
 >
-	<router-outlet/>
+	<router-outlet />
 </div>
 @if (bottomPanelStatus() == 'open') {
-	<cv-form-footer
-		class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
-	/>
+<cv-form-footer
+	class="overflow-y-auto col-start-2 col-span-1 row-start-3 row-span-1"
+/>
 }
 <div
 	class="flex justify-between items-stretch px-2 border-t border-border col-start-1 col-span-2 row-start-4 row-span-1"
@@ -143,42 +147,41 @@
 		@let hasChildren = section.children?.length > 0;
 	</ng-container>
 	@if (shouldShowSection) {
-		<ng-container>
-			<li class="form-section" [class.pl-3]="parent != null">
-				@let hasNoFields = hasChildren && section.fields.length == 0;
-				<a
-					[routerLink]="hasNoFields ? [section.children[0].id] : section.id"
-					queryParamsHandling="replace"
-					[queryParams]="{parent: parent ?? null}"
-					routerLinkActive="active"
+	<ng-container>
+		<li class="form-section" [class.pl-3]="parent != null">
+			@let hasNoFields = hasChildren && section.fields.length == 0;
+			<a
+				[routerLink]="hasNoFields ? [section.children[0].id] : section.id"
+				queryParamsHandling="replace"
+				[queryParams]="{parent: parent ?? null}"
+				routerLinkActive="active"
+			>
+				<p>{{ section.id + '.title' | translate }}</p>
+				@if (sectionValidity()[section.id] == 'INVALID') {
+				<span hlmBadge variant="destructive" class="uppercase"
+					>{{ sectionValidity()[section.id] }}</span
 				>
-					<p>{{ section.id + '.title' | translate }}</p>
-					@if (sectionValidity()[section.id] == 'INVALID') {
-						<span hlmBadge variant="destructive" class="uppercase"
-						>{{ sectionValidity()[section.id] }}</span
-						>
-					}
-				</a>
-			</li>
-			@if (hasChildren) {
-				<ng-container>
-					@for (child of section.children; track $index) {
-						<ng-container>
-							@let shouldShowSection = relevanceRegistry()[child.id];
-						</ng-container>
-						@if (shouldShowSection) {
-							<ng-container
-								[ngTemplateOutlet]="sectionItemTemplate"
-								[ngTemplateOutletContext]="{
+				}
+			</a>
+		</li>
+		@if (hasChildren) {
+		<ng-container>
+			@for (child of section.children; track $index) {
+			<ng-container>
+				@let shouldShowSection = relevanceRegistry()[child.id];
+			</ng-container>
+			@if (shouldShowSection) {
+			<ng-container
+				[ngTemplateOutlet]="sectionItemTemplate"
+				[ngTemplateOutletContext]="{
 						$implicit: child,
 						parent: section.id
 					}"
-							/>
-						}
-					}
-				</ng-container>
-			}
+			/>
+			} }
 		</ng-container>
+		}
+	</ng-container>
 	}
 </ng-template>
 
@@ -187,7 +190,10 @@
 	(stateChanged)="pendingChangesDialogState.set($event)"
 	[state]="pendingChangesDialogState()"
 >
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="max-w-[500px]!">
+	<hlm-alert-dialog-content
+		*brnAlertDialogContent="let ctx"
+		class="max-w-[500px]!"
+	>
 		<hlm-alert-dialog-header>
 			<h2 hlmAlertDialogTitle>
 				{{ 'misc.dialogs.pending_changes.title' | translate }}
@@ -197,7 +203,7 @@
 			</p>
 		</hlm-alert-dialog-header>
 		<div>
-			<ng-container [ngTemplateOutlet]="changeNotesTemplate"/>
+			<ng-container [ngTemplateOutlet]="changeNotesTemplate" />
 		</div>
 		<hlm-alert-dialog-footer>
 			<button
@@ -206,7 +212,7 @@
 				class="cursor-pointer"
 				hlmAlertDialogCancel
 			>
-				<ng-icon name="lucideX"/>
+				<ng-icon name="lucideX" />
 				<span>{{ 'misc.actions.stay' | translate }}</span>
 			</button>
 			<button
@@ -215,7 +221,10 @@
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
-				<ng-icon [class.animate-spin]="savingChanges()" [name]="savingChanges() ? 'lucideLoader' :'lucideSave'"/>
+				<ng-icon
+					[class.animate-spin]="savingChanges()"
+					[name]="savingChanges() ? 'lucideLoader' :'lucideSave'"
+				/>
 				<span>{{ 'misc.actions.save_and_exit' | translate }}</span>
 			</button>
 			<button
@@ -225,28 +234,35 @@
 				hlmAlertDialogAction
 				variant="destructive"
 			>
-				<ng-icon name="lucideTrash2"/>
+				<ng-icon name="lucideTrash2" />
 				<span>{{ 'misc.actions.discard' | translate }}</span>
 			</button>
 		</hlm-alert-dialog-footer>
 	</hlm-alert-dialog-content>
 </hlm-alert-dialog>
 
-<hlm-alert-dialog #d2 [state]="submitChangesDialogState()">
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="max-w-[500px]!">
+<hlm-alert-dialog
+	#d2
+	[state]="submitChangesDialogState()"
+	(stateChanged)="onSaveChangesDialogToggled($event)"
+>
+	<hlm-alert-dialog-content
+		*brnAlertDialogContent="let ctx"
+		class="max-w-[500px]!"
+	>
 		<hlm-alert-dialog-header class="max-w-full">
 			<h2 hlmAlertDialogTitle>
 				{{ 'misc.dialogs.finish_update.title' | translate }}
 			</h2>
 			<p hlmAlertDialogDescription>
-				{{ 'misc.dialogs.finish_update.description' | translate }}<br/><strong
-				[title]="selectedVersion.value()"
-			>{{ selectedVersion.value() | mask }}</strong
-			>
+				{{ 'misc.dialogs.finish_update.description' | translate }}<br /><strong
+					[title]="selectedVersion.value()"
+					>{{ selectedVersion.value() | mask }}</strong
+				>
 			</p>
 		</hlm-alert-dialog-header>
 		<div class="w-full">
-			<ng-container [ngTemplateOutlet]="changeNotesTemplate"/>
+			<ng-container [ngTemplateOutlet]="changeNotesTemplate" />
 		</div>
 		<hlm-alert-dialog-footer>
 			<button
@@ -255,7 +271,10 @@
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
-				<ng-icon [class.animate-spin]="savingChanges()" [name]="savingChanges() ? 'lucideLoader' :'lucideSave'"/>
+				<ng-icon
+					[class.animate-spin]="savingChanges()"
+					[name]="savingChanges() ? 'lucideLoader' :'lucideSave'"
+				/>
 				<span>{{ 'misc.actions.finish' | translate }}</span>
 			</button>
 			<button
@@ -265,7 +284,53 @@
 				hlmAlertDialogCancel
 				variant="destructive"
 			>
-				<ng-icon name="lucideX"/>
+				<ng-icon name="lucideX" />
+				<span>{{ 'misc.actions.cancel' | translate }}</span>
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<hlm-alert-dialog
+	#d3
+	[state]="revertDialogState()"
+	(stateChanged)="onRevertDialogToggled($event)"
+>
+	<hlm-alert-dialog-content
+		*brnAlertDialogContent="let ctx"
+		class="max-w-[500px]"
+	>
+		<hlm-alert-dialog-header class="max-w-full">
+			<h2 hlmAlertDialogTitle>
+				{{'misc.dialogs.version_revert.title' | translate}}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{ 'misc.dialogs.version_revert.description' | translate }}
+			</p>
+		</hlm-alert-dialog-header>
+		<div class="w-full">
+			<ng-container [ngTemplateOutlet]="changeNotesTemplate" />
+		</div>
+		<hlm-alert-dialog-footer>
+			<button
+				class="cursor-pointer"
+				(click)="finishRevertButtonClicked()"
+				[disabled]="!changeNotesValid() || savingChanges()"
+				hlmAlertDialogAction
+			>
+				<ng-icon
+					[class.animate-spin]="savingChanges()"
+					[name]="savingChanges() ? 'lucideLoader' :'lucideSave'"
+				/>
+				<span>{{ 'misc.actions.finish' | translate }}</span>
+			</button>
+			<button
+				[disabled]="savingChanges()"
+				(click)="ctx.close(); revertDialogState.set('closed'); changeNotes.set('')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+			>
+				<ng-icon name="lucideX" />
 				<span>{{ 'misc.actions.cancel' | translate }}</span>
 			</button>
 		</hlm-alert-dialog-footer>
@@ -275,19 +340,24 @@
 <ng-template #changeNotesTemplate>
 	<div class="space-y-3 max-w-full">
 		@if (totalErrors() > 0) {
-			<div hlmAlert variant="destructive">
-				<ng-icon hlmAlertIcon name="lucideCircleAlert"/>
-				<h4 hlmAlertTitle>
-					{{ 'misc.dialogs.finish_update.invalid_alert.title' | translate }}
-				</h4>
-				<p hlmAlertDescription>
-					{{
-						'misc.dialogs.finish_update.invalid_alert.description' |
-							translate:{count: totalErrors() | number}
-					}}
-				</p>
-			</div>
+		<div hlmAlert variant="destructive">
+			<ng-icon hlmAlertIcon name="lucideCircleAlert" />
+			<h4 hlmAlertTitle>
+				{{ 'misc.dialogs.finish_update.invalid_alert.title' | translate }}
+			</h4>
+			<p hlmAlertDescription>
+				{{ 'misc.dialogs.finish_update.invalid_alert.description' |
+				translate:{count: totalErrors() | number} }}
+			</p>
+		</div>
 		}
+		<hlm-separator />
+		<input
+			[(ngModel)]="customVersion"
+			class="block"
+			hlmInput
+			placeholder="{{'misc.placeholder.custom_version' | translate}}"
+		/>
 		<textarea
 			[(ngModel)]="changeNotes"
 			class="block max-h-[100px] space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"

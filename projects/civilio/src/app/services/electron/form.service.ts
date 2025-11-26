@@ -25,7 +25,9 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	UpdateSubmissionRequest,
-	UpdateSubmissionResponse
+	UpdateSubmissionResponse,
+	VersionRevertRequest,
+	VersionRevertResponse
 } from '@civilio/shared';
 import { FORM_SERVICE_IMPL, FormService } from '../form';
 
@@ -33,6 +35,10 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse> {
+		return await sendRpcMessageAsync('submission:revert', req);
+	}
+
 	async initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse> {
 		return await sendRpcMessageAsync('submission-version:init', req);
 	}
