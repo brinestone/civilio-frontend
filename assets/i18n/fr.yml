@@ -44,8 +44,7 @@ validation:
   msg:
     int: La valeur doit être un entier
     field_required: Ce champ est obligatoire
-    value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de l'une
-      des {{validValues}}
+    value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de : {{validValues}}
     pattern_mismatch: Format invalide
     invalid_date: Date invalide
     max_date: La date ne peut pas être postérieure au {{maxDate}}
@@ -116,6 +115,80 @@ settings:
 csc:
   form:
     sections:
+      extra:
+        title: Commentaires
+        fields:
+          relevant_info:
+            title: Veuillez utiliser l'espace prévu pour ajouter toute information
+              supplémentaire pertinente.
+          validation_code:
+            title: Code de validation
+      employees:
+        title: Statut du personnel
+        sections:
+          general:
+            title: Général
+            fields:
+              male_count:
+                title: Nombre d'officiers (hommes)
+              female_count:
+                title: Nombre d'officiers (femmes)
+              non_officer_male_count:
+                title: Nombre de personnes travaillant dans l'état civil (hors agents) hommes
+              non_officer_female_count:
+                title: Nombre de personnes travaillant dans l'état civil (hors agents) femmes
+          officers:
+            title: Liste du personnel du centre (officiers et non-officiers)
+            fields:
+              name:
+                title: Nom et prénom
+              position:
+                title: Fonction/poste
+              other_position:
+                title: Autre fonction
+              prof_status:
+                title: Statut professionnel
+              other_prof_status:
+                title: Autre statut professionnel
+              gender:
+                title: Genre
+              phone:
+                title: Numéro de téléphone
+              age:
+                title: Âge
+              ed_level:
+                title: Niveau d'éducation
+              computer_level:
+                title: Niveau de compétences en informatique
+              ec_training:
+                title: Avez-vous reçu une formation en état civil ?
+              archive_training:
+                title: Avez-vous reçu une formation en archivage ?
+              computer_training:
+                title: Avez-vous reçu une formation en informatique ?
+              cs_seniority:
+                title: Nombre d'années d'ancienneté dans la fonction publique
+              monthly_salary:
+                title: Allocation mensuelle perçue en {{lastYear}} (en francs CFA)
+      deeds:
+        title: Rapports émis mais non retirés au cours des 5 dernières années
+        fields:
+          index:
+            title: Indice
+          birth_certs_drawn:
+            title: Nombre d'actes de naissance. rédigé
+          birth_certs_not_withdrawn:
+            title: Nombre d'actes de naissance. non retiré
+          death_certs_drawn:
+            title: Nombre de certificats de décès. rédigé
+          death_certs_not_withdrawn:
+            title: Nombre de certificats de décès. non retiré
+          marriage_certs_drawn:
+            title: Nombre d'actes de mariage. rédigé
+          marriage_certs_not_withdrawn:
+            title: Nombre d'actes de mariage. non retiré
+          list:
+            title: Actes dressés mais non retirés au cours des 5 dernières années
       respondent:
         title: Informations sur le répondant
         fields:
@@ -447,11 +520,10 @@ csc:
               vandalization_date:
                 title: Quand le vandalisme a-t-il eu lieu ?
           archive_stats:
-            title: Nombre de dossiers archivés
+            title: Nombre d'archives enregistrées
             fields:
               list:
-                title: Nombre d'enregistrements archivés (période du {{startYear}} au
-                  {{endYear}})
+                title: Nombre d'archives enregistrées (période du {{startYear}} au {{endYear}})
               index:
                 title: Indice
               year:

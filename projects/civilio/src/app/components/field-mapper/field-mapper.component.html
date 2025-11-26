@@ -65,7 +65,7 @@
 
 <ng-template #columnSelectorTemplate let-schema let-fg="formGroup">
 	<ng-container [formGroup]="fg">
-		@if (schema.type != "table") {
+		@if (schema.type != "table" && schema.type != 'group') {
 			<label [for]="schema.key + '_mapper_selector'" hlmLabel class="block">{{
 					schema.key + ".title" | translate
 				}}</label>
@@ -74,7 +74,7 @@
 					<input class="hidden" [formControlName]="schema.key"/>
 					<button
 						hlmBtn
-						class="w-full justify-between overflow-ellipsis line-clamp-1 !text-start"
+						class="w-full justify-between overflow-ellipsis line-clamp-1 text-start!"
 						variant="outline"
 						[id]="schema.key + '_mapper_selector'"
 						brnPopoverTrigger

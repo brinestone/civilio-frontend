@@ -41,7 +41,7 @@ validation:
   msg:
     int: Value must be an integer
     field_required: This field is required
-    value_unsupported: Value is unsupported. It must be one of {{validValues}}
+    value_unsupported: "Value is unsupported. It must be one of: {{validValues}}"
     pattern_mismatch: Invalid format
     invalid_date: Invalid date
     max_date: The date cannot be after {{maxDate}}
@@ -112,6 +112,81 @@ settings:
 csc:
   form:
     sections:
+      extra:
+        title: Comments
+        fields:
+          relevant_info:
+            title: Please use the space provided to add any additional relevant information.
+          validation_code:
+            title: Validation Code
+      employees:
+        title: Staffing status
+        sections:
+          general:
+            title: General
+            fields:
+              male_count:
+                title: Number of officers (men)
+              female_count:
+                title: Number of officers (women)
+              non_officer_male_count:
+                title: Number of people working in civil registration (excluding officers) men
+              non_officer_female_count:
+                title: Number of people working in civil registration (excluding officers) women
+          officers:
+            title: List of center personnel (officers and non-officers)
+            fields:
+              name:
+                title: First and last names
+              position:
+                title: Function/position
+              other_position:
+                title: Other function
+              prof_status:
+                title: Professional status
+              other_prof_status:
+                title: Other professional status
+              gender:
+                title: Gender
+              phone:
+                title: Phone number
+                description: vous pouvez inscrire 2 numéros
+              age:
+                title: Age
+              ed_level:
+                title: Educational level
+              computer_level:
+                title: Computer skills level
+              ec_training:
+                title: Have you received training in civil status?
+              archive_training:
+                title: Have you received training in archiving?
+              computer_training:
+                title: Have you received computer training?
+              cs_seniority:
+                title: Number of years of seniority in civil service
+              monthly_salary:
+                title: Monthly allowance received in {{lastYear}} (in CFA francs)
+                description: Salaire mensuel
+      deeds:
+        title: Reports issued but not withdrawn during the last 5 years
+        fields:
+          index:
+            title: Index
+          birth_certs_drawn:
+            title: "# of birth certs. drawn up"
+          birth_certs_not_withdrawn:
+            title: "# of birth certs. not withdrawn"
+          death_certs_drawn:
+            title: "# of death certs. drawn up"
+          death_certs_not_withdrawn:
+            title: "# of death certs. not withdrawn"
+          marriage_certs_drawn:
+            title: "# of marriage certs. drawn up"
+          marriage_certs_not_withdrawn:
+            title: "# of marriage certs. not withdrawn"
+          list:
+            title: Deeds drawn up but not withdrawn during the last 5 years
       respondent:
         title: Respondent Info
         fields:
@@ -441,10 +516,10 @@ csc:
               vandalization_date:
                 title: When did the vandalism occur?
           archive_stats:
-            title: Number of archived records
+            title: Number of registered archives
             fields:
               list:
-                title: Number of archived records (period from {{startYear}} to {{endYear}})
+                title: Number of registered archives (period from {{startYear}} to {{endYear}})
               index:
                 title: Index
               year:

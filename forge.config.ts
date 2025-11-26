@@ -19,7 +19,8 @@ const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
 	'./dist/angular/',
-	'./assets'
+	'./assets',
+	'./projects/electron/assets/migrations'
 ];
 
 const config: ForgeConfig = {
@@ -33,14 +34,14 @@ const config: ForgeConfig = {
 					const src = resolve(process.cwd(), p);
 					const children = await readdir(src);
 					for (const child of children) {
-						if (child == 'migrations') continue;
+						if (child == 'meta') continue;
 						const path = join(src, child);
 						const dest = join(forgeDir, child);
-						if (await isDir(path)) {
+						// if (await isDir(path)) {
 							await cp(path, dest, {
 								recursive: true
 							});
-						}
+						// }
 					}
 				} catch (e) {
 					console.error(e);

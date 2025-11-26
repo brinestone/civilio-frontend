@@ -39,7 +39,7 @@ export function extractRawValidators(schema: FieldSchema) {
 		if (schema.validValues) {
 			validators.push(v => {
 				if (!truthinessSchema.parse(v)) return null;
-				return schema.validValues?.includes(String(v).trim()) ? null : { invalidValue: 'validation.msg.value_unsupported' };
+				return schema.validValues?.includes(String(v).trim()) ? null : { invalidValue: 'validation.msg.value_unsupported', validValues: schema.validValues };
 			})
 		}
 
@@ -297,7 +297,7 @@ export function serializeValue(definition: DefinitionLike, value: any): any {
 			return z.iso.date().nullable().parse(value);
 		}
 		case 'point':
-			return `${ value.lat } ${ value.long }`;
+			return `${value.lat} ${value.long}`;
 		default:
 			return String(value);
 	}

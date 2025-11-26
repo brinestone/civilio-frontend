@@ -547,6 +547,55 @@
       "when": 1764032283508,
       "tag": "0080_demonic_lethal_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1764159208783,
+      "tag": "0081_lively_madame_web",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1764159284515,
+      "tag": "0082_heavy_whirlwind",
+      "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1764159897515,
+      "tag": "0083_remarkable_toxin",
+      "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1764161099387,
+      "tag": "0084_aberrant_the_spike",
+      "breakpoints": true
+    },
+    {
+      "idx": 85,
+      "version": "7",
+      "when": 1764162508566,
+      "tag": "0085_adorable_young_avengers",
+      "breakpoints": true
+    },
+    {
+      "idx": 86,
+      "version": "7",
+      "when": 1764191857170,
+      "tag": "0086_sharp_mystique",
+      "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1764192305027,
+      "tag": "0087_big_princess_powerful",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,7 @@
 import { CdkListboxModule } from "@angular/cdk/listbox";
 import { DecimalPipe, JsonPipe, KeyValuePipe, NgClass, NgTemplateOutlet } from "@angular/common";
 import { Component, computed, effect } from "@angular/core";
+import { JoinArrayPipe } from "@app/pipes";
 import { UpdateMiscConfig } from "@app/store/config";
 import { allSectionErrors, currentSectionErrors, miscConfig } from "@app/store/selectors";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -29,8 +30,8 @@ const miscKeys = {
 		DecimalPipe,
 		NgClass,
 		KeyValuePipe,
-		JsonPipe,
 		NgTemplateOutlet,
+		JoinArrayPipe
 	],
 	templateUrl: "./form-footer.component.html",
 	styleUrl: "./form-footer.component.scss",

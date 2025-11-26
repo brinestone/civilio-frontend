@@ -75,8 +75,8 @@
 					{{ "field_mapper.description" | translate }}
 				</p>
 			</hlm-sheet-header>
-			<div class="max-h-[600px] overflow-y-auto">
-				@defer (when mapperSheetState() == 'open') {
+			<div class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
+				@defer (when formType()) {
 					@let schema = formSchema();
 					@if (schema) {
 						<cv-field-mapper [formModel]="schema" [form]="formType()"/>
