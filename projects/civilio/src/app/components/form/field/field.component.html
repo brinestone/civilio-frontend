@@ -1,13 +1,19 @@
-@let fieldKey = ($any(schema().key) | isString) ? schema().key : $any(schema().key).value;
+@let fieldKey =
+	($any(schema().key) | isString) ? schema().key : $any(schema().key).value;
 @switch (schema().type) {
 	@case ("text") {
-		<ng-container [ngTemplateOutlet]="textFieldTemplate"/>
+		<ng-container [ngTemplateOutlet]="textFieldTemplate" />
 	}
 	@case ("boolean") {
-		<ng-container [ngTemplateOutlet]="booleanFieldTemplate"/>
+		<ng-container [ngTemplateOutlet]="booleanFieldTemplate" />
 	}
 	@case ("date") {
-		<ng-container [ngTemplateOutlet]="datePickerTemplate"/>
+		<ng-container
+			[ngTemplateOutlet]="datePickerTemplate"
+			[ngTemplateOutletContext]="{
+				default: $any(schema()).defaultToToday === true ? now : null,
+			}"
+		/>
 	}
 	@case ("single-selection") {
 		<ng-container
@@ -22,18 +28,18 @@
 		/>
 	}
 	@case ("float") {
-		<ng-container [ngTemplateOutlet]="numberTemplate"/>
+		<ng-container [ngTemplateOutlet]="numberTemplate" />
 	}
 	@case ("int") {
-		<ng-container [ngTemplateOutlet]="numberTemplate"/>
+		<ng-container [ngTemplateOutlet]="numberTemplate" />
 	}
 	@case ("point") {
-		<ng-container [ngTemplateOutlet]="geoPointTemplate"/>
+		<ng-container [ngTemplateOutlet]="geoPointTemplate" />
 	}
 }
 
 <ng-template #geoPointTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<cv-geo-point
 		[value]="_value()"
 		(touched)="onControlTouched()"
@@ -43,7 +49,7 @@
 </ng-template>
 
 <ng-template #numberTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<input
 		[id]="fieldKey"
 		type="number"
@@ -61,9 +67,10 @@
 </ng-template>
 
 <ng-template #selectTemplate let-multi="multiple">
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	@let hasParent = $any(schema()).parent != null && parentValue() != null;
-	<brn-select
+	<hlm-select
+		scrollable="true"
 		[id]="fieldKey"
 		[class]="userClass()"
 		[value]="_value()"
@@ -72,9 +79,10 @@
 		[multiple]="multi"
 	>
 		<hlm-select-trigger class="w-full">
-			<hlm-select-value/>
+			<hlm-select-value />
 		</hlm-select-trigger>
-		<hlm-select-content>
+		<hlm-select-content class="w-full max-h-96">
+			<hlm-select-scroll-up />
 			@let groupKey = $any(schema()).optionsGroupKey;
 			@for (option of options()?.[groupKey] ?? []; track $index) {
 				@if (!hasParent || (hasParent && option.parent == parentValue())) {
@@ -89,12 +97,13 @@
 					</hlm-option>
 				}
 			}
+			<hlm-select-scroll-down />
 		</hlm-select-content>
-	</brn-select>
+	</hlm-select>
 </ng-template>
 
-<ng-template #datePickerTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+<ng-template #datePickerTemplate let-default="default">
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	@if (isReadonly()) {
 		<span>
 			{{ _value() | date: "mediumDate" : "" : locale() }}
@@ -102,7 +111,7 @@
 	} @else {
 		<hlm-date-picker
 			[buttonId]="fieldKey"
-			[date]="_value()"
+			[date]="_value() ?? default"
 			class="w-full {{ userClass() }}"
 			(dateChange)="onInput($event)"
 			[min]="$any(schema()).min"
@@ -113,7 +122,7 @@
 </ng-template>
 
 <ng-template #booleanFieldTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<hlm-checkbox
 		[id]="fieldKey"
 		[checked]="_value()"
@@ -124,7 +133,7 @@
 </ng-template>
 
 <ng-template #textFieldTemplate>
-	<ng-container [ngTemplateOutlet]="labelTemplate"/>
+	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<input
 		[id]="fieldKey"
 		(blur)="onControlTouched()"
@@ -143,7 +152,7 @@
 		@if (schema().key | isString) {
 			{{ fieldKey + ".title" | translate }}
 		} @else {
-			{{ fieldKey + '.title' | translate:$any(schema()!.key).titleArgs }}
+			{{ fieldKey + ".title" | translate: $any(schema()!.key).titleArgs }}
 		}
 	</label>
 </ng-template>

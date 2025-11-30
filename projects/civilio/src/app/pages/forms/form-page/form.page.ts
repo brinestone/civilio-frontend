@@ -312,8 +312,8 @@ export class FormPage
 		actions$.pipe(
 			takeUntilDestroyed(),
 			ofActionSuccessful(UpdateMappings),
-			skipWhile(() => !this.initialized || !this.selectedVersion.value()),
-			filter(() => this.isNewSubmission())
+			skipWhile(() => !this.initialized || !this.selectedVersion.hasValue()),
+			filter(() => !this.isNewSubmission())
 		).subscribe(() => {
 			this.reloadDataOnly();
 		});

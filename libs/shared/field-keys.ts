@@ -1,33 +1,5 @@
 import z from "zod";
 
-export namespace PersonnelInfo {
-	export const PERSONNEL_NAME = "data_personnel.columns.name.title";
-	export const PERSONNEL_POSITION = "data_personnel.columns.role.title";
-	export const PERSONNEL_GENDER = "data_personnel.columns.gender.title";
-	export const PERSONNEL_PHONE = "data_personnel.columns.phone.title";
-	export const PERSONNEL_EMAIL = "data_personnel.columns.email.title";
-	export const PERSONNEL_AGE = "data_personnel.columns.age.title";
-	export const PERSONNEL_CS_TRAINING =
-		"data_personnel.columns.has_cs_training.title";
-	export const PERSONNEL_ED_LEVEL =
-		"data_personnel.columns.education_level.title";
-	export const PERSONNEL_COMPUTER_LEVEL =
-		"data_personnel.columns.pc_knowledge.title";
-	export const PERSONNEL_STATUS = "data_personnel.columns.status.title";
-	export const ALL_FIELDS = [
-		PERSONNEL_NAME,
-		PERSONNEL_PHONE,
-		PERSONNEL_AGE,
-		PERSONNEL_GENDER,
-		PERSONNEL_EMAIL,
-		PERSONNEL_COMPUTER_LEVEL,
-		PERSONNEL_STATUS,
-		PERSONNEL_CS_TRAINING,
-		PERSONNEL_ED_LEVEL,
-		PERSONNEL_POSITION,
-	];
-}
-
 export namespace Fosa {
 	export const SectionKeysSchema = z.enum([
 		"fosa.form.sections.respondent",
@@ -197,147 +169,117 @@ export namespace Fosa {
 	]);
 }
 export namespace Chiefdom {
-	export const RESPONDENT_NAME = "chefferie.form.fields.names.title";
-	export const POSITION = "chefferie.form.fields.position.title";
-	export const PHONE = "chefferie.form.fields.phone.title";
-	export const EMAIL = "chefferie.form.fields.email.title";
-	export const CREATION_DATE = "chefferie.form.fields.creation_date.title";
-	export const DIVISION = "chefferie.form.fields.department.title";
-	export const MUNICIPALITY = "chefferie.form.fields.communes.title";
-	export const QUARTER = "chefferie.form.fields.quarter.title";
-	export const FACILITY_NAME = "chefferie.form.fields.facility_name.title";
-	export const CLASSIFICATION = "chefferie.form.fields.classification.title";
-	export const HEALTH_CENTER_PROXIMITY = "chefferie.form.fields.distance.title";
-	export const GPS_COORDS = "chefferie.form.sections.geo_point.title";
-	export const CS_OFFICER_TRAINED = "chefferie.form.fields.training.title";
-	export const WAITING_ROOM = "chefferie.form.fields.waiting_room.title";
-	export const OTHER_WAITING_ROOM =
-		"chefferie.form.fields.other_waiting_room.title";
-	export const IS_CHIEF_CS_OFFICER =
-		"chefferie.form.fields.cs_actor_is_chief.title";
-	export const CHIEF_OATH = "chefferie.form.fields.oath.title";
-	export const CS_REG_LOCATION = "chefferie.form.fields.cs_reg_location.title";
-	export const OTHER_CS_REG_LOCATION =
-		"chefferie.form.fields.other_cs_reg_location.title";
-	export const TOILETS_ACCESSIBLE =
-		"chefferie.form.fields.toilets_accessible.title";
-	export const PC_COUNT = "chefferie.form.fields.equipment_quantity.computers";
-	export const PRINTER_COUNT =
-		"chefferie.form.fields.equipment_quantity.printers";
-	export const TABLET_COUNT =
-		"chefferie.form.fields.equipment_quantity.tablets";
-	export const CAR_COUNT = "chefferie.form.fields.equipment_quantity.cars";
-	export const BIKE_COUNT =
-		"chefferie.form.fields.equipment_quantity.motorcycles";
-	export const IS_CHIEFDOM_CHIEF_RESIDENCE =
-		"chefferie.form.fields.structure.title";
-	export const HAS_INTERNET = "chefferie.form.fields.connexion.title";
-	export const INTERNET_TYPE = "chefferie.form.fields.typeConnexion.title";
-	export const OTHER_INTERNET_TYPE =
-		"chefferie.form.fields.other_internet_type.title";
-	export const HAS_ENEO_CONNECTION =
-		"chefferie.form.fields.eneoConnexion.title";
-	export const WATER_ACCESS = "chefferie.form.fields.waterAcces.title";
-	export const WATER_SOURCES = "chefferie.form.fields.waterType.title";
-	export const OTHER_WATER_SOURCE =
-		"chefferie.form.fields.other_water_source.title";
-	export const HAS_EXTINGUISHER = "chefferie.form.fields.extinguisher.title";
-	export const EMPLOYEE_COUNT = "chefferie.form.fields.employer.title";
-	export const EXTRA_INFO = "chefferie.form.fields.extra_info.title";
-	export const INDEX = "chefferie.form.fields.index";
-	export const VALIDATION_CODE = "chefferie.form.fields.validation_code";
-	export const STAFF_INFO_FIELDS = [
-		PersonnelInfo.PERSONNEL_NAME,
-		PersonnelInfo.PERSONNEL_POSITION,
-		PersonnelInfo.PERSONNEL_GENDER,
-		PersonnelInfo.PERSONNEL_PHONE,
-		PersonnelInfo.PERSONNEL_AGE,
-		PersonnelInfo.PERSONNEL_CS_TRAINING,
-		PersonnelInfo.PERSONNEL_ED_LEVEL,
-		PersonnelInfo.PERSONNEL_COMPUTER_LEVEL,
-	];
-	export const ALL_FIELDS = [
-		RESPONDENT_NAME,
-		POSITION,
-		PHONE,
-		EMAIL,
-		CREATION_DATE,
-		DIVISION,
-		MUNICIPALITY,
-		QUARTER,
-		FACILITY_NAME,
-		CLASSIFICATION,
-		HEALTH_CENTER_PROXIMITY,
-		GPS_COORDS,
-		CS_OFFICER_TRAINED,
-		WAITING_ROOM,
-		OTHER_WAITING_ROOM,
-		IS_CHIEF_CS_OFFICER,
-		CHIEF_OATH,
-		CS_REG_LOCATION,
-		OTHER_CS_REG_LOCATION,
-		TOILETS_ACCESSIBLE,
-		PC_COUNT,
-		PRINTER_COUNT,
-		TABLET_COUNT,
-		CAR_COUNT,
-		BIKE_COUNT,
-		IS_CHIEFDOM_CHIEF_RESIDENCE,
-		HAS_INTERNET,
-		INTERNET_TYPE,
-		OTHER_INTERNET_TYPE,
-		HAS_ENEO_CONNECTION,
-		WATER_ACCESS,
-		WATER_SOURCES,
-		OTHER_WATER_SOURCE,
-		HAS_EXTINGUISHER,
-		EMPLOYEE_COUNT,
-		EXTRA_INFO,
-		INDEX,
-		VALIDATION_CODE,
-		...STAFF_INFO_FIELDS,
-	];
-	export const TRACKABLE_FIELDS = [
-		RESPONDENT_NAME,
-		POSITION,
-		PHONE,
-		EMAIL,
-		CREATION_DATE,
-		DIVISION,
-		MUNICIPALITY,
-		QUARTER,
-		FACILITY_NAME,
-		CLASSIFICATION,
-		HEALTH_CENTER_PROXIMITY,
-		GPS_COORDS,
-		CS_OFFICER_TRAINED,
-		WAITING_ROOM,
-		OTHER_WAITING_ROOM,
-		IS_CHIEF_CS_OFFICER,
-		CHIEF_OATH,
-		CS_REG_LOCATION,
-		OTHER_CS_REG_LOCATION,
-		TOILETS_ACCESSIBLE,
-		PC_COUNT,
-		PRINTER_COUNT,
-		TABLET_COUNT,
-		CAR_COUNT,
-		BIKE_COUNT,
-		IS_CHIEFDOM_CHIEF_RESIDENCE,
-		HAS_INTERNET,
-		INTERNET_TYPE,
-		OTHER_INTERNET_TYPE,
-		HAS_ENEO_CONNECTION,
-		WATER_ACCESS,
-		WATER_SOURCES,
-		OTHER_WATER_SOURCE,
-		HAS_EXTINGUISHER,
-		EMPLOYEE_COUNT,
-		EXTRA_INFO,
-		INDEX,
-		VALIDATION_CODE,
-		...STAFF_INFO_FIELDS,
-	];
+	export const SectionKeysSchema = z.enum([
+		'chefferie.form.sections.respondent',
+		'chefferie.form.sections.identification',
+		'chefferie.form.sections.services',
+		'chefferie.form.sections.services.sections.general',
+		'chefferie.form.sections.services.sections.equipment',
+		'chefferie.form.sections.infra',
+		'chefferie.form.sections.personnel_status',
+		'chefferie.form.sections.personnel_status.general',
+		'chefferie.form.sections.personnel_status.employees',
+		'chefferie.form.sections.comments'
+	]);
+	export const CommentsKeysSchema = z.templateLiteral([
+		SectionKeysSchema.extract(['chefferie.form.sections.comments']),
+		'.fields.',
+		z.enum([
+			'relevant_info',
+			'validation_code'
+		])
+	]);
+	export const PersonnelStatusKeysSchema = z.union([
+		z.templateLiteral([
+			SectionKeysSchema.extract(['chefferie.form.sections.personnel_status.general']),
+			'.fields.',
+			z.enum([
+				'employee_count'
+			])
+		]),
+		z.templateLiteral([
+			SectionKeysSchema.extract(['chefferie.form.sections.personnel_status.employees']),
+			'.fields.',
+			z.enum([
+				'index',
+				'name',
+				'position',
+				'gender',
+				'phone',
+				'age',
+				'has_cs_training',
+				'ed_level',
+				'computer_level',
+				'list'
+			])
+		])
+	])
+	export const InfrastructureKeysSchema = z.templateLiteral([
+		SectionKeysSchema.extract(['chefferie.form.sections.infra']),
+		'.fields.',
+		z.enum([
+			'is_residence',
+			'has_internet',
+			'conn_type',
+			'other_conn_type',
+			'has_power',
+			'power_source',
+			'has_water_source',
+			'water_sources',
+			'other_water_source',
+			'has_fire_extinguisher'
+		])
+	])
+	export const ServicesKeysSchema = z.union([
+		z.templateLiteral([
+			SectionKeysSchema.extract(['chefferie.form.sections.services.sections.general']),
+			'.fields.',
+			z.enum([
+				'is_chief_officer',
+				'is_oath_taken',
+				'records_location',
+				'other_records_location',
+				'officer_trained_cs',
+				'has_waiting_room',
+				'toilets_accessible',
+			])
+		]),
+		z.templateLiteral([
+			SectionKeysSchema.extract(['chefferie.form.sections.services.sections.equipment']),
+			'.fields.',
+			z.enum([
+				'pc_count',
+				'printer_count',
+				'tablet_count',
+				'car_count',
+				'bike_count',
+			])
+		])
+	])
+	export const IdentificationFieldKeys = z.templateLiteral([
+		SectionKeysSchema.extract(['chefferie.form.sections.identification']),
+		'.fields.',
+		z.enum([
+			'division',
+			'municipality',
+			'quarter',
+			'facility_name',
+			'degree',
+			'cs_proximity',
+			'gps_coords'
+		])
+	])
+	export const RespondentFieldKeys = z.templateLiteral([
+		SectionKeysSchema.extract(['chefferie.form.sections.respondent']),
+		'.fields.',
+		z.enum([
+			'name',
+			'position',
+			'phone',
+			'email',
+			'creation_date'
+		])
+	]);
 }
 
 export namespace CSC {
@@ -712,11 +654,20 @@ export const CSCFieldKeySchema = z.union([
 	CSC.RecordIndexingFieldKeysSchema,
 ]);
 
-export const FieldKeySchema = z.union([FosaFieldKeySchema, CSCFieldKeySchema]);
+export const ChefferieKeySchema = z.union([
+	Chiefdom.IdentificationFieldKeys,
+	Chiefdom.ServicesKeysSchema,
+	Chiefdom.RespondentFieldKeys,
+	Chiefdom.CommentsKeysSchema,
+	Chiefdom.PersonnelStatusKeysSchema,
+	Chiefdom.InfrastructureKeysSchema,
+])
+
+export const FieldKeySchema = z.union([FosaFieldKeySchema, CSCFieldKeySchema, ChefferieKeySchema]);
 export const AllSectionKeysSchema = z.union([
 	Fosa.SectionKeysSchema,
 	CSC.SectionKeysSchema,
+	Chiefdom.SectionKeysSchema
 ]);
-export type FosaFieldKey = z.output<typeof FosaFieldKeySchema>;
 export type FieldKey = z.output<typeof FieldKeySchema>;
 export type FormSectionKey = z.output<typeof AllSectionKeysSchema>;

@@ -80,6 +80,7 @@ const DateFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 	type: z.literal('date'),
 	min: z.union([z.iso.date(), z.number(), z.date()]).optional(),
 	max: z.union([z.iso.date(), z.number(), z.date()]).optional(),
+	defaultToToday: z.literal(true).optional()
 });
 
 const GeoPointFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
@@ -96,7 +97,8 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 	type: z.union([z.literal('float'), z.literal('int')]),
 	min: z.number().optional(),
 	max: z.number().optional(),
-	unit: z.string().optional()
+	unit: z.string().optional(),
+	precision: z.number().optional()
 });
 
 export const BaseColumnDefinition = z.object({

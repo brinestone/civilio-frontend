@@ -17,6 +17,8 @@ import {
 	GeoPointComponent
 } from '@app/components/geo-point/geo-point.component';
 import { extractFieldKey, FieldSchema } from '@app/model/form';
+import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
+import { IsStringPipe } from '@app/pipes';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
@@ -26,8 +28,6 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { ClassValue } from 'clsx';
-import { IsStringPipe } from '@app/pipes';
-import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 import { debounce } from 'lodash';
 
 @Component({
@@ -68,6 +68,7 @@ export class FieldComponent implements ControlValueAccessor {
 	protected touchedCallback?: () => void;
 	protected readonly _disabled = signal(false);
 	protected readonly _value = signal<any>(undefined);
+	protected readonly now = new Date();
 
 	constructor() {
 		effect(() => {

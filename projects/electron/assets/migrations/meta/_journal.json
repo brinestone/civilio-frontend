@@ -596,6 +596,27 @@
       "when": 1764192305027,
       "tag": "0087_big_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1764519725773,
+      "tag": "0088_lean_ender_wiggin",
+      "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1764519844828,
+      "tag": "0089_volatile_lionheart",
+      "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1764528511658,
+      "tag": "0090_ambiguous_celestials",
+      "breakpoints": true
     }
   ]
 }

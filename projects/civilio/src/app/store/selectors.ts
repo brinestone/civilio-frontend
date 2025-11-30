@@ -63,8 +63,8 @@ export const fontSize = createSelector([configSlices.config], (cfg) => {
 export const facilityName = createSelector([formSlices.rawData], (record) => {
 	const facilityNameKeys = [
 		'fosa.form.sections.identification.fields.facility_name',
-		'csc.form.sections.identification.fields.facility_name'
-		// TODO: add for chefferie
+		'csc.form.sections.identification.fields.facility_name',
+		'chefferie.form.sections.identification.fields.facility_name',
 	] as FieldKey[];
 
 	for (const nameKey of facilityNameKeys) {

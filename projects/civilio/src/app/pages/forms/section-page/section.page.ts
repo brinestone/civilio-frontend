@@ -73,6 +73,7 @@ import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
 import { debounceTime, filter, map, switchMap, take, tap } from "rxjs";
 
+const debounceDuration = 150;
 
 @Component({
 	selector: "cv-section-page",
@@ -125,7 +126,7 @@ export class SectionPage {
 	protected readonly sectionData = computed(() => this.formData()[this.sectionKey()!].model);
 	protected readonly form = new FormRecord<UntypedFormControl | UntypedFormArray>({});
 
-	protected readonly onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), 500);
+	protected readonly onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), debounceDuration);
 
 	constructor(actions$: Actions, route: ActivatedRoute) {
 		actions$.pipe(
@@ -209,7 +210,7 @@ export class SectionPage {
 		});
 	}
 
-	protected readonly onDeltaChange = debounce(this.deltaChangeHandler.bind(this), 500);
+	protected readonly onDeltaChange = debounce(this.deltaChangeHandler.bind(this), debounceDuration);
 
 	private markControlAsPristine(control: AbstractControl) {
 		control.markAsUntouched();
