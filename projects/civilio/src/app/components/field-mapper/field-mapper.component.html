@@ -32,124 +32,194 @@
 		</h2>
 	}
 	@for (field of schema.fields; track field.key) {
+		<!-- {{schema | json}} -->
+		@let label =
+			(field.key | isString)
+				? (field.key + ".title" | translate)
+				: (field.key.value + ".title" | translate: field.key.titleArgs);
 		<ng-container
 			[ngTemplateOutlet]="columnSelectorTemplate"
 			[ngTemplateOutletContext]="{
 				formGroup: controls.at(index).controls.fields,
 				$implicit: field,
+				label,
 			}"
 		/>
 	}
 </ng-template>
 
-<ng-template #tableFieldTemplate let-schema let-fg="formGroup">
+<ng-template
+	#groupFieldTemplate
+	let-fg="formGroup"
+	let-label="label"
+	let-schema
+>
 	<div class="flex items-center gap-3 col-span-2">
 		<h2 class="group-title table">
-			@let fieldKey = ($any(schema.key) | isString) ? schema.key : $any(schema.key).value;
-			@if (schema.key | isString) {
-				{{ fieldKey + ".title" | translate }}
-			} @else {
-				{{ fieldKey + '.title' | translate:$any(schema!.key).titleArgs }}
-			}
+			{{ label }}
+		</h2>
+		<span class="uppercase" hlmBadge variant="outline">Sub-form</span>
+	</div>
+	@for (field of schema.fields; track $index) {
+		@let label =
+			(field.key | isString)
+				? (field.key + ".title" | translate)
+				: (field.key.value + ".title" | translate: field.key.titleArgs);
+		<ng-container
+			[ngTemplateOutletContext]="{
+				$implicit: field,
+				formGroup: fg,
+				label: label,
+			}"
+			[ngTemplateOutlet]="columnSelectorTemplate"
+		/>
+	}
+</ng-template>
+
+<ng-template
+	#tableFieldTemplate
+	let-fg="formGroup"
+	let-label="label"
+	let-schema
+>
+	<div class="flex items-center gap-3 col-span-2">
+		<h2 class="group-title table">
+			{{ label }}
 		</h2>
 		<span hlmBadge variant="outline" class="uppercase">Sub-form</span>
 	</div>
 	@let columns = schema.columns | values;
 	@for (entry of columns; track $index) {
+		@let label =
+			($any(entry).key | isString)
+				? ($any(entry).key + ".title" | translate)
+				: ($any(entry).key.value + ".title"
+					| translate: $any(entry).key.titleArgs);
 		<ng-container
 			[ngTemplateOutlet]="columnSelectorTemplate"
-			[ngTemplateOutletContext]="{ $implicit: entry, formGroup: fg }"
+			[ngTemplateOutletContext]="{
+				$implicit: entry,
+				formGroup: fg,
+				label: label,
+			}"
 		/>
 	}
 </ng-template>
 
-<ng-template #columnSelectorTemplate let-schema let-fg="formGroup">
+<ng-template
+	#columnSelectorTemplate
+	let-fg="formGroup"
+	let-label="label"
+	let-schema
+>
 	<ng-container [formGroup]="fg">
-		@if (schema.type != "table" && schema.type != 'group') {
-			<label [for]="schema.key + '_mapper_selector'" hlmLabel class="block">{{
-					schema.key + ".title" | translate
+		@let schemaKey =
+			(schema.key | isString) ? $any(schema).key : $any(schema).key.value;
+		@switch (schema.type) {
+			@default {
+				<label [for]="schemaKey + '_mapper_selector'" class="block" hlmLabel>{{
+						label
 				}}</label>
-			<div class="flex items-center gap-2 group">
-				<brn-popover sideOffset="5" class="w-full">
-					<input class="hidden" [formControlName]="schema.key"/>
-					<button
-						hlmBtn
-						class="w-full justify-between overflow-ellipsis line-clamp-1 text-start!"
-						variant="outline"
-						[id]="schema.key + '_mapper_selector'"
-						brnPopoverTrigger
-						[class.!font-normal]="
-							!fg.controls[schema.key].value && !loadedMappings()[schema.key]
-						"
-						[class.text-[var(--muted-foreground)]]="
-							!fg.controls[schema.key].value && !loadedMappings()[schema.key]
-						"
-					>
-						{{
-							fg.controls[schema.key].value?.name ||
-							$any(loadedMappings()[schema.key])?.dbColumn ||
-							"Select column"
-						}}
-					</button>
-					<hlm-command
-						*brnPopoverContent="let ctx"
-						hlmPopoverContent
-						class="w-full p-0"
-					>
-						<hlm-command-search>
-							<ng-icon hlm name="lucideSearch"/>
-							<input placeholder="Search Column..." hlm-command-search-input/>
-						</hlm-command-search>
-						<div class="w-full" *brnCommandEmpty hlmCommandEmpty>
-							No results found
-						</div>
-						<hlm-command-list>
-							<hlm-command-group>
-								@for (spec of unmappedColumns(); track $index) {
-									<button
-										class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
-										hlm-command-item
-										(click)="
-											updateMapping(fg.controls[schema.key], schema.key, spec)
-										"
-										[value]="spec.name"
-									>
-										<div class="space-y-1">
-											<p class="block text-start w-full">{{ spec.name }}</p>
-											<span
-												class="block text-start text-sm text-[var(--muted-foreground)]"
-											>table: {{ spec.tableName }}</span
-											>
-										</div>
-										@if (fg.controls[schema.key].value ===
-										$any(loadedMappings()[schema.key])?.dbColumn &&
-										fg.controls[schema.key].value !== undefined &&
-										fg.controls[schema.key].value !== null) {
-											<ng-icon name="lucideCheck"/>
-										}
-									</button>
-								}
-							</hlm-command-group>
-						</hlm-command-list>
-					</hlm-command>
-				</brn-popover>
+				<div class="flex items-center gap-2 group">
+					<brn-popover class="w-full" sideOffset="5">
+						<input [formControlName]="schemaKey" class="hidden"/>
+						<button
+							[class.!font-normal]="
+								!fg.controls[schemaKey].value && !loadedMappings()[schemaKey]
+							"
+							[class.text-[var(--muted-foreground)]]="
+								!fg.controls[schemaKey].value && !loadedMappings()[schemaKey]
+							"
+							[id]="schemaKey + '_mapper_selector'"
+							brnPopoverTrigger
+							class="w-full justify-between overflow-ellipsis line-clamp-1 text-start!"
+							hlmBtn
+							variant="outline"
+						>
+							{{
+								fg.controls[schemaKey].value?.name ||
+								$any(loadedMappings()[schemaKey])?.dbColumn ||
+								"Select column"
+							}}
+						</button>
+						<hlm-command
+							*brnPopoverContent="let ctx"
+							class="w-full p-0"
+							hlmPopoverContent
+						>
+							<hlm-command-search>
+								<ng-icon hlm name="lucideSearch"/>
+								<input
+									hlm-command-search-input
+									placeholder="Search Column..."
+								/>
+							</hlm-command-search>
+							<div *brnCommandEmpty class="w-full" hlmCommandEmpty>
+								{{ "tmpl.autocomplete.empty_text" | translate }}
+							</div>
+							<hlm-command-list>
+								<hlm-command-group>
+									@for (spec of unmappedColumns(); track $index) {
+										<button
+											(click)="
+												updateMapping(fg.controls[schemaKey], schemaKey, spec)
+											"
+											[value]="spec.name"
+											class="cursor-pointer flex justify-between items-start overflow-ellipsis line-clamp-1"
+											hlm-command-item
+										>
+											<div class="space-y-1">
+												<p class="block text-start w-full">{{ spec.name }}</p>
+												<span
+													class="block text-start text-sm text-(--muted-foreground)"
+												>table: {{ spec.tableName }}</span
+												>
+											</div>
+											@if (fg.controls[schemaKey].value ===
+											$any(loadedMappings()[schemaKey])?.dbColumn &&
+											fg.controls[schemaKey].value !== undefined &&
+											fg.controls[schemaKey].value !== null) {
+												<ng-icon name="lucideCheck"/>
+											}
+										</button>
+									}
+								</hlm-command-group>
+							</hlm-command-list>
+						</hlm-command>
+					</brn-popover>
 
-				<button
-					(click)="removeMapping(fg.controls[schema.key], schema.key)"
-					type="button"
-					hlmBtn
-					size="icon"
-					variant="ghost"
-					class="opacity-0 group-hover:opacity-100"
-				>
-					<ng-icon name="lucideX"/>
-				</button>
-			</div>
-		} @else {
-			<ng-container
-				[ngTemplateOutlet]="tableFieldTemplate"
-				[ngTemplateOutletContext]="{ $implicit: schema, formGroup: fg }"
-			/>
+					<button
+						(click)="removeMapping(fg.controls[schemaKey], schemaKey)"
+						class="opacity-0 group-hover:opacity-100"
+						hlmBtn
+						size="icon"
+						type="button"
+						variant="ghost"
+					>
+						<ng-icon name="lucideX"/>
+					</button>
+				</div>
+			}
+			@case ("table") {
+				<ng-container
+					[ngTemplateOutletContext]="{
+						$implicit: schema,
+						formGroup: fg,
+						label: label,
+					}"
+					[ngTemplateOutlet]="tableFieldTemplate"
+				/>
+			}
+			@case ("group") {
+				<ng-container
+					[ngTemplateOutletContext]="{
+						$implicit: schema,
+						formGroup: fg,
+						label: label,
+					}"
+					[ngTemplateOutlet]="groupFieldTemplate"
+				/>
+			}
 		}
 	</ng-container>
 </ng-template>

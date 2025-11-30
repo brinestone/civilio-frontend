@@ -1,4 +1,6 @@
 misc:
+  yes: Oui
+  no: Non
   dialogs:
     version_revert:
       title: Revenir à cette version ?
@@ -52,6 +54,12 @@ validation:
     min: La valeur doit être d'au moins {{min}}{{suffix}}
     max: La valeur doit être au maximum de {{max}}{{suffix}}
 tmpl:
+  group:
+    form:
+      title: Modifier l'enregistrement
+    actions:
+      enable_mutation:
+        title: Modifier
   dropdown:
     placeholder: Sélectionner une valeur
   autocomplete:
@@ -140,6 +148,10 @@ csc:
           officers:
             title: Liste du personnel du centre (officiers et non-officiers)
             fields:
+              index:
+                title: Indice
+              list:
+                title: Liste du personnel du centre (officiers et non-officiers)
               name:
                 title: Nom et prénom
               position:
@@ -154,12 +166,15 @@ csc:
                 title: Genre
               phone:
                 title: Numéro de téléphone
+                description: vous pouvez inscrire 2 numéros
+              email:
+                title: Adresse email
               age:
                 title: Âge
               ed_level:
                 title: Niveau d'éducation
               computer_level:
-                title: Niveau de compétences en informatique
+                title: Niveau de compétence en informatique
               ec_training:
                 title: Avez-vous reçu une formation en état civil ?
               archive_training:
@@ -169,7 +184,8 @@ csc:
               cs_seniority:
                 title: Nombre d'années d'ancienneté dans la fonction publique
               monthly_salary:
-                title: Allocation mensuelle perçue en {{lastYear}} (en francs CFA)
+                title: Allocation mensuelle perçue l'année dernière (en francs CFA)
+                description: Salaire mensuel
       deeds:
         title: Rapports émis mais non retirés au cours des 5 dernières années
         fields:

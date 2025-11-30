@@ -13,7 +13,9 @@ import {
 	signal
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { GeoPointComponent } from '@app/components/geo-point/geo-point.component';
+import {
+	GeoPointComponent
+} from '@app/components/geo-point/geo-point.component';
 import { extractFieldKey, FieldSchema } from '@app/model/form';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -58,7 +60,7 @@ export class FieldComponent implements ControlValueAccessor {
 	readonly isReadonly = input<boolean, BooleanInput>(false, { alias: 'readonly', transform: booleanAttribute });
 	readonly locale = input<any>();
 	readonly changed = output<any>();
-	readonly deltaChange = output<DeltaChangeEvent<any>>()
+	readonly deltaChange = output<DeltaChangeEvent<any>>();
 
 	private cdr = inject(ChangeDetectorRef);
 

@@ -205,14 +205,22 @@ export async function processSubmissionDataUpdate({
 				} = groupBy(tableDeltas, 'op');
 				if (updates && updates.length > 0) {
 					console.log('processing "update" deltas');
-					for (const update of updates) {
-						const mapping = mappings.find(m => m.field == update.field);
-						if (!mapping) continue;
+					const recordGroups = groupBy(updates, 'index');
+					for (const [i, updates] of entries(recordGroups)) {
+						const kvm = new Map<string, [any, string]>();
+						for (const update of updates) {
+							const mapping = mappings.find(m => m.field == update.field);
+							if (!mapping) continue;
+							kvm.set(mapping.dbColumn, [update.value, mapping.dbColumnType]);
+						}
+						const updateClauses = [...kvm.entries()].map(
+							([col, [v, t]]) => sql`${ sql.identifier(col) } = ${ v || null }::${ sql.raw(t) }`
+						);
 						await tx.execute(sql`
 							UPDATE ${ sql.identifier(form) }.${ sql.identifier(table) }
-							SET ${ sql.identifier(mapping.dbColumn) } = ${ update.value || null }::${ sql.raw(mapping.dbColumnType) }
-							WHERE _parent_index = ${ _submission_index }
-								AND _index = ${ update.index };
+							SET ${ sql.join(updateClauses, sql`, `) }
+							WHERE _parent_index = ${ _submission_index }::INTEGER
+								AND _index = ${ i }::INTEGER;
 						`);
 					}
 					//language=PostgreSQL
@@ -280,9 +288,9 @@ export async function processSubmissionDataUpdate({
 						DELETE
 						FROM ${ sql.identifier(form) }.${ sql.identifier(table) }
 						WHERE ${ and(
-							eq(sql.identifier('_parent_index'), _submission_index),
-							inArray(sql.identifier(identifierMapping.dbColumn), indexes)
-						) }
+						eq(sql.identifier('_parent_index'), _submission_index),
+						inArray(sql.identifier(identifierMapping.dbColumn), indexes)
+					) }
 					`);
 					//language=PostgreSQL
 					await tx.execute(sql`

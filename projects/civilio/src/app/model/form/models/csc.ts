@@ -972,7 +972,13 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				{
 					id: 'csc.form.sections.archiving_function.sections.archive_stats',
-					relevance: relevanceMap.centerIsFunctional,
+					relevance: {
+						dependencies: [
+							'csc.form.sections.identification.fields.category',
+							'csc.form.sections.identification.fields.is_functional'
+						],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.identification.fields.is_functional'] === true && ['1', '2'].includes(deps['csc.form.sections.identification.fields.category'] as string)),
+					},
 					fields: [
 						{
 							key: {
@@ -1093,6 +1099,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							key: 'csc.form.sections.employees.sections.officers.fields.list',
 							type: 'group',
 							relevance: relevanceMap.centerIsFunctional,
+							identifierKey: 'csc.form.sections.employees.sections.officers.fields.index',
 							fields: [
 								{
 									visible: false,
@@ -1103,6 +1110,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 								{
 									type: 'text',
 									key: 'csc.form.sections.employees.sections.officers.fields.name',
+									// cssClass: 'font-bold text-lg'
 								},
 								{
 									type: 'single-selection',

@@ -78,7 +78,7 @@ export const undoAvailable = createSelector([formSlices.undoStack], r => r.lengt
 export const redoAvailable = createSelector([formSlices.redoStack], r => r.length > 0);
 
 export const changesPending = createSelector([undoAvailable, redoAvailable], (u, r) => {
-	return u || r;
+	return u;
 });
 export const isFormValid = createSelector([formSlices.activeSections], (sections) => {
 	return values(sections).map(({ status }) => status).every(v => v != 'INVALID');

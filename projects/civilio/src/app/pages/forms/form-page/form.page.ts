@@ -37,7 +37,8 @@ import {
 	InitVersioning,
 	LoadOptions,
 	LoadSubmissionData,
-	Redo, RevertToVersion,
+	Redo,
+	RevertToVersion,
 	SaveChanges,
 	SubmissionIndexChanged,
 	Undo,
@@ -108,7 +109,6 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { FormsModule } from '@angular/forms';
 import { toast } from 'ngx-sonner';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
-import { HlmInput } from "@spartan-ng/helm/input";
 
 const miscConfigKeys = {
 	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
@@ -153,8 +153,7 @@ const miscConfigKeys = {
 		BrnAlertDialogImports,
 		DecimalPipe,
 		HlmTextarea,
-		HlmAlertImports,
-		HlmInput
+		HlmAlertImports
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
@@ -302,12 +301,12 @@ export class FormPage
 			filter(() => !this.relevanceRegistry()[this.activeSection()]),
 		).subscribe(() => {
 			this.navigate([
-				'..',
-				this.submissionIndex(),
-				this.formModel().sections[0].id],
+					'..',
+					this.submissionIndex(),
+					this.formModel().sections[0].id],
 				undefined, {
-				relativeTo: this.route
-			});
+					relativeTo: this.route
+				});
 		});
 
 		actions$.pipe(

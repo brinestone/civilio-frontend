@@ -10,18 +10,46 @@ import {
 	OnInit
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormArray, FormControl, FormGroup, FormRecord, ReactiveFormsModule } from '@angular/forms';
-import { extractAllFields, FieldSchema, flattenSections, FormSchema, SectionSchema } from '@app/model/form';
+import {
+	FormArray,
+	FormControl,
+	FormGroup,
+	FormRecord,
+	ReactiveFormsModule
+} from '@angular/forms';
+import {
+	extractAllFields,
+	extractFieldKey,
+	FieldSchema,
+	flattenSections,
+	FormSchema,
+	GroupFieldSchema,
+	SectionSchema
+} from '@app/model/form';
 import { IsStringPipe, ValuesPipe } from '@app/pipes';
-import { LoadDbColumns, LoadMappings, RemoveMapping, UpdateMappings } from '@app/store/form';
+import {
+	LoadDbColumns,
+	LoadMappings,
+	RemoveMapping,
+	UpdateMappings
+} from '@app/store/form';
 import { formColumns, formMappings } from '@app/store/selectors';
 import { DbColumnSpec, FieldKey, FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideChevronsUpDown, lucideSearch, lucideX } from '@ng-icons/lucide';
+import {
+	lucideCheck,
+	lucideChevronsUpDown,
+	lucideSearch,
+	lucideX
+} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Actions, dispatch, ofActionSuccessful, Store } from '@ngxs/store';
 import { BrnCommandImports } from '@spartan-ng/brain/command';
-import { BrnPopover, BrnPopoverContent, BrnPopoverTrigger } from '@spartan-ng/brain/popover';
+import {
+	BrnPopover,
+	BrnPopoverContent,
+	BrnPopoverTrigger
+} from '@spartan-ng/brain/popover';
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
@@ -105,13 +133,19 @@ export class FieldMapperComponent implements OnInit {
 		if (!model) return {};
 		return cloneDeep(flattenSections(model)).map((s) => {
 			return s as unknown as Exclude<typeof s, 'fields'>;
-		}).reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {} as Record<string, Exclude<SectionSchema, 'fields'>>);
+		}).reduce((acc, curr) => ({
+			...acc,
+			[curr.id]: curr
+		}), {} as Record<string, Exclude<SectionSchema, 'fields'>>);
 	});
 	protected fieldSchemaMap = computed(() => {
 		const model = this.formModel();
 		if (!model) return {};
 		return cloneDeep(extractAllFields(model))
-			.reduce((acc, curr) => ({ ...acc, [typeof curr.key == 'string'? curr.key : curr.key.value]: curr }), {} as Record<string, FieldSchema>)
+			.reduce((acc, curr) => ({
+				...acc,
+				[typeof curr.key == 'string' ? curr.key : curr.key.value]: curr
+			}), {} as Record<string, FieldSchema>)
 	});
 	protected inputForm: FormGroup<{
 		groups: FormArray<SectionForm>
@@ -127,7 +161,11 @@ export class FieldMapperComponent implements OnInit {
 			const unifiedMappings = {} as Record<string, DbColumnSpec>;
 
 			values(mappings).forEach(({ field, dbColumn, dbTable, dbColumnType }) => {
-				unifiedMappings[field] = { dataType: dbColumnType, name: dbColumn, tableName: dbTable };
+				unifiedMappings[field] = {
+					dataType: dbColumnType,
+					name: dbColumn,
+					tableName: dbTable
+				};
 			});
 
 			formValue.flatMap(({ fields }) => entries(fields) as [string, DbColumnSpec | null][])
@@ -137,8 +175,7 @@ export class FieldMapperComponent implements OnInit {
 				});
 
 			const arr = values(unifiedMappings);
-			const diff = differenceWith(columns, arr, (a, b) => a.name == b.name && a.tableName == b.tableName);
-			return diff;
+			return differenceWith(columns, arr, (a, b) => a.name == b.name && a.tableName == b.tableName);
 		})
 	), { initialValue: [] });
 
@@ -166,48 +203,75 @@ export class FieldMapperComponent implements OnInit {
 		this.controls.clear();
 	}
 
-	private setupTablularField(schema: Extract<FieldSchema, { type: 'table' }>): Record<string, FieldControl> {
+	protected updateMapping(control: FieldControl, key: FieldKey, {
+		name,
+		tableName
+	}: DbColumnSpec) {
+		this.doUpdateMapping(this.form()!, {
+			dbColumn: name,
+			field: key,
+			table: tableName
+		}).subscribe({
+			error: (e: Error) => {
+				toast.error(this.translateService.instant('msg.error.title'), { description: e.message })
+			},
+			complete: () => {
+				control.markAsPristine();
+				control.markAsUntouched();
+				control.updateValueAndValidity();
+				this.cdr.markForCheck();
+			}
+		})
+	}
+
+	private setupGroupField(schema: GroupFieldSchema) {
+		return schema.fields.map(f => {
+			const key = extractFieldKey(f.key);
+			const mapping = this.loadedMappings()[key];
+			let initialValue: DbColumnSpec | null = null;
+			if (mapping) {
+				initialValue = this.columns().find(({
+																							name, tableName
+																						}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+			}
+			return [key, new FormControl<typeof initialValue>(initialValue, { nonNullable: false })] as [string, FieldControl];
+		}).reduce((acc, [k, control]) => ({
+			...acc,
+			[k]: control
+		}), {} as Record<string, FieldControl>);
+	}
+
+	private setupTabularField(schema: Extract<FieldSchema, {
+		type: 'table'
+	}>): Record<string, FieldControl> {
 		const columns = values(schema.columns);
 		return columns.map(c => {
 			const mapping = this.loadedMappings()[c.key];
 			let initialValue: DbColumnSpec | null = null;
 			if (mapping) {
-				initialValue = this.columns().find(({ name, tableName }) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+				initialValue = this.columns().find(({
+																							name,
+																							tableName
+																						}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
 			}
 			return [c.key, new FormControl<typeof initialValue>(initialValue, { nonNullable: false })] as [string, FieldControl];
-		}).reduce((acc, [k, control]) => ({ ...acc, [k]: control }), {} as Record<string, FieldControl>);
+		}).reduce((acc, [k, control]) => ({
+			...acc,
+			[k]: control
+		}), {} as Record<string, FieldControl>);
 	}
 
 	private setupField(schema: FieldSchema) {
-		const key = typeof schema.key == 'string'? schema.key : schema.key.value;
+		const key = typeof schema.key == 'string' ? schema.key : schema.key.value;
 		const mapping = this.loadedMappings()[key];
 		let initialValue: DbColumnSpec | null = null;
 		if (mapping) {
-			initialValue = this.columns().find(({ name, tableName }) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+			initialValue = this.columns().find(({
+																						name,
+																						tableName
+																					}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
 		}
 		return new FormControl<DbColumnSpec | null>(initialValue, { nonNullable: false })
-	}
-
-	private setupSection(schema: SectionSchema, isChild = false): SectionForm[] {
-		const fields = schema!.fields;
-		const id = schema!.id;
-		const children = (schema as any).children ?? [];
-		const _fields = new FormRecord(fields
-			.map(f => {
-				if (f.type == 'table') return this.setupTablularField(f);
-				const key = typeof f.key == 'string'? f.key : f.key.value;
-				return ({ [key]: this.setupField(f) });
-			})
-			.reduce((acc, curr) => {
-				return ({ ...acc, ...curr });
-			}, {} as Record<string, FieldControl>)
-		);
-		const group: SectionForm = new FormGroup({
-			fields: _fields,
-			id: new FormControl<string | null>(id ?? null, { nonNullable: false }),
-			isChild: new FormControl<boolean>(isChild, { nonNullable: true })
-		});
-		return [group, ...children.flatMap((s: any) => this.setupSection(s, true))];
 	}
 
 	private setupForm(schema: FormSchema) {
@@ -230,22 +294,27 @@ export class FieldMapperComponent implements OnInit {
 		});
 	}
 
-	protected updateMapping(control: FieldControl, key: FieldKey, { name, tableName }: DbColumnSpec) {
-		this.doUpdateMapping(this.form()!, {
-			dbColumn: name,
-			field: key,
-			table: tableName
-		}).subscribe({
-			error: (e: Error) => {
-				toast.error(this.translateService.instant('msg.error.title'), { description: e.message })
-			},
-			complete: () => {
-				control.markAsPristine();
-				control.markAsUntouched();
-				control.updateValueAndValidity();
-				this.cdr.markForCheck();
-			}
-		})
+	private setupSection(schema: SectionSchema, isChild = false): SectionForm[] {
+		const fields = schema!.fields;
+		const id = schema!.id;
+		const children = (schema as any).children ?? [];
+		const _fields = new FormRecord(fields
+			.map(f => {
+				if (f.type == 'table') return this.setupTabularField(f);
+				else if (f.type == 'group') return this.setupGroupField(f);
+				const key = extractFieldKey(f.key);
+				return ({ [key]: this.setupField(f) });
+			})
+			.reduce((acc, curr) => {
+				return ({ ...acc, ...curr });
+			}, {} as Record<string, FieldControl>)
+		);
+		const group: SectionForm = new FormGroup({
+			fields: _fields,
+			id: new FormControl<string | null>(id ?? null, { nonNullable: false }),
+			isChild: new FormControl<boolean>(isChild, { nonNullable: true })
+		});
+		return [group, ...children.flatMap((s: any) => this.setupSection(s, true))];
 	}
 
 	protected removeMapping(control: FieldControl, key: FieldKey) {

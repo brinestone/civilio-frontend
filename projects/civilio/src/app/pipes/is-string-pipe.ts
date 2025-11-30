@@ -5,7 +5,7 @@ import { isString } from 'lodash'
 	name: 'isString'
 })
 export class IsStringPipe implements PipeTransform {
-	transform(value: any): any {
+	transform(value: any): boolean {
 		return isString(value);
 	}
 }

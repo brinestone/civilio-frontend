@@ -1,6 +1,7 @@
 import { ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { GeoPoint, GeoPointSchema, Option } from '@civilio/shared';
+import { GeoPoint, GeoPointSchema, Option, Unwrap } from '@civilio/shared';
 import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
+import { isEmpty, isObjectLike } from 'lodash';
 import z from 'zod';
 import {
 	ColumnDefinition,
@@ -9,7 +10,6 @@ import {
 	FormSchema,
 	SectionSchema
 } from '../schemas';
-import { isEmpty, isObjectLike } from 'lodash';
 
 export * from './chiefdom';
 export * from './csc';
@@ -19,7 +19,7 @@ export function extractFieldKey(key: (FieldSchema | ColumnDefinition)['key']) {
 	return typeof key == 'string' ? key : key.value;
 }
 
-export function extractRawValidators(schema: FieldSchema) {
+export function extractRawValidators(schema: FieldSchema | ColumnDefinition) {
 	const truthinessSchema = z.coerce.boolean();
 	const validators: ((v: unknown) => ValidationErrors | null)[] = [];
 
@@ -36,14 +36,14 @@ export function extractRawValidators(schema: FieldSchema) {
 	}
 
 	if (schema.type == 'text') {
-		if (schema.validValues) {
+		if ('validValues' in schema && schema.validValues) {
 			validators.push(v => {
 				if (!truthinessSchema.parse(v)) return null;
 				return schema.validValues?.includes(String(v).trim()) ? null : { invalidValue: 'validation.msg.value_unsupported', validValues: schema.validValues };
 			})
 		}
 
-		if (schema.pattern) {
+		if ('pattern' in schema && schema.pattern) {
 			const regexSchema = z.string().regex(new RegExp(schema.pattern));
 			validators.push(v => regexSchema.safeParse(v).success ? null : { pattern: 'validation.msg.pattern_mismatch' });
 		}
@@ -109,7 +109,15 @@ export function extractRawValidators(schema: FieldSchema) {
 		}
 	}
 
-	if (schema.validate) {
+	// if (schema.type == 'group') {
+	// 	validators.push(...schema.fields.flatMap(f => extractRawValidators(f)));
+	// }
+
+	// if(schema.type == 'table') {
+	// 	validators.push(...values(schema.columns).flatMap(col => extractRawValidators(col)));
+	// }
+
+	if ('validate' in schema && schema.validate) {
 		const fn = schema.validate;
 		validators.push(v => {
 			const stringValue = z.coerce.string().nullable().optional().parse(v);
@@ -225,7 +233,7 @@ export function flattenSections(schema: FormSchema) {
 
 export function lookupFieldSchema(key: string, model: FormSchema) {
 	const allFields = extractAllFields(model);
-	return allFields.find(f => f.key == key);
+	return allFields.find(f => extractFieldKey(f.key) == key);
 }
 
 export function extractAllFields(schema: FormSchema) {
@@ -248,7 +256,16 @@ export function extractFieldsAsMap(formSchema: FormSchema) {
 }
 
 export function extractFields(section: SectionSchema) {
-	const result = [...section.fields];
+	const result = Array<Unwrap<SectionSchema['fields']>>();
+
+	for (const field of section.fields) {
+		result.push(field);
+		if (field.type == 'group') {
+			for (const childField of field.fields) {
+				result.push(childField);
+			}
+		}
+	}
 	if (section.children) {
 		for (const child of section.children) {
 			result.push(...extractFields(child as any));

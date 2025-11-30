@@ -159,12 +159,28 @@ const GroupFieldDefinitionSchema = BaseFieldDefinitionSchema.omit({
 	default: true,
 }).extend({
 	type: z.literal('group'),
+	identifierKey: z.string(),
 	fields: z.discriminatedUnion('type', [
-		BooleanFieldDefinitionSchema.extend({ visible: z.literal(false).optional() }),
-		DateFieldDefinitionSchema.extend({ visible: z.literal(false).optional() }),
-		SelectionFieldDefinitionSchema.extend({ visible: z.literal(false).optional() }),
-		TextFieldDefinitionSchema.extend({ visible: z.literal(false).optional() }),
-		NumberFieldDefinitionSchema.extend({ visible: z.literal(false).optional() })
+		BooleanFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		DateFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		SelectionFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		TextFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		NumberFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		})
 	]).array()
 });
 
@@ -206,7 +222,8 @@ export const FormModelDefinitionSchema = z.object({
 // });
 
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
-export type TabularFieldSchema = z.output<typeof TabularFieldDefinitionSchema>;
+export type GroupFieldSchema = Extract<FieldSchema, { type: 'group' }>;
+export type TabularFieldSchema = Extract<FieldSchema, { type: 'table' }>;
 export type FormSchema = z.output<typeof FormModelDefinitionSchema>;
 export type SectionSchema = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;

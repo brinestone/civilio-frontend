@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply border border-(--border) rounded flex items-start;
+}
