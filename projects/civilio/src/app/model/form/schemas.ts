@@ -80,6 +80,7 @@ const DateFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 	type: z.literal('date'),
 	min: z.union([z.iso.date(), z.number(), z.date()]).optional(),
 	max: z.union([z.iso.date(), z.number(), z.date()]).optional(),
+	defaultToToday: z.literal(true).optional()
 });
 
 const GeoPointFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
@@ -96,7 +97,8 @@ const NumberFieldDefinitionSchema = BaseFieldDefinitionSchema.extend({
 	type: z.union([z.literal('float'), z.literal('int')]),
 	min: z.number().optional(),
 	max: z.number().optional(),
-	unit: z.string().optional()
+	unit: z.string().optional(),
+	precision: z.number().optional()
 });
 
 export const BaseColumnDefinition = z.object({
@@ -145,13 +147,44 @@ export const ColumnDefinitionSchema = z.discriminatedUnion('type', [
 const TabularFieldDefinitionSchema = BaseFieldDefinitionSchema
 	.omit({
 		span: true,
+		required: true,
 		default: true,
-		required: true
 	}).extend({
 		type: z.literal('table'),
 		columns: z.record(z.string(), ColumnDefinitionSchema),
 		identifierColumn: FieldKeySchema
 	});
+
+const GroupFieldDefinitionSchema = BaseFieldDefinitionSchema.omit({
+	span: true,
+	required: true,
+	default: true,
+}).extend({
+	type: z.literal('group'),
+	identifierKey: z.string(),
+	fields: z.discriminatedUnion('type', [
+		BooleanFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		DateFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		SelectionFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		TextFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		}),
+		NumberFieldDefinitionSchema.extend({
+			cssClass: z.string().optional(),
+			visible: z.literal(false).optional()
+		})
+	]).array()
+});
 
 export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 	BooleanFieldDefinitionSchema,
@@ -160,7 +193,8 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 	SelectionFieldDefinitionSchema,
 	TextFieldDefinitionSchema,
 	NumberFieldDefinitionSchema,
-	TabularFieldDefinitionSchema
+	TabularFieldDefinitionSchema,
+	GroupFieldDefinitionSchema
 ])
 
 const GroupBaseSchema = z.object({
@@ -190,7 +224,8 @@ export const FormModelDefinitionSchema = z.object({
 // });
 
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
-export type TabularFieldSchema = z.output<typeof TabularFieldDefinitionSchema>;
+export type GroupFieldSchema = Extract<FieldSchema, { type: 'group' }>;
+export type TabularFieldSchema = Extract<FieldSchema, { type: 'table' }>;
 export type FormSchema = z.output<typeof FormModelDefinitionSchema>;
 export type SectionSchema = z.output<typeof FormGroupSchema>;
 export type ValueProviderFn = z.output<typeof ValueProviderFnSchema>;

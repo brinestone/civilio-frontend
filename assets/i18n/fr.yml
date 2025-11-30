@@ -1,4 +1,6 @@
 misc:
+  yes: Oui
+  no: Non
   dialogs:
     version_revert:
       title: Revenir à cette version ?
@@ -40,12 +42,14 @@ units:
   meters:
     short: m
     long: mètres
+  kilometers:
+    short: kilomètres
+    long: kilomètres
 validation:
   msg:
     int: La valeur doit être un entier
     field_required: Ce champ est obligatoire
-    value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de l'une
-      des {{validValues}}
+    value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de : {{validValues}}
     pattern_mismatch: Format invalide
     invalid_date: Date invalide
     max_date: La date ne peut pas être postérieure au {{maxDate}}
@@ -53,6 +57,12 @@ validation:
     min: La valeur doit être d'au moins {{min}}{{suffix}}
     max: La valeur doit être au maximum de {{max}}{{suffix}}
 tmpl:
+  group:
+    form:
+      title: Modifier l'enregistrement
+    actions:
+      enable_mutation:
+        title: Modifier
   dropdown:
     placeholder: Sélectionner une valeur
   autocomplete:
@@ -116,6 +126,88 @@ settings:
 csc:
   form:
     sections:
+      extra:
+        title: Commentaires
+        fields:
+          relevant_info:
+            title: Veuillez utiliser l'espace prévu pour ajouter toute information
+              supplémentaire pertinente.
+          validation_code:
+            title: Code de validation
+      employees:
+        title: Statut du personnel
+        sections:
+          general:
+            title: Général
+            fields:
+              male_count:
+                title: Nombre d'officiers (hommes)
+              female_count:
+                title: Nombre d'officiers (femmes)
+              non_officer_male_count:
+                title: Nombre de personnes travaillant dans l'état civil (hors agents) hommes
+              non_officer_female_count:
+                title: Nombre de personnes travaillant dans l'état civil (hors agents) femmes
+          officers:
+            title: Liste du personnel du centre (officiers et non-officiers)
+            fields:
+              index:
+                title: Indice
+              list:
+                title: Liste du personnel du centre (officiers et non-officiers)
+              name:
+                title: Nom et prénom
+              position:
+                title: Fonction/poste
+              other_position:
+                title: Autre fonction
+              prof_status:
+                title: Statut professionnel
+              other_prof_status:
+                title: Autre statut professionnel
+              gender:
+                title: Genre
+              phone:
+                title: Numéro de téléphone
+                description: vous pouvez inscrire 2 numéros
+              email:
+                title: Adresse email
+              age:
+                title: Âge
+              ed_level:
+                title: Niveau d'éducation
+              computer_level:
+                title: Niveau de compétence en informatique
+              ec_training:
+                title: Avez-vous reçu une formation en état civil ?
+              archive_training:
+                title: Avez-vous reçu une formation en archivage ?
+              computer_training:
+                title: Avez-vous reçu une formation en informatique ?
+              cs_seniority:
+                title: Nombre d'années d'ancienneté dans la fonction publique
+              monthly_salary:
+                title: Allocation mensuelle perçue l'année dernière (en francs CFA)
+                description: Salaire mensuel
+      deeds:
+        title: Rapports émis mais non retirés au cours des 5 dernières années
+        fields:
+          index:
+            title: Indice
+          birth_certs_drawn:
+            title: Nombre d'actes de naissance. rédigé
+          birth_certs_not_withdrawn:
+            title: Nombre d'actes de naissance. non retiré
+          death_certs_drawn:
+            title: Nombre de certificats de décès. rédigé
+          death_certs_not_withdrawn:
+            title: Nombre de certificats de décès. non retiré
+          marriage_certs_drawn:
+            title: Nombre d'actes de mariage. rédigé
+          marriage_certs_not_withdrawn:
+            title: Nombre d'actes de mariage. non retiré
+          list:
+            title: Actes dressés mais non retirés au cours des 5 dernières années
       respondent:
         title: Informations sur le répondant
         fields:
@@ -447,11 +539,10 @@ csc:
               vandalization_date:
                 title: Quand le vandalisme a-t-il eu lieu ?
           archive_stats:
-            title: Nombre de dossiers archivés
+            title: Nombre d'archives enregistrées
             fields:
               list:
-                title: Nombre d'enregistrements archivés (période du {{startYear}} au
-                  {{endYear}})
+                title: Nombre d'archives enregistrées (période du {{startYear}} au {{endYear}})
               index:
                 title: Indice
               year:
@@ -490,7 +581,7 @@ fosa:
     title: Soumission PIED
     sections:
       respondent:
-        title: Le défendeur
+        title: Informations sur le répondant
         description: Informations sur le répondant
         fields:
           knows_creation_date:
@@ -556,7 +647,7 @@ fosa:
             title: Distance au SCC (mètres)
             description: Distance moyenne du bureau d'état civil
           knows_gps_coords:
-            title: Pouvez-vous prendre l'emplacement ?
+            title: Pouvez-vous fournir la localisation GPS ?
           gps_coords:
             title: Coordonnées GPS
       stats:
@@ -1031,15 +1122,135 @@ chefferie:
   form:
     sections:
       respondent:
-        title: Le défendeur
-      structure_identification:
+        title: Informations sur le répondant
+        fields:
+          name:
+            title: Nom et prénom
+          position:
+            title: Fonction
+            description: Poste/fonction dans l’établissement de santé
+          phone:
+            title: Numéro de téléphone
+            description: Numéro de téléphone (de préférence WhatsApp)
+          email:
+            title: E-mail
+            description: Adresse e-mail (e-mail professionnel)
+          creation_date:
+            title: Date de création
+            description: Année de création de l'établissement de santé (jj/MM/AAAA)
+      identification:
         title: Identification des structures
-      service_offered_and_amenities:
+        fields:
+          division:
+            title: Division
+            description: Division dans la région
+          municipality:
+            title: Ville/Ville
+          quarter:
+            title: Quartier
+          degree:
+            title: Degré
+          gps_coords:
+            title: Coordonnées GPS
+          facility_name:
+            title: Nom de l'établissement
+          cs_proximity:
+            title: Distance au centre d'état civil le plus proche (en mètres)
+      infra:
+        title: Infrastructures de la chefferie
+        fields:
+          is_residence:
+            title: Le bâtiment abritant la chefferie est-il la résidence du chef ?
+          has_internet:
+            title: La chefferie dispose-t-elle d'une connexion Internet ?
+          conn_type:
+            title: Quel type de connexion est disponible dans la région ?
+          other_conn_type:
+            title: Merci de préciser le type de connexion disponible dans la zone
+          has_power:
+            title: La chefferie est-elle raccordée au réseau électrique (ENEO) ?
+          has_water_source:
+            title: Le bâtiment est-il alimenté en eau ?
+          water_sources:
+            title: Quelles sont les sources d’eau disponibles ?
+          other_water_source:
+            title: Veuillez préciser la source d'eau
+          has_fire_extinguisher:
+            title: Existe-t-il un extincteur fonctionnel ?
+      services:
         title: Services offerts et commodités
-      infra_eq:
-        title: Infrastructures et équipements
+        sections:
+          general:
+            fields:
+              is_oath_taken:
+                title: Le chef ou le dignitaire a-t-il prêté serment ?
+              is_chief_officer:
+                title: Le chef exerce-t-il la fonction d’état civil ?
+                description: La fonction d'état civil est-elle exercée par le chef ou un notable
+                  de la chefferie ?
+              reception_location:
+                description: Aire d'accueil des usagers dans la chefferie
+              records_location:
+                title: Où sont conservés les actes d’état civil ?
+              other_records_location:
+                title: Veuillez préciser où sont conservés les actes d'état civil
+              has_waiting_room:
+                title: Y a-t-il une salle d’attente ou un espace disponible pour les
+                  utilisateurs ?
+              officer_trained_cs:
+                title: L'officier ou le secrétaire a-t-il reçu une formation en matière d'état
+                  civil ?
+              toilets_accessible:
+                title: Disponibilité des toilettes
+                description: Disponibilité de toilettes accessibles aux usagers
+          equipment:
+            title: Équipement fonctionnel
+            fields:
+              pc_count:
+                title: "# d'ordinateurs"
+              printer_count:
+                title: "# d'imprimantes"
+              tablet_count:
+                title: "# de comprimés"
+              car_count:
+                title: "# de voitures"
+              bike_count:
+                title: "# de vélos"
       personnel_status:
         title: Personnel Status
+        general:
+          fields:
+            employee_count:
+              title: Nombre d'employés
+        employees:
+          fields:
+            index:
+              title: Indice
+            name:
+              title: Noms
+            position:
+              title: Fonction
+            gender:
+              title: Genre
+            phone:
+              title: Téléphone
+            age:
+              title: Âge
+            has_cs_training:
+              title: A une formation en état civil ?
+            ed_level:
+              title: Niveau d'éducation
+            computer_level:
+              title: Compétences informatiques
+            list:
+              title: Liste des membres du personnel de la chefferie
+      comments:
+        title: Commentaires
+        fields:
+          relevant_info:
+            title: Informations pertinentes
+          validation_code:
+            title: Code de validation
       geo_point:
         title: Coordonnées géographiques
       extra:

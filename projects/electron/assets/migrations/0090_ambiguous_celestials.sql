@@ -1,0 +1,2 @@
+ALTER TABLE chefferie.data
+	ADD COLUMN IF NOT EXISTS q0_06_date_creation DATE DEFAULT NULL;

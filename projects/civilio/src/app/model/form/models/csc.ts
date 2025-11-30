@@ -972,7 +972,13 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				{
 					id: 'csc.form.sections.archiving_function.sections.archive_stats',
-					relevance: relevanceMap.centerIsFunctional,
+					relevance: {
+						dependencies: [
+							'csc.form.sections.identification.fields.category',
+							'csc.form.sections.identification.fields.is_functional'
+						],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.identification.fields.is_functional'] === true && ['1', '2'].includes(deps['csc.form.sections.identification.fields.category'] as string)),
+					},
 					fields: [
 						{
 							key: {
@@ -1012,10 +1018,230 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 							}
 						}
 					]
-				}
+				},
+				{
+					id: 'csc.form.sections.deeds',
+					fields: [
+						{
+							key: 'csc.form.sections.deeds.fields.list',
+							type: 'table',
+							relevance: relevanceMap.centerIsFunctional,
+							identifierColumn: 'csc.form.sections.deeds.fields.index',
+							columns: {
+								index: {
+									key: 'csc.form.sections.deeds.fields.index',
+									visible: false,
+									editable: false,
+									type: 'number',
+								},
+								drawn_births: {
+									key: 'csc.form.sections.deeds.fields.birth_certs_drawn',
+									type: 'number',
+									min: 0
+								},
+								not_withdrawn_births: {
+									key: 'csc.form.sections.deeds.fields.birth_certs_not_withdrawn',
+									type: 'number',
+									min: 0
+								},
+								drawn_marriages: {
+									key: 'csc.form.sections.deeds.fields.marriage_certs_drawn',
+									type: 'number',
+									min: 0
+								},
+								not_withdrawn_marriages: {
+									key: 'csc.form.sections.deeds.fields.marriage_certs_not_withdrawn',
+									type: 'number',
+									min: 0
+								},
+								drawn_deaths: {
+									key: 'csc.form.sections.deeds.fields.death_certs_drawn',
+									type: 'number',
+									min: 0
+								},
+								not_withdrawn_deaths: {
+									key: 'csc.form.sections.deeds.fields.death_certs_not_withdrawn',
+									type: 'number',
+									min: 0
+								}
+							}
+						}
+					]
+				},
 			]
 		},
 		// #endregion
+
+		//#region Employee status
+		{
+			id: 'csc.form.sections.employees',
+			relevance: relevanceMap.centerIsFunctional,
+			fields: [],
+			children: [
+				{
+					id: 'csc.form.sections.employees.sections.general',
+					fields: ([
+						'csc.form.sections.employees.sections.general.fields.male_count',
+						'csc.form.sections.employees.sections.general.fields.female_count',
+						'csc.form.sections.employees.sections.general.fields.non_officer_male_count',
+						'csc.form.sections.employees.sections.general.fields.non_officer_female_count',
+					] as FieldKey[]).map(k => ({
+						key: k,
+						type: 'int',
+						min: 0,
+						max: 500,
+					}))
+				},
+				{
+					id: 'csc.form.sections.employees.sections.officers',
+					fields: [
+						{
+							key: 'csc.form.sections.employees.sections.officers.fields.list',
+							type: 'group',
+							relevance: relevanceMap.centerIsFunctional,
+							identifierKey: 'csc.form.sections.employees.sections.officers.fields.index',
+							fields: [
+								{
+									visible: false,
+									editable: false,
+									type: 'int',
+									key: 'csc.form.sections.employees.sections.officers.fields.index',
+								},
+								{
+									type: 'text',
+									key: 'csc.form.sections.employees.sections.officers.fields.name',
+									// cssClass: 'font-bold text-lg'
+								},
+								{
+									type: 'single-selection',
+									optionsGroupKey: 'ts8cb25',
+									key: 'csc.form.sections.employees.sections.officers.fields.position'
+								},
+								{
+									type: 'text',
+									key: 'csc.form.sections.employees.sections.officers.fields.other_position',
+									required: true,
+									relevance: {
+										dependencies: ['csc.form.sections.employees.sections.officers.fields.position'],
+										predicate: RelevancePredicateSchema.implement(deps => {
+											return deps['csc.form.sections.employees.sections.officers.fields.position'] === '6';
+										})
+									}
+								},
+								{
+									type: 'single-selection',
+									key: 'csc.form.sections.employees.sections.officers.fields.prof_status',
+									optionsGroupKey: 'kr15v52',
+									required: true
+								},
+								{
+									type: 'text',
+									key: 'csc.form.sections.employees.sections.officers.fields.other_prof_status',
+									required: true,
+									relevance: {
+										dependencies: ['csc.form.sections.employees.sections.officers.fields.prof_status'],
+										predicate: RelevancePredicateSchema.implement(deps => {
+											return deps['csc.form.sections.employees.sections.officers.fields.prof_status'] === '5';
+										})
+									}
+								},
+								{
+									type: 'single-selection',
+									optionsGroupKey: 'xw39g10',
+									key: 'csc.form.sections.employees.sections.officers.fields.gender'
+								},
+								{
+									type: 'text',
+									key: 'csc.form.sections.employees.sections.officers.fields.phone',
+									pattern: "^(((\\+?237)?([62][0-9]{8}))(([,/] *)((\\+?237)?([62][0-9]{8})))*)?$"
+								},
+								{
+									type: 'int',
+									min: 18,
+									max: 90,
+									key: 'csc.form.sections.employees.sections.officers.fields.age',
+									required: true
+								},
+								{
+									type: 'text',
+									pattern: '^([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})?$',
+									key: 'csc.form.sections.employees.sections.officers.fields.email'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.ed_level',
+									type: 'single-selection',
+									optionsGroupKey: 'ta2og93'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.computer_level',
+									type: 'single-selection',
+									optionsGroupKey: 'nz2pr56'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.ec_training',
+									type: 'boolean'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.archive_training',
+									type: 'boolean'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.computer_training',
+									type: 'boolean'
+								},
+								{
+									key: 'csc.form.sections.employees.sections.officers.fields.cs_seniority',
+									type: 'int',
+									min: 1
+								},
+								{
+									key: {
+										value: 'csc.form.sections.employees.sections.officers.fields.monthly_salary',
+										titleArgs: {
+											lastYear: new Date().getFullYear() - 1
+										}
+									},
+									type: 'int',
+									min: 0
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		//#endregion
+
+		//#region Extras
+		{
+			id: 'csc.form.sections.extra',
+			fields: [
+				{
+					type: 'text',
+					multiline: true,
+					key: 'csc.form.sections.extra.fields.relevant_info'
+				},
+				{
+					key: 'csc.form.sections.extra.fields.validation_code',
+					type: 'text',
+					validValues: [
+						'BA101M', 'BA151M', 'BA201M', 'BA251M', 'BA301M', 'BA351M',
+						'BA401M', 'BA451M', 'BA501M', 'BA551M', 'BA601M', 'BA651M',
+						'BA701M', 'BA751M', 'BA801M',
+						'ND102D', 'ND152D', 'ND202D', 'ND252D', 'ND302D', 'ND352D',
+						'ND402D', 'ND452D', 'ND502D', 'ND552D', 'ND602D', 'ND652D',
+						'ND702D', 'ND752D', 'ND802D',
+						'NO403G', 'NO453G', 'NO503G', 'NO553G', 'NO603G', 'NO653G',
+						'NO703G', 'NO753G', 'NO803G',
+						'NO103G', 'NO153G', 'NO203G', 'NO253G', 'NO303G', 'NO353G',
+						'ME107S', 'ME157S', 'ME207S', 'ME257S', 'ME307S', 'ME357S',
+						'ME407S', 'ME457S', 'ME507S', 'ME557S', 'ME607S', 'ME657S',
+						'ME707S', 'ME757S', 'ME807S'
+					]
+				}
+			]
+		}
+		//#endregion
 	] as SectionSchema[],
 	meta: {
 		form: 'csc' as FormType

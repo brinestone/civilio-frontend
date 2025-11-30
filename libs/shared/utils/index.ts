@@ -1,5 +1,7 @@
 import { Channel } from "../contracts";
 
+export type Unwrap<T> = T extends (infer U)[] ? U : T;
+
 export function computeReplyChannel(channel: Channel) {
 	return `${channel}-reply` as const;
 }

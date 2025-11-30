@@ -121,14 +121,18 @@ export function isDesktop() {
 	return window && "electron" in window;
 }
 
-function generateMessageId() {
+export function randomString(len = 20) {
 	const alphabet =
 		"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWQYZ0123456789";
 	let result = "";
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < len; i++) {
 		result += alphabet[Math.floor(Math.random() * alphabet.length)];
 	}
 	return result;
+}
+
+function generateMessageId() {
+	return randomString();
 }
 
 export async function sendRpcMessageAsync<TChannel extends Channel>(

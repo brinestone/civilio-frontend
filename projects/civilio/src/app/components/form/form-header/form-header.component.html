@@ -66,7 +66,7 @@
 			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>
 		</button>
 		<hlm-sheet-content
-			class="min-w-[70vw] @container"
+			class="lg:min-w-[70vw] xl:min-w-[75vw] min-w-full"
 			*brnSheetContent
 		>
 			<hlm-sheet-header>
@@ -75,8 +75,8 @@
 					{{ "field_mapper.description" | translate }}
 				</p>
 			</hlm-sheet-header>
-			<div class="max-h-[600px] overflow-y-auto">
-				@defer (when mapperSheetState() == 'open') {
+			<div class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
+				@defer (when formType()) {
 					@let schema = formSchema();
 					@if (schema) {
 						<cv-field-mapper [formModel]="schema" [form]="formType()"/>

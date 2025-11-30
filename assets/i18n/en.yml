@@ -1,4 +1,6 @@
 misc:
+  yes: Yes
+  no: No
   dialogs:
     version_revert:
       title: Revert to this version?
@@ -37,11 +39,14 @@ units:
   meters:
     short: m
     long: meters
+  kilometers:
+    short: km
+    long: kilometers
 validation:
   msg:
     int: Value must be an integer
     field_required: This field is required
-    value_unsupported: Value is unsupported. It must be one of {{validValues}}
+    value_unsupported: "Value is unsupported. It must be one of: {{validValues}}"
     pattern_mismatch: Invalid format
     invalid_date: Invalid date
     max_date: The date cannot be after {{maxDate}}
@@ -49,6 +54,13 @@ validation:
     min: Value must be at least {{min}}{{suffix}}
     max: Value must be at most {{max}}{{suffix}}
 tmpl:
+  group:
+    form:
+      title: Edit record
+      description: ""
+    actions:
+      enable_mutation:
+        title: Edit
   dropdown:
     placeholder: Select value
   autocomplete:
@@ -112,6 +124,87 @@ settings:
 csc:
   form:
     sections:
+      extra:
+        title: Comments
+        fields:
+          relevant_info:
+            title: Please use the space provided to add any additional relevant information.
+          validation_code:
+            title: Validation Code
+      employees:
+        title: Staffing status
+        sections:
+          general:
+            title: General
+            fields:
+              male_count:
+                title: Number of officers (men)
+              female_count:
+                title: Number of officers (women)
+              non_officer_male_count:
+                title: Number of people working in civil registration (excluding officers) men
+              non_officer_female_count:
+                title: Number of people working in civil registration (excluding officers) women
+          officers:
+            title: List of center personnel (officers and non-officers)
+            fields:
+              index:
+                title: Index
+              list:
+                title: List of center personnel (officers and non-officers)
+              name:
+                title: First and last names
+              position:
+                title: Function/position
+              other_position:
+                title: Other function
+              prof_status:
+                title: Professional status
+              other_prof_status:
+                title: Other professional status
+              gender:
+                title: Gender
+              phone:
+                title: Phone number
+                description: vous pouvez inscrire 2 numéros
+              email:
+                title: Email address
+              age:
+                title: Age
+              ed_level:
+                title: Educational level
+              computer_level:
+                title: Computer skill level
+              ec_training:
+                title: Have you received training in civil status?
+              archive_training:
+                title: Have you received training in archiving?
+              computer_training:
+                title: Have you received computer training?
+              cs_seniority:
+                title: Number of years of seniority in civil service
+              monthly_salary:
+                title: Monthly allowance received last year (in CFA francs)
+                description: Salaire mensuel
+      deeds:
+        title: Reports issued but not withdrawn during the last 5 years
+        fields:
+          index:
+            title: Index
+          birth_certs_drawn:
+            title: "# of birth certs. drawn up"
+          birth_certs_not_withdrawn:
+            title: "# of birth certs. not withdrawn"
+          death_certs_drawn:
+            title: "# of death certs. drawn up"
+          death_certs_not_withdrawn:
+            title: "# of death certs. not withdrawn"
+          marriage_certs_drawn:
+            title: "# of marriage certs. drawn up"
+          marriage_certs_not_withdrawn:
+            title: "# of marriage certs. not withdrawn"
+          list:
+            title: Deeds drawn up but not withdrawn during the last 5 years
       respondent:
         title: Respondent Info
         fields:
@@ -441,10 +534,10 @@ csc:
               vandalization_date:
                 title: When did the vandalism occur?
           archive_stats:
-            title: Number of archived records
+            title: Number of registered archives
             fields:
               list:
-                title: Number of archived records (period from {{startYear}} to {{endYear}})
+                title: Number of registered archives (period from {{startYear}} to {{endYear}})
               index:
                 title: Index
               year:
@@ -484,7 +577,7 @@ fosa:
     title: FOSA Submission
     sections:
       respondent:
-        title: The Respondent
+        title: Respondent Info
         description: Information about the respondent
         fields:
           knows_creation_date:
@@ -550,7 +643,7 @@ fosa:
             title: Distance to CSC (meters)
             description: Average distance from the registry office
           knows_gps_coords:
-            title: Can you take the location?
+            title: Can you provide the GPS location?
           gps_coords:
             title: GPS coordinates
       stats:
@@ -1019,15 +1112,133 @@ chefferie:
   form:
     sections:
       respondent:
-        title: The Respondent
-      structure_identification:
+        title: Respondent Info
+        fields:
+          name:
+            title: First and last names
+          position:
+            title: Function
+            description: Position / function in the health facility
+          phone:
+            title: Phone number
+            description: Phone number (preferably WhatsApp)
+          email:
+            title: Email
+            description: Email address (work email)
+          creation_date:
+            title: Date of creation
+            description: Year of creation of the health facility (dd/MM/YYYY)
+      identification:
         title: Structure identification
-      service_offered_and_amenities:
+        fields:
+          division:
+            title: Division
+            description: Division in the region
+          municipality:
+            title: Town/City
+          quarter:
+            title: Neighborhood
+          degree:
+            title: Degree
+          gps_coords:
+            title: GPS coordinates
+          facility_name:
+            title: Facility name
+          cs_proximity:
+            title: Distance to the nearest civil status centre (in meters)
+      infra:
+        title: Chiefdom infrastructure
+        fields:
+          is_residence:
+            title: Is the building housing the chiefdom the chief's residence?
+          has_internet:
+            title: Does the chiefdom have an internet connection?
+          conn_type:
+            title: What type of connection is available in the area?
+          other_conn_type:
+            title: Please specify the type of connection available in the area
+          has_power:
+            title: Is the chiefdom connected to the electricity grid (ENEO)?
+          has_water_source:
+            title: Does the building have water supply?
+          water_sources:
+            title: What are the available water sources?
+          other_water_source:
+            title: Please specify the water source
+          has_fire_extinguisher:
+            title: Is there a functional fire extinguisher?
+      services:
         title: Services offered and amenities
-      infra_eq:
-        title: Infrastructure and Equipment
+        sections:
+          general:
+            fields:
+              is_oath_taken:
+                title: Has the chief or dignitary taken the oath?
+              is_chief_officer:
+                title: Does the chief exercise the civil status function?
+                description: Is the civil status function performed by the chief or a notable in the chiefdom?
+              reception_location:
+                title:
+                description: User reception area in the chiefdom
+              records_location:
+                title: Where are civil status records kept?
+              other_records_location:
+                title: Please specify where civil status records are kept
+              has_waiting_room:
+                title: Is there a waiting room or space available for users?
+              officer_trained_cs:
+                title: Has the officer or secretary received training in civil status matters?
+              toilets_accessible:
+                title: Availability of toilets
+                description: Availability of toilets accessible to users
+          equipment:
+            title: Functioning equipment
+            fields:
+              pc_count:
+                title: "# of computers"
+              printer_count:
+                title: "# of printers"
+              tablet_count:
+                title: "# of tablets"
+              car_count:
+                title: "# of cars"
+              bike_count:
+                title: "# of bikes"
       personnel_status:
         title: Personnel Status
+        general:
+          fields:
+            employee_count:
+              title: "# of Personnel"
+        employees:
+          fields:
+            index:
+              title: Index
+            name:
+              title: Names
+            position:
+              title: Function
+            gender:
+              title: Gender
+            phone:
+              title: Phone
+            age:
+              title: Age
+            has_cs_training:
+              title: Has civil status training?
+            ed_level:
+              title: Educational level
+            computer_level:
+              title: IT Skills
+            list:
+              title: List of staff members of the chiefdom
+      comments:
+        title: Comments
+        fields:
+          relevant_info:
+            title: Relevant information
+          validation_code:
+            title: Validation code
       geo_point:
         title: Geographic coordinates
       extra:

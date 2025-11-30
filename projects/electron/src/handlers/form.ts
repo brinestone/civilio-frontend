@@ -2,6 +2,7 @@ import {
 	chefferieIndexSeqInCivilio,
 	chefferiePersonnelIndexSeqInCivilio,
 	choices,
+	cscIdSeqInCivilio,
 	cscIndexSeqInCivilio,
 	cscPersonnelIndexSeqInCivilio,
 	cscPiecesIndexSeqInCivilio,
@@ -9,6 +10,7 @@ import {
 	cscVillagesSeqInCivilio,
 	deltaChanges,
 	fieldMappings,
+	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
 	vwDbColumns,
@@ -52,6 +54,7 @@ const sequences: Record<
 	fosa: {
 		data: [
 			{ column: "_index", sequence: fosaIndexSeqInCivilio },
+			{ column: '_id', sequence: fosaIdSeqInCivilio }
 		],
 		data_personnel: [
 			{ column: "_index", sequence: fosaPersonnelIndexSeqInCivilio },
@@ -60,14 +63,16 @@ const sequences: Record<
 	csc: {
 		data: [
 			{ column: "_index", sequence: cscIndexSeqInCivilio },
-			// { column: "_id", sequence: cscIdSeqInCivilio },
+			{ column: "_id", sequence: cscIdSeqInCivilio },
+		],
+		data_archives: [
+			{ column: '_index', sequence: cscIndexSeqInCivilio }
 		],
 		data_personnel: [
 			{ column: '_index', sequence: cscPersonnelIndexSeqInCivilio }
 		],
 		data_pieces: [
 			{ column: '_index', sequence: cscPiecesIndexSeqInCivilio },
-			// { column: '_id', sequence: cscIdSeqInCivilio }
 		],
 		data_statistiques: [
 			{ column: '_index', sequence: cscStatisticsIndexSeqInCivilio }
@@ -143,6 +148,10 @@ export async function processSubmissionDataUpdate({
 			await tx.execute(sql`DELETE
 													 FROM ${ sql.identifier(form) }.${ sql.identifier('data') }
 													 WHERE _index = ${ Number(submissionIndex) }`);
+			//language=PostgreSQL
+			await tx.execute(sql`
+				CALL revisions.sync_version(${ form }, ${ _submission_index });
+			`);
 			return;
 		} else if (submissionIndex === undefined || isNaN(_submission_index)) {
 			const requiredCols = sequences[form].data;
@@ -155,6 +164,10 @@ export async function processSubmissionDataUpdate({
 				throw new Error('An unexpected error occurred. Please try again later or contact your administrator')
 			}
 			_submission_index = result.rows[0]._index as number;
+			//language=PostgreSQL
+			await tx.execute(sql`
+				CALL revisions.sync_version(${ form }, ${ _submission_index });
+			`);
 		}
 		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
 		console.log(`All deltas: ${ JSON.stringify(deltas) }`);
@@ -180,7 +193,10 @@ export async function processSubmissionDataUpdate({
 					SET ${ sql.join(updates, sql`, `) }
 					WHERE _index = ${ _submission_index };
 				`);
-				// await pause(1000);
+				//language=PostgreSQL
+				await tx.execute(sql`
+					CALL revisions.sync_version(${ form }, ${ _submission_index });
+				`);
 			} else if (table != 'data' && tableDeltas.length > 0) {
 				const {
 					add: additions,
@@ -189,17 +205,28 @@ export async function processSubmissionDataUpdate({
 				} = groupBy(tableDeltas, 'op');
 				if (updates && updates.length > 0) {
 					console.log('processing "update" deltas');
-					for (const update of updates) {
-						const mapping = mappings.find(m => m.field == update.field);
-						if (!mapping) continue;
+					const recordGroups = groupBy(updates, 'index');
+					for (const [i, updates] of entries(recordGroups)) {
+						const kvm = new Map<string, [any, string]>();
+						for (const update of updates) {
+							const mapping = mappings.find(m => m.field == update.field);
+							if (!mapping) continue;
+							kvm.set(mapping.dbColumn, [update.value, mapping.dbColumnType]);
+						}
+						const updateClauses = [...kvm.entries()].map(
+							([col, [v, t]]) => sql`${ sql.identifier(col) } = ${ v || null }::${ sql.raw(t) }`
+						);
 						await tx.execute(sql`
 							UPDATE ${ sql.identifier(form) }.${ sql.identifier(table) }
-							SET ${ sql.identifier(mapping.dbColumn) } = ${ update.value || null }::${ sql.raw(mapping.dbColumnType) }
-							WHERE _parent_index = ${ _submission_index }
-								AND _index = ${ update.index };
+							SET ${ sql.join(updateClauses, sql`, `) }
+							WHERE _parent_index = ${ _submission_index }::INTEGER
+								AND _index = ${ i }::INTEGER;
 						`);
-						// await pause(1000);
 					}
+					//language=PostgreSQL
+					await tx.execute(sql`
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
+					`);
 				}
 				if (additions && additions.length > 0) {
 					console.log('processing "add" deltas');
@@ -236,6 +263,10 @@ export async function processSubmissionDataUpdate({
 											`) });
 						`);
 					}
+					//language=PostgreSQL
+					await tx.execute(sql`
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
+					`);
 				}
 				if (deletions && deletions.length > 0) {
 					console.log('processing "delete" deltas');
@@ -257,11 +288,14 @@ export async function processSubmissionDataUpdate({
 						DELETE
 						FROM ${ sql.identifier(form) }.${ sql.identifier(table) }
 						WHERE ${ and(
-							eq(sql.identifier('_parent_index'), _submission_index),
-							inArray(sql.identifier(identifierMapping.dbColumn), indexes)
-						) }
+						eq(sql.identifier('_parent_index'), _submission_index),
+						inArray(sql.identifier(identifierMapping.dbColumn), indexes)
+					) }
 					`);
-					// await pause(1000);
+					//language=PostgreSQL
+					await tx.execute(sql`
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
+					`);
 				}
 			}
 		}
@@ -469,7 +503,7 @@ export async function updateFieldMappings(
 				})
 				.returning());
 		}
-		return retVal;
+		return retVal.flatMap(v => v);
 	});
 }
 

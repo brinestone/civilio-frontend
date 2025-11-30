@@ -55,7 +55,7 @@
 </ng-template>
 
 <ng-template #errorsTemplate>
-	<div class="grid grid-cols-[minmax(auto,20%)_1fr] gap-x-3 gap-y-1">
+	<div class="grid grid-cols-[minmax(auto,40%)_1fr] gap-x-3 gap-y-1">
 		@for (
 			h of [
 				"form.footer.tabs.errors.columns.field",
@@ -71,6 +71,7 @@
 		}
 
 		@let list = currentSectionErrors() | keyvalue;
+		<!-- {{list | json}} -->
 		@for (entry of list; track $index) {
 			<p class="line-clamp-1 text-sm font-light">
 				{{ entry.key + ".title" | translate }}
@@ -84,8 +85,14 @@
 						@case ("pattern") {
 							{{ err.value | translate }}
 						}
-						@default {
-							{{ err | json }}
+						@case ("invalidValue") {
+							{{
+								err.value
+									| translate
+										: {
+												validValues: $any(entry.value).validValues | join,
+										  }
+							}}
 						}
 					}
 				}

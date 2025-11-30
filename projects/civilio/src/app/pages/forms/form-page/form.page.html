@@ -27,7 +27,8 @@
 >
 	<div class="space-y-2 bg-(--background)">
 		@defer (when versions.hasValue()) {
-		<brn-select
+			<hlm-select
+				scrollable="true"
 			[(value)]="selectedVersion.value"
 			[disabled]="versions.value().length == 0"
 			[placeholder]="(versions.value().length == 0 ? 'form.header.version_selector.no_versions' : 'form.header.version_selector.placeholder') | translate"
@@ -43,7 +44,7 @@
 					</div>
 				</hlm-select-value>
 			</hlm-select-trigger>
-			<hlm-select-content class="w-full">
+				<hlm-select-content class="w-full max-h-96">
 				<hlm-select-scroll-up />
 				@for (versionInfo of versions.value(); track versionInfo.version) {
 				<hlm-option [value]="versionInfo.version">
@@ -58,7 +59,7 @@
 				}
 				<hlm-select-scroll-down />
 			</hlm-select-content>
-		</brn-select>
+			</hlm-select>
 		} @loading {
 		<hlm-skeleton class="w-full block h-8" />
 		} @if (!isSelectedVersionCurrent() && versions.hasValue() &&
@@ -352,12 +353,12 @@
 		</div>
 		}
 		<hlm-separator />
-		<input
-			[(ngModel)]="customVersion"
-			class="block"
-			hlmInput
-			placeholder="{{'misc.placeholder.custom_version' | translate}}"
-		/>
+		<!--		<input-->
+		<!--			[(ngModel)]="customVersion"-->
+		<!--			class="block"-->
+		<!--			hlmInput-->
+		<!--			placeholder="{{'misc.placeholder.custom_version' | translate}}"-->
+		<!--		/>-->
 		<textarea
 			[(ngModel)]="changeNotes"
 			class="block max-h-[100px] space-y-2 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"

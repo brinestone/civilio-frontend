@@ -1,0 +1,1 @@
+ALTER TABLE csc.data ADD COLUMN IF NOT EXISTS q14_01_relevant_infos TEXT;

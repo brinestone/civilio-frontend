@@ -1,13 +1,13 @@
 import { Component, resource } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LocaleSelectorComponent, ThemeSelectorComponent } from '@app/components';
+import {
+	LocaleSelectorComponent,
+	ThemeSelectorComponent
+} from '@app/components';
 import { sendRpcMessageAsync } from '@app/util';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideSettings, lucideTable2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-	BrnToggleGroupImports
-} from '@spartan-ng/brain/toggle-group';
 
 @Component({
 	selector: 'cv-base',
@@ -22,7 +22,6 @@ import {
 		RouterLink,
 		TranslatePipe,
 		RouterLinkActive,
-		BrnToggleGroupImports,
 		ThemeSelectorComponent,
 		LocaleSelectorComponent,
 	],

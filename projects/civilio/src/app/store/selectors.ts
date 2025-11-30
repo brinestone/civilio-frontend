@@ -63,8 +63,8 @@ export const fontSize = createSelector([configSlices.config], (cfg) => {
 export const facilityName = createSelector([formSlices.rawData], (record) => {
 	const facilityNameKeys = [
 		'fosa.form.sections.identification.fields.facility_name',
-		'csc.form.sections.identification.fields.facility_name'
-		// TODO: add for chefferie
+		'csc.form.sections.identification.fields.facility_name',
+		'chefferie.form.sections.identification.fields.facility_name',
 	] as FieldKey[];
 
 	for (const nameKey of facilityNameKeys) {
@@ -78,7 +78,7 @@ export const undoAvailable = createSelector([formSlices.undoStack], r => r.lengt
 export const redoAvailable = createSelector([formSlices.redoStack], r => r.length > 0);
 
 export const changesPending = createSelector([undoAvailable, redoAvailable], (u, r) => {
-	return u || r;
+	return u;
 });
 export const isFormValid = createSelector([formSlices.activeSections], (sections) => {
 	return values(sections).map(({ status }) => status).every(v => v != 'INVALID');

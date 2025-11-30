@@ -1,0 +1,723 @@
+{
+  "id": "abd73559-7d29-4d8d-98c4-a0705ad0a73e",
+  "prevId": "f80688d8-249f-4a63-ab89-1e27ac077ffe",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "civilio.choices": {
+      "name": "choices",
+      "schema": "civilio",
+      "columns": {
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent": {
+          "name": "parent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "group": {
+          "name": "group",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "i18n_key": {
+          "name": "i18n_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version": {
+          "name": "version",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "choices_pkey": {
+          "name": "choices_pkey",
+          "columns": [
+            "name",
+            "group",
+            "version"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "revisions.deltas": {
+      "name": "deltas",
+      "schema": "revisions",
+      "columns": {
+        "hash": {
+          "name": "hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "submission_index": {
+          "name": "submission_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "index": {
+          "name": "index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form": {
+          "name": "form",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "table_name": {
+          "name": "table_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_at": {
+          "name": "changed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "delta_data": {
+          "name": "delta_data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "changed_by": {
+          "name": "changed_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "op": {
+          "name": "op",
+          "type": "change_op",
+          "typeSchema": "revisions",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "parent": {
+          "name": "parent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sync_status": {
+          "name": "sync_status",
+          "type": "sync_status",
+          "typeSchema": "revisions",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "change_notes": {
+          "name": "change_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "deltas_hash_index": {
+          "name": "deltas_hash_index",
+          "columns": [
+            {
+              "expression": "hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_submission_index_index": {
+          "name": "deltas_submission_index_index",
+          "columns": [
+            {
+              "expression": "submission_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_index_index": {
+          "name": "deltas_index_index",
+          "columns": [
+            {
+              "expression": "index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_form_index": {
+          "name": "deltas_form_index",
+          "columns": [
+            {
+              "expression": "form",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_changed_at_index": {
+          "name": "deltas_changed_at_index",
+          "columns": [
+            {
+              "expression": "changed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_parent_index": {
+          "name": "deltas_parent_index",
+          "columns": [
+            {
+              "expression": "parent",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "where": "\"revisions\".\"deltas\".\"parent\" is not null",
+          "concurrently": false
+        },
+        "deltas_parent_hash_index": {
+          "name": "deltas_parent_hash_index",
+          "columns": [
+            {
+              "expression": "parent",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "deltas_submission_index_form_changed_at_index": {
+          "name": "deltas_submission_index_form_changed_at_index",
+          "columns": [
+            {
+              "expression": "submission_index",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "form",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "changed_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "deltas_hash_submission_index_index_form_table_name_pk": {
+          "name": "deltas_hash_submission_index_index_form_table_name_pk",
+          "columns": [
+            "hash",
+            "submission_index",
+            "index",
+            "form",
+            "table_name"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "civilio.form_field_mappings": {
+      "name": "form_field_mappings",
+      "schema": "civilio",
+      "columns": {
+        "field": {
+          "name": "field",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "i18n_key": {
+          "name": "i18n_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "db_column": {
+          "name": "db_column",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "db_table": {
+          "name": "db_table",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "form": {
+          "name": "form",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "db_column_type": {
+          "name": "db_column_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "alias_hash": {
+          "name": "alias_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "generated": {
+            "type": "stored",
+            "as": "md5\n\t\t\t\t(\"civilio\".\"form_field_mappings\".\"field\")"
+          }
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "field_db_column_db_table_form_pk": {
+          "name": "field_db_column_db_table_form_pk",
+          "columns": [
+            "field",
+            "form"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "civilio.migrations": {
+      "name": "migrations",
+      "schema": "civilio",
+      "columns": {
+        "_version": {
+          "name": "_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "applied_at": {
+          "name": "applied_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "civilio.validation_codes": {
+      "name": "validation_codes",
+      "schema": "civilio",
+      "columns": {
+        "form": {
+          "name": "form",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "validation_codes_code_key": {
+          "name": "validation_codes_code_key",
+          "columns": [
+            "code"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "revisions.change_op": {
+      "name": "change_op",
+      "schema": "revisions",
+      "values": [
+        "INSERT",
+        "DELETE",
+        "UPDATE",
+        "REVERT"
+      ]
+    },
+    "civilio.form_types": {
+      "name": "form_types",
+      "schema": "civilio",
+      "values": [
+        "fosa",
+        "chefferie",
+        "csc"
+      ]
+    },
+    "revisions.sync_status": {
+      "name": "sync_status",
+      "schema": "revisions",
+      "values": [
+        "pending",
+        "synced",
+        "failed"
+      ]
+    }
+  },
+  "schemas": {
+    "civilio": "civilio",
+    "revisions": "revisions"
+  },
+  "views": {
+    "civilio.vw_db_columns": {
+      "name": "vw_db_columns",
+      "schema": "civilio",
+      "columns": {
+        "column_name": {
+          "name": "column_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_type": {
+          "name": "data_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "table_name": {
+          "name": "table_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "form": {
+          "name": "form",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "definition": "SELECT c.column_name,\n\t\t\t\t\t\t\t c.data_type,\n\t\t\t\t\t\t\t c.table_name,\n\t\t\t\t\t\t\t CAST(c.table_schema as \"civilio\".\"form_types\") as form\n\t\t\t\tFROM information_schema.columns c\n\t\t\t\tWHERE c.table_schema in ('fosa', 'chefferie', 'csc')",
+      "materialized": false,
+      "isExisting": false
+    },
+    "civilio.vw_submissions": {
+      "name": "vw_submissions",
+      "schema": "civilio",
+      "columns": {
+        "_id": {
+          "name": "_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_index": {
+          "name": "_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_validation_status": {
+          "name": "_validation_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "validation_code": {
+          "name": "validation_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "facility_name": {
+          "name": "facility_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "_submission_time": {
+          "name": "_submission_time",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "form": {
+          "name": "form",
+          "type": "form_types",
+          "typeSchema": "civilio",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "next": {
+          "name": "next",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prev": {
+          "name": "prev",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_valid": {
+          "name": "is_valid",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "current_version": {
+          "name": "current_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_modified_at": {
+          "name": "last_modified_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_modified_by": {
+          "name": "last_modified_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "definition": "SELECT _id,\n\t\t\t\t\t\t\t _index,\n\t\t\t\t\t\t\t _validation_status,\n\t\t\t\t\t\t\t validation_code,\n\t\t\t\t\t\t\t facility_name,\n\t\t\t\t\t\t\t _submission_time,\n\t\t\t\t\t\t\t form,\n\t\t\t\t\t\t\t next,\n\t\t\t\t\t\t\t prev,\n\t\t\t\t\t\t\t lower(COALESCE(_validation_status, ''::text)) =\n\t\t\t\t\t\t\t 'validation_status_approved'::text AS is_valid,\n\t\t\t\t\t\t\t current_version,\n\t\t\t\t\t\t\t last_modified_at,\n\t\t\t\t\t\t\t last_modified_by\n\t\t\t\tFROM ((SELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t\t\tdf._index,\n\t\t\t\t\t\t\t\t\t\t\tdf._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t\t\tdf.code_de_validation::text                             AS validation_code,\n\t\t\t\t\t\t\t\t\t\t\tdf.q2_4_officename::text                                AS facility_name,\n\t\t\t\t\t\t\t\t\t\t\tdf._submission_time::date                               AS _submission_time,\n\t\t\t\t\t\t\t\t\t\t\t(SELECT 'csc'::civilio.form_types AS form_types)        AS form,\n\t\t\t\t\t\t\t\t\t\t\tlead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t\t\tlag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\t\t FROM csc.data df\n\t\t\t\t\t\t\t\t\t\t\tLEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\t\t AND rd.form = 'csc'::civilio.form_types\n\t\t\t\t\t\t\t\t AND rd.submission_index = df._index\n\t\t\t\t\t\t\t GROUP BY df._id, df._index, rd.hash, rd.changed_by)\n\t\t\t\t\t\t\tUNION\n\t\t\t\t\t\t\t(SELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t\t\tdf._index,\n\t\t\t\t\t\t\t\t\t\t\tdf._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t\t\tdf.q14_02_validation_code::text                         AS validation_code,\n\t\t\t\t\t\t\t\t\t\t\tdf.q1_12_officename::text                               AS facility_name,\n\t\t\t\t\t\t\t\t\t\t\tdf._submission_time,\n\t\t\t\t\t\t\t\t\t\t\t(SELECT 'fosa'::civilio.form_types AS form_types)       AS form,\n\t\t\t\t\t\t\t\t\t\t\tlead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t\t\tlag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\t\t FROM fosa.data df\n\t\t\t\t\t\t\t\t\t\t\tLEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\t\t AND rd.form = 'fosa'::civilio.form_types\n\t\t\t\t\t\t\t\t AND rd.submission_index = df._index\n\t\t\t\t\t\t\t GROUP BY df._id, df._index, rd.hash, rd.changed_by)\n\t\t\t\t\t\t\tUNION\n\t\t\t\t\t\t\tSELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t\t df._index,\n\t\t\t\t\t\t\t\t\t\t df._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t\t df.q14_02_validation_code::text                         AS validation_code,\n\t\t\t\t\t\t\t\t\t\t df.q1_12_officename::text                               AS facility_name,\n\t\t\t\t\t\t\t\t\t\t df._submission_time,\n\t\t\t\t\t\t\t\t\t\t (SELECT 'chefferie'::civilio.form_types AS form_types)  AS form,\n\t\t\t\t\t\t\t\t\t\t lead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t\t lag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t\t COALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t\t COALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tdf._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t\t COALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\t\tFROM chefferie.data df\n\t\t\t\t\t\t\t\t\t\t LEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\t\tAND rd.form = 'chefferie'::civilio.form_types\n\t\t\t\t\t\t\t\tAND rd.submission_index = df._index\n\t\t\t\t\t\t\tGROUP BY df._id, df._index, rd.hash, rd.changed_by) result\n\t\t\t\tORDER BY last_modified_at DESC",
+      "materialized": false,
+      "isExisting": false
+    }
+  },
+  "sequences": {
+    "civilio.chefferie_id_seq": {
+      "name": "chefferie_id_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "457502754",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.chefferie_index_seq": {
+      "name": "chefferie_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "324",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.chefferie_personnel_index_seq": {
+      "name": "chefferie_personnel_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "186",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_id_seq": {
+      "name": "csc_id_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "475016321",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_index_seq": {
+      "name": "csc_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "445",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_personnel_index_seq": {
+      "name": "csc_personnel_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "774",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_pieces_index_seq": {
+      "name": "csc_pieces_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "543",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_statistics_index_seq": {
+      "name": "csc_statistics_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "1463",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.csc_villages_seq": {
+      "name": "csc_villages_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "2344",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.fosa_id_seq": {
+      "name": "fosa_id_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "484119070",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.fosa_index_seq": {
+      "name": "fosa_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "971",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    },
+    "civilio.fosa_personnel_index_seq": {
+      "name": "fosa_personnel_index_seq",
+      "increment": "1",
+      "minValue": "1",
+      "maxValue": "9223372036854775807",
+      "startWith": "1261",
+      "cache": "1",
+      "cycle": false,
+      "schema": "civilio"
+    }
+  },
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

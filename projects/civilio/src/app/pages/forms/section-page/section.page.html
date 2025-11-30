@@ -1,28 +1,67 @@
 <div class="px-2 pt-4 pb-2">
-	<h1 class="font-extrabold text-2xl line-clamp-1" [title]="sectionKey() + '.title' | translate">
+	<h1
+		[title]="sectionKey() + '.title' | translate"
+		class="font-extrabold text-2xl line-clamp-1"
+	>
 		{{ sectionKey() + '.title' | translate }}
 	</h1>
 </div>
-<form [formGroup]="form" class="grid lg:grid-cols-[1fr_1fr] xl:grid-col-[1fr_1fr_1fr] gap-3 px-2">
+<form
+	[formGroup]="form"
+	class="grid lg:grid-cols-[1fr_1fr] xl:grid-col-[1fr_1fr_1fr] gap-3 px-2"
+>
 	@for (field of sectionSchema().fields; track $index) {
 		<ng-container>
 			@let key = (field.key | isString) ? $any(field.key) : $any(field.key).value;
-			@let shouldShow = relevanceRegistry()[key] &&
-				form.contains(key);
+			@let shouldShow = relevanceRegistry()[key] && form.contains(key);
 			<ng-container>
 				@if (shouldShow) {
 					<ng-container>
 						@let parentValue = sectionData()[$any(field).parent];
 					</ng-container>
-					<div hlmField [class.col-span-2]="field.type == 'table'">
+					<div
+						[class.col-span-2]="field.type == 'table' || field.type == 'group'"
+						hlmField
+					>
 						@if (field.type == 'table') {
-							<cv-tabular-field (changed)="onFieldValueChanged(key, $event)"
-																(deltaChange)="onDeltaChange($event)"
-																[enableMutation]="true"
-																[enableSelection]="false"
-																[formControlName]="key"
-																[optionSource]="options()"
-																[schema]="field"/>
+							<cv-tabular-field
+								(changed)="onFieldValueChanged(key, $event)"
+								(deltaChange)="onDeltaChange($event)"
+								[enableMutation]="true"
+								[enableSelection]="false"
+								[formControlName]="key"
+								[optionSource]="options()"
+								[schema]="field"
+							/>
+						} @else if (field.type == 'group') {
+							<div class="space-y-2">
+								<div class="flex items-center gap-2">
+									<button
+										(click)="onAddGroupItemButtonClicked(key, field)"
+										hlmBtn
+										size="icon"
+										variant="ghost"
+									>
+										<ng-icon name="lucidePlus"/>
+									</button>
+								</div>
+								<div
+									class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+									formArrayName="{{key}}"
+								>
+									@for (control of $any(form.controls[key]).controls; track control) {
+										<cv-group-field
+											(changed)="onFieldValueChanged(key, $any(form).controls[key].value)"
+											(delete)="onGroupItemDeleted($index, key)"
+											(deltaChange)="groupDeltaChangeHandler(key, $index, $event)"
+											[enableMutation]="!field.readonly"
+											[optionSource]="options()"
+											[schema]="field"
+											formControlName="{{$index}}"
+										/>
+									}
+								</div>
+							</div>
 						} @else {
 							<cv-field
 								[readonly]="field.readonly"
@@ -89,7 +128,9 @@
 				}}
 			</ng-container>
 		} @else if (control.hasError('invalidDate')) {
-			<ng-container> {{ 'validation.msg.invalid_date' | translate }}</ng-container>
+			<ng-container>
+				{{ 'validation.msg.invalid_date' | translate }}
+			</ng-container>
 		} @else if (control.hasError('min')) {
 			<ng-container>
 				@let meta = {

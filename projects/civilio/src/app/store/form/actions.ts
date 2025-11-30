@@ -50,8 +50,10 @@ export class Redo {
 
 export class RecordDeltaChange {
 	static type = `${ prefix } record delta change`
+	readonly events: DeltaChangeEvent<any>[];
 
-	constructor(readonly event: DeltaChangeEvent<any>) {
+	constructor(...events: DeltaChangeEvent<any>[]) {
+		this.events = events;
 	}
 }
 

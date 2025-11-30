@@ -1,0 +1,330 @@
+<div
+	class="flex flex-col items-center gap-1 pt-1 px-2 group-hover:opacity-100 opacity-0 transition-opacity"
+>
+	@if (enableMutation()) {
+		<div>
+			<hlm-sheet (closed)="onFormSheetClosed()" side="right">
+				<button brnSheetTrigger hlmBtn size="sm" variant="ghost">
+					<ng-icon name="lucidePencil"/>
+				</button>
+				<hlm-sheet-content *brnSheetContent="let ctx">
+					<hlm-sheet-header>
+						<h2 hlmSheetTitle>
+							{{ editFormHeader() ?? ("tmpl.group.form.title" | translate) }}
+						</h2>
+						<p hlmSheetDescription>
+							{{
+								editFormDescription() ??
+								("tmpl.group.form.description" | translate)
+							}}
+						</p>
+					</hlm-sheet-header>
+					<div
+						class="py-5 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+					>
+						<ng-container [ngTemplateOutlet]="formTemplate"/>
+					</div>
+				</hlm-sheet-content>
+			</hlm-sheet>
+		</div>
+		<button (click)="onDeleteButtonClicked()" hlmBtn size="sm" variant="ghost">
+			<ng-icon name="lucideTrash2"/>
+		</button>
+	}
+</div>
+<div
+	class="items-baseline grid lg:grid-cols-[minmax(100px,40%)_1fr] gap-x-2 p-2"
+>
+	@for (fieldSchema of schema().fields; track $index) {
+		@let fieldKey =
+			(fieldSchema.key | isString)
+				? fieldSchema.key
+				: $any(fieldSchema.key).value;
+		@let label =
+			(fieldSchema.key | isString)
+				? (fieldSchema.key + ".title" | translate)
+				: ($any(fieldSchema.key).value + ".title"
+					| translate: $any(fieldSchema.key).titleArgs);
+		@if (fieldSchema.visible === undefined && relevanceRegistry()[fieldKey]) {
+			<p
+				[title]="label"
+				class="text-muted-foreground text-[.9rem] text-end line-clamp-1 text-ellipsis"
+			>
+				{{ label }}
+			</p>
+			<p
+				class="font-medium select-all! selection:bg-(--primary) selection:text-(--primary-foreground) {{
+					fieldSchema.cssClass ?? ''
+				}}"
+			>
+				@if (data()[fieldKey] !== undefined && data()[fieldKey] !== null) {
+					@switch (fieldSchema.type) {
+						@case ("single-selection") {
+							@let option =
+								findOption(fieldSchema.optionsGroupKey, $any(data()[fieldKey]));
+							@if (option) {
+								@if (option.i18nKey) {
+									{{ option.i18nKey | translate }}
+								} @else {
+									{{ option.label }}
+								}
+							}
+						}
+						@case ("text") {
+							{{ data()[fieldKey] }}
+						}
+						@case ("int") {
+							{{ $any(data()[fieldKey]) | number }}
+						}
+						@case ("boolean") {
+							{{
+								(data()[fieldKey] === true ? "misc.yes" : "misc.no") | translate
+							}}
+						}
+						@default {
+							Unknown: {{ data()[fieldKey] }}, Type: {{ fieldSchema.type }}
+						}
+					}
+				} @else {
+					<span class="text-(--muted-foreground) italic">N/A</span>
+				}
+			</p>
+		}
+	}
+</div>
+
+<ng-template #formTemplate>
+	<form [formGroup]="form" class="px-4">
+		<div hlmFieldGroup>
+			@for (fieldSchema of schema().fields; track $index) {
+				@let fieldKey =
+					(fieldSchema.key | isString)
+						? fieldSchema.key
+						: $any(fieldSchema.key).value;
+				@let label =
+					(fieldSchema.key | isString)
+						? (fieldSchema.key + ".title" | translate)
+						: ($any(fieldSchema.key).value + ".title"
+							| translate: $any(fieldSchema.key).titleArgs);
+				@let fieldId = fieldKey + "_" + data()[schema().identifierKey];
+				@if (fieldSchema.visible === undefined && relevanceRegistry()[fieldKey]) {
+					<div
+						[attr.data-invalid]="
+							form.controls[fieldKey].invalid && form.controls[fieldKey].dirty
+						"
+						hlmField
+					>
+						<label [for]="fieldId" hlmLabel>{{ label }}</label>
+						@switch (fieldSchema.type) {
+							@case ("single-selection") {
+								<brn-select
+									(openChange)="touchedCallback?.()"
+									(valueChange)="addCachedDeltaChange(fieldKey, $event)"
+									[formControlName]="fieldKey"
+									[id]="fieldId"
+									class="w-full"
+									placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
+								>
+									<hlm-select-trigger class="w-full">
+										<hlm-select-value/>
+									</hlm-select-trigger>
+									<hlm-select-content class="w-full">
+										@for (option of optionSource()?.[
+											$any(fieldSchema).optionsGroupKey
+											] ?? [];
+											track $index) {
+											<hlm-option [value]="option.value">
+												@if (option.i18nKey) {
+													{{ option.i18nKey | translate }}
+												} @else {
+													{{ option.label }}
+												}
+											</hlm-option>
+										}
+									</hlm-select-content>
+								</brn-select>
+							}
+							@case ("int") {
+								<input
+									(blur)="touchedCallback?.()"
+									(click)="touchedCallback?.()"
+									(input)="
+										addCachedDeltaChange(fieldKey, $event.target.valueAsNumber)
+									"
+									[formControlName]="fieldKey"
+									[id]="fieldId"
+									[max]="fieldSchema.max ?? null"
+									[min]="fieldSchema.min ?? null"
+									hlmInput
+									type="number"
+								/>
+							}
+							@case ("text") {
+								<input
+									(blur)="touchedCallback?.()"
+									(click)="touchedCallback?.()"
+									(input)="addCachedDeltaChange(fieldKey, $event.target.value)"
+									[formControlName]="fieldKey"
+									[id]="fieldId"
+									hlmInput
+								/>
+							}
+							@case ("boolean") {
+								<hlm-checkbox
+									(checkedChange)="
+										touchedCallback?.(); addCachedDeltaChange(fieldKey, $event)
+									"
+									(click)="touchedCallback?.()"
+									[formControlName]="fieldKey"
+									[id]="fieldId"
+								/>
+							}
+						}
+						@if (form.controls[fieldKey].invalid && form.controls[fieldKey].dirty) {
+							@let control = form.controls[fieldKey];
+							<hlm-field-error>
+								@if (control.hasError("required")) {
+									<ng-container>
+										{{ "validation.msg.field_required" | translate }}
+									</ng-container>
+								} @else if (control.hasError("invalidValue")) {
+									<ng-container>
+										{{
+											"validation.msg.value_unsupported"
+												| translate
+												: {
+													validValues:
+														control.getError("invalidValue").validValues
+															| join,
+												}
+										}}
+									</ng-container>
+								} @else if (control.hasError("pattern") || control.hasError("int")) {
+									<ng-container>
+										{{ "validation.msg.pattern_mismatch" | translate }}
+									</ng-container>
+								} @else if (control.hasError("minDate")) {
+									<ng-container>
+										{{
+											"validation.msg.min_date"
+												| translate
+												: {
+													minDate: control.getError("minDate"),
+												}
+										}}
+									</ng-container>
+								} @else if (control.hasError("maxDate")) {
+									<ng-container>
+										{{
+											"validation.msg.max_date"
+												| translate
+												: {
+													maxDate: control.getError("maxDate"),
+												}
+										}}
+									</ng-container>
+								} @else if (control.hasError("invalidDate")) {
+									<ng-container>
+										{{ "validation.msg.invalid_date" | translate }}
+									</ng-container>
+								} @else if (control.hasError("min")) {
+									<ng-container>
+										@let meta =
+											{
+												min: control.getError("min").min | number,
+												suffix: $any(fieldSchema).unit ?? "" | translate,
+											};
+									</ng-container>
+									<ng-container>
+										{{ "validation.msg.min" | translate: meta }}
+									</ng-container
+									>
+								} @else if (control.hasError("max")) {
+									<ng-container>
+										@let meta =
+											{
+												max: control.getError("max").max | number,
+												suffix: $any(fieldSchema).unit ?? "" | translate,
+											};
+									</ng-container>
+									<ng-container>
+										{{ "validation.msg.max" | translate: meta }}
+									</ng-container
+									>
+								}
+							</hlm-field-error>
+						}
+					</div>
+				}
+			}
+		</div>
+	</form>
+</ng-template>
+
+<ng-template #errorMessageTemplate let-control let-field="schema">
+	test
+	<hlm-field-error>
+		@if (control.hasError("required")) {
+			<ng-container>
+				{{ "validation.msg.field_required" | translate }}
+			</ng-container>
+		} @else if (control.hasError("invalidValue")) {
+			<ng-container>
+				{{
+					"validation.msg.value_unsupported"
+						| translate
+						: {
+							validValues:
+								control.getError("invalidValue").validValues | join,
+						}
+				}}
+			</ng-container>
+		} @else if (control.hasError("pattern") || control.hasError("int")) {
+			<ng-container>
+				{{ "validation.msg.pattern_mismatch" | translate }}
+			</ng-container>
+		} @else if (control.hasError("minDate")) {
+			<ng-container>
+				{{
+					"validation.msg.min_date"
+						| translate
+						: {
+							minDate: control.getError("minDate"),
+						}
+				}}
+			</ng-container>
+		} @else if (control.hasError("maxDate")) {
+			<ng-container>
+				{{
+					"validation.msg.max_date"
+						| translate
+						: {
+							maxDate: control.getError("maxDate"),
+						}
+				}}
+			</ng-container>
+		} @else if (control.hasError("invalidDate")) {
+			<ng-container>
+				{{ "validation.msg.invalid_date" | translate }}
+			</ng-container>
+		} @else if (control.hasError("min")) {
+			<ng-container>
+				@let meta =
+					{
+						min: control.getError("min").min | number,
+						suffix: $any(field).unit ?? "" | translate,
+					};
+			</ng-container>
+			<ng-container> {{ "validation.msg.min" | translate: meta }}</ng-container>
+		} @else if (control.hasError("max")) {
+			<ng-container>
+				@let meta =
+					{
+						max: control.getError("max").max | number,
+						suffix: $any(field).unit ?? "" | translate,
+					};
+			</ng-container>
+			<ng-container> {{ "validation.msg.max" | translate: meta }}</ng-container>
+		}
+	</hlm-field-error>
+</ng-template>
