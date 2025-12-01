@@ -1,4 +1,5 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
+import { MakerDMG } from '@electron-forge/maker-dmg';
 import { MakerWix } from '@electron-forge/maker-wix';
 import {
 	AutoUnpackNativesPlugin
@@ -38,9 +39,9 @@ const config: ForgeConfig = {
 						const path = join(src, child);
 						const dest = join(forgeDir, child);
 						// if (await isDir(path)) {
-							await cp(path, dest, {
-								recursive: true
-							});
+						await cp(path, dest, {
+							recursive: true
+						});
 						// }
 					}
 				} catch (e) {
@@ -61,6 +62,9 @@ const config: ForgeConfig = {
 	},
 	rebuildConfig: {},
 	makers: [
+		new MakerDMG({
+			icon: iconPath + '.icns'
+		}),
 		new MakerWix({
 			icon: iconIcoPath,
 			features: {
