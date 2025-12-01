@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.0.0](https://github.com/brinestone/civilio-frontend/compare/v3.0.5...v4.0.0) (2025-12-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* **db:** updated database schema for data versioning (#30)
+
+### Features
+
+* add auto translator script ([c0914b5](https://github.com/brinestone/civilio-frontend/commit/c0914b515e1d1e986f940639709ec1086a7fe7a5))
+* add validation handling and improve form state management ([6680abe](https://github.com/brinestone/civilio-frontend/commit/6680abe84c0c9bc67385754a3496a54d8dae2284))
+* add versioning info to submissions view ([82042f6](https://github.com/brinestone/civilio-frontend/commit/82042f62eb1660085c0ecea7fba5d964b2cd23c2))
+* add versioning info to submissions view ([e34b4b7](https://github.com/brinestone/civilio-frontend/commit/e34b4b7b7200eb357f5597cc48545cbf3bf1e7ea))
+* **db:** updated database schema for data versioning ([#30](https://github.com/brinestone/civilio-frontend/issues/30)) ([6c0a468](https://github.com/brinestone/civilio-frontend/commit/6c0a4685ec0da2ca7dacad187b9de59884667b0b))
+* enhance form handling with dynamic field rendering and validation extraction ([d8b3ad7](https://github.com/brinestone/civilio-frontend/commit/d8b3ad700e2521d43c96b83f75583e73bc74ce71))
+* enhance submissions page with translation support and locale handling ([35f4cfe](https://github.com/brinestone/civilio-frontend/commit/35f4cfebd200154b040c6d1e3019abc020a0db68))
+* **field-mapping:** add cached alias column to prevent query alias trimming ([#27](https://github.com/brinestone/civilio-frontend/issues/27)) ([5505ad8](https://github.com/brinestone/civilio-frontend/commit/5505ad8aa07fab5a1b57adc56fbcbd93cbb0b783))
+* **form-footer:** add history tab and update translation keys ([#29](https://github.com/brinestone/civilio-frontend/issues/29)) ([e1bfb91](https://github.com/brinestone/civilio-frontend/commit/e1bfb914c36fee8cd6580a417af28720490e1512))
+* **form-footer:** implement base design ([7354e06](https://github.com/brinestone/civilio-frontend/commit/7354e06fbe44e294468a14b9152a2ce06cc61e02))
+* **form-footer:** implement errors tab ([#25](https://github.com/brinestone/civilio-frontend/issues/25)) ([75ccd45](https://github.com/brinestone/civilio-frontend/commit/75ccd45e67936f7f7b0d2b178f83a6011b7a9be2))
+* **form-page:** add version selector control ([99abb32](https://github.com/brinestone/civilio-frontend/commit/99abb325d14206cf6450464e68c1ae54076b915d))
+* **form-page:** implement handling of has-changes-guard request ([647eeee](https://github.com/brinestone/civilio-frontend/commit/647eeee286c42674090793fe0e1cc8a5bcf1b35f))
+* **form-page:** implement initial submission versioning ([8a2f9d9](https://github.com/brinestone/civilio-frontend/commit/8a2f9d96444449c37a8fb31f7553025663723962))
+* **form-page:** optimized renering ([9739869](https://github.com/brinestone/civilio-frontend/commit/973986926b52d34940eb8e4c48ad785e5ddaa3ce))
+* **form-page:** place facility name in form header component ([1df05c1](https://github.com/brinestone/civilio-frontend/commit/1df05c19e02b9eac58ed993446aca2caeb85470f))
+* **forms:** implement change undo/redo ([f09f5d7](https://github.com/brinestone/civilio-frontend/commit/f09f5d7d0eeebd797d659700f5de09d9eeb53506))
+* **forms:** implement chefferie model ([fea4e6f](https://github.com/brinestone/civilio-frontend/commit/fea4e6fd32423bdf6df882da2b6a03352ea5655a))
+* **forms:** implement data persistence ([1ec0eba](https://github.com/brinestone/civilio-frontend/commit/1ec0ebabf8885061d8139258b2dacd31611b45da))
+* **forms:** implement group field component ([cfa34d4](https://github.com/brinestone/civilio-frontend/commit/cfa34d4cffbb05269fa8b98e6d7e49d8a663c316))
+* **forms:** implement new tabular-field component ([e587d4c](https://github.com/brinestone/civilio-frontend/commit/e587d4cc21e0f9523429bdd1c9b9a8221978df54))
+* **forms:** implements version data retrieval ([98accac](https://github.com/brinestone/civilio-frontend/commit/98accac9b9289de2f0da46c649645523ad2be995))
+* refactor form and section page components ([f404107](https://github.com/brinestone/civilio-frontend/commit/f40410712adbea52ede644d72ffa2b590e4a3d16))
+* Refactor form handling and remove unused components ([bc45c73](https://github.com/brinestone/civilio-frontend/commit/bc45c73ded6fa9a41039f5072e6456ed57fd6a3d))
+* **submissions:** add versioning columns ([a56a8a4](https://github.com/brinestone/civilio-frontend/commit/a56a8a4ebb2374b589b8da1718ae9079322b0d92))
+* **submissions:** add versioning columns ([#31](https://github.com/brinestone/civilio-frontend/issues/31)) ([6b590c8](https://github.com/brinestone/civilio-frontend/commit/6b590c81b2657485668fceef77c11134ee8d10a4))
+
+
+### Bug Fixes
+
+* optimize get_version_data ([c9629e2](https://github.com/brinestone/civilio-frontend/commit/c9629e227ea827ade279874c314e0c81975a264c))
+* resolve sync issues with updated mappings ([08f373b](https://github.com/brinestone/civilio-frontend/commit/08f373bd6951a38d9258701eb697a73afb2d53a7))
+* **section-page:** refactor section key handling and improve control refresh logic ([#28](https://github.com/brinestone/civilio-frontend/issues/28)) ([5f02669](https://github.com/brinestone/civilio-frontend/commit/5f026695d77ceb0cdb2d9e2958c219e646573f24))
+
 ### [3.0.5](https://github.com/brinestone/civilio-frontend/compare/v3.0.4...v3.0.5) (2025-10-12)
 
 ### [3.0.4](https://github.com/brinestone/civilio-frontend/compare/v3.0.3...v3.0.4) (2025-10-12)
