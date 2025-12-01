@@ -1,5 +1,5 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
-import { MakerDMG } from '@electron-forge/maker-dmg';
+import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerWix } from '@electron-forge/maker-wix';
 import {
 	AutoUnpackNativesPlugin
@@ -60,8 +60,10 @@ const config: ForgeConfig = {
 	},
 	rebuildConfig: {},
 	makers: [
-		new MakerDMG({
-			icon: iconPath + '.icns'
+		// new MakerDMG({
+		// 	icon: iconPath + '.icns'
+		// }),
+		new MakerZIP({
 		}),
 		new MakerWix({
 			icon: iconIcoPath,
