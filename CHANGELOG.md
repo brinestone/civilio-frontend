@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.1](https://github.com/brinestone/civilio-frontend/compare/v4.0.0...v4.0.1) (2025-12-01)
+
+
+### Bug Fixes
+
+* **ci:** add dmg maker to forge config ([5211fcd](https://github.com/brinestone/civilio-frontend/commit/5211fcd5b058e28bf29584dc9cb75e250f0a5287))
+
 ## [4.0.0](https://github.com/brinestone/civilio-frontend/compare/v3.0.5...v4.0.0) (2025-12-01)
 
 
