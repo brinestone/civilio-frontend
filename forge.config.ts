@@ -57,8 +57,6 @@ const config: ForgeConfig = {
 		// Remove windowsSign if you don't have code signing certificates
 		// windowsSign: true,
 		extraResource: ['./dist/assets'],
-		// Explicitly set the main entry point
-		executableName: 'CivilIO'
 	},
 	rebuildConfig: {},
 	makers: [
