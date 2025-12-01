@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.3](https://github.com/brinestone/civilio-frontend/compare/v4.0.1...v4.0.3) (2025-12-01)
+
+
+### Bug Fixes
+
+* **ci:** mismatching executableName ([22937e2](https://github.com/brinestone/civilio-frontend/commit/22937e20b8c77ecd299aee90423ce09ced231ca0))
+* **ci:** revert to makerzip for macos ([7c00e1f](https://github.com/brinestone/civilio-frontend/commit/7c00e1fcc09fff5b148c7b86ba5e68e0e4535459))
+
 ### [4.0.1](https://github.com/brinestone/civilio-frontend/compare/v4.0.0...v4.0.1) (2025-12-01)
 
 
