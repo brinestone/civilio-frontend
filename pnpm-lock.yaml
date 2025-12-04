@@ -154,7 +154,7 @@ importers:
         specifier: ^7.9.0
         version: 7.10.2
       '@electron-forge/maker-squirrel':
-        specifier: ^7.9.0
+        specifier: ^7.10.2
         version: 7.10.2
       '@electron-forge/maker-wix':
         specifier: ^7.10.2

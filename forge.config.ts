@@ -1,6 +1,7 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerZIP } from '@electron-forge/maker-zip';
 import { MakerWix } from '@electron-forge/maker-wix';
+import MakerSquirrel, { } from '@electron-forge/maker-squirrel';
 import {
 	AutoUnpackNativesPlugin
 } from '@electron-forge/plugin-auto-unpack-natives';
@@ -65,19 +66,21 @@ const config: ForgeConfig = {
 		// }),
 		new MakerZIP({
 		}),
-		new MakerWix({
-			icon: iconIcoPath,
-			features: {
-				autoUpdate: true,
-				autoLaunch: false
-			},
-			defaultInstallMode: 'perUser',
-			shortcutName: 'CivilIO',
-			programFilesFolderName: 'CivilIO',
-			language: 1033,
-			ui: {
-			}
+		new MakerSquirrel({
+			// CamelCase version without spaces
+			name: "CivilIO",
 		}),
+		// new MakerWix({
+		// 	icon: iconIcoPath,
+		// 	features: {
+		// 		autoUpdate: true,
+		// 		autoLaunch: false
+		// 	},
+		// 	defaultInstallMode: 'perUser',
+		// 	shortcutName: 'CivilIO',
+		// 	programFilesFolderName: 'CivilIO',
+		// 	language: 1033,
+		// }),
 		new MakerDeb({
 			options: {
 				icon: iconPngPath
