@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.4](https://github.com/brinestone/civilio-frontend/compare/v4.0.3...v4.0.4) (2025-12-04)
+
+
+### Bug Fixes
+
+* **forge:** add squirrel maker to bypass MSI permission issues ([7eca216](https://github.com/brinestone/civilio-frontend/commit/7eca2167081653fb077bec23a472d400b2613d89))
+
 ### [4.0.3](https://github.com/brinestone/civilio-frontend/compare/v4.0.1...v4.0.3) (2025-12-01)
 
 
