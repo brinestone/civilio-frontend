@@ -1,4 +1,4 @@
-DROP VIEW "civilio"."vw_submissions";
+DROP VIEW IF EXISTS "civilio"."vw_submissions";
 --> statement-breakpoint
 CREATE VIEW "civilio"."vw_submissions" AS
 (

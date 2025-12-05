@@ -15,7 +15,8 @@ import { getTableName, is, Table } from 'drizzle-orm';
 
 let pool: Pool | null = null;
 
-export async function testConnection({ database, host, password, port, ssl, username }: TestDbConnectionRequest) {
+export async function testConnection(req: TestDbConnectionRequest) {
+	const { database, host, password, port, ssl, username } = req;
 	const client = new Client(TestDbConnectionRequestSchema.parse({
 		user: username,
 		host,
@@ -24,7 +25,8 @@ export async function testConnection({ database, host, password, port, ssl, user
 		port,
 		ssl
 	}));
-	const url = new URL(`/${database}`, `postgresql://${username}:redacted@${host}:${port}`);
+	console.log(req);
+	const url = new URL(`/${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 	if (ssl) url.searchParams.set('sslmode', 'required');
 
 	console.log(`Testing database on host: ${host} using ${url.toString()}...`);

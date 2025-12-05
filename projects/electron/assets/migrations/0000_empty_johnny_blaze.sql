@@ -1,6 +1,6 @@
 -- Current sql file was generated after introspecting the database
 -- If you want to run this migration please uncomment this code before executing migrations
-CREATE SCHEMA "civilio";
+CREATE SCHEMA IF NOT EXISTS "civilio";
 -- --> statement-breakpoint
 CREATE TYPE "civilio"."form_types" AS ENUM ('fosa', 'chefferie', 'csc');--> statement-breakpoint
 CREATE SEQUENCE "civilio"."chefferie_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 457502754 CACHE 1;--> statement-breakpoint
