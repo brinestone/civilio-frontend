@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.0.5](https://github.com/brinestone/civilio-frontend/compare/v4.0.4...v4.0.5) (2025-12-05)
+
+
+### Bug Fixes
+
+* payload validation during db test ([584b06e](https://github.com/brinestone/civilio-frontend/commit/584b06ea510a1f1a3ab7f91b0d4fafb8b8f4bbb4))
+* synchronize migrations ([651faa4](https://github.com/brinestone/civilio-frontend/commit/651faa42e7a7b2ecda283a2877b821ec7ba8b293))
+
 ### [4.0.4](https://github.com/brinestone/civilio-frontend/compare/v4.0.3...v4.0.4) (2025-12-04)
 
 
