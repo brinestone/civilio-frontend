@@ -77,6 +77,9 @@ const config: ForgeConfig = {
 		// }),
 		new MakerDeb({
 			options: {
+				name: 'civilio',
+				genericName: 'CivilIO',
+				productName: 'CivilIO',
 				icon: iconPngPath,
 			}
 		})

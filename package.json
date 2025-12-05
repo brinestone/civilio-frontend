@@ -3,7 +3,7 @@
 	"version": "4.0.5",
 	"productName": "CivilIO",
 	"displayName": "CivilIO",
-	"description": "A Civil Status data management tool.",
+	"description": "A Civil status data management tool.",
 	"main": "./dist/electron/index.js",
 	"license": "ISC",
 	"scripts": {
