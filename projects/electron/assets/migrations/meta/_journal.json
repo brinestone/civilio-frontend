@@ -297,13 +297,6 @@
       "breakpoints": true
     },
     {
-      "idx": 44,
-      "version": "7",
-      "when": 1763563973554,
-      "tag": "0044_giant_major_mapleleaf",
-      "breakpoints": true
-    },
-    {
       "idx": 46,
       "version": "7",
       "when": 1763632646025,
@@ -392,20 +385,6 @@
       "version": "7",
       "when": 1763739340194,
       "tag": "0058_familiar_the_fury",
-      "breakpoints": true
-    },
-    {
-      "idx": 59,
-      "version": "7",
-      "when": 1763739619289,
-      "tag": "0059_spicy_white_queen",
-      "breakpoints": true
-    },
-    {
-      "idx": 60,
-      "version": "7",
-      "when": 1763825280774,
-      "tag": "0060_ambitious_vengeance",
       "breakpoints": true
     },
     {

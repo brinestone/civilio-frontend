@@ -15,26 +15,35 @@ import { getTableName, is, Table } from 'drizzle-orm';
 
 let pool: Pool | null = null;
 
-export async function testConnection({ database, host, password, port, ssl, username }: TestDbConnectionRequest) {
-	const client = new Client(TestDbConnectionRequestSchema.parse({
-		user: username,
-		host,
+export async function testConnection(req: TestDbConnectionRequest) {
+	const {
 		database,
+		host,
 		password,
 		port,
-		ssl
-	}));
-	const url = new URL(`/${database}`, `postgresql://${username}:redacted@${host}:${port}`);
+		ssl,
+		username
+	} = TestDbConnectionRequestSchema.parse(req);
+	const client = new Client({
+		user: username,
+		host,
+		password,
+		port,
+		ssl,
+		database,
+	});
+
+	const url = new URL(`/${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 	if (ssl) url.searchParams.set('sslmode', 'required');
 
-	console.log(`Testing database on host: ${host} using ${url.toString()}...`);
+	console.log(`Testing database on host: ${ host } using ${ url.toString() }...`);
 	try {
 		await client.connect();
 		const res = await client.query('SELECT NOW()');
-		console.log(`Database time is ${res.rows[0].now}`);
+		console.log(`Database time is ${ res.rows[0].now }`);
 		return true;
 	} catch (ex) {
-		console.log(`Test connection: ${url} failed`);
+		console.log(`Test connection: ${ url } failed`);
 		console.error(ex);
 		return ex.message;
 	} finally {
@@ -43,12 +52,15 @@ export async function testConnection({ database, host, password, port, ssl, user
 }
 
 export function resetPool() {
-	const { data: dbConfig, success } = DbConfigSchema.safeParse(getStoreValue('db'));
+	const {
+		data: dbConfig,
+		success
+	} = DbConfigSchema.safeParse(getStoreValue('db'));
 	if (!success) {
 		throw new MalConfigurationError('db');
 	}
 	const { host, password, port, ssl, username, database } = dbConfig;
-	const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
+	const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 	if (ssl) {
 		url.searchParams.set('sslmode', 'require');
 	}
@@ -83,20 +95,23 @@ class LRUDrizzleCache extends Cache {
 		max: 500,
 		sizeCalculation: (value, key) => {
 			const size = calculateSize(value);
-			console.log(`value at ${key} calculated to ${size} size`)
+			console.log(`value at ${ key } calculated to ${ size } size`)
 			return size;
 		}
 	});
 	private readonly ttl = 36000;
+
 	strategy(): 'explicit' | 'all' {
 		return 'explicit';
 	}
+
 	async get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
-		console.log(`Getting ${key} from cache`);
+		console.log(`Getting ${ key } from cache`);
 		return this._cache.get(key);
 	}
+
 	async put(key: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void> {
-		console.log(`Updating ${key} from cache`);
+		console.log(`Updating ${ key } from cache`);
 		const ttl = config?.px ?? (config?.ex ? config.ex * 1000 : this.ttl);
 		this._cache.set(key, response, { ttl });
 		for (const table of tables) {
@@ -108,6 +123,7 @@ class LRUDrizzleCache extends Cache {
 			}
 		}
 	}
+
 	async onMutate({ tables, tags }: MutationOption): Promise<void> {
 		const assertedTags = tags ? Array.isArray(tags) ? tags : [tags] : [];
 		const assertedTables = tables ? Array.isArray(tables) ? tables : [tables] : [];
@@ -139,13 +155,16 @@ class LRUDrizzleCache extends Cache {
 const singletonCache = new LRUDrizzleCache();
 
 export function provideDatabase(schema: Record<string, unknown>) {
-	const { data: dbConfig, success } = DbConfigSchema.safeParse(getStoreValue('db'));
+	const {
+		data: dbConfig,
+		success
+	} = DbConfigSchema.safeParse(getStoreValue('db'));
 	if (!success) {
 		throw new MalConfigurationError('db');
 	}
 	if (pool == null) {
 		const { host, password, port, ssl, username, database } = dbConfig;
-		const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
+		const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 		if (ssl) {
 			url.searchParams.set('sslmode', 'require');
 		}
@@ -153,5 +172,9 @@ export function provideDatabase(schema: Record<string, unknown>) {
 			connectionString: url.toString()
 		});
 	}
-	return drizzle(pool, { schema, logger: !app.isPackaged, cache: singletonCache });
+	return drizzle(pool, {
+		schema,
+		logger: !app.isPackaged,
+		cache: singletonCache
+	});
 }

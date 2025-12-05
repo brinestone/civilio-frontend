@@ -1,23 +1,17 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
 import { MakerZIP } from '@electron-forge/maker-zip';
-import { MakerWix } from '@electron-forge/maker-wix';
-import MakerSquirrel, { } from '@electron-forge/maker-squirrel';
+import MakerSquirrel from '@electron-forge/maker-squirrel';
 import {
 	AutoUnpackNativesPlugin
 } from '@electron-forge/plugin-auto-unpack-natives';
 import { PublisherGithub } from '@electron-forge/publisher-github';
 import type { ForgeConfig } from '@electron-forge/shared-types';
 import { existsSync } from 'fs';
-import { cp, mkdir, readdir, stat } from 'fs/promises';
+import { cp, mkdir, readdir } from 'fs/promises';
 import { join, resolve } from 'path';
 
-async function isDir(path: string) {
-	const stats = await stat(path);
-	return stats.isDirectory();
-}
-
 const iconPath = "./assets/img/icon"; // No file extension
-const iconIcoPath = './assets/img/icon.ico';
+// const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
 	'./dist/angular/',
@@ -83,7 +77,7 @@ const config: ForgeConfig = {
 		// }),
 		new MakerDeb({
 			options: {
-				icon: iconPngPath
+				icon: iconPngPath,
 			}
 		})
 	],

@@ -1,3 +1,4 @@
+DROP FUNCTION IF EXISTS revisions.get_version_chain(integer, civilio.form_types);
 create or replace function revisions.get_version_chain(_index integer, _form civilio.form_types)
 	returns TABLE
 					(
