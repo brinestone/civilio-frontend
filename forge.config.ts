@@ -11,7 +11,7 @@ import { cp, mkdir, readdir } from 'fs/promises';
 import { join, resolve } from 'path';
 
 const iconPath = "./assets/img/icon"; // No file extension
-const iconIcoPath = './assets/img/icon.ico';
+// const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
 	'./dist/angular/',

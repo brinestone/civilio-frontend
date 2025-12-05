@@ -10,8 +10,7 @@ import {
 	ExecutionError,
 	PushEvent,
 	RpcBaseSchema,
-	RpcInputHeaders,
-	rpcMessageSchema
+	RpcInputHeaders
 } from '@civilio/shared';
 import { randomBytes } from 'crypto';
 import { ipcMain, ipcRenderer } from 'electron';
@@ -55,13 +54,10 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 		let messageId: string = headers.messageId;
 		const bodySchema = channelArgs[channel];
 		try {
-			if (bodySchema instanceof z.ZodType) {
-				const rpc = rpcMessageSchema(bodySchema).parse(eventData);
-				headers = rpc.headers;
-				body = rpc.body as ChannelArg<TChannel> | undefined;
-			} else {
-				const rpc = RpcBaseSchema.parse(eventData);
-				headers = rpc.headers;
+			const rpc = RpcBaseSchema.parse(eventData);
+			headers = rpc.headers;
+			if (bodySchema instanceof z.ZodType && 'body' in eventData) {
+				body = bodySchema.parse(eventData.body) as ChannelArg<TChannel> | undefined;
 			}
 			messageId = headers.messageId;
 			let result = handler(body);
