@@ -89,3 +89,4 @@ export const dbConfig = createSelector([configSlices.knownConnections], (c) => {
 });
 export const hasConfiguredConnection = createSelector([configSlices.knownConnections], c => c.some(x => x.inUse))
 export const connections = configSlices.knownConnections;
+export const preInit = configSlices.preInit;

@@ -1,6 +1,14 @@
 misc:
+  powered_by: Fourni par
+  developed_by: Promoteur
+  contributors: Contributeurs
+  contact: Contact
+  licences_3: Licences tierces
   yes: Oui
   no: Non
+  config_required:
+    notice: Il y a un problème avec les paramètres de votre serveur de base de
+      données. Veuillez le résoudre avant de continuer
   dialogs:
     version_revert:
       title: Revenir à cette version ?

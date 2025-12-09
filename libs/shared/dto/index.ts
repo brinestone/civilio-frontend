@@ -13,9 +13,11 @@ import {
 	OptionSchema,
 	SubmissionChangeDeltaSchema,
 	SubmissionVersionInfoSchema,
-	ThemeSchema
+	ThemeSchema,
+	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const GetThirdPartyLicensesResponseSchema = ThirdPartyLicenceSchema.array();
 export const UseConnectionRequestSchema = z.coerce.number();
 export const DeleteDbConnectionRequestSchema = z.coerce.number();
 export const AddDbConnectionRequestSchema = DbConnectionRefInputSchema;
@@ -203,20 +205,17 @@ export type UpdateSubmissionRequest = z.input<typeof UpdateSubmissionRequestSche
 export type UpdateSubmissionResponse = z.output<typeof UpdateSubmissionResponseSchema>;
 export type RemoveFieldMappingRequest = z.input<typeof RemoveFieldMappingRequestSchema>;
 export type RemoveFieldMappingResponse = z.output<typeof RemoveFieldMappingResponseSchema>;
-export type FindFormSubmissionsRequest = z.input<typeof FindFormSubmissionsRequestSchema>;
 export type FindSubmissionVersionsRequest = z.input<typeof FindSubmissionVersionsRequestSchema>;
 export type FindSubmissionVersionsResponse = z.output<typeof FindSubmissionVersionsResponseSchema>;
 export type FindSubmissionCurrentVersionRequest = z.input<typeof FindSubmissionCurrentVersionRequestSchema>;
 export type FindSubmissionCurrentVersionResponse = z.output<typeof FindSubmissionCurrentVersionResponseSchema>;
 export type InitializeSubmissionVersionResponse = z.infer<typeof InitializeSubmissionVersionResponseSchema>;
 export type InitializeSubmissionVersionRequest = z.input<typeof InitializeSubmissionVersionRequestSchema>;
-export type FindSubmissionRefSuggestionsResponse = z.output<typeof FindSubmissionRefSuggestionsResponseSchema>;
-export type FindSubmissionRefSuggestionsRequest = z.input<typeof FindSubmissionRefSuggestionsRequestSchema>;
 export type VersionRevertRequest = z.input<typeof VersionRevertRequestSchema>;
 export type VersionRevertResponse = z.output<typeof VersionRevertResponseSchema>;
 export type CheckMigrationsResponse = z.output<typeof CheckMigrationsResponseSchema>;
 export type ApplyPendingMigrationsResponse = z.output<typeof ApplyPendingMigrationsResponseSchema>;
 export type FindConnectionHistoryResponse = z.output<typeof FindConnectionHistoryResponseSchema>;
 export type DeleteDbConnectionRequest = z.input<typeof DeleteDbConnectionRequestSchema>;
-export type AddDbConnectionRequest = z.input<typeof AddDbConnectionRequestSchema>;
 export type UseConnectionRequest = z.input<typeof UseConnectionRequestSchema>;
+export type GetThirdPartyLicensesResponse = z.output<typeof GetThirdPartyLicensesResponseSchema>;

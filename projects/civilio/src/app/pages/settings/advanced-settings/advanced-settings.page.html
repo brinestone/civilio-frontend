@@ -96,7 +96,7 @@
 		<div class="space-y-3 overflow-y-auto max-h-[400px] scroll-box">
 			<div class="flex justify-between items-center">
 				<h4 hlmH4>{{ 'settings.advanced.db.connections.title' | translate }}</h4>
-				@if (connectionHistory().length > 0) {
+				@if (connectionHistory().length > 1) {
 					<button (click)="onClearConnectionsButtonClicked()" hlmBtn size="sm" variant="outline">
 						{{ 'settings.advanced.db.connections.actions.clear' | translate }}
 					</button>
@@ -107,7 +107,7 @@
 					<div class="group" hlmItem size="sm" variant="muted">
 						<div hlmItemContent>
 							<h5 class="text-ellipsis clamp-1" hlmAlertTitle>
-								{{ conn.username }}&#64;{{ conn.host }}:{{ conn.port }}
+								{{ conn.username }}&#64;{{ conn.host }}:{{ conn.port }}/{{ conn.database }}
 							</h5>
 							<p hlmItemDescription>{{ conn.updatedAt | ago_date }}</p>
 						</div>

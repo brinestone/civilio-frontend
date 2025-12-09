@@ -1,5 +1,29 @@
 import { z } from 'zod';
 
+export const BuildInfoSchema = z.object({
+	author: z.object({
+		name: z.string(),
+		url: z.string().optional(),
+		email: z.string().optional(),
+	}),
+	date: z.coerce.date(),
+	contributors: z.object({
+		name: z.string(),
+		email: z.email().optional(),
+		url: z.url().optional()
+	}).array().default([]),
+	description: z.string().optional(),
+	displayName: z.string().optional(),
+	license: z.string().optional(),
+	version: z.string().optional(),
+})
+
+export const ThirdPartyLicenceSchema = z.object({
+	package: z.string(),
+	licenceType: z.string().optional(),
+	licenceText: z.string().optional(),
+	repository: z.string().optional(),
+});
 export const DbConnectionRefSchema = z.object({
 	username: z.string(),
 	database: z.string(),
@@ -155,14 +179,9 @@ export type Paginated<T> = {
 	data: T extends z.ZodType ? z.output<T>[] : T[];
 }
 
-type IsObject<T> = T extends object
-	? T extends ReadonlyArray<any>
-		? false
-		: true
-	: false;
 
-export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
-export type SubmissionChangeDelta = z.output<typeof SubmissionChangeDeltaSchema>;
 export type SubmissionChangeDeltaInput = z.input<typeof SubmissionChangeDeltaSchema>;
 export type DbConnectionRef = z.output<typeof DbConnectionRefSchema>;
 export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
+export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
+export type BuildInfo = z.output<typeof BuildInfoSchema>;

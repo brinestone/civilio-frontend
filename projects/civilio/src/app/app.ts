@@ -6,6 +6,7 @@ import {
 	DOCUMENT,
 	effect,
 	inject,
+	OnInit,
 	PLATFORM_ID,
 	signal
 } from '@angular/core';
@@ -17,6 +18,7 @@ import { dispatch, select } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
 import { ThemeService } from './services/theme.service';
 import { fontSize } from './store/selectors';
+import { isDesktop } from '@app/util';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeEn);
@@ -28,7 +30,7 @@ registerLocaleData(localeEn);
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnInit {
 	protected readonly platformId = inject(PLATFORM_ID);
 	protected readonly document = inject(DOCUMENT);
 	protected readonly title = signal('civilio');
@@ -43,14 +45,14 @@ export class App {
 				// debugger;
 				const fs = this.fontSize();
 				if (fs === undefined) return;
-				this.document.documentElement.style.fontSize = `${fs}px`;
+				this.document.documentElement.style.fontSize = `${ fs }px`;
 			});
 		}
 	}
 
-	// ngOnInit(): void {
-	// 	if (isDesktop()) {
-	// 		this.loadConfig();
-	// 	}
-	// }
+	ngOnInit(): void {
+		if (isDesktop()) {
+			this.loadConfig();
+		}
+	}
 }

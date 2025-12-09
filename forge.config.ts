@@ -58,11 +58,10 @@ const config: ForgeConfig = {
 		// new MakerDMG({
 		// 	icon: iconPath + '.icns'
 		// }),
-		new MakerZIP({
-		}),
+		new MakerZIP({}),
 		new MakerSquirrel({
 			// CamelCase version without spaces
-			name: "CivilIO",
+			name: "civilio",
 		}),
 		// new MakerWix({
 		// 	icon: iconIcoPath,
@@ -75,14 +74,7 @@ const config: ForgeConfig = {
 		// 	programFilesFolderName: 'CivilIO',
 		// 	language: 1033,
 		// }),
-		new MakerDeb({
-			options: {
-				name: 'civilio',
-				genericName: 'CivilIO',
-				productName: 'CivilIO',
-				icon: iconPngPath,
-			}
-		})
+		new MakerDeb({})
 	],
 	plugins: [
 		new AutoUnpackNativesPlugin({}),

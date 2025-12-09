@@ -26,6 +26,7 @@ import {
 	FindSubmissionVersionsResponseSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
+	GetThirdPartyLicensesResponseSchema,
 	InitializeSubmissionVersionRequestSchema,
 	InitializeSubmissionVersionResponseSchema,
 	LoadTranslationRequestSchema,
@@ -45,6 +46,7 @@ import {
 	VersionRevertResponseSchema
 } from '../dto';
 import {
+	BuildInfoSchema,
 	createPaginatedResultSchema,
 	FieldMappingSchema,
 	FormSubmissionSchema
@@ -90,11 +92,13 @@ export const channelArgs = {
 	'submission:revert': VersionRevertRequestSchema,
 	'migrations:check': {},
 	'migrations:apply': {},
+	'build:read': {},
 	'db-conns:read': {},
 	'db-conn:add': AddDbConnectionRequestSchema,
 	'db-conn:delete': DeleteDbConnectionRequestSchema,
 	'db-conn:clear': {},
-	'db-conn:use': UseConnectionRequestSchema
+	'db-conn:use': UseConnectionRequestSchema,
+	'licences:read': {},
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -132,12 +136,16 @@ export const channelResponses = {
 	'db-conn:add': {},
 	'db-conn:delete': {},
 	'db-conn:clear': {},
-	'db-conn:use': {}
+	'db-conn:use': {},
+	'licences:read': GetThirdPartyLicensesResponseSchema,
+	'build:read': BuildInfoSchema,
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'build:read'
+	| 'licences:read'
 	| 'db-conn:use'
 	| 'db-conn:clear'
 	| 'db-conn:delete'

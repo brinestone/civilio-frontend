@@ -1,5 +1,6 @@
 import { app, BrowserWindow, nativeImage } from "electron";
 import path from "path";
+import { pathToFileURL } from 'node:url';
 
 let mainWindow: BrowserWindow | null;
 export function showMainWindow() {
@@ -20,7 +21,7 @@ export function showMainWindow() {
 		mainWindow.removeMenu();
 	}
 
-	const startURL = app.isPackaged ? `file://${path.resolve(path.join(__dirname, '..', 'assets', 'browser', 'index.html'))}` : `http://localhost:4200`;
+	const startURL = app.isPackaged ? pathToFileURL(path.resolve(path.join(__dirname, '..', 'assets', 'browser', 'index.html'))).toString() : `http://localhost:4200`;
 	mainWindow.loadURL(startURL);
 	if (!app.isPackaged)
 		mainWindow.webContents.openDevTools();
