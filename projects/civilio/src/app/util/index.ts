@@ -184,3 +184,8 @@ export async function sendRpcMessageAsync<TChannel extends Channel>(
 		}, timeout);
 	});
 }
+
+export async function openLinkInBrowser(link: string) {
+	debugger;
+	await window.electron.openExternalLink(link);
+}

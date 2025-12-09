@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply space-y-3 py-10 h-full block;
+}

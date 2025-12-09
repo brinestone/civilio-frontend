@@ -1,1 +1,50 @@
-<p>about works!</p>
+<div class="flex items-center flex-col gap-1">
+	<img [src]="wideLogoUrl.value()" alt="wide logo url" width="240"/>
+	<p class="text-muted-foreground text-xs">(v{{ buildInfo.value()?.version }})</p>
+	<p class="text-muted-foreground text-center">{{ buildInfo.value()?.description }}</p>
+	<p class="text-muted-foreground text-xs">{{ 'misc.powered_by' | translate }}</p>
+	<img [src]="sponsorUrl.value()" alt="sponsor logo url" width="140"/>
+</div>
+<hlm-separator/>
+
+@let author = buildInfo.value()?.author;
+@if (author) {
+	<div class="space-y-2">
+		<h4 class="text-center" hlmH4>{{ 'misc.developed_by' | translate }}</h4>
+		<p class="text-sm text-center">{{ author.name }}</p>
+		<div class="flex justify-center items-center gap-1">
+			@if (author.email) {
+				<a hlmBtn href="mailto:{{author.email}}" size="icon-sm" variant="ghost">
+					<ng-icon name="lucideMail"/>
+				</a>
+			}
+			@if (author.url) {
+				<a (click)="externalLinkClicked($event)" hlmBtn href="{{author.url}}" size="icon-sm" target="_blank"
+					 variant="ghost">
+					<ng-icon name="lucideGlobe2"/>
+				</a>
+			}
+		</div>
+	</div>
+}
+<div class="space-y-2">
+	<h4 class="text-center" hlmH4>{{ 'misc.contributors' | translate }}</h4>
+	<div class="space-y-1">
+		@for (contributor of (buildInfo.value()?.contributors ?? []); track $index) {
+			<p class="text-sm text-center">{{ contributor.name }}</p>
+			<div class="flex justify-center items-center gap-1">
+				@if (contributor.email) {
+					<a hlmBtn href="mailto:{{contributor.email}}" size="icon-sm" variant="ghost">
+						<ng-icon name="lucideMail"/>
+					</a>
+				}
+				@if (contributor.url) {
+					<a (click)="externalLinkClicked($event)" hlmBtn href="{{contributor.url}}" size="icon-sm" target="_blank"
+						 variant="ghost">
+						<ng-icon name="lucideGlobe2"/>
+					</a>
+				}
+			</div>
+		}
+	</div>
+</div>

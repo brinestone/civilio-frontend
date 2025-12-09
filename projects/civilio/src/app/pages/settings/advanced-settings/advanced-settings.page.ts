@@ -3,7 +3,6 @@ import {
 	ChangeDetectorRef,
 	Component,
 	computed,
-	effect,
 	inject,
 	signal,
 	untracked
@@ -172,10 +171,6 @@ export class AdvancedSettingsPage {
 			takeUntilDestroyed(),
 			startWith(false)
 		).subscribe(v => this.introspectingDb.set(v));
-
-		effect(() => {
-			console.log(this.introspectingDb())
-		});
 	}
 
 	protected onFormSubmit(form: NgForm) {

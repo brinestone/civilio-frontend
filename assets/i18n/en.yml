@@ -1,6 +1,13 @@
 misc:
+  powered_by: Provided by
+  developed_by: Developer
+  contributors: Contributors
+  contact: Contact
+  licences_3: 3rd party licences
   yes: Yes
   no: No
+  config_required:
+    notice: There is an issue with your database server settings. Please resolve it before proceeding
   dialogs:
     version_revert:
       title: Revert to this version?

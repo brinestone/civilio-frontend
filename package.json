@@ -3,7 +3,7 @@
 	"version": "4.0.5",
 	"productName": "CivilIO",
 	"displayName": "CivilIO",
-	"description": "A Civil status data management tool.",
+	"description": "A Civil status survey data management tool.",
 	"main": "./dist/electron/index.js",
 	"license": "ISC",
 	"scripts": {
@@ -14,13 +14,13 @@
 		"build:ng": "ng build --output-path ./dist/angular --configuration production",
 		"wait-on:ng": "wait-on http://localhost:4200",
 		"predev": "pnpm clean",
-		"dev": "concurrently -n \"angular-dev,electron,translate\" \"pnpm start:ng\" \"nodemon\" \"pnpm translate:watch\"",
+		"dev": "pnpm manifest && concurrently -n \"angular-dev,electron,translate\" \"pnpm start:ng\" \"nodemon\" \"pnpm translate:watch\"",
 		"start:electron": "electron-forge start",
 		"build:electron": "pnpm build:electron:webpack",
 		"build:electron:webpack": "webpack --config webpack.main.config.js && webpack --config webpack.preload.config.js",
-		"make:electron": "pnpm clean && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge make",
+		"make:electron": "pnpm clean && pnpm manifest && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge make",
 		"clean": "pnpm exec rimraf dist out",
-		"package:electron": "pnpm clean && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge package",
+		"package:electron": "pnpm clean && pnpm manifest && pnpm build:ng && pnpm build:electron && wait-on dist/electron/index.js dist/electron/preload.js && electron-forge package",
 		"watch": "ng build --watch --configuration development",
 		"migrate.local": "pnpm drizzle-kit generate && pnpm drizzle-kit migrate",
 		"drop.local": "pnpm drizzle-kit drop",
@@ -34,7 +34,8 @@
 		"generate:pipe": "ng g p --project civilio",
 		"verify:electron": "node -e \"const fs = require('fs'); const path = require('path'); const mainFile = path.join(__dirname, 'dist', 'electron', 'index.js'); if (!fs.existsSync(mainFile)) { console.error('ERROR: Main entry point not found at:', mainFile); process.exit(1); } else { console.log('✓ Main entry point found at:', mainFile); }\"",
 		"test": "ng test",
-		"release": "standard-version"
+		"release": "standard-version",
+		"manifest": "node build-info.mjs"
 	},
 	"private": true,
 	"dependencies": {
@@ -133,5 +134,12 @@
 		"name": "Brinestone Solutions",
 		"url": "https://github.com/brinestone",
 		"email": "brinestonesolutions@gmail.com"
-	}
+	},
+	"contributors": [
+		{
+			"name": "Conrad Bekondo",
+			"email": "conradbekondo@gmail.com",
+			"url": "https://github.com/conradbekondo"
+		}
+	]
 }

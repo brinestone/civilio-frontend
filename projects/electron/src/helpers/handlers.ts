@@ -13,6 +13,8 @@ import {
 	findSubmissionVersions,
 	findTranslationsFor,
 	getAppConfig,
+	getBuildInfo,
+	getLicences,
 	getResourceUrl,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
@@ -42,6 +44,12 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('build:read', () => {
+		return getBuildInfo();
+	})
+	createChannelHandler('licences:read', () => {
+		return getLicences();
+	})
 	createChannelHandler('db-conn:use', (req) => {
 		return useConnection(req);
 	})

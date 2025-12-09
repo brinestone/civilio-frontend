@@ -11,10 +11,19 @@ import {
 	NgxsOnInit,
 	State,
 	StateContext,
-	StateToken
+	StateToken,
+	Store
 } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { concatMap, forkJoin, from, tap, throwError } from 'rxjs';
+import {
+	catchError,
+	concatMap,
+	EMPTY,
+	forkJoin,
+	from,
+	tap,
+	throwError
+} from 'rxjs';
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
@@ -30,6 +39,7 @@ import {
 	UpdateMiscConfig,
 	UseConnection
 } from './actions';
+import { dbConfig } from '@app/store/selectors';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -38,6 +48,7 @@ type ConfigStateModel = {
 	env: 'desktop' | 'web';
 	migrationState?: CheckMigrationsResponse;
 	preInit: boolean;
+	connectionsLoaded: boolean;
 }
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
@@ -45,9 +56,15 @@ export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 @Injectable()
 @State({
 	name: CONFIG_STATE,
-	defaults: { knownConnections: [], env: 'desktop', preInit: true }
+	defaults: {
+		connectionsLoaded: false,
+		knownConnections: [],
+		env: 'desktop',
+		preInit: true
+	}
 })
 export class ConfigState implements NgxsOnInit {
+	private readonly store = inject(Store);
 	private readonly configService = inject(CONFIG_SERVICE);
 	private readonly translateService = inject(TranslateService);
 
@@ -89,8 +106,15 @@ export class ConfigState implements NgxsOnInit {
 	onLoadKnownConnections(ctx: Context) {
 		return from(this.configService.findConnectionHistory()).pipe(
 			tap(c => ctx.setState(patch({
-				knownConnections: c
-			})))
+				knownConnections: c,
+				connectionsLoaded: true
+			}))),
+			catchError(e => {
+				ctx.setState(patch({
+					connectionsLoaded: true
+				}));
+				return throwError(() => e);
+			})
 		)
 	}
 
@@ -109,6 +133,8 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(IntrospectDb)
 	onIntrospectDb(ctx: Context) {
+		const currentParams = this.store.selectSnapshot(dbConfig);
+		if (currentParams?.migrated) return EMPTY;
 		return from(this.configService.checkMigrations()).pipe(
 			tap(response => ctx.setState(patch({
 				migrationState: response
