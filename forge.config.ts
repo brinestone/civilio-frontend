@@ -49,6 +49,7 @@ const config: ForgeConfig = {
 	packagerConfig: {
 		asar: true,
 		icon: iconPath,
+		executableName: 'civilio',
 		// Remove windowsSign if you don't have code signing certificates
 		// windowsSign: true,
 		extraResource: ['./dist/assets'],

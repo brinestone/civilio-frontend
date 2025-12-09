@@ -25,7 +25,7 @@
 		"migrate.local": "pnpm drizzle-kit generate && pnpm drizzle-kit migrate",
 		"drop.local": "pnpm drizzle-kit drop",
 		"studio": "pnpm drizzle-kit studio",
-		"prepublish:electron": "pnpm clean && pnpm build:electron && pnpm build:ng",
+		"prepublish:electron": "pnpm clean && pnpm build:electron && pnpm build:ng && pnpm manifest",
 		"publish:electron": "electron-forge publish",
 		"generate:page": "ng g c --project civilio --type page",
 		"generate:layout": "ng g c --project civilio --type layout",

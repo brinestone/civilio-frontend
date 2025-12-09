@@ -1,5 +1,16 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const fs = require('fs');
+
+function getExternals() {
+	const packageJsonPath = path.resolve(__dirname, 'package.json');
+	if (fs.existsSync(packageJsonPath)) {
+		const packageJson = require(packageJsonPath);
+		// Treat all production dependencies as external
+		return Object.keys(packageJson.dependencies || {});
+	}
+	return [];
+}
 
 module.exports = {
   mode: "production",
@@ -36,7 +47,8 @@ module.exports = {
       },
     ],
   },
-  plugins: [
+	externals: getExternals(),
+	plugins: [
     new CopyWebpackPlugin({
       patterns: [
         {
