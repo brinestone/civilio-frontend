@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.1.0](https://github.com/brinestone/civilio-frontend/compare/v4.0.5...v4.1.0) (2025-12-09)
+
+
+### Features
+
+* add about page ([725839a](https://github.com/brinestone/civilio-frontend/commit/725839abc1ad3d39809c2409a99af6c2d8af8674))
+* **config:** implement dynamic database connection tracking ([790e470](https://github.com/brinestone/civilio-frontend/commit/790e4700938ce46e932af465fee367c8ca4d8db1))
+
+
+### Bug Fixes
+
+* **ci:** resolve persisting naming issue in ([72c556a](https://github.com/brinestone/civilio-frontend/commit/72c556a7914e1c08892e375e8b9504fe3298d423))
+
 ### [4.0.5](https://github.com/brinestone/civilio-frontend/compare/v4.0.4...v4.0.5) (2025-12-05)
 
 
