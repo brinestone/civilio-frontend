@@ -163,6 +163,12 @@
       ],
       "@spartan-ng/helm/field": [
         "./libs/ui/field/src/index.ts"
+			],
+			"@spartan-ng/helm/item": [
+				"./libs/ui/item/src/index.ts"
+			],
+			"@spartan-ng/helm/empty": [
+				"./libs/ui/empty/src/index.ts"
       ]
     }
   },

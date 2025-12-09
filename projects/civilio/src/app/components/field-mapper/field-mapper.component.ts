@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -7,7 +7,8 @@ import {
 	effect,
 	inject,
 	input,
-	OnInit
+	OnInit,
+	signal
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -18,7 +19,6 @@ import {
 	ReactiveFormsModule
 } from '@angular/forms';
 import {
-	extractAllFields,
 	extractFieldKey,
 	FieldSchema,
 	flattenSections,
@@ -39,6 +39,7 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCheck,
 	lucideChevronsUpDown,
+	lucideLoader,
 	lucideSearch,
 	lucideX
 } from '@ng-icons/lucide';
@@ -77,6 +78,7 @@ type SectionForm = FormGroup<{
 			lucideChevronsUpDown,
 			lucideSearch,
 			lucideCheck,
+			lucideLoader,
 			lucideX
 		})
 	],
@@ -85,6 +87,7 @@ type SectionForm = FormGroup<{
 		HlmLabel,
 		TranslatePipe,
 		BrnCommandImports,
+		NgClass,
 		HlmCommandImports,
 		NgIcon,
 		HlmIcon,
@@ -110,6 +113,7 @@ export class FieldMapperComponent implements OnInit {
 	private loadMappings = dispatch(LoadMappings);
 	private loadColumns = dispatch(LoadDbColumns);
 	protected doRemoveMapping = dispatch(RemoveMapping);
+	protected updatingMapping = signal<FieldKey | undefined>(undefined);
 
 	readonly formModel = input<FormSchema>();
 	readonly form = input<FormType>();
@@ -137,15 +141,6 @@ export class FieldMapperComponent implements OnInit {
 			...acc,
 			[curr.id]: curr
 		}), {} as Record<string, Exclude<SectionSchema, 'fields'>>);
-	});
-	protected fieldSchemaMap = computed(() => {
-		const model = this.formModel();
-		if (!model) return {};
-		return cloneDeep(extractAllFields(model))
-			.reduce((acc, curr) => ({
-				...acc,
-				[typeof curr.key == 'string' ? curr.key : curr.key.value]: curr
-			}), {} as Record<string, FieldSchema>)
 	});
 	protected inputForm: FormGroup<{
 		groups: FormArray<SectionForm>
@@ -207,6 +202,7 @@ export class FieldMapperComponent implements OnInit {
 		name,
 		tableName
 	}: DbColumnSpec) {
+		this.updatingMapping.set(key);
 		this.doUpdateMapping(this.form()!, {
 			dbColumn: name,
 			field: key,
@@ -214,12 +210,14 @@ export class FieldMapperComponent implements OnInit {
 		}).subscribe({
 			error: (e: Error) => {
 				toast.error(this.translateService.instant('msg.error.title'), { description: e.message })
+				this.updatingMapping.set(undefined);
 			},
 			complete: () => {
 				control.markAsPristine();
 				control.markAsUntouched();
 				control.updateValueAndValidity();
 				this.cdr.markForCheck();
+				this.updatingMapping.set(undefined);
 			}
 		})
 	}

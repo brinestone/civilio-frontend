@@ -36,7 +36,8 @@ BEGIN
 
 	INSERT INTO revisions.deltas(changed_at, submission_index, index, form, table_name, delta_data, changed_by, op,
 															 parent, hash)
-	VALUES (COALESCE((_main_data ->> '_submission_time')::TIMESTAMP, NOW()), p_index,
+	VALUES (COALESCE((_main_data ->> '_submission_time')::TIMESTAMP, NOW()),
+					p_index,
 					p_index,
 					p_form,
 					'data',

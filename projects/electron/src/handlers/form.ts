@@ -288,9 +288,9 @@ export async function processSubmissionDataUpdate({
 						DELETE
 						FROM ${ sql.identifier(form) }.${ sql.identifier(table) }
 						WHERE ${ and(
-						eq(sql.identifier('_parent_index'), _submission_index),
-						inArray(sql.identifier(identifierMapping.dbColumn), indexes)
-					) }
+							eq(sql.identifier('_parent_index'), _submission_index),
+							inArray(sql.identifier(identifierMapping.dbColumn), indexes)
+						) }
 					`);
 					//language=PostgreSQL
 					await tx.execute(sql`
@@ -307,7 +307,10 @@ export async function initializeSubmissionVersioning({
 																											 index
 																										 }: InitializeSubmissionVersionRequest) {
 	const db = provideDatabase({});
-	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(${ index }, ${ form }::civilio.form_types) AS version`);
+	//language=PostgreSQL
+	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(
+																										${ index },
+																										${ form }::civilio.form_types) AS version`);
 	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
 }
 

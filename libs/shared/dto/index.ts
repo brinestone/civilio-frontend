@@ -3,16 +3,28 @@ import { FieldKeySchema } from "../field-keys";
 import {
 	AppConfigSchema,
 	DbColumnSpecSchema,
-	FieldMappingSchema, FormSubmissionSchema,
+	DbConnectionRefInputSchema,
+	DbConnectionRefSchema,
+	FieldMappingSchema,
+	FormSubmissionSchema,
 	FormTypeSchema,
 	LocaleSchema,
-	OptionSchema, SubmissionChangeDeltaSchema,
+	MigrationsCheckReportSchema,
+	OptionSchema,
+	SubmissionChangeDeltaSchema,
 	SubmissionVersionInfoSchema,
 	ThemeSchema
 } from "../schema";
 
-export const VersionRevertResponseSchema = z.void();
+export const UseConnectionRequestSchema = z.coerce.number();
+export const DeleteDbConnectionRequestSchema = z.coerce.number();
+export const AddDbConnectionRequestSchema = DbConnectionRefInputSchema;
+export const FindConnectionHistoryResponseSchema = DbConnectionRefSchema.array();
 
+export const ApplyPendingMigrationsResponseSchema = MigrationsCheckReportSchema;
+export const CheckMigrationsResponseSchema = MigrationsCheckReportSchema;
+
+export const VersionRevertResponseSchema = z.void();
 export const VersionRevertRequestSchema = z.object({
 	index: z.coerce.number(),
 	form: FormTypeSchema,
@@ -202,3 +214,9 @@ export type FindSubmissionRefSuggestionsResponse = z.output<typeof FindSubmissio
 export type FindSubmissionRefSuggestionsRequest = z.input<typeof FindSubmissionRefSuggestionsRequestSchema>;
 export type VersionRevertRequest = z.input<typeof VersionRevertRequestSchema>;
 export type VersionRevertResponse = z.output<typeof VersionRevertResponseSchema>;
+export type CheckMigrationsResponse = z.output<typeof CheckMigrationsResponseSchema>;
+export type ApplyPendingMigrationsResponse = z.output<typeof ApplyPendingMigrationsResponseSchema>;
+export type FindConnectionHistoryResponse = z.output<typeof FindConnectionHistoryResponseSchema>;
+export type DeleteDbConnectionRequest = z.input<typeof DeleteDbConnectionRequestSchema>;
+export type AddDbConnectionRequest = z.input<typeof AddDbConnectionRequestSchema>;
+export type UseConnectionRequest = z.input<typeof UseConnectionRequestSchema>;

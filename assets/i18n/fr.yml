@@ -95,6 +95,8 @@ settings:
   field_mapper: Mappeur
   filter:
     placeholder: Filtre
+  about:
+    title: À propos
   advanced:
     title: Avancé
     db:
@@ -105,11 +107,49 @@ settings:
       port: Port
       ssl: SSL
       name: Nom de la base de données
+      connections:
+        title: Historique de connexion
+        active: Actif
+        actions:
+          clear: Effacer les inutilisés
+          remove: Supprimer
+          use: Utiliser
+        no_connection:
+          title: Aucune connexion
+          description: Entrez les informations d'identification de la base de données et
+            elles seront enregistrées et vous pourrez les trouver ici.
+      alerts:
+        migrations:
+          title: Migration de bases de données
+          introspection:
+            title: Base de données d'introspection...
+            description: Vérification de l'état de la base de données
+          migration_needed:
+            description: La base de données doit être migrée pour synchroniser le schéma.
+            prompt: Voulez-vous exécuter les migrations maintenant ?
+            actions:
+              run: Appliquer les migrations
+              running: Application des migrations...
+            msg:
+              migration_failed:
+                title: La migration de la base de données a échoué
+              success:
+                title: Les migrations ont été appliquées avec succès
+          db_in_sync:
+            description: La base de données est à jour !
     storage:
       title: Stockage
       endpoint: Point de terminaison API (compatible S3)
       access_key: Clé d'accès
       secret_key: Clé secrète
+    actions:
+      discard: Ignorer les modifications
+      save: Tester la connexion et enregistrer
+    msg:
+      testing:
+        progress: Test de connexion...
+        success: Connexion réussie
+        failed: La connexion a échoué
     api:
       origin: Origine de l'API
       title: Paramètres de l'API
@@ -187,25 +227,25 @@ csc:
               cs_seniority:
                 title: Nombre d'années d'ancienneté dans la fonction publique
               monthly_salary:
-                title: Allocation mensuelle perçue l'année dernière (en francs CFA)
-                description: Salaire mensuel
+                description: Allocation mensuelle perçue l'année dernière (en francs CFA)
+                title: Salaire mensuel
       deeds:
         title: Rapports émis mais non retirés au cours des 5 dernières années
         fields:
           index:
             title: Indice
           birth_certs_drawn:
-            title: Nombre d'actes de naissance. rédigé
+            title: Actes de naissance. rédigé
           birth_certs_not_withdrawn:
-            title: Nombre d'actes de naissance. non retiré
+            title: Actes de naissance. non retiré
           death_certs_drawn:
-            title: Nombre de certificats de décès. rédigé
+            title: Actes de décès. rédigé
           death_certs_not_withdrawn:
-            title: Nombre de certificats de décès. non retiré
+            title: Actes de décès. non retiré
           marriage_certs_drawn:
-            title: Nombre d'actes de mariage. rédigé
+            title: Actes de mariage. rédigé
           marriage_certs_not_withdrawn:
-            title: Nombre d'actes de mariage. non retiré
+            title: Actes de mariage. non retiré
           list:
             title: Actes dressés mais non retirés au cours des 5 dernières années
       respondent:

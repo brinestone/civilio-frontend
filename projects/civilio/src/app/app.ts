@@ -1,15 +1,20 @@
 import { isPlatformBrowser, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en-CM';
 import localeFr from '@angular/common/locales/fr-CM';
-import { Component, DOCUMENT, effect, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import {
+	Component,
+	DOCUMENT,
+	effect,
+	inject,
+	PLATFORM_ID,
+	signal
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { BaseLayout } from '@app/layouts/base/base.layout';
 import { LoadConfig } from '@app/store/config';
-import { isDesktop } from '@app/util';
 import { dispatch, select } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
-import { FORM_SERVICE } from './services/form';
 import { ThemeService } from './services/theme.service';
 import { fontSize } from './store/selectors';
 
@@ -23,12 +28,11 @@ registerLocaleData(localeEn);
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })
-export class App implements OnInit {
+export class App {
 	protected readonly platformId = inject(PLATFORM_ID);
 	protected readonly document = inject(DOCUMENT);
 	protected readonly title = signal('civilio');
 	protected readonly fontSize = select(fontSize);
-	protected formService = inject(FORM_SERVICE);
 	private loadConfig = dispatch(LoadConfig);
 	private themeService = inject(ThemeService);
 	protected themeSignal = toSignal(this.themeService.theme$, { initialValue: 'system' });
@@ -44,9 +48,9 @@ export class App implements OnInit {
 		}
 	}
 
-	ngOnInit(): void {
-		if (isDesktop()) {
-			this.loadConfig();
-		}
-	}
+	// ngOnInit(): void {
+	// 	if (isDesktop()) {
+	// 		this.loadConfig();
+	// 	}
+	// }
 }

@@ -80,9 +80,12 @@ export const redoAvailable = createSelector([formSlices.redoStack], r => r.lengt
 export const changesPending = createSelector([undoAvailable, redoAvailable], (u, r) => {
 	return u;
 });
-export const isFormValid = createSelector([formSlices.activeSections], (sections) => {
-	return values(sections).map(({ status }) => status).every(v => v != 'INVALID');
-});
 export const totalErrorCount = createSelector([formSlices.activeSections], (sections) => {
 	return values(sections).map(({ errors }) => keys(errors).length).reduce((acc, curr) => curr + acc, 0);
 })
+export const migrationNeeded = createSelector([configSlices.migrationState], m => m?.needsMigration === true);
+export const dbConfig = createSelector([configSlices.knownConnections], (c) => {
+	return c.find(d => d.inUse);
+});
+export const hasConfiguredConnection = createSelector([configSlices.knownConnections], c => c.some(x => x.inUse))
+export const connections = configSlices.knownConnections;

@@ -18,6 +18,9 @@ export class AgoDatePipePipe implements PipeTransform {
 			default:
 				_locale = fr;
 		}
-		return formatDistanceToNow(value, { locale: _locale, addSuffix: true });
+		return formatDistanceToNow(new Date(value.toISOString()), {
+			locale: _locale,
+			addSuffix: true
+		});
 	}
 }

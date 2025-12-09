@@ -1,7 +1,12 @@
 import z from 'zod';
 import {
+	AddDbConnectionRequestSchema,
 	AppConfigResponseSchema,
+	ApplyPendingMigrationsResponseSchema,
+	CheckMigrationsResponseSchema,
+	DeleteDbConnectionRequestSchema,
 	FieldMappingRequestSchema,
+	FindConnectionHistoryResponseSchema,
 	FindDbColumnsRequestSchema,
 	FindDbColumnsResponseSchema,
 	FindFieldMappingsRequestSchema,
@@ -35,7 +40,9 @@ import {
 	UpdateSubmissionRequestSchema,
 	UpdateSubmissionResponseSchema,
 	UpdateThemeRequestSchema,
-	VersionRevertRequestSchema, VersionRevertResponseSchema
+	UseConnectionRequestSchema,
+	VersionRevertRequestSchema,
+	VersionRevertResponseSchema
 } from '../dto';
 import {
 	createPaginatedResultSchema,
@@ -80,7 +87,14 @@ export const channelArgs = {
 	'submission-versions:read': FindSubmissionVersionsRequestSchema,
 	'submission-version:read': FindSubmissionCurrentVersionRequestSchema,
 	'submission-version:init': InitializeSubmissionVersionRequestSchema,
-	'submission:revert': VersionRevertRequestSchema
+	'submission:revert': VersionRevertRequestSchema,
+	'migrations:check': {},
+	'migrations:apply': {},
+	'db-conns:read': {},
+	'db-conn:add': AddDbConnectionRequestSchema,
+	'db-conn:delete': DeleteDbConnectionRequestSchema,
+	'db-conn:clear': {},
+	'db-conn:use': UseConnectionRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -111,12 +125,26 @@ export const channelResponses = {
 	'submission-versions:read': FindSubmissionVersionsResponseSchema,
 	'submission-version:read': FindSubmissionCurrentVersionResponseSchema,
 	'submission-version:init': InitializeSubmissionVersionResponseSchema,
-	'submission:revert': VersionRevertResponseSchema
+	'submission:revert': VersionRevertResponseSchema,
+	'migrations:check': CheckMigrationsResponseSchema,
+	'migrations:apply': ApplyPendingMigrationsResponseSchema,
+	'db-conns:read': FindConnectionHistoryResponseSchema,
+	'db-conn:add': {},
+	'db-conn:delete': {},
+	'db-conn:clear': {},
+	'db-conn:use': {}
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'db-conn:use'
+	| 'db-conn:clear'
+	| 'db-conn:delete'
+	| 'db-conn:add'
+	| 'db-conns:read'
+	| 'migrations:apply'
+	| 'migrations:check'
 	| 'submission:revert'
 	| 'submission-version:init'
 	| 'submission-version:read'

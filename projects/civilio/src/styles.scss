@@ -119,5 +119,5 @@ hlm-option {
 }
 
 .scroll-box {
-	@apply overflow-y-auto;
+	@apply overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent;
 }

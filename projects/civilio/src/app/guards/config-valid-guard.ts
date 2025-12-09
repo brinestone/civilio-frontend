@@ -1,19 +1,25 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { CONFIG_SERVICE } from '@app/services/config';
-import { DbConfigSchema } from '@civilio/shared';
 import { toast } from 'ngx-sonner';
+import { Store } from '@ngxs/store';
+import { CONFIG_STATE } from '@app/store/config';
+import { map, skipWhile } from 'rxjs';
 
-export const dbConfiguredGuard: (redirect: string) => CanActivateFn = (redirect: string) => async (_, state) => {
-	const store = inject(CONFIG_SERVICE);
-	const config = await store.loadConfig()
-	if (DbConfigSchema.omit({ password: true }).safeParse(config?.db).success) return true;
+export const dbConfiguredGuard: (redirect: string) => CanActivateFn = (redirect: string) => (_, state) => {
+	const store = inject(Store);
 	const router = inject(Router);
-	toast.warning('There is an issue with your database server settings. Please resolve it before proceeding');
-	return router.createUrlTree([redirect], {
-		queryParams: {
-			'continue': encodeURIComponent(state.url)
-		},
-		queryParamsHandling: 'merge'
-	});
+	const s = store.select(CONFIG_STATE);
+	return s.pipe(
+		skipWhile(({ preInit }) => preInit),
+		map(({ knownConnections }) => {
+			if (knownConnections.length > 0) return true;
+			toast.warning('There is an issue with your database server settings. Please resolve it before proceeding');
+			return router.createUrlTree([redirect], {
+				queryParams: {
+					'continue': encodeURIComponent(state.url)
+				},
+				queryParamsHandling: 'merge'
+			});
+		})
+	);
 };
