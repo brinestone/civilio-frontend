@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.1](https://github.com/brinestone/civilio-frontend/compare/v4.1.0...v4.1.1) (2025-12-09)
+
+
+### Bug Fixes
+
+* resolve pg-native warning ([bedd37a](https://github.com/brinestone/civilio-frontend/commit/bedd37a33173d53ee22e24f74d66a1a935c9cba7))
+
 ## [4.1.0](https://github.com/brinestone/civilio-frontend/compare/v4.0.5...v4.1.0) (2025-12-09)
 
 
