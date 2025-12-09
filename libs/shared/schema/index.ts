@@ -1,5 +1,41 @@
 import { z } from 'zod';
 
+export const DbConnectionRefSchema = z.object({
+	username: z.string(),
+	database: z.string(),
+	port: z.number(),
+	host: z.string(),
+	ssl: z.coerce.boolean(),
+	inUse: z.coerce.boolean(),
+	addedAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
+	migrated: z.coerce.boolean(),
+	password: z.string().optional(),
+	id: z.number()
+});
+export const DbConnectionRefInputSchema = DbConnectionRefSchema.omit({
+	id: true,
+	inUse: true,
+	migrated: true,
+	addedAt: true,
+	updatedAt: true
+}).extend({
+	password: z.string()
+})
+
+export const MigrationFileSchema = z.object({
+	name: z.string(),
+	timestamp: z.number(),
+	hash: z.string()
+});
+
+export const MigrationsCheckReportSchema = z.object({
+	needsMigration: z.boolean(),
+	pending: MigrationFileSchema.array().default([]),
+	applied: z.string().array(),
+	lastApplied: z.string().nullable()
+});
+
 export const SubmissionChangeDeltaSchema = z.object({
 	op: z.enum(['add', 'update', 'delete']),
 	field: z.string().optional(),
@@ -81,7 +117,6 @@ export const DbConfigSchema = z.object({
 	database: z.string()
 });
 export const AppConfigSchema = z.object({
-	db: DbConfigSchema.partial().optional(),
 	prefs: AppPrefsSchema.partial().optional(),
 	misc: z.record(z.string(), z.unknown()).optional()
 }).default({});
@@ -129,3 +164,5 @@ type IsObject<T> = T extends object
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
 export type SubmissionChangeDelta = z.output<typeof SubmissionChangeDeltaSchema>;
 export type SubmissionChangeDeltaInput = z.input<typeof SubmissionChangeDeltaSchema>;
+export type DbConnectionRef = z.output<typeof DbConnectionRefSchema>;
+export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;

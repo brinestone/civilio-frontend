@@ -1,17 +1,43 @@
 import { inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
-import { AppConfig, AppConfigSchema, DbConfigSchema } from '@civilio/shared';
+import {
+	AppConfig,
+	CheckMigrationsResponse,
+	DbConnectionRef
+} from '@civilio/shared';
 import { TranslateService } from '@ngx-translate/core';
-import { Action, NgxsOnInit, State, StateContext, StateToken } from '@ngxs/store';
+import {
+	Action,
+	NgxsOnInit,
+	State,
+	StateContext,
+	StateToken
+} from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
-import { concatMap, from, tap, throwError } from 'rxjs';
-import { LoadConfig, SetFontSize, SetLocale, SetTheme, TestDb, UpdateMiscConfig } from './actions';
+import { concatMap, forkJoin, from, tap, throwError } from 'rxjs';
+import {
+	ApplyPendingMigrations,
+	ClearConnections,
+	InitChecks,
+	IntrospectDb,
+	LoadConfig,
+	LoadKnownConnections,
+	RemoveConnection,
+	SetFontSize,
+	SetLocale,
+	SetTheme,
+	TestDb,
+	UpdateMiscConfig,
+	UseConnection
+} from './actions';
 
 export * from './actions';
 type ConfigStateModel = {
 	config?: AppConfig;
-	configured: boolean;
+	knownConnections: DbConnectionRef[];
 	env: 'desktop' | 'web';
+	migrationState?: CheckMigrationsResponse;
+	preInit: boolean;
 }
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
@@ -19,7 +45,7 @@ export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 @Injectable()
 @State({
 	name: CONFIG_STATE,
-	defaults: { configured: false, env: 'desktop' }
+	defaults: { knownConnections: [], env: 'desktop', preInit: true }
 })
 export class ConfigState implements NgxsOnInit {
 	private readonly configService = inject(CONFIG_SERVICE);
@@ -29,6 +55,65 @@ export class ConfigState implements NgxsOnInit {
 		const state = ctx.getState();
 		const lang = (state.config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 		this.translateService.use(lang);
+		ctx.dispatch(InitChecks).subscribe({
+			complete: () => {
+				ctx.setState(patch({
+					preInit: false
+				}))
+			}
+		});
+	}
+
+	@Action(ClearConnections)
+	async onClearConnections(ctx: Context) {
+		await this.configService.clearConnections();
+		ctx.dispatch(LoadKnownConnections);
+	}
+
+	@Action(RemoveConnection)
+	async onRemoveConnection(ctx: Context, action: RemoveConnection) {
+		await this.configService.removeConnectionById(action.id);
+		ctx.dispatch(LoadKnownConnections);
+	}
+
+	@Action(UseConnection)
+	async onUseConnection(ctx: Context, action: UseConnection) {
+		const state = ctx.getState();
+		state.migrationState = undefined;
+		ctx.setState({ ...state });
+		await this.configService.useConnection(action.id);
+		ctx.dispatch([IntrospectDb, LoadKnownConnections]);
+	}
+
+	@Action(LoadKnownConnections)
+	onLoadKnownConnections(ctx: Context) {
+		return from(this.configService.findConnectionHistory()).pipe(
+			tap(c => ctx.setState(patch({
+				knownConnections: c
+			})))
+		)
+	}
+
+	@Action(ApplyPendingMigrations)
+	async onApplyPendingMigrations(ctx: Context) {
+		const result = await this.configService.applyPendingMigrations();
+		ctx.setState(patch({
+			migrationState: result
+		}));
+	}
+
+	@Action(InitChecks)
+	onInitChecks(ctx: Context) {
+		ctx.dispatch([LoadConfig, IntrospectDb, LoadKnownConnections])
+	}
+
+	@Action(IntrospectDb)
+	onIntrospectDb(ctx: Context) {
+		return from(this.configService.checkMigrations()).pipe(
+			tap(response => ctx.setState(patch({
+				migrationState: response
+			})))
+		);
 	}
 
 	@Action(UpdateMiscConfig)
@@ -36,7 +121,6 @@ export class ConfigState implements NgxsOnInit {
 		return from(this.configService.updateMisc(path, value)).pipe(
 			tap(config => ctx.setState(patch({
 				config,
-				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
 			}))),
 		);
 	}
@@ -46,13 +130,15 @@ export class ConfigState implements NgxsOnInit {
 		return from(this.configService.setFontSize(size)).pipe(
 			tap(config => ctx.setState(patch({
 				config,
-				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
 			})))
 		)
 	}
 
 	@Action(TestDb, { cancelUncompleted: true })
 	onTestDb(ctx: Context, action: TestDb) {
+		const state = ctx.getState();
+		state.migrationState = undefined;
+		ctx.setState({ ...state });
 		return from(this.configService.testDb(action)).pipe(
 			concatMap(v => {
 				if (v === true) return this.configService.setDbConfig(action);
@@ -60,8 +146,8 @@ export class ConfigState implements NgxsOnInit {
 			}),
 			tap(config => ctx.setState(patch({
 				config: config ?? undefined,
-				configured: config != null && 'db' in config && DbConfigSchema.safeParse(config.db).success
-			})))
+			}))),
+			tap(() => ctx.dispatch([IntrospectDb, LoadKnownConnections]))
 		)
 	}
 
@@ -70,7 +156,6 @@ export class ConfigState implements NgxsOnInit {
 		return from(this.configService.setLocale(locale)).pipe(
 			tap(config => ctx.setState(patch({
 				config,
-				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
 			}))),
 			tap(() => this.translateService.use(locale.substring(0, 2)))
 		)
@@ -81,22 +166,22 @@ export class ConfigState implements NgxsOnInit {
 		return from(this.configService.setTheme(value)).pipe(
 			tap(config => ctx.setState(patch({
 				config,
-				configured: 'db' in config && DbConfigSchema.safeParse(config.db).success
-			})))
+			}))),
 		);
 	}
 
 	@Action(LoadConfig)
 	onLoadConfig(ctx: Context) {
-		return from(this.configService.loadConfig()).pipe(
-			tap(config => ctx.setState(patch({
+		return forkJoin([
+			this.configService.loadConfig(),
+		]).pipe(
+			tap(([config]) => ctx.setState(patch({
 				config,
-				configured: config && config.db && Object.keys(config.db ?? {}).length > 0 && AppConfigSchema.unwrap().shape.db.unwrap().safeParse(config.db).success
 			}))),
-			tap(config => {
+			tap(([config]) => {
 				const lang = (config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 				this.translateService.use(lang);
-			})
+			}),
 		)
 	}
 }

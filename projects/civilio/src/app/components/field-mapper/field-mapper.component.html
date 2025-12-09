@@ -119,7 +119,7 @@
 			@default {
 				<label [for]="schemaKey + '_mapper_selector'" class="block" hlmLabel>{{
 						label
-				}}</label>
+					}}</label>
 				<div class="flex items-center gap-2 group">
 					<brn-popover class="w-full" sideOffset="5">
 						<input [formControlName]="schemaKey" class="hidden"/>
@@ -189,14 +189,17 @@
 					</brn-popover>
 
 					<button
-						(click)="removeMapping(fg.controls[schemaKey], schemaKey)"
-						class="opacity-0 group-hover:opacity-100"
+						(click)="removeMapping(fg.controls[schemaKey], schemaKey)" [disabled]="updatingMapping() === schemaKey"
+						[ngClass]="{
+						'opacity-0 group-hover:opacity-100': updatingMapping() !== schemaKey || updatingMapping() === undefined,
+						}"
 						hlmBtn
 						size="icon"
 						type="button"
 						variant="ghost"
 					>
-						<ng-icon name="lucideX"/>
+						<ng-icon [class.animate-spin]="updatingMapping() === schemaKey"
+										 [name]="updatingMapping() === schemaKey ? 'lucideLoader' : 'lucideX'"/>
 					</button>
 				</div>
 			}

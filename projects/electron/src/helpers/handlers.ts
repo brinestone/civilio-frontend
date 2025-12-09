@@ -16,14 +16,25 @@ import {
 	getResourceUrl,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
-	removeFieldMapping, revertSubmissionVersion,
+	removeFieldMapping,
+	revertSubmissionVersion,
 	updateFieldMappings,
 	updateLocale,
 	updateTheme,
 	watchAssets
 } from "@civilio/handlers";
 import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
-import { testConnection } from "./db";
+import {
+	checkMigration,
+	clearConnections,
+	findConnectionHistory,
+	removeConnection,
+	resetPool,
+	runMigrations,
+	saveConnectionParameters,
+	testConnection,
+	useConnection
+} from "./db";
 import { storeValue } from "./store";
 
 export function registerDevelopmentIpcHandlers() {
@@ -31,15 +42,36 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('db-conn:use', (req) => {
+		return useConnection(req);
+	})
+	createChannelHandler('db-conn:clear', () => {
+		return clearConnections();
+	})
+	createChannelHandler('db-conn:delete', req => {
+		return removeConnection(req);
+	})
+	createChannelHandler('db-conn:add', (req) => {
+		return saveConnectionParameters(req);
+	});
+	createChannelHandler('db-conns:read', () => {
+		return findConnectionHistory();
+	});
+	createChannelHandler('migrations:apply', async () => {
+		return await runMigrations();
+	});
+	createChannelHandler('migrations:check', async () => {
+		return await checkMigration();
+	});
 	createChannelHandler('submission:revert', async arg => {
 		return await revertSubmissionVersion(arg);
-	})
+	});
 	createChannelHandler('submission-version:init', async arg => {
 		return await initializeSubmissionVersioning(arg);
-	})
+	});
 	createChannelHandler('submission-version:read', async arg => {
 		return await findCurrentSubmissionVersion(arg);
-	})
+	});
 	createChannelHandler('submission-versions:read', async arg => {
 		return await findSubmissionVersions(arg);
 	});
@@ -98,7 +130,19 @@ export function registerProductionIpcHandlers() {
 		return getAppConfig();
 	});
 	createChannelHandler('db:test', async (arg) => {
-		return await testConnection(arg);
+		const result = await testConnection(arg);
+		saveConnectionParameters({
+			database: arg.database,
+			host: arg.host,
+			password: arg.password,
+			port: Number(arg.port),
+			ssl: Boolean(arg.ssl),
+			username: arg.username
+		});
+		if (result) {
+			resetPool();
+		}
+		return result
 	});
 	createChannelHandler('field-mappings:read', async ({ form }) => {
 		return await findFieldMappings(form);

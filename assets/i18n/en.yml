@@ -93,6 +93,8 @@ settings:
   field_mapper: Mapper
   filter:
     placeholder: Filter
+  about:
+    title: About
   advanced:
     title: Advanced
     db:
@@ -103,11 +105,48 @@ settings:
       port: Port
       ssl: SSL
       name: Database Name
+      connections:
+        title: Connection History
+        active: Active
+        actions:
+          clear: Clear unused
+          remove: Delete
+          use: Use
+        no_connection:
+          title: No Connections
+          description: Enter database credentials and they'll be saved and you'll be able to find them here.
+      alerts:
+        migrations:
+          title: Database migrations
+          introspection:
+            title: Introspecting database...
+            description: Checking the state of the database
+          migration_needed:
+            description: The database needs to be migrated to synchronize the schema.
+            prompt: Do you want to run the migrations now?
+            actions:
+              run: Apply migrations
+              running: Applying migrations...
+            msg:
+              migration_failed:
+                title: Database migration failed
+              success:
+                title: Migrations were applied successfully
+          db_in_sync:
+            description: The database is up to date!
     storage:
       title: Storage
       endpoint: API Endpoint (S3 compatible)
       access_key: Access key
       secret_key: Secret key
+    actions:
+      discard: Discard changes
+      save: Test connection & Save
+    msg:
+      testing:
+        progress: Testing connection...
+        success: Connection successful
+        failed: Connection failed
     api:
       origin: API Origin
       title: API Settings
@@ -184,25 +223,25 @@ csc:
               cs_seniority:
                 title: Number of years of seniority in civil service
               monthly_salary:
-                title: Monthly allowance received last year (in CFA francs)
-                description: Salaire mensuel
+                description: Monthly allowance received last year (in CFA francs)
+                title: Monthly Salary
       deeds:
         title: Reports issued but not withdrawn during the last 5 years
         fields:
           index:
             title: Index
           birth_certs_drawn:
-            title: "# of birth certs. drawn up"
+            title: "Birth certs. drawn up"
           birth_certs_not_withdrawn:
-            title: "# of birth certs. not withdrawn"
+            title: "Birth certs. not withdrawn"
           death_certs_drawn:
-            title: "# of death certs. drawn up"
+            title: "Death certs. drawn up"
           death_certs_not_withdrawn:
-            title: "# of death certs. not withdrawn"
+            title: "Death certs. not withdrawn"
           marriage_certs_drawn:
-            title: "# of marriage certs. drawn up"
+            title: "Marriage certs. drawn up"
           marriage_certs_not_withdrawn:
-            title: "# of marriage certs. not withdrawn"
+            title: "Marriage certs. not withdrawn"
           list:
             title: Deeds drawn up but not withdrawn during the last 5 years
       respondent:

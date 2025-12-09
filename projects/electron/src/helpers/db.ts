@@ -1,19 +1,64 @@
 import {
-	DbConfigSchema,
+	DbConnectionRefInput,
+	DeleteDbConnectionRequest,
+	FindConnectionHistoryResponse,
+	FindConnectionHistoryResponseSchema,
 	MalConfigurationError,
+	MigrationsCheckReportSchema,
 	TestDbConnectionRequest,
-	TestDbConnectionRequestSchema
+	TestDbConnectionRequestSchema,
+	UseConnectionRequest,
+	UseConnectionRequestSchema
 } from '@civilio/shared';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Client, Pool } from 'pg';
-import { getStoreValue } from './store';
-import { app } from 'electron';
+import { getTableName, is, Table } from 'drizzle-orm';
 import { Cache, MutationOption } from 'drizzle-orm/cache/core';
 import { CacheConfig } from 'drizzle-orm/cache/core/types';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { app } from 'electron';
 import { LRUCache } from 'lru-cache';
-import { getTableName, is, Table } from 'drizzle-orm';
+import { join, resolve } from 'path';
+import { Client, Pool } from 'pg';
+import z from 'zod';
+import { ConnectionManager } from './conn';
+import { MigrationRunner } from './migrator';
 
 let pool: Pool | null = null;
+const migrator = new MigrationRunner(app.isPackaged ? join(app.getPath('assets'), 'resources', 'assets') : resolve(join(__dirname, '..', 'assets')));
+const connectionManager = new ConnectionManager(join(app.getPath('appData'), 'civilio', 'c.db'));
+
+export function useConnection(req: UseConnectionRequest) {
+	connectionManager.useConnection(UseConnectionRequestSchema.parse(req));
+	resetPool();
+}
+
+export function clearConnections() {
+	connectionManager.clearConnections();
+}
+
+export function removeConnection(params: DeleteDbConnectionRequest) {
+	connectionManager.removeConnection(z.number().parse(params))
+	resetPool();
+}
+
+export function saveConnectionParameters(params: DbConnectionRefInput) {
+	connectionManager.addConnection(params);
+	resetPool();
+}
+
+export function findConnectionHistory(): FindConnectionHistoryResponse {
+	return FindConnectionHistoryResponseSchema.parse(connectionManager.getHistory());
+}
+
+export async function runMigrations() {
+	const db = provideDatabase({});
+	await migrator.runMigrations(db);
+	connectionManager.toggleMigrated();
+}
+
+export async function checkMigration() {
+	const db = provideDatabase({});
+	return MigrationsCheckReportSchema.parse(await migrator.checkMigrations(db));
+}
 
 export async function testConnection(req: TestDbConnectionRequest) {
 	const {
@@ -52,14 +97,11 @@ export async function testConnection(req: TestDbConnectionRequest) {
 }
 
 export function resetPool() {
-	const {
-		data: dbConfig,
-		success
-	} = DbConfigSchema.safeParse(getStoreValue('db'));
-	if (!success) {
+	const conn = connectionManager.getCurrentConnection(true);
+	if (conn == null) {
 		throw new MalConfigurationError('db');
 	}
-	const { host, password, port, ssl, username, database } = dbConfig;
+	const { host, password, port, ssl, username, database } = conn;
 	const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 	if (ssl) {
 		url.searchParams.set('sslmode', 'require');
@@ -155,15 +197,13 @@ class LRUDrizzleCache extends Cache {
 const singletonCache = new LRUDrizzleCache();
 
 export function provideDatabase(schema: Record<string, unknown>) {
-	const {
-		data: dbConfig,
-		success
-	} = DbConfigSchema.safeParse(getStoreValue('db'));
-	if (!success) {
+	const conn = connectionManager.getCurrentConnection(true);
+	if (conn == null) {
 		throw new MalConfigurationError('db');
 	}
 	if (pool == null) {
-		const { host, password, port, ssl, username, database } = dbConfig;
+		console.log(conn);
+		const { host, password, port, ssl, username, database } = conn;
 		const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
 		if (ssl) {
 			url.searchParams.set('sslmode', 'require');
