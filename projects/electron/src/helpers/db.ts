@@ -214,7 +214,7 @@ export function provideDatabase(schema: Record<string, unknown>) {
 	}
 	return drizzle(pool, {
 		schema,
-		logger: !app.isPackaged,
+		logger: false,
 		cache: singletonCache
 	});
 }

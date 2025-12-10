@@ -4,6 +4,7 @@
 	<p class="text-muted-foreground text-center">{{ buildInfo.value()?.description }}</p>
 	<p class="text-muted-foreground text-xs">{{ 'misc.powered_by' | translate }}</p>
 	<img [src]="sponsorUrl.value()" alt="sponsor logo url" width="140"/>
+	<p class="text-muted-foreground text-xs">&copy; CIVIPOL - {{ buildInfo.value()?.date | date:'yyyy' }}</p>
 </div>
 <hlm-separator/>
 
