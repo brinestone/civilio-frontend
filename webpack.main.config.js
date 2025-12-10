@@ -3,13 +3,13 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const fs = require('fs');
 
 function getExternals() {
-	const packageJsonPath = path.resolve(__dirname, 'package.json');
-	if (fs.existsSync(packageJsonPath)) {
-		const packageJson = require(packageJsonPath);
-		// Treat all production dependencies as external
-		return Object.keys(packageJson.dependencies || {});
-	}
-	return [];
+	// const packageJsonPath = path.resolve(__dirname, 'package.json');
+	// if (fs.existsSync(packageJsonPath)) {
+	// 	const packageJson = require(packageJsonPath);
+	// 	// Treat all production dependencies as external
+	// 	return Object.keys(packageJson.dependencies || {});
+	// }
+	return ['pg-native'];
 }
 
 module.exports = {
