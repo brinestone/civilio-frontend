@@ -22,6 +22,7 @@ misc:
       title: Discard unsaved changes?
       description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
   actions:
+    open_overview: Overview
     cancel: Cancel
     finish: Finish
     modify: Modify

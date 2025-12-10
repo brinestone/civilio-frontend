@@ -19,6 +19,7 @@ import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCopy,
+	lucideEye,
 	lucideInbox,
 	lucidePencil,
 	lucideRefreshCw
@@ -108,7 +109,8 @@ export class BadgeCell {
 		provideIcons({
 			lucideInbox,
 			lucideRefreshCw,
-			lucidePencil
+			lucidePencil,
+			lucideEye
 		})
 	],
 	imports: [
@@ -220,13 +222,17 @@ export class SubmissionsPage implements OnInit {
 				return flexRenderComponent(ActionCell, {
 					inputs: {
 						shouldTranslateText: true,
+						minimal: true,
 						actions: [
-							{ identifier: 'open', icon: 'lucidePencil', label: 'misc.actions.modify' }
+							{ identifier: 'open', icon: 'lucidePencil', label: 'misc.actions.modify' },
+							{ identifier: 'view', icon: 'lucideEye', label: 'misc.actions.open_overview' }
 						]
 					},
 					outputs: {
 						actionTriggered: ({ identifier }) => {
 							if (identifier == 'open') {
+								this.openSubmission(row.original.index, row.original.currentVersion, true);
+							} else if (identifier == 'view') {
 								this.openSubmission(row.original.index, row.original.currentVersion);
 							}
 						},
@@ -249,8 +255,12 @@ export class SubmissionsPage implements OnInit {
 		}
 	});
 
-	protected openSubmission(index: number, version: string | null) {
-		this.navigate(['/forms', this.formType(), index], version ? { version } : undefined);
+	protected openSubmission(index: number, version: string | null, edit = false) {
+		const segments = ['/forms', this.formType(), index];
+		if (!edit) {
+			segments.push('overview')
+		}
+		this.navigate(segments, version ? { version } : undefined);
 	}
 
 	ngOnInit(): void {
