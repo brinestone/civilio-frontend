@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.1.2](https://github.com/brinestone/civilio-frontend/compare/v4.1.1...v4.1.2) (2025-12-10)
+
+
+### Bug Fixes
+
+* update getExternals function to return 'pg-native' as external dependency ([6409d7a](https://github.com/brinestone/civilio-frontend/commit/6409d7a7191528a7519f39fd74b430a63a10ed50))
+
 ### [4.1.1](https://github.com/brinestone/civilio-frontend/compare/v4.1.0...v4.1.1) (2025-12-09)
 
 
