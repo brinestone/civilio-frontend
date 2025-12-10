@@ -77,8 +77,8 @@ import { AgoDatePipePipe } from '@app/pipes';
 		HlmItemImports,
 		HlmH4,
 		HlmH3,
-		HlmBadge,
-		AgoDatePipePipe
+		AgoDatePipePipe,
+		HlmBadge
 	],
 	host: {
 		'class': 'page'

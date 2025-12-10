@@ -1,6 +1,7 @@
 import { MakerDeb } from '@electron-forge/maker-deb';
-import { MakerZIP } from '@electron-forge/maker-zip';
 import MakerSquirrel from '@electron-forge/maker-squirrel';
+import MakerWix from '@electron-forge/maker-wix';
+import { MakerZIP } from '@electron-forge/maker-zip';
 import {
 	AutoUnpackNativesPlugin
 } from '@electron-forge/plugin-auto-unpack-natives';
@@ -10,8 +11,9 @@ import { existsSync } from 'fs';
 import { cp, mkdir, readdir } from 'fs/promises';
 import { join, resolve } from 'path';
 
+const iconIcnsPath = "./assets/img/icon.icns"
 const iconPath = "./assets/img/icon"; // No file extension
-// const iconIcoPath = './assets/img/icon.ico';
+const iconIcoPath = './assets/img/icon.ico';
 const iconPngPath = "./assets/img/icon.png";
 const assetsDirs = [
 	'./dist/angular/',
@@ -63,19 +65,24 @@ const config: ForgeConfig = {
 		new MakerSquirrel({
 			// CamelCase version without spaces
 			name: "civilio",
+			setupIcon: iconIcoPath
 		}),
-		// new MakerWix({
-		// 	icon: iconIcoPath,
-		// 	features: {
-		// 		autoUpdate: true,
-		// 		autoLaunch: false
-		// 	},
-		// 	defaultInstallMode: 'perUser',
-		// 	shortcutName: 'CivilIO',
-		// 	programFilesFolderName: 'CivilIO',
-		// 	language: 1033,
-		// }),
-		new MakerDeb({})
+		new MakerWix({
+			icon: iconIcoPath,
+			features: {
+				autoUpdate: true,
+				autoLaunch: false
+			},
+			defaultInstallMode: 'perUser',
+			shortcutName: 'CivilIO',
+			programFilesFolderName: 'CivilIO',
+			language: 1033,
+		}),
+		new MakerDeb({
+			options: {
+				icon: iconPngPath
+			}
+		})
 	],
 	plugins: [
 		new AutoUnpackNativesPlugin({}),

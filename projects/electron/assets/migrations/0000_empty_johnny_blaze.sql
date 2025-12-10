@@ -2,19 +2,30 @@
 -- If you want to run this migration please uncomment this code before executing migrations
 CREATE SCHEMA IF NOT EXISTS "civilio";
 -- --> statement-breakpoint
-CREATE TYPE "civilio"."form_types" AS ENUM ('fosa', 'chefferie', 'csc');--> statement-breakpoint
-CREATE SEQUENCE "civilio"."chefferie_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 457502754 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."chefferie_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 324 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."chefferie_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 186 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 475016321 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 445 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 774 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_pieces_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 543 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_statistics_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1463 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."csc_villages_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 2344 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."fosa_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 484119070 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."fosa_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 971 CACHE 1;--> statement-breakpoint
-CREATE SEQUENCE "civilio"."fosa_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1261 CACHE 1;
+DO
+$$
+	BEGIN
+		IF NOT EXISTS (SELECT 1
+									 FROM pg_type t
+													JOIN pg_namespace n ON n.oid = t.typnamespace
+									 WHERE t.typname = 'form_types'
+										 AND n.nspname = 'civilio') THEN
+			CREATE TYPE "civilio"."form_types" AS ENUM ('fosa', 'chefferie', 'csc');
+		end if;
+	END
+$$;
+CREATE SEQUENCE IF NOT EXISTS "civilio"."chefferie_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 457502754 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."chefferie_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 324 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."chefferie_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 186 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 475016321 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 445 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 774 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_pieces_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 543 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_statistics_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1463 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."csc_villages_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 2344 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 484119070 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 971 CACHE 1;--> statement-breakpoint
+CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1261 CACHE 1;
 --> statement-breakpoint
 -- CREATE TABLE "civilio"."migrations" (
 -- 	"_version" integer NOT NULL,
@@ -27,7 +38,7 @@ CREATE SEQUENCE "civilio"."fosa_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 M
 -- 	CONSTRAINT "validation_codes_code_key" UNIQUE("code")
 -- );
 -- --> statement-breakpoint
-CREATE TABLE "civilio"."choices"
+CREATE TABLE IF NOT EXISTS "civilio"."choices"
 (
 	"name"     text                   NOT NULL,
 	"label"    text                   NOT NULL,
@@ -38,7 +49,7 @@ CREATE TABLE "civilio"."choices"
 	CONSTRAINT "choices_pkey" PRIMARY KEY ("name", "group", "version")
 );
 -- --> statement-breakpoint
-CREATE TABLE "civilio"."form_field_mappings"
+CREATE TABLE IF NOT EXISTS "civilio"."form_field_mappings"
 (
 	"field"          text                   NOT NULL,
 	"i18n_key"       text,
@@ -49,6 +60,7 @@ CREATE TABLE "civilio"."form_field_mappings"
 	CONSTRAINT "field_db_column_db_table_form_pk" PRIMARY KEY ("field", "form")
 );
 -- --> statement-breakpoint
+DROP VIEW IF EXISTS "civilio"."vw_submissions";
 CREATE VIEW "civilio"."vw_submissions" AS
 (
 SELECT _id,

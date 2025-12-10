@@ -4,6 +4,18 @@ import { PgDatabase } from 'drizzle-orm/pg-core';
 import fs from 'fs/promises';
 import path from 'path';
 
+const DUPLICATE_OBJECT_ERROR_CODE = '42710'; // 'duplicate_object' error
+const DUPLICATE_TABLE_ERROR_CODE = '42P07'; // 'duplicate_table' error
+const DUPLICATE_COLUMN_ERROR_CODE = '42701';
+
+// You might want to include more idempotent error codes here, e.g.,
+// const IDEMPOTENT_ERROR_CODES = new Set(['42710', '42P07']);
+const IDEMPOTENT_ERROR_CODES = new Set([
+	DUPLICATE_OBJECT_ERROR_CODE,
+	DUPLICATE_TABLE_ERROR_CODE,
+	DUPLICATE_COLUMN_ERROR_CODE
+]);
+
 type MigrationFile = {
 	name: string;
 	content: string;
@@ -63,24 +75,35 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 
 		for (const migration of status.pending) {
 			await db.transaction(async (tx) => {
+				let ranSuccessfully = true;
 				try {
-					await tx.execute(sql.raw(migration.content));
+					try {
+						await tx.execute(sql.raw(migration.content));
+					} catch (e) {
+						if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
+							console.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
+						} else {
+							ranSuccessfully = false;
+							throw e; // This rolls back the entire transaction.
+						}
+					}
 
 					// Record the migration
-					await tx.execute(sql`
-						INSERT INTO ${ sql.raw(this.migrationsTable) } (hash, name, created_at)
-						VALUES (${ migration.hash }, ${ migration.name },
-										${ new Date().toISOString() })
-						ON CONFLICT (hash) DO NOTHING
-					`);
+					if (ranSuccessfully) {
+						await tx.execute(sql`
+							INSERT INTO ${ sql.raw(this.migrationsTable) } (hash, name, created_at)
+							VALUES (${ migration.hash }, ${ migration.name },
+											${ new Date().toISOString() })
+							ON CONFLICT (hash) DO NOTHING
+						`);
+						console.log(`✓ Applied migration: ${ migration.name }`);
+					}
 
-					console.log(`✓ Applied migration: ${ migration.name }`);
 				} catch (error) {
 					console.error(`✗ Failed to apply migration ${ migration.name }:`, error);
 					throw error;
 				}
 			});
-
 		}
 		console.log('All migrations applied successfully');
 	}

@@ -11,6 +11,7 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { HlmH4 } from '@spartan-ng/helm/typography';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { DatePipe } from '@angular/common';
 
 @Component({
 	selector: 'cv-about',
@@ -24,6 +25,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 	],
 	imports: [
 		TranslatePipe,
+		DatePipe,
 		HlmSeparator,
 		NgIcon,
 		HlmH4,
