@@ -6,7 +6,7 @@ declare global {
       sendSync: (channel: string, data: any) => any;
       removeListener: (channel: string, func: (...args: any[]) => void) => void;
       off: (channel: string, func: (...args: any[]) => void) => void;
-			openExternalLink: (link: string) => Promise<void>;
+			openExternalLink: (link: string) => void;
     };
   }
 }

@@ -1,3 +1,4 @@
+DROP FUNCTION IF EXISTS revisions.get_record_current_version(civilio.form_types, TEXT, INTEGER);
 CREATE OR REPLACE FUNCTION revisions.get_record_current_version(
 	IN form civilio.form_types,
 	IN table_name TEXT,
@@ -24,6 +25,7 @@ BEGIN
 end;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS revisions.get_version_chain(INTEGER, civilio.form_types);
 CREATE OR REPLACE FUNCTION revisions.get_version_chain(
 	IN _index INTEGER,
 -- 	IN record_index INTEGER,

@@ -103,9 +103,9 @@ export class ConnectionManager {
 
 	clearConnections() {
 		this.runInTransaction(() => {
+			// noinspection SqlWithoutWhere
 			this.conn.exec(`DELETE
-											FROM connections
-											WHERE inUse = 0;`);
+											FROM connections;`);
 		});
 	}
 

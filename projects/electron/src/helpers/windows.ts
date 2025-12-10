@@ -1,8 +1,9 @@
-import { app, BrowserWindow, nativeImage } from "electron";
+import { app, BrowserWindow, nativeImage, shell } from "electron";
 import path from "path";
 import { pathToFileURL } from 'node:url';
 
 let mainWindow: BrowserWindow | null;
+
 export function showMainWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
@@ -12,10 +13,19 @@ export function showMainWindow() {
 		width: 1080,
 		icon: nativeImage.createFromDataURL(logo),
 		webPreferences: {
+			contextIsolation: true,
 			devTools: !app.isPackaged,
-			preload: path.join(__dirname, 'preload.js')
+			preload: path.join(__dirname, 'preload.js'),
 		}
 	});
+
+	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+		if (url.startsWith('http:') || url.startsWith('https:')) {
+			void shell.openExternal(url, { activate: true });
+			return { action: 'deny' };
+		}
+		return { action: 'allow' };
+	})
 
 	if (['linux', 'win32'].includes(process.platform)) {
 		mainWindow.removeMenu();

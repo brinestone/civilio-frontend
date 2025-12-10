@@ -1,1 +1,0 @@
-ALTER TABLE "revisions"."deltas" RENAME COLUMN "operation" TO "op";

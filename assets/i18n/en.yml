@@ -74,6 +74,10 @@ tmpl:
     empty_text: No results could be found
   table:
     no_data: No data
+    check_sources:
+      title: Check that your database connection is properly configured
+      actions:
+        configure_db: Advanced Settings
     actions:
       discard: Discard
       cancel: Cancel
@@ -116,7 +120,7 @@ settings:
         title: Connection History
         active: Active
         actions:
-          clear: Clear unused
+          clear: Delete all
           remove: Delete
           use: Use
         no_connection:

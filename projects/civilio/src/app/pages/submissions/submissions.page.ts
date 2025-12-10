@@ -17,7 +17,12 @@ import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCopy, lucidePencil, lucideRefreshCw } from '@ng-icons/lucide';
+import {
+	lucideCopy,
+	lucideInbox,
+	lucidePencil,
+	lucideRefreshCw
+} from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch, select } from '@ngxs/store';
@@ -39,6 +44,8 @@ import { MaskPipe } from '@app/pipes';
 import { toast } from 'ngx-sonner';
 import { DateCell } from '@app/components/tabular-field/date-cell.component';
 import { ActionCell } from '@app/components/tabular-field/cells';
+import { HlmEmptyImports } from '@spartan-ng/helm/empty';
+import { RouterLink } from '@angular/router';
 
 @Component({
 	selector: 'cv-version-cell',
@@ -99,6 +106,7 @@ export class BadgeCell {
 	selector: 'cv-submissions',
 	viewProviders: [
 		provideIcons({
+			lucideInbox,
 			lucideRefreshCw,
 			lucidePencil
 		})
@@ -113,7 +121,9 @@ export class BadgeCell {
 		HlmTableImports,
 		HlmInput,
 		DecimalPipe,
-		TranslatePipe
+		TranslatePipe,
+		HlmEmptyImports,
+		RouterLink
 	],
 	host: {
 		'class': 'page'

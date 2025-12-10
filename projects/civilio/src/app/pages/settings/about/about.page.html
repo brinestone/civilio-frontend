@@ -1,9 +1,10 @@
 <div class="flex items-center flex-col gap-1">
-	<img [src]="wideLogoUrl.value()" alt="wide logo url" width="240"/>
+	<img [src]="wideLogoUrl.value()" alt="wide logo url" draggable="false" style="-webkit-user-drag: none;" width="240"/>
 	<p class="text-muted-foreground text-xs">(v{{ buildInfo.value()?.version }})</p>
 	<p class="text-muted-foreground text-center">{{ buildInfo.value()?.description }}</p>
 	<p class="text-muted-foreground text-xs">{{ 'misc.powered_by' | translate }}</p>
-	<img [src]="sponsorUrl.value()" alt="sponsor logo url" width="140"/>
+	<img [src]="sponsorUrl.value()" alt="sponsor logo url" draggable="false" style="-webkit-user-drag: none;"
+			 width="140"/>
 	<p class="text-muted-foreground text-xs">&copy; CIVIPOL - {{ buildInfo.value()?.date | date:'yyyy' }}</p>
 </div>
 <hlm-separator/>
@@ -20,7 +21,7 @@
 				</a>
 			}
 			@if (author.url) {
-				<a (click)="externalLinkClicked($event)" hlmBtn href="{{author.url}}" size="icon-sm" target="_blank"
+				<a hlmBtn href="{{author.url}}" size="icon-sm" target="_blank"
 					 variant="ghost">
 					<ng-icon name="lucideGlobe2"/>
 				</a>
@@ -40,7 +41,7 @@
 					</a>
 				}
 				@if (contributor.url) {
-					<a (click)="externalLinkClicked($event)" hlmBtn href="{{contributor.url}}" size="icon-sm" target="_blank"
+					<a hlmBtn href="{{contributor.url}}" size="icon-sm" target="_blank"
 						 variant="ghost">
 						<ng-icon name="lucideGlobe2"/>
 					</a>

@@ -1,4 +1,4 @@
-create function civilio.func_log_delta_changes() returns trigger
+create or replace function civilio.func_log_delta_changes() returns trigger
 	language plpgsql
 as
 $$

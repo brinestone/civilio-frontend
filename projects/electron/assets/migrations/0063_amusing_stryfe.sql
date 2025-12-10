@@ -1,4 +1,4 @@
-drop function revisions.get_version_chain;
+drop function if exists revisions.get_version_chain;
 create or replace function revisions.get_version_chain(
 	IN p_index integer,
 	IN p_form civilio.form_types)

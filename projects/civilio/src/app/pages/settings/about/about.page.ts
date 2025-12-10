@@ -1,5 +1,5 @@
 import { Component, resource } from '@angular/core';
-import { openLinkInBrowser, sendRpcMessageAsync } from '@app/util';
+import { sendRpcMessageAsync } from '@app/util';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import {
@@ -55,9 +55,4 @@ export class AboutPage {
 			return await sendRpcMessageAsync('resource:read', 'img/Civipol.png');
 		}
 	});
-
-	protected async externalLinkClicked(event: MouseEvent) {
-		event.preventDefault();
-		await openLinkInBrowser((event.target as unknown as HTMLAnchorElement).href);
-	}
 }

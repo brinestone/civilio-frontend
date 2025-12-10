@@ -77,6 +77,11 @@ tmpl:
     empty_text: Aucun résultat n'a pu être trouvé
   table:
     no_data: Aucune donnée
+    check_sources:
+      title: Vérifiez que votre connexion à la base de données est correctement
+        configurée
+      actions:
+        configure_db: Paramètres avancés
     actions:
       discard: Jeter
       cancel: Annuler
@@ -119,7 +124,7 @@ settings:
         title: Historique de connexion
         active: Actif
         actions:
-          clear: Effacer les inutilisés
+          clear: Supprimer tout
           remove: Supprimer
           use: Utiliser
         no_connection:
