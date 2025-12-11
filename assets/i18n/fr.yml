@@ -1,6 +1,6 @@
 misc:
   powered_by: Fourni par
-  developed_by: Promoteur
+  developed_by: Développé par
   contributors: Contributeurs
   contact: Contact
   licences_3: Licences tierces
@@ -26,6 +26,7 @@ misc:
       description: Vous avez apporté des modifications non enregistrées qui seront
         perdues si vous continuez. Etes-vous vraiment sûr ?
   actions:
+    open_overview: Aperçu
     cancel: Annuler
     finish: Finition
     modify: Modifier

@@ -6,10 +6,10 @@ $$
 													JOIN pg_namespace n ON n.oid = t.typnamespace
 									 WHERE t.typname = 'sync_status'
 										 AND n.nspname = 'revisions') THEN
-			CREATE TYPE "revisions"."sync_status" AS ENUM ('pending', 'synced');--> statement-breakpoint
+			CREATE TYPE "revisions"."sync_status" AS ENUM ('pending', 'synced');
 		end if;
 	END
-$$;
+$$;--> statement-breakpoint
 
 ALTER TABLE "revisions"."deltas"
-	ADD COLUMN IF NOT EXISTS "sync_status" "revisions"."sync_status" DEFAULT 'pending';
+	ADD COLUMN IF NOT EXISTS "sync_status" "revisions"."sync_status" DEFAULT 'pending';--> statement-breakpoint

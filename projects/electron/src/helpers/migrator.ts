@@ -71,36 +71,39 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 			console.log('No migrations needed');
 			return;
 		}
-		console.log(`Applying ${status.pending.length} migrations...`);
+		console.log(`Applying ${ status.pending.length } migrations...`);
 
 		for (const migration of status.pending) {
 			await db.transaction(async (tx) => {
 				let ranSuccessfully = true;
 				try {
-					try {
-						await tx.execute(sql.raw(migration.content));
-					} catch (e) {
-						if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
-							console.warn(`Warning: Migration ${migration.name} encountered a recoverable error (Object already exists). Continuing...`)
-						} else {
-							ranSuccessfully = false;
-							throw e; // This rolls back the entire transaction.
+					for (const statement of migration.content.split('--> statement-breakpoint').map(v => v.trim()).filter(v => v.length > 0)) {
+						try {
+							await tx.execute(sql.raw(statement));
+						} catch (e) {
+							if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
+								console.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
+							} else {
+								ranSuccessfully = false;
+								// noinspection ExceptionCaughtLocallyJS
+								throw e; // This rolls back the entire transaction.
+							}
 						}
 					}
 
 					// Record the migration
 					if (ranSuccessfully) {
 						await tx.execute(sql`
-							INSERT INTO ${sql.identifier(this.migrationsTable)} (hash, name, created_at)
-							VALUES (${migration.hash}, ${migration.name},
-											${new Date().toISOString()})
-							ON CONFLICT (hash) DO UPDATE SET name = ${migration.name}
+							INSERT INTO ${ sql.identifier(this.migrationsTable) } (hash, name, created_at)
+							VALUES (${ migration.hash }, ${ migration.name },
+											${ new Date().toISOString() })
+							ON CONFLICT (hash) DO UPDATE SET name = ${ migration.name }
 						`);
-						console.log(`✓ Applied migration: ${migration.name}`);
+						console.log(`✓ Applied migration: ${ migration.name }`);
 					}
 
 				} catch (error) {
-					console.error(`✗ Failed to apply migration ${migration.name}:`, error);
+					console.error(`✗ Failed to apply migration ${ migration.name }:`, error);
 					throw error;
 				}
 			});
@@ -139,7 +142,7 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 			return migrations.sort((a, b) => a.timestamp - b.timestamp);
 		} catch (error) {
 			if ((error as any).code === 'ENOENT') {
-				throw new Error(`Migrations directory not found: ${this.migrationsDir}`);
+				throw new Error(`Migrations directory not found: ${ this.migrationsDir }`);
 			}
 			throw error;
 		}
@@ -155,7 +158,7 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 
 	private async ensureMigrationsTable(db: TDb): Promise<void> {
 		await db.execute(sql`
-			CREATE TABLE IF NOT EXISTS ${sql.raw(this.migrationsTable)}
+			CREATE TABLE IF NOT EXISTS ${ sql.raw(this.migrationsTable) }
 			(
 				id         SERIAL PRIMARY KEY,
 				hash       VARCHAR(64) UNIQUE NOT NULL,
@@ -171,7 +174,7 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 		try {
 			const result = await db.execute(sql`
 				SELECT hash
-				FROM ${sql.raw(this.migrationsTable)}
+				FROM ${ sql.raw(this.migrationsTable) }
 				ORDER BY created_at
 			`);
 			return result.rows;

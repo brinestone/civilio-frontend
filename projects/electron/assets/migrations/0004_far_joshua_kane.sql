@@ -1,6 +1,5 @@
 CREATE SCHEMA IF NOT EXISTS "revisions";
 --> statement-breakpoint
-
 DO
 $$
 	BEGIN
@@ -9,11 +8,11 @@ $$
 													JOIN pg_namespace n ON n.oid = t.typnamespace
 									 WHERE t.typname = 'change_op'
 										 AND n.nspname = 'revisions') THEN
-			CREATE TYPE "revisions"."change_op" AS ENUM ('INSERT', 'DELETE', 'UPDATE');--> statement-breakpoint
+			CREATE TYPE "revisions"."change_op" AS ENUM ('INSERT', 'DELETE', 'UPDATE');
 		end if;
 	END
 $$;
-
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "revisions"."deltas"
 (
 	"hash"             text GENERATED ALWAYS AS (MD5
@@ -93,3 +92,4 @@ FROM (SELECT df._id::double precision::integer                AS _id,
 						 lag(df._index) OVER (ORDER BY df._index)               AS prev
 			FROM chefferie.data df) result
 ORDER BY _submission_time DESC);
+--> statement-breakpoint

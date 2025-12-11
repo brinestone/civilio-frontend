@@ -631,6 +631,76 @@
       "when": 1765396082696,
       "tag": "0100_past_madelyne_pryor",
       "breakpoints": true
+		},
+		{
+			"idx": 101,
+			"version": "7",
+			"when": 1765403106040,
+			"tag": "0101_wonderful_supernaut",
+			"breakpoints": true
+		},
+		{
+			"idx": 102,
+			"version": "7",
+			"when": 1765404410781,
+			"tag": "0102_acoustic_vargas",
+			"breakpoints": true
+		},
+		{
+			"idx": 103,
+			"version": "7",
+			"when": 1765406069342,
+			"tag": "0103_brief_tigra",
+			"breakpoints": true
+		},
+		{
+			"idx": 104,
+			"version": "7",
+			"when": 1765477088709,
+			"tag": "0104_good_nova",
+			"breakpoints": true
+		},
+		{
+			"idx": 105,
+			"version": "7",
+			"when": 1765477383436,
+			"tag": "0105_ambitious_praxagora",
+			"breakpoints": true
+		},
+		{
+			"idx": 106,
+			"version": "7",
+			"when": 1765478177372,
+			"tag": "0106_demonic_jack_murdock",
+			"breakpoints": true
+		},
+		{
+			"idx": 107,
+			"version": "7",
+			"when": 1765478426517,
+			"tag": "0107_glamorous_reavers",
+			"breakpoints": true
+		},
+		{
+			"idx": 108,
+			"version": "7",
+			"when": 1765478583039,
+			"tag": "0108_fresh_shape",
+			"breakpoints": true
+		},
+		{
+			"idx": 109,
+			"version": "7",
+			"when": 1765478710887,
+			"tag": "0109_careless_lady_bullseye",
+			"breakpoints": true
+		},
+		{
+			"idx": 110,
+			"version": "7",
+			"when": 1765478886106,
+			"tag": "0110_demonic_stark_industries",
+			"breakpoints": true
     }
   ]
 }

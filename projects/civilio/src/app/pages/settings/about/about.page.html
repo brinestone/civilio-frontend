@@ -33,7 +33,10 @@
 	<h4 class="text-center" hlmH4>{{ 'misc.contributors' | translate }}</h4>
 	<div class="space-y-1">
 		@for (contributor of (buildInfo.value()?.contributors ?? []); track $index) {
-			<p class="text-sm text-center">{{ contributor.name }}</p>
+			<p class="text-sm text-center font-medium">{{ contributor.name }}</p>
+			@if (contributor.role) {
+				<span class="block text-muted-foreground text-sm">{{ contributor.role }}</span>
+			}
 			<div class="flex justify-center items-center gap-1">
 				@if (contributor.email) {
 					<a hlmBtn href="mailto:{{contributor.email}}" size="icon-sm" variant="ghost">

@@ -1,2 +1,2 @@
 ALTER TABLE revisions.deltas
-	ADD COLUMN change_notes TEXT NOT NULL;
+	ADD COLUMN IF NOT EXISTS change_notes TEXT NOT NULL;

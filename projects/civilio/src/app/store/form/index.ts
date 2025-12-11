@@ -444,9 +444,8 @@ class FormState {
 			concatMap((version) => {
 				if (version == null) {
 					console.log(`submission does not exist with index: ${ arg.index } in form ${ arg.form }`);
-					return EMPTY;
 				}
-				return ctx.dispatch(new LoadSubmissionData(arg.form, arg.index as any, version));
+				return EMPTY;
 			})
 		)
 	}

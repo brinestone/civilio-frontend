@@ -1,1 +1,20 @@
-index: {{submissionIndex()}}
+<div>
+	<div class="container mx-auto grid grid-cols-[1fr_auto] w-full h-full">
+		<div class="scroll-box">
+			<div class="py-10">
+				<p>index: {{ submissionIndex() }}</p>
+				<p>version: {{ selectedVersion.value() }}</p>
+				<p>versions:</p>
+				<pre>
+					{{ versions.value() | json }}
+					</pre
+					>
+			</div>
+		</div>
+		<div class="scroll-box">
+			<div class="py-10">
+				<p>form type: {{ formType() }}</p>
+			</div>
+		</div>
+	</div>
+</div>

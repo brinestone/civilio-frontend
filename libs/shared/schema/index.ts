@@ -10,7 +10,8 @@ export const BuildInfoSchema = z.object({
 	contributors: z.object({
 		name: z.string(),
 		email: z.email().optional(),
-		url: z.url().optional()
+		url: z.url().optional(),
+		role: z.string().optional()
 	}).array().default([]),
 	description: z.string().optional(),
 	displayName: z.string().optional(),
@@ -79,7 +80,8 @@ export const SubmissionVersionInfoSchema = z.object({
 	version: z.string(),
 	parent_version: z.string().nullable(),
 	changed_by: z.string().nullable(),
-	is_current: z.boolean()
+	is_current: z.boolean(),
+	change_notes: z.string().nullable().optional()
 });
 export const ThemeSchema = z.enum(['light', 'system', 'dark']);
 export const LocaleSchema = z.enum(['en-CM', 'fr-CM']);
