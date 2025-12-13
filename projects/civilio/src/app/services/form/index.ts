@@ -5,6 +5,7 @@ import {
 	makeEnvironmentProviders
 } from "@angular/core";
 import {
+	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
@@ -24,11 +25,14 @@ import {
 	FormSubmission,
 	FormType,
 	GetAutoCompletionSuggestionsResponse,
+	GetFacilityInfoRequest,
+	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
+	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionRevertRequest,
@@ -36,6 +40,12 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
+	deleteSubmission(req: DeleteSubmissionRequest): Promise<void>;
+
+	toggleApprovalStatus(req: ToggleApprovalStatusRequest): Promise<void>;
+
+	getFacilityInfo(req: GetFacilityInfoRequest): Promise<GetFacilityInfoResponse>;
+
 	revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse>;
 
 	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse>;

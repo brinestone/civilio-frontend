@@ -4,7 +4,7 @@ import { CellContext, injectFlexRenderContext } from '@tanstack/angular-table';
 import { Option } from '@civilio/shared';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DecimalPipe } from '@angular/common';
-import { AgoDatePipePipe } from '@app/pipes';
+import { AgoDatePipe } from '@app/pipes';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
@@ -15,7 +15,7 @@ import { debounce } from 'lodash';
 @Component({
 	selector: 'cv-editable-cell',
 	templateUrl: './editable-cell.component.html',
-	imports: [TranslatePipe, HlmSelectImports, DecimalPipe, AgoDatePipePipe, BrnSelectImports, HlmCheckbox, HlmInput, HlmDatePicker]
+	imports: [TranslatePipe, HlmSelectImports, DecimalPipe, AgoDatePipe, BrnSelectImports, HlmCheckbox, HlmInput, HlmDatePicker]
 })
 export class EditableCellComponent<T> {
 	readonly editing = input<boolean>();

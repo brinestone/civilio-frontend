@@ -1,1 +1,1 @@
-ALTER TYPE "revisions"."sync_status" ADD VALUE 'failed';
+ALTER TYPE "revisions"."sync_status" ADD VALUE IF NOT EXISTS 'failed';

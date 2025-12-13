@@ -1,5 +1,5 @@
 DROP VIEW IF EXISTS "civilio"."vw_submissions";--> statement-breakpoint
-CREATE INDEX "deltas_parent_index" ON "revisions"."deltas" USING btree ("parent") WHERE "revisions"."deltas"."parent" is not null;
+CREATE INDEX IF NOT EXISTS "deltas_parent_index" ON "revisions"."deltas" USING btree ("parent") WHERE "revisions"."deltas"."parent" is not null;
 --> statement-breakpoint
 CREATE VIEW "civilio"."vw_submissions" AS
 (

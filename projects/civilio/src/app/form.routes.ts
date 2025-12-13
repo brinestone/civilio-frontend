@@ -35,6 +35,11 @@ const sectionRoutes: Routes = [
 
 export const formRoutes: Routes = [
 	{
+		path: ':formType/:submissionIndex/overview',
+		loadComponent: () => import('./pages/forms/overview/overview.page').then(m => m.OverviewPage),
+		title: 'Overview'
+	},
+	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
 		data: { form: "fosa", model: FosaFormDefinition },

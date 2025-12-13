@@ -30,7 +30,7 @@ registerLocaleData(localeEn);
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })
-export class App implements OnInit {
+export class App {
 	protected readonly platformId = inject(PLATFORM_ID);
 	protected readonly document = inject(DOCUMENT);
 	protected readonly title = signal('civilio');
@@ -42,7 +42,6 @@ export class App implements OnInit {
 	constructor() {
 		if (isPlatformBrowser(this.platformId)) {
 			effect(() => {
-				// debugger;
 				const fs = this.fontSize();
 				if (fs === undefined) return;
 				this.document.documentElement.style.fontSize = `${ fs }px`;
@@ -50,9 +49,9 @@ export class App implements OnInit {
 		}
 	}
 
-	ngOnInit(): void {
-		if (isDesktop()) {
-			this.loadConfig();
-		}
-	}
+	// ngOnInit(): void {
+	// 	if (isDesktop()) {
+	// 		this.loadConfig();
+	// 	}
+	// }
 }

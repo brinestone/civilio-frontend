@@ -1,3 +1,4 @@
+import { hashThese } from '@civilio/helpers/hashing';
 import {
 	chefferieIndexSeqInCivilio,
 	chefferiePersonnelIndexSeqInCivilio,
@@ -13,11 +14,12 @@ import {
 	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
-	vwDbColumns,
+	vwDbColumns, vwFacilities,
 	vwFormSubmissions,
 } from "@civilio/schema";
 import {
 	createPaginatedResultSchema,
+	DeleteSubmissionRequest,
 	FieldMappingSchema,
 	FieldUpdateSpec,
 	FindIndexSuggestionsRequest,
@@ -32,20 +34,21 @@ import {
 	FormSubmissionSchema,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
-	GetAutoCompletionSuggestionsResponseSchema,
+	GetAutoCompletionSuggestionsResponseSchema, GetFacilityInfoRequest,
+	GetFacilityInfoResponseSchema,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponseSchema,
 	Option,
 	OptionSchema,
 	RemoveFieldMappingRequest,
+	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
-	VersionRevertRequest,
+	VersionRevertRequest
 } from "@civilio/shared";
 import { and, countDistinct, eq, inArray, like, or, sql } from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
-import { provideDatabase } from "../helpers/db";
-import { hashThese } from '@civilio/helpers/hashing';
 import { entries, groupBy, keys } from 'lodash';
+import { provideDatabase } from "../helpers/db";
 
 const sequences: Record<
 	string,
@@ -91,6 +94,62 @@ const sequences: Record<
 		]
 	}
 };
+
+export async function deleteSubmission({
+																				 form,
+																				 index
+																			 }: DeleteSubmissionRequest) {
+	const db = provideDatabase({});
+	await db.transaction(async tx => {
+		//language=PostgreSQL
+		const result = await tx.execute(sql`
+			SELECT revisions.get_record_current_version(${ form },
+																									${ index }::INTEGER) AS version
+		`);
+		const [{ version: currentVersion }] = result.rows;
+		const newVersion = hashThese([Date.now()].join('|'));
+		console.log('new version = ', newVersion);
+		console.log('parent version = ', currentVersion);
+		const _configs = {
+			'session.working_version': newVersion,
+			'session.actor': 'civilio', // TODO: use the id from identity provider
+			'session.notes': 'Deleted',
+			'session.parent_version': currentVersion,
+		};
+		for (const [k, v] of entries(_configs)) {
+			await tx.execute(sql`SELECT set_config(${ k }, ${ v }, true)`);
+		}
+
+		await tx.execute(sql`
+			DELETE
+			FROM ${ sql.identifier(form) }."data"
+			WHERE _index = ${ index }::INTEGER
+		`);
+	})
+}
+
+export async function toggleApprovalStatus({
+																						 form, index, value
+																					 }: ToggleApprovalStatusRequest) {
+	const db = provideDatabase({});
+	await db.transaction(tx => tx.execute(sql`
+		UPDATE ${ sql.identifier(form) }."data"
+		SET _validation_status = ${ value ? 'validation_status_approved' : 'validation_status_not_approved' }
+		WHERE _index = ${ index }::INTEGER
+	`));
+}
+
+export async function getSubmissionInfo({
+																					form,
+																					index
+																				}: GetFacilityInfoRequest) {
+	const db = provideDatabase({ vwFacilities });
+	const [result] = await db.select().from(vwFacilities).where(and(
+		eq(vwFacilities.index, index as number),
+		eq(vwFacilities.type, form)
+	)).limit(1);
+	return GetFacilityInfoResponseSchema.parse(result ?? null);
+}
 
 export async function revertSubmissionVersion({
 																								customVersion,
@@ -450,6 +509,7 @@ export async function findFormData({
 	`);
 	const tableNames = queryResult.rows.map(row => row.t as string);
 	for (const tableName of tableNames) {
+		// language=PostgreSQL
 		queryResult = await db.execute(sql`
 		SELECT
 		revisions.get_version_data(${ form }::civilio.form_types, ${ index }, ${ tableName }, ${ version || null }) AS "data";
@@ -458,6 +518,7 @@ export async function findFormData({
 		if (!row) continue;
 		result = { ...result, ...row };
 	}
+	console.log(result);
 	return FindSubmissionDataResponseSchema.parse(result);
 }
 

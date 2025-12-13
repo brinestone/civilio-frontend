@@ -79,7 +79,6 @@ export class GeoPointComponent {
 	}
 
 	constructor() {
-
 		effect(() => {
 			this.value();
 			const coords = untracked(this.resolvedCoords);
@@ -144,7 +143,6 @@ export class GeoPointComponent {
 
 	private initMarker() {
 		if (!this.map) return;
-
 
 		this.marker = marker(untracked(this.resolvedCoords), {
 			icon: icon({

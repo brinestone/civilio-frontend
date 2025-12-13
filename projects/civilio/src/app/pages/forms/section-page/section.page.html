@@ -25,6 +25,7 @@
 					>
 						@if (field.type == 'table') {
 							<cv-tabular-field
+								class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 								(changed)="onFieldValueChanged(key, $event)"
 								(deltaChange)="onDeltaChange($event)"
 								[enableMutation]="true"

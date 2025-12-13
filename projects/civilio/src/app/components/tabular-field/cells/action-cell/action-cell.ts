@@ -4,6 +4,7 @@ import { NgIcon } from '@ng-icons/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CellContext, injectFlexRenderContext, RowData } from '@tanstack/angular-table';
 import { RowContext } from '@angular/cdk/table';
+import { HlmTd } from "@spartan-ng/helm/table";
 
 export type ActionTriggeredEvent<T> = {
 	row: T,
@@ -20,32 +21,39 @@ export type RowAction<T> = {
 
 @Component({
 	selector: 'cv-actions-cell',
-	imports: [HlmButton, NgIcon, TranslatePipe],
+	imports: [HlmButton, NgIcon, TranslatePipe, HlmTd],
 	template: `
-		@if ((actions() ?? []).length > 0) {
+		<td hlmTd>
+			@if ((actions() ?? []).length > 0) {
 			@for (action of actions(); track action.identifier) {
-				<button (click)="onActionButtonClicked(action.identifier)" hlmBtn variant="ghost"
+				<button [title]="minimal() ? (_static() ? action.label : (action.label| translate)) : ''"
+								(click)="onActionButtonClicked(action.identifier)"
+								hlmBtn
+								variant="ghost"
 								[size]="!action.label && action.icon ? 'icon' : 'default'">
 					@if (action.icon) {
 						<ng-icon [name]="action.icon"/>
 					}
-					@if (action.label) {
+					@if (action.label && !minimal()) {
 						<span>{{ _static() ? action.label : (action.label | translate) }} </span>
 					}
 				</button>
 			}
 		}
+</td>
 	`,
 	styles: `
+		@reference "tailwindcss";
 		:host {
-			@apply inline-flex justify-start items-center;
+			@apply inline-flex justify-start items-center flex-wrap;
 		}
 	`
 })
 export class ActionCell<T extends RowData> {
+	readonly minimal = input<boolean>();
+	readonly shouldTranslateText = input<boolean>();
 	readonly actions = input<RowAction<T>[]>();
 	readonly actionTriggered = output<ActionTriggeredEvent<T>>();
-	readonly shouldTranslateText = input<boolean>();
 
 	protected readonly _static = computed(() => !this.shouldTranslateText());
 	protected readonly context = injectFlexRenderContext<CellContext<T, unknown>>();

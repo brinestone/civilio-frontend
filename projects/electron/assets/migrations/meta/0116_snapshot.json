@@ -1,0 +1,765 @@
+{
+	"id": "c29b6834-9dd1-4ccb-94f1-238d0512b433",
+	"prevId": "a9d9d353-9289-4b4e-9c8e-105b66a79be2",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"revisions.ledger": {
+			"name": "ledger",
+			"schema": "revisions",
+			"columns": {
+				"hash": {
+					"name": "hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"timestamp": {
+					"name": "timestamp",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"submission_index": {
+					"name": "submission_index",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"notes": {
+					"name": "notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {
+				"ledger_hash_form_submission_index_index": {
+					"name": "ledger_hash_form_submission_index_index",
+					"columns": [
+						{
+							"expression": "hash",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "form",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "submission_index",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": true,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"civilio.choices": {
+			"name": "choices",
+			"schema": "civilio",
+			"columns": {
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"label": {
+					"name": "label",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"parent": {
+					"name": "parent",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"group": {
+					"name": "group",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"i18n_key": {
+					"name": "i18n_key",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"version": {
+					"name": "version",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"choices_pkey": {
+					"name": "choices_pkey",
+					"columns": [
+						"name",
+						"group",
+						"version"
+					]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"revisions.deltas": {
+			"name": "deltas",
+			"schema": "revisions",
+			"columns": {
+				"hash": {
+					"name": "hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"submission_index": {
+					"name": "submission_index",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"index": {
+					"name": "index",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"table_name": {
+					"name": "table_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"changed_at": {
+					"name": "changed_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"delta_data": {
+					"name": "delta_data",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"changed_by": {
+					"name": "changed_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"op": {
+					"name": "op",
+					"type": "change_op",
+					"typeSchema": "revisions",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"parent": {
+					"name": "parent",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"sync_status": {
+					"name": "sync_status",
+					"type": "sync_status",
+					"typeSchema": "revisions",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'pending'"
+				}
+			},
+			"indexes": {
+				"deltas_hash_index": {
+					"name": "deltas_hash_index",
+					"columns": [
+						{
+							"expression": "hash",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_submission_index_index": {
+					"name": "deltas_submission_index_index",
+					"columns": [
+						{
+							"expression": "submission_index",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_index_index": {
+					"name": "deltas_index_index",
+					"columns": [
+						{
+							"expression": "index",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_form_index": {
+					"name": "deltas_form_index",
+					"columns": [
+						{
+							"expression": "form",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_changed_at_index": {
+					"name": "deltas_changed_at_index",
+					"columns": [
+						{
+							"expression": "changed_at",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_parent_index": {
+					"name": "deltas_parent_index",
+					"columns": [
+						{
+							"expression": "parent",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"where": "\"revisions\".\"deltas\".\"parent\" is not null",
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_parent_hash_index": {
+					"name": "deltas_parent_hash_index",
+					"columns": [
+						{
+							"expression": "parent",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "hash",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				},
+				"deltas_submission_index_form_changed_at_index": {
+					"name": "deltas_submission_index_form_changed_at_index",
+					"columns": [
+						{
+							"expression": "submission_index",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "form",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						},
+						{
+							"expression": "changed_at",
+							"isExpression": false,
+							"asc": true,
+							"nulls": "last"
+						}
+					],
+					"isUnique": false,
+					"concurrently": false,
+					"method": "btree",
+					"with": {}
+				}
+			},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"deltas_hash_submission_index_index_form_table_name_pk": {
+					"name": "deltas_hash_submission_index_index_form_table_name_pk",
+					"columns": [
+						"hash",
+						"submission_index",
+						"index",
+						"form",
+						"table_name"
+					]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"civilio.form_field_mappings": {
+			"name": "form_field_mappings",
+			"schema": "civilio",
+			"columns": {
+				"field": {
+					"name": "field",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"i18n_key": {
+					"name": "i18n_key",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"db_column": {
+					"name": "db_column",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"db_table": {
+					"name": "db_table",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"db_column_type": {
+					"name": "db_column_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"alias_hash": {
+					"name": "alias_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false,
+					"generated": {
+						"as": "md5\n\t\t\t\t(\"civilio\".\"form_field_mappings\".\"field\")",
+						"type": "stored"
+					}
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {
+				"field_db_column_db_table_form_pk": {
+					"name": "field_db_column_db_table_form_pk",
+					"columns": [
+						"field",
+						"form"
+					]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {
+		"revisions.change_op": {
+			"name": "change_op",
+			"schema": "revisions",
+			"values": [
+				"INSERT",
+				"DELETE",
+				"UPDATE",
+				"REVERT"
+			]
+		},
+		"civilio.form_types": {
+			"name": "form_types",
+			"schema": "civilio",
+			"values": [
+				"fosa",
+				"chefferie",
+				"csc"
+			]
+		},
+		"revisions.sync_status": {
+			"name": "sync_status",
+			"schema": "revisions",
+			"values": [
+				"pending",
+				"synced",
+				"failed"
+			]
+		}
+	},
+	"schemas": {
+		"civilio": "civilio",
+		"revisions": "revisions"
+	},
+	"sequences": {
+		"civilio.chefferie_index_seq": {
+			"name": "chefferie_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "324",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.chefferie_personnel_index_seq": {
+			"name": "chefferie_personnel_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "186",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_id_seq": {
+			"name": "csc_id_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "475016321",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_index_seq": {
+			"name": "csc_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "445",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_personnel_index_seq": {
+			"name": "csc_personnel_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "774",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_pieces_index_seq": {
+			"name": "csc_pieces_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "543",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_statistics_index_seq": {
+			"name": "csc_statistics_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "1463",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.csc_villages_seq": {
+			"name": "csc_villages_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "2344",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.fosa_id_seq": {
+			"name": "fosa_id_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "484119070",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.fosa_index_seq": {
+			"name": "fosa_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "971",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		},
+		"civilio.fosa_personnel_index_seq": {
+			"name": "fosa_personnel_index_seq",
+			"schema": "civilio",
+			"increment": "1",
+			"startWith": "1261",
+			"minValue": "1",
+			"maxValue": "9223372036854775807",
+			"cache": "1",
+			"cycle": false
+		}
+	},
+	"roles": {},
+	"policies": {},
+	"views": {
+		"civilio.vw_db_columns": {
+			"columns": {
+				"column_name": {
+					"name": "column_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"data_type": {
+					"name": "data_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"table_name": {
+					"name": "table_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"definition": "SELECT c.column_name,\n\t\t\t\t\t\t\t c.data_type,\n\t\t\t\t\t\t\t c.table_name,\n\t\t\t\t\t\t\t CAST(c.table_schema as \"civilio\".\"form_types\") as form\n\t\t\t\tFROM information_schema.columns c\n\t\t\t\tWHERE c.table_schema in ('fosa', 'chefferie', 'csc')",
+			"name": "vw_db_columns",
+			"schema": "civilio",
+			"isExisting": false,
+			"materialized": false
+		},
+		"civilio.vw_facility_info": {
+			"columns": {
+				"facility_name": {
+					"name": "facility_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"index": {
+					"name": "index",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"location": {
+					"name": "location",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"gps_coordinates": {
+					"name": "gps_coordinates",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"extra_info": {
+					"name": "extra_info",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"definition": "\n\tSELECT UPPER(info.facility_name) AS facility_name,\n\t\t\t\t info.index,\n\t\t\t\t info.form,\n\t\t\t\t UPPER(info.location)      AS location,\n\t\t\t\t info.gps_coordinates,\n\t\t\t\t validated,\n\t\t\t\t extra_info\n\tFROM (SELECT c._index                                    as index,\n\t\t\t\t\t\t\t 'csc'::civilio.form_types                   as form,\n\t\t\t\t\t\t\t c.q2_4_officename                           as facility_name,\n\t\t\t\t\t\t\t CONCAT_WS(' - ', mu_ch.label, mu_div.label) as location,\n\t\t\t\t\t\t\t c.q2_12_gps_coordinates                     as gps_coordinates,\n\t\t\t\t\t\t\t COALESCE(c._validation_status = 'validation_status_approved',\n\t\t\t\t\t\t\t\t\t\t\t\tfalse)                             as validated,\n\t\t\t\t\t\t\t jsonb_build_object(\n\t\t\t\t\t\t\t\t 'milieu', mil.label,\n\t\t\t\t\t\t\t\t 'is_functional', COALESCE(c.q2_10_fonctionnel = '1', false),\n\t\t\t\t\t\t\t\t 'degree', deg_o.label,\n\t\t\t\t\t\t\t\t 'is_chiefdom', COALESCE(c.q2_1a_chefferie = '1', false),\n\t\t\t\t\t\t\t\t 'size', COALESCE(c_size.label, c.q2_06_taille_commune),\n\t\t\t\t\t\t\t\t 'village_count', COALESCE(v_counts.village_count, 0),\n\t\t\t\t\t\t\t\t 'employee_count', COALESCE(em_counts.employee_count, 0),\n\t\t\t\t\t\t\t\t 'equipment',\n\t\t\t\t\t\t\t\t (\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_01_computers::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_02_serveurs::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_03_printers::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_4_scanners::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_5_onduleur::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_6_climatiseur::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_7_ventilateur::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_9_tablea_bureau::DOUBLE PRECISION::INTEGER,\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_10_chaise::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q6_12_car::DOUBLE PRECISION::INTEGER, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_13_moto::DOUBLE PRECISION::INTEGER, 0)\n\t\t\t\t\t\t\t\t\t ),\n\t\t\t\t\t\t\t\t 'has_internet', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q4_12_batiment_connecte::DOUBLE PRECISION::INTEGER = 1,\n\t\t\t\t\t\t\t\t\t false),\n\t\t\t\t\t\t\t\t 'has_power', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q4_02_reseau_electrique::DOUBLE PRECISION::INTEGER = 1 OR\n\t\t\t\t\t\t\t\t\t c.q4_5_autre_source::DOUBLE PRECISION::INTEGER = 1, false),\n\t\t\t\t\t\t\t\t 'has_water',\n\t\t\t\t\t\t\t\t COALESCE(c.q4_7alimentation_eau::TEXT NOT IN ('1'), false)\n\t\t\t\t\t\t\t )                                           as extra_info\n\t\t\t\tFROM csc.data c\n\t\t\t\t\t\t\t LEFT JOIN (SELECT _parent_index, COUNT(*) AS employee_count\n\t\t\t\t\t\t\t\t\t\t\t\t\tFROM csc.data_personnel\n\t\t\t\t\t\t\t\t\t\t\t\t\tGROUP BY _parent_index) em_counts\n\t\t\t\t\t\t\t\t\t\t\t\t ON em_counts._parent_index = c._index\n\t\t\t\t\t\t\t LEFT JOIN (SELECT _parent_index, COUNT(*) AS village_count\n\t\t\t\t\t\t\t\t\t\t\t\t\tFROM csc.data_villages\n\t\t\t\t\t\t\t\t\t\t\t\t\tGROUP BY _parent_index) v_counts\n\t\t\t\t\t\t\t\t\t\t\t\t ON v_counts._parent_index = c._index\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices c_size\n\t\t\t\t\t\t\t\t\t\t\t\t ON c_size.\"group\" = 'pq1hw83' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_size.version = 'csc' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_size.name = c.q2_06_taille_commune\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mil\n\t\t\t\t\t\t\t\t\t\t\t\t ON mil.\"group\" = 'vb2qk85' AND mil.version = 'csc' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmil.name = c.milieu::TEXT\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices deg_o\n\t\t\t\t\t\t\t\t\t\t\t\t ON deg_o.\"group\" = 'sl95o71' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdeg_o.version = 'csc' AND deg_o.name = c.degr::TEXT\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_div\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_div.\"group\" = 'division' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.name = c.q2_01_division::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.version = 'csc'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_ch\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_ch.\"group\" = 'commune' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.name = c.q2_02_municipality::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.version = 'csc' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.parent = c.q2_01_division::TEXT\n\t\t\t\tUNION\n\t\t\t\tSELECT c._index,\n\t\t\t\t\t\t\t 'fosa'::civilio.form_types                  as form,\n\t\t\t\t\t\t\t c.q1_12_officename                          as facility_name,\n\t\t\t\t\t\t\t CONCAT_WS(' - ', mu_ch.label, mu_div.label) as location,\n\t\t\t\t\t\t\t c.q1_13_gps_coordinates                     as gps_coordinates,\n\t\t\t\t\t\t\t COALESCE(c._validation_status = 'validation_status_approved',\n\t\t\t\t\t\t\t\t\t\t\t\tfalse)                             as validated,\n\t\t\t\t\t\t\t jsonb_build_object(\n\t\t\t\t\t\t\t\t 'milieu', ml.label,\n\t\t\t\t\t\t\t\t 'health_area', mha.label,\n\t\t\t\t\t\t\t\t 'health_district', mda.label,\n\t\t\t\t\t\t\t\t 'category',\n\t\t\t\t\t\t\t\t COALESCE(NULLIF(TRIM(BOTH ' ' FROM c.autre_cat_gorie), ''),\n\t\t\t\t\t\t\t\t\t\t\t\t\tc_cat.label),\n\t\t\t\t\t\t\t\t 'status', c_status.label,\n\t\t\t\t\t\t\t\t 'employee_count', COALESCE(em_counts.employee_count, 1),\n\t\t\t\t\t\t\t\t 'has_internet', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q7_08_broadband_conn_available::DOUBLE PRECISION::INTEGER =\n\t\t\t\t\t\t\t\t\t 1, false),\n\t\t\t\t\t\t\t\t 'has_power', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q7_01_facility_conn_power_grid::DOUBLE PRECISION::INTEGER =\n\t\t\t\t\t\t\t\t\t 1,\n\t\t\t\t\t\t\t\t\t c.q7_04_any_source_of_backup::DOUBLE PRECISION::INTEGER = 1,\n\t\t\t\t\t\t\t\t\t false),\n\t\t\t\t\t\t\t\t 'has_water', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q6_09aalimentation_eau::DOUBLE PRECISION::INTEGER = 1,\n\t\t\t\t\t\t\t\t\t false),\n\t\t\t\t\t\t\t\t 'equipment', (\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_02_computers, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_03_printers, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_04_tablets, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_10_car, 0) +\n\t\t\t\t\t\t\t\t\t COALESCE(c.q9_11_mopeds, 0)\n\t\t\t\t\t\t\t\t\t ),\n\t\t\t\t\t\t\t\t 'stats_l_5', jsonb_build_object('births',\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_colonne, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_1_colonne, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_2_colonne, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_3_colonne, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_4_colonne, 0),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t 'deaths',\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_colonne_1, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_1_colonne_1, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_2_colonne_1, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_3_colonne_1, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(group_ce1sz98_ligne_4_colonne_1, 0)\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t)\n\t\t\t\t\t\t\t )                                           AS extra_info\n\t\t\t\tFROM fosa.data c\n\t\t\t\t\t\t\t LEFT JOIN (SELECT _parent_index, COUNT(*) AS employee_count\n\t\t\t\t\t\t\t\t\t\t\t\t\tFROM fosa.data_personnel\n\t\t\t\t\t\t\t\t\t\t\t\t\tGROUP BY _parent_index) em_counts\n\t\t\t\t\t\t\t\t\t\t\t\t ON em_counts._parent_index = c._index\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices c_status\n\t\t\t\t\t\t\t\t\t\t\t\t ON c_status.\"group\" = 'qy7we33' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_status.name = c.statut_de_la_fosa::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_status.version = 'fosa'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices c_cat\n\t\t\t\t\t\t\t\t\t\t\t\t ON c_cat.\"group\" = 'pa9ii12' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_cat.name = c.q1_07_type_healt_facility::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_cat.version = 'fosa'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mda\n\t\t\t\t\t\t\t\t\t\t\t\t ON mda.\"group\" = 'district' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmda.name = c.ds_rattachement::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmda.version = 'fosa'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mha ON mha.\"group\" = 'airesante' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tmha.name =\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tc.as_rattachement::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tmha.version = 'fosa' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tmha.parent = c.ds_rattachement::TEXT\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices ml\n\t\t\t\t\t\t\t\t\t\t\t\t ON ml.\"group\" = 'vb2qk85' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tml.name = c.milieu::TEXT AND ml.version = 'fosa'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_div\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_div.\"group\" = 'division' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.name = c.q1_02_division::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.version = 'fosa'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_ch\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_ch.\"group\" = 'commune' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.name = c.q1_03_municipality::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.version = 'fosa' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.parent = c.q1_02_division::TEXT\n\t\t\t\tUNION\n\t\t\t\tSELECT c._index,\n\t\t\t\t\t\t\t 'chefferie'::civilio.form_types             as form,\n\t\t\t\t\t\t\t c.q1_12_officename                          as facility_name,\n\t\t\t\t\t\t\t CONCAT_WS(' - ', mu_ch.label, mu_div.label) as location,\n\t\t\t\t\t\t\t c.q1_13_gps_coordinates                     as gps_coordinates,\n\t\t\t\t\t\t\t COALESCE(c._validation_status = 'validation_status_approved',\n\t\t\t\t\t\t\t\t\t\t\t\tfalse)                             as validated,\n\t\t\t\t\t\t\t jsonb_build_object(\n\t\t\t\t\t\t\t\t 'degree', c_deg.label,\n\t\t\t\t\t\t\t\t 'equipment', (COALESCE(c.q9_02_computers, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(c.q9_03_printers, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(c.q9_04_tablets, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(c.q9_10_car, 0) +\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t COALESCE(c.q9_11_mopeds, 0)),\n\t\t\t\t\t\t\t\t 'has_internet', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q4_02_broadband_conn_available::DOUBLE PRECISION::INTEGER =\n\t\t\t\t\t\t\t\t\t 1, false),\n\t\t\t\t\t\t\t\t 'has_water', COALESCE(\n\t\t\t\t\t\t\t\t\t c.q6_09aalimentation_eau::DOUBLE PRECISION::INTEGER = 1,\n\t\t\t\t\t\t\t\t\t false),\n\t\t\t\t\t\t\t\t 'has_power',\n\t\t\t\t\t\t\t\t COALESCE(c.q4_04_electricite::DOUBLE PRECISION::INTEGER = 1,\n\t\t\t\t\t\t\t\t\t\t\t\t\tfalse),\n\t\t\t\t\t\t\t\t 'employee_count', employee_count\n\t\t\t\t\t\t\t )                                           AS extra_info\n\t\t\t\tFROM chefferie.data c\n\t\t\t\t\t\t\t LEFT JOIN (SELECT _parent_index, COUNT(*) AS employee_count\n\t\t\t\t\t\t\t\t\t\t\t\t\tFROM chefferie.data_personnel\n\t\t\t\t\t\t\t\t\t\t\t\t\tGROUP BY _parent_index) em_counts\n\t\t\t\t\t\t\t\t\t\t\t\t ON em_counts._parent_index = c._index\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices c_deg\n\t\t\t\t\t\t\t\t\t\t\t\t ON c_deg.\"group\" = 'vb2qk85' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_deg.name = c.degre::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tc_deg.version = 'chefferie'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_div\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_div.\"group\" = 'division' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.name = c.q1_02_division::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_div.version = 'chefferie'\n\t\t\t\t\t\t\t LEFT JOIN civilio.choices mu_ch\n\t\t\t\t\t\t\t\t\t\t\t\t ON mu_ch.\"group\" = 'commune' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.name = c.q1_03_municipality::TEXT AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.version = 'chefferie' AND\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tmu_ch.parent = c.q1_02_division::TEXT) AS info\n",
+			"name": "vw_facility_info",
+			"schema": "civilio",
+			"isExisting": false,
+			"materialized": false
+		},
+		"civilio.vw_submissions": {
+			"columns": {
+				"_id": {
+					"name": "_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"_index": {
+					"name": "_index",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"_validation_status": {
+					"name": "_validation_status",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"validation_code": {
+					"name": "validation_code",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"facility_name": {
+					"name": "facility_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"_submission_time": {
+					"name": "_submission_time",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"form": {
+					"name": "form",
+					"type": "form_types",
+					"typeSchema": "civilio",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"next": {
+					"name": "next",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"prev": {
+					"name": "prev",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"is_valid": {
+					"name": "is_valid",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"current_version": {
+					"name": "current_version",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"last_modified_at": {
+					"name": "last_modified_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"last_modified_by": {
+					"name": "last_modified_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"definition": "\n\t\t\tSELECT _id,\n\t\t\t\t\t\t _index,\n\t\t\t\t\t\t _validation_status,\n\t\t\t\t\t\t validation_code,\n\t\t\t\t\t\t facility_name,\n\t\t\t\t\t\t _submission_time,\n\t\t\t\t\t\t form,\n\t\t\t\t\t\t next,\n\t\t\t\t\t\t prev,\n\t\t\t\t\t\t lower(COALESCE(_validation_status, ''::text)) =\n\t\t\t\t\t\t 'validation_status_approved'::text AS is_valid,\n\t\t\t\t\t\t current_version,\n\t\t\t\t\t\t last_modified_at,\n\t\t\t\t\t\t last_modified_by\n\t\t\tFROM ((SELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t\tdf._index,\n\t\t\t\t\t\t\t\t\t\tdf._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t\tdf.code_de_validation::text                             AS validation_code,\n\t\t\t\t\t\t\t\t\t\tdf.q2_4_officename::text                                AS facility_name,\n\t\t\t\t\t\t\t\t\t\tdf._submission_time::date                               AS _submission_time,\n\t\t\t\t\t\t\t\t\t\t(SELECT 'csc'::civilio.form_types AS form_types)        AS form,\n\t\t\t\t\t\t\t\t\t\tlead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t\tlag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\t FROM csc.data df\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\t AND rd.form = 'csc'::civilio.form_types\n\t\t\t\t\t\t\t AND rd.submission_index = df._index\n\t\t\t\t\t\t GROUP BY df._id, df._index, rd.hash, rd.changed_by,\n\t\t\t\t\t\t\t\t\t\t\tdf._validation_status, df.q2_4_officename,\n\t\t\t\t\t\t\t\t\t\t\tdf.code_de_validation, df._submission_time, df._version_,\n\t\t\t\t\t\t\t\t\t\t\tdf._submitted_by)\n\t\t\t\t\t\tUNION\n\t\t\t\t\t\t(SELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t\tdf._index,\n\t\t\t\t\t\t\t\t\t\tdf._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t\tdf.q14_02_validation_code::text                         AS validation_code,\n\t\t\t\t\t\t\t\t\t\tdf.q1_12_officename::text                               AS facility_name,\n\t\t\t\t\t\t\t\t\t\tdf._submission_time,\n\t\t\t\t\t\t\t\t\t\t(SELECT 'fosa'::civilio.form_types AS form_types)       AS form,\n\t\t\t\t\t\t\t\t\t\tlead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t\tlag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t df._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t\tCOALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\t FROM fosa.data df\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\t AND rd.form = 'fosa'::civilio.form_types\n\t\t\t\t\t\t\t AND rd.submission_index = df._index\n\t\t\t\t\t\t GROUP BY df._id, df._index, rd.hash, rd.changed_by,\n\t\t\t\t\t\t\t\t\t\t\tdf.q1_12_officename, df._validation_status,\n\t\t\t\t\t\t\t\t\t\t\tdf.q14_02_validation_code, df._submission_time,\n\t\t\t\t\t\t\t\t\t\t\tdf._version_, df._submitted_by)\n\t\t\t\t\t\tUNION\n\t\t\t\t\t\tSELECT df._id::double precision::integer                       AS _id,\n\t\t\t\t\t\t\t\t\t df._index,\n\t\t\t\t\t\t\t\t\t df._validation_status::text                             AS _validation_status,\n\t\t\t\t\t\t\t\t\t df.q14_02_validation_code::text                         AS validation_code,\n\t\t\t\t\t\t\t\t\t df.q1_12_officename::text                               AS facility_name,\n\t\t\t\t\t\t\t\t\t df._submission_time,\n\t\t\t\t\t\t\t\t\t (SELECT 'chefferie'::civilio.form_types AS form_types)  AS form,\n\t\t\t\t\t\t\t\t\t lead(df._index) OVER (ORDER BY df._index)               AS next,\n\t\t\t\t\t\t\t\t\t lag(df._index) OVER (ORDER BY df._index)                AS prev,\n\t\t\t\t\t\t\t\t\t COALESCE(rd.hash, df._version_)                         AS current_version,\n\t\t\t\t\t\t\t\t\t COALESCE(MAX(rd.changed_at),\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdf._submission_time::TIMESTAMP WITH TIME ZONE) AS last_modified_at,\n\t\t\t\t\t\t\t\t\t COALESCE(rd.changed_by, df._submitted_by)               AS last_modified_by\n\t\t\t\t\t\tFROM chefferie.data df\n\t\t\t\t\t\t\t\t\t LEFT JOIN revisions.deltas rd ON rd.hash = df._version_\n\t\t\t\t\t\t\tAND rd.form = 'chefferie'::civilio.form_types\n\t\t\t\t\t\t\tAND rd.submission_index = df._index\n\t\t\t\t\t\tGROUP BY df._id, df._index, rd.hash, rd.changed_by,\n\t\t\t\t\t\t\t\t\t\t df._validation_status, df.q1_12_officename,\n\t\t\t\t\t\t\t\t\t\t df.q14_02_validation_code, df._submission_time,\n\t\t\t\t\t\t\t\t\t\t df._version_, df._submitted_by) result\n\t\t\tORDER BY last_modified_at DESC\n\t\t",
+			"name": "vw_submissions",
+			"schema": "civilio",
+			"isExisting": false,
+			"materialized": false
+		}
+	},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

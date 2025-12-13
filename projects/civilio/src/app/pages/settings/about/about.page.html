@@ -1,11 +1,30 @@
 <div class="flex items-center flex-col gap-1">
-	<img [src]="wideLogoUrl.value()" alt="wide logo url" draggable="false" style="-webkit-user-drag: none;" width="240"/>
-	<p class="text-muted-foreground text-xs">(v{{ buildInfo.value()?.version }})</p>
-	<p class="text-muted-foreground text-center">{{ buildInfo.value()?.description }}</p>
-	<p class="text-muted-foreground text-xs">{{ 'misc.powered_by' | translate }}</p>
-	<img [src]="sponsorUrl.value()" alt="sponsor logo url" draggable="false" style="-webkit-user-drag: none;"
-			 width="140"/>
-	<p class="text-muted-foreground text-xs">&copy; CIVIPOL - {{ buildInfo.value()?.date | date:'yyyy' }}</p>
+	<img
+		[src]="wideLogoUrl.value()"
+		alt="wide logo url"
+		draggable="false"
+		style="-webkit-user-drag: none"
+		width="240"
+	/>
+	<p class="text-muted-foreground text-xs">
+		(v{{ buildInfo.value()?.version }})
+	</p>
+	<p class="text-muted-foreground text-center">
+		{{ buildInfo.value()?.description }}
+	</p>
+	<p class="text-muted-foreground text-xs">
+		{{ 'misc.powered_by' | translate }}
+	</p>
+	<img
+		[src]="sponsorUrl.value()"
+		alt="sponsor logo url"
+		draggable="false"
+		style="-webkit-user-drag: none"
+		width="140"
+	/>
+	<p class="text-muted-foreground text-xs">
+		&copy; CIVIPOL - {{ buildInfo.value()?.date | date:'yyyy' }}
+	</p>
 </div>
 <hlm-separator/>
 
@@ -21,8 +40,13 @@
 				</a>
 			}
 			@if (author.url) {
-				<a hlmBtn href="{{author.url}}" size="icon-sm" target="_blank"
-					 variant="ghost">
+				<a
+					hlmBtn
+					href="{{author.url}}"
+					size="icon-sm"
+					target="_blank"
+					variant="ghost"
+				>
 					<ng-icon name="lucideGlobe2"/>
 				</a>
 			}
@@ -33,16 +57,31 @@
 	<h4 class="text-center" hlmH4>{{ 'misc.contributors' | translate }}</h4>
 	<div class="space-y-1">
 		@for (contributor of (buildInfo.value()?.contributors ?? []); track $index) {
-			<p class="text-sm text-center">{{ contributor.name }}</p>
+			<p class="text-sm text-center font-medium">{{ contributor.name }}</p>
+			@if (contributor.role) {
+				<span class="block text-muted-foreground text-sm text-center"
+				>{{ contributor.role }}</span
+				>
+			}
 			<div class="flex justify-center items-center gap-1">
 				@if (contributor.email) {
-					<a hlmBtn href="mailto:{{contributor.email}}" size="icon-sm" variant="ghost">
+					<a
+						hlmBtn
+						href="mailto:{{contributor.email}}"
+						size="icon-sm"
+						variant="ghost"
+					>
 						<ng-icon name="lucideMail"/>
 					</a>
 				}
 				@if (contributor.url) {
-					<a hlmBtn href="{{contributor.url}}" size="icon-sm" target="_blank"
-						 variant="ghost">
+					<a
+						hlmBtn
+						href="{{contributor.url}}"
+						size="icon-sm"
+						target="_blank"
+						variant="ghost"
+					>
 						<ng-icon name="lucideGlobe2"/>
 					</a>
 				}

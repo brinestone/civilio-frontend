@@ -68,6 +68,7 @@ import {
 	lucidePanelBottomClose,
 	lucidePanelBottomOpen,
 	lucideSave,
+	lucideChevronLeft,
 	lucideTrash2,
 	lucideX
 } from "@ng-icons/lucide";
@@ -97,7 +98,7 @@ import {
 	skipWhile
 } from "rxjs";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { AgoDatePipePipe, MaskPipe } from '@app/pipes';
+import { AgoDatePipe, MaskPipe } from '@app/pipes';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
@@ -125,6 +126,7 @@ const miscConfigKeys = {
 			lucideSave,
 			lucideTrash2,
 			lucideHistory,
+			lucideChevronLeft,
 			lucideX
 		}),
 	],
@@ -145,7 +147,7 @@ const miscConfigKeys = {
 		MaskPipe,
 		FormsModule,
 		HlmSeparatorImports,
-		AgoDatePipePipe,
+		AgoDatePipe,
 		SlicePipe,
 		HlmSkeletonImports,
 		HlmButton,
@@ -184,7 +186,7 @@ export class FormPage
 	});
 	private readonly formService = inject(FORM_SERVICE);
 	private readonly routeData = injectRouteData();
-	private readonly route = inject(ActivatedRoute);
+	protected readonly route = inject(ActivatedRoute);
 	private readonly doRevert = dispatch(RevertToVersion);
 	private readonly initVersioning = dispatch(InitVersioning);
 	private readonly indexChanged = dispatch(SubmissionIndexChanged);
@@ -262,9 +264,6 @@ export class FormPage
 
 	constructor(actions$: Actions) {
 		effect(() => {
-			console.log(this.neighboringRefs.error()?.cause)
-		})
-		effect(() => {
 			if (this.isNewSubmission()) return;
 			const status = this.versions.status()
 			if (intersection([status], ['resolved']).length == 0 || this.versions.value().length > 0) return;
@@ -272,6 +271,10 @@ export class FormPage
 				complete: () => {
 					this.versions.reload();
 					this.selectedVersion.reload();
+					this.formService.findCurrentSubmissionVersion({
+						form: untracked(this.formType),
+						index: untracked(this.submissionIndex)
+					}).then(r => this.loadData(untracked(this.formType), untracked(this.submissionIndex)!, r!.version))
 				}
 			});
 		});

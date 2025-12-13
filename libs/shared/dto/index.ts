@@ -11,12 +11,27 @@ import {
 	LocaleSchema,
 	MigrationsCheckReportSchema,
 	OptionSchema,
-	SubmissionChangeDeltaSchema,
+	SubmissionChangeDeltaSchema, SubmissionInfoSchema,
 	SubmissionVersionInfoSchema,
 	ThemeSchema,
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const ToggleApprovalStatusRequestSchema = z.object({
+	index: z.coerce.number(),
+	form: FormTypeSchema,
+	value: z.boolean()
+});
+export const DeleteSubmissionRequestSchema = z.object({
+	index: z.coerce.number(),
+	form: FormTypeSchema,
+});
+
+export const GetFacilityInfoResponseSchema = SubmissionInfoSchema.nullable();
+export const GetFacilityInfoRequestSchema = z.object({
+	form: FormTypeSchema,
+	index: z.coerce.number()
+})
 export const GetThirdPartyLicensesResponseSchema = ThirdPartyLicenceSchema.array();
 export const UseConnectionRequestSchema = z.coerce.number();
 export const DeleteDbConnectionRequestSchema = z.coerce.number();
@@ -103,10 +118,7 @@ export const FindSubmissionDataRequestSchema = z.object({
 	index: z.number(),
 	version: z.string().optional()
 });
-export const FindSubmissionDataResponseSchema = z.record(z.string(), z.union([
-	z.string().nullable(),
-	z.coerce.string().nullable().array()
-])).nullable();
+export const FindSubmissionDataResponseSchema = z.record(z.string(), z.any()).nullable();
 export const FindSubmissionRefRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.coerce.number()
@@ -219,3 +231,7 @@ export type FindConnectionHistoryResponse = z.output<typeof FindConnectionHistor
 export type DeleteDbConnectionRequest = z.input<typeof DeleteDbConnectionRequestSchema>;
 export type UseConnectionRequest = z.input<typeof UseConnectionRequestSchema>;
 export type GetThirdPartyLicensesResponse = z.output<typeof GetThirdPartyLicensesResponseSchema>;
+export type GetFacilityInfoRequest = z.input<typeof GetFacilityInfoRequestSchema>;
+export type GetFacilityInfoResponse = z.output<typeof GetFacilityInfoResponseSchema>;
+export type ToggleApprovalStatusRequest = z.input<typeof ToggleApprovalStatusRequestSchema>;
+export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSchema>;

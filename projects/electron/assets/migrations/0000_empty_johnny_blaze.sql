@@ -27,17 +27,6 @@ CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_id_seq" INCREMENT BY 1 MINVALUE 1 
 CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 971 CACHE 1;--> statement-breakpoint
 CREATE SEQUENCE IF NOT EXISTS "civilio"."fosa_personnel_index_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 9223372036854775807 START WITH 1261 CACHE 1;
 --> statement-breakpoint
--- CREATE TABLE "civilio"."migrations" (
--- 	"_version" integer NOT NULL,
--- 	"applied_at" timestamp DEFAULT now()
--- );
--- --> statement-breakpoint
--- CREATE TABLE "civilio"."validation_codes" (
--- 	"form" "civilio"."form_types" NOT NULL,
--- 	"code" text NOT NULL,
--- 	CONSTRAINT "validation_codes_code_key" UNIQUE("code")
--- );
--- --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "civilio"."choices"
 (
 	"name"     text                   NOT NULL,

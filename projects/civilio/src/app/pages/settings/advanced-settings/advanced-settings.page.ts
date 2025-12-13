@@ -50,7 +50,7 @@ import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
 import { toast } from 'ngx-sonner';
 import { map, merge, startWith } from 'rxjs';
 import { HlmBadge } from '@spartan-ng/helm/badge';
-import { AgoDatePipePipe } from '@app/pipes';
+import { AgoDatePipe } from '@app/pipes';
 
 @Component({
 	selector: 'cv-advanced-settings',
@@ -77,7 +77,7 @@ import { AgoDatePipePipe } from '@app/pipes';
 		HlmItemImports,
 		HlmH4,
 		HlmH3,
-		AgoDatePipePipe,
+		AgoDatePipe,
 		HlmBadge
 	],
 	host: {

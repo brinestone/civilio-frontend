@@ -77,24 +77,27 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 			await db.transaction(async (tx) => {
 				let ranSuccessfully = true;
 				try {
-					try {
-						await tx.execute(sql.raw(migration.content));
-					} catch (e) {
-						if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
-							console.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
-						} else {
-							ranSuccessfully = false;
-							throw e; // This rolls back the entire transaction.
+					for (const statement of migration.content.split('--> statement-breakpoint').map(v => v.trim()).filter(v => v.length > 0)) {
+						try {
+							await tx.execute(sql.raw(statement));
+						} catch (e) {
+							if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
+								console.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
+							} else {
+								ranSuccessfully = false;
+								// noinspection ExceptionCaughtLocallyJS
+								throw e; // This rolls back the entire transaction.
+							}
 						}
 					}
 
 					// Record the migration
 					if (ranSuccessfully) {
 						await tx.execute(sql`
-							INSERT INTO ${ sql.raw(this.migrationsTable) } (hash, name, created_at)
+							INSERT INTO ${ sql.identifier(this.migrationsTable) } (hash, name, created_at)
 							VALUES (${ migration.hash }, ${ migration.name },
 											${ new Date().toISOString() })
-							ON CONFLICT (hash) DO NOTHING
+							ON CONFLICT (hash) DO UPDATE SET name = ${ migration.name }
 						`);
 						console.log(`✓ Applied migration: ${ migration.name }`);
 					}

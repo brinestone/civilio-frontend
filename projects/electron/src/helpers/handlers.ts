@@ -1,6 +1,7 @@
 import {
 	createChannelHandler,
 	createPushHandler,
+	deleteSubmission,
 	findAutocompleteSuggestions,
 	findCurrentSubmissionVersion,
 	findDbColumns,
@@ -15,11 +16,12 @@ import {
 	getAppConfig,
 	getBuildInfo,
 	getLicences,
-	getResourceUrl,
+	getResourceUrl, getSubmissionInfo,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
 	removeFieldMapping,
 	revertSubmissionVersion,
+	toggleApprovalStatus,
 	updateFieldMappings,
 	updateLocale,
 	updateTheme,
@@ -44,6 +46,15 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('submission:delete', async req => {
+		return await deleteSubmission(req);
+	})
+	createChannelHandler('approval:toggle', async req => {
+		return await toggleApprovalStatus(req);
+	})
+	createChannelHandler('facility-info:read', async (req) => {
+		return await getSubmissionInfo(req);
+	})
 	createChannelHandler('build:read', () => {
 		return getBuildInfo();
 	})
