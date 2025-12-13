@@ -10,6 +10,20 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class ToggleApprovalStatus {
+	static type = `${ prefix } toggle approval status`;
+
+	constructor(readonly index: number, readonly form: FormType, readonly status: boolean) {
+	}
+}
+
+export class DeleteSubmission {
+	static type = `${ prefix } delete submission`;
+
+	constructor(readonly index: number, readonly form: FormType) {
+	}
+}
+
 export class RevertToVersion {
 	static type = `${ prefix } revert to version`;
 

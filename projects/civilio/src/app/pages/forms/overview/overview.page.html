@@ -1,20 +1,342 @@
-<div>
-	<div class="container mx-auto grid grid-cols-[1fr_auto] w-full h-full">
-		<div class="scroll-box">
-			<div class="py-10">
-				<p>index: {{ submissionIndex() }}</p>
-				<p>version: {{ selectedVersion.value() }}</p>
-				<p>versions:</p>
-				<pre>
-					{{ versions.value() | json }}
-					</pre
-					>
+<div class="max-h-full">
+	<div
+		class="container mx-auto grid lg:grid-cols-[1fr_auto] gap-x-3 grid-rows-1 w-full h-full"
+	>
+		<div
+			class="max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+		>
+			<div class="py-10 space-y-4 pl-2">
+				@let f = facilityInfo.value();
+				@if (!facilityInfo.isLoading() && f !=
+				null) {
+					<section class="space-y-1">
+						<h3 class="font-extrabold line-clamp-1 text-ellipsis" hlmH3>
+							{{ f.facilityName }}
+						</h3>
+						<div class="inline-flex items-center gap-1">
+							@if (f.location) {
+								<div class="flex gap-0.5 items-center">
+									<ng-icon name="lucideMapPin"/>
+									<p class="text-muted-foreground text-sm">{{ f.location }}</p>
+								</div>
+							}
+							@if (f.createdAt) {
+								<ng-icon name="lucideDot"/>
+								<div class="flex gap-0.5 items-center">
+									<ng-icon name="lucideCalendar"/>
+									<p class="text-muted-foreground text-sm">
+										{{ f.createdAt | date:'dd/MM/yyyy' }}
+									</p>
+								</div>
+							}
+						</div>
+					</section>
+					<section>
+						@if (isSmallScreen()) {
+							<ng-container
+								[ngTemplateOutletContext]="{showBorder: false}"
+								[ngTemplateOutlet]="submissionInfoTemplate"
+							/>
+						}
+					</section>
+					<section class="flex justify-between items-start flex-wrap">
+						<div class="space-y-1">
+							<h4 hlmH4>{{ 'misc.facility_summary' | translate }}</h4>
+							<div class="grid grid-cols-[auto_1fr] gap-1">
+								@for (e of f.extraInfo | keyvalue; track $index) {
+									@if (e.value
+									!== null) {
+										<ng-container
+											[ngTemplateOutletContext]="{$implicit: e}"
+											[ngTemplateOutlet]="attributeValueTemplate"
+										/>
+									}
+								}
+							</div>
+						</div>
+						@if (f.coords) {
+							<div>
+								<h4 hlmH4>{{ 'overview.map.title' | translate }}</h4>
+								<cv-map
+									[coords]="f.coords"
+									class="w-full lg:min-w-[400px] lg:min-h-[200px]"
+								/>
+							</div>
+						}
+					</section>
+					<section class="space-y-2">
+						<h4 hlmH4>{{ 'misc.change_history' | translate }}</h4>
+						<div
+							class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent border-border block w-full rounded-md max-h-[400px] overflow-auto relative border"
+						>
+							<table hlmTable>
+								@let showPagination = table.getCanPreviousPage() ||
+									table.getCanNextPage();
+								<caption
+									[class.border-border]="showPagination"
+									[class.border-t]="showPagination"
+									class="table-caption caption-bottom"
+									hlmCaption
+								>
+									@if (showPagination) {
+										<nav class="py-1" hlmPagination>
+											<ul hlmPaginationContent>
+												<ng-container>
+													@if (table.getCanPreviousPage()) {
+														<li hlmPaginationItem>
+															<hlm-pagination-previous
+																(click)="table.previousPage()"
+																iconOnly="true"
+															/>
+														</li>
+													}
+												</ng-container>
+												<ng-container>
+													@if (table.getCanNextPage()) {
+														<li hlmPaginationItem>
+															<hlm-pagination-next
+																(click)="table.nextPage()"
+																iconOnly="true"
+															/>
+														</li>
+													}
+												</ng-container>
+											</ul>
+										</nav>
+									}
+								</caption>
+								<thead
+									class="sticky top-0 border-b border-border backdrop-blur-md"
+									hlmTHead
+								>
+									@for (hg of table.getHeaderGroups(); track hg.id) {
+										<tr hlmTr>
+											@for (header of hg.headers; track header.id) {
+												<th [attr.colspan]="header.colSpan" hlmTh>
+													<ng-container
+														*flexRender="header.column.columnDef.header; props: header.getContext(); let headerText"
+													>
+														<span>{{ headerText | translate }}</span>
+													</ng-container>
+												</th>
+											}
+										</tr>
+									}
+								</thead>
+								<tbody hlmTBody>
+									@for (row of table.getRowModel().rows; track row.id) {
+										<tr [attr.data-state]="row.getIsSelected() && 'selected'" hlmTr>
+											@for (cell of row.getVisibleCells(); track $index) {
+												<td
+													*flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cell"
+													hlmTd
+												>
+													{{ cell }}
+												</td>
+											}
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</section>
+				} @else {
+				}
 			</div>
 		</div>
-		<div class="scroll-box">
-			<div class="py-10">
-				<p>form type: {{ formType() }}</p>
+		@if (!isSmallScreen()) {
+			<ng-container
+				[ngTemplateOutletContext]="{showBorder: true}"
+				[ngTemplateOutlet]="submissionInfoTemplate"
+			/>
+		}
+	</div>
+</div>
+
+<ng-template #submissionInfoTemplate let-showBorder="showBorder">
+	<div
+		[class.border-border]="showBorder"
+		[class.border-l]="showBorder"
+		class="scroll-box"
+	>
+		<div class="py-10 pl-2">
+			<div class="space-y-2">
+				<h4 hlmH4>{{ 'overview.submission_info.title' | translate }}</h4>
+				<div class="grid grid-cols-[auto_1fr] gap-x-1">
+					<small class="text-muted-foreground">Index</small>
+					<small>{{ submissionIndex() }}</small>
+				</div>
+				<div class="space-y-4">
+					<div class="flex flex-col w-full gap-2">
+						<a
+							[queryParams]="{version: selectedVersion.value()}"
+							[relativeTo]="route"
+							[routerLink]="['..']"
+							class="flex w-full"
+							hlmBtn
+							queryParamsHandling="merge"
+							size="sm"
+							variant="outline"
+						>
+							<ng-icon name="lucidePencil"/>
+							<span
+							>{{ 'overview.submission_info.actions.edit' | translate }}</span
+							>
+						</a>
+						<div class="space-y-1">
+							<label
+								class="cursor-pointer flex items-center justify-between"
+								hlmLabel
+							>
+								<span>
+									{{
+										'overview.submission_info.approval_status.' + (f?.approved
+											? 'approved' : 'unapproved') | translate
+									}}</span
+								>
+								<hlm-switch
+									(checkedChange)="approvalSwitchToggled($event)"
+									[checked]="approved()"
+									[disabled]="togglingApprovalStatus()"
+									class="cursor-pointer"
+								/>
+							</label>
+						</div>
+						<!-- <button hlmBtn size="sm" variant="outline" class="flex w-full">
+							<ng-icon [name]="f?.approved ? 'lucideX':'lucideCheckCircle'" />
+							<span
+								>{{ 'overview.submission_info.actions.' + (f?.approved ?
+								'unapprove' : 'approve') | translate }}</span
+							>
+						</button> -->
+					</div>
+					<button
+						(click)="deleteDialogState.set('open')"
+						class="flex w-full"
+						hlmBtn
+						size="sm"
+						variant="destructive"
+					>
+						<ng-icon name="lucideTrash2"/>
+						<span
+						>{{ 'overview.submission_info.actions.delete' | translate }}</span
+						>
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
+</ng-template>
+
+<ng-template #attributeValueTemplate let-e let-is_child="isChild">
+	<p
+		[class.col-span-2]="(e.value | valuetype) == 'object'"
+		[class.font-semibold]="(e.value | valuetype) == 'object'"
+		[class.text-left!]="(e.value | valuetype) == 'object'"
+		class="text-sm text-muted-foreground"
+	>
+		{{ 'misc.' + e.key | translate }}
+	</p>
+	@if ((e.value|valuetype) != 'object') {
+		<p [class.text-sm]="is_child">
+			@switch (e.value | valuetype) {
+				@case ('boolean') {
+					{{
+						(e.value === true ?
+							'misc.yes' : 'misc.no') | translate
+					}}
+				}
+				@case ('number') {
+					{{
+						$any(e.value)
+							| number:'1.0-4'
+					}}
+				}
+				@case ('string') {
+					{{ e.value }}
+				}
+			}
+		</p>
+	} @else {
+		@for (ee of e.value | keyvalue; track $index) {
+			<ng-container
+				[ngTemplateOutletContext]="{$implicit: ee, isChild: true}"
+				[ngTemplateOutlet]="attributeValueTemplate"
+			/>
+		}
+	}
+</ng-template>
+
+<hlm-alert-dialog
+	(closed)="deleteDialogState.set('closed')"
+	[state]="deleteDialogState()"
+>
+	<hlm-alert-dialog-content
+		*brnAlertDialogContent="let ctx"
+		class="max-w-[500px]"
+	>
+		<hlm-alert-dialog-header>
+			<h2 class="flex items-baseline gap-2" hlmAlertDialogTitle>
+				<ng-icon name="lucideTrash2"/>
+				<span
+				>{{
+						'overview.submission_info.alerts.delete_confirmation.title' |
+							translate
+					}}</span
+				>
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{
+					'overview.submission_info.alerts.delete_confirmation.description' |
+						translate
+				}}
+			</p>
+		</hlm-alert-dialog-header>
+		<hlm-alert-dialog-footer>
+			<button
+				(mousedown)="deleteButtonPressed()"
+				(mouseup)="deleteButtonReleased()"
+				[disabled]="deleting()"
+				class="cursor-pointer justify-between items-center"
+				hlmAlertDialogAction
+				size="sm"
+				variant="destructive"
+			>
+				<div class="inline-flex items-center gap-1">
+					<ng-icon
+						[class.animate-spin]="deleting()"
+						[name]="!deleting() ? 'lucideCheck' : 'lucideLoader'"
+					/>
+					<span
+					>{{
+							'overview.submission_info.alerts.delete_confirmation.actions.' +
+							(deleting() ? 'deleting' : 'proceed') | translate
+						}}</span
+					>
+				</div>
+				@if (deleteTimer !== undefined && deleteTimer() !== undefined) {
+					<span
+						class="w-5 h-5 font-semibold text-center rounded-full bg-white text-(--destructive)"
+					>
+					{{ deleteTimer() }}
+				</span>
+				}
+			</button>
+			<button
+				(click)="ctx.close()"
+				[disabled]="deleting()"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+				size="sm"
+			>
+				<ng-icon name="lucideX"/>
+				<span
+				>{{
+						'overview.submission_info.alerts.delete_confirmation.actions.cancel' |
+							translate
+					}}</span
+				>
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>

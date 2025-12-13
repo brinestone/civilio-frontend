@@ -4,6 +4,7 @@ import { NgIcon } from '@ng-icons/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CellContext, injectFlexRenderContext, RowData } from '@tanstack/angular-table';
 import { RowContext } from '@angular/cdk/table';
+import { HlmTd } from "@spartan-ng/helm/table";
 
 export type ActionTriggeredEvent<T> = {
 	row: T,
@@ -20,9 +21,10 @@ export type RowAction<T> = {
 
 @Component({
 	selector: 'cv-actions-cell',
-	imports: [HlmButton, NgIcon, TranslatePipe],
+	imports: [HlmButton, NgIcon, TranslatePipe, HlmTd],
 	template: `
-		@if ((actions() ?? []).length > 0) {
+		<td hlmTd>
+			@if ((actions() ?? []).length > 0) {
 			@for (action of actions(); track action.identifier) {
 				<button [title]="minimal() ? (_static() ? action.label : (action.label| translate)) : ''"
 								(click)="onActionButtonClicked(action.identifier)"
@@ -38,6 +40,7 @@ export type RowAction<T> = {
 				</button>
 			}
 		}
+</td>
 	`,
 	styles: `
 		@reference "tailwindcss";

@@ -2,6 +2,7 @@ import { Injectable, makeEnvironmentProviders } from '@angular/core';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
+	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponseSchema,
@@ -20,10 +21,13 @@ import {
 	FindSubmissionVersionsResponse,
 	FormSubmissionSchema,
 	FormType,
+	GetFacilityInfoRequest,
+	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
+	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionRevertRequest,
@@ -35,6 +39,18 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
+		return await sendRpcMessageAsync('submission:delete', req);
+	}
+
+	async toggleApprovalStatus(req: ToggleApprovalStatusRequest): Promise<void> {
+		return await sendRpcMessageAsync('approval:toggle', req);
+	}
+
+	async getFacilityInfo(req: GetFacilityInfoRequest): Promise<GetFacilityInfoResponse> {
+		return await sendRpcMessageAsync('facility-info:read', req);
+	}
+
 	async revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse> {
 		return await sendRpcMessageAsync('submission:revert', req);
 	}

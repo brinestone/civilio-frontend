@@ -6,7 +6,7 @@ import { enUS, fr } from 'date-fns/locale';
 @Pipe({
 	name: 'ago_date'
 })
-export class AgoDatePipePipe implements PipeTransform {
+export class AgoDatePipe implements PipeTransform {
 
 	transform(value: Date | null | undefined, locale: string = navigator.language.substring(0, 2) as any): string {
 		if (value === null || value === undefined) return '';

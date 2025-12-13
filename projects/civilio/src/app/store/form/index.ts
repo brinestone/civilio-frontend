@@ -18,6 +18,7 @@ import {
 	serializeValue,
 	TabularFieldSchema
 } from "@app/model/form";
+import { DeltaChangeEvent } from "@app/model/form/events";
 import { FORM_SERVICE } from "@app/services/form";
 import {
 	FieldKey,
@@ -69,6 +70,7 @@ import {
 	ActivateForm,
 	ActivateSection,
 	DeactivateForm,
+	DeleteSubmission,
 	DiscardChanges,
 	InitVersioning,
 	LoadDbColumns,
@@ -82,6 +84,7 @@ import {
 	SaveChanges,
 	SetFormType,
 	SubmissionIndexChanged,
+	ToggleApprovalStatus,
 	Undo,
 	UpdateFormDirty,
 	UpdateMappings,
@@ -89,7 +92,6 @@ import {
 	UpdateSection,
 	UpdateValidity,
 } from "./actions";
-import { DeltaChangeEvent } from "@app/model/form/events";
 
 export * from "./actions";
 export type SectionForm = {
@@ -185,6 +187,24 @@ function splitChangePath(path: string) {
 })
 class FormState {
 	private readonly formService = inject(FORM_SERVICE);
+
+	@Action(ToggleApprovalStatus)
+	onToggleApprovalStatus(_: Context, {
+		form,
+		index,
+		status
+	}: ToggleApprovalStatus) {
+		return from(this.formService.toggleApprovalStatus({
+			form,
+			index,
+			value: status
+		}))
+	}
+
+	@Action(DeleteSubmission)
+	onDeleteSubmission(_: Context, action: DeleteSubmission) {
+		return from(this.formService.deleteSubmission(action));
+	}
 
 	@Action(RevertToVersion)
 	onRevert(ctx: Context, {
@@ -747,6 +767,7 @@ class FormState {
 		})).pipe(
 			tap((data) => {
 				if (!data) return;
+				console.log(data);
 				const parsedData = this.parseRawData(schema, data);
 				ctx.setState(
 					patch({

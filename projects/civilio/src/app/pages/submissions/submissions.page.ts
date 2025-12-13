@@ -2,34 +2,35 @@ import { DecimalPipe } from '@angular/common';
 import {
 	Component,
 	computed,
-	HostBinding,
 	inject,
 	Injector,
-	input,
 	model,
 	OnInit,
 	resource,
 	signal
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { BadgeCell, DateCell, VersionCell } from '@app/components';
+import { ActionCell } from '@app/components/tabular-field/cells';
+import { ElectronFormService } from '@app/services/electron/form.service';
 import { SetFormType } from '@app/store/form';
 import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
-	lucideCopy,
 	lucideEye,
 	lucideInbox,
 	lucidePencil,
 	lucideRefreshCw
 } from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch, select } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { BadgeVariants, HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmTableImports } from '@spartan-ng/helm/table';
@@ -40,68 +41,6 @@ import {
 	flexRenderComponent,
 	getCoreRowModel
 } from '@tanstack/angular-table';
-import { ElectronFormService } from '@app/services/electron/form.service';
-import { MaskPipe } from '@app/pipes';
-import { toast } from 'ngx-sonner';
-import { DateCell } from '@app/components/tabular-field/date-cell.component';
-import { ActionCell } from '@app/components/tabular-field/cells';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
-import { RouterLink } from '@angular/router';
-
-@Component({
-	selector: 'cv-version-cell',
-	imports: [HlmButton, NgIcon, MaskPipe, TranslatePipe],
-	viewProviders: [
-		provideIcons({
-			lucideCopy
-		})
-	],
-	host: {
-		class: 'text-sm'
-	},
-	template: `
-		@if (version()) {
-			<span>{{ version() | mask }}</span>
-			<button [title]="'misc.actions.copy_version' | translate" (click)="onCopyVersionButtonClicked()" size="sm"
-							variant="ghost" hlmBtn>
-				<ng-icon name="lucideCopy"/>
-			</button>
-		}
-	`
-})
-export class VersionCell {
-	readonly version = input<string>();
-	@HostBinding('class.inline-flex')
-	@HostBinding('class.gap-2')
-	@HostBinding('class.items-center')
-	protected readonly versionDefined = computed(() => !!this.version())
-
-	private ts = inject(TranslateService);
-
-	protected async onCopyVersionButtonClicked() {
-		await navigator.clipboard.writeText(this.version() as string);
-		toast.info(this.ts.instant('msg.clipboard_copied_text', { value: 'Version' }));
-	}
-}
-
-@Component({
-	selector: 'cv-badge-cell',
-	imports: [HlmBadgeImports, TranslatePipe],
-	template: `
-		@if (_static()) {
-			<span hlmBadge [variant]="variant()"> {{ text() }}</span>
-		} @else {
-			<span hlmBadge [variant]="variant()">{{ text() | translate }}</span>
-		}
-	`
-})
-export class BadgeCell {
-	readonly variant = input<BadgeVariants['variant']>();
-	readonly text = input.required<string>();
-	readonly shouldTranslateText = input<boolean>();
-
-	protected readonly _static = computed(() => !this.shouldTranslateText());
-}
 
 @Component({
 	selector: 'cv-submissions',
@@ -268,5 +207,6 @@ export class SubmissionsPage implements OnInit {
 
 	protected onFormTypeChanged(type: FormType) {
 		this.setFormType(type);
+		this.table.resetPageIndex();
 	}
 }

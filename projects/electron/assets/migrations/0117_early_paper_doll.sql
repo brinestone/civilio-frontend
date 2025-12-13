@@ -1,0 +1,1 @@
+ALTER VIEW "civilio"."vw_facility_info" RENAME TO "vw_facilities";

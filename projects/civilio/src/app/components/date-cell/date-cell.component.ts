@@ -1,16 +1,19 @@
 import { Component, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { AgoDatePipePipe } from '@app/pipes';
+import { AgoDatePipe } from '@app/pipes';
 import { select } from '@ngxs/store';
 import { currentLocale } from '@app/store/selectors';
 import { CellContext, injectFlexRenderContext } from '@tanstack/angular-table';
+import { HlmTd } from '@spartan-ng/helm/table';
 
 @Component({
 	selector: 'cv-date-cell',
-	imports: [DatePipe, AgoDatePipePipe],
+	imports: [DatePipe, AgoDatePipe, HlmTd],
 	template: `
-		<span
+		<td hlmTd>
+			<span
 			[title]="context.cell.getValue() | date:'dd/MM/yyyy HH:mm'">{{ context.cell.getValue() | ago_date:actualLocale() }}</span>
+		</td>
 	`,
 })
 export class DateCell<T> {

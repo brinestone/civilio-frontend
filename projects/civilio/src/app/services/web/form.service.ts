@@ -1,6 +1,7 @@
 import { Injectable, makeEnvironmentProviders } from "@angular/core";
 import { FORM_SERVICE_IMPL, FormService } from "../form";
 import {
+	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
@@ -20,11 +21,14 @@ import {
 	FormSubmission,
 	FormType,
 	GetAutoCompletionSuggestionsResponse,
+	GetFacilityInfoRequest,
+	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
+	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionRevertRequest,
@@ -35,9 +39,22 @@ import {
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+
+	toggleApprovalStatus(req: ToggleApprovalStatusRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+
+	getFacilityInfo(req: GetFacilityInfoRequest): Promise<GetFacilityInfoResponse> {
+		throw new Error("Method not implemented.");
+	}
+
 	revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse> {
 		throw new Error("Method not implemented.");
 	}
+
 	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse> {
 		throw new Error("Method not implemented.");
 	}

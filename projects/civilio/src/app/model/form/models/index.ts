@@ -362,7 +362,7 @@ export function parseValue(definition: DefinitionLike, raw: RawValue | null): Pa
 			return String(raw);
 		}
 		case 'single-selection':
-			return raw;
+			return String(raw);
 		default:
 			return null;
 	}

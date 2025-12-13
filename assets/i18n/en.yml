@@ -1,9 +1,62 @@
+overview:
+  versions:
+    columns:
+      status:
+        badges:
+          active: Active
+  map:
+    title: GPS Location
+  submission_info:
+    title: Submission Info
+    approval_status:
+      approved: Approved
+      unapproved: Unapproved
+    actions:
+      edit: Edit
+      delete: Delete
+    alerts:
+      delete_confirmation:
+        title: Are you sure?
+        description: Deleting this submission will remove its data and all sub-form data permanently. Are you sure you want to proceed?
+        actions:
+          deleting: Deleting...
+          proceed: I am sure, proceed
+          cancel: Cancel
+        msg:
+          failed: Deletion failed
+          success: Submission deleted successfully
+          approval_toggled: Changes saved successfully
 misc:
+  changed_at: Recorded at
+  changed_by: Recorded by
+  notes: Notes
+  version: Version
+  action: Action
+  employee_count: "# of Employees"
+  equipment: "# of Equipment"
+  change_history: Change History
+  degree: Degree
+  has_power: Uses electricity
+  has_water: Has water sources
+  is_chiefdom: Is Chiefdom
+  is_functional: Is functional
+  has_internet: Is connected to the Internet
+  milieu: Milieu
+  village_count: "# of Attached villages"
+  category: Category
+  births: "Recorded births"
+  deaths: "Recorded deaths"
+  status: Status
+  stats_l_5: Statistics in the last 5 years
+  health_area: Health area
+  health_district: Health district
+  creation_date: Created at
   powered_by: Provided by
   developed_by: Developed by
   contributors: Contributors
   contact: Contact
   licences_3: 3rd party licences
+  facility_summary: Facility Info
   yes: Yes
   no: No
   config_required:
@@ -1516,7 +1569,7 @@ submissions:
     last_modified_at:
       title: Last modified
     last_modified_by:
-      title: Last modified by
+      title: Modified by
     version:
       title: Version
     validation_status:

@@ -4,3 +4,7 @@ export * from './field-mapper/field-mapper.component';
 export * from './geo-point/geo-point.component';
 export * from './field-mapper/field-mapper.component';
 export * from './tabular-field/tabular-field.component';
+export * from './map/map.component';
+export * from './version-cell/version-cell.component';
+export * from './date-cell/date-cell.component';
+export * from './badge-cell/badge-cell.component';

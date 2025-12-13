@@ -5,6 +5,7 @@ import {
 	ApplyPendingMigrationsResponseSchema,
 	CheckMigrationsResponseSchema,
 	DeleteDbConnectionRequestSchema,
+	DeleteSubmissionRequestSchema,
 	FieldMappingRequestSchema,
 	FindConnectionHistoryResponseSchema,
 	FindDbColumnsRequestSchema,
@@ -26,6 +27,8 @@ import {
 	FindSubmissionVersionsResponseSchema,
 	GetAutoCompletionSuggestionsRequestSchema,
 	GetAutoCompletionSuggestionsResponseSchema,
+	GetFacilityInfoRequestSchema,
+	GetFacilityInfoResponseSchema,
 	GetThirdPartyLicensesResponseSchema,
 	InitializeSubmissionVersionRequestSchema,
 	InitializeSubmissionVersionResponseSchema,
@@ -35,6 +38,7 @@ import {
 	RemoveFieldMappingResponseSchema,
 	TestDbConnectionRequestSchema,
 	TestDbConnectionResponseSchema,
+	ToggleApprovalStatusRequestSchema,
 	UpdateConfigRequestSchema,
 	UpdateFieldMappingRequestSchema,
 	UpdateLocaleRequestSchema,
@@ -99,6 +103,9 @@ export const channelArgs = {
 	'db-conn:clear': {},
 	'db-conn:use': UseConnectionRequestSchema,
 	'licences:read': {},
+	'facility-info:read': GetFacilityInfoRequestSchema,
+	'submission:delete': DeleteSubmissionRequestSchema,
+	'approval:toggle': ToggleApprovalStatusRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -139,11 +146,17 @@ export const channelResponses = {
 	'db-conn:use': {},
 	'licences:read': GetThirdPartyLicensesResponseSchema,
 	'build:read': BuildInfoSchema,
+	'facility-info:read': GetFacilityInfoResponseSchema,
+	'submission:delete': {},
+	'approval:toggle': {}
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'submission:delete'
+	| 'approval:toggle'
+	| 'facility-info:read'
 	| 'build:read'
 	| 'licences:read'
 	| 'db-conn:use'

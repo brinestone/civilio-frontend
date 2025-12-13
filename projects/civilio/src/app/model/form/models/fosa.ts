@@ -1,4 +1,8 @@
-import { FormModelDefinitionSchema, FormSchema, RelevancePredicateSchema } from "@app/model/form";
+import {
+	FormModelDefinitionSchema,
+	FormSchema,
+	RelevancePredicateSchema
+} from "@app/model/form";
 
 // #region Fosa
 export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
@@ -117,9 +121,7 @@ export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 					required: true,
 					relevance: {
 						predicate: RelevancePredicateSchema.implement((deps) => {
-							const k = 'fosa.form.sections.identification.fields.category';
-							const v = Array.isArray(deps) ? deps[0] : deps;
-							return v?.value === '10';
+							return deps['fosa.form.sections.identification.fields.category'] === '10';
 						}),
 						dependencies: ['fosa.form.sections.identification.fields.category']
 					}
@@ -206,40 +208,90 @@ export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 				{
 					id: 'fosa.form.sections.stats.line_1',
 					fields: [
-						{ default: 2024, key: 'fosa.form.sections.stats.line_1.fields.stats_year_1', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_1.fields.stats_births_1', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_1.fields.stats_deaths_1', type: 'int' },
+						{
+							default: 2024,
+							key: 'fosa.form.sections.stats.line_1.fields.stats_year_1',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_1.fields.stats_births_1',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_1.fields.stats_deaths_1',
+							type: 'int'
+						},
 					]
 				},
 				{
 					id: 'fosa.form.sections.stats.line_2',
 					fields: [
-						{ default: 2023, key: 'fosa.form.sections.stats.line_2.fields.stats_year_2', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_2.fields.stats_births_2', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_2.fields.stats_deaths_2', type: 'int' },
+						{
+							default: 2023,
+							key: 'fosa.form.sections.stats.line_2.fields.stats_year_2',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_2.fields.stats_births_2',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_2.fields.stats_deaths_2',
+							type: 'int'
+						},
 					]
 				}, {
 					id: 'fosa.form.sections.stats.line_3',
 					fields: [
-						{ default: 2022, key: 'fosa.form.sections.stats.line_3.fields.stats_year_3', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_3.fields.stats_births_3', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_3.fields.stats_deaths_3', type: 'int' },
+						{
+							default: 2022,
+							key: 'fosa.form.sections.stats.line_3.fields.stats_year_3',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_3.fields.stats_births_3',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_3.fields.stats_deaths_3',
+							type: 'int'
+						},
 					]
 				},
 				{
 					id: 'fosa.form.sections.stats.line_4',
 					fields: [
-						{ default: 2021, key: 'fosa.form.sections.stats.line_4.fields.stats_year_4', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_4.fields.stats_births_4', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_4.fields.stats_deaths_4', type: 'int' },
+						{
+							default: 2021,
+							key: 'fosa.form.sections.stats.line_4.fields.stats_year_4',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_4.fields.stats_births_4',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_4.fields.stats_deaths_4',
+							type: 'int'
+						},
 					]
 				},
 				{
 					id: 'fosa.form.sections.stats.line_5',
 					fields: [
-						{ default: 2020, key: 'fosa.form.sections.stats.line_5.fields.stats_year_5', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_5.fields.stats_births_5', type: 'int' },
-						{ key: 'fosa.form.sections.stats.line_5.fields.stats_deaths_5', type: 'int' },
+						{
+							default: 2020,
+							key: 'fosa.form.sections.stats.line_5.fields.stats_year_5',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_5.fields.stats_births_5',
+							type: 'int'
+						},
+						{
+							key: 'fosa.form.sections.stats.line_5.fields.stats_deaths_5',
+							type: 'int'
+						},
 					]
 				}
 			]
@@ -293,8 +345,14 @@ export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 					key: 'fosa.form.sections.infra.fields.toilet_present',
 					type: 'boolean',
 				},
-				{ key: 'fosa.form.sections.infra.fields.eneo_connection', type: 'boolean' },
-				{ key: 'fosa.form.sections.infra.fields.backup_power_available', type: 'boolean' },
+				{
+					key: 'fosa.form.sections.infra.fields.eneo_connection',
+					type: 'boolean'
+				},
+				{
+					key: 'fosa.form.sections.infra.fields.backup_power_available',
+					type: 'boolean'
+				},
 				{
 					key: 'fosa.form.sections.infra.fields.backup_power',
 					type: 'multi-selection',
@@ -347,6 +405,7 @@ export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 					identifierColumn: 'fosa.form.sections.staff.sections.employees.fields.index',
 					columns: {
 						index: {
+							visible: false,
 							key: 'fosa.form.sections.staff.sections.employees.fields.index',
 							type: 'number',
 							editable: false

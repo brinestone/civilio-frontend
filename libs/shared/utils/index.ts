@@ -18,3 +18,9 @@ export function toRowMajor<R>(data: Record<string, unknown[]>, transform: (key: 
 		}, {} as Record<string, R>)
 	});
 }
+
+export async function pause(ms: number) {
+	return new Promise<void>((resolve) => {
+		setTimeout(resolve, ms);
+	});
+}

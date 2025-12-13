@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const SubmissionInfoSchema = z.object({
+	facilityName: z.string().nullable().optional(),
+	location: z.string().nullable().optional(),
+	coords: z.string().nullable().optional(),
+	extraInfo: z.record(z.string(), z.unknown()).optional(),
+	approved: z.boolean().optional(),
+	createdAt: z.coerce.date().nullable()
+})
 export const BuildInfoSchema = z.object({
 	author: z.object({
 		name: z.string(),
@@ -150,8 +158,15 @@ export const AppConfigSchema = z.object({
 export const GeoPointSchema = z.object({
 	lat: z.coerce.number().min(-90).max(90).default(5.483401),
 	long: z.coerce.number().max(180).min(-180).default(47.88104)
-})
+});
+export const GeoPointInputSchema = z.string().nullable()
+	.transform(s => {
+		if (!s) return GeoPointSchema.parse({});
+		const [lat, long] = s.split(' ', 3).slice(0, 2);
+		return GeoPointSchema.parse({ lat, long });
+	});
 
+export type GeoPointInput = z.input<typeof GeoPointInputSchema>;
 export type AppPrefs = z.infer<typeof AppPrefsSchema>;
 export type FieldMapping = z.infer<typeof FieldMappingSchema>;
 export type GeoPoint = z.infer<typeof GeoPointSchema>;
@@ -187,3 +202,4 @@ export type DbConnectionRef = z.output<typeof DbConnectionRefSchema>;
 export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
 export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
+export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;

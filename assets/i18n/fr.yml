@@ -1,9 +1,64 @@
+overview:
+  versions:
+    columns:
+      status:
+        badges:
+          active: Actif
+  map:
+    title: Localisation GPS
+  submission_info:
+    title: Informations sur la soumission
+    approval_status:
+      approved: Approuvé
+      unapproved: Non approuvé
+    actions:
+      edit: Modifier
+      delete: Supprimer
+    alerts:
+      delete_confirmation:
+        title: Es-tu sûr?
+        description: La suppression de cette soumission supprimera définitivement ses
+          données et toutes les données du sous-formulaire. Êtes-vous sûr de
+          vouloir continuer ?
+        actions:
+          deleting: Suppression...
+          proceed: Je suis sûr, continuez
+          cancel: Annuler
+        msg:
+          failed: La suppression a échoué
+          success: Soumission supprimée avec succès
+          approval_toggled: Modifications enregistrées avec succès
 misc:
+  changed_at: Enregistré à
+  changed_by: Enregistré par
+  notes: Remarques
+  version: Version
+  action: Action
+  employee_count: "# d'employés"
+  equipment: "# d'équipement"
+  change_history: Historique des modifications
+  degree: Degré
+  has_power: Utilise de l'électricité
+  has_water: A des sources d'eau
+  is_chiefdom: La chefferie est-elle
+  is_functional: Est fonctionnel
+  has_internet: Est connecté à Internet
+  milieu: Milieu
+  village_count: "# de villages rattachés"
+  category: Catégorie
+  births: Naissances enregistrées
+  deaths: Décès enregistrés
+  status: Statut
+  stats_l_5: Statistiques des 5 dernières années
+  health_area: Espace santé
+  health_district: District de santé
+  creation_date: Créé à
   powered_by: Fourni par
   developed_by: Développé par
   contributors: Contributeurs
   contact: Contact
   licences_3: Licences tierces
+  facility_summary: Informations sur l'installation
   yes: Oui
   no: Non
   config_required:
@@ -1533,7 +1588,7 @@ submissions:
     last_modified_at:
       title: Dernière modification
     last_modified_by:
-      title: Dernière modification par
+      title: Modifié par
     version:
       title: Version
     validation_status:
