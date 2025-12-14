@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.2.0](https://github.com/brinestone/civilio-frontend/compare/v4.1.3...v4.2.0) (2025-12-14)
+
+
+### Features
+
+* **forms:** add submission overview page ([eb0ca31](https://github.com/brinestone/civilio-frontend/commit/eb0ca318590d220f6b4d9af75bb465eb4a3e58f0))
+
 ### [4.1.3](https://github.com/brinestone/civilio-frontend/compare/v4.1.2...v4.1.3) (2025-12-10)
 
 
