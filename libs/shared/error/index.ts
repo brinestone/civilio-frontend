@@ -1,51 +1,67 @@
 import z from 'zod';
 import { Channel } from '../contracts';
 
-export const ErrorCodeSchema = z.enum(['bad_request', 'mal_config', 'timeout', 'execution_error']);
+
+export const ErrorCodeSchema = z.enum(['no_encryption', 'bad_request', 'mal_config', 'timeout', 'execution_error', 'account_not_found']);
 export const ErrorDataSchema = z.unknown();
 
 export const AppErrorSchema = z.object({
-  code: ErrorCodeSchema,
-  messageId: z.string(),
-  srcChannel: z.string().optional(),
-  message: z.string().optional(),
-  data: ErrorDataSchema.optional()
+	code: ErrorCodeSchema,
+	messageId: z.string(),
+	srcChannel: z.string().optional(),
+	message: z.string().optional(),
+	data: ErrorDataSchema.optional()
 });
 
 export abstract class AppErrorBase extends Error implements AppError {
-  abstract code: ErrorCode;
-  protected constructor(readonly messageId: string, readonly srcChannel?: string, message?: string) {
-    super(message);
-  }
+	abstract code: ErrorCode;
+	protected constructor(readonly messageId: string, readonly srcChannel?: string, message?: string) {
+		super(message);
+	}
 }
 
 export class BadRequestError extends AppErrorBase {
-  readonly code = 'bad_request';
-  constructor(messageId: string, srcChannel: string, message: string) {
-    super(messageId, srcChannel, message);
-  }
+	readonly code = 'bad_request';
+	constructor(messageId: string, srcChannel: string, message: string) {
+		super(messageId, srcChannel, message);
+	}
 }
 
 export class TimeoutError extends AppErrorBase {
-  readonly code = 'timeout';
-  constructor(readonly timeout: number, srcChannel: Channel, messageId: string) {
-    super(messageId, srcChannel, `timeout error after: ${timeout}ms`);
-  }
+	readonly code = 'timeout';
+	constructor(readonly timeout: number, srcChannel: Channel, messageId: string) {
+		super(messageId, srcChannel, `timeout error after: ${timeout}ms`);
+	}
 }
 
 export class ExecutionError extends Error implements AppError {
-  readonly code = 'execution_error';
-  constructor(message: string, readonly srcChannel: Channel, readonly messageId: string, public readonly data?: ErrorData) {
-    super(message);
-  }
+	readonly code = 'execution_error';
+	constructor(message: string, readonly srcChannel: Channel, readonly messageId: string, public readonly data?: ErrorData) {
+		super(message);
+	}
 }
 
 export class MalConfigurationError extends Error implements AppError {
-  readonly code = 'mal_config';
+	readonly code = 'mal_config';
 
-  constructor(public readonly configKey: string, readonly messageId: string = '', public readonly data?: ErrorData) {
-    super(`'${configKey}' is not configured`);
-  }
+	constructor(public readonly configKey: string, readonly messageId: string = '', public readonly data?: ErrorData) {
+		super(`'${configKey}' is not configured`);
+	}
+}
+
+export class UserAccountNotFoundError extends Error implements AppError {
+	readonly code = 'account_not_found';
+
+	constructor(readonly username: string, public messageId: string = '') {
+		super();
+	}
+}
+
+export class EncryptionUnavailableError extends Error implements AppError {
+	readonly code = 'no_encryption'
+	constructor(public messageId: string = '') {
+		super();
+	}
 }
 
 export type ErrorData = z.infer<typeof ErrorDataSchema>;

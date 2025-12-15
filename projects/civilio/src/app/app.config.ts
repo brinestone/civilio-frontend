@@ -6,6 +6,9 @@ import {
 	provideZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { usingElectron } from '@app/services/electron';
+import { usingWeb } from '@app/services/web';
+import { isDesktop } from '@app/util';
 import { provideNgIconLoader } from '@ng-icons/core';
 import {
 	provideMissingTranslationHandler,
@@ -22,10 +25,8 @@ import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
+import { AuthState } from './store/auth';
 import { ConfigState } from './store/config';
-import { isDesktop } from '@app/util';
-import { usingElectron } from '@app/services/electron';
-import { usingWeb } from '@app/services/web';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -35,7 +36,7 @@ export const appConfig: ApplicationConfig = {
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),
 		provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
-		provideStore([ConfigState],
+		provideStore([ConfigState, AuthState],
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
 				disabled: !isDevMode(),
@@ -43,11 +44,11 @@ export const appConfig: ApplicationConfig = {
 			}),
 		),
 		provideNgIconLoader(async name => {
-			return await fetch(`/${ name }.svg`).then(r => r.text());
+			return await fetch(`/${name}.svg`).then(r => r.text());
 		}),
 		provideNotifications(),
 		provideTranslateService({
-			fallbackLang: 'en',
+			fallbackLang: 'fr',
 			loader: provideTranslationLoader(),
 			missingTranslationHandler: provideMissingTranslationHandler(MissingTranslationHandlerImpl)
 		})

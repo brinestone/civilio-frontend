@@ -1,17 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
-import {
-	AppConfig,
-	CheckMigrationsResponse,
-	DbConnectionRef
-} from '@civilio/shared';
+import { dbConfig } from '@app/store/selectors';
 import { TranslateService } from '@ngx-translate/core';
 import {
 	Action,
 	NgxsOnInit,
 	State,
 	StateContext,
-	StateToken,
 	Store
 } from '@ngxs/store';
 import { patch } from '@ngxs/store/operators';
@@ -24,6 +19,7 @@ import {
 	tap,
 	throwError
 } from 'rxjs';
+import { CONFIG_STATE, ConfigStateModel } from '../models';
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
@@ -39,19 +35,10 @@ import {
 	UpdateMiscConfig,
 	UseConnection
 } from './actions';
-import { dbConfig } from '@app/store/selectors';
 
 export * from './actions';
-type ConfigStateModel = {
-	config?: AppConfig;
-	knownConnections: DbConnectionRef[];
-	env: 'desktop' | 'web';
-	migrationState?: CheckMigrationsResponse;
-	preInit: boolean;
-	connectionsLoaded: boolean;
-}
+
 type Context = StateContext<ConfigStateModel>;
-export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 
 @Injectable()
 @State({

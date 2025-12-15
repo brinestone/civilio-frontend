@@ -141,7 +141,7 @@ tmpl:
       enable_mutation:
         title: Edit
 login:
-  username: Username
+  username: Username or email
   forgot_password: Forgot password?
   lets_continue_your_journey: Let's continue your Journey
   password: Password

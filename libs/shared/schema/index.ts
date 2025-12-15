@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const PrincipalSchema = z.object({
+	displayName: z.string(),
+	mail: z.email(),
+	role: z.enum(['admin', 'maintainer', 'user']),
+});
+
 export const SubmissionInfoSchema = z.object({
 	facilityName: z.string().nullable().optional(),
 	location: z.string().nullable().optional(),
@@ -7,7 +13,7 @@ export const SubmissionInfoSchema = z.object({
 	extraInfo: z.record(z.string(), z.unknown()).optional(),
 	approved: z.boolean().optional(),
 	createdAt: z.coerce.date().nullable()
-})
+});
 export const BuildInfoSchema = z.object({
 	author: z.object({
 		name: z.string(),
@@ -150,9 +156,15 @@ export const DbConfigSchema = z.object({
 	port: z.number().default(5432),
 	database: z.string()
 });
+export const LdapConfigSchema = z.object({
+	host: z.string(),
+	tls: z.coerce.boolean(),
+	baseDn: z.string()
+});
 export const AppConfigSchema = z.object({
 	prefs: AppPrefsSchema.partial().optional(),
-	misc: z.record(z.string(), z.unknown()).optional()
+	misc: z.record(z.string(), z.unknown()).optional(),
+	auth: LdapConfigSchema.optional()
 }).default({});
 
 export const GeoPointSchema = z.object({
@@ -179,16 +191,16 @@ export type Locale = z.infer<typeof LocaleSchema>;
 export type DbConfig = z.infer<typeof DbConfigSchema>;
 export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
 type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
-type DropInitDot<T> = T extends `.${ infer U }` ? U : T;
+type DropInitDot<T> = T extends `.${infer U}` ? U : T;
 type _DeepKeys<T> = T extends object ? (
 	{
 		[K in (string | number) & keyof T]:
-		`${ (
-			`.${ K }` | (`${ K }` extends `${ number }` ? `[${ K }]` : never)
-			) }${ "" | _DeepKeys<FixArr<T[K]>> }`
+		`${(
+			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
+		)}${"" | _DeepKeys<FixArr<T[K]>>}`
 	}[
-		(string | number) & keyof T]
-	) : never;
+	(string | number) & keyof T]
+) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
 export type Paginated<T> = {
@@ -203,3 +215,4 @@ export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
 export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
+export type UserPrincipal = z.output<typeof PrincipalSchema>;

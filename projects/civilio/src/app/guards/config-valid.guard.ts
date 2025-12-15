@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { CONFIG_SERVICE } from '@app/services/config';
-import { CONFIG_STATE } from '@app/store/config';
+import { CONFIG_STATE } from '@app/store/models';
 import { TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngxs/store';
 import { toast } from 'ngx-sonner';

@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { dbConfiguredGuard } from "./guards/config-valid-guard";
+import { dbConfiguredGuard } from "./guards/config-valid.guard";
 import { provideFormStore } from "./store/form";
 import {
 	ChefferieFormDefinition,

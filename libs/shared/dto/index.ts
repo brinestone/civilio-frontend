@@ -11,11 +11,18 @@ import {
 	LocaleSchema,
 	MigrationsCheckReportSchema,
 	OptionSchema,
+	PrincipalSchema,
 	SubmissionChangeDeltaSchema, SubmissionInfoSchema,
 	SubmissionVersionInfoSchema,
 	ThemeSchema,
 	ThirdPartyLicenceSchema
 } from "../schema";
+
+export const LoginResponseSchema = PrincipalSchema.nullable();
+export const LoginRequestSchema = z.object({
+	username: z.coerce.string(),
+	password: z.coerce.string()
+});
 
 export const ToggleApprovalStatusRequestSchema = z.object({
 	index: z.coerce.number(),
@@ -235,3 +242,6 @@ export type GetFacilityInfoRequest = z.input<typeof GetFacilityInfoRequestSchema
 export type GetFacilityInfoResponse = z.output<typeof GetFacilityInfoResponseSchema>;
 export type ToggleApprovalStatusRequest = z.input<typeof ToggleApprovalStatusRequestSchema>;
 export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSchema>;
+export type LoginRequest = z.input<typeof LoginRequestSchema>;
+export type ParsedLoginRequest = z.output<typeof LoginRequestSchema>;
+export type LoginResponse = z.output<typeof LoginResponseSchema>;

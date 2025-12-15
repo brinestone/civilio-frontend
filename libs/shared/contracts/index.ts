@@ -34,6 +34,8 @@ import {
 	InitializeSubmissionVersionResponseSchema,
 	LoadTranslationRequestSchema,
 	LoadTranslationResponseSchema,
+	LoginRequestSchema,
+	LoginResponseSchema,
 	RemoveFieldMappingRequestSchema,
 	RemoveFieldMappingResponseSchema,
 	TestDbConnectionRequestSchema,
@@ -105,7 +107,9 @@ export const channelArgs = {
 	'licences:read': {},
 	'facility-info:read': GetFacilityInfoRequestSchema,
 	'submission:delete': DeleteSubmissionRequestSchema,
-	'approval:toggle': ToggleApprovalStatusRequestSchema
+	'approval:toggle': ToggleApprovalStatusRequestSchema,
+	'auth:login': LoginRequestSchema,
+	'auth:logout': {}
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -148,12 +152,16 @@ export const channelResponses = {
 	'build:read': BuildInfoSchema,
 	'facility-info:read': GetFacilityInfoResponseSchema,
 	'submission:delete': {},
-	'approval:toggle': {}
+	'approval:toggle': {},
+	'auth:login': LoginResponseSchema,
+	'auth:logout': {}
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'auth:login'
+	| 'auth:logout'
 	| 'submission:delete'
 	| 'approval:toggle'
 	| 'facility-info:read'

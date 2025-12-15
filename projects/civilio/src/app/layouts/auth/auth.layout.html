@@ -1,0 +1,39 @@
+<div class="hidden md:block">
+	<ng-container [ngTemplateOutlet]="heroTemplate" />
+</div>
+<div class="hidden items-center md:flex">
+	<hlm-separator orientation="vertical" class="max-h-[350px]" />
+</div>
+<div class="w-full grid grid-rows-[1fr_auto] py-4">
+	<div class="flex items-center justify-center overflow-y-auto h-full">
+		<router-outlet />
+	</div>
+	<div class="flex justify-center items-center gap-3 px-4">
+		<cv-locale-selector />
+	</div>
+</div>
+
+<ng-template #heroTemplate>
+	<div class="flex items-center justify-center flex-col gap-1 h-full">
+		<img
+			[src]="wideLogoUrl.value()"
+			alt="wide logo url"
+			draggable="false"
+			style="-webkit-user-drag: none"
+			width="240"
+		/>
+		<p class="text-muted-foreground text-xs">
+			(v{{ buildInfo.value()?.version }})
+		</p>
+		<p class="text-muted-foreground text-xs">
+			{{ 'misc.powered_by' | translate }}
+		</p>
+		<img
+			[src]="sponsorUrl.value()"
+			alt="sponsor logo url"
+			draggable="false"
+			style="-webkit-user-drag: none"
+			width="140"
+		/>
+	</div>
+</ng-template>

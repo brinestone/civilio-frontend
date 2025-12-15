@@ -1,55 +1,94 @@
-import { Transaction } from '../types';
-import { sql } from 'drizzle-orm';
+import { EncryptionUnavailableError, ParsedLoginRequest, UserAccountNotFoundError } from '@civilio/shared';
+import { app, safeStorage } from 'electron';
+import { existsSync, readFileSync, rm, rmSync, writeFileSync } from 'fs';
+import { Client } from 'ldapts';
+import { join } from 'path';
+import { getAppConfig } from './config';
 
-async function removeDatabaseUser(tx: Transaction, username: string) {
-	return tx.execute(sql.raw(`
-    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ${username}) THEN
+const USER_FILTER_TEMPLATE = '(&(objectClass=inetOrgPerson)(|(uid={login})(mail={login})))';
+const credentialsPath = join(app.getPath('userData'), 'credentials.enc');
 
-        -- Reassign all owned objects (tables, sequences, functions, schemas, etc.)
-        -- to the 'postgres' superuser.
-        RAISE NOTICE 'Reassigning ownership of objects in database "record" from "${username}" to "postgres"...';
-        REASSIGN OWNED BY ${username} TO postgres;
+let client: Client;
 
-        -- Revoke any lingering privileges the user might have been granted
-        -- (though this is often implicitly handled by DROP ROLE, it is safer)
-        RAISE NOTICE 'Dropping role "${username}"...';
-        DROP ROLE ${username};
+function saveCredentials(username: string, password: string) {
+	if (safeStorage.isEncryptionAvailable()) {
+		throw new EncryptionUnavailableError();
+	}
 
-        RAISE NOTICE 'Role ${username} deleted successfully, and its owned objects were transferred to postgres.';
-
-    ELSE
-        RAISE NOTICE 'Role ${username} does not exist, no action taken.';
-    END IF;
-	`));
+	const encrypted = safeStorage.encryptString(JSON.stringify({ username, password }));
+	writeFileSync(credentialsPath, encrypted);
 }
 
-async function createDatabaseUser(tx: Transaction, username: string, password: string, dbName: string, ...accessSchemas: string[]) {
+function loadCredentials() {
+	if (safeStorage.isEncryptionAvailable()) {
+		throw new EncryptionUnavailableError();
+	}
 
-	const privileges = accessSchemas.map(s => {
-		return `
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} IN SCHEMA ${s}
-    GRANT SELECT, INSERT, UPDATE, DELETE, TRUNCATE ON TABLES TO ${username};
+	if (!existsSync(credentialsPath)) return null;
+	const encrypted = readFileSync(credentialsPath);
+	return JSON.parse(safeStorage.decryptString(encrypted)) as { username: string; password: string };
+}
 
-		ALTER DEFAULT PRIVILEGES FOR ROLE ${username} IN SCHEMA ${s}
-    GRANT ALL ON SEQUENCES TO ${username};
+function clearCredentials() {
+	if (!existsSync(credentialsPath)) return;
+	rmSync(credentialsPath);
+}
 
-    ALTER DEFAULT PRIVILEGES FOR ROLE ${username} IN SCHEMA ${s}
-    GRANT EXECUTE ON ROUTINES TO ${username};
+export async function loginUser({ password, username }: ParsedLoginRequest) {
+	const client = provideClient();
+	const baseDn = getBaseDN();
+	const filter = USER_FILTER_TEMPLATE.replace('{login}', username);
 
-    ALTER DEFAULT PRIVILEGES FOR ROLE ${username} IN SCHEMA ${s}
-    GRANT USAGE ON TYPES TO ${username};
-		`;
+	const searchResult = await client.search(baseDn, {
+		scope: 'sub',
+		filter,
+		attributes: ['cn', 'dn', 'uid']
 	});
 
-	return tx.execute(sql.raw(`
-	CREATE ROLE ${username} WITH LOGIN PASSWORD ${password} NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
-	GRANT CONNECT ON DATABASE ${dbName} TO ${username};
-	REVOKE ALL ON SCHEMA public FROM ${username};
-	REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-	GRANT USAGE ON SCHEMA information_schema TO ${username};
-	GRANT SELECT ON ALL TABLES IN SCHEMA information_schema TO ${username};
-	GRANT CREATE ON DATABASE ${dbName} TO ${username};
+	if (!searchResult.searchEntries || searchResult.searchEntries.length == 0) {
+		throw new UserAccountNotFoundError(username);
+	}
 
-	${privileges.join('\n')}
-	`));
+	const userDN = searchResult.searchEntries[0].dn;
+	await client.bind(userDN, password);
+
+	saveCredentials(userDN, password);
 }
+
+export async function logoutUser() {
+	await client.unbind();
+
+}
+
+function provideClient() {
+	if (!client) {
+		const { host, tls } = getLdapConfig();
+		client = new Client({
+			url: `ldap${tls ? 's' : ''}://${host}:${tls ? 636 : 389}`,
+		});
+		console.log('Loading credentials from store')
+		const credentials = loadCredentials();
+		if (credentials) {
+			client.bind(credentials.username, credentials.password).then(() => console.log(`Credentials loaded from store`));
+		} else {
+			console.log('Credentials not found');
+		}
+	}
+	return client;
+}
+
+function getBaseDN() {
+	return getAppConfig().auth?.baseDn as string;
+}
+
+function getLdapConfig() {
+	return getAppConfig().auth;
+}
+
+app.on('ready', () => {
+	try {
+		const _ = provideClient();
+	} catch (e) {
+		console.error(e);
+	}
+})

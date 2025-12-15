@@ -26,7 +26,7 @@ registerLocaleData(localeEn);
 
 @Component({
 	selector: 'cv-root',
-	imports: [RouterOutlet, BaseLayout, HlmToaster],
+	imports: [RouterOutlet, HlmToaster],
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })

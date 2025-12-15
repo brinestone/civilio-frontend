@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply h-full w-full grid md:grid-cols-[35%_auto_1fr] items-stretch
+}

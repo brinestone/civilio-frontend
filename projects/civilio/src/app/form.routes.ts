@@ -1,6 +1,6 @@
 import { ResolveFn, Routes } from "@angular/router";
 import { FormType } from "@civilio/shared";
-import { hasChangesGuard } from "./guards/has-changes-guard";
+import { hasChangesGuard } from "./guards/has-changes.guard";
 import {
 	ChefferieFormDefinition,
 	CscFormDefinition,

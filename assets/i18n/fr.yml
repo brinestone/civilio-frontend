@@ -147,7 +147,7 @@ tmpl:
       enable_mutation:
         title: Modifier
 login:
-  username: Nom d'utilisateur
+  username: Nom d'utilisateur ou email
   forgot_password: Mot de passe oublié ?
   lets_continue_your_journey: Continuons votre voyage
   password: Mot de passe

@@ -67,6 +67,7 @@
 		"electron-store": "^10.1.0",
 		"embla-carousel-angular": ">=19.0.0",
 		"inter-ui": "^4.1.1",
+		"ldapts": "^8.0.23",
 		"leaflet": "^1.9.4",
 		"lodash": "^4.17.21",
 		"lru-cache": "^11.2.2",

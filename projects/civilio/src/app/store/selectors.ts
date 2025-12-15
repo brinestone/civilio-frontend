@@ -1,12 +1,14 @@
+import { ValidationErrors } from "@angular/forms";
 import { FieldKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries, get, isEmpty, keys, values } from "lodash";
-import { CONFIG_STATE } from "./config";
+import { AUTH_STATE } from "./auth";
 import { FORM_STATE } from "./form";
-import { ValidationErrors } from "@angular/forms";
+import { CONFIG_STATE } from "./models";
 
-const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);
+const authSlices = createPropertySelectors(AUTH_STATE);
+const configSlices = createPropertySelectors(CONFIG_STATE);
 
 export const currentTheme = createSelector([configSlices.config], (config) => {
 	return config?.prefs?.theme ?? "system";
@@ -90,3 +92,4 @@ export const dbConfig = createSelector([configSlices.knownConnections], (c) => {
 export const hasConfiguredConnection = createSelector([configSlices.knownConnections], c => c.some(x => x.inUse))
 export const connections = configSlices.knownConnections;
 export const preInit = configSlices.preInit;
+export const isSignedIn = createSelector([authSlices.principal], p => !!p);

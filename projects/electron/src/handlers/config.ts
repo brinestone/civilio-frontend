@@ -1,5 +1,6 @@
 import { getStoreValue, storeValue } from "@civilio/helpers/store";
 import {
+	AppConfigPaths,
 	AppConfigSchema,
 	BuildInfoSchema,
 	Locale,

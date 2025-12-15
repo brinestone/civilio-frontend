@@ -78,17 +78,17 @@ export async function testConnection(req: TestDbConnectionRequest) {
 		database,
 	});
 
-	const url = new URL(`/${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+	const url = new URL(`/${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 	if (ssl) url.searchParams.set('sslmode', 'required');
 
-	console.log(`Testing database on host: ${ host } using ${ url.toString() }...`);
+	console.log(`Testing database on host: ${host} using ${url.toString()}...`);
 	try {
 		await client.connect();
 		const res = await client.query('SELECT NOW()');
-		console.log(`Database time is ${ res.rows[0].now }`);
+		console.log(`Database time is ${res.rows[0].now}`);
 		return true;
 	} catch (ex) {
-		console.log(`Test connection: ${ url } failed`);
+		console.log(`Test connection: ${url} failed`);
 		console.error(ex);
 		return ex.message;
 	} finally {
@@ -102,7 +102,7 @@ export function resetPool() {
 		throw new MalConfigurationError('db');
 	}
 	const { host, password, port, ssl, username, database } = conn;
-	const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+	const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 	if (ssl) {
 		url.searchParams.set('sslmode', 'require');
 	}
@@ -137,7 +137,7 @@ class LRUDrizzleCache extends Cache {
 		max: 500,
 		sizeCalculation: (value, key) => {
 			const size = calculateSize(value);
-			console.log(`value at ${ key } calculated to ${ size } size`)
+			console.log(`value at ${key} calculated to ${size} size`)
 			return size;
 		}
 	});
@@ -148,12 +148,12 @@ class LRUDrizzleCache extends Cache {
 	}
 
 	async get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
-		console.log(`Getting ${ key } from cache`);
+		console.log(`Getting ${key} from cache`);
 		return this._cache.get(key);
 	}
 
 	async put(key: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void> {
-		console.log(`Updating ${ key } from cache`);
+		console.log(`Updating ${key} from cache`);
 		const ttl = config?.px ?? (config?.ex ? config.ex * 1000 : this.ttl);
 		this._cache.set(key, response, { ttl });
 		for (const table of tables) {
@@ -204,7 +204,7 @@ export function provideDatabase(schema: Record<string, unknown>) {
 	if (pool == null) {
 		console.log(conn);
 		const { host, password, port, ssl, username, database } = conn;
-		const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+		const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 		if (ssl) {
 			url.searchParams.set('sslmode', 'require');
 		}
@@ -218,3 +218,11 @@ export function provideDatabase(schema: Record<string, unknown>) {
 		cache: singletonCache
 	});
 }
+
+app.on('ready', () => {
+	try {
+		const _ = provideDatabase({});
+	} catch (e) {
+		console.error(e);
+	}
+});
