@@ -122,7 +122,7 @@ export const FieldMappingSchema = z.object({
 	dbColumnType: z.string()
 });
 
-export const validationStatuses = z.enum(['validation_status_approved', 'validation_status_on_hold']);
+export const validationStatuses = z.enum(['validation_status_approved', 'validation_status_on_hold', 'validation_status_not_approved']);
 export const FormSubmissionSchema = z.object({
 	id: z.number(),
 	index: z.number(),
