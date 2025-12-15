@@ -1,10 +1,13 @@
 import {
+	DbConnectionRef,
 	DbConnectionRefInput,
 	DeleteDbConnectionRequest,
 	FindConnectionHistoryResponse,
 	FindConnectionHistoryResponseSchema,
 	MalConfigurationError,
 	MigrationsCheckReportSchema,
+	pause,
+	ServiceEventPayload,
 	TestDbConnectionRequest,
 	TestDbConnectionRequestSchema,
 	UseConnectionRequest,
@@ -25,6 +28,42 @@ import { MigrationRunner } from './migrator';
 let pool: Pool | null = null;
 const migrator = new MigrationRunner(app.isPackaged ? join(app.getPath('assets'), 'resources', 'assets') : resolve(join(__dirname, '..', 'assets')));
 const connectionManager = new ConnectionManager(join(app.getPath('appData'), 'civilio', 'c.db'));
+
+async function checkDbConnection({ database, password, host, port, ssl, username }: Required<DbConnectionRef>) {
+	try {
+		const client = new Client({
+			application_name: 'CivilIO',
+			password,
+			user: username,
+			database,
+			host,
+			port,
+			ssl
+		});
+		await client.connect();
+		await client.query('SELECT 1');
+		await client.end();
+		return;
+	} catch (e) {
+		return { code: e.code as string, reason: e.message as string };
+	}
+}
+
+export async function* watchDb() {
+	let isOnline = true;
+	while (true) {
+		const config = connectionManager.getCurrentConnection(true);
+		const result = await checkDbConnection(config as Required<typeof config>);
+		isOnline = !result;
+
+		if (!isOnline) {
+			console.log('database is unreachable');
+			yield { service: 'db', status: 'Offline', details: result } as ServiceEventPayload;
+		}
+
+		await pause(10000);
+	}
+}
 
 export function useConnection(req: UseConnectionRequest) {
 	connectionManager.useConnection(UseConnectionRequestSchema.parse(req));
@@ -221,6 +260,7 @@ export function provideDatabase(schema: Record<string, unknown>) {
 
 app.on('ready', () => {
 	try {
+		console.log('creating database connection pool');
 		const _ = provideDatabase({});
 	} catch (e) {
 		console.error(e);

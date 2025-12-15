@@ -1,6 +1,6 @@
 import {
 	createChannelHandler,
-	createPushHandler,
+	createUnifiedServiceMonitor,
 	deleteSubmission,
 	findAutocompleteSuggestions,
 	findCurrentSubmissionVersion,
@@ -25,7 +25,7 @@ import {
 	updateFieldMappings,
 	updateLocale,
 	updateTheme,
-	watchAssets
+	watchLdap
 } from "@civilio/handlers";
 import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
 import {
@@ -37,15 +37,28 @@ import {
 	runMigrations,
 	saveConnectionParameters,
 	testConnection,
-	useConnection
+	useConnection,
+	watchDb
 } from "./db";
 import { storeValue } from "./store";
+import { BrowserWindow } from "electron";
 
-export function registerDevelopmentIpcHandlers() {
-	createPushHandler('i18n:update', watchAssets);
+// export function registerPushHandlers() {
+// 	if (!app.isPackaged) {
+// 		createPushHandler('i18n:update', watchAssets);
+// 	}
+// }
+
+export function startServiceMonitoring(window: BrowserWindow) {
+	console.log('monitoring services...');
+	createUnifiedServiceMonitor(window, 'service-status-update', [
+		watchLdap,
+		watchDb
+	]);
+	console.log('Service monitoring started.');
 }
 
-export function registerProductionIpcHandlers() {
+export function registerPullHandlers() {
 	createChannelHandler('submission:delete', async req => {
 		return await deleteSubmission(req);
 	})
@@ -137,11 +150,11 @@ export function registerProductionIpcHandlers() {
 		return getAppConfig();
 	});
 	createChannelHandler('submissions:read', async ({
-																										form,
-																										page,
-																										size,
-																										filter
-																									}) => {
+		form,
+		page,
+		size,
+		filter
+	}) => {
 		return await findFormSubmissions(form, page, size, filter);
 	});
 	createChannelHandler('config:update', ({ path, value }) => {

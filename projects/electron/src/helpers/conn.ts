@@ -144,7 +144,6 @@ export class ConnectionManager {
 	}
 
 	addConnection(ref: DbConnectionRefInput) {
-		console.log('Adding new connection', ref);
 		this.runInTransaction(() => {
 			const {
 				database,

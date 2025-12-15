@@ -24,9 +24,10 @@ import {
 import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
-import { provideNotifications } from './services/notification';
 import { AuthState } from './store/auth';
 import { ConfigState } from './store/config';
+import { NotificationState } from './store/notifications';
+import { provideNotifications } from './services/notification';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -36,7 +37,7 @@ export const appConfig: ApplicationConfig = {
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),
 		provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
-		provideStore([ConfigState, AuthState],
+		provideStore([NotificationState, ConfigState, AuthState],
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
 				disabled: !isDevMode(),

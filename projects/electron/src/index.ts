@@ -1,7 +1,7 @@
 import { app, BrowserWindow, nativeTheme } from "electron";
-import { registerDevelopmentIpcHandlers, registerProductionIpcHandlers } from './helpers/handlers';
-import { showMainWindow } from "./helpers/windows";
 import { getAppConfig } from "./handlers";
+import { registerPullHandlers, startServiceMonitoring } from './helpers/handlers';
+import { showMainWindow } from "./helpers/windows";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -16,10 +16,7 @@ function applyPreferences() {
 }
 
 async function initializeServices() {
-	registerProductionIpcHandlers();
-	if (!app.isPackaged) {
-		registerDevelopmentIpcHandlers();
-	}
+	registerPullHandlers();
 	applyPreferences();
 }
 
@@ -28,7 +25,8 @@ async function initializeServices() {
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
 	await initializeServices();
-	showMainWindow();
+	const window = showMainWindow();
+	startServiceMonitoring(window);
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

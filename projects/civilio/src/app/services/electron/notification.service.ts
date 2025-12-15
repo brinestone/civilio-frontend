@@ -6,15 +6,16 @@ import { NotificationService } from '../notification';
 
 
 @Injectable({
-  providedIn: null
+	providedIn: null
 })
 export class ElectronNotificationService implements NotificationService {
-  private store = inject(Store);
-  listen(event: PushEvent) {
-    window.electron.on('push-notifications', (data) => {
-      if (event == 'i18n:update') {
-        this.store.dispatch(I18NUpdated);
-      }
-    })
-  }
+	private store = inject(Store);
+	listen(event: PushEvent) {
+		window.electron.on('push-notifications', (data) => {
+			debugger;
+			if (event == 'i18n:update') {
+				this.store.dispatch(I18NUpdated);
+			}
+		});
+	}
 }

@@ -1,6 +1,6 @@
-import { EncryptionUnavailableError, ParsedLoginRequest, UserAccountNotFoundError } from '@civilio/shared';
+import { EncryptionUnavailableError, ParsedLoginRequest, pause, ServiceEventPayload, UserAccountNotFoundError } from '@civilio/shared';
 import { app, safeStorage } from 'electron';
-import { existsSync, readFileSync, rm, rmSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { Client } from 'ldapts';
 import { join } from 'path';
 import { getAppConfig } from './config';
@@ -9,6 +9,16 @@ const USER_FILTER_TEMPLATE = '(&(objectClass=inetOrgPerson)(|(uid={login})(mail=
 const credentialsPath = join(app.getPath('userData'), 'credentials.enc');
 
 let client: Client;
+
+export async function* watchLdap() {
+	let isOnline = true;
+	while (true) {
+		isOnline = client?.isConnected ?? false;
+		yield { service: 'LDAP Server', status: isOnline ? 'Online' : 'Offline', details: isOnline ? undefined : 'Authentication endpoint unreachable' } as ServiceEventPayload;
+
+		await pause(10000);
+	}
+}
 
 function saveCredentials(username: string, password: string) {
 	if (safeStorage.isEncryptionAvailable()) {

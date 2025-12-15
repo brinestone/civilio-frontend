@@ -9,7 +9,26 @@
 		<router-outlet />
 	</div>
 	<div class="flex justify-center items-center gap-3 px-4">
+		<cv-theme-selector size="sm" />
+		<hlm-separator orientation="vertical" />
 		<cv-locale-selector />
+		<hlm-separator orientation="vertical" />
+		<hlm-sheet side="right">
+			<button brnSheetTrigger hlmBtn size="sm" variant="ghost">
+				<ng-icon name="lucideSettings" />
+			</button>
+			<hlm-sheet-content *brnSheetContent="let ctx">
+				<hlm-sheet-header>
+					<hlm-sheet-header>
+						<h3 hlmSheetTitle class="flex items-center gap-2">
+							<ng-icon name="lucideSettings" />
+							<span>Settings</span>
+						</h3>
+					</hlm-sheet-header>
+				</hlm-sheet-header>
+				<cv-auth-params-config />
+			</hlm-sheet-content>
+		</hlm-sheet>
 	</div>
 </div>
 

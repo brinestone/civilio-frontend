@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export interface ServiceEventPayload {
+	service: string;
+	status: 'Online' | 'Offline';
+	details: any;
+}
+
 export const PrincipalSchema = z.object({
 	displayName: z.string(),
 	mail: z.email(),

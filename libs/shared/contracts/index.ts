@@ -64,7 +64,9 @@ export const ChannelSchema = z.templateLiteral([
 	entities, ':', crudActions
 ]);
 export const PushEventSchema = z.enum([
-	'i18n:update'
+	'i18n:update',
+	'services:online',
+	'services:offline'
 ]);
 export const channelArgs = {
 	'field-mappings:create': FieldMappingRequestSchema,
@@ -157,7 +159,7 @@ export const channelResponses = {
 	'auth:logout': {}
 } as const;
 
-export type PushEvent = z.output<typeof PushEventSchema>;
+export type PushEvent = z.output<typeof PushEventSchema> | 'service-status-update';
 export type Channel =
 	z.output<typeof ChannelSchema>
 	| 'auth:login'

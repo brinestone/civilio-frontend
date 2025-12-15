@@ -1,17 +1,34 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, resource } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LocaleSelectorComponent } from '@app/components';
+import { AuthParamsConfigComponent, LocaleSelectorComponent, ThemeSelectorComponent } from '@app/components';
 import { sendRpcMessageAsync } from '@app/util';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucidePencil, lucideSettings } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
+import { BrnSheetImports } from '@spartan-ng/brain/sheet';
+import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 
 @Component({
 	selector: 'cv-auth',
+	viewProviders: [
+		provideIcons({
+			lucideSettings,
+			lucidePencil
+		})
+	],
 	imports: [
 		NgTemplateOutlet,
+		BrnSheetImports,
+		HlmSheetImports,
 		TranslatePipe,
+		NgIcon,
+		HlmButton,
 		LocaleSelectorComponent,
+		ThemeSelectorComponent,
+		AuthParamsConfigComponent,
 		RouterOutlet,
 		HlmSeparator
 	],
