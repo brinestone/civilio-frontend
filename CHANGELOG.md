@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.2.1](https://github.com/brinestone/civilio-frontend/compare/v4.2.0...v4.2.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* **schemas:** add 'validation_status_not_approved' in validation status enum ([4a518b0](https://github.com/brinestone/civilio-frontend/commit/4a518b0c566cdb59e0bfb1d0639589ea5abd779d))
+
 ## [4.2.0](https://github.com/brinestone/civilio-frontend/compare/v4.1.3...v4.2.0) (2025-12-14)
 
 
