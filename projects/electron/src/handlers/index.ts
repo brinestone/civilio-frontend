@@ -1,5 +1,6 @@
 import { reportError } from '@civilio/helpers/error';
 import { logRequest, logResponse } from '@civilio/helpers/logger';
+import { provideLogger } from '@civilio/helpers/logging';
 import {
 	AppErrorBase,
 	Channel,
@@ -21,6 +22,8 @@ export * from './config';
 export * from './form';
 export * from './i18n';
 export * from './resource';
+
+const logger = provideLogger('handler-registrar');
 
 function generateMessageId() {
 	return randomBytes(5).toString('hex');
@@ -45,7 +48,8 @@ export async function createPushHandler<TEvent extends PushEvent>(ev: TEvent, ev
 }
 
 export function createChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
-	console.time(channel);
+	// console.time(channel);
+	logger.debug('Registering IPC handler', 'channel', channel);
 	const replyChannel = computeReplyChannel(channel);
 	ipcMain.on(channel, async (event, eventData) => {
 		logRequest(channel, eventData);
@@ -75,8 +79,8 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 			event.sender.send(replyChannel, replyRpc);
 			logResponse(channel, replyRpc);
 		} catch (e) {
-			reportError(event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e))
-			console.timeEnd(channel);
+			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e))
+			// console.timeEnd(channel);
 		}
 	})
 }

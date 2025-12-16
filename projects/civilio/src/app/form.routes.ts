@@ -27,7 +27,6 @@ const sectionRoutes: Routes = [
 		path: "",
 		pathMatch: "full",
 		redirectTo: ({ data }) => {
-			console.log(data);
 			return (data["model"] as FormSchema).sections[0].id;
 		},
 	},

@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import { PgDatabase } from 'drizzle-orm/pg-core';
 import fs from 'fs/promises';
 import path from 'path';
+import { provideLogger } from './logging';
 
 const DUPLICATE_OBJECT_ERROR_CODE = '42710'; // 'duplicate_object' error
 const DUPLICATE_TABLE_ERROR_CODE = '42P07'; // 'duplicate_table' error
@@ -24,6 +25,7 @@ type MigrationFile = {
 };
 
 export class MigrationRunner<TDb extends PgDatabase<any, any>> {
+	private readonly logger = provideLogger(MigrationRunner.name);
 	constructor(
 		private migrationsDir: string,
 		private migrationsTable: string = '__drizzle_migrations'
@@ -68,10 +70,10 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 		await this.ensureMigrationsTable(db);
 		const status = await this.checkMigrations(db);
 		if (!status.needsMigration) {
-			console.log('No migrations needed');
+			this.logger.log('No migrations needed');
 			return;
 		}
-		console.log(`Applying ${ status.pending.length } migrations...`);
+		this.logger.log(`Applying ${ status.pending.length } migrations...`);
 
 		for (const migration of status.pending) {
 			await db.transaction(async (tx) => {
@@ -82,7 +84,7 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 							await tx.execute(sql.raw(statement));
 						} catch (e) {
 							if ('code' in e && IDEMPOTENT_ERROR_CODES.has(e.code)) {
-								console.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
+								this.logger.warn(`Warning: Migration ${ migration.name } encountered a recoverable error (Object already exists). Continuing...`)
 							} else {
 								ranSuccessfully = false;
 								// noinspection ExceptionCaughtLocallyJS
@@ -99,16 +101,16 @@ export class MigrationRunner<TDb extends PgDatabase<any, any>> {
 											${ new Date().toISOString() })
 							ON CONFLICT (hash) DO UPDATE SET name = ${ migration.name }
 						`);
-						console.log(`✓ Applied migration: ${ migration.name }`);
+						this.logger.log(`✓ Applied migration: ${ migration.name }`);
 					}
 
 				} catch (error) {
-					console.error(`✗ Failed to apply migration ${ migration.name }:`, error);
+					this.logger.error(`✗ Failed to apply migration ${ migration.name }:`, error);
 					throw error;
 				}
 			});
 		}
-		console.log('All migrations applied successfully');
+		this.logger.log('All migrations applied successfully');
 	}
 
 	private async readMigrationFiles(): Promise<MigrationFile[]> {

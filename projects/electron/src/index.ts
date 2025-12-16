@@ -1,7 +1,10 @@
 import { app, BrowserWindow, nativeTheme } from "electron";
+import { getAppConfig } from "./handlers";
 import { registerDevelopmentIpcHandlers, registerProductionIpcHandlers } from './helpers/handlers';
 import { showMainWindow } from "./helpers/windows";
-import { getAppConfig } from "./handlers";
+import { provideLogger } from "./helpers/logging";
+
+const logger = provideLogger('main');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -16,6 +19,7 @@ function applyPreferences() {
 }
 
 async function initializeServices() {
+	logger.info('Initializing services');
 	registerProductionIpcHandlers();
 	if (!app.isPackaged) {
 		registerDevelopmentIpcHandlers();
@@ -27,6 +31,7 @@ async function initializeServices() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
+	logger.info('App is ready')
 	await initializeServices();
 	showMainWindow();
 });
@@ -35,9 +40,14 @@ app.on("ready", async () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
+	logger.info('all windows closed');
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}
+});
+
+app.on('before-quit', () => {
+	logger.info('Quitting');
 });
 
 app.on('activate', () => {
