@@ -238,9 +238,7 @@ export class OverviewPage implements OnDestroy {
 				}),
 				ch.display({
 					id: 'status',
-					meta: {
-						cssClass: 'px-2 uppercase'
-					},
+					header: 'misc.status',
 					cell: ({ row }) => {
 						return flexRenderComponent(BadgeCell, {
 							inputs: {

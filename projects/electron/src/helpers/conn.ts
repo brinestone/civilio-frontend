@@ -8,11 +8,11 @@ import { provideLogger } from "./logging";
 
 export class ConnectionManager {
 	private readonly conn: DatabaseSync;
-	private readonly logger = provideLogger(ConnectionManager.name);
+	private readonly logger = provideLogger('ConnectionManager');
 	constructor(
 		dbPath: string
 	) {
-		this.logger.log(`Initializing connection manager on ${dbPath}`)
+		this.logger.verbose(`Initializing at ${dbPath}`)
 		this.conn = new DatabaseSync(dbPath);
 		this.initialize();
 	}

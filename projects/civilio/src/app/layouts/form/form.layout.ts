@@ -21,7 +21,10 @@ import { HlmSheetImports } from '@spartan-ng/helm/sheet';
     BrnSheetImports
 ],
   templateUrl: './form.layout.html',
-  styleUrl: './form.layout.scss'
+  styleUrl: './form.layout.scss',
+	host: {
+		class: 'scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent'
+	}
 })
 export class FormLayout {
 

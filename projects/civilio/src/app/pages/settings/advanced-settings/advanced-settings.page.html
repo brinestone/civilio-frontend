@@ -6,9 +6,11 @@
 		<ng-icon name="lucideDatabase"/>
 		<span>{{ 'settings.advanced.db.title' | translate }}</span>
 	</h2>
-	<div class="grid grid-cols-[400px_minmax(auto,350px)] gap-x-3">
+	<div class="grid lg:grid-cols-[400px_minmax(auto,350px)] ld:max-w-auto max-w-[80%] gap-3">
 		<div class="space-y-3">
-			<h4 hlmH4>Parameters</h4>
+			<h4 hlmH4>
+				{{ 'settings.advanced.db.parameters.title' | translate }}
+			</h4>
 			<form
 				#form="ngForm"
 				(ngSubmit)="onFormSubmit(form)"

@@ -25,11 +25,12 @@ type MigrationFile = {
 };
 
 export class MigrationRunner<TDb extends PgDatabase<any, any>> {
-	private readonly logger = provideLogger(MigrationRunner.name);
+	private readonly logger = provideLogger('MigrationRunner');
 	constructor(
 		private migrationsDir: string,
 		private migrationsTable: string = '__drizzle_migrations'
 	) {
+		this.logger.verbose('Initializing')
 	}
 
 	async checkMigrations(db: TDb): Promise<{

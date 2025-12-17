@@ -1,8 +1,6 @@
-import { BooleanInput } from "@angular/cdk/coercion";
 import {
 	Component,
 	HostBinding,
-	booleanAttribute,
 	computed,
 	inject,
 	input
@@ -12,12 +10,11 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideCopy } from "@ng-icons/lucide";
 import { TranslatePipe, TranslateService } from "@ngx-translate/core";
 import { HlmButton } from "@spartan-ng/helm/button";
-import { HlmTd } from "@spartan-ng/helm/table";
 import { toast } from "ngx-sonner";
 
 @Component({
 	selector: 'cv-version-cell',
-	imports: [HlmButton, NgIcon, MaskPipe, TranslatePipe, HlmTd],
+	imports: [HlmButton, NgIcon, MaskPipe, TranslatePipe],
 	viewProviders: [
 		provideIcons({
 			lucideCopy
@@ -28,25 +25,20 @@ import { toast } from "ngx-sonner";
 		role: 'table-cell'
 	},
 	template: `
-		<td hlmTd>
 			@if (version()) {
 			<span>{{ version() | mask }}</span>
-			@if(showCopyButton()) {
+			@if(allowCopy()) {
 				<button [title]="'misc.actions.copy_version' | translate" (click)="onCopyVersionButtonClicked()" size="sm"
 							variant="ghost" hlmBtn>
 				<ng-icon name="lucideCopy"/>
 			</button>
 			}
 		}
-	</td>
 	`
 })
 export class VersionCell {
 	readonly version = input<string>();
-	readonly showCopyButton = input<boolean, BooleanInput>(true, {
-		alias: 'allowCopy',
-		transform: booleanAttribute
-	});
+	readonly allowCopy = input<boolean>();
 
 	@HostBinding('class.inline-flex')
 	@HostBinding('class.gap-2')

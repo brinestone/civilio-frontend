@@ -21,9 +21,8 @@ export type RowAction<T> = {
 
 @Component({
 	selector: 'cv-actions-cell',
-	imports: [HlmButton, NgIcon, TranslatePipe, HlmTd],
+	imports: [HlmButton, NgIcon, TranslatePipe],
 	template: `
-		<td hlmTd>
 			@if ((actions() ?? []).length > 0) {
 			@for (action of actions(); track action.identifier) {
 				<button [title]="minimal() ? (_static() ? action.label : (action.label| translate)) : ''"
@@ -40,7 +39,6 @@ export type RowAction<T> = {
 				</button>
 			}
 		}
-</td>
 	`,
 	styles: `
 		@reference "tailwindcss";
