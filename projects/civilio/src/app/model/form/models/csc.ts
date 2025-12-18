@@ -271,49 +271,51 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 
 		// #region Accessibility
 		{
-			fields: [],
+			fields: [
+				{
+					key: 'csc.form.sections.accessibility.sections.general.fields.serving_roads',
+					type: 'single-selection',
+					optionsGroupKey: 'tr2ph17',
+					required: true
+				},
+				{
+					key: 'csc.form.sections.accessibility.sections.general.fields.has_obstacles',
+					type: 'single-selection',
+					optionsGroupKey: 'hb0ui59',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.accessibility.sections.general.fields.serving_roads'],
+						predicate: RelevancePredicateSchema.implement(deps => {
+							return deps['csc.form.sections.accessibility.sections.general.fields.serving_roads'] == '1';
+						})
+					}
+				},
+				{
+					key: 'csc.form.sections.accessibility.sections.general.fields.is_road_degradable',
+					type: 'boolean'
+				},
+				{
+					key: 'csc.form.sections.accessibility.sections.general.fields.attached_villages_count',
+					type: 'int',
+					max: 100,
+					min: 0,
+					required: true
+				},
+				{
+					key: 'csc.form.sections.accessibility.sections.general.fields.cover_radius',
+					type: 'single-selection',
+					optionsGroupKey: 'da2cb00',
+					required: true
+				}
+			],
 			id: 'csc.form.sections.accessibility',
 			children: [
-				{
-					id: 'csc.form.sections.accessibility.sections.general',
-					fields: [
-						{
-							key: 'csc.form.sections.accessibility.sections.general.fields.serving_roads',
-							type: 'single-selection',
-							optionsGroupKey: 'tr2ph17',
-							required: true
-						},
-						{
-							key: 'csc.form.sections.accessibility.sections.general.fields.has_obstacles',
-							type: 'single-selection',
-							optionsGroupKey: 'hb0ui59',
-							required: true,
-							relevance: {
-								dependencies: ['csc.form.sections.accessibility.sections.general.fields.serving_roads'],
-								predicate: RelevancePredicateSchema.implement(deps => {
-									return deps['csc.form.sections.accessibility.sections.general.fields.serving_roads'] == '1';
-								})
-							}
-						},
-						{
-							key: 'csc.form.sections.accessibility.sections.general.fields.is_road_degradable',
-							type: 'boolean'
-						},
-						{
-							key: 'csc.form.sections.accessibility.sections.general.fields.attached_villages_count',
-							type: 'int',
-							max: 100,
-							min: 0,
-							required: true
-						},
-						{
-							key: 'csc.form.sections.accessibility.sections.general.fields.cover_radius',
-							type: 'single-selection',
-							optionsGroupKey: 'da2cb00',
-							required: true
-						}
-					]
-				},
+				// {
+				// 	id: 'csc.form.sections.accessibility.sections.general',
+				// 	fields: [
+
+				// 	]
+				// },
 				{
 					id: 'csc.form.sections.accessibility.sections.villages',
 					fields: [{
@@ -499,25 +501,27 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				dependencies: ['csc.form.sections.identification.fields.is_functional'],
 				predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.identification.fields.is_functional'] === true)
 			},
-			fields: [],
-			children: [
+			fields: [
 				{
-					id: 'csc.form.sections.areas.sections.general',
-					fields: [
-						{
-							key: 'csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms',
-							type: 'boolean'
-						},
-						{
-							key: 'csc.form.sections.areas.sections.general.fields.moving_plans',
-							type: 'boolean',
-							relevance: {
-								dependencies: ['csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms'],
-								predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms'] === true)
-							}
-						}
-					]
+					key: 'csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms',
+					type: 'boolean'
 				},
+				{
+					key: 'csc.form.sections.areas.sections.general.fields.moving_plans',
+					type: 'boolean',
+					relevance: {
+						dependencies: ['csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms'],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.areas.sections.general.fields.dedicated_cs_rooms'] === true)
+					}
+				}
+			],
+			children: [
+				// {
+				// 	id: 'csc.form.sections.areas.sections.general',
+				// 	fields: [
+
+				// 	]
+				// },
 				{
 					id: 'csc.form.sections.areas.sections.rooms',
 					fields: [
@@ -894,82 +898,83 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		// #region Archiving Function
 		{
 			id: 'csc.form.sections.archiving_function',
-			fields: [],
+			fields: [
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.has_archiving_room',
+					type: 'boolean',
+					relevance: relevanceMap.centerIsPrimaryOrSecondary
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.archive_room_electric_condition',
+					type: 'single-selection',
+					relevance: relevanceMap.centerIsPrimaryOrSecondary,
+					optionsGroupKey: 'hv1un42',
+					required: true
+				},
+				...([
+					'csc.form.sections.archiving_function.sections.general.fields.has_fire_extinguisher',
+					'csc.form.sections.archiving_function.sections.general.fields.locked_door',
+					'csc.form.sections.archiving_function.sections.general.fields.is_archive_room_access_limited',
+					'csc.form.sections.archiving_function.sections.general.fields.room_has_humidity'
+				] as FieldKey[]).map(key => ({
+					key,
+					relevance: relevanceMap.centerIsPrimaryOrSecondary,
+					type: 'boolean'
+				})),
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.register_archiving_type',
+					type: 'multi-selection',
+					optionsGroupKey: 'xi0eq24',
+					required: true,
+					relevance: relevanceMap.centerIsPrimaryOrSecondary,
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.other_archiving_type',
+					type: 'text',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'],
+						predicate: RelevancePredicateSchema.implement(deps => intersection(['7'], deps['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'] as string[]).length > 0)
+					}
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.has_written_archiving_plan',
+					type: 'boolean',
+					relevance: relevanceMap.centerIsPrimaryOrSecondary,
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited',
+					type: 'single-selection',
+					relevance: relevanceMap.centerIsPrimaryOrSecondary,
+					optionsGroupKey: 'gw85g70',
+					required: true
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited_systematically',
+					type: 'boolean',
+					relevance: relevanceMap.centerIsNotPrimaryOrSecondary
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.is_vandalized',
+					type: 'boolean'
+				},
+				{
+					key: 'csc.form.sections.archiving_function.sections.general.fields.vandalization_date',
+					type: 'text',
+					required: true,
+					relevance: {
+						dependencies: ['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'],
+						predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'] === true)
+					}
+				}],
 			relevance: relevanceMap.centerIsFunctional,
 			children: [
-				{
-					id: 'csc.form.sections.archiving_function.sections.general',
-					fields: [
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.has_archiving_room',
-							type: 'boolean',
-							relevance: relevanceMap.centerIsPrimaryOrSecondary
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.archive_room_electric_condition',
-							type: 'single-selection',
-							relevance: relevanceMap.centerIsPrimaryOrSecondary,
-							optionsGroupKey: 'hv1un42',
-							required: true
-						},
-						...([
-							'csc.form.sections.archiving_function.sections.general.fields.has_fire_extinguisher',
-							'csc.form.sections.archiving_function.sections.general.fields.locked_door',
-							'csc.form.sections.archiving_function.sections.general.fields.is_archive_room_access_limited',
-							'csc.form.sections.archiving_function.sections.general.fields.room_has_humidity'
-						] as FieldKey[]).map(key => ({
-							key,
-							relevance: relevanceMap.centerIsPrimaryOrSecondary,
-							type: 'boolean'
-						})),
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.register_archiving_type',
-							type: 'multi-selection',
-							optionsGroupKey: 'xi0eq24',
-							required: true,
-							relevance: relevanceMap.centerIsPrimaryOrSecondary,
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.other_archiving_type',
-							type: 'text',
-							required: true,
-							relevance: {
-								dependencies: ['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'],
-								predicate: RelevancePredicateSchema.implement(deps => intersection(['7'], deps['csc.form.sections.archiving_function.sections.general.fields.register_archiving_type'] as string[]).length > 0)
-							}
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.has_written_archiving_plan',
-							type: 'boolean',
-							relevance: relevanceMap.centerIsPrimaryOrSecondary,
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited',
-							type: 'single-selection',
-							relevance: relevanceMap.centerIsPrimaryOrSecondary,
-							optionsGroupKey: 'gw85g70',
-							required: true
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.are_registers_deposited_systematically',
-							type: 'boolean',
-							relevance: relevanceMap.centerIsNotPrimaryOrSecondary
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.is_vandalized',
-							type: 'boolean'
-						},
-						{
-							key: 'csc.form.sections.archiving_function.sections.general.fields.vandalization_date',
-							type: 'text',
-							required: true,
-							relevance: {
-								dependencies: ['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'],
-								predicate: RelevancePredicateSchema.implement(deps => deps['csc.form.sections.archiving_function.sections.general.fields.is_vandalized'] === true)
-							}
-						}
-					]
-				},
+				// {
+				// 	id: 'csc.form.sections.archiving_function.sections.general',
+				// 	fields: [
+
+				// 	]
+				// },
 				{
 					id: 'csc.form.sections.archiving_function.sections.archive_stats',
 					relevance: {
@@ -1076,22 +1081,18 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		{
 			id: 'csc.form.sections.employees',
 			relevance: relevanceMap.centerIsFunctional,
-			fields: [],
+			fields: ([
+				'csc.form.sections.employees.sections.general.fields.male_count',
+				'csc.form.sections.employees.sections.general.fields.female_count',
+				'csc.form.sections.employees.sections.general.fields.non_officer_male_count',
+				'csc.form.sections.employees.sections.general.fields.non_officer_female_count',
+			] as FieldKey[]).map(k => ({
+				key: k,
+				type: 'int',
+				min: 0,
+				max: 500,
+			})),
 			children: [
-				{
-					id: 'csc.form.sections.employees.sections.general',
-					fields: ([
-						'csc.form.sections.employees.sections.general.fields.male_count',
-						'csc.form.sections.employees.sections.general.fields.female_count',
-						'csc.form.sections.employees.sections.general.fields.non_officer_male_count',
-						'csc.form.sections.employees.sections.general.fields.non_officer_female_count',
-					] as FieldKey[]).map(k => ({
-						key: k,
-						type: 'int',
-						min: 0,
-						max: 500,
-					}))
-				},
 				{
 					id: 'csc.form.sections.employees.sections.officers',
 					fields: [

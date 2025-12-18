@@ -1,13 +1,12 @@
-import { Component, input, computed } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 import { TranslatePipe } from "@ngx-translate/core";
-import { HlmBadgeImports, BadgeVariants } from "@spartan-ng/helm/badge";
+import { BadgeVariants, HlmBadgeImports } from "@spartan-ng/helm/badge";
 import { HlmTd } from "@spartan-ng/helm/table";
 
 @Component({
 	selector: 'cv-badge-cell',
-	imports: [HlmBadgeImports, HlmTd, TranslatePipe],
+	imports: [HlmBadgeImports, TranslatePipe],
 	template: `
-		<td hlmTd>
 			@if(text()) {
 			@if (_static()) {
 			<span hlmBadge [variant]="variant()"> {{ text() }}</span>
@@ -15,7 +14,6 @@ import { HlmTd } from "@spartan-ng/helm/table";
 			<span hlmBadge [variant]="variant()">{{ text() | translate }}</span>
 		}
 		}
-	</td>
 	`
 })
 export class BadgeCell {

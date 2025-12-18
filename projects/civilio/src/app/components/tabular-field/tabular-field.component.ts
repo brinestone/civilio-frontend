@@ -119,7 +119,7 @@ export class TabularFieldComponent<T extends Record<string, ParsedValue | Parsed
 	public readonly actionTriggered = output<ActionTriggeredEvent<T>>();
 
 	protected readonly editing = signal<boolean>(false);
-	protected readonly title = computed(() => `${ this.schema().key }.title`)
+	protected readonly title = computed(() => `${ extractFieldKey(this.schema().key) }.title`)
 	protected readonly shouldShowActionsCol = computed(() => {
 		const mutationEnabled = this.enableMutation();
 		const customActions = this.actions();
@@ -131,7 +131,10 @@ export class TabularFieldComponent<T extends Record<string, ParsedValue | Parsed
 	protected readonly rowSelection = signal<RowSelectionState>({});
 	private readonly columnVisibility = linkedSignal<VisibilityState>(() => {
 		const schema = this.schema();
-		const v = { selection: this.enableSelection() ?? false, actions: this.shouldShowActionsCol() } as VisibilityState;
+		const v = {
+			selection: this.enableSelection() ?? false,
+			actions: this.shouldShowActionsCol()
+		} as VisibilityState;
 		values(schema.columns)
 			.filter(c => c.visible === false)
 			.forEach(c => v[c.key] = false);

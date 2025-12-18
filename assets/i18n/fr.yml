@@ -176,6 +176,8 @@ settings:
       port: Port
       ssl: SSL
       name: Nom de la base de données
+      parameters:
+        title: Paramètres
       connections:
         title: Historique de connexion
         active: Actif

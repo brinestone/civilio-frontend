@@ -1,4 +1,4 @@
-CREATE TABLE "revisions"."ledger"
+CREATE TABLE IF NOT EXISTS "revisions"."ledger"
 (
 	"hash"             text                     NOT NULL,
 	"form"             "civilio"."form_types"   NOT NULL,
@@ -7,10 +7,10 @@ CREATE TABLE "revisions"."ledger"
 	"notes"            text
 );
 --> statement-breakpoint
-DROP VIEW "civilio"."vw_submissions";--> statement-breakpoint
-CREATE UNIQUE INDEX "ledger_hash_form_submission_index_index" ON "revisions"."ledger" USING btree ("hash", "form", "submission_index");--> statement-breakpoint
+DROP VIEW IF EXISTS "civilio"."vw_submissions";--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "ledger_hash_form_submission_index_index" ON "revisions"."ledger" USING btree ("hash", "form", "submission_index");--> statement-breakpoint
 ALTER TABLE "revisions"."deltas"
-	DROP COLUMN "change_notes";
+	DROP COLUMN IF EXISTS "change_notes";
 --> statement-breakpoint
 CREATE VIEW "civilio"."vw_submissions" AS
 (

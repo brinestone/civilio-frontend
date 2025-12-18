@@ -1,5 +1,12 @@
-import { Component, inject, input, linkedSignal, output, resource, signal } from '@angular/core';
-import { FieldMapperComponent } from '@app/components';
+import {
+	Component,
+	inject,
+	input,
+	linkedSignal,
+	output,
+	resource,
+	signal
+} from '@angular/core';
 import { FormSchema } from '@app/model/form';
 import { FORM_SERVICE } from '@app/services/form';
 import { FormType } from '@civilio/shared';
@@ -16,10 +23,8 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
-import { BrnSheetImports } from '@spartan-ng/brain/sheet';
 import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmSheetImports } from '@spartan-ng/helm/sheet';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { debounceTime, map, pipe } from 'rxjs';
 import z from 'zod';
@@ -46,9 +51,6 @@ import { toast } from 'ngx-sonner';
 		HlmButton,
 		NgIcon,
 		TranslatePipe,
-		FieldMapperComponent,
-		BrnSheetImports,
-		HlmSheetImports,
 		HlmAutocompleteImports,
 		MaskPipe,
 	],

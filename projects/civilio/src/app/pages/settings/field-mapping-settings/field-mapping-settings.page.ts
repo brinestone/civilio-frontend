@@ -8,6 +8,9 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     RouterLink,
     RouterLinkActive
   ],
+	host: {
+		class: 'scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent'
+	},
   templateUrl: './field-mapping-settings.page.html',
   styleUrl: './field-mapping-settings.page.scss'
 })

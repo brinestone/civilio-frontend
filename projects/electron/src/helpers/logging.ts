@@ -20,10 +20,10 @@ export function provideLogger(service: string, useFileTransports = true) {
 	// Either don't set format at all for default colored output
 	// logger.transports.console.format = undefined;
 
-	logger.transports.console.format = '{h}:{i}:{s}.{ms} {text}';
+	logger.transports.console.format = '[{y}-{m}-{d} {h}:{i}:{s}] [{level}]{scope} {text}';
 	// Remove the custom format entirely for colors to work
 	// logger.transports.console.format = undefined;
 	logger.transports.console.useStyles = true;
 
-	return logger.scope(service);
+	return logger;
 }

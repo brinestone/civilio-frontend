@@ -196,6 +196,7 @@ export async function processSubmissionDataUpdate({
 			'session.parent_version': parentVersion,
 		};
 		for (const [k, v] of entries(_configs)) {
+			// language=PostgreSQL
 			await tx.execute(sql`SELECT set_config(${k}, ${v}, true)`);
 		}
 
@@ -208,8 +209,8 @@ export async function processSubmissionDataUpdate({
 			return mapping && d.op == 'delete';
 		})) {
 			await tx.execute(sql`DELETE
-													 FROM ${sql.identifier(form)}.${sql.identifier('data')}
-													 WHERE _index = ${Number(submissionIndex)}`);
+														FROM ${sql.identifier(form)}.${sql.identifier('data')}
+														WHERE _index = ${Number(submissionIndex)}`);
 			//language=PostgreSQL
 			await tx.execute(sql`
 				CALL revisions.sync_version(${form}, ${_submission_index});
