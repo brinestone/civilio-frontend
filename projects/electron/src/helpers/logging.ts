@@ -25,5 +25,5 @@ export function provideLogger(service: string, useFileTransports = true) {
 	// logger.transports.console.format = undefined;
 	logger.transports.console.useStyles = true;
 
-	return logger.scope(service);
+	return logger;
 }
