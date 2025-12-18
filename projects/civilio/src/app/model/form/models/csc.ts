@@ -69,6 +69,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 					key: 'csc.form.sections.respondent.fields.creation_date',
 					type: 'date',
 					max: new Date(),
+					defaultToToday: true,
 					required: true,
 					relevance: {
 						predicate: RelevancePredicateSchema.implement(deps => {
@@ -261,7 +262,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				{
 					key: 'csc.form.sections.identification.fields.gps_coords',
-					required: true,
+					// required: true,
 					type: 'point',
 				}
 			]
@@ -1224,6 +1225,7 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 				},
 				{
 					key: 'csc.form.sections.extra.fields.validation_code',
+					required: true,
 					type: 'text',
 					validValues: [
 						'BA101M', 'BA151M', 'BA201M', 'BA251M', 'BA301M', 'BA351M',

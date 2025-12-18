@@ -1,5 +1,10 @@
 import { FieldKey, FormType } from "@civilio/shared";
-import { FormModelDefinitionSchema, RelevanceDefinition, RelevancePredicateSchema, SectionSchema } from "../schemas";
+import {
+	FormModelDefinitionSchema,
+	RelevanceDefinition,
+	RelevancePredicateSchema,
+	SectionSchema
+} from "../schemas";
 import { intersection } from "lodash";
 
 const relevanceMap = {
@@ -70,7 +75,7 @@ export const ChefferieFormDefinition = FormModelDefinitionSchema.parse({
 				{
 					key: 'chefferie.form.sections.respondent.fields.creation_date',
 					type: 'date',
-					// defaultToToday: true,
+					defaultToToday: true,
 					max: new Date(),
 					// required: true
 				},

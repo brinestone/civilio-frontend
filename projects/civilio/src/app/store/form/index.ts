@@ -574,11 +574,105 @@ class FormState {
 		}
 	}
 
+	@Action(LoadSubmissionData, { cancelUncompleted: true })
+	onLoadSubmissionData(ctx: Context, {
+		form,
+		index,
+		version
+	}: LoadSubmissionData) {
+		const schema = ctx.getState().schemas[form];
+		return from(this.formService.findSubmissionData({
+			form, index: Number(index), version
+		})).pipe(
+			tap((data) => {
+				if (!data) return;
+				console.log(data);
+				const parsedData = this.parseRawData(schema, data);
+				ctx.setState(
+					patch({
+						workingVersion: version ?? undefined,
+						rawData: patch({
+							...parsedData,
+						}),
+					}),
+				);
+				const sections = flattenSections(schema);
+				for (const section of sections) {
+					if (section.fields.length == 0) continue;
+					const formData = section.fields.reduce(
+						(acc, curr) => ({
+							...acc,
+							[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
+						}),
+						{} as typeof parsedData,
+					);
+
+					ctx.setState(
+						patch({
+							activeSections: patch({
+								[section.id]: patch({
+									model: formData,
+								}),
+							}),
+						}),
+					);
+				}
+				ctx.dispatch(new UpdateRelevance(form));
+				// setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
+			}),
+		);
+	}
+
+	@Action(UpdateSection, { cancelUncompleted: true })
+	onUpdateFormValue(
+		ctx: Context,
+		{ section, form, value, field }: UpdateSection,
+	) {
+		ctx.setState(
+			patch({
+				activeSections: patch({
+					[section]: patch({
+						model: patch({
+							[field]: value,
+						}),
+					}),
+				}),
+			}),
+		);
+		ctx.dispatch(new UpdateRelevance(form, section));
+	}
+
+	@Action(ActivateForm)
+	onActivateForm(ctx: Context, { schema }: ActivateForm) {
+		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
+		ctx.setState(
+			patch({
+				undoStack: [],
+				redoStack: [],
+				schemas: patch({
+					[schema.meta.form]: schema,
+				}),
+				activeSections: sections.reduce(
+					(acc, curr) => ({
+						...acc,
+						[curr.id]: {
+							model: {},
+							status: "VALID",
+							errors: {},
+							dirty: false,
+						},
+					}),
+					{},
+				),
+			}),
+		);
+	}
+
 	private extractDeltas(ctx: Context, formSchema: FormSchema, submissionIndex?: number | string) {
 		const deltas: SubmissionChangeDeltaInput[] = [];
 		const { activeSections, rawData } = ctx.getState();
 		const fields = extractFieldsAsMap(formSchema);
-		if (submissionIndex === undefined) {
+		if (submissionIndex == undefined) {
 			for (const [fieldKey, value] of values(activeSections).flatMap(e => entries(e.model))) {
 				const schema = fields[fieldKey];
 				if (schema.type != 'table' && schema.type != 'group') {
@@ -708,100 +802,6 @@ class FormState {
 			}
 		}
 		return SubmissionChangeDeltaSchema.array().parse(deltas);
-	}
-
-	@Action(UpdateSection, { cancelUncompleted: true })
-	onUpdateFormValue(
-		ctx: Context,
-		{ section, form, value, field }: UpdateSection,
-	) {
-		ctx.setState(
-			patch({
-				activeSections: patch({
-					[section]: patch({
-						model: patch({
-							[field]: value,
-						}),
-					}),
-				}),
-			}),
-		);
-		ctx.dispatch(new UpdateRelevance(form, section));
-	}
-
-	@Action(ActivateForm)
-	onActivateForm(ctx: Context, { schema }: ActivateForm) {
-		const sections = flattenSections(schema).filter((s) => s.fields.length > 0);
-		ctx.setState(
-			patch({
-				undoStack: [],
-				redoStack: [],
-				schemas: patch({
-					[schema.meta.form]: schema,
-				}),
-				activeSections: sections.reduce(
-					(acc, curr) => ({
-						...acc,
-						[curr.id]: {
-							model: {},
-							status: "VALID",
-							errors: {},
-							dirty: false,
-						},
-					}),
-					{},
-				),
-			}),
-		);
-	}
-
-	@Action(LoadSubmissionData, { cancelUncompleted: true })
-	onLoadSubmissionData(ctx: Context, {
-		form,
-		index,
-		version
-	}: LoadSubmissionData) {
-		const schema = ctx.getState().schemas[form];
-		return from(this.formService.findSubmissionData({
-			form, index: Number(index), version
-		})).pipe(
-			tap((data) => {
-				if (!data) return;
-				console.log(data);
-				const parsedData = this.parseRawData(schema, data);
-				ctx.setState(
-					patch({
-						workingVersion: version,
-						rawData: patch({
-							...parsedData,
-						}),
-					}),
-				);
-				const sections = flattenSections(schema);
-				for (const section of sections) {
-					if (section.fields.length == 0) continue;
-					const formData = section.fields.reduce(
-						(acc, curr) => ({
-							...acc,
-							[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
-						}),
-						{} as typeof parsedData,
-					);
-
-					ctx.setState(
-						patch({
-							activeSections: patch({
-								[section.id]: patch({
-									model: formData,
-								}),
-							}),
-						}),
-					);
-				}
-				ctx.dispatch(new UpdateRelevance(form));
-				// setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
-			}),
-		);
 	}
 
 	private extractGroupSubFormData(schema: GroupFieldSchema,

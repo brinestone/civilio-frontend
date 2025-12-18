@@ -1,52 +1,57 @@
 <div class="flex items-center gap-2">
-	<button
-		(click)="prevSubmission.emit()"
-		[disabled]="!canGoPrevPage()"
-		hlmBtn
-		size="sm"
-		variant="outline"
-	>
-		<ng-icon name="lucideChevronLeft"/>
-		<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
-	</button>
-	<button
-		(click)="nextSubmission.emit()"
-		[disabled]="!canGoNextPage()"
-		hlmBtn
-		size="sm"
-		variant="outline"
-	>
-		<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
-		<ng-icon name="lucideChevronRight"/>
-	</button>
-	<hlm-autocomplete
-		class="max-w-[158px]"
-		[(search)]="indexInputFilter"
-		[filteredOptions]="refSuggestions.value()"
-		[loading]="refSuggestions.isLoading()"
-		[value]="submissionIndex()"
-		(valueChange)="onAutoCompleteIndexValueChanged($any($event))"
-		[emptyText]="'tmpl.autocomplete.empty_text' | translate"
-		[loadingText]="'loading.txt' | translate"
-		[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
-	/>
-	@if (facilityName()) {
-		<span>-</span>
-		<p class="line-clamp-1 max-w-[450px] text-lg font-semibold" [title]="facilityName()">{{ facilityName() }}</p>
-	}
-	@if (version()) {
-		<span>-</span>
-		<div class="inline-flex items-center gap-2 text-sm">
-			<span class="font-semibold">{{ version() | mask }}</span>
-			<button [title]="'misc.actions.copy_version' | translate" (click)="onCopyVersionButtonClicked()" hlmBtn size="sm"
-							variant="ghost">
-				<ng-icon name="lucideCopy"/>
-			</button>
-		</div>
+	@if (!isNewSubmission()) {
+		<button
+			(click)="prevSubmission.emit()"
+			[disabled]="!canGoPrevPage()"
+			hlmBtn
+			size="sm"
+			variant="outline"
+		>
+			<ng-icon name="lucideChevronLeft"/>
+			<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
+		</button>
+		<button
+			(click)="nextSubmission.emit()"
+			[disabled]="!canGoNextPage()"
+			hlmBtn
+			size="sm"
+			variant="outline"
+		>
+			<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
+			<ng-icon name="lucideChevronRight"/>
+		</button>
+		<hlm-autocomplete
+			(valueChange)="onAutoCompleteIndexValueChanged($any($event))"
+			[(search)]="indexInputFilter"
+			[emptyText]="'tmpl.autocomplete.empty_text' | translate"
+			[filteredOptions]="refSuggestions.value()"
+			[loadingText]="'loading.txt' | translate"
+			[loading]="refSuggestions.isLoading()"
+			[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
+			[value]="submissionIndex()"
+			class="max-w-[158px]"
+		/>
+		@if (facilityName()) {
+			<span>-</span>
+			<p [title]="facilityName()" class="line-clamp-1 max-w-[450px] text-lg font-semibold">{{ facilityName() }}</p>
+		}
+		@if (version()) {
+			<span>-</span>
+			<div class="inline-flex items-center gap-2 text-sm">
+				<span class="font-semibold">{{ version() | mask }}</span>
+				<button (click)="onCopyVersionButtonClicked()" [title]="'misc.actions.copy_version' | translate" hlmBtn
+								size="sm"
+								variant="ghost">
+					<ng-icon name="lucideCopy"/>
+				</button>
+			</div>
+		}
+	} @else {
+		<h4 hlmH4>{{ 'submissions.new_submission.title' | translate }}</h4>
 	}
 </div>
 <div class="flex items-center gap-2">
-	@if (canUndo() || canRedo()) {
+	@if (canUndo() || canRedo() || isNewSubmission()) {
 		<button (click)="undo.emit()" [disabled]="!canUndo()" [title]="'forms.header.actions.undo' | translate" hlmBtn
 						size="icon" variant="ghost">
 			<ng-icon name="lucideUndo2"/>
@@ -56,33 +61,33 @@
 			<ng-icon name="lucideRedo2"/>
 		</button>
 	}
-<!--	<hlm-sheet-->
-<!--		[state]="mapperSheetState()"-->
-<!--		(stateChanged)="mapperSheetState.set($event)"-->
-<!--		side="right"-->
-<!--	>-->
-<!--		<button hlmBtn size="sm" variant="ghost" brnSheetTrigger>-->
-<!--			<ng-icon name="lucideUnlink"/>-->
-<!--			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>-->
-<!--		</button>-->
-<!--		<hlm-sheet-content-->
-<!--			class="lg:min-w-[70vw] xl:min-w-[75vw] min-w-full"-->
-<!--			*brnSheetContent-->
-<!--		>-->
-<!--			<hlm-sheet-header>-->
-<!--				<h3 hlmSheetTitle>{{ "field_mapper.title" | translate }}</h3>-->
-<!--				<p hlmSheetDescription>-->
-<!--					{{ "field_mapper.description" | translate }}-->
-<!--				</p>-->
-<!--			</hlm-sheet-header>-->
-<!--			<div class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">-->
-<!--				@defer (when formType()) {-->
-<!--					@let schema = formSchema();-->
-<!--					@if (schema) {-->
-<!--						<cv-field-mapper [formModel]="schema" [form]="formType()"/>-->
-<!--					}-->
-<!--				}-->
-<!--			</div>-->
-<!--		</hlm-sheet-content>-->
-<!--	</hlm-sheet>-->
+	<!--	<hlm-sheet-->
+	<!--		[state]="mapperSheetState()"-->
+	<!--		(stateChanged)="mapperSheetState.set($event)"-->
+	<!--		side="right"-->
+	<!--	>-->
+	<!--		<button hlmBtn size="sm" variant="ghost" brnSheetTrigger>-->
+	<!--			<ng-icon name="lucideUnlink"/>-->
+	<!--			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>-->
+	<!--		</button>-->
+	<!--		<hlm-sheet-content-->
+	<!--			class="lg:min-w-[70vw] xl:min-w-[75vw] min-w-full"-->
+	<!--			*brnSheetContent-->
+	<!--		>-->
+	<!--			<hlm-sheet-header>-->
+	<!--				<h3 hlmSheetTitle>{{ "field_mapper.title" | translate }}</h3>-->
+	<!--				<p hlmSheetDescription>-->
+	<!--					{{ "field_mapper.description" | translate }}-->
+	<!--				</p>-->
+	<!--			</hlm-sheet-header>-->
+	<!--			<div class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">-->
+	<!--				@defer (when formType()) {-->
+	<!--					@let schema = formSchema();-->
+	<!--					@if (schema) {-->
+	<!--						<cv-field-mapper [formModel]="schema" [form]="formType()"/>-->
+	<!--					}-->
+	<!--				}-->
+	<!--			</div>-->
+	<!--		</hlm-sheet-content>-->
+	<!--	</hlm-sheet>-->
 </div>

@@ -15,7 +15,8 @@ import {
 	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
-	vwDbColumns, vwFacilities,
+	vwDbColumns,
+	vwFacilities,
 	vwFormSubmissions,
 } from "@civilio/schema";
 import {
@@ -35,7 +36,8 @@ import {
 	FormSubmissionSchema,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
-	GetAutoCompletionSuggestionsResponseSchema, GetFacilityInfoRequest,
+	GetAutoCompletionSuggestionsResponseSchema,
+	GetFacilityInfoRequest,
 	GetFacilityInfoResponseSchema,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponseSchema,
@@ -99,15 +101,15 @@ const sequences: Record<
 };
 
 export async function deleteSubmission({
-	form,
-	index
-}: DeleteSubmissionRequest) {
+																				 form,
+																				 index
+																			 }: DeleteSubmissionRequest) {
 	const db = provideDatabase({});
 	await db.transaction(async tx => {
 		//language=PostgreSQL
 		const result = await tx.execute(sql`
-			SELECT revisions.get_record_current_version(${form},
-																									${index}::INTEGER) AS version
+			SELECT revisions.get_record_current_version(${ form },
+																									${ index }::INTEGER) AS version
 		`);
 		const [{ version: currentVersion }] = result.rows;
 		const newVersion = hashThese([Date.now()].join('|'));
@@ -120,32 +122,32 @@ export async function deleteSubmission({
 			'session.parent_version': currentVersion,
 		};
 		for (const [k, v] of entries(_configs)) {
-			await tx.execute(sql`SELECT set_config(${k}, ${v}, true)`);
+			await tx.execute(sql`SELECT set_config(${ k }, ${ v }, true)`);
 		}
 
 		await tx.execute(sql`
 			DELETE
-			FROM ${sql.identifier(form)}."data"
-			WHERE _index = ${index}::INTEGER
+			FROM ${ sql.identifier(form) }."data"
+			WHERE _index = ${ index }::INTEGER
 		`);
 	})
 }
 
 export async function toggleApprovalStatus({
-	form, index, value
-}: ToggleApprovalStatusRequest) {
+																						 form, index, value
+																					 }: ToggleApprovalStatusRequest) {
 	const db = provideDatabase({});
 	await db.transaction(tx => tx.execute(sql`
-		UPDATE ${sql.identifier(form)}."data"
-		SET _validation_status = ${value ? 'validation_status_approved' : 'validation_status_not_approved'}
-		WHERE _index = ${index}::INTEGER
+		UPDATE ${ sql.identifier(form) }."data"
+		SET _validation_status = ${ value ? 'validation_status_approved' : 'validation_status_not_approved' }
+		WHERE _index = ${ index }::INTEGER
 	`));
 }
 
 export async function getSubmissionInfo({
-	form,
-	index
-}: GetFacilityInfoRequest) {
+																					form,
+																					index
+																				}: GetFacilityInfoRequest) {
 	const db = provideDatabase({ vwFacilities });
 	const [result] = await db.select().from(vwFacilities).where(and(
 		eq(vwFacilities.index, index as number),
@@ -155,38 +157,40 @@ export async function getSubmissionInfo({
 }
 
 export async function revertSubmissionVersion({
-	customVersion,
-	targetVersion,
-	index,
-	form,
-	changeNotes
-}: VersionRevertRequest) {
+																								customVersion,
+																								targetVersion,
+																								index,
+																								form,
+																								changeNotes
+																							}: VersionRevertRequest) {
 	const db = provideDatabase({ deltaChanges });
 	return await db.transaction(async tx => {
 		await tx.execute(sql`
 	CALL revisions.revert_submission(
-	       ${form},
-	       ${index},
-	       ${targetVersion},
-	       ${changeNotes},
+	       ${ form },
+	       ${ index },
+	       ${ targetVersion },
+	       ${ changeNotes },
 	       'civilio',
-	       ${customVersion || null}
+	       ${ customVersion || null }
 	);
 	`);
 	});
 }
 
-export async function processSubmissionDataUpdate({
-	submissionIndex,
-	form,
-	deltas,
-	changeNotes,
-	parentVersion,
-	customVersion
-}: UpdateSubmissionRequest) {
+export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) {
+	const {
+		submissionIndex,
+		form,
+		deltas,
+		changeNotes,
+		parentVersion,
+		customVersion
+	} = req;
+	logger.debug('dto: ', req);
 	const db = provideDatabase({ fieldMappings, deltaChanges });
 	return await db.transaction(async tx => {
-		const newVersion = customVersion || hashThese([JSON.stringify(deltas), Date.now()].join('|'));
+		let newVersion = customVersion || hashThese([JSON.stringify(deltas), Date.now()].join('|'));
 		logger.debug('new version = ', newVersion);
 		logger.debug('parent version = ', parentVersion);
 		const _configs = {
@@ -197,30 +201,19 @@ export async function processSubmissionDataUpdate({
 		};
 		for (const [k, v] of entries(_configs)) {
 			// language=PostgreSQL
-			await tx.execute(sql`SELECT set_config(${k}, ${v}, true)`);
+			await tx.execute(sql`SELECT set_config(${ k }, ${ v ?? null }, true)`);
 		}
 
 		let _submission_index = Number(submissionIndex);
 		const allMappings = await tx.select().from(fieldMappings).where(
 			eq(fieldMappings.form, form)
 		);
-		if (submissionIndex !== undefined && deltas.some(d => {
-			const mapping = allMappings.find(m => m.field == d.field && m.dbTable == 'data');
-			return mapping && d.op == 'delete';
-		})) {
-			await tx.execute(sql`DELETE
-														FROM ${sql.identifier(form)}.${sql.identifier('data')}
-														WHERE _index = ${Number(submissionIndex)}`);
-			//language=PostgreSQL
-			await tx.execute(sql`
-				CALL revisions.sync_version(${form}, ${_submission_index});
-			`);
-			return;
-		} else if (submissionIndex === undefined || isNaN(_submission_index)) {
+		if (_submission_index == 0) {
 			const requiredCols = sequences[form].data;
 			const result = await tx.execute(sql.raw(`
-				INSERT INTO ${form}.data (${requiredCols.map(c => c.column).join(',')})
-				VALUES (${requiredCols.map(c => `nextval(${c.sequence.schema}.${c.sequence.seqName})`).join(',')})
+				INSERT INTO ${ form }.data (_submission_time, ${ requiredCols.map(c => c.column).join(',') })
+				VALUES (NOW(),
+								${ requiredCols.map(c => `nextval('${ c.sequence.schema }.${ c.sequence.seqName }')`).join(',') })
 				RETURNING _index;
 			`));
 			if (result.rows.length == 0) {
@@ -229,11 +222,11 @@ export async function processSubmissionDataUpdate({
 			_submission_index = result.rows[0]._index as number;
 			//language=PostgreSQL
 			await tx.execute(sql`
-				CALL revisions.sync_version(${form}, ${_submission_index});
+				CALL revisions.sync_version(${ form }, ${ _submission_index });
 			`);
 		}
 		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
-		logger.debug(`All deltas: ${JSON.stringify(deltas)}`);
+		logger.debug(`All deltas: ${ deltas.length }`);
 		for (const [table, mappings] of entries(tableGroupedMappings)) {
 			const tableDeltas = deltas.filter(delta => {
 				const fieldToCheck = (delta.op === 'add' && delta.identifierKey)
@@ -241,8 +234,8 @@ export async function processSubmissionDataUpdate({
 					: delta.field;
 				return mappings.some(mapping => mapping.field === fieldToCheck);
 			});
-			logger.debug(`Processing ${tableDeltas.length} updates for table: ${table}`);
-			logger.debug(`Table Deltas: ${JSON.stringify(tableDeltas)}`);
+			logger.debug(`Processing ${ tableDeltas.length } updates for table: ${ table }`);
+			logger.debug(`Table Deltas: ${ JSON.stringify(tableDeltas) }`);
 			if (table == 'data' && tableDeltas.length > 0) {
 				const kvm = new Map<string, [any, string]>();
 				for (const delta of tableDeltas) {
@@ -250,15 +243,15 @@ export async function processSubmissionDataUpdate({
 					if (!mapping) continue;
 					kvm.set(mapping.dbColumn, [delta.value, mapping.dbColumnType])
 				}
-				const updates = [...kvm.entries().map(([col, [v, t]]) => sql`${sql.identifier(col)} = ${v || null}::${sql.raw(t)}`)];
+				const updates = [...kvm.entries().map(([col, [v, t]]) => sql`${ sql.identifier(col) } = ${ v || null }::${ sql.raw(t) }`)];
 				await tx.execute(sql`
-					UPDATE ${sql.identifier(form)}.${sql.identifier('data')}
-					SET ${sql.join(updates, sql`, `)}
-					WHERE _index = ${_submission_index};
+					UPDATE ${ sql.identifier(form) }.${ sql.identifier('data') }
+					SET ${ sql.join(updates, sql`, `) }
+					WHERE _index = ${ _submission_index };
 				`);
 				//language=PostgreSQL
 				await tx.execute(sql`
-					CALL revisions.sync_version(${form}, ${_submission_index});
+					CALL revisions.sync_version(${ form }, ${ _submission_index });
 				`);
 			} else if (table != 'data' && tableDeltas.length > 0) {
 				const {
@@ -277,18 +270,18 @@ export async function processSubmissionDataUpdate({
 							kvm.set(mapping.dbColumn, [update.value, mapping.dbColumnType]);
 						}
 						const updateClauses = [...kvm.entries()].map(
-							([col, [v, t]]) => sql`${sql.identifier(col)} = ${v || null}::${sql.raw(t)}`
+							([col, [v, t]]) => sql`${ sql.identifier(col) } = ${ v || null }::${ sql.raw(t) }`
 						);
 						await tx.execute(sql`
-							UPDATE ${sql.identifier(form)}.${sql.identifier(table)}
-							SET ${sql.join(updateClauses, sql`, `)}
-							WHERE _parent_index = ${_submission_index}::INTEGER
-								AND _index = ${i}::INTEGER;
+							UPDATE ${ sql.identifier(form) }.${ sql.identifier(table) }
+							SET ${ sql.join(updateClauses, sql`, `) }
+							WHERE _parent_index = ${ _submission_index }::INTEGER
+								AND _index = ${ i }::INTEGER;
 						`);
 					}
 					//language=PostgreSQL
 					await tx.execute(sql`
-						CALL revisions.sync_version(${form}, ${_submission_index});
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
 					`);
 				}
 				if (additions && additions.length > 0) {
@@ -319,16 +312,16 @@ export async function processSubmissionDataUpdate({
 						logger.debug('kvm', kvm);
 						logger.debug('unique mappings', uniqueMappings);
 						const cols = [...sequences[form][table].map(({ column }) => column), ...kvm.keys(), '_parent_index'].map(c => sql.identifier(c));
-						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${sql.join([sql.raw(sequence.schema), sql.raw(sequence.seqName)], sql`.`)}')`), ...[...kvm.values()].map(([v, t]) => sql`${v || null}::${sql.raw(t)}`), _submission_index];
+						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${ sql.join([sql.raw(sequence.schema), sql.raw(sequence.seqName)], sql`.`) }')`), ...[...kvm.values()].map(([v, t]) => sql`${ v || null }::${ sql.raw(t) }`), _submission_index];
 						await tx.execute(sql`
-							INSERT INTO ${sql.identifier(form)}.${sql.identifier(table)} (${sql.join(cols, sql`, `)})
-							VALUES (${sql.join(values, sql`,
-											`)});
+							INSERT INTO ${ sql.identifier(form) }.${ sql.identifier(table) } (${ sql.join(cols, sql`, `) })
+							VALUES (${ sql.join(values, sql`,
+											`) });
 						`);
 					}
 					//language=PostgreSQL
 					await tx.execute(sql`
-						CALL revisions.sync_version(${form}, ${_submission_index});
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
 					`);
 				}
 				if (deletions && deletions.length > 0) {
@@ -339,9 +332,9 @@ export async function processSubmissionDataUpdate({
 					}
 					const indexes = deletions
 						.map(({
-							field,
-							index
-						}) => ({
+										field,
+										index
+									}) => ({
 							mapping: mappings.find(m => m.field == field),
 							index
 						}))
@@ -349,15 +342,15 @@ export async function processSubmissionDataUpdate({
 						.map(({ index }) => index);
 					await tx.execute(sql`
 						DELETE
-						FROM ${sql.identifier(form)}.${sql.identifier(table)}
-						WHERE ${and(
-						eq(sql.identifier('_parent_index'), _submission_index),
-						inArray(sql.identifier(identifierMapping.dbColumn), indexes)
-					)}
+						FROM ${ sql.identifier(form) }.${ sql.identifier(table) }
+						WHERE ${ and(
+							eq(sql.identifier('_parent_index'), _submission_index),
+							inArray(sql.identifier(identifierMapping.dbColumn), indexes)
+						) }
 					`);
 					//language=PostgreSQL
 					await tx.execute(sql`
-						CALL revisions.sync_version(${form}, ${_submission_index});
+						CALL revisions.sync_version(${ form }, ${ _submission_index });
 					`);
 				}
 			}
@@ -366,26 +359,26 @@ export async function processSubmissionDataUpdate({
 }
 
 export async function initializeSubmissionVersioning({
-	form,
-	index
-}: InitializeSubmissionVersionRequest) {
+																											 form,
+																											 index
+																										 }: InitializeSubmissionVersionRequest) {
 	const db = provideDatabase({});
 	//language=PostgreSQL
 	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(
-																										${index},
-																										${form}::civilio.form_types) AS version`);
+																										${ index },
+																										${ form }::civilio.form_types) AS version`);
 	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
 }
 
 export async function findCurrentSubmissionVersion({
-	form,
-	index
-}: FindSubmissionCurrentVersionRequest) {
+																										 form,
+																										 index
+																									 }: FindSubmissionCurrentVersionRequest) {
 	const db = provideDatabase({});
 	const queryResult = await db.execute(sql`
 		SELECT d.*
-		FROM revisions.get_version_chain(${index},
-																		 ${form}::civilio.form_types) d
+		FROM revisions.get_version_chain(${ index },
+																		 ${ form }::civilio.form_types) d
 		WHERE d.is_current = true
 		LIMIT 1;
 	`);
@@ -394,28 +387,28 @@ export async function findCurrentSubmissionVersion({
 }
 
 export async function findSubmissionVersions({
-	form,
-	index,
-	limit,
-	changeOffset
-}: FindSubmissionVersionsRequest) {
+																							 form,
+																							 index,
+																							 limit,
+																							 changeOffset
+																						 }: FindSubmissionVersionsRequest) {
 	const db = provideDatabase({});
 
 	const queryResult = await db.execute(sql`
 		SELECT d.*
-		FROM revisions.get_version_chain(${index},
-																		 ${form}::civilio.form_types) d
-		WHERE d.changed_at <= COALESCE(${changeOffset ?? null}, NOW())
-		LIMIT ${limit};
+		FROM revisions.get_version_chain(${ index },
+																		 ${ form }::civilio.form_types) d
+		WHERE d.changed_at <= COALESCE(${ changeOffset ?? null }, NOW())
+		LIMIT ${ limit };
 	`);
 
 	return FindSubmissionVersionsResponseSchema.parse(queryResult.rows);
 }
 
 export async function removeFieldMapping({
-	form,
-	field,
-}: RemoveFieldMappingRequest) {
+																					 form,
+																					 field,
+																				 }: RemoveFieldMappingRequest) {
 	const db = provideDatabase({ fieldMappings });
 	return await db.transaction(async (tx) => {
 		const result = await tx
@@ -426,9 +419,9 @@ export async function removeFieldMapping({
 }
 
 export async function findIndexSuggestions({
-	form,
-	query,
-}: FindIndexSuggestionsRequest) {
+																						 form,
+																						 query,
+																					 }: FindIndexSuggestionsRequest) {
 	const db = provideDatabase({ vwFormSubmissions });
 	const result = await db
 		.select({
@@ -438,7 +431,7 @@ export async function findIndexSuggestions({
 		.where(
 			and(
 				eq(vwFormSubmissions.form, form),
-				like(sql<string>`${vwFormSubmissions.index}::TEXT`, `%${query}%`),
+				like(sql<string>`${ vwFormSubmissions.index }::TEXT`, `%${ query }%`),
 			),
 		)
 		.orderBy(vwFormSubmissions.index)
@@ -450,9 +443,9 @@ export async function findIndexSuggestions({
 }
 
 export async function findSubmissionRef({
-	form,
-	index,
-}: FindSubmissionRefRequest) {
+																					form,
+																					index,
+																				}: FindSubmissionRefRequest) {
 	const db = provideDatabase({ vwFormSubmissions });
 	const [result] = await db
 		.select({
@@ -468,11 +461,11 @@ export async function findSubmissionRef({
 }
 
 export async function findAutocompleteSuggestions({
-	form,
-	query,
-	resultSize,
-	field,
-}: GetAutoCompletionSuggestionsRequest) {
+																										form,
+																										query,
+																										resultSize,
+																										field,
+																									}: GetAutoCompletionSuggestionsRequest) {
 	const db = provideDatabase({ fieldMappings });
 	const [mapping] = await db
 		.select()
@@ -481,15 +474,15 @@ export async function findAutocompleteSuggestions({
 		.limit(1);
 
 	if (!mapping)
-		throw new Error(`Mapping not found for field: ${field} and form: ${form}`);
+		throw new Error(`Mapping not found for field: ${ field } and form: ${ form }`);
 
 	let resultSet = await db.execute(
 		sql`SELECT FORMAT(
 								 'SELECT UPPER(d.%I::TEXT) AS result FROM %I.%I d WHERE LOWER(d.%I) LIKE LOWER(%L) ORDER BY UPPER(d.%I::TEXT) ASC LIMIT %L::INTEGER',
-								 ${mapping.dbColumn}::TEXT, ${form}::TEXT,
-								 ${mapping.dbTable}::TEXT, ${mapping.dbColumn}::TEXT,
-								 ${"%" + query + "%"}::TEXT, ${mapping.dbColumn}::TEXT,
-								 ${resultSize}::INTEGER);`,
+								 ${ mapping.dbColumn }::TEXT, ${ form }::TEXT,
+								 ${ mapping.dbTable }::TEXT, ${ mapping.dbColumn }::TEXT,
+								 ${ "%" + query + "%" }::TEXT, ${ mapping.dbColumn }::TEXT,
+								 ${ resultSize }::INTEGER);`,
 	);
 	const [{ format }] = resultSet.rows;
 
@@ -500,24 +493,25 @@ export async function findAutocompleteSuggestions({
 }
 
 export async function findFormData({
-	form,
-	index,
-	version
-}: FindSubmissionDataRequest) {
+																		 form,
+																		 index,
+																		 version
+																	 }: FindSubmissionDataRequest) {
 	const db = provideDatabase({ fieldMappings });
 	let result = {} as Record<string, any>;
 	let queryResult = await db.execute(sql`
 		SELECT DISTINCT t.table_name::TEXT as t
 		FROM information_schema.tables t
-		WHERE t.table_schema = ${form};
+		WHERE t.table_schema = ${ form };
 	`);
 	const tableNames = queryResult.rows.map(row => row.t as string);
 	for (const tableName of tableNames) {
 		// language=PostgreSQL
 		queryResult = await db.execute(sql`
-		SELECT
-		revisions.get_version_data(${form}::civilio.form_types, ${index}, ${tableName}, ${version || null}) AS "data";
-	`);
+			SELECT revisions.get_version_data(${ form }::civilio.form_types,
+																				${ index }, ${ tableName },
+																				${ version || null }) AS "data";
+		`);
 		const row = queryResult.rows[0]?.data as any;
 		if (!row) continue;
 		result = { ...result, ...row };
@@ -626,34 +620,40 @@ export async function findFormSubmissions(
 	size: number = 100,
 	filterQuery: string = "",
 ) {
-	const db = provideDatabase({ vwFormSubmissions });
-	const q = `%${filterQuery.toLowerCase()}%`;
-	const searchColumns = [
-		vwFormSubmissions.index,
-		vwFormSubmissions.validationCode,
-		vwFormSubmissions.facilityName,
-		vwFormSubmissions.currentVersion
-	];
-	const filter = filterQuery
-		? and(
-			eq(vwFormSubmissions.form, form),
-			or(
-				...searchColumns.map(col => like(sql`LOWER(${col}::TEXT)`, q))
-			),
-		)
-		: eq(vwFormSubmissions.form, form);
+	try {
+		const db = provideDatabase({ vwFormSubmissions });
+		const q = `%${ filterQuery.toLowerCase() }%`;
+		const searchColumns = [
+			vwFormSubmissions.index,
+			vwFormSubmissions.validationCode,
+			vwFormSubmissions.facilityName,
+			vwFormSubmissions.currentVersion
+		];
+		const filter = filterQuery
+			? and(
+				eq(vwFormSubmissions.form, form),
+				or(
+					...searchColumns.map(col => like(sql`LOWER(${ col }::TEXT)`, q))
+				),
+			)
+			: eq(vwFormSubmissions.form, form);
 
-	const submissions = await db
-		.select()
-		.from(vwFormSubmissions)
-		.where(filter)
-		.limit(size)
-		.offset(page * size);
-	const [{ totalRecords }] = await db
-		.select({ totalRecords: countDistinct(vwFormSubmissions.index) })
-		.from(vwFormSubmissions)
-		.where(filter);
+		const submissions = await db
+			.select()
+			.from(vwFormSubmissions)
+			.where(filter)
+			.limit(size)
+			.offset(page * size);
+		const [{ totalRecords }] = await db
+			.select({ totalRecords: countDistinct(vwFormSubmissions.index) })
+			.from(vwFormSubmissions)
+			.where(filter);
 
-	const schema = createPaginatedResultSchema(FormSubmissionSchema);
-	return schema.parse({ totalRecords, data: submissions });
+		const schema = createPaginatedResultSchema(FormSubmissionSchema);
+		return schema.parse({ totalRecords, data: submissions });
+	} catch (e) {
+		console.error(e);
+		logger.error(e);
+		throw e;
+	}
 }

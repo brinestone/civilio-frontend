@@ -1,4 +1,5 @@
 import {
+	booleanAttribute,
 	Component,
 	inject,
 	input,
@@ -32,6 +33,8 @@ import { select } from '@ngxs/store';
 import { facilityName } from '@app/store/selectors';
 import { MaskPipe } from '@app/pipes';
 import { toast } from 'ngx-sonner';
+import { BooleanInput } from '@angular/cdk/coercion';
+import { HlmH4 } from '@spartan-ng/helm/typography';
 
 @Component({
 	selector: 'cv-form-header',
@@ -53,11 +56,16 @@ import { toast } from 'ngx-sonner';
 		TranslatePipe,
 		HlmAutocompleteImports,
 		MaskPipe,
+		HlmH4,
 	],
 	templateUrl: './form-header.component.html',
 	styleUrl: './form-header.component.scss'
 })
 export class FormHeaderComponent {
+	readonly isNewSubmission = input<boolean, BooleanInput>(false, {
+		transform: booleanAttribute,
+		alias: 'isNew'
+	})
 	readonly formType = input<FormType>();
 	readonly formSchema = input<FormSchema>();
 	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
@@ -88,7 +96,10 @@ export class FormHeaderComponent {
 	), { initialValue: '' });
 	protected readonly refSuggestions = resource({
 		defaultValue: [],
-		params: () => ({ form: this.formType(), filter: this.debouncedIndexFilter() }),
+		params: () => ({
+			form: this.formType(),
+			filter: this.debouncedIndexFilter()
+		}),
 		loader: async ({ params: { filter, form } }) => {
 			if (!form) return [];
 			if (!filter || !z.string().regex(/^\d+$/).safeParse(filter).success) return [];

@@ -290,7 +290,7 @@ export class TabularFieldComponent<T extends Record<string, ParsedValue | Parsed
 	}
 
 	writeValue(obj: any): void {
-		const transformedValue = obj.map((row: any) => entries(row).reduce((acc, [k, v]) => {
+		const transformedValue = (obj ?? []).map((row: any) => entries(row).reduce((acc, [k, v]) => {
 			acc[flattenKey(k as FieldKey)] = v as ParsedValue | ParsedValue[];
 			return acc;
 		}, {} as Record<string, ParsedValue | ParsedValue[]>));
