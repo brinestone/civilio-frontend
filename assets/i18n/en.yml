@@ -29,6 +29,7 @@ overview:
 misc:
   changed_at: Recorded at
   changed_by: Recorded by
+  size: Size of the commune
   notes: Notes
   version: Version
   action: Action

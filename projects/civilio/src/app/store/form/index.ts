@@ -69,6 +69,7 @@ import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
 	ActivateSection,
+	ChangesSaved,
 	DeactivateForm,
 	DeleteSubmission,
 	DiscardChanges,
@@ -241,6 +242,7 @@ class FormState {
 			parentVersion: ctx.getState().workingVersion,
 			customVersion
 		})).pipe(
+			tap(i => ctx.dispatch(new ChangesSaved(i, index === null || index === undefined || index === 'new'))),
 			tap(() => ctx.setState(patch({
 				undoStack: [],
 				redoStack: [],

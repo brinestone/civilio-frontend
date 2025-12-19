@@ -32,6 +32,7 @@ import { FORM_SERVICE } from "@app/services/form";
 import { UpdateMiscConfig } from "@app/store/config";
 import {
 	ActivateForm,
+	ChangesSaved,
 	DeactivateForm,
 	DiscardChanges,
 	InitVersioning,
@@ -266,6 +267,19 @@ export class FormPage
 	private readonly discardChanges = dispatch(DiscardChanges);
 
 	constructor(actions$: Actions) {
+		actions$.pipe(
+			ofActionDispatched(ChangesSaved)
+		).subscribe(({ isNew, index }) => {
+			if (isNew) {
+				this.navigate(['..', index], undefined, {
+					queryParamsHandling: 'preserve',
+					relativeTo: this.route
+				})
+			} else {
+				this.selectedVersion.reload();
+				this.versions.reload();
+			}
+		})
 		effect(() => {
 			if (this.isNewSubmission()) return;
 			const status = this.versions.status()
@@ -389,8 +403,6 @@ export class FormPage
 							observer.next(false);
 							this.discardChanges(this.formType()).subscribe({
 								complete: () => {
-									this.selectedVersion.reload();
-									this.versions.reload();
 									observer.complete();
 								}
 							})

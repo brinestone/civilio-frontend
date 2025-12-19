@@ -129,7 +129,6 @@ export class ElectronFormService implements FormService {
 	}
 
 	async updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse> {
-		debugger;
 		return sendRpcMessageAsync('submission-data:update', req);
 	}
 }

@@ -1,10 +1,10 @@
 import {
+	CheckMigrationsResponseSchema,
 	DbConnectionRefInput,
 	DeleteDbConnectionRequest,
 	FindConnectionHistoryResponse,
 	FindConnectionHistoryResponseSchema,
 	MalConfigurationError,
-	MigrationsCheckReportSchema,
 	TestDbConnectionRequest,
 	TestDbConnectionRequestSchema,
 	UseConnectionRequest,
@@ -60,7 +60,7 @@ export async function runMigrations() {
 
 export async function checkMigration() {
 	const db = provideDatabase({});
-	return MigrationsCheckReportSchema.parse(await migrator.checkMigrations(db));
+	return CheckMigrationsResponseSchema.parse(await migrator.checkMigrations(db));
 }
 
 export async function testConnection(req: TestDbConnectionRequest) {

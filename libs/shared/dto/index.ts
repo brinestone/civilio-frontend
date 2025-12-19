@@ -11,7 +11,8 @@ import {
 	LocaleSchema,
 	MigrationsCheckReportSchema,
 	OptionSchema,
-	SubmissionChangeDeltaSchema, SubmissionInfoSchema,
+	SubmissionChangeDeltaSchema,
+	SubmissionInfoSchema,
 	SubmissionVersionInfoSchema,
 	ThemeSchema,
 	ThirdPartyLicenceSchema
@@ -39,7 +40,9 @@ export const AddDbConnectionRequestSchema = DbConnectionRefInputSchema;
 export const FindConnectionHistoryResponseSchema = DbConnectionRefSchema.array();
 
 export const ApplyPendingMigrationsResponseSchema = MigrationsCheckReportSchema;
-export const CheckMigrationsResponseSchema = MigrationsCheckReportSchema;
+export const CheckMigrationsResponseSchema = MigrationsCheckReportSchema.pick({
+	needsMigration: true
+});
 
 export const VersionRevertResponseSchema = z.void();
 export const VersionRevertRequestSchema = z.object({
@@ -50,7 +53,7 @@ export const VersionRevertRequestSchema = z.object({
 	changeNotes: z.string()
 })
 
-export const UpdateSubmissionResponseSchema = z.void();
+export const UpdateSubmissionResponseSchema = z.number();
 export const UpdateSubmissionRequestSchema = z.object({
 	deltas: SubmissionChangeDeltaSchema.array(),
 	form: FormTypeSchema,

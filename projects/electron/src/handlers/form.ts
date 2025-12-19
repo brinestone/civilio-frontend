@@ -48,9 +48,18 @@ import {
 	UpdateSubmissionRequest,
 	VersionRevertRequest
 } from "@civilio/shared";
-import { and, countDistinct, eq, inArray, like, or, sql } from "drizzle-orm";
+import {
+	and,
+	countDistinct,
+	eq,
+	inArray,
+	like,
+	or,
+	SQL,
+	sql
+} from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
-import { entries, groupBy, keys } from 'lodash';
+import { entries, groupBy, keys, values } from 'lodash';
 import { provideDatabase } from "../helpers/db";
 
 const logger = provideLogger('forms');
@@ -203,31 +212,47 @@ export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) 
 			// language=PostgreSQL
 			await tx.execute(sql`SELECT set_config(${ k }, ${ v ?? null }, true)`);
 		}
-
+		logger.debug(`All deltas: ${ deltas.length }`);
 		let _submission_index = Number(submissionIndex);
+		const isNew = _submission_index == 0;
 		const allMappings = await tx.select().from(fieldMappings).where(
 			eq(fieldMappings.form, form)
 		);
-		if (_submission_index == 0) {
+		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
+		if (isNew) {
+			const dataTableMappings = tableGroupedMappings['data'];
+			const tableDeltas = deltas.filter(delta => {
+				return dataTableMappings.some(mapping => mapping.field == delta.field);
+			});
+			const dataEntries = tableDeltas.reduce((acc, curr) => {
+				const mapping = dataTableMappings.find(m => m.field == curr.field)!;
+				acc[mapping.dbColumn] = sql`${ curr.value || null }::${ sql.raw(mapping.dbColumnType) }`;
+				return acc;
+			}, {} as Record<string, SQL>)
 			const requiredCols = sequences[form].data;
-			const result = await tx.execute(sql.raw(`
-				INSERT INTO ${ form }.data (_submission_time, ${ requiredCols.map(c => c.column).join(',') })
+			const columns = [...requiredCols.map(c => sql.identifier(c.column)), ...keys(dataEntries).map(k => sql.identifier(k))]
+			const dataValues = [...requiredCols.map(c => sql.raw(`nextval('${ c.sequence.schema }.${ c.sequence.seqName }')`)), ...values(dataEntries)]
+
+			const result = await tx.execute(sql`
+				INSERT INTO ${ sql.identifier(form) }."data" ("_submission_time", ${ sql.join(columns, sql`,
+																			`) })
 				VALUES (NOW(),
-								${ requiredCols.map(c => `nextval('${ c.sequence.schema }.${ c.sequence.seqName }')`).join(',') })
+								${ sql.join(dataValues, sql`,
+								`) })
 				RETURNING _index;
-			`));
+			`);
 			if (result.rows.length == 0) {
 				throw new Error('An unexpected error occurred. Please try again later or contact your administrator')
 			}
 			_submission_index = result.rows[0]._index as number;
+
 			//language=PostgreSQL
 			await tx.execute(sql`
 				CALL revisions.sync_version(${ form }, ${ _submission_index });
 			`);
 		}
-		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
-		logger.debug(`All deltas: ${ deltas.length }`);
 		for (const [table, mappings] of entries(tableGroupedMappings)) {
+			if (isNew && table == 'data') continue;
 			const tableDeltas = deltas.filter(delta => {
 				const fieldToCheck = (delta.op === 'add' && delta.identifierKey)
 					? delta.identifierKey
@@ -355,6 +380,8 @@ export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) 
 				}
 			}
 		}
+
+		return _submission_index;
 	});
 }
 
