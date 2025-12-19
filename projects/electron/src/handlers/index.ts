@@ -79,7 +79,8 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 			event.sender.send(replyChannel, replyRpc);
 			logResponse(channel, replyRpc);
 		} catch (e) {
-			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, channel, messageId, e))
+			logger.error(e);
+			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))
 			// console.timeEnd(channel);
 		}
 	})

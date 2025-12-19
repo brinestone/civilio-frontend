@@ -65,7 +65,7 @@ export const MigrationFileSchema = z.object({
 export const MigrationsCheckReportSchema = z.object({
 	needsMigration: z.boolean(),
 	pending: MigrationFileSchema.array().default([]),
-	applied: z.string().array(),
+	applied: z.number(),
 	lastApplied: z.string().nullable()
 });
 

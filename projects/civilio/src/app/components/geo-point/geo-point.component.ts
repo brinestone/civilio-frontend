@@ -19,7 +19,18 @@ import { GeoPoint, GeoPointSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCircleAlert } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
-import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
+import {
+	control,
+	icon,
+	LatLng,
+	latLng,
+	LeafletMouseEvent,
+	map,
+	Map,
+	marker,
+	Marker,
+	tileLayer
+} from 'leaflet';
 import { createNotifier } from 'ngxtension/create-notifier';
 import { injectNetwork } from 'ngxtension/inject-network';
 
@@ -41,7 +52,7 @@ import { injectNetwork } from 'ngxtension/inject-network';
 export class GeoPointComponent {
 	public readonly value = model<GeoPoint>();
 	public readonly touched = output();
-	// public readonly changed = output<GeoPoint>();
+	public readonly changed = output<GeoPoint>();
 	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 
 	private map?: Map;
@@ -66,8 +77,8 @@ export class GeoPointComponent {
 	});
 
 	private onMapClicked({
-		latlng
-	}: LeafletMouseEvent) {
+												 latlng
+											 }: LeafletMouseEvent) {
 		this.eventTriggeredChange = true;
 		this.moveMarker(latlng);
 		this.eventTriggeredChange = false;
@@ -154,9 +165,10 @@ export class GeoPointComponent {
 				shadowAnchor: [13, 41]
 			}),
 		}).addTo(this.map)
-			.on('move', (/*{ latlng: { lat, lng } }: any*/) => {
+			.on('move', ({ latlng: { lat, lng } }: any) => {
 				if (!this.eventTriggeredChange) return;
-				// this.changed.emit({ lat, long: lng });
+				this.changed.emit({ lat, long: lng });
+				this.value.set({ lat, long: lng })
 			});
 		this.map.setView(untracked(this.resolvedCoords));
 	}

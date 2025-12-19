@@ -32,6 +32,7 @@ import { FORM_SERVICE } from "@app/services/form";
 import { UpdateMiscConfig } from "@app/store/config";
 import {
 	ActivateForm,
+	ChangesSaved,
 	DeactivateForm,
 	DiscardChanges,
 	InitVersioning,
@@ -48,6 +49,7 @@ import {
 import {
 	changesPending,
 	currentLocale,
+	hasValidValidationCode,
 	miscConfig,
 	redoAvailable,
 	relevanceRegistry,
@@ -62,13 +64,13 @@ import {
 } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
+	lucideChevronLeft,
 	lucideCircleAlert,
 	lucideHistory,
 	lucideLoader,
 	lucidePanelBottomClose,
 	lucidePanelBottomOpen,
 	lucideSave,
-	lucideChevronLeft,
 	lucideTrash2,
 	lucideX
 } from "@ng-icons/lucide";
@@ -192,12 +194,14 @@ export class FormPage
 	private readonly indexChanged = dispatch(SubmissionIndexChanged);
 	private readonly navigate = dispatch(Navigate);
 	private readonly loadOptions = dispatch(LoadOptions);
+	protected readonly validationCodeValid = select(hasValidValidationCode);
 	private readonly loadData = dispatch(LoadSubmissionData);
 	private readonly activate = dispatch(ActivateForm);
 	private readonly deactivate = dispatch(DeactivateForm);
 	private readonly updateMisc = dispatch(UpdateMiscConfig);
 	private initialized = false;
 	private loadingData = false;
+	private readonly updateRelevance = dispatch(UpdateRelevance);
 	protected readonly changeNotes = signal<string>('');
 	protected readonly customVersion = signal<string>('');
 	protected readonly savingChanges = signal(false);
@@ -263,6 +267,19 @@ export class FormPage
 	private readonly discardChanges = dispatch(DiscardChanges);
 
 	constructor(actions$: Actions) {
+		actions$.pipe(
+			ofActionDispatched(ChangesSaved)
+		).subscribe(({ isNew, index }) => {
+			if (isNew) {
+				this.navigate(['..', index], undefined, {
+					queryParamsHandling: 'preserve',
+					relativeTo: this.route
+				})
+			} else {
+				this.selectedVersion.reload();
+				this.versions.reload();
+			}
+		})
 		effect(() => {
 			if (this.isNewSubmission()) return;
 			const status = this.versions.status()
@@ -386,8 +403,6 @@ export class FormPage
 							observer.next(false);
 							this.discardChanges(this.formType()).subscribe({
 								complete: () => {
-									this.selectedVersion.reload();
-									this.versions.reload();
 									observer.complete();
 								}
 							})
@@ -408,9 +423,12 @@ export class FormPage
 			.pipe(
 				concatMap(() => this.loadOptions(this.formType())),
 				map(() => this.selectedVersion.value()),
-				filter((version) => !!version && !this.isNewSubmission()),
-				concatMap((version) =>
-					this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined),
+				// filter((version) => !!version && !this.isNewSubmission()),
+				concatMap((version) => {
+						if (!untracked(this.isNewSubmission))
+							return this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined);
+						return this.updateRelevance(untracked(this.formType));
+					}
 				),
 			)
 			.subscribe({

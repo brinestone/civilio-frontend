@@ -1,4 +1,4 @@
-<div class="page-header justify-start! gap-4 items-center">
+<div class="page-header justify-between! gap-4 items-center">
 	<!-- <h1 class="page-title">Form Submissions</h1> -->
 	<div class="flex gap-2 items-center">
 		<button
@@ -38,6 +38,10 @@
 			</hlm-select-content>
 		</brn-select>
 	</div>
+	<button (click)="onNewSubmissionButtonClicked()" hlmBtn>
+		<ng-icon name="lucidePlus"/>
+		<span>{{ 'submissions.actions.add_submission' | translate }}</span>
+	</button>
 </div>
 <section class="page-section">
 	<div class="justify-between flex items-center">

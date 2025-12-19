@@ -5,6 +5,7 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	computed,
 	effect,
 	forwardRef,
 	inject,
@@ -16,7 +17,11 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import {
 	GeoPointComponent
 } from '@app/components/geo-point/geo-point.component';
-import { extractFieldKey, FieldSchema } from '@app/model/form';
+import {
+	defaultValueForType,
+	extractFieldKey,
+	FieldSchema
+} from '@app/model/form';
 import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 import { IsStringPipe } from '@app/pipes';
 import { Option } from '@civilio/shared';
@@ -64,6 +69,7 @@ export class FieldComponent implements ControlValueAccessor {
 
 	private cdr = inject(ChangeDetectorRef);
 
+	protected readonly defaultValue = computed(() => defaultValueForType(this.schema().type))
 	protected changeCallback?: (v: any) => void;
 	protected touchedCallback?: () => void;
 	protected readonly _disabled = signal(false);

@@ -2,23 +2,24 @@
 	class="border-b border-border max-h-(--header-height) col-start-1 col-span-2 row-start-1 row-span-1"
 >
 	<ng-container>
-		@if (submissionIndex()) {
-			<cv-form-header
-				(indexJump)="onIndexJump($event)"
-				(nextSubmission)="onNextSubmissionRequested()"
-				(prevSubmission)="onPrevSubmissionRequested()"
-				(redo)="redo(formType())"
-				(undo)="undo(formType())"
-				[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null || isNewSubmission()"
-				[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null || isNewSubmission()"
-				[canRedo]="canRedo()"
-				[canUndo]="canUndo()"
-				[formSchema]="formModel()"
-				[formType]="formType()"
-				[submissionIndex]="submissionIndex()!"
-				[version]="selectedVersion.value()"
-			/>
-		}
+		<!--		@if (!isNewSubmission()) {-->
+		<cv-form-header
+			(indexJump)="onIndexJump($event)"
+			(nextSubmission)="onNextSubmissionRequested()"
+			(prevSubmission)="onPrevSubmissionRequested()"
+			(redo)="redo(formType())"
+			(undo)="undo(formType())"
+			[canGoNextPage]="!loadingSubmissionData() && neighboringRefs.value()?.[1] != null"
+			[canGoPrevPage]="!loadingSubmissionData() && neighboringRefs.value()?.[0] != null"
+			[canRedo]="canRedo()"
+			[canUndo]="canUndo()"
+			[formSchema]="formModel()"
+			[formType]="formType()"
+			[isNew]="isNewSubmission()"
+			[submissionIndex]="submissionIndex()!"
+			[version]="selectedVersion.value()"
+		/>
+		<!--		}-->
 	</ng-container>
 </div>
 
@@ -26,11 +27,13 @@
 	class="grid grid-rows-[auto_1fr_auto] border-r border-border pt-4 pr-2 pl-4 col-start-1 col-span-1 row-start-2 row-span-2"
 >
 	<div class="space-y-2 bg-(--background)">
-		<a [relativeTo]="route" class="inline-flex w-full justify-start" hlmBtn routerLink="overview" size="sm"
-			 variant="link">
-			<ng-icon name="lucideChevronLeft"/>
-			<span>{{ 'misc.actions.open_overview' | translate }}</span>
-		</a>
+		@if (!isNewSubmission()) {
+			<a [relativeTo]="route" class="inline-flex w-full justify-start" hlmBtn routerLink="overview" size="sm"
+				 variant="link">
+				<ng-icon name="lucideChevronLeft"/>
+				<span>{{ 'misc.actions.open_overview' | translate }}</span>
+			</a>
+		}
 		@defer (when versions.hasValue()) {
 			<hlm-select
 				scrollable="true"
@@ -276,7 +279,7 @@
 		<hlm-alert-dialog-footer>
 			<button
 				(click)="onFinishButtonClicked(ctx.close)"
-				[disabled]="!changeNotesValid() || savingChanges()"
+				[disabled]="!changeNotesValid() || savingChanges() || !validationCodeValid()"
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
@@ -324,7 +327,7 @@
 			<button
 				class="cursor-pointer"
 				(click)="finishRevertButtonClicked()"
-				[disabled]="!changeNotesValid() || savingChanges()"
+				[disabled]="!changeNotesValid() || savingChanges() || (isNewSubmission() && !validationCodeValid())"
 				hlmAlertDialogAction
 			>
 				<ng-icon
@@ -361,6 +364,11 @@
 					}}
 				</p>
 			</div>
+		}
+		@if (!validationCodeValid()) {
+			<p hlmAlertDescription>
+				** {{ 'forms.validation_code_required_notice' | translate }} **
+			</p>
 		}
 		<hlm-separator/>
 		<!--		<input-->

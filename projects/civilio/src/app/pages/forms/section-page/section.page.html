@@ -14,125 +14,144 @@
 	class="grid lg:grid-cols-[1fr_1fr] xl:grid-col-[1fr_1fr_1fr] gap-3 px-2"
 >
 	@for (field of sectionSchema().fields; track $index) {
-	<ng-container>
-		@let key = (field.key | isString) ? $any(field.key) : $any(field.key).value;
-		@let shouldShow = relevanceRegistry()[key] && form.contains(key);
 		<ng-container>
-			@if (shouldShow) {
+			@let key = (field.key | isString) ? $any(field.key) : $any(field.key).value;
+			@let shouldShow = relevanceRegistry()[key] && form.contains(key);
 			<ng-container>
-				@let parentValue = sectionData()[$any(field).parent];
-			</ng-container>
-			<div
-				[class.col-span-2]="field.type == 'table' || field.type == 'group'"
-				hlmField
-			>
-				@if (field.type == 'table') {
-				<cv-tabular-field
-					class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
-					(changed)="onFieldValueChanged(key, $event)"
-					(deltaChange)="onDeltaChange($event)"
-					[enableMutation]="true"
-					[enableSelection]="false"
-					[formControlName]="key"
-					[optionSource]="options()"
-					[schema]="field"
-				/>
-				} @else if (field.type == 'group') {
-				<div class="space-y-2">
-					<div class="flex items-center gap-2">
-						<button
-							(click)="onAddGroupItemButtonClicked(key, field)"
-							hlmBtn
-							size="icon"
-							variant="ghost"
-						>
-							<ng-icon name="lucidePlus" />
-						</button>
-					</div>
+				@if (shouldShow) {
+					<ng-container>
+						@let parentValue = sectionData()[$any(field).parent];
+					</ng-container>
 					<div
-						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-						formArrayName="{{key}}"
+						[class.col-span-2]="field.type == 'table' || field.type == 'group'"
+						hlmField
 					>
-						@for (control of $any(form.controls[key]).controls; track control) {
-						<cv-group-field
-							(changed)="onFieldValueChanged(key, $any(form).controls[key].value)"
-							(delete)="onGroupItemDeleted($index, key)"
-							(deltaChange)="groupDeltaChangeHandler(key, $index, $event)"
-							[enableMutation]="!field.readonly"
-							[optionSource]="options()"
-							[schema]="field"
-							formControlName="{{$index}}"
-						/>
+						@if (field.type == 'table') {
+							<cv-tabular-field
+								(changed)="onFieldValueChanged(key, $event)"
+								(deltaChange)="onDeltaChange($event)"
+								[enableMutation]="true"
+								[enableSelection]="false"
+								[formControlName]="key"
+								[optionSource]="options()"
+								[schema]="field"
+								class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+							/>
+						} @else if (field.type == 'group') {
+							<div class="space-y-2">
+								<div class="flex items-center gap-2">
+									<button
+										(click)="onAddGroupItemButtonClicked(key, field)"
+										hlmBtn
+										size="sm"
+										variant="ghost"
+									>
+										<ng-icon name="lucidePlus"/>
+										<span>{{ 'tmpl.group.actions.add' | translate }}</span>
+									</button>
+								</div>
+								<div
+									class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+									formArrayName="{{key}}"
+								>
+									@for (control of $any(form.controls[key]).controls; track control) {
+										<cv-group-field
+											(changed)="onFieldValueChanged(key, $any(form).controls[key].value)"
+											(delete)="onGroupItemDeleted($index, key)"
+											(deltaChange)="groupDeltaChangeHandler(key, $index, $event)"
+											[enableMutation]="!field.readonly"
+											[optionSource]="options()"
+											[schema]="field"
+											formControlName="{{$index}}"
+										/>
+									}
+								</div>
+							</div>
+						} @else {
+							<cv-field
+								(changed)="onFieldValueChanged(key, $event)"
+								(deltaChange)="onDeltaChange($event)"
+								[formControlName]="key"
+								[options]="options()"
+								[parentValue]="parentValue ?? null"
+								[readonly]="field.readonly"
+								[schema]="field"
+							/>
 						}
-					</div>
-				</div>
-				} @else {
-				<cv-field
-					[readonly]="field.readonly"
-					[schema]="field"
-					[options]="options()"
-					[formControlName]="key"
-					(changed)="onFieldValueChanged(key, $event)"
-					(deltaChange)="onDeltaChange($event)"
-					[parentValue]="parentValue ?? null"
-				/>
-				} @let control = form.controls[key]; @if (control.invalid) {
-				<ng-container
-					[ngTemplateOutlet]="errorMessageTemplate"
-					[ngTemplateOutletContext]="{
+						@let control = form.controls[key];
+						@if (control.invalid) {
+							<ng-container
+								[ngTemplateOutletContext]="{
 						$implicit: control,
 						schema: field
 					}"
-				/>
+								[ngTemplateOutlet]="errorMessageTemplate"
+							/>
+						}
+					</div>
 				}
-			</div>
-			}
+			</ng-container>
 		</ng-container>
-	</ng-container>
 	}
 </form>
 
 <ng-template #errorMessageTemplate let-control let-field="schema">
 	<hlm-field-error>
 		@if (control.hasError('required')) {
-		<ng-container>
-			{{ 'validation.msg.field_required' | translate }}
-		</ng-container>
+			<ng-container>
+				{{ 'validation.msg.field_required' | translate }}
+			</ng-container>
 		} @else if (control.hasError('invalidValue')) {
-		<ng-container>
-			{{ 'validation.msg.value_unsupported' | translate:{ validValues:
-			control.getError('invalidValue').validValues | join } }}
-		</ng-container>
+			<ng-container>
+				{{
+					'validation.msg.value_unsupported' | translate:{
+						validValues:
+							control.getError('invalidValue').validValues | join
+					}
+				}}
+			</ng-container>
 		} @else if (control.hasError('pattern') || control.hasError('int')) {
-		<ng-container>
-			{{ 'validation.msg.pattern_mismatch' | translate }}
-		</ng-container>
+			<ng-container>
+				{{ 'validation.msg.pattern_mismatch' | translate }}
+			</ng-container>
 		} @else if (control.hasError('minDate')) {
-		<ng-container>
-			{{ 'validation.msg.min_date' | translate: { minDate:
-			control.getError('minDate') } }}
-		</ng-container>
+			<ng-container>
+				{{
+					'validation.msg.min_date' | translate: {
+						minDate:
+							control.getError('minDate')
+					}
+				}}
+			</ng-container>
 		} @else if (control.hasError('maxDate')) {
-		<ng-container>
-			{{ 'validation.msg.max_date' | translate: { maxDate:
-			control.getError('maxDate') } }}
-		</ng-container>
+			<ng-container>
+				{{
+					'validation.msg.max_date' | translate: {
+						maxDate:
+							control.getError('maxDate')
+					}
+				}}
+			</ng-container>
 		} @else if (control.hasError('invalidDate')) {
-		<ng-container>
-			{{ 'validation.msg.invalid_date' | translate }}
-		</ng-container>
+			<ng-container>
+				{{ 'validation.msg.invalid_date' | translate }}
+			</ng-container>
 		} @else if (control.hasError('min')) {
-		<ng-container>
-			@let meta = { min: control.getError('min').min | number, suffix:
-			$any(field).unit ?? '' | translate };
-		</ng-container>
-		<ng-container> {{ 'validation.msg.min' | translate:meta }}</ng-container>
+			<ng-container>
+				@let meta = {
+					min: control.getError('min').min | number, suffix:
+						$any(field).unit ?? '' | translate
+				};
+			</ng-container>
+			<ng-container> {{ 'validation.msg.min' | translate:meta }}</ng-container>
 		} @else if (control.hasError('max')) {
-		<ng-container>
-			@let meta = { max: control.getError('max').max | number, suffix:
-			$any(field).unit ?? '' | translate };
-		</ng-container>
-		<ng-container> {{ 'validation.msg.max' | translate:meta }}</ng-container>
+			<ng-container>
+				@let meta = {
+					max: control.getError('max').max | number, suffix:
+						$any(field).unit ?? '' | translate
+				};
+			</ng-container>
+			<ng-container> {{ 'validation.msg.max' | translate:meta }}</ng-container>
 		}
 	</hlm-field-error>
 </ng-template>

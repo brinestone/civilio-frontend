@@ -39,6 +39,27 @@ export const formRoutes: Routes = [
 		title: 'Overview'
 	},
 	{
+		path: 'fosa/new',
+		children: sectionRoutes,
+		data: { form: 'fosa', model: FosaFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::FOSA`
+	},
+	{
+		path: 'csc/new',
+		children: sectionRoutes,
+		data: { form: 'csc', model: CscFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::CSC`
+	},
+	{
+		path: 'chefferie/new',
+		children: sectionRoutes,
+		data: { form: 'chefferie', model: ChefferieFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::CHEFFERIE`
+	},
+	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
 		data: { form: "fosa", model: FosaFormDefinition },
