@@ -33,7 +33,7 @@ export class TimeoutError extends AppErrorBase {
 	readonly code = 'timeout';
 
 	constructor(readonly timeout: number, srcChannel: Channel, messageId: string) {
-		super(messageId, srcChannel, `timeout error after: ${ timeout }ms`);
+		super(messageId, srcChannel, `timeout error after: ${timeout}ms`);
 	}
 }
 
@@ -49,7 +49,21 @@ export class MalConfigurationError extends Error implements AppError {
 	readonly code = 'mal_config';
 
 	constructor(public readonly configKey: string, readonly messageId: string = '', public readonly data?: ErrorData) {
-		super(`'${ configKey }' is not configured`);
+		super(`'${configKey}' is not configured`);
+	}
+}
+
+export class UserAccountNotFoundError extends Error implements AppError {
+	readonly code = 'account_not_found';
+	constructor(public readonly identifier: string, public messageId = '') {
+		super(`${identifier} account not found`);
+	}
+}
+
+export class EncryptionUnavailableError extends Error implements AppError {
+	readonly code = 'no_encryption';
+	constructor(public messageId = '') {
+		super(`Encryption unavailable`);
 	}
 }
 

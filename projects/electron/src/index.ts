@@ -1,8 +1,8 @@
 import { app, BrowserWindow, nativeTheme } from "electron";
 import { getAppConfig } from "./handlers";
-import { registerDevelopmentIpcHandlers, registerProductionIpcHandlers } from './helpers/handlers';
-import { showMainWindow } from "./helpers/windows";
+import { registerPullHandlers, startServiceMonitoring } from './helpers/handlers';
 import { provideLogger } from "./helpers/logging";
+import { showMainWindow } from "./helpers/windows";
 
 const logger = provideLogger('main');
 
@@ -20,10 +20,7 @@ function applyPreferences() {
 
 async function initializeServices() {
 	logger.info('Initializing services');
-	registerProductionIpcHandlers();
-	if (!app.isPackaged) {
-		registerDevelopmentIpcHandlers();
-	}
+	registerPullHandlers();
 	applyPreferences();
 }
 

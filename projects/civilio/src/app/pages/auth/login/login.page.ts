@@ -1,6 +1,5 @@
-import { JsonPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
-import { Field, MetadataKey, createMetadataKey, debounce, form, metadata, required } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Field, createMetadataKey, debounce, form, metadata, required } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle, lucideLoader } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
