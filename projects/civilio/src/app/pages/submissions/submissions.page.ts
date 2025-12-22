@@ -23,6 +23,7 @@ import {
 	lucideEye,
 	lucideInbox,
 	lucidePencil,
+	lucidePlus,
 	lucideRefreshCw
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -49,6 +50,7 @@ import {
 			lucideInbox,
 			lucideRefreshCw,
 			lucidePencil,
+			lucidePlus,
 			lucideEye
 		})
 	],
@@ -84,8 +86,18 @@ export class SubmissionsPage implements OnInit {
 	protected readonly filter = model('');
 	private readonly filterQuery = debounceSignal(this.filter);
 	protected submissions = resource({
-		params: () => ({ filter: this.filterQuery()?.trim(), form: this.formType(), pagination: this.pagination() }),
-		loader: async ({ params: { form, pagination: { pageIndex, pageSize }, filter } }) => {
+		params: () => ({
+			filter: this.filterQuery()?.trim(),
+			form: this.formType(),
+			pagination: this.pagination()
+		}),
+		loader: async ({
+										 params: {
+											 form,
+											 pagination: { pageIndex, pageSize },
+											 filter
+										 }
+									 }) => {
 			if (!form) return { data: [], totalRecords: 0 };
 			return await this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
 		},
@@ -163,8 +175,16 @@ export class SubmissionsPage implements OnInit {
 						shouldTranslateText: true,
 						minimal: true,
 						actions: [
-							{ identifier: 'open', icon: 'lucidePencil', label: 'misc.actions.modify' },
-							{ identifier: 'view', icon: 'lucideEye', label: 'misc.actions.open_overview' }
+							{
+								identifier: 'open',
+								icon: 'lucidePencil',
+								label: 'misc.actions.modify'
+							},
+							{
+								identifier: 'view',
+								icon: 'lucideEye',
+								label: 'misc.actions.open_overview'
+							}
 						]
 					},
 					outputs: {
@@ -208,5 +228,9 @@ export class SubmissionsPage implements OnInit {
 	protected onFormTypeChanged(type: FormType) {
 		this.setFormType(type);
 		this.table.resetPageIndex();
+	}
+
+	protected onNewSubmissionButtonClicked() {
+		this.navigate(['/forms', this.formType(), 'new']);
 	}
 }

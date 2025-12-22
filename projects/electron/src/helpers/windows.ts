@@ -11,7 +11,7 @@ export function showMainWindow() {
 		height: 840,
 		center: true,
 		minWidth: 480,
-		width: 1080,
+		width: 1330,
 		icon: nativeImage.createFromDataURL(logo),
 		webPreferences: {
 			contextIsolation: true,

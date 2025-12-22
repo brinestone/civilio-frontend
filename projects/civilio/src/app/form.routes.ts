@@ -27,7 +27,6 @@ const sectionRoutes: Routes = [
 		path: "",
 		pathMatch: "full",
 		redirectTo: ({ data }) => {
-			console.log(data);
 			return (data["model"] as FormSchema).sections[0].id;
 		},
 	},
@@ -38,6 +37,27 @@ export const formRoutes: Routes = [
 		path: ':formType/:submissionIndex/overview',
 		loadComponent: () => import('./pages/forms/overview/overview.page').then(m => m.OverviewPage),
 		title: 'Overview'
+	},
+	{
+		path: 'fosa/new',
+		children: sectionRoutes,
+		data: { form: 'fosa', model: FosaFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::FOSA`
+	},
+	{
+		path: 'csc/new',
+		children: sectionRoutes,
+		data: { form: 'csc', model: CscFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::CSC`
+	},
+	{
+		path: 'chefferie/new',
+		children: sectionRoutes,
+		data: { form: 'chefferie', model: ChefferieFormDefinition },
+		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
+		title: `Submission::CHEFFERIE`
 	},
 	{
 		children: sectionRoutes,

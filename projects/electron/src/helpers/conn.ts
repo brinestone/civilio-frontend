@@ -4,14 +4,15 @@ import {
 	DbConnectionRefSchema
 } from "@civilio/shared";
 import { DatabaseSync, StatementSync } from "node:sqlite";
+import { provideLogger } from "./logging";
 
 export class ConnectionManager {
 	private readonly conn: DatabaseSync;
-
+	private readonly logger = provideLogger('ConnectionManager');
 	constructor(
 		dbPath: string
 	) {
-		console.log(`Initializing connection manager on ${ dbPath }`)
+		this.logger.verbose(`Initializing at ${dbPath}`)
 		this.conn = new DatabaseSync(dbPath);
 		this.initialize();
 	}
@@ -144,6 +145,7 @@ export class ConnectionManager {
 	}
 
 	addConnection(ref: DbConnectionRefInput) {
+		this.logger.log('Adding new connection', ref);
 		this.runInTransaction(() => {
 			const {
 				database,

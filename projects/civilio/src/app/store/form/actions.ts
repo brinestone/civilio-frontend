@@ -10,6 +10,13 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
+export class ChangesSaved {
+	static type = `${ prefix } changes saved`;
+
+	constructor(readonly index: number, readonly isNew: boolean) {
+	}
+}
+
 export class ToggleApprovalStatus {
 	static type = `${ prefix } toggle approval status`;
 

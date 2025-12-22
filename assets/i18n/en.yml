@@ -29,6 +29,7 @@ overview:
 misc:
   changed_at: Recorded at
   changed_by: Recorded by
+  size: Size of the commune
   notes: Notes
   version: Version
   action: Action
@@ -120,6 +121,7 @@ tmpl:
       title: Edit record
       description: ""
     actions:
+      add: Add Item
       enable_mutation:
         title: Edit
   dropdown:
@@ -170,6 +172,8 @@ settings:
       port: Port
       ssl: SSL
       name: Database Name
+      parameters:
+        title: Parameters
       connections:
         title: Connection History
         active: Active
@@ -940,6 +944,7 @@ fosa:
     finish: ""
   open_filters: Filters
 forms:
+  validation_code_required_notice: For new submissions, the validation code is required
   validation:
     msg:
       field_required: This field is required
@@ -1554,6 +1559,10 @@ services:
     user_not_found: Invalid username or password
 submissions:
   title: Form Submissions
+  actions:
+    add_submission: Add Submission
+  new_submission:
+    title: New Submission
   context_menu:
     actions:
       delete: Delete

@@ -125,6 +125,7 @@ tmpl:
     form:
       title: Modifier l'enregistrement
     actions:
+      add: Ajouter un article
       enable_mutation:
         title: Modifier
   dropdown:
@@ -176,6 +177,8 @@ settings:
       port: Port
       ssl: SSL
       name: Nom de la base de données
+      parameters:
+        title: Paramètres
       connections:
         title: Historique de connexion
         active: Actif
@@ -953,6 +956,7 @@ fosa:
       value_out_of_range: Valeur hors plage
   open_filters: Filtres
 forms:
+  validation_code_required_notice: Pour les nouvelles soumissions, le code de validation est requis
   validation:
     msg:
       field_required: Ce champ est obligatoire
@@ -1573,6 +1577,10 @@ services:
     user_not_found: Nom d'utilisateur ou mot de passe invalide
 submissions:
   title: Soumissions de formulaires
+  actions:
+    add_submission: Ajouter une soumission
+  new_submission:
+    title: Nouvelle soumission
   context_menu:
     actions:
       delete: Supprimer

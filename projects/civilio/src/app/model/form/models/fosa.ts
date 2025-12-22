@@ -49,6 +49,7 @@ export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 					key: 'fosa.form.sections.respondent.fields.creation_date',
 					type: 'date',
 					required: true,
+					defaultToToday: true,
 					span: 1,
 					max: new Date(),
 					relevance: {

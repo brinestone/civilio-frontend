@@ -1,4 +1,5 @@
 import { hashThese } from '@civilio/helpers/hashing';
+import { provideLogger } from '@civilio/helpers/logging';
 import {
 	chefferieIndexSeqInCivilio,
 	chefferiePersonnelIndexSeqInCivilio,
@@ -14,7 +15,8 @@ import {
 	fosaIdSeqInCivilio,
 	fosaIndexSeqInCivilio,
 	fosaPersonnelIndexSeqInCivilio,
-	vwDbColumns, vwFacilities,
+	vwDbColumns,
+	vwFacilities,
 	vwFormSubmissions,
 } from "@civilio/schema";
 import {
@@ -34,7 +36,8 @@ import {
 	FormSubmissionSchema,
 	FormType,
 	GetAutoCompletionSuggestionsRequest,
-	GetAutoCompletionSuggestionsResponseSchema, GetFacilityInfoRequest,
+	GetAutoCompletionSuggestionsResponseSchema,
+	GetFacilityInfoRequest,
 	GetFacilityInfoResponseSchema,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponseSchema,
@@ -45,10 +48,21 @@ import {
 	UpdateSubmissionRequest,
 	VersionRevertRequest
 } from "@civilio/shared";
-import { and, countDistinct, eq, inArray, like, or, sql } from "drizzle-orm";
+import {
+	and,
+	countDistinct,
+	eq,
+	inArray,
+	like,
+	or,
+	SQL,
+	sql
+} from "drizzle-orm";
 import { PgSequence } from "drizzle-orm/pg-core";
-import { entries, groupBy, keys } from 'lodash';
+import { entries, groupBy, keys, values } from 'lodash';
 import { provideDatabase } from "../helpers/db";
+
+const logger = provideLogger('forms');
 
 const sequences: Record<
 	string,
@@ -108,8 +122,8 @@ export async function deleteSubmission({
 		`);
 		const [{ version: currentVersion }] = result.rows;
 		const newVersion = hashThese([Date.now()].join('|'));
-		console.log('new version = ', newVersion);
-		console.log('parent version = ', currentVersion);
+		logger.debug('new version = ', newVersion);
+		logger.debug('parent version = ', currentVersion);
 		const _configs = {
 			'session.working_version': newVersion,
 			'session.actor': 'civilio', // TODO: use the id from identity provider
@@ -173,19 +187,21 @@ export async function revertSubmissionVersion({
 	});
 }
 
-export async function processSubmissionDataUpdate({
-																										submissionIndex,
-																										form,
-																										deltas,
-																										changeNotes,
-																										parentVersion,
-																										customVersion
-																									}: UpdateSubmissionRequest) {
+export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) {
+	const {
+		submissionIndex,
+		form,
+		deltas,
+		changeNotes,
+		parentVersion,
+		customVersion
+	} = req;
+	logger.debug('dto: ', req);
 	const db = provideDatabase({ fieldMappings, deltaChanges });
 	return await db.transaction(async tx => {
-		const newVersion = customVersion || hashThese([JSON.stringify(deltas), Date.now()].join('|'));
-		console.log('new version = ', newVersion);
-		console.log('parent version = ', parentVersion);
+		let newVersion = customVersion || hashThese([JSON.stringify(deltas), Date.now()].join('|'));
+		logger.debug('new version = ', newVersion);
+		logger.debug('parent version = ', parentVersion);
 		const _configs = {
 			'session.working_version': newVersion,
 			'session.actor': 'civilio', // TODO: use the id from identity provider
@@ -193,52 +209,58 @@ export async function processSubmissionDataUpdate({
 			'session.parent_version': parentVersion,
 		};
 		for (const [k, v] of entries(_configs)) {
-			await tx.execute(sql`SELECT set_config(${ k }, ${ v }, true)`);
+			// language=PostgreSQL
+			await tx.execute(sql`SELECT set_config(${ k }, ${ v ?? null }, true)`);
 		}
-
+		logger.debug(`All deltas: ${ deltas.length }`);
 		let _submission_index = Number(submissionIndex);
+		const isNew = _submission_index == 0;
 		const allMappings = await tx.select().from(fieldMappings).where(
 			eq(fieldMappings.form, form)
 		);
-		if (submissionIndex !== undefined && deltas.some(d => {
-			const mapping = allMappings.find(m => m.field == d.field && m.dbTable == 'data');
-			return mapping && d.op == 'delete';
-		})) {
-			await tx.execute(sql`DELETE
-													 FROM ${ sql.identifier(form) }.${ sql.identifier('data') }
-													 WHERE _index = ${ Number(submissionIndex) }`);
-			//language=PostgreSQL
-			await tx.execute(sql`
-				CALL revisions.sync_version(${ form }, ${ _submission_index });
-			`);
-			return;
-		} else if (submissionIndex === undefined || isNaN(_submission_index)) {
+		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
+		if (isNew) {
+			const dataTableMappings = tableGroupedMappings['data'];
+			const tableDeltas = deltas.filter(delta => {
+				return dataTableMappings.some(mapping => mapping.field == delta.field);
+			});
+			const dataEntries = tableDeltas.reduce((acc, curr) => {
+				const mapping = dataTableMappings.find(m => m.field == curr.field)!;
+				acc[mapping.dbColumn] = sql`${ curr.value || null }::${ sql.raw(mapping.dbColumnType) }`;
+				return acc;
+			}, {} as Record<string, SQL>)
 			const requiredCols = sequences[form].data;
-			const result = await tx.execute(sql.raw(`
-				INSERT INTO ${ form }.data (${ requiredCols.map(c => c.column).join(',') })
-				VALUES (${ requiredCols.map(c => `nextval(${ c.sequence.schema }.${ c.sequence.seqName })`).join(',') })
+			const columns = [...requiredCols.map(c => sql.identifier(c.column)), ...keys(dataEntries).map(k => sql.identifier(k))]
+			const dataValues = [...requiredCols.map(c => sql.raw(`nextval('${ c.sequence.schema }.${ c.sequence.seqName }')`)), ...values(dataEntries)]
+
+			const result = await tx.execute(sql`
+				INSERT INTO ${ sql.identifier(form) }."data" ("_submission_time", ${ sql.join(columns, sql`,
+																			`) })
+				VALUES (NOW(),
+								${ sql.join(dataValues, sql`,
+								`) })
 				RETURNING _index;
-			`));
+			`);
 			if (result.rows.length == 0) {
 				throw new Error('An unexpected error occurred. Please try again later or contact your administrator')
 			}
 			_submission_index = result.rows[0]._index as number;
+
 			//language=PostgreSQL
 			await tx.execute(sql`
 				CALL revisions.sync_version(${ form }, ${ _submission_index });
 			`);
 		}
-		const tableGroupedMappings = groupBy(allMappings, 'dbTable');
-		console.log(`All deltas: ${ JSON.stringify(deltas) }`);
 		for (const [table, mappings] of entries(tableGroupedMappings)) {
+			if (isNew && table == 'data') continue;
 			const tableDeltas = deltas.filter(delta => {
 				const fieldToCheck = (delta.op === 'add' && delta.identifierKey)
 					? delta.identifierKey
 					: delta.field;
 				return mappings.some(mapping => mapping.field === fieldToCheck);
 			});
-			console.log(`Processing ${ tableDeltas.length } updates for table: ${ table }`);
-			console.log(`Table Deltas: ${ JSON.stringify(tableDeltas) }`);
+			logger.debug(`Processing ${ tableDeltas.length } updates for table: ${ table }`);
+			logger.debug(`Table Deltas: ${ JSON.stringify(tableDeltas) }`);
 			if (table == 'data' && tableDeltas.length > 0) {
 				const kvm = new Map<string, [any, string]>();
 				for (const delta of tableDeltas) {
@@ -263,7 +285,7 @@ export async function processSubmissionDataUpdate({
 					update: updates
 				} = groupBy(tableDeltas, 'op');
 				if (updates && updates.length > 0) {
-					console.log('processing "update" deltas');
+					logger.debug('processing "update" deltas');
 					const recordGroups = groupBy(updates, 'index');
 					for (const [i, updates] of entries(recordGroups)) {
 						const kvm = new Map<string, [any, string]>();
@@ -288,7 +310,7 @@ export async function processSubmissionDataUpdate({
 					`);
 				}
 				if (additions && additions.length > 0) {
-					console.log('processing "add" deltas');
+					logger.debug('processing "add" deltas');
 					const uniqueMappings = additions.flatMap(a => keys(a.value))
 						.reduce((acc, k) => {
 							const mapping = mappings.find(m => m.field == k);
@@ -302,18 +324,18 @@ export async function processSubmissionDataUpdate({
 						throw new Error('Could not identify identifier mapping. Cannot proceed');
 					}
 					for (const row of additions) {
-						console.log('row', row);
+						logger.debug('row', row);
 						const kvm = new Map<string, [any, string]>();
 						const rowEntries = entries(row.value);
-						console.log(rowEntries);
+						logger.debug(rowEntries);
 						for (const [field, value] of rowEntries) {
 							const mapping = uniqueMappings[field];
 							if (mapping) {
 								kvm.set(mapping.dbColumn, [value, mapping.dbColumnType]);
 							}
 						}
-						console.log('kvm', kvm);
-						console.log('unique mappings', uniqueMappings);
+						logger.debug('kvm', kvm);
+						logger.debug('unique mappings', uniqueMappings);
 						const cols = [...sequences[form][table].map(({ column }) => column), ...kvm.keys(), '_parent_index'].map(c => sql.identifier(c));
 						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${ sql.join([sql.raw(sequence.schema), sql.raw(sequence.seqName)], sql`.`) }')`), ...[...kvm.values()].map(([v, t]) => sql`${ v || null }::${ sql.raw(t) }`), _submission_index];
 						await tx.execute(sql`
@@ -328,7 +350,7 @@ export async function processSubmissionDataUpdate({
 					`);
 				}
 				if (deletions && deletions.length > 0) {
-					console.log('processing "delete" deltas');
+					logger.debug('processing "delete" deltas');
 					let identifierMapping = mappings.find(m => m.field == deletions[0].field);
 					if (!identifierMapping) {
 						throw new Error('Could not identify identifier mapping. Cannot proceed');
@@ -358,6 +380,8 @@ export async function processSubmissionDataUpdate({
 				}
 			}
 		}
+
+		return _submission_index;
 	});
 }
 
@@ -511,14 +535,14 @@ export async function findFormData({
 	for (const tableName of tableNames) {
 		// language=PostgreSQL
 		queryResult = await db.execute(sql`
-		SELECT
-		revisions.get_version_data(${ form }::civilio.form_types, ${ index }, ${ tableName }, ${ version || null }) AS "data";
-	`);
+			SELECT revisions.get_version_data(${ form }::civilio.form_types,
+																				${ index }, ${ tableName },
+																				${ version || null }) AS "data";
+		`);
 		const row = queryResult.rows[0]?.data as any;
 		if (!row) continue;
 		result = { ...result, ...row };
 	}
-	console.log(result);
 	return FindSubmissionDataResponseSchema.parse(result);
 }
 
@@ -623,34 +647,40 @@ export async function findFormSubmissions(
 	size: number = 100,
 	filterQuery: string = "",
 ) {
-	const db = provideDatabase({ vwFormSubmissions });
-	const q = `%${ filterQuery.toLowerCase() }%`;
-	const searchColumns = [
-		vwFormSubmissions.index,
-		vwFormSubmissions.validationCode,
-		vwFormSubmissions.facilityName,
-		vwFormSubmissions.currentVersion
-	];
-	const filter = filterQuery
-		? and(
-			eq(vwFormSubmissions.form, form),
-			or(
-				...searchColumns.map(col => like(sql`LOWER(${ col }::TEXT)`, q))
-			),
-		)
-		: eq(vwFormSubmissions.form, form);
+	try {
+		const db = provideDatabase({ vwFormSubmissions });
+		const q = `%${ filterQuery.toLowerCase() }%`;
+		const searchColumns = [
+			vwFormSubmissions.index,
+			vwFormSubmissions.validationCode,
+			vwFormSubmissions.facilityName,
+			vwFormSubmissions.currentVersion
+		];
+		const filter = filterQuery
+			? and(
+				eq(vwFormSubmissions.form, form),
+				or(
+					...searchColumns.map(col => like(sql`LOWER(${ col }::TEXT)`, q))
+				),
+			)
+			: eq(vwFormSubmissions.form, form);
 
-	const submissions = await db
-		.select()
-		.from(vwFormSubmissions)
-		.where(filter)
-		.limit(size)
-		.offset(page * size);
-	const [{ totalRecords }] = await db
-		.select({ totalRecords: countDistinct(vwFormSubmissions.index) })
-		.from(vwFormSubmissions)
-		.where(filter);
+		const submissions = await db
+			.select()
+			.from(vwFormSubmissions)
+			.where(filter)
+			.limit(size)
+			.offset(page * size);
+		const [{ totalRecords }] = await db
+			.select({ totalRecords: countDistinct(vwFormSubmissions.index) })
+			.from(vwFormSubmissions)
+			.where(filter);
 
-	const schema = createPaginatedResultSchema(FormSubmissionSchema);
-	return schema.parse({ totalRecords, data: submissions });
+		const schema = createPaginatedResultSchema(FormSubmissionSchema);
+		return schema.parse({ totalRecords, data: submissions });
+	} catch (e) {
+		console.error(e);
+		logger.error(e);
+		throw e;
+	}
 }

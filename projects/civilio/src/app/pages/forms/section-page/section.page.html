@@ -6,6 +6,9 @@
 		{{ sectionKey() + '.title' | translate }}
 	</h1>
 </div>
+<!-- <pre>
+	{{sectionSchema() | json}}
+</pre> -->
 <form
 	[formGroup]="form"
 	class="grid lg:grid-cols-[1fr_1fr] xl:grid-col-[1fr_1fr_1fr] gap-3 px-2"
@@ -25,7 +28,6 @@
 					>
 						@if (field.type == 'table') {
 							<cv-tabular-field
-								class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 								(changed)="onFieldValueChanged(key, $event)"
 								(deltaChange)="onDeltaChange($event)"
 								[enableMutation]="true"
@@ -33,6 +35,7 @@
 								[formControlName]="key"
 								[optionSource]="options()"
 								[schema]="field"
+								class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 							/>
 						} @else if (field.type == 'group') {
 							<div class="space-y-2">
@@ -40,10 +43,11 @@
 									<button
 										(click)="onAddGroupItemButtonClicked(key, field)"
 										hlmBtn
-										size="icon"
+										size="sm"
 										variant="ghost"
 									>
 										<ng-icon name="lucidePlus"/>
+										<span>{{ 'tmpl.group.actions.add' | translate }}</span>
 									</button>
 								</div>
 								<div
@@ -65,23 +69,23 @@
 							</div>
 						} @else {
 							<cv-field
-								[readonly]="field.readonly"
-								[schema]="field"
-								[options]="options()"
-								[formControlName]="key"
 								(changed)="onFieldValueChanged(key, $event)"
 								(deltaChange)="onDeltaChange($event)"
+								[formControlName]="key"
+								[options]="options()"
 								[parentValue]="parentValue ?? null"
+								[readonly]="field.readonly"
+								[schema]="field"
 							/>
 						}
 						@let control = form.controls[key];
 						@if (control.invalid) {
 							<ng-container
-								[ngTemplateOutlet]="errorMessageTemplate"
 								[ngTemplateOutletContext]="{
 						$implicit: control,
 						schema: field
 					}"
+								[ngTemplateOutlet]="errorMessageTemplate"
 							/>
 						}
 					</div>

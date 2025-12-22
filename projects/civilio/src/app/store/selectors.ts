@@ -1,10 +1,11 @@
 import { ValidationErrors } from "@angular/forms";
-import { FieldKey, FormType, Locale } from "@civilio/shared";
+import { FieldKey, FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries, get, isEmpty, keys, values } from "lodash";
 import { AUTH_STATE } from "./auth";
 import { FORM_STATE } from "./form";
 import { CONFIG_STATE } from "./models";
+import { extractRawValidators, lookupFieldSchema } from '@app/model/form';
 
 const formSlices = createPropertySelectors(FORM_STATE);
 const authSlices = createPropertySelectors(AUTH_STATE);
@@ -93,3 +94,20 @@ export const hasConfiguredConnection = createSelector([configSlices.knownConnect
 export const connections = configSlices.knownConnections;
 export const preInit = configSlices.preInit;
 export const isSignedIn = createSelector([authSlices.principal], p => !!p);
+export const hasValidValidationCode = createSelector([formSlices.activeSections, formSlices.schemas], (sections, schemas) => {
+	const validationCodeKeys = [
+		['csc.form.sections.extra', 'csc.form.sections.extra.fields.validation_code'],
+		['fosa.form.sections.extras', 'fosa.form.fields.validation_code'],
+		['chefferie.form.sections.comments', 'chefferie.form.sections.comments.fields.validation_code']
+	] as [FormSectionKey, FieldKey][];
+
+	for (const [section, key] of validationCodeKeys) {
+		if (!(section in sections)) continue;
+		const value = sections[section].model[key]
+		const formSchema = schemas[key.split('.', 2)[0]];
+		const fieldSchema = lookupFieldSchema(key, formSchema);
+		const validators = extractRawValidators(fieldSchema!);
+		return validators.reduce((acc, curr) => acc && (curr(value) === null), true);
+	}
+	return false;
+})

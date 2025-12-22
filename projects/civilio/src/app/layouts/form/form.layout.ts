@@ -17,7 +17,10 @@ import { HlmAlertImports } from '@spartan-ng/helm/alert';
     HlmAlertImports,
 ],
   templateUrl: './form.layout.html',
-  styleUrl: './form.layout.scss'
+  styleUrl: './form.layout.scss',
+	host: {
+		class: 'scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent'
+	}
 })
 export class FormLayout {
 
