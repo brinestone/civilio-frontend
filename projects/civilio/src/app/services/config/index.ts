@@ -8,6 +8,7 @@ import {
 	CheckMigrationsResponse,
 	DbConfig,
 	DeleteDbConnectionRequest,
+	DiscoverServerResponse,
 	FindConnectionHistoryResponse,
 	Locale,
 	TestDbConnectionRequest,
@@ -17,6 +18,9 @@ import {
 } from "@civilio/shared";
 
 export interface ConfigService {
+	setServerUrl(url: string): Promise<AppConfigResponse>;
+	pingServer(url: string): Promise<boolean>;
+	discoverServer(): Promise<DiscoverServerResponse>;
 	useConnection(req: UseConnectionRequest): Promise<void>;
 
 	clearConnections(): Promise<void>;

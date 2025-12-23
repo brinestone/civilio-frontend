@@ -18,6 +18,11 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const DiscoverServerResponseSchema = z.object({
+	baseUrl: z.url(),
+	nodeName: z.string()
+});
+
 export const LoginResponseSchema = PrincipalSchema.nullable();
 export const LoginRequestSchema = z.object({
 	username: z.coerce.string(),
@@ -247,3 +252,4 @@ export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSche
 export type LoginRequest = z.input<typeof LoginRequestSchema>;
 export type ParsedLoginRequest = z.output<typeof LoginRequestSchema>;
 export type LoginResponse = z.output<typeof LoginResponseSchema>;
+export type DiscoverServerResponse = z.output<typeof DiscoverServerResponseSchema>;

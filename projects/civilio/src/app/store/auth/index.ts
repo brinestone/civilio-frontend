@@ -1,6 +1,12 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { UserPrincipal } from "@civilio/shared";
-import { State, StateContext, StateToken } from "@ngxs/store";
+import { Action, State, StateContext, StateToken } from "@ngxs/store";
+import { LoginUser } from "./actions";
+import { AuthService } from "@app/services/auth.service";
+import { tap } from "rxjs";
+import { patch } from "@ngxs/store/operators";
+
+export * from './actions';
 
 type AuthStateModel = {
 	principal?: UserPrincipal;
@@ -15,5 +21,14 @@ type Context = StateContext<AuthStateModel>;
 	}
 })
 export class AuthState {
+	private authService = inject(AuthService);
 
+	@Action(LoginUser, { cancelUncompleted: true })
+	onLoginUser(ctx: Context, req: LoginUser) {
+		return this.authService.loginUser(req).pipe(
+			tap(principal => ctx.setState(patch({
+				principal
+			})))
+		);
+	}
 }

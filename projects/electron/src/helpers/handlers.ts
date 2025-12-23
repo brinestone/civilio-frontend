@@ -2,6 +2,7 @@ import {
 	createChannelHandler,
 	createUnifiedServiceMonitor,
 	deleteSubmission,
+	discoverServer,
 	findAutocompleteSuggestions,
 	findCurrentSubmissionVersion,
 	findDbColumns,
@@ -24,10 +25,10 @@ import {
 	toggleApprovalStatus,
 	updateFieldMappings,
 	updateLocale,
-	updateTheme,
-	watchLdap
+	updateTheme
 } from "@civilio/handlers";
 import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
+import { BrowserWindow } from "electron";
 import {
 	checkMigration,
 	clearConnections,
@@ -41,7 +42,6 @@ import {
 	watchDb
 } from "./db";
 import { storeValue } from "./store";
-import { BrowserWindow } from "electron";
 
 // export function registerPushHandlers() {
 // 	if (!app.isPackaged) {
@@ -52,13 +52,19 @@ import { BrowserWindow } from "electron";
 export function startServiceMonitoring(window: BrowserWindow) {
 	console.log('monitoring services...');
 	createUnifiedServiceMonitor(window, 'service-status-update', [
-		watchLdap,
+		// watchLdap,
 		watchDb
 	]);
 	console.log('Service monitoring started.');
 }
 
 export function registerPullHandlers() {
+	createChannelHandler('discovery:init', async () => {
+		const result = await discoverServer();
+		storeValue('api.baseUrl', result.baseUrl);
+		storeValue('api.nodeName', result.nodeName);
+		return result;
+	})
 	createChannelHandler('submission:delete', async req => {
 		return await deleteSubmission(req);
 	})

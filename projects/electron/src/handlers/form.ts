@@ -1,4 +1,4 @@
-import { hashThese } from '@civilio/helpers/hashing';
+import { hashThese } from '@civilio/helpers/crypto';
 import { provideLogger } from '@civilio/helpers/logging';
 import {
 	chefferieIndexSeqInCivilio,

@@ -3,6 +3,7 @@ import {
 	ApplyPendingMigrationsResponse,
 	CheckMigrationsResponse,
 	DbConfig,
+	DiscoverServerResponse,
 	FindConnectionHistoryResponse,
 	Locale,
 	TestDbConnectionRequest,
@@ -16,6 +17,15 @@ import { Injectable } from "@angular/core";
 	providedIn: null
 })
 export class WebConfigService implements ConfigService {
+	setServerUrl(url: string): Promise<AppConfigResponse> {
+		throw new Error("Method not implemented.");
+	}
+	pingServer(url: string): Promise<boolean> {
+		throw new Error("Method not implemented.");
+	}
+	discoverServer(): Promise<DiscoverServerResponse> {
+		throw new Error("Method not implemented.");
+	}
 	useConnection(id: number): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

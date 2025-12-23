@@ -6,6 +6,7 @@ import {
 	CheckMigrationsResponseSchema,
 	DeleteDbConnectionRequestSchema,
 	DeleteSubmissionRequestSchema,
+	DiscoverServerResponseSchema,
 	FieldMappingRequestSchema,
 	FindConnectionHistoryResponseSchema,
 	FindDbColumnsRequestSchema,
@@ -111,9 +112,11 @@ export const channelArgs = {
 	'submission:delete': DeleteSubmissionRequestSchema,
 	'approval:toggle': ToggleApprovalStatusRequestSchema,
 	'auth:login': LoginRequestSchema,
-	'auth:logout': {}
+	'auth:logout': {},
+	'discovery:init': {},
 } as const;
 export const channelResponses = {
+	'discovery:init': DiscoverServerResponseSchema,
 	'config:read': AppConfigResponseSchema,
 	'field-mappings:create': FieldMappingSchema,
 	'field-mappings:read': FindFieldMappingsResponseSchema,
@@ -162,6 +165,7 @@ export const channelResponses = {
 export type PushEvent = z.output<typeof PushEventSchema> | 'service-status-update';
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'discovery:init'
 	| 'auth:login'
 	| 'auth:logout'
 	| 'submission:delete'

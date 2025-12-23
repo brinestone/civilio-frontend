@@ -1,3 +1,14 @@
+auth:
+  settings:
+    title: Settings
+  idm:
+    title: Identity Server
+    description: Identity provider server configuration
+    fields:
+      url:
+        title: Server base URL
+    discovery:
+      in_progress: Discovering server...
 overview:
   versions:
     columns:

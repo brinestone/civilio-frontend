@@ -10,7 +10,6 @@ const logger = provideLogger('main');
 if (require("electron-squirrel-startup")) {
 	app.quit();
 }
-
 function applyPreferences() {
 	const config = getAppConfig();
 
@@ -23,6 +22,9 @@ async function initializeServices() {
 	registerPullHandlers();
 	applyPreferences();
 }
+
+if(app.isPackaged)
+	app.commandLine.appendSwitch('enable-file-cookies');
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

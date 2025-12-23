@@ -8,5 +8,6 @@ export type ConfigStateModel = {
 	migrationState?: CheckMigrationsResponse;
 	preInit: boolean;
 	connectionsLoaded: boolean;
+	serverOnline: boolean;
 }
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');

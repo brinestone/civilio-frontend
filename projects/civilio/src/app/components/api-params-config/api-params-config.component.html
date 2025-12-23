@@ -1,0 +1,44 @@
+<form #form="ngForm" (ngSubmit)="onFormSubmit(form)">
+	<fieldset hlmFieldSet>
+		<legend hlmFieldLegend>{{ "auth.idm.title" | translate }}</legend>
+		<p hlmFieldDescription>{{ "auth.idm.description" | translate }}</p>
+		@if (!discoveringServer()) {
+			<div hlmField>
+				<label hlmFieldLabel for="apiUrl"
+					>{{ "auth.idm.fields.url.title" | translate }} *</label
+				>
+				<div hlmInputGroup>
+					<input
+						[(ngModel)]="model.baseUrl"
+						hlmInputGroupInput
+						id="apiUrl"
+						name="apiUrl"
+						required="!discoveringServer()"
+						type="url"
+						placeholder="example.com"
+						#field="ngModel"
+					/>
+					<div hlmInputGroupAddon>
+						<ng-icon name="lucideGlobe" />
+					</div>
+				</div>
+				@if (field.dirty && field.invalid) {
+					@if (field.hasError("required")) {
+						<hlm-field-error>{{
+							"validation.msg.field_required" | translate
+						}}</hlm-field-error>
+					} @else if (field.hasError("pattern")) {
+						<hlm-field-error>{{
+							"forms.msg.invalid_value" | translate
+						}}</hlm-field-error>
+					}
+				}
+			</div>
+		} @else {
+			<div class="flex items-center gap-2 text-muted-foreground text-sm">
+				<ng-icon name="lucideLoader" size="13" class="animate-spin" />
+				<span>{{ "auth.idm.discovery.in_progress" | translate }}</span>
+			</div>
+		}
+	</fieldset>
+</form>

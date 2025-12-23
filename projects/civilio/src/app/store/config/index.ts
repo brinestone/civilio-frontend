@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
 import { dbConfig } from '@app/store/selectors';
+import { sendRpcMessageAsync } from '@app/util';
 import { TranslateService } from '@ngx-translate/core';
 import {
 	Action,
@@ -16,6 +17,7 @@ import {
 	EMPTY,
 	forkJoin,
 	from,
+	pipe,
 	tap,
 	throwError
 } from 'rxjs';
@@ -23,13 +25,16 @@ import { CONFIG_STATE, ConfigStateModel } from '../models';
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
+	DiscoverServer,
 	InitChecks,
 	IntrospectDb,
 	LoadConfig,
 	LoadKnownConnections,
+	CheckServerStatus,
 	RemoveConnection,
 	SetFontSize,
 	SetLocale,
+	SetServerUrl,
 	SetTheme,
 	TestDb,
 	UpdateMiscConfig,
@@ -47,7 +52,8 @@ type Context = StateContext<ConfigStateModel>;
 		connectionsLoaded: false,
 		knownConnections: [],
 		env: 'desktop',
-		preInit: true
+		preInit: true,
+		serverOnline: false
 	}
 })
 export class ConfigState implements NgxsOnInit {
@@ -66,6 +72,38 @@ export class ConfigState implements NgxsOnInit {
 				}))
 			}
 		});
+	}
+
+	@Action(CheckServerStatus)
+	async onCheckServerStatus(ctx: Context) {
+		const { config } = ctx.getState();
+		const url = config?.api?.baseUrl;
+		ctx.setState(patch({
+			serverOnline: url ? await this.configService.pingServer(url) : false
+		}));
+	}
+
+	@Action(SetServerUrl)
+	async onSetServerUrl(ctx: Context, { url }: SetServerUrl) {
+		const result = await this.configService.pingServer(url);
+		if (result) {
+			const result = await this.configService.setServerUrl(url);
+			ctx.setState(patch({
+				config: result,
+				serverOnline: true
+			}));
+			return;
+		}
+		return throwError(() => new Error('Server unreachable'))
+	}
+
+	@Action(DiscoverServer)
+	async onDiscoverServer(ctx: Context) {
+		await sendRpcMessageAsync('discovery:init');
+		ctx.dispatch(LoadConfig);
+		ctx.setState(patch({
+			serverOnline: true
+		}))
 	}
 
 	@Action(ClearConnections)
@@ -115,7 +153,9 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(InitChecks)
 	onInitChecks(ctx: Context) {
-		ctx.dispatch([LoadConfig, IntrospectDb, LoadKnownConnections])
+		return ctx.dispatch(LoadConfig).pipe(
+			concatMap(() => ctx.dispatch([CheckServerStatus, IntrospectDb, LoadKnownConnections]))
+		);
 	}
 
 	@Action(IntrospectDb)

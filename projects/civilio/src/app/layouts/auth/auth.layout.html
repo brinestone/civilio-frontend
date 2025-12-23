@@ -5,28 +5,58 @@
 	<hlm-separator orientation="vertical" class="max-h-[350px]" />
 </div>
 <div class="w-full grid grid-rows-[1fr_auto] py-4">
-	<div class="flex items-center justify-center overflow-y-auto h-full">
+	<div
+		class="flex flex-col items-center justify-center overflow-y-auto h-full gap-4"
+	>
 		<router-outlet />
+		@if(settingsSheetOpenState() !== 'open' && discoveringServer()) {
+		<div
+			class="border border-border py-2 px-4 shadow-sm rounded-full flex justify-center items-center gap-2 text-sm text-muted-foreground"
+		>
+			<ng-icon size="13" name="lucideLoader" class="animate-spin" />
+			<span>{{ "auth.idm.discovery.in_progress" | translate }}</span>
+		</div>
+		}
 	</div>
 	<div class="flex justify-center items-center gap-3 px-4">
 		<cv-theme-selector size="sm" />
 		<hlm-separator orientation="vertical" />
 		<cv-locale-selector />
+		@if(!discoveringServer()) {
 		<hlm-separator orientation="vertical" />
-		<hlm-sheet side="right">
-			<button brnSheetTrigger hlmBtn size="sm" variant="ghost">
-				<ng-icon name="lucideSettings" />
-			</button>
+		<button
+			hlmBtn
+			size="sm"
+			variant="secondary"
+			(click)="settingsSheetOpenState.set('open')"
+		>
+			<ng-icon name="lucideSettings" />
+			@if(!serverOnline()){
+			<span class="bg-yellow-500 size-2 rounded-full"></span>
+			}
+		</button>
+		}
+		<hlm-sheet
+			[state]="settingsSheetOpenState()"
+			(stateChanged)="settingsSheetOpenState.set($event)"
+			side="right"
+			#settingsSheet
+		>
 			<hlm-sheet-content *brnSheetContent="let ctx">
 				<hlm-sheet-header>
 					<hlm-sheet-header>
 						<h3 hlmSheetTitle class="flex items-center gap-2">
 							<ng-icon name="lucideSettings" />
-							<span>Settings</span>
+							<span>{{ 'auth.settings.title' | translate }}</span>
 						</h3>
 					</hlm-sheet-header>
 				</hlm-sheet-header>
-				<cv-auth-params-config />
+				<div class="px-4">
+					<cv-api-params-config
+						(changed)="settingsSheetOpenState.set('closed')"
+						[discoveringServer]="discoveringServer()"
+					/>
+				</div>
 			</hlm-sheet-content>
 		</hlm-sheet>
 	</div>

@@ -1,4 +1,4 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
 	ApplicationConfig,
 	isDevMode,
@@ -28,11 +28,12 @@ import { AuthState } from './store/auth';
 import { ConfigState } from './store/config';
 import { NotificationState } from './store/notifications';
 import { provideNotifications } from './services/notification';
+import { authInterceptor } from './interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
-		provideHttpClient(),
+		provideHttpClient(withInterceptors([authInterceptor])),
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),

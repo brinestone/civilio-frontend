@@ -5,6 +5,7 @@ import {
 	AppConfigSchema,
 	CheckMigrationsResponse,
 	DbConfig,
+	DiscoverServerResponse,
 	FindConnectionHistoryResponse,
 	Locale,
 	TestDbConnectionRequest,
@@ -18,6 +19,31 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async setServerUrl(url: string): Promise<AppConfigResponse> {
+		return await sendRpcMessageAsync('config:update', {
+			path: 'api.baseUrl' as AppConfigPaths,
+			value: url
+		});
+	}
+	async discoverServer(): Promise<DiscoverServerResponse> {
+		return await sendRpcMessageAsync('discovery:init');
+	}
+	async pingServer(url: string): Promise<boolean> {
+		try {
+			const response = await fetch(`${url}/health`);
+
+			// Check if the HTTP request itself was successful
+			if (!response.ok) {
+				return false;
+			}
+
+			const result = await response.json();
+			return result.ok === true;
+		} catch (e) {
+			console.error('Ping server error:', e);
+			return false;
+		}
+	}
 	async useConnection(id: number): Promise<void> {
 		return await sendRpcMessageAsync('db-conn:use', id);
 	}
@@ -44,7 +70,7 @@ export class ElectronConfigService implements ConfigService {
 
 	async updateMisc(path: string, value: unknown): Promise<AppConfigResponse> {
 		return await sendRpcMessageAsync('config:update', {
-			path: `${ 'misc' as AppConfigPaths }.${ path }`,
+			path: `${'misc' as AppConfigPaths}.${path}`,
 			value
 		})
 	}

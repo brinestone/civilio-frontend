@@ -5,11 +5,11 @@ export interface ServiceEventPayload {
 	status: 'Online' | 'Offline';
 	details: any;
 }
-
 export const PrincipalSchema = z.object({
-	displayName: z.string(),
-	mail: z.email(),
-	role: z.enum(['admin', 'maintainer', 'user']),
+	fullName: z.string(),
+	email: z.string(),
+	role: z.array(z.string()),
+	isAdmin: z.boolean(),
 });
 
 export const SubmissionInfoSchema = z.object({
@@ -162,15 +162,17 @@ export const DbConfigSchema = z.object({
 	port: z.number().default(5432),
 	database: z.string()
 });
-export const LdapConfigSchema = z.object({
-	host: z.string(),
-	tls: z.coerce.boolean(),
-	baseDn: z.string()
+export const ApiConfigSchema = z.object({
+	baseUrl: z.url(),
+	nodeName: z.string().optional(),
 });
+export const ApiConfigInputSchema = z.object({
+	baseUrl: z.coerce.string().optional()
+})
 export const AppConfigSchema = z.object({
 	prefs: AppPrefsSchema.partial().optional(),
 	misc: z.record(z.string(), z.unknown()).optional(),
-	auth: LdapConfigSchema.optional()
+	api: ApiConfigSchema.optional()
 }).default({});
 
 export const GeoPointSchema = z.object({
@@ -222,3 +224,5 @@ export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
 export type UserPrincipal = z.output<typeof PrincipalSchema>;
+export type ApiConfig = z.output<typeof ApiConfigSchema>;
+export type ApiConfigInput = z.input<typeof ApiConfigInputSchema>;

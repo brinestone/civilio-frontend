@@ -1,3 +1,14 @@
+auth:
+  settings:
+    title: Paramètres
+  idm:
+    title: Serveur d'identité
+    description: Configuration du serveur du fournisseur d'identité
+    fields:
+      url:
+        title: URL de base du serveur
+    discovery:
+      in_progress: Découverte du serveur...
 overview:
   versions:
     columns:
