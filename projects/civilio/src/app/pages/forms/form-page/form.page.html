@@ -28,7 +28,7 @@
 >
 	<div class="space-y-2 bg-(--background)">
 		@if (!isNewSubmission()) {
-			<a [relativeTo]="route" class="inline-flex w-full justify-start" hlmBtn routerLink="overview" size="sm"
+			<a draggable="false" [relativeTo]="route" class="inline-flex w-full justify-start" hlmBtn routerLink="overview" size="sm"
 				 variant="link">
 				<ng-icon name="lucideChevronLeft"/>
 				<span>{{ 'misc.actions.open_overview' | translate }}</span>
@@ -161,7 +161,7 @@
 		<ng-container>
 			<li [class.pl-3]="parent != null" class="form-section">
 				@let hasNoFields = hasChildren && section.fields.length == 0;
-				<a
+				<a draggable="false"
 					[queryParams]="{parent: parent ?? null}"
 					[routerLink]="hasNoFields ? [section.children[0].id] : section.id"
 					queryParamsHandling="replace"

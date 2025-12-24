@@ -12,6 +12,7 @@ export const permissionGuard: CanActivateFn = (route, state) => {
 	const permissions = route.data["permissions"] as [AppAction, Subject][];
 	if (!permissions) return true;
 
+	// debugger;
 	let allowed = true;
 	for (const [action, subject] of permissions) {
 		allowed = allowed && ab.can(action, subject);

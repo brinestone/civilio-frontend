@@ -50,7 +50,9 @@ overview:
 misc:
   changed_at: Recorded at
   changed_by: Recorded by
+  signed_in_as: Signed in as
   size: Size of the commune
+  all_submissions: All Submissions
   notes: Notes
   version: Version
   action: Action
@@ -178,6 +180,15 @@ login:
 settings:
   users:
     title: Users
+    actions:
+      add_user: Add User
+    msg:
+      no_user_selected:
+        title: Nothig Selected
+        description: "Click on a user's profile on the left to view their information here"
+      no_users:
+        title: There are no Users
+        description: Click on the "Add User" button above to create a new user
   font-size:
     title: Text size
     placeholder: Select text size
@@ -190,6 +201,7 @@ settings:
     title: About
   advanced:
     title: Advanced
+    description: Advanced Settings
     db:
       pwd: Password
       host: Host

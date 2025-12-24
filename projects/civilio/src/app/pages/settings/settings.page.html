@@ -13,7 +13,7 @@
   <ul class="px-2 space-y-1 list-none">
     @for (section of filteredSections(); track $index) {
       <li class="section-item">
-        <a
+        <a draggable="false"
           [routerLink]="section.path"
           routerLinkActive="active"
           class="outline-none"

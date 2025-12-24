@@ -4,7 +4,7 @@
 <ul class="flex list-none items-center gap-4 border-b border-(--muted) px-4">
   @for (link of links; track $index) {
     <li class="link-item">
-      <a
+      <a draggable="false"
         [routerLink]="link.path"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: false }"

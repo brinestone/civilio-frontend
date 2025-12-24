@@ -2,7 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { RouterStateSnapshot, TitleStrategy } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { Subscription } from "rxjs";
+import { map, merge, Subscription } from "rxjs";
 
 // Enhanced strategy to handle route data:
 @Injectable()
@@ -15,7 +15,12 @@ export class TranslateTitleStrategy extends TitleStrategy {
 		const title = this.getTitleFromRoute(routerState);
 
 		if (title) {
-			this.currentSubscription = this.translate.getStreamOnTranslationChange(title.key).subscribe(translatedTitle => {
+			this.currentSubscription = merge(
+				this.translate.get(title.key),
+				this.translate.onLangChange.pipe(
+					map(() => this.translate.instant(title.key))
+				)
+			).subscribe(translatedTitle => {
 				this.title.setTitle(`${translatedTitle} | CivilIO`);
 			});
 		}

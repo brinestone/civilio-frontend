@@ -11,7 +11,7 @@ const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const settingsRoutes: Routes = [
 	{
 		path: 'general',
-		title: 'General Settings',
+		title: 'settings.general',
 		loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage)
 	},
 	{
@@ -46,22 +46,28 @@ export const settingsRoutes: Routes = [
 	},
 	{
 		path: 'advanced',
-		title: 'Advanced Settings',
+		title: 'settings.advanced.description',
 		loadComponent: () => import('./pages/settings/advanced-settings/advanced-settings.page').then(m => m.AdvancedSettingsPage)
 	},
 	{
 		path: 'about',
-		title: 'About',
+		title: 'settings.about.title',
 		loadComponent: () => import('./pages/settings/about/about.page').then(m => m.AboutPage)
 	},
 	{
 		path: 'users',
-		title: 'Users',
+		title: 'settings.users.title',
 		data: {
 			permissions: [
 				['read', 'User']
 			]
 		},
+		children: [
+			{
+				path: ':id',
+				loadComponent: () => import('./pages/settings/user/user.page').then(m => m.UserPage)
+			}
+		],
 		loadComponent: () => import('./pages/settings/users/users.page').then(m => m.UsersPage),
 	},
 	{ path: '', redirectTo: 'general', pathMatch: 'full' }

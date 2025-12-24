@@ -1,1 +1,104 @@
-<p>users works!</p>
+<!-- scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent -->
+<div
+	class="overflow-y-auto max-h-full border-r border-border grid gap-y-3 grid-rows-[auto_auto_1fr]"
+>
+	<div class="space-y-1">
+		<div class="px-2 py-3 flex justify-between flex-wrap gap-y-2 items-center">
+			<h3 hlmH3 class="line-clamp-1 text-ellipsis">
+				{{'settings.users.title' | translate}}
+			</h3>
+			@if(abs.can('create', 'User')) {
+			<button hlmBtn size="sm" variant="secondary">
+				<ng-icon name="lucideUserPlus" />
+				<span>{{ 'settings.users.actions.add_user' | translate }}</span>
+			</button>
+			}
+		</div>
+		<div class="px-2">
+			<div hlmInputGroup>
+				<input
+					[(ngModel)]="userInputFilter"
+					autofocus
+					hlmInputGroupInput
+					placeholder="Filter"
+					type="search"
+				/>
+				<div hlmInputGroupAddon>
+					<ng-icon name="lucideSearch" />
+				</div>
+			</div>
+		</div>
+	</div>
+	<hlm-separator />
+	<div
+		class="overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+	>
+		<ul class="px-2 space-y-1 pt-3 pb-5">
+			@for(user of filteredUsers(); track user) {
+			<li
+				class="has-[a.active]:bg-primary/10 overflow-hidden rounded focus-within:ring-1 ring-(--primary)"
+			>
+				<a
+					draggable="false"
+					[routerLink]="user.username"
+					routerLinkActive="active border-primary!"
+					[routerLinkActiveOptions]="{exact: false}"
+					class="grid grid-cols-[auto_1fr] gap-x-2 justify-start items-start border-l-4 border-transparent p-2 w-full h-full"
+				>
+					<div>
+						<hlm-avatar variant="large">
+							<p hlmAvatarFallback class="uppercase font-extrabold">
+								{{user.fullName | initials}}
+							</p>
+						</hlm-avatar>
+					</div>
+					<div class="space-y-1">
+						<h5 class="font-semibold">{{user.fullName}}</h5>
+						<p class="text-muted-foreground capitalize text-sm">
+							Role: {{ user.role }}
+						</p>
+					</div>
+				</a>
+			</li>
+			} @empty {
+			<li>
+				<div hlmEmpty class="px-1!">
+					<div hlmEmptyHeader>
+						<p hlmEmptyTitle>
+							{{ 'settings.users.msg.no_users.title'| translate }}
+						</p>
+					</div>
+					<div hlmEmptyContent>
+						@if(abs.can('create','User')) {
+						<p hlmEmptyDescription class="p">
+							{{ 'settings.users.msg.no_users.description' | translate}}
+						</p>
+						}
+					</div>
+				</div>
+			</li>
+			}
+		</ul>
+	</div>
+</div>
+
+<div class="bg-secondary/50 relative">
+	<router-outlet />
+	@if(!route.firstChild) {
+	<div class="w-full h-full flex items-center.justify-center">
+		<div hlmEmpty>
+			<div hlmEmptyHeader>
+				<div hlmEmptyMedia variant="icon">
+					<ng-icon name="lucideUser" />
+				</div>
+				<p hlmEmptyTitle>
+					{{ 'settings.users.msg.no_user_selected.title' | translate }}
+				</p>
+				<p hlmEmptyDescription>
+					{{ 'settings.users.msg.no_user_selected.description' | translate }}
+				</p>
+			</div>
+		</div>
+	</div>
+	}
+</div>

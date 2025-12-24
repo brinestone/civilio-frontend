@@ -10,6 +10,7 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	computed,
 	DestroyRef,
 	effect,
 	inject,
@@ -48,6 +49,7 @@ import {
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideArrowLeft,
+	lucideArrowRight,
 	lucideCalendar,
 	lucideCheck,
 	lucideCheckCircle,
@@ -68,6 +70,7 @@ import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmPaginationImports } from '@spartan-ng/helm/pagination';
+import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
@@ -103,6 +106,7 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 			lucideArrowLeft,
 			lucideX,
 			lucideLoader,
+			lucideArrowRight,
 			lucideCalendar,
 			lucideDot,
 			lucideCheck,
@@ -122,6 +126,7 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 		ValueTypePipe,
 		DecimalPipe,
 		DatePipe,
+		HlmSeparator,
 		HlmLabel,
 		HlmH4,
 		HlmAlertDialogImports,
@@ -209,6 +214,23 @@ export class OverviewPage implements OnDestroy {
 			}));
 		},
 	});
+	protected readonly neighboringRefs = resource({
+		params: () => ({
+			index: this.submissionIndex(),
+			form: this.formType()!
+		}),
+		loader: async ({ params: { form, index } }) => {
+			return await this.formService.findSurroundingSubmissionRefs({
+				form, index
+			});
+		},
+	});
+	protected readonly canGoNext = computed(() => {
+		return this.neighboringRefs.value()?.[1] != null;
+	});
+	protected readonly canGoPrev = computed(() => {
+		return this.neighboringRefs.value()?.[0] != null;
+	})
 	protected table = createAngularTable<SubmissionVersionInfo>(() => {
 		return {
 			getCoreRowModel: getCoreRowModel(),

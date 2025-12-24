@@ -9,16 +9,6 @@
 				@let f = facilityInfo.value(); @if (!facilityInfo.isLoading() && f !=
 				null) {
 				<div class="flex items-start gap-3">
-					<a
-						hlmBtn
-						routerLink="/submissions"
-						variant="link"
-						size="icon"
-						title="{{'submissions.title' | translate}}"
-					>
-						<ng-icon name="lucideArrowLeft" />
-						<!-- <span>Submissions</span> -->
-					</a>
 					<div class="space-y-1">
 						<h3 class="font-extrabold line-clamp-1 text-ellipsis" hlmH3>
 							{{ f.facilityName }}
@@ -170,14 +160,63 @@
 		<div class="py-10 pl-2">
 			<div class="space-y-2">
 				<h4 hlmH4>{{ 'overview.submission_info.title' | translate }}</h4>
-				<div class="grid grid-cols-[auto_1fr] gap-x-1">
+				<div class="flex items-center gap-x-1">
 					<small class="text-muted-foreground">Index</small>
 					<small>{{ submissionIndex() }}</small>
 				</div>
+				<hlm-separator />
+				<a draggable="false"
+					hlmBtn
+					routerLink="/submissions"
+					variant="outline"
+					class="w-full"
+					size="sm"
+					title="{{'submissions.title' | translate}}"
+				>
+					<span>{{ "misc.all_submissions" | translate }}</span>
+				</a>
+				<div class="flex items-center gap-2">
+					<div>
+						@if(canGoPrev()){
+						<a draggable="false"
+							hlmBtn
+							routerLink="/submissions"
+							variant="outline"
+							size="sm"
+							[routerLink]="['../..', neighboringRefs.value()?.[0], 'overview']"
+							[relativeTo]="route"
+							title="{{'submissions.title' | translate}}"
+						>
+							<ng-icon name="lucideArrowLeft" />
+							<span
+								>{{ "forms.header.actions.navigation.prev" | translate }}</span
+							>
+						</a>
+						}
+					</div>
+					<div>
+						@if(canGoNext()){
+						<a draggable="false"
+							hlmBtn
+							[routerLink]="['../..', neighboringRefs.value()?.[1], 'overview']"
+							[relativeTo]="route"
+							variant="outline"
+							size="sm"
+							title="{{'submissions.title' | translate}}"
+						>
+							<span
+								>{{ "forms.header.actions.navigation.next" | translate }}</span
+							>
+							<ng-icon name="lucideArrowRight" />
+						</a>
+						}
+					</div>
+				</div>
+				<hlm-separator />
 				<div class="space-y-4">
 					<div class="flex flex-col w-full gap-2">
 						@if(abs.can('update', 'Submission')) {
-						<a
+						<a draggable="false"
 							[queryParams]="{version: selectedVersion.value()}"
 							[relativeTo]="route"
 							[routerLink]="['..']"

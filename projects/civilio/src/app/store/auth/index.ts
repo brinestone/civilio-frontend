@@ -64,7 +64,8 @@ export class AuthState implements NgxsOnInit {
 			principal: undefined
 		}))
 		this.ability.update([]);
-		ctx.dispatch(new Navigate(['/']));
+		// ctx.dispatch(new Navigate(['/'], undefined, { onSameUrlNavigation: 'ignore' }));
+		location.href = '/';
 	}
 
 	@Action(LoginUser, { cancelUncompleted: true })
@@ -73,19 +74,33 @@ export class AuthState implements NgxsOnInit {
 			tap(principal => ctx.setState(patch({
 				principal
 			}))),
+			tap((principal) => this.populatePermissions(principal)),
 			concatMap(() => this.authService.saveCredentials(req.username, req.password))
 		);
 	}
 
 	private populatePermissions(user: UserPrincipal) {
-		const { can, rules } = new AbilityBuilder(() => createMongoAbility<AppAbility>());
+		const { can, rules, cannot } = new AbilityBuilder(() => createMongoAbility<AppAbility>());
+		can('read', 'Submission');
+		can('read', 'User');
 		if (user.isAdmin) {
-			can('manage', 'all');
-		} else {
 			can('create', 'Submission');
 			can('update', 'Submission');
 			can('delete', 'Submission');
 			can('read', 'Submission');
+			can('create', 'User');
+			can('update', 'User');
+			can('delete', 'User');
+			can('read', 'User');
+			cannot('delete', 'User', {
+				isAdmin: true,
+				username: { $ne: user.username }
+			});
+		} else if (user.role.includes('maintainer')) {
+			can('create', 'Submission');
+			can('update', 'Submission');
+			can('delete', 'Submission');
+			can('approve', 'Submission');
 		}
 		this.ability.update(rules);
 	}

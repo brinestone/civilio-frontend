@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 :host {
-  @apply grid grid-rows-[auto_1fr] h-full;
+  @apply grid grid-rows-[auto_1fr_auto] h-full;
 }
 
 .menu-link {

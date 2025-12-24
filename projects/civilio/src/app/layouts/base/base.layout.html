@@ -3,7 +3,7 @@
 >
 	<div class="flex items-center gap-3">
 		@defer (when wideLogoUrl.hasValue() && !wideLogoUrl.isLoading()) {
-		<a routerLink="/" class="outline-none" tabindex="-1">
+		<a draggable="false" routerLink="/" class="outline-none" tabindex="-1">
 			<img [src]="wideLogoUrl.value()" width="25" alt="LogoWide" />
 		</a>
 		}
@@ -11,6 +11,7 @@
 			@for (link of leftLinks; track $index) {
 			<li class="menu-link">
 				<a
+					draggable="false"
 					class="flex items-center gap-2 outline-none"
 					routerLinkActive="active-route"
 					[routerLinkActiveOptions]="{ exact: false }"
@@ -26,42 +27,25 @@
 	<div class="flex items-center gap-2">
 		<cv-locale-selector size="sm" />
 		<cv-theme-selector size="sm" />
-		@let i = initials();
 		<ng-container>
-			@if(i) {
-			<hlm-avatar variant="large">
-				<svg
-					width="100"
-					height="100"
-					data-jdenticon-value="John Doe"
-					hlmAvatarImage
-				></svg>
-				<span class="text-white bg-destructive uppercase" hlmAvatarFallback>
-					{{i}}
-				</span>
-			</hlm-avatar>
-			}
+			<button
+				[disabled]="signingOut()"
+				(click)="signOut()"
+				hlmBtn
+				size="sm"
+				variant="secondary"
+			>
+				@if(!signingOut()) {
+				<span class="capitalize"
+					>{{ 'auth.actions.sign_out' | translate }}</span
+				>
+				}
+				<ng-icon
+					[name]=" signingOut() ? 'lucideLoader' : 'lucideLogOut'"
+					[class.animate-spin]="signingOut()"
+				/>
+			</button>
 		</ng-container>
-		<!-- <ng-template #userMenu>
-			<hlm-dropdown-menu>
-				<hlm-
-			</hlm-dropdown-menu>
-		</ng-template> -->
-		<!-- <button
-			[disabled]="signingOut()"
-			(click)="signOut()"
-			hlmBtn
-			size="sm"
-			variant="secondary"
-		>
-			<ng-icon
-				[name]=" signingOut() ? 'lucideLoader' : 'lucideLogOut'"
-				[class.animate-spin]="signingOut()"
-			/>
-			@if(!signingOut()) {
-			<span>{{ 'auth.actions.sign_out' | translate }}</span>
-			}
-		</button> -->
 	</div>
 </div>
 <main
@@ -69,3 +53,14 @@
 >
 	<router-outlet />
 </main>
+<div class="flex justify-end items-center px-4 border-t border-border py-2">
+	<div class="flex gap-2 items-center">
+		<span class="text-muted-foreground text-xs"
+			>{{ 'misc.signed_in_as' | translate }}:</span
+		>
+		<span class="font-medium text-sm">{{ principal()?.name }}</span>
+		@if(principal()?.isAdmin) {
+		<span class="uppercase text-xs!" hlmBadge>Admin</span>
+		}
+	</div>
+</div>

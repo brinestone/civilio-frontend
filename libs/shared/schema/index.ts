@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const UserInfoSchema = z.object({
 	fullName: z.string(),
-	email: z.string(),
+	username: z.string(),
 	role: z.string().array(),
 	isAdmin: z.boolean()
 });
@@ -15,6 +15,7 @@ export interface ServiceEventPayload {
 export const PrincipalSchema = z.object({
 	name: z.string(),
 	email: z.string(),
+	username: z.string(),
 	role: z.array(z.string()),
 	isAdmin: z.boolean(),
 });
