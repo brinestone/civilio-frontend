@@ -4,6 +4,7 @@ import { apiBaseUrl } from "@app/store/selectors";
 import { sendRpcMessageAsync } from "@app/util";
 import { ParsedLoginRequest, UserPrincipal } from "@civilio/shared";
 import { Store } from "@ngxs/store";
+import { lastValueFrom } from "rxjs";
 
 @Injectable({
 	providedIn: 'root'
@@ -16,6 +17,10 @@ export class AuthService {
 		const result = this.store.selectSnapshot(apiBaseUrl);
 		if (!result) throw new Error('api base URL is not set');
 		return result;
+	}
+
+	async logout() {
+		await lastValueFrom(this.http.get(`${this.baseUrl}/auth/logout`));
 	}
 
 	async clearSavedCredentials() {

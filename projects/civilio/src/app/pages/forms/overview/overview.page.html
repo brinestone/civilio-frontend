@@ -176,6 +176,7 @@
 				</div>
 				<div class="space-y-4">
 					<div class="flex flex-col w-full gap-2">
+						@if(abs.can('update', 'Submission')) {
 						<a
 							[queryParams]="{version: selectedVersion.value()}"
 							[relativeTo]="route"
@@ -191,7 +192,9 @@
 								>{{ 'overview.submission_info.actions.edit' | translate }}</span
 							>
 						</a>
+						}
 						<div class="space-y-1">
+							@if(abs.can('approve', 'Submission')) {
 							<label
 								class="cursor-pointer flex items-center md:gap-2 md:justify-between"
 								hlmLabel
@@ -207,8 +210,10 @@
 									class="cursor-pointer"
 								/>
 							</label>
+							}
 						</div>
 					</div>
+					@if(abs.can('delete', 'Submission') ){
 					<button
 						(click)="deleteDialogState.set('open')"
 						class="flex w-full"
@@ -221,6 +226,7 @@
 							>{{ 'overview.submission_info.actions.delete' | translate }}</span
 						>
 					</button>
+					}
 				</div>
 			</div>
 		</div>

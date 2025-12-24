@@ -5,8 +5,17 @@
 			{{ 'login.lets_continue_your_journey' | translate }}
 		</p>
 	</div>
-
 	<div hlmCardContent hlmFieldGroup>
+		@if(failureMessage() && !loggingIn()) {
+		<div hlmAlert variant="destructive">
+			<ng-icon name="lucideAlertTriangle" hlmAlertIcon />
+			<p hlmAlertTitle>{{ 'login.errors.title' | translate }}</p>
+			<p hlmAlertDescription class="line-clamp-4 text-ellipsis">
+				{{failureMessage()}}
+			</p>
+		</div>
+		<hlm-field-separator />
+		}
 		<div hlmField>
 			<label hlmFieldLabel for="username">
 				{{'login.username' | translate}}

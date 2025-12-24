@@ -1,5 +1,9 @@
 const prefix = '[auth]';
 
+export class Logout {
+	static type = `${prefix} logout`
+}
+
 export class ReSignIn {
 	static type = `${prefix} re-signin`
 	constructor(readonly username: string, readonly password: string) { }

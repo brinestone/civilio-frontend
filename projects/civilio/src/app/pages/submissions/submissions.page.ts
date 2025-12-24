@@ -11,12 +11,14 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AppAbility } from '@app/adapters/casl';
 import { BadgeCell, DateCell, VersionCell } from '@app/components';
 import { ActionCell } from '@app/components/tabular-field/cells';
 import { ElectronFormService } from '@app/services/electron/form.service';
 import { SetFormType } from '@app/store/form';
 import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
+import { AbilityServiceSignal, AblePipe } from '@casl/angular';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -78,6 +80,7 @@ export class SubmissionsPage implements OnInit {
 	private navigate = dispatch(Navigate);
 	private setFormType = dispatch(SetFormType);
 
+	protected abs = inject<AbilityServiceSignal<AppAbility>>(AbilityServiceSignal);
 	private readonly injector = inject(Injector);
 	private formService = inject(ElectronFormService);
 	protected readonly formTypeOptions = FormTypeSchema.options
@@ -92,12 +95,12 @@ export class SubmissionsPage implements OnInit {
 			pagination: this.pagination()
 		}),
 		loader: async ({
-										 params: {
-											 form,
-											 pagination: { pageIndex, pageSize },
-											 filter
-										 }
-									 }) => {
+			params: {
+				form,
+				pagination: { pageIndex, pageSize },
+				filter
+			}
+		}) => {
 			if (!form) return { data: [], totalRecords: 0 };
 			return await this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
 		},
@@ -178,7 +181,8 @@ export class SubmissionsPage implements OnInit {
 							{
 								identifier: 'open',
 								icon: 'lucidePencil',
-								label: 'misc.actions.modify'
+								label: 'misc.actions.modify',
+								permissions: ['update', 'Submission']
 							},
 							{
 								identifier: 'view',

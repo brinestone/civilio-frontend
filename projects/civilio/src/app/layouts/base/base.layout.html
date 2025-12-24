@@ -26,6 +26,42 @@
 	<div class="flex items-center gap-2">
 		<cv-locale-selector size="sm" />
 		<cv-theme-selector size="sm" />
+		@let i = initials();
+		<ng-container>
+			@if(i) {
+			<hlm-avatar variant="large">
+				<svg
+					width="100"
+					height="100"
+					data-jdenticon-value="John Doe"
+					hlmAvatarImage
+				></svg>
+				<span class="text-white bg-destructive uppercase" hlmAvatarFallback>
+					{{i}}
+				</span>
+			</hlm-avatar>
+			}
+		</ng-container>
+		<!-- <ng-template #userMenu>
+			<hlm-dropdown-menu>
+				<hlm-
+			</hlm-dropdown-menu>
+		</ng-template> -->
+		<!-- <button
+			[disabled]="signingOut()"
+			(click)="signOut()"
+			hlmBtn
+			size="sm"
+			variant="secondary"
+		>
+			<ng-icon
+				[name]=" signingOut() ? 'lucideLoader' : 'lucideLogOut'"
+				[class.animate-spin]="signingOut()"
+			/>
+			@if(!signingOut()) {
+			<span>{{ 'auth.actions.sign_out' | translate }}</span>
+			}
+		</button> -->
 	</div>
 </div>
 <main

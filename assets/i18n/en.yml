@@ -1,6 +1,14 @@
+forbidden:
+  title: Access Denied
+  description: You do not have the required permissions to access the requested resource.
+  actions:
+    go_back: Go back
+    home: Go home
 http:
   _401: Invalid username or password
 auth:
+  actions:
+    sign_out: Sign out
   settings:
     title: Settings
   idm:
@@ -157,6 +165,8 @@ tmpl:
       enable_mutation:
         title: Edit
 login:
+  errors:
+    title: Error
   username: Username or email
   forgot_password: Forgot password?
   lets_continue_your_journey: Let's continue your Journey

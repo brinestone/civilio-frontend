@@ -1,11 +1,11 @@
 import { Routes } from "@angular/router";
 import { dbConfiguredGuard } from "./guards/config-valid.guard";
-import { provideFormStore } from "./store/form";
 import {
 	ChefferieFormDefinition,
 	CscFormDefinition,
 	FosaFormDefinition
 } from "./model/form";
+import { provideFormStore } from "./store/form";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const settingsRoutes: Routes = [
@@ -53,6 +53,16 @@ export const settingsRoutes: Routes = [
 		path: 'about',
 		title: 'About',
 		loadComponent: () => import('./pages/settings/about/about.page').then(m => m.AboutPage)
+	},
+	{
+		path: 'users',
+		title: 'Users',
+		data: {
+			permissions: [
+				['read', 'User']
+			]
+		},
+		loadComponent: () => import('./pages/settings/users/users.page').then(m => m.UsersPage),
 	},
 	{ path: '', redirectTo: 'general', pathMatch: 'full' }
 ];

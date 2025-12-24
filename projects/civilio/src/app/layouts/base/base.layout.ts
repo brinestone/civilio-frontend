@@ -1,13 +1,21 @@
-import { Component, resource } from '@angular/core';
+import { Component, computed, resource } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
 	LocaleSelectorComponent,
 	ThemeSelectorComponent
 } from '@app/components';
-import { sendRpcMessageAsync } from '@app/util';
+import { Logout } from '@app/store/auth';
+import { principal } from '@app/store/selectors';
+import { isActionLoading, sendRpcMessageAsync } from '@app/util';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideSettings, lucideTable2 } from '@ng-icons/lucide';
+import { lucideLoader, lucideLogOut, lucideSettings, lucideTable2 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
+import { dispatch, select } from '@ngxs/store';
+import { HlmAvatarImports } from '@spartan-ng/helm/avatar';
+import { HlmButton } from '@spartan-ng/helm/button';
+
+// import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+
 
 @Component({
 	selector: 'cv-base',
@@ -15,14 +23,19 @@ import { TranslatePipe } from '@ngx-translate/core';
 		provideIcons({
 			lucideTable2,
 			lucideSettings,
+			lucideLogOut,
+			lucideLoader
 		})
 	],
 	imports: [
 		NgIcon,
 		RouterLink,
 		TranslatePipe,
+		HlmButton,
 		RouterLinkActive,
+		HlmAvatarImports,
 		ThemeSelectorComponent,
+		// HlmDropdownMenuImports,
 		LocaleSelectorComponent,
 		RouterOutlet
 	],
@@ -30,6 +43,15 @@ import { TranslatePipe } from '@ngx-translate/core';
 	styleUrl: './base.layout.scss'
 })
 export class BaseLayout {
+	protected signOut = dispatch(Logout);
+	protected signingOut = isActionLoading(Logout);
+	protected principal = select(principal);
+	protected readonly initials = computed(() => {
+		return this.principal()?.name?.split(' ', 3)
+			.slice(0, 2)
+			.map(s => s[0])
+			.join('');
+	})
 	protected leftLinks = [
 		{ label: 'submissions.title', icon: 'lucideTable2', path: '/submissions' },
 		{ label: 'settings.title', icon: 'lucideSettings', path: '/settings' },

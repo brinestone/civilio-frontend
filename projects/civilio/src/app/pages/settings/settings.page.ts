@@ -5,7 +5,6 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCheck,
-	lucideGroup,
 	lucideInfo,
 	lucideSave,
 	lucideSettings,

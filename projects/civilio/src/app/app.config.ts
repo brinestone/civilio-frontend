@@ -5,7 +5,7 @@ import {
 	provideBrowserGlobalErrorListeners,
 	provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
 import { usingElectron } from '@app/services/electron';
 import { usingWeb } from '@app/services/web';
 import { isDesktop } from '@app/util';
@@ -17,18 +17,20 @@ import {
 import { withNgxsLoggerPlugin } from '@ngxs/logger-plugin';
 import { withNgxsRouterPlugin } from '@ngxs/router-plugin';
 import { provideStore } from '@ngxs/store';
+import { provideCasl } from './adapters/casl';
 import {
 	MissingTranslationHandlerImpl,
 	provideTranslationLoader
-} from './adapters/ngx-translate';
+} from './adapters/ngx-translate/ngx-translate';
+import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
 import { routes } from './app.routes';
+import { authInterceptor } from './interceptors/auth-interceptor';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
+import { provideNotifications } from './services/notification';
 import { AuthState } from './store/auth';
 import { ConfigState } from './store/config';
 import { NotificationState } from './store/notifications';
-import { provideNotifications } from './services/notification';
-import { authInterceptor } from './interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -48,11 +50,13 @@ export const appConfig: ApplicationConfig = {
 		provideNgIconLoader(async name => {
 			return await fetch(`/${name}.svg`).then(r => r.text());
 		}),
+		provideCasl(),
 		provideNotifications(),
 		provideTranslateService({
 			fallbackLang: 'fr',
 			loader: provideTranslationLoader(),
 			missingTranslationHandler: provideMissingTranslationHandler(MissingTranslationHandlerImpl)
-		})
+		}),
+		{ provide: TitleStrategy, useClass: TranslateTitleStrategy }
 	]
 };

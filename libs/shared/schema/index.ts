@@ -1,12 +1,19 @@
 import { z } from 'zod';
 
+export const UserInfoSchema = z.object({
+	fullName: z.string(),
+	email: z.string(),
+	role: z.string().array(),
+	isAdmin: z.boolean()
+});
+
 export interface ServiceEventPayload {
 	service: string;
 	status: 'Online' | 'Offline';
 	details: any;
 }
 export const PrincipalSchema = z.object({
-	fullName: z.string(),
+	name: z.string(),
 	email: z.string(),
 	role: z.array(z.string()),
 	isAdmin: z.boolean(),
@@ -226,3 +233,4 @@ export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>
 export type UserPrincipal = z.output<typeof PrincipalSchema>;
 export type ApiConfig = z.output<typeof ApiConfigSchema>;
 export type ApiConfigInput = z.input<typeof ApiConfigInputSchema>;
+export type UserInfo = z.output<typeof UserInfoSchema>;

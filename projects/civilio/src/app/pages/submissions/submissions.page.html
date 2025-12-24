@@ -12,11 +12,8 @@
 				[class.animate-spin]="submissions.isLoading()"
 			/>
 			<span>
-				@if (submissions.isLoading()) {
-					{{ "loading.txt" | translate }}
-				} @else {
-					{{ "refresh.txt" | translate }}
-				}
+				@if (submissions.isLoading()) { {{ "loading.txt" | translate }} } @else
+				{ {{ "refresh.txt" | translate }} }
 			</span>
 		</button>
 		<brn-select
@@ -33,15 +30,17 @@
 			</hlm-select-trigger>
 			<hlm-select-content class="w-56">
 				@for (option of formTypeOptions; track $index) {
-					<hlm-option [value]="option" class="uppercase">{{ option }}</hlm-option>
+				<hlm-option [value]="option" class="uppercase">{{ option }}</hlm-option>
 				}
 			</hlm-select-content>
 		</brn-select>
 	</div>
+	@if(abs.can('create', 'Submission')) {
 	<button (click)="onNewSubmissionButtonClicked()" hlmBtn>
-		<ng-icon name="lucidePlus"/>
+		<ng-icon name="lucidePlus" />
 		<span>{{ 'submissions.actions.add_submission' | translate }}</span>
 	</button>
+	}
 </div>
 <section class="page-section">
 	<div class="justify-between flex items-center">
@@ -62,89 +61,92 @@
 				class="sticky top-0 border-b border-border backdrop-blur-md"
 			>
 				@for (headerGroup of table.getHeaderGroups(); track headerGroup.id) {
-					<tr hlmTr>
-						@for (header of headerGroup.headers; track header.id) {
-							<th [attr.colspan]="header.colSpan" hlmTh>
-								@if (!header.isPlaceholder) {
-									<ng-container
-										*flexRender="
+				<tr hlmTr>
+					@for (header of headerGroup.headers; track header.id) {
+					<th [attr.colspan]="header.colSpan" hlmTh>
+						@if (!header.isPlaceholder) {
+						<ng-container
+							*flexRender="
                       header.column.columnDef.header;
                       props: header.getContext();
                       let headerText
                     "
-									>
-										<p>{{ headerText | translate }}</p>
-									</ng-container>
-								}
-							</th>
+						>
+							<p>{{ headerText | translate }}</p>
+						</ng-container>
 						}
-					</tr>
+					</th>
+					}
+				</tr>
 				}
 			</thead>
 			<tbody hlmTBody>
 				@for (row of table.getRowModel().rows; track row.id) {
-					<!--suppress HtmlUnknownAttribute -->
-					<tr
-						(dblclick)="openSubmission(row.original.index, row.original.currentVersion)"
-						[attr.data-state]="row.getIsSelected() && 'selected'"
-						[attr.key]="row.id"
-						[title]="'misc.row.dbl_click' | translate"
-						class="cursor-pointer"
-						hlmTr
-					>
-						@for (cell of row.getVisibleCells(); track $index) {
-							<td hlmTd>
-								<ng-container
-									*flexRender="
+				<!--suppress HtmlUnknownAttribute -->
+				<tr
+					(dblclick)="openSubmission(row.original.index, row.original.currentVersion)"
+					[attr.data-state]="row.getIsSelected() && 'selected'"
+					[attr.key]="row.id"
+					[title]="'misc.row.dbl_click' | translate"
+					class="cursor-pointer"
+					hlmTr
+				>
+					@for (cell of row.getVisibleCells(); track $index) {
+					<td hlmTd>
+						<ng-container
+							*flexRender="
                     cell.column.columnDef.cell;
                     props: cell.getContext();
                     let cell
                   "
-								>
-									{{ cell }}
-								</ng-container>
-							</td>
-						}
-					</tr>
-				} @empty {
-					<tr hlmTr>
-						<td
-							[attr.colspan]="columnConfig.length"
-							class="h-24 text-center"
-							hlmTd
 						>
-							@if (submissions.isLoading()) {
-								{{ "loading.txt" | translate }}
-							} @else {
-								<div hlmEmpty>
-									<div hlmEmptyHeader>
-										<div hlmEmptyMedia variant="icon">
-											<ng-icon name="lucideInbox"/>
-										</div>
-										<p hlmEmptyTitle>{{ "tmpl.table.no_data" | translate }}</p>
-										<p hlmEmptyDescription>{{ 'tmpl.table.check_sources.title' | translate }}</p>
-									</div>
-									<div hlmEmptyContent>
-										<a hlmBtn routerLink="/settings/advanced" size="sm"
-											 variant="outline">{{ 'tmpl.table.check_sources.actions.configure_db' | translate }}</a>
-									</div>
+							{{ cell }}
+						</ng-container>
+					</td>
+					}
+				</tr>
+				} @empty {
+				<tr hlmTr>
+					<td
+						[attr.colspan]="columnConfig.length"
+						class="h-24 text-center"
+						hlmTd
+					>
+						@if (submissions.isLoading()) { {{ "loading.txt" | translate }} }
+						@else {
+						<div hlmEmpty>
+							<div hlmEmptyHeader>
+								<div hlmEmptyMedia variant="icon">
+									<ng-icon name="lucideInbox" />
 								</div>
-							}
-						</td>
-					</tr>
+								<p hlmEmptyTitle>{{ "tmpl.table.no_data" | translate }}</p>
+								<p hlmEmptyDescription>
+									{{ 'tmpl.table.check_sources.title' | translate }}
+								</p>
+							</div>
+							<div hlmEmptyContent>
+								<a
+									hlmBtn
+									routerLink="/settings/advanced"
+									size="sm"
+									variant="outline"
+									>{{ 'tmpl.table.check_sources.actions.configure_db' |
+									translate }}</a
+								>
+							</div>
+						</div>
+						}
+					</td>
+				</tr>
 				}
 			</tbody>
 		</table>
 	</div>
 	<div class="flex justify-between items-center">
 		<p class="text-sm text-(--muted-foreground)">
-			{{
-				'misc.pagination.template' | translate:{
-					start: currentRange()[0] + 1 |
-						number, end: currentRange()[1] | number, total:
-						submissions.value().totalRecords | number
-				}
-			}}
+			{{ 'misc.pagination.template' | translate:{ start: currentRange()[0] + 1 |
+			number, end: currentRange()[1] | number, total:
+			submissions.value().totalRecords | number } }}
 		</p>
 		<div class="flex gap-3 items-center justify-end">
 			<button

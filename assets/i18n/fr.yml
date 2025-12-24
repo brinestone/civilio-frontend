@@ -1,6 +1,15 @@
+forbidden:
+  title: Accès refusé
+  description: Vous ne disposez pas des autorisations requises pour accéder à la
+    ressource demandée.
+  actions:
+    go_back: Retourner
+    home: Rentre chez toi
 http:
   _401: Nom d'utilisateur ou mot de passe invalide
 auth:
+  actions:
+    sign_out: se déconnecter
   settings:
     title: Paramètres
   idm:
@@ -163,6 +172,8 @@ tmpl:
       enable_mutation:
         title: Modifier
 login:
+  errors:
+    title: Erreur
   username: Nom d'utilisateur ou email
   forgot_password: Mot de passe oublié ?
   lets_continue_your_journey: Continuons votre voyage

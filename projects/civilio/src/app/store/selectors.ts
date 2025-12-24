@@ -117,3 +117,4 @@ export const apiBaseUrl = createSelector([configSlices.config], c => {
 
 export const serverOnline = configSlices.serverOnline;
 export const credentialssaved = authSlices.credentialsSaved;
+export const principal = authSlices.principal;

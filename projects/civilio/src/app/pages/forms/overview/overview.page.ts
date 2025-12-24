@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from "@angular/router";
+import { AppAbility } from '@app/adapters/casl';
 import {
 	BadgeCell,
 	DateCell,
@@ -37,6 +38,7 @@ import {
 	InitVersioning,
 	ToggleApprovalStatus
 } from '@app/store/form';
+import { AbilityServiceSignal } from '@casl/angular';
 import {
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponse,
@@ -142,6 +144,7 @@ export class OverviewPage implements OnDestroy {
 	private readonly io = inject(BreakpointObserver);
 	private readonly ts = inject(TranslateService);
 
+	protected abs = inject<AbilityServiceSignal<AppAbility>>(AbilityServiceSignal);
 	protected readonly deleting = signal(false);
 	protected readonly togglingApprovalStatus = signal(false);
 	protected readonly deleteDialogState = signal<BrnDialogState>('closed');
@@ -256,7 +259,7 @@ export class OverviewPage implements OnDestroy {
 					cell: ({ row }) => flexRenderComponent(ActionCell<SubmissionVersionInfo>, {
 						inputs: {
 							actions: [
-								{ identifier: 'edit', icon: 'lucidePencil' }
+								{ identifier: 'edit', icon: 'lucidePencil', permissions: ['update', 'Submission'] }
 							],
 						},
 						outputs: {

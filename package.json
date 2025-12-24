@@ -76,6 +76,7 @@
 		"lru-cache": "^11.2.2",
 		"mime-types": "^3.0.1",
 		"mustargs": "^1.0.8",
+		"ngx-jdenticon": "^2.0.0",
 		"ngx-sonner": ">=3.0.0",
 		"ngxtension": "^6.0.0",
 		"pg": "^8.16.3",

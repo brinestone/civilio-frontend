@@ -119,6 +119,9 @@ importers:
       mustargs:
         specifier: ^1.0.8
         version: 1.0.8
+      ngx-jdenticon:
+        specifier: ^2.0.0
+        version: 2.0.0(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(jdenticon@3.3.0)
       ngx-sonner:
         specifier: '>=3.0.0'
         version: 3.1.0(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))
@@ -4325,6 +4328,9 @@ packages:
   caniuse-lite@1.0.30001753:
     resolution: {integrity: sha512-Bj5H35MD/ebaOV4iDLqPEtiliTN29qkGtEHCwawWn4cYm+bPJM2NsaP30vtZcnERClMzp52J4+aw2UNbK4o+zw==}
 
+  canvas-renderer@2.2.1:
+    resolution: {integrity: sha512-RrBgVL5qCEDIXpJ6NrzyRNoTnXxYarqm/cS/W6ERhUJts5UQtt/XPEosGN3rqUkZ4fjBArlnCbsISJ+KCFnIAg==}
+
   chalk@2.4.2:
     resolution: {integrity: sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==}
     engines: {node: '>=4'}
@@ -6326,6 +6332,11 @@ packages:
   jasmine-core@5.8.0:
     resolution: {integrity: sha512-Q9dqmpUAfptwyueW3+HqBOkSuYd9I/clZSSfN97wXE/Nr2ROFNCwIBEC1F6kb3QXS9Fcz0LjFYSDQT+BiwjuhA==}
 
+  jdenticon@3.3.0:
+    resolution: {integrity: sha512-DhuBRNRIybGPeAjMjdHbkIfiwZCCmf8ggu7C49jhp6aJ7DYsZfudnvnTY5/1vgUhrGA7JaDAx1WevnpjCPvaGg==}
+    engines: {node: '>=6.4.0'}
+    hasBin: true
+
   jest-diff@29.7.0:
     resolution: {integrity: sha512-LMIgiIrhigmPrs03JHpxUh2yISK3vLFPkAodPeo0+BuF7wA2FoQbkEg1u8gBYBThncu7e1oEDUfIXVuTqLRUjw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -7065,6 +7076,13 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
+
+  ngx-jdenticon@2.0.0:
+    resolution: {integrity: sha512-Vs2xiEeYI25tRTAT0Rxcw8di+5vGAFPp+jNRcNnNem93OrgH5VHXh5dx8YKcfo+GeevCWhE5oU418MkgjQi4bw==}
+    peerDependencies:
+      '@angular/common': '>=13'
+      '@angular/core': '>=13'
+      jdenticon: ^3.2.0
 
   ngx-sonner@3.1.0:
     resolution: {integrity: sha512-hN5GolhBeVs0gzPNZi2VPnbv/sM+3+aMGCvIjH33MC8LHz+QIiOUWGw3AbnCH/hQxy08AGwkWHVYy1acvXByQQ==}
@@ -14317,6 +14335,10 @@ snapshots:
 
   caniuse-lite@1.0.30001753: {}
 
+  canvas-renderer@2.2.1:
+    dependencies:
+      '@types/node': 24.10.0
+
   chalk@2.4.2:
     dependencies:
       ansi-styles: 3.2.1
@@ -16582,6 +16604,10 @@ snapshots:
 
   jasmine-core@5.8.0: {}
 
+  jdenticon@3.3.0:
+    dependencies:
+      canvas-renderer: 2.2.1
+
   jest-diff@29.7.0:
     dependencies:
       chalk: 4.1.2
@@ -17415,6 +17441,13 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
+
+  ngx-jdenticon@2.0.0(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(jdenticon@3.3.0):
+    dependencies:
+      '@angular/common': 21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)
+      jdenticon: 3.3.0
+      tslib: 2.8.1
 
   ngx-sonner@3.1.0(@angular/common@21.0.5(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.0.5(@angular/compiler@21.0.5)(rxjs@7.8.2)):
     dependencies:

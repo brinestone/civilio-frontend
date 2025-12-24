@@ -41,28 +41,44 @@ export const formRoutes: Routes = [
 	{
 		path: 'fosa/new',
 		children: sectionRoutes,
-		data: { form: 'fosa', model: FosaFormDefinition },
+		data: {
+			form: 'fosa', model: FosaFormDefinition, permissions: [
+				['create', 'Submission']
+			]
+		},
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
 		title: `Submission::FOSA`
 	},
 	{
 		path: 'csc/new',
 		children: sectionRoutes,
-		data: { form: 'csc', model: CscFormDefinition },
+		data: {
+			form: 'csc', model: CscFormDefinition, permissions: [
+				['create', 'Submission']
+			]
+		},
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
 		title: `Submission::CSC`
 	},
 	{
 		path: 'chefferie/new',
 		children: sectionRoutes,
-		data: { form: 'chefferie', model: ChefferieFormDefinition },
+		data: {
+			form: 'chefferie', model: ChefferieFormDefinition, permissions: [
+				['create', 'Submission']
+			]
+		},
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
 		title: `Submission::CHEFFERIE`
 	},
 	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
-		data: { form: "fosa", model: FosaFormDefinition },
+		data: {
+			form: "fosa", model: FosaFormDefinition, permissions: [
+				['update', 'Submission']
+			]
+		},
 		path: "fosa/:submissionIndex",
 		title: "Submission::FOSA",
 		loadComponent: () =>
@@ -71,7 +87,12 @@ export const formRoutes: Routes = [
 	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
-		data: { form: "chefferie", model: ChefferieFormDefinition },
+		data: {
+			form: "chefferie", model: ChefferieFormDefinition,
+			permissions: [
+				['update', 'Submission']
+			]
+		},
 		path: "chefferie/:submissionIndex",
 		title: "Submission::Chefferie",
 		loadComponent: () =>
@@ -80,7 +101,12 @@ export const formRoutes: Routes = [
 	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
-		data: { form: "csc", model: CscFormDefinition },
+		data: {
+			form: "csc", model: CscFormDefinition,
+			permissions: [
+				['update', 'Submission']
+			]
+		},
 		path: "csc/:submissionIndex",
 		title: "Submission::CSC",
 		loadComponent: () =>

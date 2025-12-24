@@ -1,0 +1,29 @@
+<div hlmEmpty>
+	<div hlmEmptyHeader>
+		<div hlmEmptyMedia variant="icon">
+			<ng-icon name="lucideBan" />
+		</div>
+		<p hlmEmptyTitle>{{'forbidden.title' | translate}}</p>
+		<p hlmEmptyDescription>{{ 'forbidden.description' | translate }}</p>
+	</div>
+	<div hlmEmptyContent>
+		<div class="flex gap-2 items-center justify-center">
+			<button
+				autofocus
+				(click)="onBackButtonClicked()"
+				hlmBtn
+				variant="secondary"
+			>
+				<ng-icon name="lucideArrowLeft" />
+				<span>
+					{{ 'forbidden.actions.go_back' | translate}}
+					<small class="capitalize">(esc)</small></span
+				>
+			</button>
+			<a routerLink="/" hlmBtn>
+				<ng-icon name="lucideHome" />
+				<span>{{'forbidden.actions.home' | translate}}</span>
+			</a>
+		</div>
+	</div>
+</div>
