@@ -18,6 +18,8 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+
+
 export const DiscoverServerResponseSchema = z.object({
 	baseUrl: z.url(),
 	nodeName: z.string()
@@ -28,6 +30,8 @@ export const LoginRequestSchema = z.object({
 	username: z.coerce.string(),
 	password: z.coerce.string()
 });
+
+export const SaveCredentialsRequestSchema = LoginRequestSchema;
 
 export const ToggleApprovalStatusRequestSchema = z.object({
 	index: z.coerce.number(),

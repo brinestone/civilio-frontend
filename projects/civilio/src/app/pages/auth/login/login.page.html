@@ -1,82 +1,65 @@
-<div hlmCardHeader>
-	<h3 hlmCardTitle>{{'login.welcome_back' | translate}}</h3>
-	<p hlmCardDescription>{{ 'login.lets_continue_your_journey' | translate }}</p>
-</div>
+<form #form="ngForm" hlmCard (ngSubmit)="onFormSubmit(form,$event)">
+	<div hlmCardHeader>
+		<h3 hlmCardTitle>{{'login.welcome_back' | translate}}</h3>
+		<p hlmCardDescription>
+			{{ 'login.lets_continue_your_journey' | translate }}
+		</p>
+	</div>
 
-<div class="space-y-3" hlmCardContent>
-	@if(submitCount() > 0) {
-	<div hlmAlert #a1 size="sm" variant="destructive">
-		<ng-icon hlmAlertIcon name="lucideAlertTriangle" />
-		<h3 hlmAlertTitle>Invalid Inputs</h3>
-		<div hlmAlertDescription>
-			<p>There are some invalid inputs</p>
-			<ul class="list-inside list-disc text-xs">
-				@for(e of loginForm().errorSummary(); track e) {
-				<li>
-					<strong
-						>{{e.field().metadata(emailLabelMetadataKey)?.() |
-						translate}}</strong
-					>: {{e.message | translate}}
-				</li>
-				}
-			</ul>
+	<div hlmCardContent hlmFieldGroup>
+		<div hlmField>
+			<label hlmFieldLabel for="username">
+				{{'login.username' | translate}}
+			</label>
+			<input
+				[(ngModel)]="loginModel.email"
+				required
+				hlmInput
+				autocomplete="username"
+				name="username"
+				id="username"
+				#username="ngModel"
+			/>
+			@if(username.dirty && username.invalid) {
+			<hlm-field-error>
+				@if(username.hasError('required')) { {{'validation.msg.field_required' |
+				translate}} } @else if (username.hasError('email')) {
+				{{'validation.msg.invalid_email' | translate}} }
+			</hlm-field-error>
+			}
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel for="password">
+				{{'login.password' | translate}}
+			</label>
+			<input
+				[(ngModel)]="loginModel.password"
+				type="password"
+				autocomplete="current-password"
+				required
+				hlmInput
+				name="password"
+				id="password"
+				#password="ngModel"
+			/>
+			@if(password.dirty && password.invalid) {
+			<hlm-field-error>
+				@if(password.hasError('required')) { {{'validation.msg.field_required' |
+				translate}} } @else if (password.hasError('email')) {
+				{{'validation.msg.invalid_email' | translate}} }
+			</hlm-field-error>
+			}
 		</div>
 	</div>
-	}
-	<form (submit)="onFormSubmit($event)">
-		<fieldset hlmFieldSet>
-			<div hlmField>
-				<label hlmFieldLabel for="email">
-					{{'login.username' | translate}}
-				</label>
-				<input
-					[field]="loginForm.email"
-					id="email"
-					hlmInput
-				/>
-				@if(loginForm.email().dirty() && loginForm.email().invalid()) {
-				<ng-container>
-					@for(e of loginForm.email().errors(); track e) {
-					<hlm-field-error> {{ e.message | translate }} </hlm-field-error>
-					}
-				</ng-container>
-				}
-			</div>
 
-			<div hlmField>
-				<label hlmFieldLabel for="password"
-					>{{ 'login.password' | translate }}</label
-				>
-				<input
-					[field]="loginForm.password"
-					type="password"
-					id="password"
-					hlmInput
-				/>
-				@if(loginForm.password().dirty() && loginForm.password().invalid()) {
-				<ng-container>
-					@for(e of loginForm.password().errors(); track e) {
-					<hlm-field-error> {{ e.message | translate }} </hlm-field-error>
-					}
-				</ng-container>
-				}
-			</div>
-		</fieldset>
-	</form>
-</div>
-
-<div hlmCardFooter class="flex-col gap-2">
-	<button
-		[disabled]="loginForm().invalid()"
-		hlmBtn
-		(click)="onFormSubmit()"
-		type="button"
-		class="w-full"
-	>
-		{{ 'login.sign_in' | translate }}
-	</button>
-	<a hlmBtn variant="link" size="sm">
-		{{ 'login.forgot_password' | translate }}
-	</a>
-	<!-- <button hlmBtn variant="outline" class="w-full">Login with Google</button> -->
-</div>
+	<div hlmCardFooter class="flex-col gap-2">
+		<button
+			[disabled]="form.invalid || loggingIn()"
+			hlmBtn
+			type="submit"
+			class="w-full"
+		>
+			{{ 'login.sign_in' | translate }}
+		</button>
+	</div>
+</form>

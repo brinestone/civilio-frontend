@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { apiBaseUrl } from "@app/store/selectors";
+import { sendRpcMessageAsync } from "@app/util";
 import { ParsedLoginRequest, UserPrincipal } from "@civilio/shared";
 import { Store } from "@ngxs/store";
 
@@ -17,7 +18,33 @@ export class AuthService {
 		return result;
 	}
 
+	async clearSavedCredentials() {
+		return await sendRpcMessageAsync('credentials:clear')
+	}
+
+	async getSavedCredentials() {
+		return await sendRpcMessageAsync('credentials:read');
+	}
+
+	async saveCredentials(username: string, password: string) {
+		return await sendRpcMessageAsync('credentials:save', { username, password });
+	}
+
+	isAuthed() {
+		return document.cookie?.includes('civilio_session') ?? false;
+	}
+
+	getMe() {
+		if (!document.cookie) return null;
+		const [_, encoded] = (document.cookie.split(';')
+			.find(c => c.startsWith('civilio_session'))?.split('=') ?? [])
+
+		if (!encoded) return null;
+		const json = decodeURIComponent(encoded);
+		return JSON.parse(json) as UserPrincipal;
+	}
+
 	loginUser(req: ParsedLoginRequest) {
-		return this.http.post<UserPrincipal>(new URL('/auth/login', this.baseUrl).toString(), req);
+		return this.http.post<UserPrincipal>(`${this.baseUrl}/auth/login`, req);
 	}
 }

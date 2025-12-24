@@ -2,6 +2,10 @@ import { Locale, ThemeMode } from "@civilio/shared";
 
 const prefix = '[config]';
 
+export class ConfigLoaded {
+	static type = `${prefix} config loaded`
+}
+
 export class CheckServerStatus {
 	static type = `${prefix} check server status`;
 }

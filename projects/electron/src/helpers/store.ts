@@ -2,31 +2,43 @@ import { AppConfig, AppConfigPaths, AppPrefs } from '@civilio/shared';
 import Store from 'electron-store';
 const KEY = '83zoSRF8PhEsUbJFw0MPesKbTweu1qgJqDAvbAgkfjlhqu5xEZtBtdFfZEK1z6BF';
 
-let store: Store<AppConfig>;
+let store: Store;
 
 function assertStore() {
-  store = store ?? createStore();
-  return store;
+	store = store ?? createStore();
+	return store;
 }
 
 function createStore() {
-  return new Store<AppConfig>({
-    encryptionKey: KEY,
-    defaults: {
-      prefs: { locale: 'en-CM', theme: 'system' } as AppPrefs
-    }
-  });
+	return new Store<AppConfig>({
+		encryptionKey: KEY,
+		defaults: {
+			prefs: { locale: 'en-CM', theme: 'system' } as AppPrefs
+		}
+	});
 }
 
 export function getStoreValue(path: AppConfigPaths) {
-  try {
-    const store = assertStore();
-    return (store as any).get(path);
-  } finally {
-  }
+	try {
+		const store = assertStore();
+		return (store as any).get(path);
+	} finally {
+	}
 }
 
 export function storeValue(path: AppConfigPaths, value: unknown) {
-  const store = assertStore();
-  (store as any).set(path, value);
+	const store = assertStore();
+	(store as any).set(path, value);
+}
+
+export function storeCredentials(encrypted: string) {
+	(store as any).set('credentials', encrypted);
+}
+
+export function getStoredCredentials() {
+	return (store as any).get('credentials') as string | undefined;
+}
+
+export function clearStoredCredentials() {
+	(store as any).delete('credentials');
 }

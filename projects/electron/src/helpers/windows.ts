@@ -14,6 +14,7 @@ export function showMainWindow() {
 		width: 1330,
 		icon: nativeImage.createFromDataURL(logo),
 		webPreferences: {
+			webSecurity: false,
 			contextIsolation: true,
 			devTools: !app.isPackaged,
 			preload: path.join(__dirname, 'preload.js'),

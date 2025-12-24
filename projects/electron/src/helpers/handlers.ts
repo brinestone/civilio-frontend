@@ -1,4 +1,5 @@
 import {
+	clearCredentials,
 	createChannelHandler,
 	createUnifiedServiceMonitor,
 	deleteSubmission,
@@ -18,10 +19,12 @@ import {
 	getBuildInfo,
 	getLicences,
 	getResourceUrl, getSubmissionInfo,
+	getUserCredentials,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
 	removeFieldMapping,
 	revertSubmissionVersion,
+	saveUserCredntials,
 	toggleApprovalStatus,
 	updateFieldMappings,
 	updateLocale,
@@ -59,6 +62,15 @@ export function startServiceMonitoring(window: BrowserWindow) {
 }
 
 export function registerPullHandlers() {
+	createChannelHandler('credentials:read', () => {
+		return getUserCredentials();
+	})
+	createChannelHandler('credentials:clear', () => {
+		clearCredentials();
+	})
+	createChannelHandler('credentials:save', req => {
+		return saveUserCredntials(req);
+	});
 	createChannelHandler('discovery:init', async () => {
 		const result = await discoverServer();
 		storeValue('api.baseUrl', result.baseUrl);

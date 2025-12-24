@@ -1,5 +1,5 @@
 import { Component, resource } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import {
 	LocaleSelectorComponent,
 	ThemeSelectorComponent
@@ -24,6 +24,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 		RouterLinkActive,
 		ThemeSelectorComponent,
 		LocaleSelectorComponent,
+		RouterOutlet
 	],
 	templateUrl: './base.layout.html',
 	styleUrl: './base.layout.scss'

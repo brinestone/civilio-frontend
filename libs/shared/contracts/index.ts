@@ -39,6 +39,7 @@ import {
 	LoginResponseSchema,
 	RemoveFieldMappingRequestSchema,
 	RemoveFieldMappingResponseSchema,
+	SaveCredentialsRequestSchema,
 	TestDbConnectionRequestSchema,
 	TestDbConnectionResponseSchema,
 	ToggleApprovalStatusRequestSchema,
@@ -114,6 +115,10 @@ export const channelArgs = {
 	'auth:login': LoginRequestSchema,
 	'auth:logout': {},
 	'discovery:init': {},
+	'credentials:save': SaveCredentialsRequestSchema,
+	'credentials:read': {},
+	'credentials:clear': {},
+
 } as const;
 export const channelResponses = {
 	'discovery:init': DiscoverServerResponseSchema,
@@ -159,12 +164,18 @@ export const channelResponses = {
 	'submission:delete': {},
 	'approval:toggle': {},
 	'auth:login': LoginResponseSchema,
-	'auth:logout': {}
+	'auth:logout': {},
+	'credentials:save': {},
+	'credentials:read': LoginRequestSchema,
+	'credentials:clear': {}
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema> | 'service-status-update';
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'credentials:clear'
+	| 'credentials:read'
+	| 'credentials:save'
 	| 'discovery:init'
 	| 'auth:login'
 	| 'auth:logout'

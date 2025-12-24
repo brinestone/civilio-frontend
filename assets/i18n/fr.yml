@@ -1,3 +1,5 @@
+http:
+  _401: Nom d'utilisateur ou mot de passe invalide
 auth:
   settings:
     title: Paramètres
@@ -123,6 +125,7 @@ units:
     long: kilomètres
 validation:
   msg:
+    invalid_email: Adresse e-mail invalide
     int: La valeur doit être un entier
     field_required: Ce champ est obligatoire
     value_unsupported: La valeur n'est pas prise en charge. Il doit s'agir de : {{validValues}}
@@ -169,6 +172,8 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
+  users:
+    title: Utilisateurs
   font-size:
     title: Taille du texte
     placeholder: Sélectionnez la taille du texte

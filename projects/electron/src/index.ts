@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from "electron";
+import { app, BrowserWindow, nativeTheme, session } from "electron";
 import { getAppConfig } from "./handlers";
 import { registerPullHandlers, startServiceMonitoring } from './helpers/handlers';
 import { provideLogger } from "./helpers/logging";
@@ -23,7 +23,7 @@ async function initializeServices() {
 	applyPreferences();
 }
 
-if(app.isPackaged)
+if (app.isPackaged)
 	app.commandLine.appendSwitch('enable-file-cookies');
 
 // This method will be called when Electron has finished
@@ -34,6 +34,29 @@ app.on("ready", async () => {
 	await initializeServices();
 	const window = showMainWindow();
 	startServiceMonitoring(window);
+
+	// session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+	// 	const responseHeaders = { ...details.responseHeaders };
+
+	// 	// Only add/replace if they don't exist
+	// 	if (!responseHeaders['Access-Control-Allow-Origin']) {
+	// 		responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+	// 	}
+
+	// 	if (!responseHeaders['Access-Control-Allow-Methods']) {
+	// 		responseHeaders['Access-Control-Allow-Methods'] = ['GET, POST, PUT, DELETE, OPTIONS'];
+	// 	}
+
+	// 	if (!responseHeaders['Access-Control-Allow-Headers']) {
+	// 		responseHeaders['Access-Control-Allow-Headers'] = ['*'];
+	// 	}
+
+	// 	if (!responseHeaders['Access-Control-Allow-Credentials']) {
+	// 		responseHeaders['Access-Control-Allow-Credentials'] = ['true'];
+	// 	}
+
+	// 	callback({ responseHeaders });
+	// });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

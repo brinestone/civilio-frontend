@@ -45,6 +45,7 @@ import {
 } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+	lucideArrowLeft,
 	lucideCalendar,
 	lucideCheck,
 	lucideCheckCircle,
@@ -97,6 +98,7 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 		provideIcons({
 			lucideTrash2,
 			lucideMapPin,
+			lucideArrowLeft,
 			lucideX,
 			lucideLoader,
 			lucideCalendar,

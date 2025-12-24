@@ -38,7 +38,8 @@ import {
 	SetTheme,
 	TestDb,
 	UpdateMiscConfig,
-	UseConnection
+	UseConnection,
+	ConfigLoaded
 } from './actions';
 
 export * from './actions';
@@ -235,6 +236,7 @@ export class ConfigState implements NgxsOnInit {
 				const lang = (config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 				this.translateService.use(lang);
 			}),
+			tap(() => ctx.dispatch(ConfigLoaded))
 		)
 	}
 }

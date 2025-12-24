@@ -1,3 +1,5 @@
+http:
+  _401: Invalid username or password
 auth:
   settings:
     title: Settings
@@ -117,6 +119,7 @@ units:
     long: kilometers
 validation:
   msg:
+    invalid_email: Invalid email address
     int: Value must be an integer
     field_required: This field is required
     value_unsupported: "Value is unsupported. It must be one of: {{validValues}}"
@@ -163,6 +166,8 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  users:
+    title: Users
   font-size:
     title: Text size
     placeholder: Select text size

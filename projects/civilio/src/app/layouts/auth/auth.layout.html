@@ -1,3 +1,17 @@
+<!-- @if(reloggingIn()) {
+<div
+	class="w-screen z-9999 fixed top-0 h-screen backdrop-blur flex items-center justify-center"
+	animate.enter="slide-up"
+	animate.leave="slide-down"
+>
+	<div
+		class="border-border border px-4 py-2 rounded-full flex items-center gap-2 shadow-lg"
+	>
+		<ng-icon name="lucideLoader" class="animate-spin" />
+		<span>Re-connecting...</span>
+	</div>
+</div>
+} -->
 <div class="hidden md:block">
 	<ng-container [ngTemplateOutlet]="heroTemplate" />
 </div>

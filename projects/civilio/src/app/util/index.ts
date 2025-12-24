@@ -99,22 +99,10 @@ export function actionsLoading(...actions: ActionType[]) {
 
 export function isActionLoading(action: ActionType) {
 	const actions$ = inject(Actions);
-	return derivedFrom(
-		[
-			merge([
-				actions$.pipe(
-					ofActionDispatched(action),
-					map(() => true),
-				),
-				actions$.pipe(
-					ofActionCompleted(action),
-					map(() => false),
-				),
-			]),
-		],
-		pipe(mergeMap(([src$]) => src$)),
-		{ initialValue: false },
-	);
+	return toSignal(merge(
+		actions$.pipe(ofActionDispatched(action), map(() => true)),
+		actions$.pipe(ofActionCompleted(action), map(() => false))
+	), { initialValue: false });
 }
 
 export function isDesktop() {

@@ -1,4 +1,6 @@
-<div class="px-4 h-[2.8rem] border-b border-border flex items-center justify-between">
+<div
+	class="px-4 h-[2.8rem] border-b border-border flex items-center justify-between"
+>
 	<div class="flex items-center gap-3">
 		@defer (when wideLogoUrl.hasValue() && !wideLogoUrl.isLoading()) {
 		<a routerLink="/" class="outline-none" tabindex="-1">
@@ -26,6 +28,8 @@
 		<cv-theme-selector size="sm" />
 	</div>
 </div>
-<main class="max-h-[calc(100vh-2.8rem)] scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
-	<ng-content />
+<main
+	class="max-h-[calc(100vh-2.8rem)] scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<router-outlet />
 </main>

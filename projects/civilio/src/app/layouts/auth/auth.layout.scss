@@ -1,5 +1,24 @@
 @reference "tailwindcss";
 
 :host {
-	@apply h-full w-full grid md:grid-cols-[35%_auto_1fr] items-stretch
+	@apply h-full w-full grid md:grid-cols-[35%_auto_1fr] items-stretch;
+}
+
+.slide-up {
+	animation: slide-up-fade-in 1s forwards;
+}
+
+.slide-down {
+	animation: slide-up-fade-in 1s reverse;
+}
+
+@keyframes slide-up-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(50px);
+	}
+	to {
+		opacity: 100%;
+		transform: translateY(0);
+	}
 }

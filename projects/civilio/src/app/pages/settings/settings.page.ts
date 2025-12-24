@@ -5,12 +5,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCheck,
+	lucideGroup,
 	lucideInfo,
 	lucideSave,
 	lucideSettings,
 	lucideSlidersVertical,
 	lucideTrash2,
 	lucideUnlink2,
+	lucideUsers,
 	lucideWrench
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -24,6 +26,7 @@ const sections = [
 		path: 'field-mapping'
 	},
 	{ label: 'settings.advanced.title', icon: 'lucideWrench', path: 'advanced' },
+	{ label: 'settings.users.title', icon: 'lucideUsers', path: 'users', accessibleRole: 'admin' },
 	{ label: 'settings.about.title', icon: 'lucideInfo', path: 'about' },
 ] as const
 
@@ -32,6 +35,7 @@ const sections = [
 	viewProviders: [
 		provideIcons({
 			lucideSettings,
+			lucideUsers,
 			lucideSave,
 			lucideInfo,
 			lucideTrash2,
