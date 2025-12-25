@@ -83,7 +83,11 @@
 </div>
 
 <div class="bg-secondary/50 relative">
-	<router-outlet />
+	<div
+		class="w-full h-full scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto max-h-full"
+	>
+		<router-outlet />
+	</div>
 	@if(!route.firstChild) {
 	<div class="w-full h-full flex items-center.justify-center">
 		<div hlmEmpty>

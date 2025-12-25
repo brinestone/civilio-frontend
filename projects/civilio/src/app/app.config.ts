@@ -5,7 +5,7 @@ import {
 	provideBrowserGlobalErrorListeners,
 	provideZonelessChangeDetection
 } from '@angular/core';
-import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
+import { provideRouter, TitleStrategy, withComponentInputBinding, withViewTransitions } from '@angular/router';
 import { usingElectron } from '@app/services/electron';
 import { usingWeb } from '@app/services/web';
 import { isDesktop } from '@app/util';
@@ -37,7 +37,7 @@ export const appConfig: ApplicationConfig = {
 		provideBrowserGlobalErrorListeners(),
 		provideHttpClient(withInterceptors([authInterceptor]), withFetch()),
 		provideZonelessChangeDetection(),
-		provideRouter(routes, withComponentInputBinding()),
+		provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
 		provideDomainConfig(),
 		provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
 		provideStore([NotificationState, ConfigState, AuthState],

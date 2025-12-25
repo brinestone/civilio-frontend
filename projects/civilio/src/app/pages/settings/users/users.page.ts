@@ -60,7 +60,7 @@ export class UsersPage {
 		return (this.users.value() ?? []).map((u, i) => [i, [...(new Set<string>([u.fullName, ...u.role, u.username]))].join('#').toLowerCase()] as [number, string])
 	})
 	protected readonly filteredUsers = computed(() => {
-		const filter = this.userInputFilter();
+		const filter = this.userInputFilter()?.trim();
 		const indexes = this.searchIndexes();
 		const users = this.users.value()
 		if (!filter || indexes.length == 0) return users;

@@ -71,6 +71,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmPaginationImports } from '@spartan-ng/helm/pagination';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
@@ -130,6 +131,7 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 		HlmLabel,
 		HlmH4,
 		HlmAlertDialogImports,
+		HlmSkeleton,
 		HlmSwitch,
 		BrnAlertDialogImports,
 		HlmTableImports,

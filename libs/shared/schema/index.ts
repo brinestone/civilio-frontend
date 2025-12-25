@@ -2,10 +2,13 @@ import { z } from 'zod';
 
 export const UserInfoSchema = z.object({
 	fullName: z.string(),
+	email: z.string(),
+	isSuperAdmin: z.boolean().default(false),
 	username: z.string(),
 	role: z.string().array(),
-	isAdmin: z.boolean()
-});
+	isAdmin: z.boolean(),
+	__caslType: z.literal('User').default('User')
+})
 
 export interface ServiceEventPayload {
 	service: string;
@@ -26,7 +29,8 @@ export const SubmissionInfoSchema = z.object({
 	coords: z.string().nullable().optional(),
 	extraInfo: z.record(z.string(), z.unknown()).optional(),
 	approved: z.boolean().optional(),
-	createdAt: z.coerce.date().nullable()
+	createdAt: z.coerce.date().nullable(),
+	__caslType: z.literal('Submission').optional().default('Submission')
 });
 export const BuildInfoSchema = z.object({
 	author: z.object({
@@ -154,6 +158,7 @@ export const FormSubmissionSchema = z.object({
 	isValid: z.boolean(),
 	lastModifiedAt: z.coerce.date().nullable(),
 	lastModifiedBy: z.string().nullable(),
+	__caslType: z.literal('Submission').optional().default('Submission'),
 	currentVersion: z.string().nullable(),
 });
 export const AppPrefsSchema = z.object({
@@ -223,6 +228,7 @@ export type Paginated<T> = {
 	totalRecords: number;
 	data: T extends z.ZodType ? z.output<T>[] : T[];
 }
+
 
 
 export type SubmissionChangeDeltaInput = z.input<typeof SubmissionChangeDeltaSchema>;

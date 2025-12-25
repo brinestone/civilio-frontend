@@ -1,8 +1,8 @@
 import { inject, Injectable } from "@angular/core";
-import { AppAbility } from "@app/adapters/casl";
+import { AppAbility, DataAbility, UserAbility } from "@app/adapters/casl";
 import { AuthService } from "@app/services/auth.service";
 import { AbilityBuilder, createMongoAbility, PureAbility } from "@casl/ability";
-import { UserPrincipal } from "@civilio/shared";
+import { FormSubmissionSchema, UserInfoSchema, UserPrincipal } from "@civilio/shared";
 import { Navigate } from "@ngxs/router-plugin";
 import { Action, NgxsOnInit, State, StateContext } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
@@ -80,7 +80,7 @@ export class AuthState implements NgxsOnInit {
 	}
 
 	private populatePermissions(user: UserPrincipal) {
-		const { can, rules, cannot } = new AbilityBuilder(() => createMongoAbility<AppAbility>());
+		const { can, rules, cannot } = new AbilityBuilder(() => createMongoAbility<DataAbility | UserAbility>());
 		can('read', 'Submission');
 		can('read', 'User');
 		if (user.isAdmin) {
@@ -88,10 +88,20 @@ export class AuthState implements NgxsOnInit {
 			can('update', 'Submission');
 			can('delete', 'Submission');
 			can('read', 'Submission');
+			can('approve', 'Submission');
 			can('create', 'User');
 			can('update', 'User');
 			can('delete', 'User');
 			can('read', 'User');
+			can('change-password', 'User');
+			cannot('update', 'User', {
+				isAdmin: true,
+				username: { $ne: user.username }
+			});
+			cannot('change-password', 'User', {
+				isAdmin: true,
+				username: { $ne: user.username }
+			});
 			cannot('delete', 'User', {
 				isAdmin: true,
 				username: { $ne: user.username }

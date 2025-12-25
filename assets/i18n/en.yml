@@ -48,6 +48,14 @@ overview:
           success: Submission deleted successfully
           approval_toggled: Changes saved successfully
 misc:
+  edit: Edit
+  delete: Delete
+  admin: Admin
+  user_fields:
+    email: Email address
+    names: Names
+    role: Roles
+    username: Username
   changed_at: Recorded at
   changed_by: Recorded by
   signed_in_as: Signed in as
@@ -80,6 +88,7 @@ misc:
   contributors: Contributors
   contact: Contact
   licences_3: 3rd party licences
+  form: Form Type
   facility_summary: Facility Info
   yes: Yes
   no: No

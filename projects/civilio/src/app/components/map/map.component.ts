@@ -1,14 +1,15 @@
 import {
-	AfterViewInit,
-	Component, computed, effect,
+	ChangeDetectorRef,
+	Component,
+	effect,
 	ElementRef,
 	inject,
 	input, resource, untracked
 } from '@angular/core';
+import { sendRpcMessageAsync } from '@app/util';
 import { GeoPoint, GeoPointInputSchema } from '@civilio/shared';
 import { control, icon, map, Map, marker, Marker, tileLayer } from 'leaflet';
 import { injectNetwork } from 'ngxtension/inject-network';
-import { sendRpcMessageAsync } from '@app/util';
 
 
 @Component({
@@ -18,6 +19,8 @@ import { sendRpcMessageAsync } from '@app/util';
 	styleUrl: './map.component.scss',
 })
 export class MapComponent {
+	private readonly cdr = inject(ChangeDetectorRef);
+	// private readonly leafletAnchor = viewChild<ElementRef<HTMLAnchorElement>>('a[href="https://leafletjs.com"]');
 	readonly coords = input<GeoPoint, string | null>({} as any, {
 		transform: s => GeoPointInputSchema.parse(s ?? {})
 	});
@@ -54,9 +57,15 @@ export class MapComponent {
 			const { lat, long } = untracked(this.coords);
 			const coords = { lat, lng: long };
 			this.map = map(this.ref.nativeElement, { center: coords, zoom: 15 });
+			const anchor = document.querySelector<HTMLAnchorElement>('a[href="https://leafletjs.com"]')
+			if (anchor) {
+				anchor.target = '_blank';
+			}
+
 			this.initTileLayer(this.map);
 			this.initMarker(this.map);
 			this.initialized = true;
+			this.cdr.markForCheck();
 		})
 	}
 

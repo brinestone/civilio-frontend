@@ -5,14 +5,14 @@
 }
 
 .section-item {
-  @apply rounded-md border-l-4 border-transparent focus-within:ring-1 focus-within:ring-[var(--primary)];
-  & > a {
-    @apply flex items-center gap-2 p-2;
-  }
-  &:not(:has(a.active)) {
-    @apply hover:bg-gray-500/20 text-[var(--muted-foreground)] hover:text-inherit;
-  }
-  &:has(a.active) {
-    @apply border-[var(--primary)] bg-gray-500/20 font-bold;
-  }
+	@apply rounded-md border-l-4 border-transparent focus-within:ring-1 focus-within:ring-(--primary);
+	& > a {
+		@apply flex items-center gap-2 p-2;
+	}
+	&:not(:has(a.active)) {
+		@apply hover:bg-gray-500/20 text-(--muted-foreground) hover:text-inherit;
+	}
+	&:has(a.active) {
+		@apply border-(--primary) bg-gray-500/20 font-bold;
+	}
 }

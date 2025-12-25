@@ -1,44 +1,49 @@
 <div
-  class="border-r border-muted row-start-2 row-span-1 col-start-1 col-span-1 space-y-2"
+	class="border-r border-muted row-start-2 row-span-1 col-start-1 col-span-1 space-y-2"
 >
-  <div class="p-2">
-    <input
-      autocomplete="off"
-      type="search"
-      hlmInput
-      [placeholder]="'settings.filter.placeholder' | translate"
-      [(ngModel)]="sectionFilter"
-    />
-  </div>
-  <ul class="px-2 space-y-1 list-none">
-    @for (section of filteredSections(); track $index) {
-      <li class="section-item">
-        <a draggable="false"
-          [routerLink]="section.path"
-          routerLinkActive="active"
-          class="outline-none"
-          [routerLinkActiveOptions]="{ exact: false }"
-        >
-          <ng-icon [name]="section.icon" />
-          <span>{{ section.label | translate }}</span>
-        </a>
-      </li>
-    } @empty {
-      <li class="text-center">{{ 'tmpl.autocomplete.empty_text' | translate }}</li>
-    }
-  </ul>
-</div>
-<div class="row-span-1 row-start-2 col-start-2 col-span-1 overflow-y-auto">
-  <router-outlet />
+	<div class="p-2">
+		<input
+			autocomplete="off"
+			type="search"
+			hlmInput
+			[placeholder]="'settings.filter.placeholder' | translate"
+			[(ngModel)]="sectionFilter"
+		/>
+	</div>
+	<ul class="px-2 space-y-1 list-none">
+		@for (section of filteredSections(); track $index) {
+		<li class="section-item">
+			<a
+				draggable="false"
+				[routerLink]="section.path"
+				routerLinkActive="active"
+				class="outline-none"
+				[routerLinkActiveOptions]="{ exact: false }"
+			>
+				<ng-icon [name]="section.icon" />
+				<span>{{ section.label | translate }}</span>
+			</a>
+		</li>
+		} @empty {
+		<li class="text-center">
+			{{ 'tmpl.autocomplete.empty_text' | translate }}
+		</li>
+		}
+	</ul>
 </div>
 <div
-  class="border-t border-transparent row-span-1 col-span-2 row-start-3"
+	class="row-span-1 row-start-2 col-start-2 col-span-1 overflow-y-hidden"
+>
+	<router-outlet />
+</div>
+<div
+	class="border-t border-transparent row-span-1 col-span-2 row-start-3"
 ></div>
 <div
-  class="row-span-1 col-span-2 row-start-1 py-1 px-4 flex justify-between border-b border-muted"
+	class="row-span-1 col-span-2 row-start-1 py-1 px-4 flex justify-between border-b border-muted"
 >
-  <h1 class="text-2xl font-bold flex gap-2 items-center">
-    <ng-icon name="lucideSettings" />
-    <span>{{ 'settings.title' | translate }}</span>
-  </h1>
+	<h1 class="text-2xl font-bold flex gap-2 items-center">
+		<ng-icon name="lucideSettings" />
+		<span>{{ 'settings.title' | translate }}</span>
+	</h1>
 </div>

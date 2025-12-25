@@ -51,6 +51,14 @@ overview:
           success: Soumission supprimée avec succès
           approval_toggled: Modifications enregistrées avec succès
 misc:
+  edit: Modifier
+  delete: Supprimer
+  admin: Administrateur
+  user_fields:
+    email: Adresse email
+    names: Noms
+    role: Rôles
+    username: Nom d'utilisateur
   changed_at: Enregistré à
   changed_by: Enregistré par
   signed_in_as: Connecté en tant que
@@ -83,6 +91,7 @@ misc:
   contributors: Contributeurs
   contact: Contact
   licences_3: Licences tierces
+  form: Type de formulaire
   facility_summary: Informations sur l'installation
   yes: Oui
   no: Non

@@ -1,1 +1,174 @@
-<p>user works!</p>
+@let u = user.value();
+<div class="flex justify-between">
+	<h4 hlmH4>User Information</h4>
+	<div class="flex items-center gap-2 flex-wrap">
+		<ng-container>
+			@if(abs.can('update', u ?? 'User')){ @if(!editing()) {
+			<button (click)="editing.set(true)" hlmBtn variant="outline" size="sm">
+				<ng-icon name="lucideUserPen" />
+				<span>{{ 'misc.edit' | translate }}</span>
+			</button>
+			}@else {
+			<button
+				(click)="editing.set(false); user.reload()"
+				hlmBtn
+				variant="outline"
+				size="sm"
+			>
+				<ng-icon name="lucideX" />
+				<span>Cancel</span>
+			</button>
+			} }
+		</ng-container>
+		<ng-container>
+			@if(abs.can('delete', u ?? 'User')) {
+			<button hlmBtn variant="destructive" size="sm">
+				<ng-icon name="lucideTrash2" />
+				<span>{{ 'misc.delete' | translate }}</span>
+			</button>
+			}
+		</ng-container>
+	</div>
+</div>
+@if(editing()) {
+<form class="max-w-1/2">
+	<div hlmFieldGroup>
+		<fieldset hlmFieldSet>
+			<legend hlmFieldLegend>General</legend>
+			<p hlmFieldDescription>Modify user's general information</p>
+			<div hlmFieldGroup>
+				<div hlmField>
+					<label hlmFieldLabel for="name"
+						>Names <span class="text-red-500">*</span></label
+					>
+					<input hlmInput name="name" id="name" />
+					<p hlmFieldDescription>User's full names</p>
+				</div>
+				<div hlmField>
+					<label hlmFieldLabel for="email"
+						>Email
+						<span class="text-sm text-muted-foreground">(optional)</span></label
+					>
+					<input hlmInput type="email" id="email" name="email" />
+				</div>
+				<div hlmField>
+					<label hlmFieldLabel>Role</label>
+					<hlm-radio-group>
+						@for(role of roles; track $index) {
+						<label hlmFieldLabel id="role_{{role.name}}">
+							<div hlmField class="cursor-pointer" orientation="horizontal">
+								<div hlmFieldContent>
+									<p hlmFieldTitle>{{role.label | translate}}</p>
+									<p hlmFieldDescription>{{role.description | translate}}</p>
+								</div>
+								<hlm-radio
+									[value]="role.name"
+									id="role_{{role.name}}"
+									name="role"
+								>
+									<ng-container>
+										<hlm-radio-indicator indicator />
+									</ng-container>
+								</hlm-radio>
+							</div>
+						</label>
+						}
+					</hlm-radio-group>
+				</div>
+			</div>
+		</fieldset>
+		<hlm-field-separator />
+		<fieldset hlmFieldSet>
+			<legend hlmFieldLegend>Credentials</legend>
+			<p hlmFieldDescription>Modify user's credential</p>
+			<div hlmFieldGroup>
+				<div hlmField>
+					<label hlmFieldLabel for="username">
+						Username <span class="text-red-500">*</span>
+					</label>
+					<div hlmInputGroup>
+						<input
+							hlmInputGroupInput
+							type="text"
+							autocomplete="username"
+							name="username"
+							id="username"
+						/>
+						<div hlmInputGroupAddon>
+							<ng-icon name="lucideLock" />
+						</div>
+					</div>
+				</div>
+				<div hlmField>
+					<label hlmFieldLabel for="password">
+						Password <span class="text-red-500">*</span>
+					</label>
+					<div hlmInputGroup>
+						<input
+							hlmInputGroupInput
+							type="password"
+							autocomplete="new-password"
+							name="password"
+							id="password"
+						/>
+						<div hlmInputGroupAddon>
+							<ng-icon name="lucideAsteriskSquare" />
+						</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+</form>
+} @else {
+<div class="max-w-1/2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+	@if(user.isLoading()){
+	<hlm-skeleton class="h-5 w-[50px]" />
+	<hlm-skeleton class="h-5 w-[80px" />
+	}@else {
+	<ng-container>
+		<h5
+			class="font-medium scroll-m-20 tracking-tight text-lg col-span-2 flex items-center gap-3"
+		>
+			<span>{{user.value()?.fullName}}</span>
+			@if(user.value()?.isAdmin) {
+			<span
+				hlmBadge
+				class="col-span-2 rounded-full text-xs px-3! py-1!"
+				variant="outline"
+				>{{ 'misc.admin' | translate }}</span
+			>
+			}
+		</h5>
+
+		<ng-container>
+			<p class="text-muted-foreground">
+				{{'misc.user_fields.email' | translate}}
+			</p>
+			<p>{{ user.value()?.email }}</p>
+		</ng-container>
+		<ng-container>
+			<p class="text-muted-foreground">
+				{{'misc.user_fields.role' | translate}}
+			</p>
+			<p>
+				@for(role of user.value()?.role ?? []; track $index) {
+				<span class="capitalize">{{role}}</span>
+				<ng-container>
+					@if(!$last) {
+					<span>,</span>
+					}
+				</ng-container>
+				}
+			</p>
+		</ng-container>
+		<ng-container>
+			<p class="text-muted-foreground">
+				{{'misc.user_fields.username' | translate}}
+			</p>
+			<span>{{ user.value()?.username }}</span>
+		</ng-container>
+	</ng-container>
+	}
+</div>
+}

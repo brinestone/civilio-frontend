@@ -134,6 +134,23 @@
 									</td>
 									}
 								</tr>
+								} @empty {
+								<tr hlmTr>
+									@if(versions.isLoading()) {
+									<td
+										hlmTd
+										[colSpan]="table.getHeaderGroups()[0].headers.length"
+										class="text-center"
+									>
+										{{'loading.txt' | translate}}
+									</td>
+									} @else { @for(_ of table.getHeaderGroups()[0].headers; track
+									$index) {
+									<td hlmTd>
+										<hlm-skeleton class="block w-full h-[15px] rounded-full" />
+									</td>
+									} }
+								</tr>
 								}
 							</tbody>
 						</table>
@@ -160,12 +177,21 @@
 		<div class="py-10 pl-2">
 			<div class="space-y-2">
 				<h4 hlmH4>{{ 'overview.submission_info.title' | translate }}</h4>
-				<div class="flex items-center gap-x-1">
-					<small class="text-muted-foreground">Index</small>
-					<small>{{ submissionIndex() }}</small>
+				<div class="flex items-center gap-3 flex-wrap">
+					<div class="flex items-center gap-x-1">
+						<small class="text-muted-foreground">Index:</small>
+						<small>{{ submissionIndex() }}</small>
+					</div>
+					<div class="flex items-center gap-x-1">
+						<small class="text-muted-foreground"
+							>{{ 'misc.form' | translate }}:</small
+						>
+						<small class="uppercase">{{ formType() }}</small>
+					</div>
 				</div>
 				<hlm-separator />
-				<a draggable="false"
+				<a
+					draggable="false"
 					hlmBtn
 					routerLink="/submissions"
 					variant="outline"
@@ -176,15 +202,17 @@
 					<span>{{ "misc.all_submissions" | translate }}</span>
 				</a>
 				<div class="flex items-center gap-2">
-					<div>
+					<div class="w-full">
 						@if(canGoPrev()){
-						<a draggable="false"
+						<a
+							draggable="false"
 							hlmBtn
 							routerLink="/submissions"
 							variant="outline"
 							size="sm"
 							[routerLink]="['../..', neighboringRefs.value()?.[0], 'overview']"
 							[relativeTo]="route"
+							class="w-full flex"
 							title="{{'submissions.title' | translate}}"
 						>
 							<ng-icon name="lucideArrowLeft" />
@@ -194,13 +222,15 @@
 						</a>
 						}
 					</div>
-					<div>
+					<div class="w-full">
 						@if(canGoNext()){
-						<a draggable="false"
+						<a
+							draggable="false"
 							hlmBtn
 							[routerLink]="['../..', neighboringRefs.value()?.[1], 'overview']"
 							[relativeTo]="route"
 							variant="outline"
+							class="w-full flex"
 							size="sm"
 							title="{{'submissions.title' | translate}}"
 						>
@@ -216,7 +246,8 @@
 				<div class="space-y-4">
 					<div class="flex flex-col w-full gap-2">
 						@if(abs.can('update', 'Submission')) {
-						<a draggable="false"
+						<a
+							draggable="false"
 							[queryParams]="{version: selectedVersion.value()}"
 							[relativeTo]="route"
 							[routerLink]="['..']"
