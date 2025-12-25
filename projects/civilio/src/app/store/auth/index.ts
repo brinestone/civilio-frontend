@@ -94,6 +94,10 @@ export class AuthState implements NgxsOnInit {
 			can('delete', 'User');
 			can('read', 'User');
 			can('change-password', 'User');
+			can('change-role', 'User');
+			cannot('change-role', 'User', {
+				isAdmin: true
+			})
 			cannot('update', 'User', {
 				isAdmin: true,
 				username: { $ne: user.username }

@@ -1,6 +1,8 @@
 @let u = user.value();
-<div class="flex justify-between">
-	<h4 hlmH4>User Information</h4>
+<div
+	class="flex justify-between px-4 backdrop-blur sticky top-0 py-2 border-b border-border"
+>
+	<h4 hlmH4>{{ 'user.title' | translate }}</h4>
 	<div class="flex items-center gap-2 flex-wrap">
 		<ng-container>
 			@if(abs.can('update', u ?? 'User')){ @if(!editing()) {
@@ -9,6 +11,14 @@
 				<span>{{ 'misc.edit' | translate }}</span>
 			</button>
 			}@else {
+			<ng-container>
+				@if(formModel().dirty()) {
+				<button [disabled]="formModel().invalid()" hlmBtn size="sm">
+					<ng-icon name="lucideSave" />
+					<span>{{ 'user.actions.save_changes' | translate }}</span>
+				</button>
+				}
+			</ng-container>
 			<button
 				(click)="editing.set(false); user.reload()"
 				hlmBtn
@@ -16,7 +26,7 @@
 				size="sm"
 			>
 				<ng-icon name="lucideX" />
-				<span>Cancel</span>
+				<span>{{ 'user.actions.cancel' | translate }}</span>
 			</button>
 			} }
 		</ng-container>
@@ -24,48 +34,73 @@
 			@if(abs.can('delete', u ?? 'User')) {
 			<button hlmBtn variant="destructive" size="sm">
 				<ng-icon name="lucideTrash2" />
-				<span>{{ 'misc.delete' | translate }}</span>
+				<span>{{ 'user.actions.delete' | translate }}</span>
 			</button>
 			}
 		</ng-container>
 	</div>
 </div>
 @if(editing()) {
-<form class="max-w-1/2">
+<form (submit)="onFormSubmit($event)" #formElement class="max-w-1/2 px-4">
 	<div hlmFieldGroup>
 		<fieldset hlmFieldSet>
-			<legend hlmFieldLegend>General</legend>
-			<p hlmFieldDescription>Modify user's general information</p>
+			<legend hlmFieldLegend>{{'user.form.general.title' | translate}}</legend>
+			<p hlmFieldDescription>
+				{{ 'user.form.general.description' | translate }}
+			</p>
 			<div hlmFieldGroup>
 				<div hlmField>
 					<label hlmFieldLabel for="name"
-						>Names <span class="text-red-500">*</span></label
+						>{{ 'user.form.general.fields.names.title' | translate}}
+						<span class="text-red-500">*</span></label
 					>
-					<input hlmInput name="name" id="name" />
-					<p hlmFieldDescription>User's full names</p>
+					<p hlmFieldDescription>
+						{{'user.form.general.fields.names.description' | translate}}
+					</p>
+					<input autofocus [field]="formModel.names" hlmInput id="name" />
+					<ng-container
+						[ngTemplateOutlet]="errorTemplate"
+						[ngTemplateOutletContext]="{$implicit: formModel.names().errors()}"
+					/>
 				</div>
 				<div hlmField>
 					<label hlmFieldLabel for="email"
-						>Email
-						<span class="text-sm text-muted-foreground">(optional)</span></label
-					>
-					<input hlmInput type="email" id="email" name="email" />
+						>{{'user.form.general.fields.email.title' | translate}}
+					</label>
+					<input [field]="formModel.email" hlmInput type="email" id="email" />
+					@if(formModel.email().pending()) {
+					<ng-container [ngTemplateOutlet]="pendingValidationTemplate" />
+					}
+					<ng-container>
+						@if(formModel.email().dirty() && formModel.email().invalid()) {
+						<ng-container
+							[ngTemplateOutlet]="errorTemplate"
+							[ngTemplateOutletContext]="{$implicit: formModel.email().errors()}"
+						/>
+						}
+					</ng-container>
 				</div>
+				@if(abs.can('change-role', u ?? 'User')) {
 				<div hlmField>
-					<label hlmFieldLabel>Role</label>
-					<hlm-radio-group>
+					<label hlmFieldLabel
+						>{{ 'user.form.general.fields.role.title' | translate }}</label
+					>
+					<p hlmFieldDescription>
+						{{ 'user.form.general.fields.role.description' | translate}}
+					</p>
+					<ng-container
+						[ngTemplateOutlet]="errorTemplate"
+						[ngTemplateOutletContext]="{$implicit: formModel.role().errors()}"
+					/>
+					<hlm-radio-group [field]="formModel.role">
 						@for(role of roles; track $index) {
 						<label hlmFieldLabel id="role_{{role.name}}">
 							<div hlmField class="cursor-pointer" orientation="horizontal">
 								<div hlmFieldContent>
 									<p hlmFieldTitle>{{role.label | translate}}</p>
-									<p hlmFieldDescription>{{role.description | translate}}</p>
+									<p hlmFieldDescription>{{ role.description | translate}}</p>
 								</div>
-								<hlm-radio
-									[value]="role.name"
-									id="role_{{role.name}}"
-									name="role"
-								>
+								<hlm-radio [value]="role.name" id="role_{{role.name}}">
 									<ng-container>
 										<hlm-radio-indicator indicator />
 									</ng-container>
@@ -75,53 +110,80 @@
 						}
 					</hlm-radio-group>
 				</div>
+				}
 			</div>
 		</fieldset>
 		<hlm-field-separator />
 		<fieldset hlmFieldSet>
-			<legend hlmFieldLegend>Credentials</legend>
-			<p hlmFieldDescription>Modify user's credential</p>
+			<legend hlmFieldLegend>
+				{{'user.form.credentials.title' | translate}}
+			</legend>
+			<p hlmFieldDescription>
+				{{'user.form.credentials.description' | translate }}
+			</p>
 			<div hlmFieldGroup>
 				<div hlmField>
 					<label hlmFieldLabel for="username">
-						Username <span class="text-red-500">*</span>
+						{{'user.form.credentials.fields.username.title' | translate}}
 					</label>
 					<div hlmInputGroup>
 						<input
 							hlmInputGroupInput
 							type="text"
 							autocomplete="username"
-							name="username"
+							[field]="formModel.username"
 							id="username"
 						/>
 						<div hlmInputGroupAddon>
 							<ng-icon name="lucideLock" />
 						</div>
 					</div>
+					@if(formModel.username().pending()) {
+					<ng-container [ngTemplateOutlet]="pendingValidationTemplate" />
+					} @if(formModel.username().pending()) {
+					<ng-container [ngTemplateOutlet]="pendingValidationTemplate" />
+					}
+					<ng-container>
+						@if(formModel.username().dirty() && formModel.username().invalid())
+						{
+						<ng-container
+							[ngTemplateOutlet]="errorTemplate"
+							[ngTemplateOutletContext]="{$implicit: formModel.username().errors()}"
+						/>
+						}
+					</ng-container>
 				</div>
+				@if(abs.can('change-password', u ?? 'User')){
 				<div hlmField>
 					<label hlmFieldLabel for="password">
-						Password <span class="text-red-500">*</span>
+						{{'user.form.credentials.fields.password.title' | translate}}
 					</label>
-					<div hlmInputGroup>
-						<input
-							hlmInputGroupInput
-							type="password"
-							autocomplete="new-password"
-							name="password"
-							id="password"
-						/>
-						<div hlmInputGroupAddon>
-							<ng-icon name="lucideAsteriskSquare" />
+					<div hlmFieldContent>
+						<div hlmInputGroup>
+							<input
+								hlmInputGroupInput
+								type="password"
+								autocomplete="new-password"
+								[field]="formModel.password"
+								id="password"
+							/>
+							<div hlmInputGroupAddon>
+								<ng-icon name="lucideAsteriskSquare" />
+							</div>
 						</div>
+						<ng-container
+							[ngTemplateOutlet]="errorTemplate"
+							[ngTemplateOutletContext]="{$implicit: formModel.password().errors()}"
+						/>
 					</div>
 				</div>
+				}
 			</div>
 		</fieldset>
 	</div>
 </form>
 } @else {
-<div class="max-w-1/2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+<div class="max-w-1/2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-4">
 	@if(user.isLoading()){
 	<hlm-skeleton class="h-5 w-[50px]" />
 	<hlm-skeleton class="h-5 w-[80px" />
@@ -172,3 +234,17 @@
 	}
 </div>
 }
+
+<ng-template #errorTemplate let-errors>
+	@for(error of errors; track $index) {
+	<hlm-field-error class="block">
+		{{error.message | translate}}
+	</hlm-field-error>
+	}
+</ng-template>
+<ng-template #pendingValidationTemplate>
+	<div hlmFieldDescription class="text-cyan-600 flex items-center gap-2">
+		<ng-icon size="12" name="lucideLoader" class="animate-spin" />
+		<span>{{ 'validation.msg.checking' | translate }}</span>
+	</div>
+</ng-template>

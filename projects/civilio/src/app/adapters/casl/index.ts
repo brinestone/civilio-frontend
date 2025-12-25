@@ -4,7 +4,7 @@ import { FormSubmission, UserInfo } from "@civilio/shared";
 
 type DataSubjects = Subject | FormSubmission | 'Submission';
 type DataActions = 'create' | 'read' | 'update' | 'delete' | 'manage' | 'approve';
-type UserActions = 'update' | 'create' | 'remove' | 'change-password' | 'read' | 'delete' | 'manage';
+type UserActions = 'update' | 'create' | 'remove' | 'change-password' | 'change-role' | 'read' | 'delete' | 'manage';
 
 export type DataAbility = [DataActions, DataSubjects];
 export type UserAbility = [UserActions, UserInfo | 'User' | 'all'];

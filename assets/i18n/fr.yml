@@ -1,3 +1,45 @@
+roles:
+  admin:
+    title: Administrateur
+    description: Gère les utilisateurs, les données de soumission et les visualisations
+  maintainer:
+    title: Mainteneur
+    description: Gère les données de soumission et les visualisations
+  user:
+    title: Utilisateur
+    description: Affiche les données de soumission et les visualisations
+user:
+  title: Informations utilisateur
+  actions:
+    save_changes: Enregistrer les modifications
+    cancel: Ignorer les modifications
+    delete: Supprimer un utilisateur
+  form:
+    general:
+      title: Général
+      description: Modifier les informations générales de l'utilisateur
+      fields:
+        names:
+          title: Noms
+          description: Noms complets de l'utilisateur
+        email:
+          title: Adresse email
+          description: Adresse e-mail professionnelle de l'utilisateur
+        role:
+          title: Rôle
+          description: Le rôle d'un utilisateur détermine les actions qu'il peut effectuer
+            et les données auxquelles il peut accéder.
+    credentials:
+      title: Informations d'identification
+      description: Modifier les identifiants de l'utilisateur
+      fields:
+        username:
+          title: Nom d'utilisateur
+          description: Le nom d'utilisateur de l'utilisateur pour la
+            connexion/l'authentification
+        password:
+          title: Mot de passe
+          description: Le mot de passe de l'utilisateur pour la connexion/l'authentification
 forbidden:
   title: Accès refusé
   description: Vous ne disposez pas des autorisations requises pour accéder à la
@@ -51,6 +93,7 @@ overview:
           success: Soumission supprimée avec succès
           approval_toggled: Modifications enregistrées avec succès
 misc:
+  optional: facultatif
   edit: Modifier
   delete: Supprimer
   admin: Administrateur
@@ -145,6 +188,10 @@ units:
     long: kilomètres
 validation:
   msg:
+    checking: Vérification...
+    async_validation_failed: Impossible d'effectuer la vérification
+    email_taken: Cette adresse e-mail est déjà utilisée
+    username_taken: Ce nom d'utilisateur est déjà utilisé
     invalid_email: Adresse e-mail invalide
     int: La valeur doit être un entier
     field_required: Ce champ est obligatoire

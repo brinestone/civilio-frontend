@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 :host {
-  @apply grid grid-rows-[auto_1fr_auto] h-full;
+  @apply grid grid-rows-[2.8rem_1fr_auto] h-screen max-h-screen overflow-y-auto;
 }
 
 .menu-link {

@@ -10,7 +10,7 @@
 			[(ngModel)]="sectionFilter"
 		/>
 	</div>
-	<ul class="px-2 space-y-1 list-none">
+	<ul class="px-2 space-y-1 list-none overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
 		@for (section of filteredSections(); track $index) {
 		<li class="section-item">
 			<a

@@ -49,11 +49,13 @@
 	</div>
 </div>
 <main
-	class="max-h-[calc(100vh-2.8rem)] scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+	class="overflow-y-auto min-h-0 max-h-full scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 >
 	<router-outlet />
 </main>
-<div class="flex justify-end items-center px-4 border-t border-border py-2">
+<div
+	class="flex justify-end items-center px-4 border-t border-border py-2 "
+>
 	<div class="flex gap-2 items-center">
 		<span class="text-muted-foreground text-xs"
 			>{{ 'misc.signed_in_as' | translate }}:</span

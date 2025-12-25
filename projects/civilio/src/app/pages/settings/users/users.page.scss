@@ -1,5 +1,5 @@
 @reference "tailwindcss";
 
 :host {
-	@apply grid grid-cols-[220px_1fr] h-full
+	@apply grid grid-cols-[220px_1fr] h-full overflow-y-hidden
 }

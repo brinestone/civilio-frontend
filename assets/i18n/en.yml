@@ -1,3 +1,44 @@
+roles:
+  admin:
+    title: Administrator
+    description: Manages users, submission data and visualizations
+  maintainer:
+    title: Maintainer
+    description: Manages submission data and visualizations
+  user:
+    title: User
+    description: Views submission data and  visualizations
+user:
+  title: User Information
+  actions:
+    save_changes: Save Changes
+    cancel: Discard Changes
+    delete: Delete User
+  form:
+    general:
+      title: General
+      description: "Modify user's general information"
+      fields:
+        names:
+          title: Names
+          description: "User's full names"
+        email:
+          title: Email address
+          description: "User's working email address"
+        role:
+          title: Role
+          description: "A user's role determines what actions they can perform and which data the can access"
+    credentials:
+      title: Credentials
+      description: "Modify user's credentials"
+      fields:
+        username:
+          title: Username
+          description: "The user's username for sign in/authentication"
+        password:
+          title: Password
+          description: "The user's password for sign in/authentication"
+
 forbidden:
   title: Access Denied
   description: You do not have the required permissions to access the requested resource.
@@ -48,6 +89,7 @@ overview:
           success: Submission deleted successfully
           approval_toggled: Changes saved successfully
 misc:
+  optional: optional
   edit: Edit
   delete: Delete
   admin: Admin
@@ -138,6 +180,10 @@ units:
     long: kilometers
 validation:
   msg:
+    checking: Checking...
+    async_validation_failed: "Could not perform check"
+    email_taken: This email address is already in use
+    username_taken: This username is already in use
     invalid_email: Invalid email address
     int: Value must be an integer
     field_required: This field is required
