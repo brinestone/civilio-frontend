@@ -1,5 +1,14 @@
 const prefix = '[auth]';
 
+export class UserAdded {
+	static type = `${prefix} user added`;
+}
+
+export class UserDeleted {
+	static type = `${prefix} user deleted`;
+	constructor(readonly username: string){}
+}
+
 export class Logout {
 	static type = `${prefix} logout`
 }

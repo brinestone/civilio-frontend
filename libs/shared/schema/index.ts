@@ -5,7 +5,7 @@ export const UserInfoSchema = z.object({
 	email: z.string(),
 	isSuperAdmin: z.boolean().default(false),
 	username: z.string(),
-	role: z.string().array(),
+	role: z.string().array().transform(arr => arr[0]),
 	isAdmin: z.boolean(),
 	__caslType: z.literal('User').default('User')
 })

@@ -20,7 +20,7 @@ export const settingsRoutes: Routes = [
 		],
 		canActivate: [dbConfigValidGuardFn],
 		path: 'field-mapping',
-		title: 'Field mapping Settings',
+		title: 'settings.mapping.title',
 		loadComponent: () => import('./pages/settings/field-mapping-settings/field-mapping-settings.page').then(m => m.FieldMappingSettingsPage),
 		children: [
 			{
@@ -57,18 +57,18 @@ export const settingsRoutes: Routes = [
 	{
 		path: 'users',
 		title: 'settings.users.title',
-		data: {
-			permissions: [
-				['read', 'User']
-			]
-		},
+		loadComponent: () => import('./pages/settings/users/users.page').then(m => m.UsersPage),
 		children: [
 			{
-				path: ':id',
-				loadComponent: () => import('./pages/settings/user/user.page').then(m => m.UserPage)
+				path: 'new-user', // Create view
+				data: { isNew: true, permissions: [['create', 'User']] },
+				loadComponent: () => import('./pages/settings/user/user.page').then(m => m.UserPage),
+			},
+			{
+				path: ':id', // Edit view
+				loadComponent: () => import('./pages/settings/user/user.page').then(m => m.UserPage),
 			}
-		],
-		loadComponent: () => import('./pages/settings/users/users.page').then(m => m.UsersPage),
+		]
 	},
 	{ path: '', redirectTo: 'general', pathMatch: 'full' }
 ];

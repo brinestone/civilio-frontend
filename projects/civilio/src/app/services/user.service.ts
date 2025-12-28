@@ -3,8 +3,19 @@ import { inject, Injectable } from "@angular/core";
 import { apiBaseUrl } from "@app/store/selectors";
 import { UserInfo, UserInfoSchema } from "@civilio/shared";
 import { select } from "@ngxs/store";
+import { omit } from "lodash";
 import { catchError, map, of, throwError } from "rxjs";
+import z from "zod";
 
+const createUserRequestSchema = z.object({
+	names: z.coerce.string(),
+	email: z.coerce.string(),
+	role: z.coerce.string(),
+	username: z.coerce.string(),
+	password: z.coerce.string(),
+});
+
+const updateUserRequestSchema = createUserRequestSchema.partial();
 
 @Injectable({
 	providedIn: 'root'
@@ -12,6 +23,21 @@ import { catchError, map, of, throwError } from "rxjs";
 export class UserService {
 	private http = inject(HttpClient);
 	private baseUrl = select(apiBaseUrl);
+
+	deleteUser(username: string) {
+		return this.http.delete(`${this.baseUrl()}/users/${username}`);
+	}
+
+	createUser(input: z.infer<typeof createUserRequestSchema>) {
+		return this.http.post(`${this.baseUrl()}/users`, input);
+	}
+
+	updateUser(userId: string, update: z.infer<typeof updateUserRequestSchema>) {
+		if (update.password && update.password.length == 0) {
+			return this.http.patch(`${this.baseUrl()}/users/${userId}`, omit(update, 'password'))
+		}
+		return this.http.patch(`${this.baseUrl()}/users/${userId}`, update);
+	}
 
 	getAllUsers() {
 		return this.http.get<UserInfo[]>(`${this.baseUrl()}/users`).pipe(

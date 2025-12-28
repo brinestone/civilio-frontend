@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LoginUser } from '@app/store/auth';
 import { credentialssaved } from '@app/store/selectors';
 import { isActionLoading } from '@app/util';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle } from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch, select } from '@ngxs/store';
 import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher } from '@spartan-ng/brain/forms';
@@ -15,7 +15,6 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmField, HlmFieldError, HlmFieldGroup, HlmFieldLabel, HlmFieldSeparator } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { toast } from 'ngx-sonner';
 import { injectQueryParams } from 'ngxtension/inject-query-params';
 interface LoginData {
 	email: string;
@@ -54,7 +53,6 @@ export class LoginPage {
 		email: '',
 		password: ''
 	}
-	private ts = inject(TranslateService);
 	private redirect = injectQueryParams('continue');
 	private navigate = dispatch(Navigate);
 	private readonly loginUser = dispatch(LoginUser);

@@ -13,7 +13,7 @@ user:
   actions:
     save_changes: Save Changes
     cancel: Discard Changes
-    delete: Delete User
+    delete: Remove this user
   form:
     general:
       title: General
@@ -89,6 +89,8 @@ overview:
           success: Submission deleted successfully
           approval_toggled: Changes saved successfully
 misc:
+  generate_password: Generate password
+  you: You
   optional: optional
   edit: Edit
   delete: Delete
@@ -96,7 +98,7 @@ misc:
   user_fields:
     email: Email address
     names: Names
-    role: Roles
+    role: Role
     username: Username
   changed_at: Recorded at
   changed_by: Recorded by
@@ -184,6 +186,11 @@ validation:
     async_validation_failed: "Could not perform check"
     email_taken: This email address is already in use
     username_taken: This username is already in use
+    short_password: Password must be at least 8 characters long
+    no_uppercase: Password must have at least 1 uppercase character
+    no_lowercase: Password must have at least 1 lowercase character
+    no_number: Password must have at least 1 number character
+    no_symbol: Password must have at least 1 symbol character
     invalid_email: Invalid email address
     int: Value must be an integer
     field_required: This field is required
@@ -233,6 +240,16 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  mapping:
+    title: Field mapping Settings
+    fosa:
+      title: Fosa form Mapping Settings
+    chefferie:
+      title: Chiefdom form Mapping Settings
+    csc:
+      title: CSC Mapping Settings
+  user:
+    new_title: New User
   users:
     title: Users
     actions:

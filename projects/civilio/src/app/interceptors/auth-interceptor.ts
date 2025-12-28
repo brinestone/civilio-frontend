@@ -1,5 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { AuthService } from '@app/services/auth.service';
 import { LoggedOut } from '@app/store/auth';
 import { apiBaseUrl } from '@app/store/selectors';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,11 +10,12 @@ import { catchError, throwError } from 'rxjs';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
 	const store = inject(Store);
 	const ts = inject(TranslateService);
+	const authService = inject(AuthService)
 	const apiUrl = store.selectSnapshot(apiBaseUrl);
 	if (apiUrl && req.url.startsWith(apiUrl)) {
 		return next(req.clone({ withCredentials: true })).pipe(
 			catchError((e: HttpErrorResponse) => {
-				if (e.status == 401) {
+				if (e.status == 401 && !req.url.endsWith('/login')) {
 					store.dispatch(LoggedOut);
 					return throwError(() => new Error(ts.instant(`http._${e.status}`)))
 				}

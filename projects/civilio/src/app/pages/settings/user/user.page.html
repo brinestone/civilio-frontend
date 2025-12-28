@@ -12,28 +12,50 @@
 			</button>
 			}@else {
 			<ng-container>
-				@if(formModel().dirty()) {
-				<button [disabled]="formModel().invalid()" hlmBtn size="sm">
-					<ng-icon name="lucideSave" />
+				@if(formModel().dirty() || formModel.password().dirty()) {
+				<button
+					(click)="onFormSubmit($event)"
+					[disabled]="formModel().invalid() || savingChanges()"
+					hlmBtn
+					size="sm"
+				>
+					<ng-icon
+						[class.animate-spin]="savingChanges()"
+						[name]="savingChanges() ? 'lucideLoader':'lucideSave' "
+					/>
 					<span>{{ 'user.actions.save_changes' | translate }}</span>
 				</button>
 				}
 			</ng-container>
-			<button
-				(click)="editing.set(false); user.reload()"
-				hlmBtn
-				variant="outline"
-				size="sm"
-			>
-				<ng-icon name="lucideX" />
-				<span>{{ 'user.actions.cancel' | translate }}</span>
-			</button>
+			<ng-container>
+				@if(!isNew()) {
+				<button
+					(click)="editing.set(false); user.reload()"
+					hlmBtn
+					[disabled]="savingChanges()"
+					variant="outline"
+					size="sm"
+				>
+					<ng-icon name="lucideX" />
+					<span>{{ 'user.actions.cancel' | translate }}</span>
+				</button>
+				}
+			</ng-container>
 			} }
 		</ng-container>
 		<ng-container>
-			@if(abs.can('delete', u ?? 'User')) {
-			<button hlmBtn variant="destructive" size="sm">
-				<ng-icon name="lucideTrash2" />
+			@if(abs.can('delete', u ?? 'User') && !isNew()) {
+			<button
+				hlmBtn
+				variant="destructive"
+				size="sm"
+				[disabled]="savingChanges() || deleting()"
+				(click)="onDeleteButtonClicked()"
+			>
+				<ng-icon
+					[class.animate-spin]="deleting()"
+					[name]="!deleting() ? 'lucideTrash2' : 'lucideLoader'"
+				/>
 				<span>{{ 'user.actions.delete' | translate }}</span>
 			</button>
 			}
@@ -48,6 +70,14 @@
 			<p hlmFieldDescription>
 				{{ 'user.form.general.description' | translate }}
 			</p>
+			@if(updateErrorMessage().length > 0) {
+			<div hlmAlert variant="destructive">
+				<ng-icon name="lucideCircleAlert" hlmAlertIcon />
+				<h4 hlmAlertTitle>{{ 'msg.error.title' | translate }}</h4>
+				<p hlmAlertDescription>{{updateErrorMessage()}}</p>
+			</div>
+			<hlm-separator />
+			}
 			<div hlmFieldGroup>
 				<div hlmField>
 					<label hlmFieldLabel for="name"
@@ -155,12 +185,25 @@
 				</div>
 				@if(abs.can('change-password', u ?? 'User')){
 				<div hlmField>
-					<label hlmFieldLabel for="password">
-						{{'user.form.credentials.fields.password.title' | translate}}
-					</label>
+					<div class="flex items-center justify-between">
+						<label hlmFieldLabel for="password">
+							{{'user.form.credentials.fields.password.title' | translate}}
+						</label>
+						<button
+							(click)="generatePassword();passwordInput.type = 'text'"
+							tabindex="-1"
+							type="button"
+							hlmBtn
+							size="sm"
+							variant="outline"
+						>
+							<span>{{ 'misc.generate_password'| translate}}</span>
+						</button>
+					</div>
 					<div hlmFieldContent>
 						<div hlmInputGroup>
 							<input
+								#passwordInput
 								hlmInputGroupInput
 								type="password"
 								autocomplete="new-password"
@@ -169,6 +212,19 @@
 							/>
 							<div hlmInputGroupAddon>
 								<ng-icon name="lucideAsteriskSquare" />
+							</div>
+							<div hlmInputGroupAddon align="inline-end">
+								<button
+									type="button"
+									class="cursor-pointer"
+									(click)="passwordInput.type = passwordInput.type == 'password' ? 'text' : 'password'"
+									hlmInputGroupButton
+									size="icon-xs"
+								>
+									<ng-icon
+										[name]="passwordInput.type == 'password' ? 'lucideEye': 'lucideEyeOff'"
+									/>
+								</button>
 							</div>
 						</div>
 						<ng-container
@@ -181,6 +237,7 @@
 			</div>
 		</fieldset>
 	</div>
+	<button hidden type="submit"></button>
 </form>
 } @else {
 <div class="max-w-1/2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-4">
@@ -213,15 +270,8 @@
 			<p class="text-muted-foreground">
 				{{'misc.user_fields.role' | translate}}
 			</p>
-			<p>
-				@for(role of user.value()?.role ?? []; track $index) {
-				<span class="capitalize">{{role}}</span>
-				<ng-container>
-					@if(!$last) {
-					<span>,</span>
-					}
-				</ng-container>
-				}
+			<p class="capitalize">
+				{{'roles.' + user.value()?.role + '.title' | translate}}
 			</p>
 		</ng-container>
 		<ng-container>

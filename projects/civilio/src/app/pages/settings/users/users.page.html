@@ -8,10 +8,15 @@
 				{{'settings.users.title' | translate}}
 			</h3>
 			@if(abs.can('create', 'User')) {
-			<button hlmBtn size="sm" variant="secondary">
+			<a
+				routerLink="/settings/users/new-user"
+				hlmBtn
+				size="sm"
+				variant="secondary"
+			>
 				<ng-icon name="lucideUserPlus" />
 				<span>{{ 'settings.users.actions.add_user' | translate }}</span>
-			</button>
+			</a>
 			}
 		</div>
 		<div class="px-2">
@@ -53,9 +58,19 @@
 						</hlm-avatar>
 					</div>
 					<div class="space-y-1">
-						<h5 class="font-semibold">{{user.fullName}}</h5>
+						<h5 class="font-semibold flex items-center gap-2">
+							<span class="line-clamp-1 text-ellipsis">{{user.fullName}}</span>
+							@if(user.username === principal()?.username) {
+							<span
+								hlmBadge
+								class="text-sm! rounded-full! px-3"
+								variant="outline"
+								>{{ 'misc.you' | translate }}</span
+							>
+							}
+						</h5>
 						<p class="text-muted-foreground capitalize text-sm">
-							Role: {{ user.role }}
+							Role: {{ 'roles.' + user.role +'.title' | translate }}
 						</p>
 					</div>
 				</a>
@@ -82,10 +97,10 @@
 	</div>
 </div>
 
-<div class=" overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
-	<div
-		class="w-full"
-	>
+<div
+	class="overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<div class="w-full">
 		<router-outlet />
 	</div>
 	@if(!route.firstChild) {
