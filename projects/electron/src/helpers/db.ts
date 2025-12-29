@@ -27,7 +27,7 @@ let pool: Pool | null = null;
 const logger = provideLogger('db');
 const queryLogger = provideLogger('query', false);
 const migrator = new MigrationRunner(app.isPackaged ? join(app.getPath('assets'), 'resources', 'assets') : resolve(join(__dirname, '..', 'assets')));
-const connectionManager = new ConnectionManager(join(app.getPath('appData'), 'civilio', 'c.db'));
+const connectionManager = new ConnectionManager(join(app.getPath('userData'), 'c.db'));
 
 export function useConnection(req: UseConnectionRequest) {
 	connectionManager.useConnection(UseConnectionRequestSchema.parse(req));
@@ -81,17 +81,17 @@ export async function testConnection(req: TestDbConnectionRequest) {
 		database,
 	});
 
-	const url = new URL(`/${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+	const url = new URL(`/${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 	if (ssl) url.searchParams.set('sslmode', 'required');
 
-	logger.log(`Testing database on host: ${ host } using ${ url.toString() }...`);
+	logger.log(`Testing database on host: ${host} using ${url.toString()}...`);
 	try {
 		await client.connect();
 		const res = await client.query('SELECT NOW()');
-		logger.log(`Database time is ${ res.rows[0].now }`);
+		logger.log(`Database time is ${res.rows[0].now}`);
 		return true;
 	} catch (ex) {
-		logger.warn(`Test connection: ${ url } failed`);
+		logger.warn(`Test connection: ${url} failed`);
 		logger.error(ex);
 		return ex.message;
 	} finally {
@@ -105,7 +105,7 @@ export function resetPool() {
 		throw new MalConfigurationError('db');
 	}
 	const { host, password, port, ssl, username, database } = conn;
-	const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+	const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 	if (ssl) {
 		url.searchParams.set('sslmode', 'require');
 	}
@@ -140,7 +140,7 @@ class LRUDrizzleCache extends Cache {
 		max: 500,
 		sizeCalculation: (value, key) => {
 			const size = calculateSize(value);
-			logger.debug(`value at ${ key } calculated to ${ size } size`)
+			logger.debug(`value at ${key} calculated to ${size} size`)
 			return size;
 		}
 	});
@@ -151,12 +151,12 @@ class LRUDrizzleCache extends Cache {
 	}
 
 	async get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
-		logger.debug(`Getting ${ key } from cache`);
+		logger.debug(`Getting ${key} from cache`);
 		return this._cache.get(key);
 	}
 
 	async put(key: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void> {
-		logger.debug(`Updating ${ key } from cache`);
+		logger.debug(`Updating ${key} from cache`);
 		const ttl = config?.px ?? (config?.ex ? config.ex * 1000 : this.ttl);
 		this._cache.set(key, response, { ttl });
 		for (const table of tables) {
@@ -206,7 +206,7 @@ export function provideDatabase(schema: Record<string, unknown>) {
 	}
 	if (pool == null) {
 		const { host, password, port, ssl, username, database } = conn;
-		const url = new URL(`${ database }`, `postgresql://${ username }:${ password }@${ host }:${ port }`);
+		const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 		if (ssl) {
 			url.searchParams.set('sslmode', 'require');
 		}
