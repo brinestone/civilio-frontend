@@ -12,6 +12,7 @@ import {
 	Component,
 	DestroyRef,
 	effect,
+	computed,
 	inject,
 	Injector,
 	input,
@@ -45,6 +46,8 @@ import {
 } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+	lucideArrowLeft,
+	lucideArrowRight,
 	lucideCalendar,
 	lucideCheck,
 	lucideCheckCircle,
@@ -66,6 +69,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmPaginationImports } from '@spartan-ng/helm/pagination';
 import { HlmSwitch } from '@spartan-ng/helm/switch';
+import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
 import {
@@ -97,8 +101,10 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 		provideIcons({
 			lucideTrash2,
 			lucideMapPin,
+			lucideArrowLeft,
 			lucideX,
 			lucideLoader,
+			lucideArrowRight,
 			lucideCalendar,
 			lucideDot,
 			lucideCheck,
@@ -118,6 +124,7 @@ const ch = createColumnHelper<SubmissionVersionInfo>();
 		ValueTypePipe,
 		DecimalPipe,
 		DatePipe,
+		HlmSeparator,
 		HlmLabel,
 		HlmH4,
 		HlmAlertDialogImports,
@@ -204,6 +211,23 @@ export class OverviewPage implements OnDestroy {
 			}));
 		},
 	});
+	protected readonly neighboringRefs = resource({
+		params: () => ({
+			index: this.submissionIndex(),
+			form: this.formType()!
+		}),
+		loader: async ({ params: { form, index } }) => {
+			return await this.formService.findSurroundingSubmissionRefs({
+				form, index
+			});
+		},
+	});
+	protected readonly canGoNext = computed(() => {
+		return this.neighboringRefs.value()?.[1] != null;
+	});
+	protected readonly canGoPrev = computed(() => {
+		return this.neighboringRefs.value()?.[0] != null;
+	});
 	protected table = createAngularTable<SubmissionVersionInfo>(() => {
 		return {
 			getCoreRowModel: getCoreRowModel(),
@@ -224,10 +248,6 @@ export class OverviewPage implements OnDestroy {
 							allowCopy: false
 						}
 					})
-				}),
-				ch.accessor('changed_by', {
-					header: 'misc.changed_by',
-					cell: ({ row }) => row.original.changed_by ?? 'N/A'
 				}),
 				ch.accessor('changed_at', {
 					header: 'misc.changed_at',

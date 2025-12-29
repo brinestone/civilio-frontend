@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'cv-field-mapping-settings',
   imports: [
     RouterOutlet,
     RouterLink,
+		TranslatePipe,
     RouterLinkActive
   ],
 	host: {

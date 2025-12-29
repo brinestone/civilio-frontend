@@ -88,6 +88,7 @@ import { HlmBadge } from "@spartan-ng/helm/badge";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
 import { find, intersection } from "lodash";
 import { derivedFrom } from "ngxtension/derived-from";
+import { injectQueryParams } from 'ngxtension/inject-query-params';
 import { injectParams } from 'ngxtension/inject-params';
 import { injectRouteData } from "ngxtension/inject-route-data";
 import {
@@ -176,9 +177,17 @@ export class FormPage
 			form: this.formType(),
 			index: this.submissionIndex(),
 			isNew: this.isNewSubmission(),
+			inputVersion: this.inputVersion()
 		}),
-		loader: async ({ params: { isNew, index, form } }) => {
+		loader: async ({ params: { isNew, index, form, inputVersion } }) => {
 			if (isNew || index === null) return null;
+			if (inputVersion) {
+				const versionExists = await this.formService.versionExists({
+					form, index: index, version: inputVersion
+				});
+				if (versionExists)
+					return inputVersion;
+			}
 			const v = await this.formService.findCurrentSubmissionVersion({
 				index,
 				form,
@@ -214,6 +223,7 @@ export class FormPage
 	protected hasUnsavedChanges = select(changesPending);
 	protected locale = select(currentLocale);
 	protected submissionIndex = injectParams('submissionIndex');
+	protected inputVersion = injectQueryParams('version')
 	protected isNewSubmission = computed(() => !this.submissionIndex() || this.submissionIndex() == 'new');
 	protected readonly versions = resource({
 		defaultValue: [],
@@ -321,12 +331,12 @@ export class FormPage
 			filter(() => !this.relevanceRegistry()[this.activeSection()]),
 		).subscribe(() => {
 			this.navigate([
-					'..',
-					this.submissionIndex(),
-					this.formModel().sections[0].id],
+				'..',
+				this.submissionIndex(),
+				this.formModel().sections[0].id],
 				undefined, {
-					relativeTo: this.route
-				});
+				relativeTo: this.route
+			});
 		});
 
 		actions$.pipe(
@@ -425,10 +435,10 @@ export class FormPage
 				map(() => this.selectedVersion.value()),
 				// filter((version) => !!version && !this.isNewSubmission()),
 				concatMap((version) => {
-						if (!untracked(this.isNewSubmission))
-							return this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined);
-						return this.updateRelevance(untracked(this.formType));
-					}
+					if (!untracked(this.isNewSubmission))
+						return this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined);
+					return this.updateRelevance(untracked(this.formType));
+				}
 				),
 			)
 			.subscribe({

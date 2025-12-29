@@ -3,7 +3,7 @@
 	"version": "4.2.1",
 	"productName": "CivilIO",
 	"displayName": "CivilIO",
-	"description": "A Civil status survey data management tool.",
+	"description": "A cross-platform civil status survey data management tool.",
 	"main": "./dist/electron/index.js",
 	"license": "ISC",
 	"scripts": {

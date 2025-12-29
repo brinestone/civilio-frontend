@@ -35,11 +35,15 @@ import {
 	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
+	VersionExistsRequest,
+	VersionExistsResponse,
 	VersionRevertRequest,
 	VersionRevertResponse
 } from "@civilio/shared";
 
 export interface FormService {
+	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse>;
+
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void>;
 
 	toggleApprovalStatus(req: ToggleApprovalStatusRequest): Promise<void>;

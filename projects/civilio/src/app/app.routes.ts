@@ -7,7 +7,7 @@ export const routes: Routes = [
 	{
 		canActivate: [dbConfigValidGuardFn],
 		providers: [provideFormStore()],
-		title: 'Form Submissions',
+		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
@@ -19,7 +19,7 @@ export const routes: Routes = [
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},
 	{
-		title: 'Settings',
+		title: 'settings.title',
 		path: 'settings',
 		loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
 		loadChildren: () => import('./settings.routes').then(m => m.settingsRoutes)

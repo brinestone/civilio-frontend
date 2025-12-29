@@ -31,6 +31,8 @@ import {
 	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
+	VersionExistsRequest,
+	VersionExistsResponse,
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
@@ -39,6 +41,9 @@ import {
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
+		throw new Error("Method not implemented.");
+	}
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

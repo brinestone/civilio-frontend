@@ -17,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { HlmInput } from '@spartan-ng/helm/input';
 
 const sections = [
-	{ label: 'settings.general', icon: 'lucideSlidersVertical', path: 'general' },
+	{ label: 'settings.general.title', icon: 'lucideSlidersVertical', path: 'general' },
 	{
 		label: 'settings.field_mapper',
 		icon: 'lucideUnlink2',

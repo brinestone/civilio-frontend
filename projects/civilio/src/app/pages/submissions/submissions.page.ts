@@ -153,9 +153,9 @@ export class SubmissionsPage implements OnInit {
 				inputs: { date: getValue() ?? undefined }
 			})
 		}),
-		this.columnHelper.accessor('lastModifiedBy', {
-			header: 'submissions.columns.last_modified_by.title',
-		}),
+		// this.columnHelper.accessor('lastModifiedBy', {
+		// 	header: 'submissions.columns.last_modified_by.title',
+		// }),
 		this.columnHelper.accessor('currentVersion', {
 			header: 'submissions.columns.version.title',
 			cell: ({ row }) => {

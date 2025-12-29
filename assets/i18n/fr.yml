@@ -1,4 +1,5 @@
 overview:
+  page_title: Aperçu de la soumission
   versions:
     columns:
       status:
@@ -29,8 +30,10 @@ overview:
           success: Soumission supprimée avec succès
           approval_toggled: Modifications enregistrées avec succès
 misc:
+  all_submissions: Soumissions
   changed_at: Enregistré à
   changed_by: Enregistré par
+  size: Taille de la commune
   notes: Remarques
   version: Version
   action: Action
@@ -169,6 +172,7 @@ settings:
     title: À propos
   advanced:
     title: Avancé
+    page_title: Paramètres avancés
     db:
       pwd: Mot de passe
       host: Hôte
@@ -225,11 +229,21 @@ settings:
     api:
       origin: Origine de l'API
       title: Paramètres de l'API
-  general: Général
+  general:
+    title: Général
+    page_title: Paramètres généraux
   language:
     en: Anglais
     fr: Français
   title: Paramètres
+  mapper:
+    title: Mappeur de champ
+    fosa:
+      title: Paramètres de mappage du formulaire Fosa
+    chiefdom:
+      title: Paramètres de mappage du formulaire de chefferie
+    csc:
+      title: Paramètres de mappage du formulaire CSC
   msg:
     invalid_port: "Numéro de port invalide (plage : 1025 - 65535)"
     value_required: Ce champ est obligatoire
@@ -237,6 +251,7 @@ settings:
     value_too_short: La valeur est trop courte
 csc:
   form:
+    page_title: Soumission : CSC
     sections:
       extra:
         title: Commentaires
@@ -691,6 +706,7 @@ fosa:
   form:
     filter: Filtre
     title: Soumission PIED
+    page_title: Soumission : LE
     sections:
       respondent:
         title: Informations sur le répondant
@@ -1233,6 +1249,7 @@ chefferie:
     last_updated_at: Dernière mise à jour par
   add_submission: Dernière mise à jour à
   form:
+    page_title: Soumission : CHEF DOM
     sections:
       respondent:
         title: Informations sur le répondant
