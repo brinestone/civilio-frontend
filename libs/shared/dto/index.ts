@@ -18,6 +18,13 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const VersionExistsRequestSchema = z.object({
+	form: FormTypeSchema,
+	index: z.coerce.number(),
+	version: z.string()
+});
+export const VersionExistsResponseSchema = z.boolean();
+
 export const ToggleApprovalStatusRequestSchema = z.object({
 	index: z.coerce.number(),
 	form: FormTypeSchema,
@@ -238,3 +245,5 @@ export type GetFacilityInfoRequest = z.input<typeof GetFacilityInfoRequestSchema
 export type GetFacilityInfoResponse = z.output<typeof GetFacilityInfoResponseSchema>;
 export type ToggleApprovalStatusRequest = z.input<typeof ToggleApprovalStatusRequestSchema>;
 export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSchema>;
+export type VersionExistsRequest = z.input<typeof VersionExistsRequestSchema>;
+export type VersionExistsResponse = z.infer<typeof VersionExistsResponseSchema>;

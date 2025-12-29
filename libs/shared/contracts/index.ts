@@ -46,6 +46,8 @@ import {
 	UpdateSubmissionResponseSchema,
 	UpdateThemeRequestSchema,
 	UseConnectionRequestSchema,
+	VersionExistsRequestSchema,
+	VersionExistsResponseSchema,
 	VersionRevertRequestSchema,
 	VersionRevertResponseSchema
 } from '../dto';
@@ -105,7 +107,8 @@ export const channelArgs = {
 	'licences:read': {},
 	'facility-info:read': GetFacilityInfoRequestSchema,
 	'submission:delete': DeleteSubmissionRequestSchema,
-	'approval:toggle': ToggleApprovalStatusRequestSchema
+	'approval:toggle': ToggleApprovalStatusRequestSchema,
+	'submission-version:exists': VersionExistsRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -148,12 +151,14 @@ export const channelResponses = {
 	'build:read': BuildInfoSchema,
 	'facility-info:read': GetFacilityInfoResponseSchema,
 	'submission:delete': {},
-	'approval:toggle': {}
+	'approval:toggle': {},
+	'submission-version:exists': VersionExistsResponseSchema
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'submission-version:exists'
 	| 'submission:delete'
 	| 'approval:toggle'
 	| 'facility-info:read'

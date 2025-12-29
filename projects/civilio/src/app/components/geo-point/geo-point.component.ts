@@ -77,8 +77,8 @@ export class GeoPointComponent {
 	});
 
 	private onMapClicked({
-												 latlng
-											 }: LeafletMouseEvent) {
+		latlng
+	}: LeafletMouseEvent) {
 		this.eventTriggeredChange = true;
 		this.moveMarker(latlng);
 		this.eventTriggeredChange = false;
@@ -108,6 +108,10 @@ export class GeoPointComponent {
 					center: untracked(this.resolvedCoords),
 					zoom: 16
 				}).on('click', this.onMapClicked.bind(this));
+			const anchor = document.querySelector<HTMLAnchorElement>('a[href="https://leafletjs.com"]');
+			if (anchor) {
+				anchor.target = '_blank';
+			}
 			this.initTileLayer();
 			this.initScale();
 			this.initMarker();

@@ -25,6 +25,7 @@ import {
 	updateFieldMappings,
 	updateLocale,
 	updateTheme,
+	versionExists,
 	watchAssets
 } from "@civilio/handlers";
 import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
@@ -46,6 +47,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('submission-version:exists', async req => {
+		return await versionExists(req);
+	})
 	createChannelHandler('submission:delete', async req => {
 		return await deleteSubmission(req);
 	})

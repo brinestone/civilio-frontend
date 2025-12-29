@@ -30,6 +30,8 @@ import {
 	ToggleApprovalStatusRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
+	VersionExistsRequest,
+	VersionExistsResponse,
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
@@ -39,6 +41,9 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
+		return await sendRpcMessageAsync('submission-version:exists', req);
+	}
 	async deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		return await sendRpcMessageAsync('submission:delete', req);
 	}
@@ -89,10 +94,10 @@ export class ElectronFormService implements FormService {
 	}
 
 	async findSubmissionData({
-														 form,
-														 index,
-														 version
-													 }: FindSubmissionDataRequest) {
+		form,
+		index,
+		version
+	}: FindSubmissionDataRequest) {
 		return await sendRpcMessageAsync('submission-data:read', {
 			form,
 			index,

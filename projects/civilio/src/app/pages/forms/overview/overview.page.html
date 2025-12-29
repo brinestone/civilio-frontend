@@ -6,29 +6,32 @@
 			class="max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 		>
 			<div class="py-10 space-y-4 pl-2">
-				@let f = facilityInfo.value(); @if (!facilityInfo.isLoading() && f !=
+				@let f = facilityInfo.value();
+				@if (!facilityInfo.isLoading() && f !=
 				null) {
-				<section class="space-y-1">
-					<h3 class="font-extrabold line-clamp-1 text-ellipsis" hlmH3>
-						{{ f.facilityName }}
-					</h3>
-					<div class="inline-flex items-center gap-1">
-						@if (f.location) {
-						<div class="flex gap-0.5 items-center">
-							<ng-icon name="lucideMapPin" />
-							<p class="text-muted-foreground text-sm">{{ f.location }}</p>
+				<div class="flex items-start gap-3">
+					<div class="space-y-1">
+						<h3 class="font-extrabold line-clamp-1 text-ellipsis" hlmH3>
+							{{ f.facilityName }}
+						</h3>
+						<div class="inline-flex items-center gap-1">
+							@if (f.location) {
+							<div class="flex gap-0.5 items-center">
+								<ng-icon name="lucideMapPin" />
+								<p class="text-muted-foreground text-sm">{{ f.location }}</p>
+							</div>
+							} @if (f.createdAt) {
+							<ng-icon name="lucideDot" />
+							<div class="flex gap-0.5 items-center">
+								<ng-icon name="lucideCalendar" />
+								<p class="text-muted-foreground text-sm">
+									{{ f.createdAt | date:'dd/MM/yyyy' }}
+								</p>
+							</div>
+							}
 						</div>
-						} @if (f.createdAt) {
-						<ng-icon name="lucideDot" />
-						<div class="flex gap-0.5 items-center">
-							<ng-icon name="lucideCalendar" />
-							<p class="text-muted-foreground text-sm">
-								{{ f.createdAt | date:'dd/MM/yyyy' }}
-							</p>
-						</div>
-						}
 					</div>
-				</section>
+				</div>
 				<section>
 					@if (isSmallScreen()) {
 					<ng-container
@@ -162,8 +165,58 @@
 					<small class="text-muted-foreground">Index</small>
 					<small>{{ submissionIndex() }}</small>
 				</div>
+								<hlm-separator />
+				<a draggable="false"
+					hlmBtn
+					routerLink="/submissions"
+					variant="outline"
+					class="w-full"
+					size="sm"
+					title="{{'submissions.title' | translate}}"
+				>
+					<span>{{ "misc.all_submissions" | translate }}</span>
+				</a>
+				<div class="flex items-center gap-2">
+					<div>
+						@if(canGoPrev()){
+						<a draggable="false"
+							hlmBtn
+							routerLink="/submissions"
+							variant="outline"
+							size="sm"
+							[routerLink]="['../..', neighboringRefs.value()?.[0], 'overview']"
+							[relativeTo]="route"
+							title="{{'submissions.title' | translate}}"
+						>
+							<ng-icon name="lucideArrowLeft" />
+							<span
+								>{{ "forms.header.actions.navigation.prev" | translate }}</span
+							>
+						</a>
+						}
+					</div>
+					<div>
+						@if(canGoNext()){
+						<a draggable="false"
+							hlmBtn
+							[routerLink]="['../..', neighboringRefs.value()?.[1], 'overview']"
+							[relativeTo]="route"
+							variant="outline"
+							size="sm"
+							title="{{'submissions.title' | translate}}"
+						>
+							<span
+								>{{ "forms.header.actions.navigation.next" | translate }}</span
+							>
+							<ng-icon name="lucideArrowRight" />
+						</a>
+						}
+					</div>
+				</div>
+				<hlm-separator />
 				<div class="space-y-4">
 					<div class="flex flex-col w-full gap-2">
+						<!-- @if(abs.can('update', 'Submission')) { -->
 						<a
 							[queryParams]="{version: selectedVersion.value()}"
 							[relativeTo]="route"
@@ -179,7 +232,9 @@
 								>{{ 'overview.submission_info.actions.edit' | translate }}</span
 							>
 						</a>
+						<!-- } -->
 						<div class="space-y-1">
+							<!-- @if(abs.can('approve', 'Submission')) { -->
 							<label
 								class="cursor-pointer flex items-center md:gap-2 md:justify-between"
 								hlmLabel
@@ -195,8 +250,10 @@
 									class="cursor-pointer"
 								/>
 							</label>
+							<!-- } -->
 						</div>
 					</div>
+					<!-- @if(abs.can('delete', 'Submission') ){ -->
 					<button
 						(click)="deleteDialogState.set('open')"
 						class="flex w-full"
@@ -209,6 +266,7 @@
 							>{{ 'overview.submission_info.actions.delete' | translate }}</span
 						>
 					</button>
+					<!-- } -->
 				</div>
 			</div>
 		</div>

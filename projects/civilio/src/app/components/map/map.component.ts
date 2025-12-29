@@ -22,7 +22,7 @@ export class MapComponent {
 		transform: s => GeoPointInputSchema.parse(s ?? {})
 	});
 
-	private ref = inject(ElementRef);
+	private ref = inject<ElementRef<HTMLElement>>(ElementRef);
 	private map?: Map;
 	private initialized = false;
 	private marker?: Marker;
@@ -54,15 +54,14 @@ export class MapComponent {
 			const { lat, long } = untracked(this.coords);
 			const coords = { lat, lng: long };
 			this.map = map(this.ref.nativeElement, { center: coords, zoom: 15 });
+			const anchor = document.querySelector<HTMLAnchorElement>('a[href="https://leafletjs.com"]');
+			if (anchor) {
+				anchor.target = '_blank';
+			}
 			this.initTileLayer(this.map);
 			this.initMarker(this.map);
 			this.initialized = true;
 		})
-	}
-
-	private initScale() {
-		if (!this.map) return;
-		control.scale().addTo(this.map);
 	}
 
 	private initTileLayer(map: Map) {

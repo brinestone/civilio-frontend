@@ -132,7 +132,7 @@
 	/>
 </ng-template>
 
-<ng-template #textFieldTemplate>
+<ng-template #textFieldTemplate let-multiline>
 	<ng-container [ngTemplateOutlet]="labelTemplate" />
 	<input
 		[id]="fieldKey"

@@ -22,6 +22,9 @@ const sectionRoutes: Routes = [
 			import("./pages/forms/section-page/section.page").then(
 				(m) => m.SectionPage,
 			),
+		title: (snapshot) => {
+			return snapshot.params['id'] + '.title';
+		}
 	},
 	{
 		path: "",
@@ -36,35 +39,35 @@ export const formRoutes: Routes = [
 	{
 		path: ':formType/:submissionIndex/overview',
 		loadComponent: () => import('./pages/forms/overview/overview.page').then(m => m.OverviewPage),
-		title: 'Overview'
+		title: 'overview.page_title'
 	},
 	{
 		path: 'fosa/new',
 		children: sectionRoutes,
 		data: { form: 'fosa', model: FosaFormDefinition },
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `Submission::FOSA`
+		title: `fosa.form.page_title`
 	},
 	{
 		path: 'csc/new',
 		children: sectionRoutes,
 		data: { form: 'csc', model: CscFormDefinition },
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `Submission::CSC`
+		title: `csc.form.page_title`
 	},
 	{
 		path: 'chefferie/new',
 		children: sectionRoutes,
 		data: { form: 'chefferie', model: ChefferieFormDefinition },
 		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `Submission::CHEFFERIE`
+		title: `chefferie.form.page_title`
 	},
 	{
 		children: sectionRoutes,
 		canDeactivate: [hasChangesGuard],
 		data: { form: "fosa", model: FosaFormDefinition },
 		path: "fosa/:submissionIndex",
-		title: "Submission::FOSA",
+		title: "fosa.form.page_title",
 		loadComponent: () =>
 			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
 	},
@@ -73,7 +76,7 @@ export const formRoutes: Routes = [
 		canDeactivate: [hasChangesGuard],
 		data: { form: "chefferie", model: ChefferieFormDefinition },
 		path: "chefferie/:submissionIndex",
-		title: "Submission::Chefferie",
+		title: "chefferie.form.page_title",
 		loadComponent: () =>
 			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
 	},
@@ -82,7 +85,7 @@ export const formRoutes: Routes = [
 		canDeactivate: [hasChangesGuard],
 		data: { form: "csc", model: CscFormDefinition },
 		path: "csc/:submissionIndex",
-		title: "Submission::CSC",
+		title: "csc.form.page_title",
 		loadComponent: () =>
 			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
 	},
