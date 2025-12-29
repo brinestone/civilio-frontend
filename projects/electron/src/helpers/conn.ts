@@ -5,6 +5,8 @@ import {
 } from "@civilio/shared";
 import { DatabaseSync, StatementSync } from "node:sqlite";
 import { provideLogger } from "./logging";
+import { existsSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 export class ConnectionManager {
 	private readonly conn: DatabaseSync;
@@ -12,7 +14,11 @@ export class ConnectionManager {
 	constructor(
 		dbPath: string
 	) {
-		this.logger.verbose(`Initializing at ${dbPath}`)
+		this.logger.verbose(`Initializing at ${dbPath}`);
+		const parent = dirname(dbPath);
+		if (!existsSync(parent)) {
+			mkdirSync(parent, { recursive: true });
+		}
 		this.conn = new DatabaseSync(dbPath);
 		this.initialize();
 	}
