@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.3.0](https://github.com/brinestone/civilio-frontend/compare/v4.2.1...v4.3.0) (2025-12-29)
+
+
+### Features
+
+* enhance facility overview page with navigation and submission actions ([1b332d0](https://github.com/brinestone/civilio-frontend/commit/1b332d09e2d4e5c08e8462471673448c3be546e3))
+* **forms:** add submission creation support ([da766f1](https://github.com/brinestone/civilio-frontend/commit/da766f1ea80571ffd0082fbd607e1fc45d53ec5a))
+* **logging:** integrate electron-log for improved logging functionality across the application ([1913e6e](https://github.com/brinestone/civilio-frontend/commit/1913e6e9caec93cb9683f27aed119796267d916e))
+
+
+### Bug Fixes
+
+* migrations resolution ([79faeff](https://github.com/brinestone/civilio-frontend/commit/79faeffc8adb42b2b8d11e50f4f3a4a6e906cdcf))
+* remove 'data' clause from filter in get_version_chain function ([707a1b8](https://github.com/brinestone/civilio-frontend/commit/707a1b83252036fd025c6335dc6796559b30ae49))
+* update title computation and improve form field structure in section page ([1e0b16b](https://github.com/brinestone/civilio-frontend/commit/1e0b16bc6fec039b2e2d6f6d9dd070a1b93eacb3))
+
 ### [4.2.1](https://github.com/brinestone/civilio-frontend/compare/v4.2.0...v4.2.1) (2025-12-15)
 
 
