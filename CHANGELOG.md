@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.3.1](https://github.com/brinestone/civilio-frontend/compare/v4.3.0...v4.3.1) (2025-12-29)
+
+
+### Bug Fixes
+
+* change fallback language from English to French in app configuration ([0a204ca](https://github.com/brinestone/civilio-frontend/commit/0a204ca23646c79ab5f5d677ca9d5e970f851fdb))
+* ensure database directory exists on initialization ([c3151c9](https://github.com/brinestone/civilio-frontend/commit/c3151c97204b5530e126d84dfcee0f90fd235da5))
+
 ## [4.3.0](https://github.com/brinestone/civilio-frontend/compare/v4.2.1...v4.3.0) (2025-12-29)
 
 
