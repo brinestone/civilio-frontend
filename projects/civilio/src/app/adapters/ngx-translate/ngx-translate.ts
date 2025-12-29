@@ -6,7 +6,7 @@ import { WebTranslationLoader } from './web/ngx-translate';
 
 
 export function provideTranslationLoader() {
-  return { provide: TranslateLoader, useClass: isDesktop() ? ElectronTranslationLoader : WebTranslationLoader } as Provider;
+	return { provide: TranslateLoader, useClass: isDesktop() ? ElectronTranslationLoader : WebTranslationLoader } as Provider;
 }
 
 export class MissingTranslationHandlerImpl implements MissingTranslationHandler {

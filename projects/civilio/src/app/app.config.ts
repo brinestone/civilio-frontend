@@ -49,7 +49,7 @@ export const appConfig: ApplicationConfig = {
 		{ provide: TitleStrategy, useClass: TranslateTitleStrategy },
 		provideNotifications(),
 		provideTranslateService({
-			fallbackLang: 'en',
+			fallbackLang: 'fr',
 			loader: provideTranslationLoader(),
 			missingTranslationHandler: provideMissingTranslationHandler(MissingTranslationHandlerImpl)
 		})
