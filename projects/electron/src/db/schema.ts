@@ -9,7 +9,8 @@ import {
 	primaryKey,
 	text,
 	timestamp,
-	uniqueIndex
+	uniqueIndex,
+	uuid
 } from "drizzle-orm/pg-core";
 
 export const civilio = pgSchema("civilio");
@@ -538,4 +539,10 @@ export const vwFacilities = civilio.view("vw_facilities", {
 														mu_ch.name = c.q1_03_municipality::TEXT AND
 														mu_ch.version = 'chefferie' AND
 														mu_ch.parent = c.q1_02_division::TEXT) AS info
-`)
+`);
+
+export const forms = civilio.table('forms', {
+	id: uuid().defaultRandom().primaryKey(),
+	description: text(),
+	createdAt: timestamp({ mode: 'date' })
+})
