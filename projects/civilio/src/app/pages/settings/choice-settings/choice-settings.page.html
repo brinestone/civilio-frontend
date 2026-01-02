@@ -1,0 +1,45 @@
+<div
+	class="border-r border-muted relative overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<div class="sticky top-0 backdrop-blur-md pl-2 pr-1 py-3">
+		<h3 hlmH3>{{'misc.forms' | translate}}</h3>
+	</div>
+	<ul class="px-2 py-3 space-y-1 list-none">
+		@for (section of forms.value(); track $index) {
+		<li class="section-item">
+			<a
+				[routerLink]="section.meta.form"
+				routerLinkActive="active"
+				class="outline-none"
+				[routerLinkActiveOptions]="{ exact: false }"
+			>
+				<span>{{ section.meta.label | translate }}</span>
+			</a>
+		</li>
+		} @empty {
+		<li class="text-center text-sm">
+			{{ 'tmpl.autocomplete.empty_text' | translate }}
+		</li>
+		}
+	</ul>
+</div>
+<ng-container> @let child = route.firstChild; </ng-container>
+@if (child) {
+<div class="overflow-hidden">
+	<router-outlet />
+</div>
+} @else {
+<div class="flex justify-center items-center">
+	<div hlmEmpty>
+		<div hlmEmptyHeader>
+			<div hlmEmptyMedia variant="icon">
+				<ng-icon name="lucideFocus" />
+			</div>
+			<p hlmEmptyTitle>{{'settings.choices.empty.title' | translate}}</p>
+			<p hlmEmptyDescription>
+				{{ 'settings.choices.empty.description' | translate}}
+			</p>
+		</div>
+	</div>
+</div>
+}

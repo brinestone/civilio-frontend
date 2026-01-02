@@ -1,8 +1,9 @@
 @reference "tailwindcss";
 
 :host {
-  @apply h-full grid grid-cols-[auto_1fr] grid-rows-[auto_1fr_auto];
+	@apply grid grid-cols-[200px_1fr] h-full;
 }
+
 
 .section-item {
   @apply rounded-md border-l-4 border-transparent focus-within:ring-1 focus-within:ring-(--primary);

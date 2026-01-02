@@ -36,11 +36,15 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
+import { FormSchema } from "@app/model/form";
 
 @Injectable({
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	findAllForms(): Promise<FormSchema[]> {
+		throw new Error("Method not implemented.");
+	}
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		throw new Error("Method not implemented.");
 	}

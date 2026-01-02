@@ -1,4 +1,5 @@
 import { Injectable, makeEnvironmentProviders } from '@angular/core';
+import { ChefferieFormDefinition, CscFormDefinition, FosaFormDefinition } from '@app/model/form';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
@@ -41,6 +42,9 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async findAllForms() {
+		return [CscFormDefinition, FosaFormDefinition, ChefferieFormDefinition];
+	}
 	async versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		return await sendRpcMessageAsync('submission-version:exists', req);
 	}

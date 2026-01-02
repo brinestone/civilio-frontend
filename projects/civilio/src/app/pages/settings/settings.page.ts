@@ -1,11 +1,12 @@
 import { CdkListboxModule } from '@angular/cdk/listbox';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCheck,
 	lucideInfo,
+	lucideListCheck,
 	lucideSave,
 	lucideSettings,
 	lucideSlidersVertical,
@@ -13,15 +14,24 @@ import {
 	lucideUnlink2,
 	lucideWrench
 } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { HlmInput } from '@spartan-ng/helm/input';
 
 const sections = [
-	{ label: 'settings.general.title', icon: 'lucideSlidersVertical', path: 'general' },
+	{
+		label: 'settings.general.title',
+		icon: 'lucideSlidersVertical',
+		path: 'general'
+	},
 	{
 		label: 'settings.field_mapper',
 		icon: 'lucideUnlink2',
 		path: 'field-mapping'
+	},
+	{
+		label: 'settings.choices.title',
+		icon: 'lucideListCheck',
+		path: 'choice-editor'
 	},
 	{ label: 'settings.advanced.title', icon: 'lucideWrench', path: 'advanced' },
 	{ label: 'settings.about.title', icon: 'lucideInfo', path: 'about' },
@@ -37,6 +47,7 @@ const sections = [
 			lucideTrash2,
 			lucideSlidersVertical,
 			lucideWrench,
+			lucideListCheck,
 			lucideUnlink2,
 			lucideCheck
 		})
@@ -55,12 +66,13 @@ const sections = [
 	styleUrl: './settings.page.scss'
 })
 export class SettingsPage {
+	private readonly ts = inject(TranslateService);
 	protected readonly sections = signal(sections);
 	protected readonly sectionFilter = signal('');
 	protected readonly filteredSections = computed(() => {
 		const filter = this.sectionFilter();
 		const sections = this.sections();
 		if (!filter) return sections;
-		return sections.filter(v => v.label.toLowerCase().includes(filter.trim().toLowerCase()));
+		return sections.filter(v => this.ts.instant(v.label).toLowerCase().includes(filter.trim().toLowerCase()));
 	});
 }

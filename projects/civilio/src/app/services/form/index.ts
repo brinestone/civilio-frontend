@@ -4,6 +4,7 @@ import {
 	InjectionToken,
 	makeEnvironmentProviders
 } from "@angular/core";
+import { FormSchema } from "@app/model/form";
 import {
 	DeleteSubmissionRequest,
 	FieldKey,
@@ -42,6 +43,8 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
+	findAllForms(): Promise<FormSchema[]>;
+
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse>;
 
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void>;

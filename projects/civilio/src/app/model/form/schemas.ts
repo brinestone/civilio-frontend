@@ -215,7 +215,8 @@ export type GroupDefinition = z.output<typeof FormGroupSchema>;
 export const FormModelDefinitionSchema = z.object({
 	sections: FormGroupSchema.array(),
 	meta: z.object({
-		form: FormTypeSchema
+		form: FormTypeSchema,
+		label: z.string().optional()
 	})
 });
 

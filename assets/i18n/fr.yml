@@ -30,6 +30,7 @@ overview:
           success: Soumission supprimée avec succès
           approval_toggled: Modifications enregistrées avec succès
 misc:
+  forms: Formulaires
   all_submissions: Soumissions
   changed_at: Enregistré à
   changed_by: Enregistré par
@@ -160,6 +161,15 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
+  choices:
+    title: Éditeur d'options
+    page_title: Éditeur d'options
+    actions:
+      edit: Modifier
+    empty:
+      title: Aucun formulaire sélectionné
+      description: Sélectionnez un formulaire sur la gauche pour voir son éditeur
+        d'options ici
   font-size:
     title: Taille du texte
     placeholder: Sélectionnez la taille du texte
@@ -250,6 +260,7 @@ settings:
     invalid_url: URL invalide
     value_too_short: La valeur est trop courte
 csc:
+  title: Centres d'état civil
   form:
     page_title: Soumission : CSC
     sections:
@@ -681,6 +692,7 @@ csc:
               death_count:
                 title: "# de décès archivés"
 fosa:
+  title: FOSSE
   submissions:
     title: Soumissions
     form_type:
@@ -1240,8 +1252,9 @@ mapper:
                     staff:
                       title: Liste du personnel (officiers et non-officiers)
 chefferie:
+  title: Cefdom
   submissions:
-    title: Submission - CHEFFERIE
+    title: Soumission - Chefdom
   columns:
     submitted: Ajouter une soumission
     recorded_at: Soumis

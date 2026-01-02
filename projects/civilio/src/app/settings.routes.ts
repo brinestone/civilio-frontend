@@ -6,6 +6,7 @@ import {
 	CscFormDefinition,
 	FosaFormDefinition
 } from "./model/form";
+import { hasChangesGuard } from "./guards/has-changes-guard";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const settingsRoutes: Routes = [
@@ -13,6 +14,16 @@ export const settingsRoutes: Routes = [
 		path: 'general',
 		title: 'settings.general.page_title',
 		loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage)
+	},
+	{
+		path: 'choice-editor',
+		title: 'settings.choices.page_title',
+		canActivate: [dbConfigValidGuardFn],
+		canDeactivate: [hasChangesGuard],
+		loadComponent: () => import('./pages/settings/choice-settings/choice-settings.page').then(m => m.ChoiceSettingsPage),
+		children: [
+			{ path: ':form', loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage) }
+		]
 	},
 	{
 		providers: [
