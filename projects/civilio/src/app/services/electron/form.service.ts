@@ -1,5 +1,9 @@
 import { Injectable, makeEnvironmentProviders } from '@angular/core';
-import { ChefferieFormDefinition, CscFormDefinition, FosaFormDefinition } from '@app/model/form';
+import {
+	ChefferieFormDefinition,
+	CscFormDefinition,
+	FosaFormDefinition
+} from '@app/model/form';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
@@ -26,6 +30,8 @@ import {
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
+	LoadAllFormOptionsRequest,
+	LoadAllFormOptionsResponse,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
@@ -42,12 +48,18 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse> {
+		return await sendRpcMessageAsync('options-raw:read', req);
+	}
+
 	async findAllForms() {
 		return [CscFormDefinition, FosaFormDefinition, ChefferieFormDefinition];
 	}
+
 	async versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		return await sendRpcMessageAsync('submission-version:exists', req);
 	}
+
 	async deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		return await sendRpcMessageAsync('submission:delete', req);
 	}
@@ -98,10 +110,10 @@ export class ElectronFormService implements FormService {
 	}
 
 	async findSubmissionData({
-		form,
-		index,
-		version
-	}: FindSubmissionDataRequest) {
+														 form,
+														 index,
+														 version
+													 }: FindSubmissionDataRequest) {
 		return await sendRpcMessageAsync('submission-data:read', {
 			form,
 			index,

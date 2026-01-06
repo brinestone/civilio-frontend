@@ -692,7 +692,7 @@ csc:
               death_count:
                 title: "# de décès archivés"
 fosa:
-  title: FOSSE
+  title: Centre de santé (FOSA)
   submissions:
     title: Soumissions
     form_type:
@@ -1252,9 +1252,9 @@ mapper:
                     staff:
                       title: Liste du personnel (officiers et non-officiers)
 chefferie:
-  title: Cefdom
+  title: Chefferie
   submissions:
-    title: Soumission - Chefdom
+    title: Soumission - Chefferie
   columns:
     submitted: Ajouter une soumission
     recorded_at: Soumis

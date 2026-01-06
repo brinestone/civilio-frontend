@@ -155,7 +155,7 @@ export const fieldMappings = civilio.table(
 		dbColumnType: text("db_column_type").notNull(),
 		aliasHash: text("alias_hash").generatedAlwaysAs(
 			(): SQL => sql<string>`md5
-				(${ fieldMappings.field })`,
+				(${fieldMappings.field})`,
 		),
 	},
 	(table) => [
@@ -277,9 +277,9 @@ export const vwDbColumns = civilio
 		sql`SELECT c.column_name,
 							 c.data_type,
 							 c.table_name,
-							 CAST(c.table_schema as ${ formTypes }) as form
+							 CAST(c.table_schema as ${formTypes}) as form
 				FROM information_schema.columns c
-				WHERE ${ inArray(sql`c.table_schema`, formTypes.enumValues) }`,
+				WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`,
 	);
 
 export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE', 'REVERT']);
@@ -538,4 +538,44 @@ export const vwFacilities = civilio.view("vw_facilities", {
 														mu_ch.name = c.q1_03_municipality::TEXT AND
 														mu_ch.version = 'chefferie' AND
 														mu_ch.parent = c.q1_02_division::TEXT) AS info
-`)
+`);
+
+// export const formDefinitions = civilio.table('forms', {
+// 	name: text().notNull().unique(),
+// 	icon: text(),
+// 	label: text().notNull(),
+// 	description: text(),
+// 	createdBy: text('created_by'),
+// 	createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+// 	updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date())
+// }, t => [
+// 	index().on(t.name),
+// 	index().on(t.label),
+// 	index().on(t.description).where(isNotNull(t.description)),
+// 	primaryKey({ columns: [t.name] })
+// ]);
+
+// export const formFields = civilio.table('form_fields', {
+// 	id: uuid().notNull().primaryKey().defaultRandom(),
+// 	createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+// 	updatedAt: timestamp('updated_at', { mode: 'date' }).notNull().defaultNow().$onUpdate(() => new Date()),
+// 	form: text('form_name').notNull().references(() => formDefinitions.name, { onDelete: 'cascade' }),
+// 	readonly: boolean().default(false),
+// 	title: text().notNull(),
+// 	titleTranslated: text('t_translated'),
+// 	description: text(),
+// 	descriptionTranslated: text('d_translated'),
+// 	span: integer().default(12)
+// })
+
+// export const relevanceOperators = civilio.enum('relevance_operators', RelevanceOperatorSchema.enum);
+// export const chainOperators = civilio.enum('expression_operators', RelevanceChainOperatorSchema.enum);
+// export const relevanceExpressions = civilio.table('relevance_expressions', {
+// 	field: uuid().notNull().references(() => formFields.id, { onDelete: 'cascade' }),
+// 	operator: relevanceOperators().notNull(),
+// 	value: text()
+// });
+// export const relevanceConditions = civilio.table('relevance_conditions', {
+// 	operator: chainOperators().notNull(),
+// 	expressions: uuid().array().default([])
+// });

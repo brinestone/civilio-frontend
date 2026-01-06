@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply pt-3 block relative pb-5
+}

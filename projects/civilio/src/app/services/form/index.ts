@@ -29,7 +29,8 @@ import {
 	GetFacilityInfoRequest,
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
-	InitializeSubmissionVersionResponse,
+	InitializeSubmissionVersionResponse, LoadAllFormOptionsRequest,
+	LoadAllFormOptionsResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
@@ -43,6 +44,8 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
+	loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse>;
+
 	findAllForms(): Promise<FormSchema[]>;
 
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse>;

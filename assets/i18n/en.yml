@@ -681,7 +681,7 @@ csc:
               death_count:
                 title: "# of deaths archived"
 fosa:
-  title: FOSA
+  title: Health Center (FOSA)
   submissions:
     title: Submissions
     form_type:
@@ -1235,9 +1235,9 @@ mapper:
                     staff:
                       title: List of personnel (officers and non-officers)
 chefferie:
-  title: Cheifdom
+  title: Chiefdom
   submissions:
-    title: Submission - Cheifdom
+    title: Submission - Chiefdom
   columns:
     submitted: Add Submission
     recorded_at: Submitted

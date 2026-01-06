@@ -25,6 +25,8 @@ import {
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
+	LoadAllFormOptionsRequest,
+	LoadAllFormOptionsResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
@@ -42,12 +44,18 @@ import { FormSchema } from "@app/model/form";
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse> {
+		throw new Error("Method not implemented.");
+	}
+
 	findAllForms(): Promise<FormSchema[]> {
 		throw new Error("Method not implemented.");
 	}
+
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		throw new Error("Method not implemented.");
 	}
+
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const RelevanceChainOperatorSchema = z.enum([
+	'and', 'or'
+])
+
+export const RelevanceOperatorSchema = z.enum([
+	'==', '>=', '<=', '>', '<', 'selected'
+]);
+
 export const SubmissionInfoSchema = z.object({
 	facilityName: z.string().nullable().optional(),
 	location: z.string().nullable().optional(),

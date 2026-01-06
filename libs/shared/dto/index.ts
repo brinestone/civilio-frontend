@@ -18,6 +18,11 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const LoadAllFormOptionsRequestSchema = z.string();
+export const LoadAllFormOptionsResponseSchema = OptionSchema.extend({
+	group: z.string(),
+	value: z.string()
+}).array();
 export const VersionExistsRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.coerce.number(),
@@ -206,7 +211,7 @@ export type FindFieldMappingsRequest = z.input<typeof FindFieldMappingsRequestSc
 export type FieldMappingRequest = z.input<typeof FieldMappingRequestSchema>;
 export type UpdateConfigRequest = z.input<typeof UpdateConfigRequestSchema>;
 export type AppConfigResponse = z.infer<typeof AppConfigResponseSchema>;
-export type FindFormOptionsResponse = z.infer<typeof FindFormOptionsResponseSchema>;
+export type FindFormOptionsResponse = z.output<typeof FindFormOptionsResponseSchema>;
 export type TestDbConnectionRequest = z.input<typeof TestDbConnectionRequestSchema>;
 export type TestDbConnectionResponse = z.infer<typeof TestDbConnectionResponseSchema>;
 export type LoadTranslationRequest = z.input<typeof LoadTranslationRequestSchema>;
@@ -247,3 +252,5 @@ export type ToggleApprovalStatusRequest = z.input<typeof ToggleApprovalStatusReq
 export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSchema>;
 export type VersionExistsRequest = z.input<typeof VersionExistsRequestSchema>;
 export type VersionExistsResponse = z.infer<typeof VersionExistsResponseSchema>;
+export type LoadAllFormOptionsResponse = z.output<typeof LoadAllFormOptionsResponseSchema>;
+export type LoadAllFormOptionsRequest = z.input<typeof LoadAllFormOptionsRequestSchema>;
