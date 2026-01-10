@@ -13,6 +13,8 @@ import {
 	FindDbColumnsResponseSchema,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponseSchema,
+	FindFormOptionGroupsResponse,
+	FindFormOptionGroupsResponseSchema,
 	FindFormOptionsResponseSchema,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -30,11 +32,10 @@ import {
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
-	LoadAllFormOptionsRequest,
-	LoadAllFormOptionsResponse,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -48,8 +49,26 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
-	async loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse> {
-		return await sendRpcMessageAsync('options-raw:read', req);
+	private readonly baseApiUrl = 'http://localhost:3000/api';
+	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
+		const response = await fetch(`${this.baseApiUrl}/forms/options`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			// mode: 'no-cors',
+			body: JSON.stringify(req.groups)
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
+	async loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {
+		const response = await fetch(`${this.baseApiUrl}/forms/options`);
+		const obj = await response.json();
+
+		return FindFormOptionGroupsResponseSchema.parse(obj);
 	}
 
 	async findAllForms() {
@@ -110,10 +129,10 @@ export class ElectronFormService implements FormService {
 	}
 
 	async findSubmissionData({
-														 form,
-														 index,
-														 version
-													 }: FindSubmissionDataRequest) {
+		form,
+		index,
+		version
+	}: FindSubmissionDataRequest) {
 		return await sendRpcMessageAsync('submission-data:read', {
 			form,
 			index,

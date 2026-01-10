@@ -12,6 +12,7 @@ import {
 	FindDbColumnsResponse,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
+	FindFormOptionGroupsResponse,
 	FindFormOptionsResponse,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -35,6 +36,7 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -44,7 +46,8 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
-	loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse>;
+	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void>;
+	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse>;
 
 	findAllForms(): Promise<FormSchema[]>;
 

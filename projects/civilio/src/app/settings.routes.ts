@@ -20,10 +20,10 @@ export const settingsRoutes: Routes = [
 		title: 'settings.choices.page_title',
 		canActivate: [dbConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],
-		loadComponent: () => import('./pages/settings/choice-settings/choice-settings.page').then(m => m.ChoiceSettingsPage),
-		children: [
-			{ path: ':form', loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage) }
-		]
+		loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage),
+		// children: [
+		// 	{ path: ':form', loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage) }
+		// ]
 	},
 	{
 		providers: [

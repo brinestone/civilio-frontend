@@ -1,5 +1,26 @@
 import { z } from 'zod';
 
+export const OptionItemSchema = z.object({
+	label: z.string(),
+	value: z.string(),
+	i18nKey: z.string().nullable(),
+});
+
+export const OptionGroupSchema = z.object({
+	description: z.string().nullable(),
+	// form: z.string(),
+	title: z.string(),
+	key: z.string().nullable(),
+	parentValue: z.string().nullable(),
+	parentKey: z.string().nullable(),
+	options: OptionItemSchema.array(),
+	parent: z.object({
+		key: z.string(),
+		title: z.string(),
+		description: z.string().nullable()
+	}).nullable()
+});
+
 export const RelevanceChainOperatorSchema = z.enum([
 	'and', 'or'
 ])
@@ -187,16 +208,16 @@ export type Locale = z.infer<typeof LocaleSchema>;
 export type DbConfig = z.infer<typeof DbConfigSchema>;
 export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
 type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
-type DropInitDot<T> = T extends `.${ infer U }` ? U : T;
+type DropInitDot<T> = T extends `.${infer U}` ? U : T;
 type _DeepKeys<T> = T extends object ? (
 	{
 		[K in (string | number) & keyof T]:
-		`${ (
-			`.${ K }` | (`${ K }` extends `${ number }` ? `[${ K }]` : never)
-			) }${ "" | _DeepKeys<FixArr<T[K]>> }`
+		`${(
+			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
+		)}${"" | _DeepKeys<FixArr<T[K]>>}`
 	}[
-		(string | number) & keyof T]
-	) : never;
+	(string | number) & keyof T]
+) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
 export type Paginated<T> = {

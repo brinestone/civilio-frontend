@@ -1,5 +1,5 @@
 import { Injectable, makeEnvironmentProviders } from "@angular/core";
-import { FORM_SERVICE_IMPL, FormService } from "../form";
+import { FormSchema } from "@app/model/form";
 import {
 	DeleteSubmissionRequest,
 	FieldKey,
@@ -7,6 +7,7 @@ import {
 	FindDbColumnsResponse,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
+	FindFormOptionGroupsResponse,
 	FindFormOptionsResponse,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -26,11 +27,11 @@ import {
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
 	LoadAllFormOptionsRequest,
-	LoadAllFormOptionsResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -38,13 +39,16 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
-import { FormSchema } from "@app/model/form";
+import { FORM_SERVICE_IMPL, FormService } from "../form";
 
 @Injectable({
 	providedIn: null
 })
 export class WebFormService implements FormService {
-	loadUngroupedFormOptions(req: LoadAllFormOptionsRequest): Promise<LoadAllFormOptionsResponse> {
+	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {
 		throw new Error("Method not implemented.");
 	}
 

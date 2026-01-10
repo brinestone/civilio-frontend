@@ -10,6 +10,7 @@ import {
 	FormTypeSchema,
 	LocaleSchema,
 	MigrationsCheckReportSchema,
+	OptionGroupSchema,
 	OptionSchema,
 	SubmissionChangeDeltaSchema,
 	SubmissionInfoSchema,
@@ -17,6 +18,30 @@ import {
 	ThemeSchema,
 	ThirdPartyLicenceSchema
 } from "../schema";
+
+export const UpdateFormOptionsDataSetRequestSchema = z.object({
+	groups: z.object({
+		isNew: z.boolean(),
+		data: z.object({
+			description: z.string().nullable().optional(),
+			title: z.string(),
+			parentKey: z.string().nullable(),
+			parentValue: z.string().nullable(),
+			key: z.string().nullable(),
+			options: z.object({
+				i18nKey: z.string().nullable(),
+				isNew: z.boolean(),
+				key: z.string().optional(),
+				label: z.string(),
+				value: z.string(),
+			}).array().default([])
+		})
+	}).array()
+});
+
+export const FindFormOptionGroupsResponseSchema = z.object({
+	groups: OptionGroupSchema.array()
+});
 
 export const LoadAllFormOptionsRequestSchema = z.string();
 export const LoadAllFormOptionsResponseSchema = OptionSchema.extend({
@@ -254,3 +279,5 @@ export type VersionExistsRequest = z.input<typeof VersionExistsRequestSchema>;
 export type VersionExistsResponse = z.infer<typeof VersionExistsResponseSchema>;
 export type LoadAllFormOptionsResponse = z.output<typeof LoadAllFormOptionsResponseSchema>;
 export type LoadAllFormOptionsRequest = z.input<typeof LoadAllFormOptionsRequestSchema>;
+export type UpdateFormOptionsDataSetRequest = z.input<typeof UpdateFormOptionsDataSetRequestSchema>;
+export type FindFormOptionGroupsResponse = z.output<typeof FindFormOptionGroupsResponseSchema>;
