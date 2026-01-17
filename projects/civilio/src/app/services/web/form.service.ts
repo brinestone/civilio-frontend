@@ -1,6 +1,8 @@
 import { Injectable, makeEnvironmentProviders } from "@angular/core";
 import { FormSchema } from "@app/model/form";
 import {
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
@@ -45,6 +47,12 @@ import { FORM_SERVICE_IMPL, FormService } from "../form";
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
 	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

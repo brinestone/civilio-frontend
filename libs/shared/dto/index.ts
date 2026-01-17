@@ -19,16 +19,27 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const DeleteOptionGroupByIdRequestSchema = z.object({
+	id: z.uuid()
+});
+export const DeleteOptionGroupOptionByIdRequestSchema = z.object({
+	groupId: z.uuid(),
+	optionId: z.uuid()
+});
+
 export const UpdateFormOptionsDataSetRequestSchema = z.object({
 	groups: z.object({
 		isNew: z.boolean(),
 		data: z.object({
-			description: z.string().nullable().optional(),
+			description: z.string().nullish(),
 			title: z.string(),
-			parentKey: z.string().nullable(),
-			parentValue: z.string().nullable(),
+			id: z.uuid().nullable(),
+			parentId: z.uuid().nullable(),
 			key: z.string().nullable(),
 			options: z.object({
+				id: z.string().nullish(),
+				parentValue: z.string().nullish(),
+				ordinal: z.number(),
 				i18nKey: z.string().nullable(),
 				isNew: z.boolean(),
 				key: z.string().optional(),
@@ -281,3 +292,5 @@ export type LoadAllFormOptionsResponse = z.output<typeof LoadAllFormOptionsRespo
 export type LoadAllFormOptionsRequest = z.input<typeof LoadAllFormOptionsRequestSchema>;
 export type UpdateFormOptionsDataSetRequest = z.input<typeof UpdateFormOptionsDataSetRequestSchema>;
 export type FindFormOptionGroupsResponse = z.output<typeof FindFormOptionGroupsResponseSchema>;
+export type DeleteOptionGroupOptionByIdRequest = z.input<typeof DeleteOptionGroupOptionByIdRequestSchema>;
+export type DeleteOptionGroupByIdRequest = z.input<typeof DeleteOptionGroupByIdRequestSchema>;

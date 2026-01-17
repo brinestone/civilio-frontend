@@ -162,8 +162,8 @@ login:
   welcome_back: Content de te revoir
 settings:
   choices:
-    title: Éditeur d'options
-    page_title: Éditeur d'options
+    title: Éditeur de jeux de données
+    page_title: Éditeur de jeux de données
     actions:
       edit: Modifier
     empty:

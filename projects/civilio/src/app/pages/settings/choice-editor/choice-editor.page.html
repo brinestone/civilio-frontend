@@ -1,4 +1,409 @@
 <div class="px-4">
+	<h3 hlmH3>Dataset Editor</h3>
+</div>
+<form [formGroup]="form" (ngSubmit)="onFormSubmit()">
+	<div
+		class="px-4 sticky top-0 py-2 backdrop-blur border-b border-muted z-99999 flex justify-between items-center flex-wrap"
+	>
+		<div class="space-y-2">
+			<legend hlmFieldLegend>Datasets</legend>
+			<p hlmFieldDescription>Add or edit datasets which can be used in forms</p>
+		</div>
+		<div class="flex items-center gap-2">
+			@if(form.dirty) {
+			<button type="submit" hlmBtn [disabled]="form.invalid || savingChanges()">
+				<ng-icon
+					[class.animate-spin]="savingChanges()"
+					[name]="savingChanges() ? 'lucideLoader' : 'lucideSaveAll'"
+				/>
+				<span>
+					@if(savingChanges()) {Saving changes...} @else {Save changes}
+				</span>
+			</button>
+			<button
+				type="reset"
+				[disabled]="savingChanges()"
+				hlmBtn
+				variant="destructive"
+			>
+				<ng-icon name="lucideX" />
+				<span>Discard changes</span>
+			</button>
+			}
+			<button
+				(click)="onAddGroupButtonClicked()"
+				type="button"
+				hlmBtn
+				[disabled]="savingChanges()"
+				variant="secondary"
+			>
+				<ng-icon name="lucidePlus" />
+				<div class="inline-flex gap-2">
+					<span>Add Dataset</span>
+					<kbd hlmKbdGroup>
+						<kbd hlmKbd> @if(isMac){⌘} @else {Ctrl} + =</kbd>
+					</kbd>
+				</div>
+			</button>
+		</div>
+	</div>
+	<div hlmFieldGroup formArrayName="groups">
+		@for(group of form.controls.groups.controls; track
+		group.value.meta!.trackingKey; let lineIndex = $index) {
+		<div class="px-4 group/line grid grid-cols-[1fr_auto] items-start">
+			<div formGroupName="{{$index}}">
+				<div class="lg:max-w-3/4">
+					<div hlmFieldGroup formGroupName="data">
+						<div hlmFieldGroup class="flex gap-2">
+							<div class="grid gap-x-3 grid-cols-2 items-end">
+								<div hlmField>
+									<div hlmFieldContent>
+										<label hlmFieldLabel for="group__{{lineIndex}}__title_input"
+											>Group title <span class="text-red-500">*</span></label
+										>
+										<input
+											hlmInput
+											formControlName="title"
+											id="group__{{lineIndex}}__title_input"
+										/>
+										<!-- TODO: Errors go here -->
+									</div>
+								</div>
+								<div hlmField>
+									<div hlmFieldContent>
+										<div class="flex justify-between items-end">
+											<label
+												hlmFieldLabel
+												for="group__{{lineIndex}}__key_input"
+											>
+												Group Key <span class="text-red-500">*</span>
+											</label>
+											<button
+												type="button"
+												(click)="generateGroupKeyAt(lineIndex)"
+												hlmBtn
+												size="icon-sm"
+												title="Generate"
+												variant="ghost"
+											>
+												<ng-icon name="lucideRefreshCw" />
+											</button>
+										</div>
+										<input
+											hlmInput
+											formControlName="key"
+											id="group__{{lineIndex}}__key_input"
+										/>
+										<!-- ERRORS GO HERE -->
+									</div>
+								</div>
+							</div>
+							<ng-container> @let parent = parents()[lineIndex]; </ng-container>
+							@if(hasExistingGroups() && availableParents()[lineIndex].length >
+							0) {
+							<div hlmField>
+								<div hlmFieldContent>
+									<label
+										hlmFieldLabel
+										for="group__{{lineIndex}}__parent_group_select"
+										>Parent group</label
+									>
+									<hlm-select
+										formControlName="parentId"
+										placeholder="Select parent group"
+										class="w-full"
+										id="group__{{lineIndex}}__parent_group_select"
+									>
+										<hlm-select-trigger class="w-full">
+											<hlm-select-value>
+												<span>{{parent?.title}}</span>
+											</hlm-select-value>
+										</hlm-select-trigger>
+										<hlm-select-content>
+											<hlm-option [value]="null">None</hlm-option>
+											@for(g of availableParents()[lineIndex]; track g.id) {
+											<ng-container>
+												<hlm-option class="cursor-pointer" [value]="g.id">
+													<span class="line-clamp-1 text-ellipsis">
+														{{g.title}}
+													</span>
+												</hlm-option>
+											</ng-container>
+											}
+										</hlm-select-content>
+									</hlm-select>
+								</div>
+							</div>
+							}
+						</div>
+						<div hlmField>
+							<div hlmFieldContent>
+								<label
+									hlmFieldLabel
+									for="group__{{lineIndex}}__description_input"
+									>Description</label
+								>
+								<textarea
+									hlmTextarea
+									rows="5"
+									formControlName="description"
+								></textarea>
+							</div>
+						</div>
+					</div>
+					@let expanded = group.value.meta?.expanded;
+					<div
+						#expansionPanel
+						(dblclick)="onToggleExpanded($event, lineIndex)"
+						[ngClass]="{
+						'flex justify-between transition-all items-center mt-3 py-3 px-2 rounded-md border cursor-pointer': true,
+						'borer-t borer-x border-border rounded-b-none border-b-0': expanded === true
+					}"
+					>
+						<div class="flex gap-3 items-baseline">
+							@let optionLength =
+							group.controls.data.controls.options.controls.length;
+							<label hlmLabel
+								>{{optionLength}} Item{{optionLength != 1 ? 's' : ''}}</label
+							>
+						</div>
+						<div class="flex gap-3 items-baseline">
+							@if(expanded) {
+							<button
+								(click)="onAddOptionButtonClicked(lineIndex)"
+								hlmBtn
+								type="button"
+								variant="outline"
+								size="icon-sm"
+							>
+								<ng-icon name="lucidePlus" />
+							</button>
+							@let isSequential = itemsSequential()[lineIndex];
+							<p
+								[ngClass]="{
+								'text-green-500 dark:text-green-600': isSequential,
+								'text-muted-foreground': !isSequential
+							}"
+								class="text-xs font-medium flex items-center gap-3"
+							>
+								<span>Sequence: {{ isSequential ? 'ON' : 'OFF' }}</span>
+							</p>
+							}
+							<button
+								(click)="onToggleExpanded($event, lineIndex)"
+								hlmBtn
+								type="button"
+								[variant]="expanded ? 'secondary' : 'ghost'"
+								size="icon-sm"
+							>
+								<ng-icon
+									[name]="!expanded ? 'lucideChevronDown' : 'lucideChevronUp'"
+								/>
+							</button>
+						</div>
+					</div>
+					@if(expanded) {
+					<ng-container>@let newItems = newOptions()[lineIndex];</ng-container>
+					<div
+						formGroupName="data"
+						hlmFieldGroup
+						animate.enter="expand"
+						animate.leave="shrink"
+						[class.pt-2]="newItems.length == 0"
+						class="relative text-(--secondary-foreground) pb-2 border-border border rounded-b-md bg-(--secondary)/50 max-h-[350px]! overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+					>
+						@if(newItems.length > 0) {
+						<div
+							class="py-2 sticky top-0 z-9999 backdrop-blur-md border-b border-border shadow-md"
+						>
+							<div hlmFieldGroup class="overflow-y-hidden max-h-[350px]">
+								<fieldset hlmFieldSet>
+									<legend hlmFieldLegend class="px-2 pt-2">New Items</legend>
+									<p hlmFieldDescription class="px-2">
+										The items added here will be appended to the end of the list
+										of existing items.
+									</p>
+									<div
+										formArrayName="options"
+										hlmFieldGroup
+										(cdkDropListDropped)="onNewItemReordered($event, lineIndex)"
+										cdkDropList
+										class="items max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+									>
+										@for(item of group.controls.data.controls.options.controls;
+										track item.value!.trackingKey) { @if($index >=
+										newItemsIndexOffset()[lineIndex]){
+										<ng-container formGroupName="{{$index}}">
+											<div
+												class="item px-2 group/item border-border border-b"
+												cdkDrag
+												cdkDragLockAxis="y"
+											>
+												<div class="drag-placeholder" *cdkDragPlaceholder></div>
+												<div
+													hlmFieldGroup
+													class="items-end grid gap-x-2"
+													[ngClass]="{
+												'grid-cols-[auto_minmax(auto,1fr)_1fr_1fr_auto]': !!parents()[lineIndex],
+												'grid-cols-[auto_minmax(auto,1fr)_1fr_auto]': !parents()[lineIndex]
+											}"
+												>
+													<div
+														cdkDragHandle
+														class="cursor-grab active:cursor-grabbing text-muted-foreground p-2 size-10 flex items-center justify-center rounded-md border-border"
+													>
+														<ng-icon name="lucideMenu" />
+													</div>
+													<ng-container
+														[ngTemplateOutlet]="optionRowTemplate"
+														[ngTemplateOutletContext]="{
+															$implicit: item,
+															index: $index,
+															last: $last,
+															unifiedIndex: $index,
+															line: lineIndex
+														}"
+													/>
+												</div>
+											</div>
+										</ng-container>
+										} }
+									</div>
+								</fieldset>
+							</div>
+						</div>
+						}
+						<div
+							class="items"
+							cdkDropList
+							formArrayName="options"
+							(cdkDropListDropped)="onItemReordered($event, lineIndex)"
+						>
+							@for(item of group.controls.data.controls.options.controls; track
+							item.value!.trackingKey) { @if($index <
+							newItemsIndexOffset()[lineIndex]){
+							<div
+								[ngClass]="{
+										'border-b border-border': true
+									}"
+								class="px-2 item group/item"
+								cdkDrag
+								cdkDragLockAxis="y"
+							>
+								<div class="drag-placeholder" *cdkDragPlaceholder></div>
+								<div
+									hlmFieldGroup
+									class="px-2 items-end grid gap-x-2"
+									[ngClass]="{
+										'grid-cols-[auto_minmax(auto,1fr)_1fr_1fr_auto]': !!parents()[lineIndex],
+										'grid-cols-[auto_minmax(auto,1fr)_1fr_auto]': !parents()[lineIndex]
+									}"
+								>
+									<div
+										cdkDragHandle
+										class="font-extrabold cursor-grab active:cursor-grabbing text-muted-foreground p-2 size-10 flex items-center justify-center rounded-md border border-border"
+									>
+										<ng-icon name="lucideMenu" />
+									</div>
+									<ng-container
+										[ngTemplateOutlet]="optionRowTemplate"
+										[ngTemplateOutletContext]="{
+										$implicit: item,
+										index: $index,
+										last: $last,
+										unifiedIndex: $index,
+										line: lineIndex
+									}"
+									/>
+								</div>
+							</div>
+							} }
+						</div>
+					</div>
+					}
+				</div>
+			</div>
+		</div>
+		}
+	</div>
+</form>
+
+<ng-template
+	#optionRowTemplate
+	let-group
+	let-index="index"
+	let-unifiedIndex="unifiedIndex"
+	let-line="line"
+>
+	<ng-container [formGroup]="group">
+		<div hlmField>
+			<label hlmFieldLabel for="{{line}}__label_input_{{unifiedIndex}}">
+				Label <span class="text-red-500">*</span>
+			</label>
+			<div hlmFieldContent>
+				<input hlmInput formControlName="label" />
+				<!-- <ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{ $implicit: fieldSignal.label() }"
+			/> -->
+			</div>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel for="{{line}}__value_input_{{unifiedIndex}}">
+				Value <span class="text-red-500">*</span>
+			</label>
+			<div hlmFieldContent>
+				<input hlmInput formControlName="value" />
+				<!-- <ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{ $implicit: fieldSignal.value() }"
+			/> -->
+			</div>
+		</div>
+		<ng-container> @let parent = parents()[line]; </ng-container>
+		@if(parent) {
+		<div hlmField>
+			<label hlmFieldLabel for="{{line}}__parent_input_{{unifiedIndex}}">
+				Parent value
+			</label>
+			<div hlmFieldContent>
+				<hlm-select
+					id="{{line}}__parent_input_{{unifiedIndex}}"
+					formControlName="parentValue"
+					class="w-full"
+				>
+					<hlm-select-trigger class="w-full">
+						<hlm-select-value />
+					</hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						<hlm-option [value]="null">None</hlm-option>
+						@for(option of parent.options; track option.id) {
+						<hlm-option [value]="option.value">{{ option.label }}</hlm-option>
+						}
+					</hlm-select-content>
+				</hlm-select>
+				<!-- <ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{ $implicit: fieldSignal.parentValue() }"
+			/> -->
+			</div>
+		</div>
+		}
+		<button
+			type="button"
+			class="group-hover/option:pointer-events-auto group-hover/option:opacity-100 pointer-events-none opacity-0"
+			type="button"
+			size="icon-sm"
+			hlmBtn
+			(click)="onDeleteGroupOptionButtonClicked(line, index)"
+			variant="outline"
+		>
+			<ng-icon name="lucideTrash2" />
+		</button>
+	</ng-container>
+</ng-template>
+
+<!-- <div class="px-4">
 	<h3 hlmH3>Choice Editor</h3>
 </div>
 <form class="space-y-2" (submit)="onFormSubmit($event)">
@@ -10,37 +415,36 @@
 			<p hlmFieldDescription>Add or edit choices for the form</p>
 		</div>
 		<div class="flex items-center gap-2">
-			<!-- <div hlmInputGroup>
-				<input
-					[disabled]="formData().groups.length == 0"
-					type="search"
-					hlmInputGroupInput
-					placeholder="Filter..."
-				/>
-				<div hlmInputGroupAddon>
-					<ng-icon name="lucideFilter" />
-				</div>
-			</div> -->
 			@if(formModel().dirty()) {
 			<button
-				[disabled]="formModel().invalid() || savingChanges()"
+				[disabled]="formModel().invalid() || formModel().submitting()"
 				type="submit"
 				hlmBtn
 			>
 				<ng-icon
-					[class.animate-spin]="savingChanges()"
-					[name]="savingChanges() ? 'lucideLoader' : 'lucideSaveAll'"
+					[class.animate-spin]="formModel().submitting()"
+					[name]="formModel().submitting() ? 'lucideLoader' : 'lucideSaveAll'"
 				/>
 				<span>
-					@if(savingChanges()) { Saving changes... } @else { Save changes }
+					@if(formModel().submitting()) { Saving changes... } @else { Save
+					changes }
 				</span>
+			</button>
+			<button
+				type="reset"
+				[disabled]="formModel().submitting()"
+				hlmBtn
+				variant="destructive"
+			>
+				<ng-icon name="lucideX" />
+				<span>Discard changes</span>
 			</button>
 			}
 			<button
 				(click)="onAddGroupButtonClicked()"
 				type="button"
 				hlmBtn
-				[disabled]="savingChanges()"
+				[disabled]="formModel().submitting()"
 				variant="secondary"
 			>
 				<ng-icon name="lucidePlus" />
@@ -48,9 +452,25 @@
 			</button>
 		</div>
 	</div>
+	@if(formModel().errors().length > 0) {
+	<div class="lg:max-w-3/4 px-4" #globalErrorsContainer>
+		<div variant="destructive" hlmAlert>
+			<ng-icon hlmAlertIcon name="lucideCircleAlert" />
+			<h4 hlmAlertTitle>Unable to save changes</h4>
+			<div hlmAlertDescription>
+				<ul class="list-inside list-disc text-sm">
+					@for(err of formModel().errors(); track $index) {
+					<li>{{ err.message }}</li>
+					}
+				</ul>
+			</div>
+		</div>
+	</div>
+	}
 	<div hlmFieldGroup>
-		@for (group of formModel.groups; track $index; let lineIndex = $index) {
-		<div class="px-4 group grid grid-cols-[1fr_auto] items-start">
+		@for (group of formModel.groups; track group.trackingKey().value(); let
+		lineIndex = $index) {
+		<div class="px-4 group/line grid grid-cols-[1fr_auto] items-start">
 			<div>
 				<div class="lg:max-w-3/4">
 					<div hlmFieldGroup>
@@ -104,109 +524,54 @@
 									</div>
 								</div>
 							</div>
-							<div class="grid grid-cols-[200px_1fr] gap-x-3">
-								<div hlmField>
-									<label
-										hlmFieldLabel
-										for="group__{{lineIndex}}__group_parent_key_input"
+							<ng-container>@let parent = parents()[lineIndex];</ng-container>
+							@if(hasExistingGroups() && availableParents()[lineIndex].length >
+							0) {
+							<div hlmField>
+								<label
+									hlmFieldLabel
+									for="group__{{lineIndex}}__group_parent_group_select"
+								>
+									Parent group
+								</label>
+								<div hlmFieldContent class="flex gap-x-2">
+									<hlm-select
+										(valueChange)="onGroupIdChanged(lineIndex)"
+										[field]="group.data.parentId"
+										placeholder="Select parent group"
+										class="w-full"
+										id="group__{{lineIndex}}__group_parent_group_select"
 									>
-										Parent
-									</label>
-									<div hlmFieldContent class="flex gap-x-2">
-										<brn-popover sideOffset="5" class="w-full">
-											<button
-												type="button"
-												hlmBtn
-												brnPopoverTrigger
-												id="group__{{lineIndex}}__group_parent_key_input"
-												variant="outline"
-												class="flex justify-between w-[200px]"
-											>
-												<span>Select parent group</span>
-												<ng-icon name="lucideChevronsUpDown" />
-											</button>
-											<hlm-command
-												*brnPopoverContent="let ctx"
-												hlmPopoverContent
-												class="p-0 w-[200px]"
-											>
-												<hlm-command-search class="w-full!">
-													<ng-icon name="lucideSearch" />
-													<input
-														type="search"
-														placeholder="Search parent group..."
-														hlm-command-search-input
-													/>
-												</hlm-command-search>
-												<div *hlmCommandEmptyState hlmCommandEmpty>
-													No results found.
-												</div>
-												<hlm-command-list>
-													<hlm-command-group>
-														@for(g of formData().groups; track g) {
-														<ng-container>
-															@if(!g.isNew && g.data.key !=
-															group().value().data.parentKey) {
-															<button
-																(selected)="onSetParentKey($any(g.data.key), lineIndex)"
-																hlm-command-item
-																[value]="$any(g.data.key)"
-															>
-																<span class="line-clamp-1 text-ellipsis"
-																	>{{ g.data.title }}</span
-																>
-															</button>
-															}
-														</ng-container>
-														}
-													</hlm-command-group>
-												</hlm-command-list>
-											</hlm-command>
-										</brn-popover>
-										<ng-container
-											[ngTemplateOutlet]="errorsTemplate"
-											[ngTemplateOutletContext]="{ $implicit: group.data.parentKey() }"
-										/>
-									</div>
-								</div>
-								<div hlmField>
-									<label
-										hlmFieldLabel
-										for="group__{{lineIndex}}__group_parent_value_input"
-									>
-										Parent value
-									</label>
-									@let parent = parents()[lineIndex];
-									<div hlmFieldContent>
-										<hlm-select
-											[disabled]="!parent"
-											placeholder="Select value"
-											class="w-full"
-										>
-											<hlm-select-trigger class="w-full">
-												<hlm-select-value />
-											</hlm-select-trigger>
-											<hlm-select-content>
-												@if(parent) {
-												<ng-container>
-													@for(option of parent.options; track option) {
-													<hlm-option
-														[value]="option.value"
-														class="line-clamp-1 text-ellipsis"
-														>{{ option.label }}</hlm-option
+										<hlm-select-trigger class="w-full">
+											<hlm-select-value>
+												<span> {{parent?.title}} </span>
+											</hlm-select-value>
+										</hlm-select-trigger>
+										<hlm-select-content>
+											<hlm-option [value]="null">None</hlm-option>
+											@for(g of availableParents()[lineIndex]; track
+											g.trackingKey) {
+											<ng-container>
+												<hlm-option
+													class="cursor-pointer"
+													(selected)="onSetParentId(g.data.id, lineIndex)"
+													[value]="g.data.id"
+												>
+													<span class="line-clamp-1 text-ellipsis"
+														>{{ g.data.title }}</span
 													>
-													}
-												</ng-container>
-												}
-											</hlm-select-content>
-										</hlm-select>
-										<ng-container
-											[ngTemplateOutlet]="errorsTemplate"
-											[ngTemplateOutletContext]="{ $implicit: group.data.parentValue() }"
-										/>
-									</div>
+												</hlm-option>
+											</ng-container>
+											}
+										</hlm-select-content>
+									</hlm-select>
+									<ng-container
+										[ngTemplateOutlet]="errorsTemplate"
+										[ngTemplateOutletContext]="{ $implicit: group.data.parentId() }"
+									/>
 								</div>
 							</div>
+							}
 						</div>
 						<div hlmField>
 							<div hlmFieldContent>
@@ -234,7 +599,9 @@
 					>
 						<div class="flex gap-3 items-baseline">
 							<label hlmLabel
-								>{{ group.data.options().value().length }} Options</label
+								>{{ group.data.options().value().length }}
+								Item{{group.data.options().value().length != 1 ? 's':
+								''}}</label
 							>
 							<ng-container
 								[ngTemplateOutlet]="errorsTemplate"
@@ -283,7 +650,7 @@
 						animate.enter="expand"
 						animate.leave="shrink"
 						[class.pt-2]="newItems.length == 0"
-						class="relative text-(--secondary-foreground) pb-2 border-border border rounded-b-md bg-(--secondary)/50 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+						class="relative text-(--secondary-foreground) pb-2 border-border border rounded-b-md bg-(--secondary)/50 max-h-[350px]! overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 					>
 						@if(newItems.length > 0) {
 						<div
@@ -291,10 +658,10 @@
 						>
 							<div hlmFieldGroup class="overflow-y-hidden max-h-[400px]">
 								<fieldset hlmFieldSet>
-									<legend hlmFieldLegend class="px-2 pt-2">New Options</legend>
+									<legend hlmFieldLegend class="px-2 pt-2">New Items</legend>
 									<p hlmFieldDescription class="px-2">
-										The options you add here will be appended to the end of the
-										list of existing options
+										The items you add here will be appended to the end of the
+										list of existing items.
 									</p>
 									<div
 										hlmFieldGroup
@@ -302,21 +669,19 @@
 										(cdkDropListDropped)="onNewItemReOrdered($event, lineIndex)"
 										class="items max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 									>
-										@for(option of group.data.options; track option) {
+										@for(option of group.data.options; track
+										option.trackingKey().value()) {
 										<ng-container>
 											@if($index >= newItemsIndexOffset()[lineIndex]) {
 											<div
-												[ngClass]="{
-												'border-b border-border': !$last,
-											}"
-												class="item px-2"
+												class="item px-2 group/option border-b border-border"
 												cdkDrag
 												cdkDragLockAxis="y"
 											>
 												<div class="drag-placeholder" *cdkDragPlaceholder></div>
 												<div
 													hlmFieldGroup
-													class="items-end grid gap-x-2 group"
+													class="items-end grid gap-x-2"
 													[ngClass]="{
 											'grid-cols-[auto_minmax(auto,1fr)_1fr_1fr_auto]': !!parents()[lineIndex],
 											'grid-cols-[auto_minmax(auto,1fr)_1fr_auto]': !parents()[lineIndex]
@@ -353,21 +718,22 @@
 							cdkDropList
 							(cdkDropListDropped)="onItemReordered($event, lineIndex)"
 						>
-							@for(option of group.data.options; track option) {
+							@for(option of group.data.options; track
+							option.trackingKey().value()) {
 							<ng-container>
 								@if($index < newItemsIndexOffset()[lineIndex]) {
 								<div
 									[ngClass]="{
 							'border-b border-border': true,
 						}"
-									class="item px-2"
+									class="item px-2 group/option"
 									cdkDrag
 									cdkDragLockAxis="y"
 								>
 									<div class="drag-placeholder" *cdkDragPlaceholder></div>
 									<div
 										hlmFieldGroup
-										class="px-2 items-end grid gap-x-2 group"
+										class="px-2 items-end grid gap-x-2"
 										[ngClass]="{
 											'grid-cols-[auto_minmax(auto,1fr)_1fr_1fr_auto]': !!parents()[lineIndex],
 											'grid-cols-[auto_minmax(auto,1fr)_1fr_auto]': !parents()[lineIndex]
@@ -403,7 +769,7 @@
 				<button
 					type="button"
 					hlmBtn
-					[disabled]="savingChanges()"
+					[disabled]="formModel().submitting()"
 					variant="destructive"
 					size="icon-sm"
 					(click)="onDeleteLineButtonClicked(lineIndex)"
@@ -453,37 +819,28 @@
 			/>
 		</div>
 	</div>
-	@if(parents()[line]) {
+	<ng-container> @let parent = parents()[line]; </ng-container>
+	@if(parent) {
 	<div hlmField>
 		<label hlmFieldLabel for="{{line}}__parent_input_{{unifiedIndex}}">
 			Parent value
 		</label>
 		<div hlmFieldContent>
-			<!-- <input hlmInput [field]="fieldSignal.parentValue" /> -->
-			<brn-popover>
-				<button
-					class="flex w-full justify-between"
-					type="button"
-					hlmBtn
-					brnPopoverTrigger
-					variant="outline"
-				>
-					<span class="text-muted-foreground">Select parent</span>
-					<ng-icon name="lucideChevronsUpDown" class="opacity-50" />
-				</button>
-				<hlm-command
-					*brnPopoverContent="let ctx"
-					hlmPopoverContent
-					class="w-[200px] p-0"
-				>
-					<hlm-command-search>
-						<ng-icon name="lucideSearch" />
-						<input placeholder="Choose " hlm-command-search-input />
-					</hlm-command-search>
-					<div *hlmCommandEmptyState hlmCommandEmpty>No Results</div>
-					<!-- <hlm-command-list -->
-				</hlm-command>
-			</brn-popover>
+			<hlm-select
+				id="{{line}}__parent_input_{{unifiedIndex}}"
+				[field]="fieldSignal.parentValue"
+				class="w-full"
+			>
+				<hlm-select-trigger class="w-full">
+					<hlm-select-value />
+				</hlm-select-trigger>
+				<hlm-select-content class="w-full">
+					<hlm-option [value]="null">None</hlm-option>
+					@for(option of parent.options; track option.trackingKey) {
+					<hlm-option [value]="option.value">{{ option.label }}</hlm-option>
+					}
+				</hlm-select-content>
+			</hlm-select>
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
 				[ngTemplateOutletContext]="{ $implicit: fieldSignal.parentValue() }"
@@ -493,10 +850,11 @@
 	}
 	<button
 		type="button"
-		class="group-hover:pointer-events-auto group-hover:opacity-100 pointer-events-none opacity-0"
+		class="group-hover/option:pointer-events-auto group-hover/option:opacity-100 pointer-events-none opacity-0"
 		type="button"
 		size="icon-sm"
 		hlmBtn
+		(click)="onDeleteGroupOptionButtonClicked(line, index)"
 		variant="outline"
 	>
 		<ng-icon name="lucideTrash2" />
@@ -517,3 +875,55 @@
 	</div>
 	}
 </ng-template>
+
+<hlm-alert-dialog
+	(stateChanged)="pendingChangesDialogState.set($event)"
+	[state]="pendingChangesDialogState()"
+>
+	<hlm-alert-dialog-content
+		*brnAlertDialogContent="let ctx"
+		class="max-w-[500px]!"
+	>
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>
+				{{ 'misc.dialogs.pending_changes.title' | translate }}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{ 'misc.dialogs.pending_changes.description' | translate}}
+			</p>
+		</hlm-alert-dialog-header>
+		<hlm-alert-dialog-footer>
+			<button
+				[disabled]="formModel().submitting()"
+				hlmAlertDialogCancel
+				class="cursor-pointer"
+				(click)="pendingChangesActionCallback?.({type: 'close', close: ctx.close})"
+			>
+				<ng-icon name="lucideX" />
+				<span>{{ 'misc.actions.stay' | translate }}</span>
+			</button>
+			<button
+				(click)="pendingChangesActionCallback?.({type: 'save', close: ctx.close})"
+				[disabled]="formModel().submitting()"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+			>
+				<ng-icon
+					[class.animate.spin]="formModel().submitting()"
+					[name]="formModel().submitting() ? 'lucideLoader' : 'lucideSave'"
+				/>
+				<span>{{ 'misc.actions.save_and_exit' | translate }}</span>
+			</button>
+			<button
+				(click)="pendingChangesActionCallback?.({type: 'discard', close: ctx.close})"
+				[disabled]="formModel().submitting()"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+				variant="destructive"
+			>
+				<ng-icon name="lucideTrash2" />
+				<span>{{ 'misc.actions.discard' | translate }}</span>
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog> -->

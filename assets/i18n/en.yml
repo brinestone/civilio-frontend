@@ -156,8 +156,8 @@ login:
   welcome_back: Welcome back
 settings:
   choices:
-    title: Option Editor
-    page_title: Option Editor
+    title: Dataset Editor
+    page_title: Dataset Editor
     actions:
       edit: Edit
     empty:

@@ -7,6 +7,8 @@ import {
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
@@ -49,6 +51,24 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest) {
+		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.groupId}/${req.optionId}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
+	async deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void> {
+		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.id}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
 	private readonly baseApiUrl = 'http://localhost:3000/api';
 	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
 		const response = await fetch(`${this.baseApiUrl}/forms/options`, {

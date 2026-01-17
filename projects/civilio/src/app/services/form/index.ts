@@ -6,6 +6,8 @@ import {
 } from "@angular/core";
 import { FormSchema } from "@app/model/form";
 import {
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
@@ -30,8 +32,7 @@ import {
 	GetFacilityInfoRequest,
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
-	InitializeSubmissionVersionResponse, LoadAllFormOptionsRequest,
-	LoadAllFormOptionsResponse,
+	InitializeSubmissionVersionResponse,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
@@ -46,7 +47,10 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
+	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
+	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void>;
 	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void>;
+
 	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse>;
 
 	findAllForms(): Promise<FormSchema[]>;

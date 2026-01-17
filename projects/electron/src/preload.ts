@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('electron', {
 	},
 	openExternalLink: (link: string) => {
 		shell.openExternal(link);
-	}
+	},
+	platform: process.platform
 });
