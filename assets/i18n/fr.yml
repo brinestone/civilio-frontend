@@ -42,6 +42,7 @@ misc:
   equipment: "# d'équipement"
   change_history: Historique des modifications
   degree: Degré
+  checking: vérification
   has_power: Utilise de l'électricité
   has_water: A des sources d'eau
   is_chiefdom: La chefferie est-elle
@@ -51,12 +52,16 @@ misc:
   village_count: "# de villages rattachés"
   category: Catégorie
   births: Naissances enregistrées
+  sequence: Séquence
+  active: actif
+  inactive: inactif
   deaths: Décès enregistrés
   status: Statut
   stats_l_5: Statistiques des 5 dernières années
   health_area: Espace santé
   health_district: District de santé
   creation_date: Créé à
+  none: Aucun
   powered_by: Fourni par
   developed_by: Développé par
   contributors: Contributeurs
@@ -84,10 +89,15 @@ misc:
       title: Supprimer les modifications non enregistrées ?
       description: Vous avez apporté des modifications non enregistrées qui seront
         perdues si vous continuez. Etes-vous vraiment sûr ?
+  toasts:
+    item_deleted: "{{item}} a été supprimé."
+    delete_failed: Impossible de supprimer {{domain}}
   actions:
     open_overview: Aperçu
     cancel: Annuler
     finish: Finition
+    save: Enregistrer les modifications
+    saving_changes: Enregistrer les modifications
     modify: Modifier
     discard: Ignorer les modifications
     copy_version: Copier le hachage de la version
@@ -161,9 +171,59 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
-  choices:
-    title: Éditeur de jeux de données
-    page_title: Éditeur de jeux de données
+  dataset:
+    validation:
+      unique_labels: Les étiquettes doivent être uniques
+      unique_values: Les valeurs doivent être uniques
+      required: Ce champ est obligatoire
+    toasts:
+      unloadable: Impossible de charger les ensembles de données
+      unsavable: Impossible d'enregistrer les modifications
+    form:
+      title: Ensembles de données
+      description: Ajouter ou modifier des ensembles de données pouvant être utilisés
+        dans des formulaires
+      actions:
+        add_new:
+          title: Ajouter un ensemble de données
+      fields:
+        group_title:
+          title: Titre
+          description: Un texte lisible par l'homme pour cet ensemble de données.
+        key:
+          title: Clé
+          description: Une clé unique qui peut être utilisée dans les requêtes.
+        parent:
+          title: Ensemble de données parent
+          description: Un autre ensemble de données qui peut être lié à celui-ci dans une
+            hiérarchie.
+        description:
+          title: Description
+        items:
+          title: Article
+          new_item:
+            title: Nouveaux articles
+            description: Les éléments ajoutés ici seront ajoutés à la fin de la liste des
+              éléments existants.
+          fields:
+            label:
+              title: Étiquette
+            value:
+              title: Valeur
+            parent_value:
+              title: Valeur parentale
+      dialogs:
+        group_deletion:
+          title: Ensemble de données dépendant détecté
+          description1: L'ensemble de données que vous essayez de supprimer contient
+            d'autres ensembles de données qui en dépendent
+          description2: Le supprimer dissociera les ensembles de données dépendants
+          description3: Êtes-vous sûr de vouloir continuer ?
+          actions:
+            cancel: Annuler la suppression
+            proceed: Je comprends, continue
+    title: Ensembles de données
+    page_title: Ensembles de données
     actions:
       edit: Modifier
     empty:

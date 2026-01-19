@@ -29,7 +29,7 @@ const sections = [
 		path: 'field-mapping'
 	},
 	{
-		label: 'settings.choices.title',
+		label: 'settings.dataset.page_title',
 		icon: 'lucideListCheck',
 		path: 'choice-editor'
 	},

@@ -18,7 +18,7 @@ export const settingsRoutes: Routes = [
 	},
 	{
 		path: 'choice-editor',
-		title: 'settings.choices.page_title',
+		title: 'settings.dataset.page_title',
 		providers: [provideDatasets()],
 		canActivate: [dbConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],

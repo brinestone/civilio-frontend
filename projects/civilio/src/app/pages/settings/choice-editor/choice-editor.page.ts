@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, HostListener, inject, signal, untracked, viewChildren } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, inject, signal, untracked, viewChildren } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { HasPendingChanges } from "@app/model/form";
@@ -11,6 +11,7 @@ import { randomString } from "@app/util";
 import { DatasetGroup, DatasetItem, UpdateFormOptionsDataSetRequestSchema } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideChevronDown, lucideChevronsUpDown, lucideChevronUp, lucideCircleAlert, lucideFilter, lucideLoader, lucideMenu, lucidePlus, lucideRefreshCw, lucideSave, lucideSaveAll, lucideSearch, lucideTrash2, lucideX } from "@ng-icons/lucide";
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
@@ -57,7 +58,11 @@ type GroupForm = FormGroup<{
 
 const requiredValidator = (control: AbstractControl) => {
 	if (control.value) return null;
-	return { required: { message: 'This field is required' } };
+	return {
+		required: {
+			message: 'settings.dataset.validation.required'
+		}
+	};
 }
 
 @Component({
@@ -98,6 +103,7 @@ const requiredValidator = (control: AbstractControl) => {
 		HlmButton,
 		HlmInput,
 		HlmLabel,
+		TranslatePipe,
 		HlmTextarea,
 		ReactiveFormsModule,
 		ValuesPipe,
@@ -112,6 +118,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	private readonly actions$ = inject(Actions);
 	protected readonly isMac: boolean;
 	private readonly cdr = inject(ChangeDetectorRef);
+	private readonly ts = inject(TranslateService);
 	protected readonly form = new FormGroup({
 		groups: new FormArray<GroupForm>([])
 	});
@@ -196,7 +203,6 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 
 	constructor() {
 		this.isMac = window.electron.platform == 'darwin';
-		effect(() => console.log(this.availableParents()));
 	}
 
 	protected onDeleteLineButtonClicked(lineIndex: number) {
@@ -226,7 +232,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 
 		// 3. Handle API persistence for existing items
 		if (currentGroupValue.meta?.isNew !== true) {
-			const toastId = toast.warning(`"${currentGroupValue.data?.title}" was removed`, {
+			const toastId = toast.warning(this.ts.instant('misc.toasts.item_deleted', { item: currentGroupValue.data?.title }), {
 				cancel: {
 					label: 'Undo',
 					onClick: () => {
@@ -238,7 +244,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 					try {
 						await this.doDeleteExistingLine(currentGroupValue.data?.id as string);
 					} catch (e) {
-						toast.error('Could not delete dataset', { description: (e as Error).message });
+						toast.error(this.ts.instant('misc.toasts.delete_failed', { domain: currentGroupValue.data?.title }), { description: (e as Error).message });
 						this.restoreDatasetGroupControl(lineIndex, currentGroupValue);
 					}
 				}
@@ -324,7 +330,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			const labels = items.map(v => v.label?.trim()).filter(l => !!l) as string[];
 			const containsDuplicateLabels = new Set(labels).size !== labels.length;
 			if (!containsDuplicateLabels) return null;
-			return { duplicateLabels: { message: 'Labels must be unique' } };
+			return { duplicateLabels: { message: 'settings.dataset.validation.unique_labels' } };
 		}
 
 		const uniqueValuesValidator = (control: AbstractControl<ItemForm['value'][]>) => {
@@ -332,7 +338,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			const values = items.map(v => v.value?.trim()).filter(v => !!v) as string[];
 			const containsDuplicateValues = new Set(values).size !== values.length;
 			if (!containsDuplicateValues) return null;
-			return { duplicateValues: { message: 'Values must be unique' } };
+			return { duplicateValues: { message: 'settings.dataset.validation.unique_values' } };
 		}
 
 		return new FormGroup({
@@ -358,7 +364,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	ngAfterViewInit() {
 		this.loadGroups().subscribe({
 			error: (e: Error) => {
-				toast.error('Could not load datasets', { description: e.message });
+				toast.error(this.ts.instant('settings.dataset.toasts.unloadable'), { description: e.message });
 			},
 			complete: () => {
 				this.doResetForm();
@@ -373,7 +379,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			switchMap(() => this.actions$.pipe(ofActionSuccessful(LoadDatasets), take(1)))
 		).subscribe({
 			error: (e: Error) => {
-				toast.error('Could not save changes', { description: e.message });
+				toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), { description: e.message });
 			},
 			complete: () => {
 				this.onFormReset();
