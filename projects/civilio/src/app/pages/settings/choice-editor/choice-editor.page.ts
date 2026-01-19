@@ -123,6 +123,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		groups: new FormArray<GroupForm>([])
 	});
 	protected readonly lineDeletionDialogState = signal<BrnDialogState>('closed');
+	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
 
 	private loadGroups = dispatch(LoadDatasets);
 	private deleteDataset = dispatch(DeleteDataset);
@@ -140,7 +141,40 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	), { initialValue: [] });
 	protected savingChanges = signal(false);
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
-		return false;
+		if (this.form.pristine) return false;
+		this.pendingChangesDialogState.set('open');
+		return new Observable<boolean>(subscriber => {
+			this.pendingChangesCallback = ({ action, callback }) => {
+				subscriber.add(() => {
+					callback();
+					this.pendingChangesDialogState.set('closed');
+					this.pendingChangesCallback = undefined;
+				});
+				if (action == 'close') {
+					subscriber.next(true);
+					subscriber.complete();
+				} else if (action == 'leave') {
+					subscriber.next(false);
+					subscriber.complete();
+				} else {
+					this.savingChanges.set(true);
+					from(this.doSubmitChanges()).subscribe({
+						error: (e: Error) => {
+							this.savingChanges.set(false);
+							toast.error(this.ts.instant('msg.error.title'), { description: e.message });
+							subscriber.next(true);
+							subscriber.complete();
+						},
+						complete: () => {
+							this.savingChanges.set(false);
+							toast.success(this.ts.instant('msg.changes_saved.title'));
+							subscriber.next(false);
+							subscriber.complete();
+						}
+					})
+				}
+			}
+		})
 	}
 	protected readonly itemsSequential = toSignal(this.form.valueChanges.pipe(
 		mergeMap(data => from(data.groups ?? []).pipe(
@@ -177,6 +211,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	});
 
 	protected lineDeletionConfirmationCallback?: (cb: () => void) => Promise<void>;
+	protected pendingChangesCallback?: (arg: { callback: () => void, action: 'save' | 'leave' | 'close' }) => void;
 
 	protected onNewItemReordered(event: CdkDragDrop<GroupForm['controls']['data']['controls']['options']['controls'][number]>, lineIndex: number) {
 		const g = this.form.controls.groups.at(lineIndex).controls.data.controls.options;
@@ -373,6 +408,10 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	}
 
 	protected async onFormSubmit() {
+		await this.doSubmitChanges();
+	}
+
+	private async doSubmitChanges() {
 		const modifiedGroups = this.form.controls.groups.controls.filter(g => g.dirty).map(g => g.value);
 		const payload = UpdateFormOptionsDataSetRequestSchema.parse({ groups: modifiedGroups });
 		this.saveDatasets(payload).pipe(

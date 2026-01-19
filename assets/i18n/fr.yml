@@ -86,13 +86,18 @@ misc:
         title: La soumission n'est pas valide
         description: "{{count}} champ(s) invalide(s)"
     pending_changes:
-      title: Supprimer les modifications non enregistrées ?
+      title: Modifications non enregistrées détectées
       description: Vous avez apporté des modifications non enregistrées qui seront
         perdues si vous continuez. Etes-vous vraiment sûr ?
+      description1: Vous avez des modifications non enregistrées.
+      description2: Continuer annulera toutes les modifications que vous avez apportées
+      description3: Êtes-vous sûr de vouloir continuer ?
   toasts:
     item_deleted: "{{item}} a été supprimé."
     delete_failed: Impossible de supprimer {{domain}}
   actions:
+    stay_here: Reste ici
+    save_and_leave: Enregistrer et partir
     open_overview: Aperçu
     cancel: Annuler
     finish: Finition

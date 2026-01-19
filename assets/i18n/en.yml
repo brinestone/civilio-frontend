@@ -81,12 +81,17 @@ misc:
         title: Submission is invalid
         description: "{{count}} invalid field(s)"
     pending_changes:
-      title: Discard unsaved changes?
+      title: Unsaved changes detected
       description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
+      description1: You have unsaved changes.
+      description2: Proceeding will discard all the changes you've made
+      description3: Are you sure you want to proceed?
   toasts:
     item_deleted: "{{item}} was removed."
     delete_failed: 'Could not remove {{domain}}'
   actions:
+    stay_here: Stay here
+    save_and_leave: Save and leave
     open_overview: Overview
     cancel: Cancel
     finish: Finish

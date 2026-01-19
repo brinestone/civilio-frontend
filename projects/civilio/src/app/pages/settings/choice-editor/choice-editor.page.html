@@ -402,6 +402,53 @@
 	</div>
 </form>
 
+<hlm-alert-dialog [state]="pendingChangesDialogState()" #pendingChangesDialog>
+	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="min-w-[500px]!">
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>
+				{{ 'misc.dialogs.pending_changes.title' | translate}}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{'misc.dialogs.pending_changes.description1' | translate}}
+				<strong
+					>{{ 'misc.dialogs.pending_changes.description2' | translate }}</strong
+				>. {{'misc.dialogs.pending_changes.description3' | translate}}
+			</p>
+		</hlm-alert-dialog-header>
+		<hlm-alert-dialog-footer>
+			<button
+				type="button"
+				(click)="pendingChangesCallback?.({action: 'close', callback: ctx.close})"
+				hlmAlertDialogCancel
+				class="cursor-pointer"
+			>
+				<ng-icon name="lucideX" />
+				<span>{{'misc.actions.stay_here' | translate }}</span>
+			</button>
+			<button
+				type="button"
+				(click)="pendingChangesCallback?.({action: 'save', callback: ctx.close})"
+				hlmAlertDialogAction
+				variant="default"
+				class="cursor-pointer"
+			>
+				<ng-icon name="lucideSave" />
+				<span>{{ 'misc.actions.save_and_leave' | translate }}</span>
+			</button>
+			<button
+				type="button"
+				hlmAlertDialogCancel
+				variant="destructive"
+				(click)="pendingChangesCallback?.({action: 'leave', callback: ctx.close})"
+				class="cursor-pointer"
+			>
+				<ng-icon name="lucideTrash2" />
+				<span>{{ 'misc.actions.discard' | translate }}</span>
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
 <hlm-alert-dialog [state]="lineDeletionDialogState()" #lineDeletionConfirmation>
 	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
 		<hlm-alert-dialog-header>
@@ -409,11 +456,13 @@
 				{{'settings.dataset.form.dialogs.group_deletion.title' | translate}}
 			</h2>
 			<p hlmAlertDialogDescription>
-				{{'settings.dataset.form.dialogs.group_deletion.description1' | translate}}.
+				{{'settings.dataset.form.dialogs.group_deletion.description1' |
+				translate}}.
 				<strong
 					>{{'settings.dataset.form.dialogs.group_deletion.description2' |
 					translate}}</strong
-				>. {{'settings.dataset.form.dialogs.group_deletion.description3' | translate}}
+				>. {{'settings.dataset.form.dialogs.group_deletion.description3' |
+				translate}}
 			</p>
 		</hlm-alert-dialog-header>
 		<hlm-alert-dialog-footer>
