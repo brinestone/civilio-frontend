@@ -1,5 +1,55 @@
 import { z } from 'zod';
 
+export const OptionItemSchema = z.object({
+	id: z.uuid().nullable(),
+	label: z.string(),
+	value: z.string(),
+	parentValue: z.string().nullish(),
+	i18nKey: z.string().nullable(),
+	ordinal: z.int()
+});
+
+export const DatasetItemSchema = z.object({
+	id: z.uuid().nullable(),
+	label: z.string(),
+	value: z.string(),
+	parentValue: z.string().nullish(),
+	i18nKey: z.string().nullable(),
+	ordinal: z.int()
+});
+
+export const DatasetGroupSchema = z.object({
+	title: z.string(),
+	description: z.string().nullish(),
+	key: z.string().nullish(),
+	id: z.uuid().nullish(),
+	parentId: z.uuid().nullish(),
+	options: DatasetItemSchema.array(),
+})
+
+export const OptionGroupSchema = z.object({
+	description: z.string().nullable(),
+	// form: z.string(),
+	title: z.string(),
+	key: z.string().nullable(),
+	id: z.uuid().nullable(),
+	parentId: z.uuid().nullable(),
+	options: OptionItemSchema.array(),
+	parent: z.object({
+		key: z.string(),
+		title: z.string(),
+		description: z.string().nullable()
+	}).nullable()
+});
+
+export const RelevanceChainOperatorSchema = z.enum([
+	'and', 'or'
+])
+
+export const RelevanceOperatorSchema = z.enum([
+	'==', '>=', '<=', '>', '<', 'selected'
+]);
+
 export const SubmissionInfoSchema = z.object({
 	facilityName: z.string().nullable().optional(),
 	location: z.string().nullable().optional(),
@@ -179,16 +229,16 @@ export type Locale = z.infer<typeof LocaleSchema>;
 export type DbConfig = z.infer<typeof DbConfigSchema>;
 export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
 type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
-type DropInitDot<T> = T extends `.${ infer U }` ? U : T;
+type DropInitDot<T> = T extends `.${infer U}` ? U : T;
 type _DeepKeys<T> = T extends object ? (
 	{
 		[K in (string | number) & keyof T]:
-		`${ (
-			`.${ K }` | (`${ K }` extends `${ number }` ? `[${ K }]` : never)
-			) }${ "" | _DeepKeys<FixArr<T[K]>> }`
+		`${(
+			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
+		)}${"" | _DeepKeys<FixArr<T[K]>>}`
 	}[
-		(string | number) & keyof T]
-	) : never;
+	(string | number) & keyof T]
+) : never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
 export type Paginated<T> = {
@@ -203,3 +253,5 @@ export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
 export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
+export type DatasetItem = z.infer<typeof DatasetItemSchema>;
+export type DatasetGroup = z.infer<typeof DatasetGroupSchema>;

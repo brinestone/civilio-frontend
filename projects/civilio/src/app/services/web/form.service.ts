@@ -1,12 +1,15 @@
 import { Injectable, makeEnvironmentProviders } from "@angular/core";
-import { FORM_SERVICE_IMPL, FormService } from "../form";
+import { FormSchema } from "@app/model/form";
 import {
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
+	FindFormOptionGroupsResponse,
 	FindFormOptionsResponse,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -25,10 +28,12 @@ import {
 	GetFacilityInfoResponse,
 	InitializeSubmissionVersionRequest,
 	InitializeSubmissionVersionResponse,
+	LoadAllFormOptionsRequest,
 	Paginated,
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -36,14 +41,33 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
+import { FORM_SERVICE_IMPL, FormService } from "../form";
 
 @Injectable({
 	providedIn: null
 })
 export class WebFormService implements FormService {
+	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
+		throw new Error("Method not implemented.");
+	}
+	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {
+		throw new Error("Method not implemented.");
+	}
+
+	findAllForms(): Promise<FormSchema[]> {
+		throw new Error("Method not implemented.");
+	}
+
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		throw new Error("Method not implemented.");
 	}
+
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

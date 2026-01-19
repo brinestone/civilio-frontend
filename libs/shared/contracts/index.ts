@@ -32,6 +32,7 @@ import {
 	GetThirdPartyLicensesResponseSchema,
 	InitializeSubmissionVersionRequestSchema,
 	InitializeSubmissionVersionResponseSchema,
+	LoadAllFormOptionsRequestSchema, LoadAllFormOptionsResponseSchema,
 	LoadTranslationRequestSchema,
 	LoadTranslationResponseSchema,
 	RemoveFieldMappingRequestSchema,
@@ -108,7 +109,8 @@ export const channelArgs = {
 	'facility-info:read': GetFacilityInfoRequestSchema,
 	'submission:delete': DeleteSubmissionRequestSchema,
 	'approval:toggle': ToggleApprovalStatusRequestSchema,
-	'submission-version:exists': VersionExistsRequestSchema
+	'submission-version:exists': VersionExistsRequestSchema,
+	'options-raw:read': LoadAllFormOptionsRequestSchema
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -152,12 +154,14 @@ export const channelResponses = {
 	'facility-info:read': GetFacilityInfoResponseSchema,
 	'submission:delete': {},
 	'approval:toggle': {},
-	'submission-version:exists': VersionExistsResponseSchema
+	'submission-version:exists': VersionExistsResponseSchema,
+	'options-raw:read': LoadAllFormOptionsResponseSchema
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'options-raw:read'
 	| 'submission-version:exists'
 	| 'submission:delete'
 	| 'approval:toggle'

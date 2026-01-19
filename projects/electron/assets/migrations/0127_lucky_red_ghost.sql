@@ -1,0 +1,1 @@
+ALTER TABLE "civilio"."forms" ADD COLUMN "icon" text;

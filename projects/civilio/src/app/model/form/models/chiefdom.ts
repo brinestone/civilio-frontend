@@ -328,6 +328,7 @@ export const ChefferieFormDefinition = FormModelDefinitionSchema.parse({
 		}
 	] as SectionSchema[],
 	meta: {
-		form: 'chefferie' as FormType
+		form: 'chefferie' as FormType,
+		label: 'chefferie.title'
 	}
 });

@@ -1,13 +1,22 @@
 import { Injectable, makeEnvironmentProviders } from '@angular/core';
+import {
+	ChefferieFormDefinition,
+	CscFormDefinition,
+	FosaFormDefinition
+} from '@app/model/form';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponseSchema,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponseSchema,
+	FindFormOptionGroupsResponse,
+	FindFormOptionGroupsResponseSchema,
 	FindFormOptionsResponseSchema,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -28,6 +37,7 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -36,14 +46,60 @@ import {
 	VersionRevertResponse
 } from '@civilio/shared';
 import { FORM_SERVICE_IMPL, FormService } from '../form';
+import { omit } from 'lodash';
 
 @Injectable({
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	async deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest) {
+		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.groupId}/${req.optionId}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
+	async deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void> {
+		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.id}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
+	private readonly baseApiUrl = 'http://localhost:3000/api';
+	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
+		const body = req.groups.map(g => ({ ...(omit(g, 'meta')), isNew: g.meta.isNew }));
+		const response = await fetch(`${this.baseApiUrl}/forms/options`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		});
+		if (!response.ok) {
+			const { message } = await response.json();
+			throw new Error(message);
+		}
+	}
+	async loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {
+		const response = await fetch(`${this.baseApiUrl}/forms/options`);
+		const obj = await response.json();
+
+		return FindFormOptionGroupsResponseSchema.parse(obj);
+	}
+
+	async findAllForms() {
+		return [CscFormDefinition, FosaFormDefinition, ChefferieFormDefinition];
+	}
+
 	async versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse> {
 		return await sendRpcMessageAsync('submission-version:exists', req);
 	}
+
 	async deleteSubmission(req: DeleteSubmissionRequest): Promise<void> {
 		return await sendRpcMessageAsync('submission:delete', req);
 	}

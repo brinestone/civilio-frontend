@@ -8,3 +8,5 @@ export * from './map/map.component';
 export * from './version-cell/version-cell.component';
 export * from './date-cell/date-cell.component';
 export * from './badge-cell/badge-cell.component';
+export * from './group-field/group-field.component';
+export * from '../pages/settings/choice-editor/choice-editor.page';
