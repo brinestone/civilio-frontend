@@ -122,3 +122,7 @@ hlm-option {
 .scroll-box {
 	@apply overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent;
 }
+
+.cdk-overlay-container {
+	@apply z-9999999999999;
+}

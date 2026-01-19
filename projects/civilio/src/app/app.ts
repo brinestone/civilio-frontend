@@ -6,7 +6,6 @@ import {
 	DOCUMENT,
 	effect,
 	inject,
-	OnInit,
 	PLATFORM_ID,
 	signal
 } from '@angular/core';
@@ -18,7 +17,6 @@ import { dispatch, select } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
 import { ThemeService } from './services/theme.service';
 import { fontSize } from './store/selectors';
-import { isDesktop } from '@app/util';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeEn);

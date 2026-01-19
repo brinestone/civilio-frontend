@@ -156,7 +156,7 @@ export const fieldMappings = civilio.table(
 		dbColumnType: text("db_column_type").notNull(),
 		aliasHash: text("alias_hash").generatedAlwaysAs(
 			(): SQL => sql<string>`md5
-				(${ fieldMappings.field })`,
+				(${fieldMappings.field})`,
 		),
 	},
 	(table) => [
@@ -278,9 +278,9 @@ export const vwDbColumns = civilio
 		sql`SELECT c.column_name,
 							 c.data_type,
 							 c.table_name,
-							 CAST(c.table_schema as ${ formTypes }) as form
+							 CAST(c.table_schema as ${formTypes}) as form
 				FROM information_schema.columns c
-				WHERE ${ inArray(sql`c.table_schema`, formTypes.enumValues) }`,
+				WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`,
 	);
 
 export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE', 'REVERT']);

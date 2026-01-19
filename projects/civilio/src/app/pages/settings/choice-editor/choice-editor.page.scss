@@ -1,0 +1,68 @@
+@reference "tailwindcss";
+
+:host {
+	interpolate-size: allow-keywords;
+	@apply pt-3 block relative pb-5;
+}
+
+@keyframes expand-item {
+	from {
+		overflow-y: hidden;
+		height: 0;
+	}
+	to {
+		height: minmax(calc-size(max-content, size + 0), 500px);
+		overflow-y: auto;
+	}
+}
+
+@keyframes shrink-item {
+	from {
+		overflow-y: hidden;
+		height: minmax(calc-size(max-content, size + 0), 500px);
+	}
+	to {
+		height: 0;
+	}
+}
+
+*.expand {
+	overflow: hidden;
+	animation: 0.3s expand-item forwards linear;
+}
+
+*.shrink {
+	overflow: hidden;
+	animation: 0.25s shrink-item forwards linear;
+}
+
+.items {
+	@apply block;
+}
+.item {
+	@apply pb-3 pt-2;
+}
+.cdk-drag-preview {
+	border: none;
+	box-sizing: border-box;
+	box-shadow:
+		0 5px 5px -3px rgba(0, 0, 0, 0.2),
+		0 8px 10px 1px rgba(0, 0, 0, 0.14),
+		0 3px 14px 2px rgba(0, 0, 0, 0.12);
+	padding-top: 10px !important;
+	padding-bottom: 10px !important;
+	height: max-content !important;
+	@apply bg-(--secondary);
+}
+.drag-placeholder {
+	@apply bg-[color-mix(in_srgb,var(--secondary),black_20%)] h-[70px];
+}
+.cdk-drag-animating {
+	transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+/* .item:last-child {
+  border: none;
+} */
+.items.cdk-drop-list-dragging .item:not(.drag-placeholder) {
+	transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

@@ -24,11 +24,11 @@
         </a>
       </li>
     } @empty {
-      <li class="text-center">{{ 'tmpl.autocomplete.empty_text' | translate }}</li>
+      <li class="text-center text-sm">{{ 'tmpl.autocomplete.empty_text' | translate }}</li>
     }
   </ul>
 </div>
-<div class="row-span-1 row-start-2 col-start-2 col-span-1 overflow-y-auto">
+<div class="row-span-1 row-start-2 col-start-2 col-span-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">
   <router-outlet />
 </div>
 <div

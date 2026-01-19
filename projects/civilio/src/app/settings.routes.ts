@@ -6,6 +6,8 @@ import {
 	CscFormDefinition,
 	FosaFormDefinition
 } from "./model/form";
+import { hasChangesGuard } from "./guards/has-changes-guard";
+import { provideDatasets } from "./store/dataset";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 export const settingsRoutes: Routes = [
@@ -13,6 +15,14 @@ export const settingsRoutes: Routes = [
 		path: 'general',
 		title: 'settings.general.page_title',
 		loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage)
+	},
+	{
+		path: 'choice-editor',
+		title: 'settings.dataset.page_title',
+		providers: [provideDatasets()],
+		canActivate: [dbConfigValidGuardFn],
+		canDeactivate: [hasChangesGuard],
+		loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage),
 	},
 	{
 		providers: [

@@ -10,6 +10,7 @@ import {
 	FormTypeSchema,
 	LocaleSchema,
 	MigrationsCheckReportSchema,
+	OptionGroupSchema,
 	OptionSchema,
 	SubmissionChangeDeltaSchema,
 	SubmissionInfoSchema,
@@ -18,6 +19,48 @@ import {
 	ThirdPartyLicenceSchema
 } from "../schema";
 
+export const DeleteOptionGroupByIdRequestSchema = z.object({
+	id: z.uuid()
+});
+export const DeleteOptionGroupOptionByIdRequestSchema = z.object({
+	groupId: z.uuid(),
+	optionId: z.uuid()
+});
+
+export const UpdateFormOptionsDataSetRequestSchema = z.object({
+	groups: z.object({
+		meta: z.object({
+			isNew: z.boolean()
+		}),
+		data: z.object({
+			description: z.string().nullish(),
+			title: z.string(),
+			id: z.uuid().nullable(),
+			parentId: z.uuid().nullable(),
+			key: z.string().nullable(),
+			options: z.object({
+				id: z.string().nullish(),
+				parentValue: z.string().nullish(),
+				ordinal: z.number(),
+				i18nKey: z.string().nullable(),
+				isNew: z.boolean(),
+				key: z.string().optional(),
+				label: z.string(),
+				value: z.string(),
+			}).array().default([])
+		})
+	}).array()
+});
+
+export const FindFormOptionGroupsResponseSchema = z.object({
+	groups: OptionGroupSchema.array()
+});
+
+export const LoadAllFormOptionsRequestSchema = z.string();
+export const LoadAllFormOptionsResponseSchema = OptionSchema.extend({
+	group: z.string(),
+	value: z.string()
+}).array();
 export const VersionExistsRequestSchema = z.object({
 	form: FormTypeSchema,
 	index: z.coerce.number(),
@@ -206,7 +249,7 @@ export type FindFieldMappingsRequest = z.input<typeof FindFieldMappingsRequestSc
 export type FieldMappingRequest = z.input<typeof FieldMappingRequestSchema>;
 export type UpdateConfigRequest = z.input<typeof UpdateConfigRequestSchema>;
 export type AppConfigResponse = z.infer<typeof AppConfigResponseSchema>;
-export type FindFormOptionsResponse = z.infer<typeof FindFormOptionsResponseSchema>;
+export type FindFormOptionsResponse = z.output<typeof FindFormOptionsResponseSchema>;
 export type TestDbConnectionRequest = z.input<typeof TestDbConnectionRequestSchema>;
 export type TestDbConnectionResponse = z.infer<typeof TestDbConnectionResponseSchema>;
 export type LoadTranslationRequest = z.input<typeof LoadTranslationRequestSchema>;
@@ -247,3 +290,9 @@ export type ToggleApprovalStatusRequest = z.input<typeof ToggleApprovalStatusReq
 export type DeleteSubmissionRequest = z.input<typeof DeleteSubmissionRequestSchema>;
 export type VersionExistsRequest = z.input<typeof VersionExistsRequestSchema>;
 export type VersionExistsResponse = z.infer<typeof VersionExistsResponseSchema>;
+export type LoadAllFormOptionsResponse = z.output<typeof LoadAllFormOptionsResponseSchema>;
+export type LoadAllFormOptionsRequest = z.input<typeof LoadAllFormOptionsRequestSchema>;
+export type UpdateFormOptionsDataSetRequest = z.input<typeof UpdateFormOptionsDataSetRequestSchema>;
+export type FindFormOptionGroupsResponse = z.output<typeof FindFormOptionGroupsResponseSchema>;
+export type DeleteOptionGroupOptionByIdRequest = z.input<typeof DeleteOptionGroupOptionByIdRequestSchema>;
+export type DeleteOptionGroupByIdRequest = z.input<typeof DeleteOptionGroupByIdRequestSchema>;

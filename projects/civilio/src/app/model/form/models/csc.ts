@@ -1247,7 +1247,8 @@ export const CscFormDefinition = FormModelDefinitionSchema.parse({
 		//#endregion
 	] as SectionSchema[],
 	meta: {
-		form: 'csc' as FormType
+		form: 'csc' as FormType,
+		label: 'csc.title'
 	}
 });
 // #endregion CSC

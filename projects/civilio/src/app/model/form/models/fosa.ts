@@ -7,7 +7,8 @@ import {
 // #region Fosa
 export const FosaFormDefinition: FormSchema = FormModelDefinitionSchema.parse({
 	meta: {
-		form: 'fosa'
+		form: 'fosa',
+		label: 'fosa.title'
 	},
 	sections: [
 		{

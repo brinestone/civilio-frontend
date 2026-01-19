@@ -2,6 +2,7 @@ import {
 	createChannelHandler,
 	createPushHandler,
 	deleteSubmission,
+	findAllFormOptions,
 	findAutocompleteSuggestions,
 	findCurrentSubmissionVersion,
 	findDbColumns,
@@ -16,7 +17,8 @@ import {
 	getAppConfig,
 	getBuildInfo,
 	getLicences,
-	getResourceUrl, getSubmissionInfo,
+	getResourceUrl,
+	getSubmissionInfo,
 	initializeSubmissionVersioning,
 	processSubmissionDataUpdate,
 	removeFieldMapping,
@@ -47,6 +49,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('options-raw:read', async (req) => {
+		return await findAllFormOptions(req)
+	})
 	createChannelHandler('submission-version:exists', async req => {
 		return await versionExists(req);
 	})

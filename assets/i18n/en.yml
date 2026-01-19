@@ -28,6 +28,7 @@ overview:
           success: Submission deleted successfully
           approval_toggled: Changes saved successfully
 misc:
+  forms: Forms
   all_submissions: Submissions
   changed_at: Recorded at
   changed_by: Recorded by
@@ -39,6 +40,7 @@ misc:
   equipment: "# of Equipment"
   change_history: Change History
   degree: Degree
+  checking: checking
   has_power: Uses electricity
   has_water: Has water sources
   is_chiefdom: Is Chiefdom
@@ -48,12 +50,16 @@ misc:
   village_count: "# of Attached villages"
   category: Category
   births: "Recorded births"
+  sequence: Sequence
+  active: "active"
+  inactive: "inactive"
   deaths: "Recorded deaths"
   status: Status
   stats_l_5: Statistics in the last 5 years
   health_area: Health area
   health_district: Health district
   creation_date: Created at
+  none: None
   powered_by: Provided by
   developed_by: Developed by
   contributors: Contributors
@@ -75,12 +81,22 @@ misc:
         title: Submission is invalid
         description: "{{count}} invalid field(s)"
     pending_changes:
-      title: Discard unsaved changes?
+      title: Unsaved changes detected
       description: You have made some unsaved changes which will be lost if you proceed. Are you really sure?
+      description1: You have unsaved changes.
+      description2: Proceeding will discard all the changes you've made
+      description3: Are you sure you want to proceed?
+  toasts:
+    item_deleted: "{{item}} was removed."
+    delete_failed: 'Could not remove {{domain}}'
   actions:
+    stay_here: Stay here
+    save_and_leave: Save and leave
     open_overview: Overview
     cancel: Cancel
     finish: Finish
+    save: Save changes
+    saving_changes: Saving changes
     modify: Modify
     discard: Discard changes
     copy_version: Copy version hash
@@ -154,6 +170,60 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  dataset:
+    validation:
+      unique_labels: Labels must be unique
+      unique_values: Values must be unique
+      required: This field is required
+    toasts:
+      unloadable: Could not load datasets
+      unsavable: Could not save changes
+    form:
+      title: Datasets
+      description: Add or modify datasets which can be used in forms
+      actions:
+        add_new:
+          title: Add Dataset
+      fields:
+        group_title:
+          title: Title
+          description: A human-readable for this dataset.
+        key:
+          title: Key
+          description: A unique key which can be used in queries.
+        parent:
+          title: Parent dataset
+          description: Another dataset which can be linked to this one in a hierarchy.
+        description:
+          title: Description
+        items:
+          title: Item
+          new_item:
+            title: New Items
+            description: The items added here will be appended to the end of the list of existing items.
+          fields:
+            label:
+              title: Label
+            value:
+              title: Value
+            parent_value:
+              title: Parent value
+      dialogs:
+        group_deletion:
+          title: Dependent dataset detected
+          description1: The dataset you're trying to delete has other datasets which depend on it
+          description2: Deleting it will un-link the dependent datasets
+          description3: Are you sure you want to continue?
+          actions:
+            cancel: Cancel deletion
+            proceed: I understand, proceed
+    title: Datasets
+    page_title: Datasets
+    actions:
+      edit: Edit
+    empty:
+      title: No Form selected
+      description: Select a form on the left to see its option editor here
   font-size:
     title: Text size
     placeholder: Select text size
@@ -243,6 +313,7 @@ settings:
     invalid_url: Invalid URL
     value_too_short: Value is too short
 csc:
+  title: Civil Status Centers
   form:
     page_title: Submission::CSC
     sections:
@@ -670,8 +741,8 @@ csc:
                 title: "# of marriages archived"
               death_count:
                 title: "# of deaths archived"
-
 fosa:
+  title: Health Center (FOSA)
   submissions:
     title: Submissions
     form_type:
@@ -1225,8 +1296,9 @@ mapper:
                     staff:
                       title: List of personnel (officers and non-officers)
 chefferie:
+  title: Chiefdom
   submissions:
-    title: Submission - CHEFFERIE
+    title: Submission - Chiefdom
   columns:
     submitted: Add Submission
     recorded_at: Submitted

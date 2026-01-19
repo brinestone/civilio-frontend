@@ -4,13 +4,17 @@ import {
 	InjectionToken,
 	makeEnvironmentProviders
 } from "@angular/core";
+import { FormSchema } from "@app/model/form";
 import {
+	DeleteOptionGroupByIdRequest,
+	DeleteOptionGroupOptionByIdRequest,
 	DeleteSubmissionRequest,
 	FieldKey,
 	FieldUpdateSpec,
 	FindDbColumnsResponse,
 	FindFieldMappingsRequest,
 	FindFieldMappingsResponse,
+	FindFormOptionGroupsResponse,
 	FindFormOptionsResponse,
 	FindIndexSuggestionsRequest,
 	FindIndexSuggestionsResponse,
@@ -33,6 +37,7 @@ import {
 	RemoveFieldMappingRequest,
 	RemoveFieldMappingResponse,
 	ToggleApprovalStatusRequest,
+	UpdateFormOptionsDataSetRequest,
 	UpdateSubmissionRequest,
 	UpdateSubmissionResponse,
 	VersionExistsRequest,
@@ -42,6 +47,14 @@ import {
 } from "@civilio/shared";
 
 export interface FormService {
+	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
+	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void>;
+	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void>;
+
+	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse>;
+
+	findAllForms(): Promise<FormSchema[]>;
+
 	versionExists(req: VersionExistsRequest): Promise<VersionExistsResponse>;
 
 	deleteSubmission(req: DeleteSubmissionRequest): Promise<void>;
