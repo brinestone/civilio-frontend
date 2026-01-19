@@ -46,6 +46,7 @@ import {
 	VersionRevertResponse
 } from '@civilio/shared';
 import { FORM_SERVICE_IMPL, FormService } from '../form';
+import { omit } from 'lodash';
 
 @Injectable({
 	providedIn: null
@@ -71,13 +72,13 @@ export class ElectronFormService implements FormService {
 	}
 	private readonly baseApiUrl = 'http://localhost:3000/api';
 	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
+		const body = req.groups.map(g => ({ ...(omit(g, 'meta')), isNew: g.meta.isNew }));
 		const response = await fetch(`${this.baseApiUrl}/forms/options`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			// mode: 'no-cors',
-			body: JSON.stringify(req.groups)
+			body: JSON.stringify(body)
 		});
 		if (!response.ok) {
 			const { message } = await response.json();

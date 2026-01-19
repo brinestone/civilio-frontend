@@ -29,7 +29,9 @@ export const DeleteOptionGroupOptionByIdRequestSchema = z.object({
 
 export const UpdateFormOptionsDataSetRequestSchema = z.object({
 	groups: z.object({
-		isNew: z.boolean(),
+		meta: z.object({
+			isNew: z.boolean()
+		}),
 		data: z.object({
 			description: z.string().nullish(),
 			title: z.string(),
