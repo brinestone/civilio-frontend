@@ -11,14 +11,14 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"],
     alias: {
-      "@civilio/shared": path.resolve(__dirname, "libs/shared/index.ts"),
+			"@civilio/shared": path.resolve(__dirname, "libs/shared/data.ts"),
       "@civilio/schema": path.resolve(
         __dirname,
         "projects/electron/src/db/schema.ts",
       ),
       "@civilio/handlers": path.resolve(
         __dirname,
-        "projects/electron/src/handlers/index.ts",
+				"projects/electron/src/handlers/data.ts",
       ),
       "@civilio/helpers": path.resolve(
         __dirname,

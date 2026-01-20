@@ -34,11 +34,11 @@ const sections = [
 		icon: 'lucideListCheck',
 		path: 'choice-editor'
 	},
-	{
-		label: 'settings.forms.page_title',
-		icon: 'lucideFormInput',
-		path: 'forms'
-	},
+	// {
+	// 	label: 'forms.page_title',
+	// 	icon: 'lucideFormInput',
+	// 	path: 'forms'
+	// },
 	{ label: 'settings.advanced.title', icon: 'lucideWrench', path: 'advanced' },
 	{ label: 'settings.about.title', icon: 'lucideInfo', path: 'about' },
 ] as const

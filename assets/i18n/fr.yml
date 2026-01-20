@@ -178,8 +178,6 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
-  forms:
-    page_title: Formulaires
   dataset:
     validation:
       unique_labels: Les étiquettes doivent être uniques
@@ -1055,6 +1053,8 @@ fosa:
       value_out_of_range: Valeur hors plage
   open_filters: Filtres
 forms:
+  title: Formulaires
+  page_title: Formulaires
   validation_code_required_notice: Pour les nouvelles soumissions, le code de validation est requis
   validation:
     msg:

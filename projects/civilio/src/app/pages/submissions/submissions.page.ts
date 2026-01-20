@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 import { BadgeCell, DateCell, VersionCell } from '@app/components';
 import { ActionCell } from '@app/components/tabular-field/cells';
 import { ElectronFormService } from '@app/services/electron/form.service';
-import { SetFormType } from '@app/store/form';
+import { SetFormType } from '@app/store/form/data';
 import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
 import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';

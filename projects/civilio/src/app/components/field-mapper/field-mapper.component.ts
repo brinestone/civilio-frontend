@@ -32,7 +32,7 @@ import {
 	LoadMappings,
 	RemoveMapping,
 	UpdateMappings
-} from '@app/store/form';
+} from '@app/store/form/data';
 import { formColumns, formMappings } from '@app/store/selectors';
 import { DbColumnSpec, FieldKey, FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';

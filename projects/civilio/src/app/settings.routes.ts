@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { provideFormStore } from "./store/form";
+import { provideFormStore } from "./store/form/data";
 import {
 	ChefferieFormDefinition,
 	CscFormDefinition,
@@ -25,15 +25,6 @@ export const settingsRoutes: Routes = [
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],
 		loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage),
-	},
-	{
-		providers: [
-			provideFormStore()
-		],
-		path: 'forms',
-		title: 'settings.forms.page_title',
-		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		loadComponent: () => import('./pages/settings/forms/forms.page').then(m => m.FormsPage)
 	},
 	{
 		providers: [

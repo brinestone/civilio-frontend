@@ -5,7 +5,7 @@ import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries, get, isEmpty, keys, values } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { DATASET_STATE } from "./dataset";
-import { FORM_STATE } from "./form";
+import { FORM_STATE } from "./form/data";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);

@@ -171,8 +171,6 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
-  forms:
-    page_title: Forms
   dataset:
     validation:
       unique_labels: Labels must be unique
@@ -1035,6 +1033,8 @@ fosa:
     finish: ""
   open_filters: Filters
 forms:
+  title: Forms
+  page_title: Forms
   validation_code_required_notice: For new submissions, the validation code is required
   validation:
     msg:

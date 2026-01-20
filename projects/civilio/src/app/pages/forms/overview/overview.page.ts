@@ -10,16 +10,18 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	computed,
 	DestroyRef,
 	effect,
-	computed,
 	inject,
 	Injector,
 	input,
 	linkedSignal,
 	numberAttribute,
 	OnDestroy,
-	resource, Signal, signal,
+	resource,
+	Signal,
+	signal,
 	untracked
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -37,7 +39,7 @@ import {
 	DeleteSubmission,
 	InitVersioning,
 	ToggleApprovalStatus
-} from '@app/store/form';
+} from '@app/store/form/data';
 import {
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponse,

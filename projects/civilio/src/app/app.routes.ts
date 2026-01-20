@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { provideFormStore } from './store/form';
+import { provideFormStore } from './store/form/data';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
 
@@ -12,6 +12,13 @@ export const routes: Routes = [
 		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
+	},
+	{
+		path: 'forms/definitions',
+		loadComponent: () => import('./layouts/forms/form-definitions-layout.component').then(m => m.FormDefinitionsLayout),
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
+		providers: [provideFormStore()],
+		loadChildren: () => import('./form-definition.routes').then(m => m.formDefinitionRoutes),
 	},
 	{
 		path: 'forms',
