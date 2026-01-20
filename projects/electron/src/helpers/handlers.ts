@@ -2,6 +2,7 @@ import {
 	createChannelHandler,
 	createPushHandler,
 	deleteSubmission,
+	discoverServer,
 	findAllFormOptions,
 	findAutocompleteSuggestions,
 	findCurrentSubmissionVersion,
@@ -49,6 +50,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createChannelHandler('discovery:init', async () => {
+		return await discoverServer();
+	})
 	createChannelHandler('options-raw:read', async (req) => {
 		return await findAllFormOptions(req)
 	})

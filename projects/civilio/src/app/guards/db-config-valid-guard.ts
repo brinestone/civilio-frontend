@@ -34,12 +34,12 @@ export const dbConfiguredGuard: (redirect: string) => CanActivateFn = (redirect:
 				if (knownConnections.some(c => c.inUse)) {
 					return true;
 				} else {
-					toast.warning(ts.instant('misc.config_required.notice'));
+					toast.warning(ts.instant('misc.config_required.db'));
 					return tree;
 				}
 			}
 		} catch (e) {
-			toast.warning(ts.instant('misc.config_required.notice'));
+			toast.warning(ts.instant('misc.config_required.db'));
 			return tree;
 		}
 	};

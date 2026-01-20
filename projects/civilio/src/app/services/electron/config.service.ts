@@ -5,6 +5,7 @@ import {
 	AppConfigSchema,
 	CheckMigrationsResponse,
 	DbConfig,
+	DiscoverServerResponse,
 	FindConnectionHistoryResponse,
 	Locale,
 	TestDbConnectionRequest,
@@ -18,6 +19,10 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async discoverServer(): Promise<DiscoverServerResponse> {
+		return await sendRpcMessageAsync('discovery:init');
+	}
+
 	async useConnection(id: number): Promise<void> {
 		return await sendRpcMessageAsync('db-conn:use', id);
 	}

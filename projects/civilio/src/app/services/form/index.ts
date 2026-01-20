@@ -48,7 +48,9 @@ import {
 
 export interface FormService {
 	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
+
 	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void>;
+
 	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void>;
 
 	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse>;

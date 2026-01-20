@@ -1,16 +1,59 @@
-import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+	CdkDrag,
+	CdkDragDrop,
+	CdkDragHandle,
+	CdkDragPlaceholder,
+	CdkDropList,
+	moveItemInArray
+} from '@angular/cdk/drag-drop';
 import { NgClass, NgTemplateOutlet } from "@angular/common";
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, inject, signal, untracked, viewChildren } from "@angular/core";
+import {
+	AfterViewInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	HostListener,
+	inject,
+	signal,
+	untracked,
+	viewChildren
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { AbstractControl, FormArray, FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import {
+	AbstractControl,
+	FormArray,
+	FormControl,
+	FormGroup,
+	ReactiveFormsModule
+} from "@angular/forms";
 import { HasPendingChanges } from "@app/model/form";
 import { ValuesPipe } from '@app/pipes';
 import { DeleteDataset, LoadDatasets, SaveDatasets } from "@app/store/dataset";
 import { dataGroups } from "@app/store/selectors";
 import { randomString } from "@app/util";
-import { DatasetGroup, DatasetItem, UpdateFormOptionsDataSetRequestSchema } from "@civilio/shared";
+import {
+	DatasetGroup,
+	DatasetItem,
+	UpdateFormOptionsDataSetRequestSchema
+} from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideChevronDown, lucideChevronsUpDown, lucideChevronUp, lucideCircleAlert, lucideFilter, lucideLoader, lucideMenu, lucidePlus, lucideRefreshCw, lucideSave, lucideSaveAll, lucideSearch, lucideTrash2, lucideX } from "@ng-icons/lucide";
+import {
+	lucideChevronDown,
+	lucideChevronsUpDown,
+	lucideChevronUp,
+	lucideCircleAlert,
+	lucideFilter,
+	lucideLoader,
+	lucideMenu,
+	lucidePlus,
+	lucideRefreshCw,
+	lucideSave,
+	lucideSaveAll,
+	lucideSearch,
+	lucideTrash2,
+	lucideX
+} from "@ng-icons/lucide";
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
@@ -140,6 +183,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		map(groups => groups.map(g => !!g.data?.parentId ? (groups.find(gg => gg.data?.id == g.data?.parentId) ?? null) : null))
 	), { initialValue: [] });
 	protected savingChanges = signal(false);
+
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
 		if (this.form.pristine) return false;
 		this.pendingChangesDialogState.set('open');
@@ -176,6 +220,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			}
 		})
 	}
+
 	protected readonly itemsSequential = toSignal(this.form.valueChanges.pipe(
 		mergeMap(data => from(data.groups ?? []).pipe(
 			map(group => {
@@ -211,7 +256,10 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	});
 
 	protected lineDeletionConfirmationCallback?: (cb: () => void) => Promise<void>;
-	protected pendingChangesCallback?: (arg: { callback: () => void, action: 'save' | 'leave' | 'close' }) => void;
+	protected pendingChangesCallback?: (arg: {
+		callback: () => void,
+		action: 'save' | 'leave' | 'close'
+	}) => void;
 
 	protected onNewItemReordered(event: CdkDragDrop<GroupForm['controls']['data']['controls']['options']['controls'][number]>, lineIndex: number) {
 		const g = this.form.controls.groups.at(lineIndex).controls.data.controls.options;
@@ -381,7 +429,10 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 				id: new FormControl(group?.id),
 				key: new FormControl(group?.key || '', [requiredValidator]),
 				parentId: new FormControl(group?.parentId),
-				title: new FormControl(group?.title || '', { validators: [requiredValidator], updateOn: 'change' }),
+				title: new FormControl(group?.title || '', {
+					validators: [requiredValidator],
+					updateOn: 'change'
+				}),
 				description: new FormControl(group?.description),
 				options: new FormArray<ItemForm>(group?.options.map(i => this.createItemForm(i)) ?? [], [
 					uniqueLabelsValidator,
@@ -445,7 +496,11 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		this.cdr.markForCheck();
 	}
 
-	protected onToggleExpanded({ currentTarget, target, type }: Event, lineIndex: number) {
+	protected onToggleExpanded({
+															 currentTarget,
+															 target,
+															 type
+														 }: Event, lineIndex: number) {
 		const fg = this.form.controls.groups.at(lineIndex);
 		if (
 			(type == 'click' && target instanceof HTMLButtonElement) ||

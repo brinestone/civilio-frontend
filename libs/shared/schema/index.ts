@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const ApiServerInfoSchema = z.object({
+	baseUrl: z.url(),
+	nodeName: z.string()
+});
+
 export const OptionItemSchema = z.object({
 	id: z.uuid().nullable(),
 	label: z.string(),
@@ -202,7 +207,8 @@ export const DbConfigSchema = z.object({
 });
 export const AppConfigSchema = z.object({
 	prefs: AppPrefsSchema.partial().optional(),
-	misc: z.record(z.string(), z.unknown()).optional()
+	misc: z.record(z.string(), z.unknown()).optional(),
+	apiServer: ApiServerInfoSchema.optional()
 }).default({});
 
 export const GeoPointSchema = z.object({

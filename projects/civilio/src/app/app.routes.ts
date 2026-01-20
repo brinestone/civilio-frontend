@@ -1,11 +1,13 @@
 import { Routes } from '@angular/router';
-import { dbConfiguredGuard } from './guards/config-valid-guard';
 import { provideFormStore } from './store/form';
+import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
+import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
+const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
 	{
-		canActivate: [dbConfigValidGuardFn],
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
 		title: 'submissions.title',
 		path: 'submissions',
@@ -14,7 +16,7 @@ export const routes: Routes = [
 	{
 		path: 'forms',
 		loadComponent: () => import('./layouts/form/form.layout').then(m => m.FormLayout),
-		canActivate: [dbConfigValidGuardFn],
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},

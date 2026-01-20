@@ -71,8 +71,10 @@ misc:
   yes: Oui
   no: Non
   config_required:
-    notice: Il y a un problème avec les paramètres de votre serveur de base de
-      données. Veuillez le résoudre avant de continuer
+    db: Il y a un problème avec les paramètres de votre serveur de base de données.
+      Veuillez le résoudre avant de continuer
+    api: Le serveur n'a pas pu être détecté. Veuillez vérifier vos paramètres avant
+      de continuer
   dialogs:
     version_revert:
       title: Revenir à cette version ?
@@ -176,6 +178,8 @@ login:
   sign_in: Se connecter
   welcome_back: Content de te revoir
 settings:
+  forms:
+    page_title: Formulaires
   dataset:
     validation:
       unique_labels: Les étiquettes doivent être uniques
@@ -196,6 +200,8 @@ settings:
           title: Titre
           description: Un texte lisible par l'homme pour cet ensemble de données.
         key:
+          actions:
+            generate: Générer aléatoire
           title: Clé
           description: Une clé unique qui peut être utilisée dans les requêtes.
         parent:

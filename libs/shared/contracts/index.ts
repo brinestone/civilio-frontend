@@ -6,6 +6,7 @@ import {
 	CheckMigrationsResponseSchema,
 	DeleteDbConnectionRequestSchema,
 	DeleteSubmissionRequestSchema,
+	DiscoverServerResponseSchema,
 	FieldMappingRequestSchema,
 	FindConnectionHistoryResponseSchema,
 	FindDbColumnsRequestSchema,
@@ -32,7 +33,8 @@ import {
 	GetThirdPartyLicensesResponseSchema,
 	InitializeSubmissionVersionRequestSchema,
 	InitializeSubmissionVersionResponseSchema,
-	LoadAllFormOptionsRequestSchema, LoadAllFormOptionsResponseSchema,
+	LoadAllFormOptionsRequestSchema,
+	LoadAllFormOptionsResponseSchema,
 	LoadTranslationRequestSchema,
 	LoadTranslationResponseSchema,
 	RemoveFieldMappingRequestSchema,
@@ -103,6 +105,7 @@ export const channelArgs = {
 	'db-conns:read': {},
 	'db-conn:add': AddDbConnectionRequestSchema,
 	'db-conn:delete': DeleteDbConnectionRequestSchema,
+	'discovery:init': {},
 	'db-conn:clear': {},
 	'db-conn:use': UseConnectionRequestSchema,
 	'licences:read': {},
@@ -155,12 +158,14 @@ export const channelResponses = {
 	'submission:delete': {},
 	'approval:toggle': {},
 	'submission-version:exists': VersionExistsResponseSchema,
+	'discovery:init': DiscoverServerResponseSchema,
 	'options-raw:read': LoadAllFormOptionsResponseSchema
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'discovery:init'
 	| 'options-raw:read'
 	| 'submission-version:exists'
 	| 'submission:delete'

@@ -69,7 +69,8 @@ misc:
   yes: Yes
   no: No
   config_required:
-    notice: There is an issue with your database server settings. Please resolve it before proceeding
+    db: There is an issue with your database server settings. Please resolve it before proceeding
+    api: The server could not be detected. Please verify your settings before proceeding
   dialogs:
     version_revert:
       title: Revert to this version?
@@ -170,6 +171,8 @@ login:
   sign_in: Sign in
   welcome_back: Welcome back
 settings:
+  forms:
+    page_title: Forms
   dataset:
     validation:
       unique_labels: Labels must be unique
@@ -189,6 +192,8 @@ settings:
           title: Title
           description: A human-readable for this dataset.
         key:
+          actions:
+            generate: Generate random
           title: Key
           description: A unique key which can be used in queries.
         parent:

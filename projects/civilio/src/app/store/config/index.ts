@@ -27,6 +27,7 @@ import {
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
+	DiscoverServer,
 	InitChecks,
 	IntrospectDb,
 	LoadConfig,
@@ -49,6 +50,7 @@ type ConfigStateModel = {
 	migrationState?: CheckMigrationsResponse;
 	preInit: boolean;
 	connectionsLoaded: boolean;
+	serverOnline: boolean;
 }
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
@@ -60,7 +62,8 @@ export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 		connectionsLoaded: false,
 		knownConnections: [],
 		env: 'desktop',
-		preInit: true
+		preInit: true,
+		serverOnline: false,
 	}
 })
 export class ConfigState implements NgxsOnInit {
@@ -80,6 +83,18 @@ export class ConfigState implements NgxsOnInit {
 			}
 		});
 	}
+
+	@Action(DiscoverServer)
+	async onDiscoverServer(ctx: Context) {
+		const response = await this.configService.discoverServer();
+		ctx.setState(patch({
+			config: patch({
+				apiServer: response,
+			}),
+			serverOnline: true
+		}))
+	}
+
 
 	@Action(ClearConnections)
 	async onClearConnections(ctx: Context) {
@@ -128,7 +143,7 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(InitChecks)
 	onInitChecks(ctx: Context) {
-		ctx.dispatch([LoadConfig, IntrospectDb, LoadKnownConnections])
+		ctx.dispatch([LoadConfig, DiscoverServer, IntrospectDb, LoadKnownConnections]);
 	}
 
 	@Action(IntrospectDb)

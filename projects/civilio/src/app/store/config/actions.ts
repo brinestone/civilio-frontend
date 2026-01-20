@@ -2,6 +2,10 @@ import { Locale, ThemeMode } from "@civilio/shared";
 
 const prefix = '[config]';
 
+export class DiscoverServer {
+	static type = `${ prefix } discover server`;
+}
+
 export class UpdateMiscConfig {
 	static type = `${ prefix } update misc config`;
 
