@@ -172,6 +172,9 @@
       ],
       "@spartan-ng/helm/kbd": [
         "./libs/ui/kbd/src/index.ts"
+			],
+			"@spartan-ng/helm/sidebar": [
+				"./libs/ui/sidebar/src/index.ts"
       ]
     }
   },
