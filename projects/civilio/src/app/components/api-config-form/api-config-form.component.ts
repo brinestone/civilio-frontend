@@ -1,4 +1,4 @@
-import { Component, input, linkedSignal, output } from '@angular/core';
+import { Component, input, linkedSignal, output, effect } from '@angular/core';
 import { debounce, disabled, form, FormField, required, validate, validateHttp } from '@angular/forms/signals';
 import { ApiServerInfo } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -31,15 +31,16 @@ import z from 'zod';
 export class ApiConfigFormComponent {
 	readonly apiInfo = input<ApiServerInfo>();
 	readonly discover = output();
+	readonly urlChanged = output<string>();
 	readonly discovering = input<boolean>();
 	protected readonly formData = linkedSignal(() => ({
 		baseUrl: this.apiInfo()?.baseUrl ?? ''
 	}) as ApiServerInfo);
 	protected readonly formModel = form(this.formData, paths => {
 		debounce(paths.baseUrl, 200);
-		required(paths.baseUrl, { message: 'Base URL is required' });
+		required(paths.baseUrl, { message: 'settings.advanced.api.form.messages.required' });
 		validate(paths.baseUrl, ({ value }) => {
-			if (!z.url().safeParse(value()).success) return { message: 'Invalid URL format', kind: 'formatError' };
+			if (!z.url().safeParse(value()).success) return { message: 'settings.advanced.api.form.messages.invalidUrl', kind: 'formatError' };
 			return null;
 		});
 		disabled(paths.baseUrl, () => this.discovering() ?? false)
@@ -50,12 +51,22 @@ export class ApiConfigFormComponent {
 			},
 			onError: () => ({
 				kind: 'networkError',
-				message: 'Unable to reach the server: '
+				message: 'settings.advanced.api.form.messages.testingFailed'
 			})
 		});
 	});
 
 	protected onFormSubmit(event: SubmitEvent) {
 		event.preventDefault();
+	}
+
+	constructor() {
+		effect(() => {
+			const formValid = this.formModel().valid();
+			const newValue = this.formModel().value();
+			if (formValid && newValue.baseUrl !== this.apiInfo()?.baseUrl) {
+				this.urlChanged.emit(newValue.baseUrl);
+			}
+		})
 	}
 }

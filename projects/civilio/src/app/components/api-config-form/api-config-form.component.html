@@ -58,7 +58,7 @@
 						<div class="space-y-1">
 							@for (error of formModel.baseUrl().errors(); track error) {
 								<span class="text-destructive text-sm block">{{
-									error.message
+									error.message | translate
 								}}</span>
 							}
 						</div>

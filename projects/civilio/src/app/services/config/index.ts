@@ -18,6 +18,7 @@ import {
 } from "@civilio/shared";
 
 export interface ConfigService {
+	setServerUrl(url: string): Promise<AppConfigResponse>;
 	discoverServer(): Promise<DiscoverServerResponse>;
 
 	useConnection(req: UseConnectionRequest): Promise<void>;

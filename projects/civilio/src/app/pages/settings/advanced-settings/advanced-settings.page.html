@@ -7,6 +7,7 @@
 		<span>{{ 'settings.advanced.api.title' | translate }}</span>
 	</h2>
 	<cv-api-config-form
+		(urlChanged)="onUrlChanged($event)"
 		(discover)="discoverServer()"
 		[discovering]="discoveringServer()"
 		[apiInfo]="apiInfo()"

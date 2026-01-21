@@ -35,6 +35,7 @@ import {
 	RemoveConnection,
 	SetFontSize,
 	SetLocale,
+	SetServerUrl,
 	SetTheme,
 	TestDb,
 	UpdateMiscConfig,
@@ -82,6 +83,14 @@ export class ConfigState implements NgxsOnInit {
 				}))
 			}
 		});
+	}
+
+	@Action(SetServerUrl)
+	async onSetServerUrl(ctx: Context, { url }: SetServerUrl) {
+		const result = await this.configService.setServerUrl(url);
+		ctx.setState(patch({
+			config: result
+		}));
 	}
 
 	@Action(DiscoverServer)

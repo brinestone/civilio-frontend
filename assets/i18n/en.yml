@@ -254,6 +254,9 @@ settings:
         messages:
           discovering: Discovering server...
           testing: Testing...
+          testingFailed: Unable to reach server
+          invalidUrl: Invalid URL Format
+          required: This field is required
     db:
       pwd: Password
       host: Host

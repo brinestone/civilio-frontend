@@ -19,6 +19,12 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async setServerUrl(url: string): Promise<AppConfigResponse> {
+		return await sendRpcMessageAsync('config:update', {
+			path: 'apiServer.baseUrl' as AppConfigPaths,
+			value: url
+		})
+	}
 	async discoverServer(): Promise<DiscoverServerResponse> {
 		return await sendRpcMessageAsync('discovery:init');
 	}

@@ -266,6 +266,9 @@ settings:
         messages:
           discovering: Découverte du serveur...
           testing: Essai...
+          testingFailed: Impossible d'atteindre le serveur
+          invalidUrl: Format d'URL invalide
+          required: Ce champ est obligatoire
     db:
       pwd: Mot de passe
       host: Hôte

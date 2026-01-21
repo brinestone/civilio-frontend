@@ -18,6 +18,7 @@ import {
 	DiscoverServer,
 	IntrospectDb,
 	RemoveConnection,
+	SetServerUrl,
 	TestDb,
 	UseConnection
 } from '@app/store/config';
@@ -158,6 +159,7 @@ export class AdvancedSettingsPage {
 		]
 	});
 	private readonly ts = inject(TranslateService);
+	private readonly setServerurl = dispatch(SetServerUrl);
 	private readonly removeConnection = dispatch(RemoveConnection);
 	private readonly clearConnections = dispatch(ClearConnections);
 	private readonly navigate = dispatch(Navigate);
@@ -244,5 +246,16 @@ export class AdvancedSettingsPage {
 
 	protected onClearConnectionsButtonClicked() {
 		this.clearConnections();
+	}
+
+	protected onUrlChanged(newUrl: string) {
+		this.setServerurl(newUrl).subscribe({
+			error: (e: Error) => {
+				toast.error(this.ts.instant('misc.error.title'), { description: e.message });
+			},
+			complete: () => {
+				toast.success(this.ts.instant('misc.changes_saved.title'));
+			}
+		});
 	}
 }
