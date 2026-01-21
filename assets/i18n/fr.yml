@@ -252,6 +252,20 @@ settings:
   advanced:
     title: Avancé
     page_title: Paramètres avancés
+    api:
+      title: Serveur API
+      description: Configurer les paramètres du serveur API
+      form:
+        fields:
+          baseUrl:
+            title: URL de base de l'API
+            description: L'URL de base du serveur API
+        actions:
+          discover: Découvrir le serveur sur le réseau local
+          test: Tester la connexion
+        messages:
+          discovering: Découverte du serveur...
+          testing: Essai...
     db:
       pwd: Mot de passe
       host: Hôte
@@ -305,9 +319,6 @@ settings:
         progress: Test de connexion...
         success: Connexion réussie
         failed: La connexion a échoué
-    api:
-      origin: Origine de l'API
-      title: Paramètres de l'API
   general:
     title: Général
     page_title: Paramètres généraux

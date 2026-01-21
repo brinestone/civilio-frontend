@@ -1,0 +1,70 @@
+<form (submit)="onFormSubmit($event)">
+	<div hlmFieldGroup>
+		<div hlmField>
+			<div hlmFieldContent>
+				<div class="flex items-end justify-between">
+					<label for="baseUrl" hlmFieldLabel
+						>{{ "settings.advanced.api.form.fields.baseUrl.title" | translate
+						}}<span class="text-red-500">*</span></label
+					>
+					<button
+						(click)="discover.emit()"
+						[disabled]="discovering()"
+						title="{{
+							'settings.advanced.api.form.actions.discover' | translate
+						}}"
+						hlmBtn
+						type="button"
+						variant="ghost"
+						size="icon-sm"
+					>
+						<ng-icon
+							[class.animate-spin]="discovering()"
+							[name]="discovering() ? 'lucideLoader' : 'lucideSearch'"
+						/>
+					</button>
+				</div>
+				<input
+					[formField]="formModel.baseUrl"
+					hlmInput
+					type="url"
+					id="baseUrl"
+				/>
+				@if (discovering()) {
+					<div class="flex gap-2 items-center text-sm">
+						<ng-icon name="lucideLoader" class="animate-spin" />
+						<span>{{
+							"settings.advanced.api.form.messages.discovering" | translate
+						}}</span>
+					</div>
+				} @else {
+					@if (
+						!formModel.baseUrl().invalid() && !formModel.baseUrl().pending()
+					) {
+						<p hlmFieldDescription>
+							{{
+								"settings.advanced.api.form.fields.baseUrl.description"
+									| translate
+							}}
+						</p>
+					} @else if (formModel.baseUrl().pending()) {
+						<div class="flex gap-2 items-center text-sm">
+							<ng-icon class="animate-spin" name="lucideLoader" />
+							<span>{{
+								"settings.advanced.api.form.messages.testing" | translate
+							}}</span>
+						</div>
+					} @else {
+						<div class="space-y-1">
+							@for (error of formModel.baseUrl().errors(); track error) {
+								<span class="text-destructive text-sm block">{{
+									error.message
+								}}</span>
+							}
+						</div>
+					}
+				}
+			</div>
+		</div>
+	</div>
+</form>

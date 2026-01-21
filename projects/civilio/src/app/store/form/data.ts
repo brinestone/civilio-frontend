@@ -185,7 +185,7 @@ function splitChangePath(path: string) {
 		redoStack: []
 	},
 })
-class FormState {
+class FormDataState {
 	private readonly formService = inject(FORM_SERVICE);
 
 	@Action(ToggleApprovalStatus)
@@ -988,5 +988,5 @@ class FormState {
 export function provideFormStore(
 	...features: EnvironmentProviders[]
 ): EnvironmentProviders {
-	return provideStates([FormState], ...features);
+	return provideStates([FormDataState], ...features);
 }

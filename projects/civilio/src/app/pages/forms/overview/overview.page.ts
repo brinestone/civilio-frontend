@@ -39,7 +39,7 @@ import {
 	DeleteSubmission,
 	InitVersioning,
 	ToggleApprovalStatus
-} from '@app/store/form/data';
+} from '@app/store/form';
 import {
 	FindSubmissionVersionsRequestSchema,
 	FindSubmissionVersionsResponse,

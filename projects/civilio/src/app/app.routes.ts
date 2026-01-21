@@ -14,7 +14,7 @@ export const routes: Routes = [
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
 	{
-		path: 'forms/definitions',
+		path: 'schemas',
 		loadComponent: () => import('./layouts/forms/form-definitions-layout.component').then(m => m.FormDefinitionsLayout),
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
@@ -22,7 +22,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'forms',
-		loadComponent: () => import('./layouts/form/form.layout').then(m => m.FormLayout),
+		title: 'forms.page_title',
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)

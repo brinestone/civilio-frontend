@@ -240,6 +240,20 @@ settings:
   advanced:
     title: Advanced
     page_title: Advanced Settings
+    api:
+      title: API Server
+      description: Configure the API server settings
+      form:
+        fields:
+          baseUrl:
+            title: API Base URL
+            description: The base URL of the API server
+        actions:
+          discover: Discover server on local network
+          test: Test connection
+        messages:
+          discovering: Discovering server...
+          testing: Testing...
     db:
       pwd: Password
       host: Host
@@ -292,9 +306,6 @@ settings:
         progress: Testing connection...
         success: Connection successful
         failed: Connection failed
-    api:
-      origin: API Origin
-      title: API Settings
   general:
     title: General
     page_title: General Settings

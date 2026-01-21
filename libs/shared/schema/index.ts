@@ -261,3 +261,4 @@ export type BuildInfo = z.output<typeof BuildInfoSchema>;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
 export type DatasetItem = z.infer<typeof DatasetItemSchema>;
 export type DatasetGroup = z.infer<typeof DatasetGroupSchema>;
+export type ApiServerInfo = z.infer<typeof ApiServerInfoSchema>;

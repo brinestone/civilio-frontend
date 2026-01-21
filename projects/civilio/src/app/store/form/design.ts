@@ -1,5 +1,20 @@
-import { StateToken } from '@ngxs/store';
+import { EnvironmentProviders, Injectable } from '@angular/core';
+import { provideStates, State, StateToken } from '@ngxs/store';
 
-export type FormDefinitionsStateModel = {}
+export type FormSchemaStateModel = {}
 
-export const FORM_DEFINITIONS = new StateToken<FormDefinitionsStateModel>('form-definitions')
+export const FORM_SCHEMA = new StateToken<FormSchemaStateModel>('formSchema')
+
+@Injectable()
+@State({
+	name: FORM_SCHEMA,
+	defaults: {
+	}
+})
+class FormDefinitionState {
+
+}
+
+export function provideFormDefinitions(...features: EnvironmentProviders[]) {
+	return provideStates([FormDefinitionState], ...features)
+}

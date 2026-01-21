@@ -44,7 +44,7 @@ import {
 	UpdateFormDirty,
 	UpdateRelevance,
 	UpdateSection
-} from "@app/store/form/data";
+} from "@app/store/form";
 import {
 	activeSections,
 	optionsSelector,

@@ -45,7 +45,7 @@ import {
 	Undo,
 	UpdateMappings,
 	UpdateRelevance
-} from "@app/store/form/data";
+} from "@app/store/form";
 import {
 	changesPending,
 	currentLocale,

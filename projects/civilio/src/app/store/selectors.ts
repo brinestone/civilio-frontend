@@ -112,3 +112,9 @@ export const hasValidValidationCode = createSelector([formSlices.activeSections,
 	}
 	return false;
 })
+export const apiInfo = createSelector([configSlices.config], c => {
+	return c?.apiServer;
+});
+export const apiUrl = createSelector([apiInfo], info => {
+	return info ? info.baseUrl : '';
+})

@@ -670,4 +670,5 @@ export const AllSectionKeysSchema = z.union([
 	Chiefdom.SectionKeysSchema
 ]);
 export type FieldKey = z.output<typeof FieldKeySchema>;
-export type FormSectionKey = z.output<typeof AllSectionKeysSchema>;
+// export type FormSectionKey = z.output<typeof AllSectionKeysSchema>;
+export type FormSectionKey = string;

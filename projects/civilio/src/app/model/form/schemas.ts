@@ -1,11 +1,12 @@
 import {
-	AllSectionKeysSchema,
 	FieldKeySchema,
 	FormTypeSchema,
 	GeoPointSchema,
 	OptionSchema
 } from "@civilio/shared";
 import z from "zod";
+
+
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
@@ -198,7 +199,7 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 ])
 
 const GroupBaseSchema = z.object({
-	id: AllSectionKeysSchema,
+	id: z.string(),
 	fields: FieldDefinitionSchema.array(),
 	relevance: RelevanceDefinitionSchema.optional(),
 });
@@ -219,10 +220,6 @@ export const FormModelDefinitionSchema = z.object({
 		label: z.string().optional()
 	})
 });
-
-// const DefinitionLikeSchema = z.object({
-//   type:
-// });
 
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
 export type GroupFieldSchema = Extract<FieldSchema, { type: 'group' }>;

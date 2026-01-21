@@ -3,14 +3,27 @@
 </div>
 <section class="page-section space-y-3">
 	<h2 class="section-title flex items-center gap-3" hlmH3>
-		<ng-icon name="lucideDatabase"/>
+		<ng-icon name="lucideServer" />
+		<span>{{ 'settings.advanced.api.title' | translate }}</span>
+	</h2>
+	<cv-api-config-form
+		(discover)="discoverServer()"
+		[discovering]="discoveringServer()"
+		[apiInfo]="apiInfo()"
+		class="lg:max-w-100"
+	/>
+</section>
+<hlm-separator />
+<section class="page-section space-y-3">
+	<h2 class="section-title flex items-center gap-3" hlmH3>
+		<ng-icon name="lucideDatabase" />
 		<span>{{ 'settings.advanced.db.title' | translate }}</span>
 	</h2>
-	<div class="grid lg:grid-cols-[400px_minmax(auto,350px)] ld:max-w-auto max-w-[80%] gap-3">
+	<div
+		class="grid lg:grid-cols-[400px_minmax(auto,350px)] lg:max-w-[auto] max-w-[80%] gap-3"
+	>
 		<div class="space-y-3">
-			<h4 hlmH4>
-				{{ 'settings.advanced.db.parameters.title' | translate }}
-			</h4>
+			<h4 hlmH4>{{ 'settings.advanced.db.parameters.title' | translate }}</h4>
 			<form
 				#form="ngForm"
 				(ngSubmit)="onFormSubmit(form)"
@@ -18,129 +31,144 @@
 				class="grid items-baseline grid-cols-[auto_1fr] gap-y-2 gap-x-4"
 			>
 				@for (schema of fieldSchema(); track $index) {
-					<ng-container>
-						<label [for]="schema.key" class="block text-end" hlmLabel
+				<ng-container>
+					<label [for]="schema.key" class="block text-end" hlmLabel
 						>{{ schema.label | translate }}</label
+					>
+					<div class="space-y-1 relative group">
+						@if (schema.type == "checkbox") {
+						<hlm-checkbox
+							#model="ngModel"
+							[id]="schema.key"
+							[name]="schema.key"
+							[ngModel]="schema.default"
+							[required]="schema.required"
+						/>
+						@if (model.touched && model.invalid) { @if
+						(model.hasError("required")) {
+						<small class="text-sm text-red-500 block"
+							>{{ 'settings.msg.value_required' | translate }}</small
 						>
-						<div class="space-y-1 relative group">
-							@if (schema.type == "checkbox") {
-								<hlm-checkbox
-									#model="ngModel"
-									[id]="schema.key"
-									[name]="schema.key"
-									[ngModel]="schema.default"
-									[required]="schema.required"
-								/>
-								@if (model.touched && model.invalid) {
-									@if (model.hasError("required")) {
-										<small class="text-sm text-red-500 block"
-										>{{ 'settings.msg.value_required' | translate }}</small
-										>
-									}
-								}
-							} @else {
-								<input
-									#model="ngModel"
-									[id]="schema.key"
-									[name]="schema.key"
-									[ngModel]="schema.default"
-									[required]="schema.required"
-									[type]="schema.type"
-									[value]="schema.default"
-									autocomplete="off"
-									hlmInput
-								/>
-								@if (model.dirty && model.invalid) {
-									@if (model.hasError("required")) {
-										<small class="text-sm text-red-500 block"
-										>{{ 'settings.msg.value_required' | translate }}</small
-										>
-									}
-								}
-							}
-							@if (schema.hint) {
-								<div
-									class="group-focus-within:opacity-100 opacity-0 group-focus-within:-translate-y-[50%] bg-background border-l-4 border rounded-md p-2 border-(--primary) transition-all absolute left-[102%] w-max max-w-[250px] top-1/2 -translate-y-[10%]"
-								>
-									<small class="text-(--muted-foreground) text-sm"
-									>{{ schema.hint }}</small
-									>
-								</div>
-							}
-						</div>
-					</ng-container>
-				}
-				@if (form.dirty) {
-					<div class="col-span-2 flex justify-between items-center gap-3">
-						<div class="items-center gap-3 flex">
-							<button
-								[disabled]="form.invalid || testingDbConnection()"
-								hlmBtn
-								size="sm"
-								type="submit"
+						} } } @else {
+						<input
+							#model="ngModel"
+							[id]="schema.key"
+							[name]="schema.key"
+							[ngModel]="schema.default"
+							[required]="schema.required"
+							[type]="schema.type"
+							[value]="schema.default"
+							autocomplete="off"
+							hlmInput
+						/>
+						@if (model.dirty && model.invalid) { @if
+						(model.hasError("required")) {
+						<small class="text-sm text-red-500 block"
+							>{{ 'settings.msg.value_required' | translate }}</small
+						>
+						} } } @if (schema.hint) {
+						<div
+							class="group-focus-within:opacity-100 opacity-0 group-focus-within:-translate-y-[50%] bg-background border-l-4 border rounded-md p-2 border-(--primary) transition-all absolute left-[102%] w-max max-w-[250px] top-1/2 -translate-y-[10%]"
+						>
+							<small class="text-(--muted-foreground) text-sm"
+								>{{ schema.hint }}</small
 							>
-								{{ 'settings.advanced.actions.save' | translate }}
-							</button>
-							<button
-								class="text-destructive"
-								hlmBtn
-								size="sm"
-								type="reset"
-								variant="ghost"
-							>
-								{{ 'settings.advanced.actions.discard' | translate }}
-							</button>
 						</div>
+						}
 					</div>
+				</ng-container>
+				} @if (form.dirty) {
+				<div class="col-span-2 flex justify-between items-center gap-3">
+					<div class="items-center gap-3 flex">
+						<button
+							[disabled]="form.invalid || testingDbConnection()"
+							hlmBtn
+							size="sm"
+							type="submit"
+						>
+							{{ 'settings.advanced.actions.save' | translate }}
+						</button>
+						<button
+							class="text-destructive"
+							hlmBtn
+							size="sm"
+							type="reset"
+							variant="ghost"
+						>
+							{{ 'settings.advanced.actions.discard' | translate }}
+						</button>
+					</div>
+				</div>
 				}
 			</form>
 		</div>
 		<div class="space-y-3 overflow-y-auto max-h-[400px] scroll-box">
 			<div class="flex justify-between items-center">
-				<h4 hlmH4>{{ 'settings.advanced.db.connections.title' | translate }}</h4>
+				<h4 hlmH4>
+					{{ 'settings.advanced.db.connections.title' | translate }}
+				</h4>
 				@if (connectionHistory().length > 0) {
-					<button (click)="onClearConnectionsButtonClicked()" hlmBtn size="sm" variant="outline">
-						{{ 'settings.advanced.db.connections.actions.clear' | translate }}
-					</button>
+				<button
+					(click)="onClearConnectionsButtonClicked()"
+					hlmBtn
+					size="sm"
+					variant="outline"
+				>
+					{{ 'settings.advanced.db.connections.actions.clear' | translate }}
+				</button>
 				}
 			</div>
 			<div class="space-y-2">
 				@for (conn of connectionHistory(); track conn.id) {
-					<div class="group" hlmItem size="sm" variant="muted">
-						<div hlmItemContent>
-							<h5 class="text-ellipsis clamp-1" hlmAlertTitle>
-								{{ conn.username }}&#64;{{ conn.host }}:{{ conn.port }}/{{ conn.database }}
-							</h5>
-							<p hlmItemDescription>{{ conn.updatedAt | ago_date }}</p>
-						</div>
-						<div class="flex gap-2 flex-col" hlmItemActions>
-							@if (conn.inUse) {
-								<span class="uppercase text-xs" hlmBadge>
-									{{ 'settings.advanced.db.connections.active' | translate }}
-								</span>
-							} @else {
-								<button (click)="onUseConnectionButtonClicked(conn.id)"
-												class="opacity-0 group-hover:opacity-100 transition-opacity flex w-full" hlmBtn size="sm"
-												variant="outline">
-									{{ 'settings.advanced.db.connections.actions.use' | translate }}
-								</button>
-								<button (click)="onRemoveConnectionButtonClicked(conn.id)"
-												class="opacity-0 group-hover:opacity-100 transition-opacity flex w-full" hlmBtn size="sm"
-												variant="destructive">
-									{{ 'settings.advanced.db.connections.actions.remove' | translate }}
-								</button>
-							}
-						</div>
+				<div class="group" hlmItem size="sm" variant="muted">
+					<div hlmItemContent>
+						<h5 class="text-ellipsis clamp-1" hlmAlertTitle>
+							{{ conn.username }}&#64;{{ conn.host }}:{{ conn.port }}/{{
+							conn.database }}
+						</h5>
+						<p hlmItemDescription>{{ conn.updatedAt | ago_date }}</p>
 					</div>
+					<div class="flex gap-2 flex-col" hlmItemActions>
+						@if (conn.inUse) {
+						<span class="uppercase text-xs" hlmBadge>
+							{{ 'settings.advanced.db.connections.active' | translate }}
+						</span>
+						} @else {
+						<button
+							(click)="onUseConnectionButtonClicked(conn.id)"
+							class="opacity-0 group-hover:opacity-100 transition-opacity flex w-full"
+							hlmBtn
+							size="sm"
+							variant="outline"
+						>
+							{{ 'settings.advanced.db.connections.actions.use' | translate }}
+						</button>
+						<button
+							(click)="onRemoveConnectionButtonClicked(conn.id)"
+							class="opacity-0 group-hover:opacity-100 transition-opacity flex w-full"
+							hlmBtn
+							size="sm"
+							variant="destructive"
+						>
+							{{ 'settings.advanced.db.connections.actions.remove' | translate
+							}}
+						</button>
+						}
+					</div>
+				</div>
 				} @empty {
-					<div hlmEmpty>
-						<div class="items-start!" hlmEmptyHeader>
-							<div hlmEmptyTitle>{{ 'settings.advanced.db.connections.no_connection.title' | translate }}</div>
-							<div class="text-left" hlmEmptyDescription>
-								{{ 'settings.advanced.db.connections.no_connection.description' | translate }}
-							</div>
+				<div hlmEmpty>
+					<div class="items-start!" hlmEmptyHeader>
+						<div hlmEmptyTitle>
+							{{ 'settings.advanced.db.connections.no_connection.title' |
+							translate }}
+						</div>
+						<div class="text-left" hlmEmptyDescription>
+							{{ 'settings.advanced.db.connections.no_connection.description' |
+							translate }}
 						</div>
 					</div>
+				</div>
 				}
 			</div>
 		</div>
@@ -148,77 +176,67 @@
 </section>
 <div class="max-w-[400px] pl-4">
 	@if (testingDbConnection()) {
-		<div hlmItem size="sm" variant="muted">
-			<div hlmItemMedia variant="icon">
-				<ng-icon class="animate-spin" name="lucideLoader"/>
-			</div>
-			<div hlmItemContent>
-				<h4 hlmAlertTitle>
-					{{ 'settings.advanced.msg.testing.progress' | translate }}
-				</h4>
-			</div>
+	<div hlmItem size="sm" variant="muted">
+		<div hlmItemMedia variant="icon">
+			<ng-icon class="animate-spin" name="lucideLoader" />
 		</div>
-	}
-
-	@if (!testingDbConnection() && introspectingDb()) {
-		<div hlmItem size="sm" variant="muted">
-			<div hlmItemMedia variant="icon">
-				<ng-icon class="animate-spin" name="lucideLoader"/>
-			</div>
-			<div hlmItemContent>
-				<h4 hlmAlertTitle>
-					{{
-						'settings.advanced.db.alerts.migrations.introspection.title' |
-							translate
-					}}
-				</h4>
-				<p hlmAlertDescription>
-					{{
-						'settings.advanced.db.alerts.migrations.introspection.description' |
-							translate
-					}}
-				</p>
-			</div>
+		<div hlmItemContent>
+			<h4 hlmAlertTitle>
+				{{ 'settings.advanced.msg.testing.progress' | translate }}
+			</h4>
 		</div>
+	</div>
+	} @if (!testingDbConnection() && introspectingDb()) {
+	<div hlmItem size="sm" variant="muted">
+		<div hlmItemMedia variant="icon">
+			<ng-icon class="animate-spin" name="lucideLoader" />
+		</div>
+		<div hlmItemContent>
+			<h4 hlmAlertTitle>
+				{{ 'settings.advanced.db.alerts.migrations.introspection.title' |
+				translate }}
+			</h4>
+			<p hlmAlertDescription>
+				{{ 'settings.advanced.db.alerts.migrations.introspection.description' |
+				translate }}
+			</p>
+		</div>
+	</div>
 	} @else if (migrationNeeded()) {
-		<div hlmItem size="sm" variant="outline">
-			<div hlmItemMedia variant="icon">
-				<ng-icon name="lucideHistory"/>
-			</div>
-			<div hlmItemContent>
-				<h4 hlmAlertTitle>
-					{{ 'settings.advanced.db.alerts.migrations.title' | translate }}
-				</h4>
-				<p hlmAlertDescription>
-					{{
-						'settings.advanced.db.alerts.migrations.migration_needed.description'
-							| translate
-					}}
-				</p>
-			</div>
-			<div class="flex items-center" hlmItemActions>
-				<button
-					(click)="onApplyMigrationsButtonClicked()"
-					[disabled]="applyingMigrations()"
-					hlmBtn
-					size="sm"
-					variant="outline"
-				>
-					@if (applyingMigrations()) {
-						<ng-icon class="animate-spin" name="lucideLoader"/>
-					}
-					<span
-					>{{
-							(applyingMigrations() ?
-								'settings.advanced.db.alerts.migrations.migration_needed.actions.running'
-								:
-								'settings.advanced.db.alerts.migrations.migration_needed.actions.run')
-								| translate
-						}}</span
-					>
-				</button>
-			</div>
+	<div hlmItem size="sm" variant="outline">
+		<div hlmItemMedia variant="icon">
+			<ng-icon name="lucideHistory" />
 		</div>
+		<div hlmItemContent>
+			<h4 hlmAlertTitle>
+				{{ 'settings.advanced.db.alerts.migrations.title' | translate }}
+			</h4>
+			<p hlmAlertDescription>
+				{{ 'settings.advanced.db.alerts.migrations.migration_needed.description'
+				| translate }}
+			</p>
+		</div>
+		<div class="flex items-center" hlmItemActions>
+			<button
+				(click)="onApplyMigrationsButtonClicked()"
+				[disabled]="applyingMigrations()"
+				hlmBtn
+				size="sm"
+				variant="outline"
+			>
+				@if (applyingMigrations()) {
+				<ng-icon class="animate-spin" name="lucideLoader" />
+				}
+				<span
+					>{{ (applyingMigrations() ?
+					'settings.advanced.db.alerts.migrations.migration_needed.actions.running'
+					:
+					'settings.advanced.db.alerts.migrations.migration_needed.actions.run')
+					| translate }}</span
+				>
+			</button>
+		</div>
+	</div>
 	}
 </div>
 <!--<section class="page-section space-y-3">-->
