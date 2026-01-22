@@ -1,0 +1,66 @@
+<div
+	class="col-span-2 col-start-1 row-start-1 row-span-1 border-b border-muted overflow-x-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-hidden"
+>
+	<div class="flex justify-between items-center px-4 py-1">
+		<div class="space-y-1">
+			<h2 hlmH3>Forms</h2>
+			<p class="text-muted-foreground text-sm">Add or import forms</p>
+		</div>
+		<div class="flex items-center gap-2">
+			@if (formsAvailable()) {
+				<a routerLink="create-new" hlmBtn>
+					<ng-icon name="lucidePlus" />
+					<span>Add Form</span>
+				</a>
+			}
+		</div>
+	</div>
+</div>
+<div
+	[class.border-r]="formsAvailable()"
+	class="border-muted col-start-1 col-span-1 row-start-2 row-span-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<div class="space-y-2">
+		@for (schema of forms.value(); track schema.name) {}
+	</div>
+</div>
+<div
+	class="col-start-2 col-span-1 row-start-2 row-span-1 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto"
+>
+	@if (!formsAvailable() && !route.firstChild) {
+		<div hlmEmpty>
+			<div hlmEmptyHeader>
+				<div hlmEmptyMedia variant="icon">
+					<ng-icon name="lucideFormInput" />
+				</div>
+				<div hlmEmptyTitle>No Forms Yet</div>
+				<div hlmEmptyDescription>
+					You haven't created any forms yet. Get started by creating your first
+					form.
+				</div>
+			</div>
+			<div hlmEmptyContent>
+				<div class="flex gap-2">
+					<a routerLink="create-new" hlmBtn>
+						<ng-icon name="lucidePlus" />
+						<span>Add Form</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	} @else if (!route.firstChild) {
+		<div hlmEmpty>
+			<div hlmEmptyHeader>
+				<div hlmEmptyMedia variant="icon">
+					<ng-icon name="lucideFormInput" />
+				</div>
+				<div hlmEmptyTitle>No form selected</div>
+				<div hlmEmptyDescription>
+					Select a form on the left panel to view or modify its structure.
+				</div>
+			</div>
+		</div>
+	} @else {
+		<router-outlet />
+	}
+</div>

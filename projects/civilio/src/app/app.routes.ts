@@ -15,10 +15,10 @@ export const routes: Routes = [
 	},
 	{
 		path: 'schemas',
-		loadComponent: () => import('./layouts/forms/form-definitions-layout.component').then(m => m.FormDefinitionsLayout),
+		loadComponent: () => import('./layouts/forms/form-schemas.layout.component').then(m => m.SchemasLayout),
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
-		loadChildren: () => import('./form-definition.routes').then(m => m.formDefinitionRoutes),
+		loadChildren: () => import('./schemas.routes').then(m => m.schemaRoutes),
 	},
 	{
 		path: 'forms',
