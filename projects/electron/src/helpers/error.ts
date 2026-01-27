@@ -21,5 +21,5 @@ export function reportError(logger: Logger.LogFunctions, ev: IpcMainEvent, err: 
 	} as z.output<typeof schema>;
 	ev.sender.send('error', data);
 	logger.error(err);
-	logResponse('error', data);
+	logResponse('error');
 }

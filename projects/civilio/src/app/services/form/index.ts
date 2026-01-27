@@ -1,6 +1,7 @@
 import {
 	EnvironmentProviders,
 	forwardRef,
+	Injectable,
 	InjectionToken,
 	makeEnvironmentProviders
 } from "@angular/core";
@@ -46,6 +47,13 @@ import {
 	VersionRevertResponse
 } from "@civilio/shared";
 
+@Injectable({
+	providedIn: null
+})
+export class FormService2 {
+
+}
+
 export interface FormService {
 	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
 
@@ -87,7 +95,7 @@ export interface FormService {
 
 	findFieldMappings(arg: FindFieldMappingsRequest): Promise<FindFieldMappingsResponse>;
 
-	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
+	findFormSubmissions(form: string, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
 
 	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
 
@@ -105,6 +113,11 @@ export function provideDomainForms(...providers: EnvironmentProviders[]) {
 		{
 			provide: FORM_SERVICE,
 			useExisting: forwardRef(() => FORM_SERVICE_IMPL)
-		}
+		},
+		{
+			useClass: FormService2,
+			provide: FormService2,
+			multi: false
+		},
 	]);
 }

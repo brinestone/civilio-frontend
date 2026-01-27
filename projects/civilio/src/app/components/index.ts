@@ -11,3 +11,4 @@ export * from './badge-cell/badge-cell.component';
 export * from './group-field/group-field.component';
 export * from '../pages/settings/choice-editor/choice-editor.page';
 export * from './api-config-form/api-config-form.component';
+export * from './form-logo-upload/form-logo-upload.component';

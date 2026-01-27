@@ -46,7 +46,7 @@ export class ElectronConfigService implements ConfigService {
 	}
 
 	async applyPendingMigrations() {
-		return await sendRpcMessageAsync('migrations:apply', undefined, 1000000)
+		return await sendRpcMessageAsync('migrations:apply');
 	}
 
 	checkMigrations(): Promise<CheckMigrationsResponse> {

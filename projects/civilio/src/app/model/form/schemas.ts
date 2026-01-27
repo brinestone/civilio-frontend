@@ -5,6 +5,15 @@ import {
 	OptionSchema
 } from "@civilio/shared";
 import z from "zod";
+import { adjectives, animals, colors, Config, uniqueNamesGenerator } from 'unique-names-generator';
+
+const randomNameConfig: Config = {
+	dictionaries: [adjectives, colors, animals],
+	seed: Date.now(),
+	separator: '-',
+	style: 'lowerCase'
+};
+const randomLabelConfig: Config = { ...randomNameConfig, separator: ' ', style: 'capital' };
 
 export const FormItemRelevanceDefinition = z.object({
 	dependencies: z.string().array(),
@@ -71,8 +80,8 @@ export const FormDefinitionInputSchema = FormDefinitionSchema.omit({
 	updatedAt: true,
 	createdBy: true
 }).extend({
-	name: z.string().default(''),
-	label: z.string().default(''),
+	name: z.string().default(() => uniqueNamesGenerator(randomNameConfig)),
+	label: z.string().default(() => uniqueNamesGenerator(randomLabelConfig)),
 	logo: z.string().nullish().default(null),
 	description: z.string().default(''),
 	fields: FormFieldDefinitionInputSchema.array().default([]),

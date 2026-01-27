@@ -47,12 +47,34 @@ export async function createPushHandler<TEvent extends PushEvent>(ev: TEvent, ev
 	}
 }
 
+export function createInvokeChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
+	logger.debug('Registering IPC invoke handler', 'channel', channel);
+	ipcMain.handle(channel, async (event, eventData) => {
+		logRequest(channel);
+		const bodySchema = channelArgs[channel];
+		try {
+			let result = handler(eventData);
+			if (isPromise(result)) {
+				result = await result;
+			}
+
+			// logResponse(channel, result);
+			return result;
+		} catch (e) {
+			logger.error(e);
+			throw e;
+			// reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))
+			// console.timeEnd(channel);
+		}
+	})
+}
+
 export function createChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
 	// console.time(channel);
 	logger.debug('Registering IPC handler', 'channel', channel);
 	const replyChannel = computeReplyChannel(channel);
 	ipcMain.on(channel, async (event, eventData) => {
-		logRequest(channel, eventData);
+		logRequest(channel);
 		let body: ChannelArg<TChannel> | undefined;
 		let headers: RpcInputHeaders = eventData.headers;
 		let messageId: string = headers.messageId;
@@ -77,7 +99,7 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 				body: result ?? null
 			};
 			event.sender.send(replyChannel, replyRpc);
-			logResponse(channel, replyRpc);
+			logResponse(channel);
 		} catch (e) {
 			logger.error(e);
 			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))

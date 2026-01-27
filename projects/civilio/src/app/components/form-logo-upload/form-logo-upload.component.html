@@ -1,0 +1,24 @@
+<img [src]="value() ?? placeholderLogo()" />
+<div class="flex gap-3">
+	<button
+		type="button"
+		(click)="fileSelector.click()"
+		hlmBtn
+		variant="ghost"
+		size="icon"
+	>
+		<ng-icon name="lucideUpload" />
+	</button>
+	<input
+		(change)="onFileSelected($event.target.files)"
+		hidden
+		type="file"
+		accept="image/png, image/jpeg"
+		#fileSelector
+	/>
+	@if (value()) {
+		<button hlmBtn variant="ghost" size="icon">
+			<ng-icon name="lucideX" />
+		</button>
+	}
+</div>
