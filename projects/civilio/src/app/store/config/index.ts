@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
+import { ClientFetchAdapter } from '@app/adapters/sdk';
 import { CONFIG_SERVICE } from '@app/services/config';
+import { dbConfig } from '@app/store/selectors';
 import {
 	AppConfig,
 	CheckMigrationsResponse,
@@ -41,7 +43,6 @@ import {
 	UpdateMiscConfig,
 	UseConnection
 } from './actions';
-import { dbConfig } from '@app/store/selectors';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -71,6 +72,7 @@ export class ConfigState implements NgxsOnInit {
 	private readonly store = inject(Store);
 	private readonly configService = inject(CONFIG_SERVICE);
 	private readonly translateService = inject(TranslateService);
+	private readonly fetchAdapter = inject(ClientFetchAdapter);
 
 	ngxsOnInit(ctx: Context): void {
 		const state = ctx.getState();
@@ -91,6 +93,7 @@ export class ConfigState implements NgxsOnInit {
 		ctx.setState(patch({
 			config: result
 		}));
+		this.fetchAdapter.baseUrl = new URL(url).origin;
 	}
 
 	@Action(DiscoverServer)
@@ -101,7 +104,8 @@ export class ConfigState implements NgxsOnInit {
 				apiServer: response,
 			}),
 			serverOnline: true
-		}))
+		}));
+		this.fetchAdapter.baseUrl = new URL(response.baseUrl).origin;
 	}
 
 
@@ -222,16 +226,18 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(LoadConfig)
 	onLoadConfig(ctx: Context) {
-		return forkJoin([
-			this.configService.loadConfig(),
-		]).pipe(
-			tap(([config]) => ctx.setState(patch({
+		return from(this.configService.loadConfig()).pipe(
+			tap((config) => ctx.setState(patch({
 				config,
 			}))),
-			tap(([config]) => {
+			tap((config) => {
 				const lang = (config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 				this.translateService.use(lang);
 			}),
+			tap(config => {
+				if (!config.apiServer) return;
+				this.fetchAdapter.baseUrl = new URL(config.apiServer.baseUrl).origin;
+			})
 		)
 	}
 }

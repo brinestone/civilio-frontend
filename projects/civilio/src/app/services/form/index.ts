@@ -1,6 +1,7 @@
 import {
 	EnvironmentProviders,
 	forwardRef,
+	inject,
 	Injectable,
 	InjectionToken,
 	makeEnvironmentProviders

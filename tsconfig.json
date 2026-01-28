@@ -1,7 +1,8 @@
 {
 	"compileOnSave": false,
 	"exclude": [
-		"./projects/electron"
+		"./projects/electron",
+		"./node_modules"
 	],
 	"compilerOptions": {
 		"strict": true,
