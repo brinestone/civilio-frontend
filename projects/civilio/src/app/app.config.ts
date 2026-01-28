@@ -27,11 +27,12 @@ import { isDesktop } from '@app/util';
 import { usingElectron } from '@app/services/electron';
 import { usingWeb } from '@app/services/web';
 import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
+import { provideClientSdk } from './adapters/sdk';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
-		provideHttpClient(),
+		provideClientSdk(),
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),
