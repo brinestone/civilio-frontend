@@ -5,6 +5,7 @@ onlyBuiltDependencies:
   - '@bitdisaster/exe-icon-extractor'
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
+  - better-sqlite3
   - electron
   - electron-winstaller
   - esbuild
