@@ -4,7 +4,7 @@
 // @ts-ignore
 import { ApiRequestBuilderNavigationMetadata, type ApiRequestBuilder } from './api/index.js';
 // @ts-ignore
-import { apiClientProxifier, ParseNodeFactoryRegistry, SerializationWriterFactoryRegistry, type BackingStoreFactory, type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type RequestAdapter } from '@microsoft/kiota-abstractions';
+import { apiClientProxifier, ParseNodeFactoryRegistry, SerializationWriterFactoryRegistry, type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type RequestAdapter } from '@microsoft/kiota-abstractions';
 // @ts-ignore
 import { FormParseNodeFactory, FormSerializationWriterFactory } from '@microsoft/kiota-serialization-form';
 // @ts-ignore
@@ -25,11 +25,10 @@ export interface CivilioSdk extends BaseRequestBuilder<CivilioSdk> {
 }
 /**
  * Instantiates a new {@link CivilioSdk} and sets the default values.
- * @param backingStore The backing store to use for the models.
  * @param requestAdapter The request adapter to use to execute the requests.
  */
 // @ts-ignore
-export function createCivilioSdk(requestAdapter: RequestAdapter, backingStore?: BackingStoreFactory | undefined) {
+export function createCivilioSdk(requestAdapter: RequestAdapter) {
     if (requestAdapter === undefined) {
         throw new Error("requestAdapter cannot be undefined");
     }
@@ -56,7 +55,6 @@ export function createCivilioSdk(requestAdapter: RequestAdapter, backingStore?: 
     const pathParameters: Record<string, unknown> = {
         "baseurl": requestAdapter.baseUrl,
     };
-    requestAdapter.enableBackingStore(backingStore);
     return apiClientProxifier<CivilioSdk>(requestAdapter, pathParameters, CivilioSdkNavigationMetadata, undefined);
 }
 /**

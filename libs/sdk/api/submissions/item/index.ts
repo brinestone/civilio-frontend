@@ -4,7 +4,7 @@
 // @ts-ignore
 import { ToggleApprovalRequestBuilderRequestsMetadata, type ToggleApprovalRequestBuilder } from './toggleApproval/index.js';
 // @ts-ignore
-import { type AdditionalDataHolder, type BackedModel, type BackingStore, type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type ParseNode, type RequestConfiguration, type RequestInformation, type RequestsMetadata, type SerializationWriter } from '@microsoft/kiota-abstractions';
+import { type AdditionalDataHolder, type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type ParseNode, type RequestConfiguration, type RequestInformation, type RequestsMetadata, type SerializationWriter } from '@microsoft/kiota-abstractions';
 
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -50,7 +50,6 @@ export function createWithSubmissionFromDiscriminatorValue(parseNode: ParseNode 
 // @ts-ignore
 export function deserializeIntoWithSubmission(withSubmission: Partial<WithSubmission> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "backingStoreEnabled": n => { withSubmission.backingStoreEnabled = true; },
         "field": n => { withSubmission.field = n.getObjectValue<WithSubmission_field>(createWithSubmission_fieldFromDiscriminatorValue); },
         "fieldId": n => { withSubmission.fieldId = n.getStringValue(); },
         "formVersion": n => { withSubmission.formVersion = n.getStringValue(); },
@@ -67,7 +66,6 @@ export function deserializeIntoWithSubmission(withSubmission: Partial<WithSubmis
 // @ts-ignore
 export function deserializeIntoWithSubmission_field(withSubmission_field: Partial<WithSubmission_field> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "backingStoreEnabled": n => { withSubmission_field.backingStoreEnabled = true; },
         "createdAt": n => { withSubmission_field.createdAt = n.getDateValue(); },
         "description": n => { withSubmission_field.description = n.getStringValue(); },
         "fieldId": n => { withSubmission_field.fieldId = n.getStringValue(); },
@@ -89,7 +87,6 @@ export function deserializeIntoWithSubmission_field(withSubmission_field: Partia
 // @ts-ignore
 export function deserializeIntoWithSubmission_field_relevance(withSubmission_field_relevance: Partial<WithSubmission_field_relevance> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "backingStoreEnabled": n => { withSubmission_field_relevance.backingStoreEnabled = true; },
     }
 }
 /**
@@ -100,7 +97,6 @@ export function deserializeIntoWithSubmission_field_relevance(withSubmission_fie
 // @ts-ignore
 export function deserializeIntoWithSubmissionDeleteResponse(withSubmissionDeleteResponse: Partial<WithSubmissionDeleteResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "backingStoreEnabled": n => { withSubmissionDeleteResponse.backingStoreEnabled = true; },
         "responsesDeleted": n => { withSubmissionDeleteResponse.responsesDeleted = n.getNumberValue(); },
         "versionsDeleted": n => { withSubmissionDeleteResponse.versionsDeleted = n.getNumberValue(); },
     }
@@ -168,11 +164,7 @@ export function serializeWithSubmissionDeleteResponse(writer: SerializationWrite
     writer.writeNumberValue("versionsDeleted", withSubmissionDeleteResponse.versionsDeleted);
     writer.writeAdditionalData(withSubmissionDeleteResponse.additionalData);
 }
-export interface WithSubmission extends AdditionalDataHolder, BackedModel, Parsable {
-    /**
-     * Stores model information.
-     */
-    backingStoreEnabled?: boolean | null;
+export interface WithSubmission extends AdditionalDataHolder, Parsable {
     /**
      * The field property
      */
@@ -198,11 +190,7 @@ export interface WithSubmission extends AdditionalDataHolder, BackedModel, Parsa
      */
     value?: string | null;
 }
-export interface WithSubmission_field extends AdditionalDataHolder, BackedModel, Parsable {
-    /**
-     * Stores model information.
-     */
-    backingStoreEnabled?: boolean | null;
+export interface WithSubmission_field extends AdditionalDataHolder, Parsable {
     /**
      * The createdAt property
      */
@@ -249,20 +237,12 @@ export interface WithSubmission_field extends AdditionalDataHolder, BackedModel,
     updatedAt?: Date | null;
 }
 export type WithSubmission_field_fieldType = (typeof WithSubmission_field_fieldTypeObject)[keyof typeof WithSubmission_field_fieldTypeObject];
-export interface WithSubmission_field_relevance extends AdditionalDataHolder, BackedModel, Parsable {
-    /**
-     * Stores model information.
-     */
-    backingStoreEnabled?: boolean | null;
+export interface WithSubmission_field_relevance extends AdditionalDataHolder, Parsable {
 }
 /**
  * Summary of the deletion
  */
-export interface WithSubmissionDeleteResponse extends AdditionalDataHolder, BackedModel, Parsable {
-    /**
-     * Stores model information.
-     */
-    backingStoreEnabled?: boolean | null;
+export interface WithSubmissionDeleteResponse extends AdditionalDataHolder, Parsable {
     /**
      * The number of response values deleted
      */

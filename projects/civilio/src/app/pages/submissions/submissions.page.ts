@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BadgeCell, DateCell, VersionCell } from '@app/components';
 import { ActionCell } from '@app/components/tabular-field/cells';
-import { ElectronFormService } from '@app/services/electron/form.service';
+import { FORM_SERVICE, FormService2 } from '@app/services/form';
 import { SetFormType } from '@app/store/form';
 import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
@@ -79,7 +79,8 @@ export class SubmissionsPage implements OnInit {
 	private setFormType = dispatch(SetFormType);
 
 	private readonly injector = inject(Injector);
-	private formService = inject(ElectronFormService);
+	private formService = inject(FORM_SERVICE);
+	private readonly f2 = inject(FormService2);
 	protected readonly formTypeOptions = FormTypeSchema.options
 	protected readonly formType = select(lastFocusedFormType);
 	protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
@@ -92,12 +93,12 @@ export class SubmissionsPage implements OnInit {
 			pagination: this.pagination()
 		}),
 		loader: async ({
-										 params: {
-											 form,
-											 pagination: { pageIndex, pageSize },
-											 filter
-										 }
-									 }) => {
+			params: {
+				form,
+				pagination: { pageIndex, pageSize },
+				filter
+			}
+		}) => {
 			if (!form) return { data: [], totalRecords: 0 };
 			return await this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
 		},
@@ -223,6 +224,7 @@ export class SubmissionsPage implements OnInit {
 	}
 
 	ngOnInit(): void {
+		this.f2.findFormSubmissions({}).then(v => console.log(v));
 	}
 
 	protected onFormTypeChanged(type: FormType) {

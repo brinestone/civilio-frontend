@@ -1,5 +1,5 @@
 import { Signal } from "@angular/core";
-import { applyEach, debounce, hidden, maxLength, required, SchemaPathTree, validateHttp } from "@angular/forms/signals";
+import { applyEach, debounce, hidden, maxLength, required, SchemaPathTree } from "@angular/forms/signals";
 import { FormDefinitionInput, FormDefinitionInputSchema } from "@app/model/form";
 
 const debounceDuration = 200;
@@ -15,10 +15,7 @@ export function defineFormDefinitionSectionFormSchema(paths: SchemaPathTree<Form
 
 }
 
-export function defineFormDefinitionFormSchema(options: {
-	apiUrl: Signal<string>;
-	currentName: Signal<string | undefined>;
-}) {
+export function defineFormDefinitionFormSchema() {
 	return (paths: SchemaPathTree<FormDefinitionInput>) => {
 		hidden(paths.name, () => true);
 		debounce(paths.label, debounceDuration);
