@@ -49,20 +49,38 @@ export function createDatasetParentRefFromDiscriminatorValue(parseNode: ParseNod
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {FormDefinition}
+ * @returns {DatasetResponse}
  */
 // @ts-ignore
-export function createFormDefinitionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoFormDefinition;
+export function createDatasetResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoDatasetResponse;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {FormField}
+ * @returns {FormItemDefinition_meta}
  */
 // @ts-ignore
-export function createFormFieldFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoFormField;
+export function createFormItemDefinition_metaFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormItemDefinition_meta;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormItemDefinition}
+ */
+// @ts-ignore
+export function createFormItemDefinitionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormItemDefinition;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormItemParentRef}
+ */
+// @ts-ignore
+export function createFormItemParentRefFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormItemParentRef;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -76,20 +94,11 @@ export function createFormLookupFromDiscriminatorValue(parseNode: ParseNode | un
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {FormSection_relevance}
+ * @returns {FormVersionDefinition}
  */
 // @ts-ignore
-export function createFormSection_relevanceFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoFormSection_relevance;
-}
-/**
- * Creates a new instance of the appropriate class based on discriminator value
- * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {FormSection}
- */
-// @ts-ignore
-export function createFormSectionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoFormSection;
+export function createFormVersionDefinitionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormVersionDefinition;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -108,6 +117,33 @@ export function createFormVersionLookupFromDiscriminatorValue(parseNode: ParseNo
 // @ts-ignore
 export function createRelevanceDefinitionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
     return deserializeIntoRelevanceDefinition;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {SubmissionLookup}
+ */
+// @ts-ignore
+export function createSubmissionLookupFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoSubmissionLookup;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {SubmissionResponse}
+ */
+// @ts-ignore
+export function createSubmissionResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoSubmissionResponse;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {SubmissionVersionLookup}
+ */
+// @ts-ignore
+export function createSubmissionVersionLookupFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoSubmissionVersionLookup;
 }
 export interface Dataset extends AdditionalDataHolder, Parsable {
     /**
@@ -187,6 +223,12 @@ export interface DatasetParentRef extends AdditionalDataHolder, Parsable {
      */
     title?: string | null;
 }
+export interface DatasetResponse extends AdditionalDataHolder, Parsable {
+    /**
+     * The groups property
+     */
+    groups?: Dataset[] | null;
+}
 /**
  * The deserialization information for the current model
  * @param AvailabilityResponse The instance to deserialize into.
@@ -248,42 +290,52 @@ export function deserializeIntoDatasetParentRef(datasetParentRef: Partial<Datase
 }
 /**
  * The deserialization information for the current model
- * @param FormDefinition The instance to deserialize into.
+ * @param DatasetResponse The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
 // @ts-ignore
-export function deserializeIntoFormDefinition(formDefinition: Partial<FormDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+export function deserializeIntoDatasetResponse(datasetResponse: Partial<DatasetResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "createdAt": n => { formDefinition.createdAt = n.getDateValue(); },
-        "fields": n => { formDefinition.fields = n.getCollectionOfObjectValues<FormField>(createFormFieldFromDiscriminatorValue); },
-        "form": n => { formDefinition.form = n.getStringValue(); },
-        "id": n => { formDefinition.id = n.getGuidValue(); },
-        "isCurrent": n => { formDefinition.isCurrent = n.getBooleanValue(); },
-        "label": n => { formDefinition.label = n.getStringValue(); },
-        "parentId": n => { formDefinition.parentId = n.getGuidValue(); },
-        "sections": n => { formDefinition.sections = n.getCollectionOfObjectValues<FormSection>(createFormSectionFromDiscriminatorValue); },
-        "updatedAt": n => { formDefinition.updatedAt = n.getDateValue(); },
+        "groups": n => { datasetResponse.groups = n.getCollectionOfObjectValues<Dataset>(createDatasetFromDiscriminatorValue); },
     }
 }
 /**
  * The deserialization information for the current model
- * @param FormField The instance to deserialize into.
+ * @param FormItemDefinition The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
 // @ts-ignore
-export function deserializeIntoFormField(formField: Partial<FormField> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+export function deserializeIntoFormItemDefinition(formItemDefinition: Partial<FormItemDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "createdAt": n => { formField.createdAt = n.getDateValue(); },
-        "description": n => { formField.description = n.getStringValue(); },
-        "fieldId": n => { formField.fieldId = n.getGuidValue(); },
-        "fieldType": n => { formField.fieldType = n.getStringValue(); },
-        "formVersion": n => { formField.formVersion = n.getGuidValue(); },
-        "readonly": n => { formField.readonly = n.getBooleanValue(); },
-        "relevance": n => { formField.relevance = n.getObjectValue<RelevanceDefinition>(createRelevanceDefinitionFromDiscriminatorValue); },
-        "sectionKey": n => { formField.sectionKey = n.getStringValue(); },
-        "span": n => { formField.span = n.getNumberValue(); },
-        "title": n => { formField.title = n.getStringValue(); },
-        "updatedAt": n => { formField.updatedAt = n.getDateValue(); },
+        "description": n => { formItemDefinition.description = n.getStringValue(); },
+        "id": n => { formItemDefinition.id = n.getGuidValue(); },
+        "meta": n => { formItemDefinition.meta = n.getObjectValue<FormItemDefinition_meta>(createFormItemDefinition_metaFromDiscriminatorValue); },
+        "parent": n => { formItemDefinition.parent = n.getObjectValue<FormItemParentRef>(createFormItemParentRefFromDiscriminatorValue); },
+        "position": n => { formItemDefinition.position = n.getNumberValue(); },
+        "relevance": n => { formItemDefinition.relevance = n.getObjectValue<RelevanceDefinition>(createRelevanceDefinitionFromDiscriminatorValue); },
+        "title": n => { formItemDefinition.title = n.getStringValue(); },
+        "type": n => { formItemDefinition.type = n.getEnumValue<FormItemDefinition_type>(FormItemDefinition_typeObject); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param FormItemDefinition_meta The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormItemDefinition_meta(formItemDefinition_meta: Partial<FormItemDefinition_meta> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param FormItemParentRef The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormItemParentRef(formItemParentRef: Partial<FormItemParentRef> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "id": n => { formItemParentRef.id = n.getGuidValue(); },
     }
 }
 /**
@@ -305,29 +357,15 @@ export function deserializeIntoFormLookup(formLookup: Partial<FormLookup> | unde
 }
 /**
  * The deserialization information for the current model
- * @param FormSection The instance to deserialize into.
+ * @param FormVersionDefinition The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
 // @ts-ignore
-export function deserializeIntoFormSection(formSection: Partial<FormSection> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+export function deserializeIntoFormVersionDefinition(formVersionDefinition: Partial<FormVersionDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "createdAt": n => { formSection.createdAt = n.getDateValue(); },
-        "fields": n => { formSection.fields = n.getCollectionOfObjectValues<FormField>(createFormFieldFromDiscriminatorValue); },
-        "formVersion": n => { formSection.formVersion = n.getGuidValue(); },
-        "key": n => { formSection.key = n.getStringValue(); },
-        "relevance": n => { formSection.relevance = n.getObjectValue<FormSection_relevance>(createFormSection_relevanceFromDiscriminatorValue); },
-        "title": n => { formSection.title = n.getStringValue(); },
-        "updatedAt": n => { formSection.updatedAt = n.getDateValue(); },
-    }
-}
-/**
- * The deserialization information for the current model
- * @param FormSection_relevance The instance to deserialize into.
- * @returns {Record<string, (node: ParseNode) => void>}
- */
-// @ts-ignore
-export function deserializeIntoFormSection_relevance(formSection_relevance: Partial<FormSection_relevance> | undefined = {}) : Record<string, (node: ParseNode) => void> {
-    return {
+        "id": n => { formVersionDefinition.id = n.getGuidValue(); },
+        "items": n => { formVersionDefinition.items = n.getCollectionOfObjectValues<FormItemDefinition>(createFormItemDefinitionFromDiscriminatorValue); },
+        "parentId": n => { formVersionDefinition.parentId = n.getGuidValue(); },
     }
 }
 /**
@@ -355,91 +393,97 @@ export function deserializeIntoFormVersionLookup(formVersionLookup: Partial<Form
 // @ts-ignore
 export function deserializeIntoRelevanceDefinition(relevanceDefinition: Partial<RelevanceDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
+        "dependencies": n => { relevanceDefinition.dependencies = n.getCollectionOfPrimitiveValues<string>(); },
     }
 }
-export interface FormDefinition extends AdditionalDataHolder, Parsable {
-    /**
-     * The createdAt property
-     */
-    createdAt?: Date | null;
-    /**
-     * The fields property
-     */
-    fields?: FormField[] | null;
-    /**
-     * The form property
-     */
-    form?: string | null;
-    /**
-     * The id property
-     */
-    id?: Guid | null;
-    /**
-     * The isCurrent property
-     */
-    isCurrent?: boolean | null;
-    /**
-     * The label property
-     */
-    label?: string | null;
-    /**
-     * The parentId property
-     */
-    parentId?: Guid | null;
-    /**
-     * The sections property
-     */
-    sections?: FormSection[] | null;
-    /**
-     * The updatedAt property
-     */
-    updatedAt?: Date | null;
+/**
+ * The deserialization information for the current model
+ * @param SubmissionLookup The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoSubmissionLookup(submissionLookup: Partial<SubmissionLookup> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "form": n => { submissionLookup.form = n.getStringValue(); },
+        "formVersion": n => { submissionLookup.formVersion = n.getGuidValue(); },
+        "index": n => { submissionLookup.index = n.getNumberValue(); },
+        "recordedAt": n => { submissionLookup.recordedAt = n.getDateValue(); },
+        "versions": n => { submissionLookup.versions = n.getCollectionOfObjectValues<SubmissionVersionLookup>(createSubmissionVersionLookupFromDiscriminatorValue); },
+    }
 }
-export interface FormField extends AdditionalDataHolder, Parsable {
-    /**
-     * The createdAt property
-     */
-    createdAt?: Date | null;
+/**
+ * The deserialization information for the current model
+ * @param SubmissionResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoSubmissionResponse(submissionResponse: Partial<SubmissionResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "fieldId": n => { submissionResponse.fieldId = n.getGuidValue(); },
+        "form": n => { submissionResponse.form = n.getStringValue(); },
+        "formVersion": n => { submissionResponse.formVersion = n.getGuidValue(); },
+        "submissionIndex": n => { submissionResponse.submissionIndex = n.getNumberValue(); },
+        "submissionVersionId": n => { submissionResponse.submissionVersionId = n.getGuidValue(); },
+        "value": n => { submissionResponse.value = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param SubmissionVersionLookup The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoSubmissionVersionLookup(submissionVersionLookup: Partial<SubmissionVersionLookup> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "approvedAt": n => { submissionVersionLookup.approvedAt = n.getDateValue(); },
+        "id": n => { submissionVersionLookup.id = n.getGuidValue(); },
+        "isCurrent": n => { submissionVersionLookup.isCurrent = n.getBooleanValue(); },
+        "recordedAt": n => { submissionVersionLookup.recordedAt = n.getDateValue(); },
+        "validationCode": n => { submissionVersionLookup.validationCode = n.getStringValue(); },
+    }
+}
+export interface FormItemDefinition extends Parsable {
     /**
      * The description property
      */
     description?: string | null;
     /**
-     * The fieldId property
+     * The id property
      */
-    fieldId?: Guid | null;
+    id?: Guid | null;
     /**
-     * The fieldType property
+     * The meta property
      */
-    fieldType?: string | null;
+    meta?: FormItemDefinition_meta | null;
     /**
-     * The formVersion property
+     * The parent property
      */
-    formVersion?: Guid | null;
+    parent?: FormItemParentRef | null;
     /**
-     * The readonly property
+     * The position property
      */
-    readonly?: boolean | null;
+    position?: number | null;
     /**
      * The relevance property
      */
     relevance?: RelevanceDefinition | null;
     /**
-     * The sectionKey property
-     */
-    sectionKey?: string | null;
-    /**
-     * The span property
-     */
-    span?: number | null;
-    /**
      * The title property
      */
     title?: string | null;
     /**
-     * The updatedAt property
+     * The type property
      */
-    updatedAt?: Date | null;
+    type?: FormItemDefinition_type | null;
+}
+export interface FormItemDefinition_meta extends AdditionalDataHolder, Parsable {
+}
+export type FormItemDefinition_type = (typeof FormItemDefinition_typeObject)[keyof typeof FormItemDefinition_typeObject];
+export interface FormItemParentRef extends Parsable {
+    /**
+     * The id property
+     */
+    id?: Guid | null;
 }
 export interface FormLookup extends AdditionalDataHolder, Parsable {
     /**
@@ -471,37 +515,19 @@ export interface FormLookup extends AdditionalDataHolder, Parsable {
      */
     updatedAt?: Date | null;
 }
-export interface FormSection extends AdditionalDataHolder, Parsable {
+export interface FormVersionDefinition extends Parsable {
     /**
-     * The createdAt property
+     * The id property
      */
-    createdAt?: Date | null;
+    id?: Guid | null;
     /**
-     * The fields property
+     * The items property
      */
-    fields?: FormField[] | null;
+    items?: FormItemDefinition[] | null;
     /**
-     * The formVersion property
+     * The parentId property
      */
-    formVersion?: Guid | null;
-    /**
-     * The key property
-     */
-    key?: string | null;
-    /**
-     * The relevance property
-     */
-    relevance?: FormSection_relevance | null;
-    /**
-     * The title property
-     */
-    title?: string | null;
-    /**
-     * The updatedAt property
-     */
-    updatedAt?: Date | null;
-}
-export interface FormSection_relevance extends AdditionalDataHolder, Parsable {
+    parentId?: Guid | null;
 }
 /**
  * Lookup for a form version
@@ -537,6 +563,10 @@ export interface FormVersionLookup extends AdditionalDataHolder, Parsable {
     updatedAt?: Date | null;
 }
 export interface RelevanceDefinition extends AdditionalDataHolder, Parsable {
+    /**
+     * The dependencies property
+     */
+    dependencies?: string[] | null;
 }
 /**
  * Serializes information the current object
@@ -603,45 +633,55 @@ export function serializeDatasetParentRef(writer: SerializationWriter, datasetPa
 }
 /**
  * Serializes information the current object
- * @param FormDefinition The instance to serialize from.
+ * @param DatasetResponse The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
  */
 // @ts-ignore
-export function serializeFormDefinition(writer: SerializationWriter, formDefinition: Partial<FormDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!formDefinition || isSerializingDerivedType) { return; }
-    writer.writeDateValue("createdAt", formDefinition.createdAt);
-    writer.writeCollectionOfObjectValues<FormField>("fields", formDefinition.fields, serializeFormField);
-    writer.writeStringValue("form", formDefinition.form);
-    writer.writeGuidValue("id", formDefinition.id);
-    writer.writeBooleanValue("isCurrent", formDefinition.isCurrent);
-    writer.writeStringValue("label", formDefinition.label);
-    writer.writeGuidValue("parentId", formDefinition.parentId);
-    writer.writeCollectionOfObjectValues<FormSection>("sections", formDefinition.sections, serializeFormSection);
-    writer.writeDateValue("updatedAt", formDefinition.updatedAt);
-    writer.writeAdditionalData(formDefinition.additionalData);
+export function serializeDatasetResponse(writer: SerializationWriter, datasetResponse: Partial<DatasetResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!datasetResponse || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfObjectValues<Dataset>("groups", datasetResponse.groups, serializeDataset);
+    writer.writeAdditionalData(datasetResponse.additionalData);
 }
 /**
  * Serializes information the current object
- * @param FormField The instance to serialize from.
+ * @param FormItemDefinition The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
  */
 // @ts-ignore
-export function serializeFormField(writer: SerializationWriter, formField: Partial<FormField> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!formField || isSerializingDerivedType) { return; }
-    writer.writeDateValue("createdAt", formField.createdAt);
-    writer.writeStringValue("description", formField.description);
-    writer.writeGuidValue("fieldId", formField.fieldId);
-    writer.writeStringValue("fieldType", formField.fieldType);
-    writer.writeGuidValue("formVersion", formField.formVersion);
-    writer.writeBooleanValue("readonly", formField.readonly);
-    writer.writeObjectValue<RelevanceDefinition>("relevance", formField.relevance, serializeRelevanceDefinition);
-    writer.writeStringValue("sectionKey", formField.sectionKey);
-    writer.writeNumberValue("span", formField.span);
-    writer.writeStringValue("title", formField.title);
-    writer.writeDateValue("updatedAt", formField.updatedAt);
-    writer.writeAdditionalData(formField.additionalData);
+export function serializeFormItemDefinition(writer: SerializationWriter, formItemDefinition: Partial<FormItemDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formItemDefinition || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", formItemDefinition.description);
+    writer.writeGuidValue("id", formItemDefinition.id);
+    writer.writeObjectValue<FormItemDefinition_meta>("meta", formItemDefinition.meta, serializeFormItemDefinition_meta);
+    writer.writeObjectValue<FormItemParentRef>("parent", formItemDefinition.parent, serializeFormItemParentRef);
+    writer.writeNumberValue("position", formItemDefinition.position);
+    writer.writeObjectValue<RelevanceDefinition>("relevance", formItemDefinition.relevance, serializeRelevanceDefinition);
+    writer.writeStringValue("title", formItemDefinition.title);
+    writer.writeEnumValue<FormItemDefinition_type>("type", formItemDefinition.type);
+}
+/**
+ * Serializes information the current object
+ * @param FormItemDefinition_meta The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormItemDefinition_meta(writer: SerializationWriter, formItemDefinition_meta: Partial<FormItemDefinition_meta> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formItemDefinition_meta || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(formItemDefinition_meta.additionalData);
+}
+/**
+ * Serializes information the current object
+ * @param FormItemParentRef The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormItemParentRef(writer: SerializationWriter, formItemParentRef: Partial<FormItemParentRef> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formItemParentRef || isSerializingDerivedType) { return; }
+    writer.writeGuidValue("id", formItemParentRef.id);
 }
 /**
  * Serializes information the current object
@@ -663,32 +703,16 @@ export function serializeFormLookup(writer: SerializationWriter, formLookup: Par
 }
 /**
  * Serializes information the current object
- * @param FormSection The instance to serialize from.
+ * @param FormVersionDefinition The instance to serialize from.
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param writer Serialization writer to use to serialize this model
  */
 // @ts-ignore
-export function serializeFormSection(writer: SerializationWriter, formSection: Partial<FormSection> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!formSection || isSerializingDerivedType) { return; }
-    writer.writeDateValue("createdAt", formSection.createdAt);
-    writer.writeCollectionOfObjectValues<FormField>("fields", formSection.fields, serializeFormField);
-    writer.writeGuidValue("formVersion", formSection.formVersion);
-    writer.writeStringValue("key", formSection.key);
-    writer.writeObjectValue<FormSection_relevance>("relevance", formSection.relevance, serializeFormSection_relevance);
-    writer.writeStringValue("title", formSection.title);
-    writer.writeDateValue("updatedAt", formSection.updatedAt);
-    writer.writeAdditionalData(formSection.additionalData);
-}
-/**
- * Serializes information the current object
- * @param FormSection_relevance The instance to serialize from.
- * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
- * @param writer Serialization writer to use to serialize this model
- */
-// @ts-ignore
-export function serializeFormSection_relevance(writer: SerializationWriter, formSection_relevance: Partial<FormSection_relevance> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!formSection_relevance || isSerializingDerivedType) { return; }
-    writer.writeAdditionalData(formSection_relevance.additionalData);
+export function serializeFormVersionDefinition(writer: SerializationWriter, formVersionDefinition: Partial<FormVersionDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formVersionDefinition || isSerializingDerivedType) { return; }
+    writer.writeGuidValue("id", formVersionDefinition.id);
+    writer.writeCollectionOfObjectValues<FormItemDefinition>("items", formVersionDefinition.items, serializeFormItemDefinition);
+    writer.writeGuidValue("parentId", formVersionDefinition.parentId);
 }
 /**
  * Serializes information the current object
@@ -717,7 +741,138 @@ export function serializeFormVersionLookup(writer: SerializationWriter, formVers
 // @ts-ignore
 export function serializeRelevanceDefinition(writer: SerializationWriter, relevanceDefinition: Partial<RelevanceDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!relevanceDefinition || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfPrimitiveValues<string>("dependencies", relevanceDefinition.dependencies);
     writer.writeAdditionalData(relevanceDefinition.additionalData);
 }
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param SubmissionLookup The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeSubmissionLookup(writer: SerializationWriter, submissionLookup: Partial<SubmissionLookup> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!submissionLookup || isSerializingDerivedType) { return; }
+    writer.writeStringValue("form", submissionLookup.form);
+    writer.writeGuidValue("formVersion", submissionLookup.formVersion);
+    writer.writeNumberValue("index", submissionLookup.index);
+    writer.writeDateValue("recordedAt", submissionLookup.recordedAt);
+    writer.writeCollectionOfObjectValues<SubmissionVersionLookup>("versions", submissionLookup.versions, serializeSubmissionVersionLookup);
+    writer.writeAdditionalData(submissionLookup.additionalData);
+}
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param SubmissionResponse The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeSubmissionResponse(writer: SerializationWriter, submissionResponse: Partial<SubmissionResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!submissionResponse || isSerializingDerivedType) { return; }
+    writer.writeGuidValue("fieldId", submissionResponse.fieldId);
+    writer.writeStringValue("form", submissionResponse.form);
+    writer.writeGuidValue("formVersion", submissionResponse.formVersion);
+    writer.writeNumberValue("submissionIndex", submissionResponse.submissionIndex);
+    writer.writeGuidValue("submissionVersionId", submissionResponse.submissionVersionId);
+    writer.writeStringValue("value", submissionResponse.value);
+    writer.writeAdditionalData(submissionResponse.additionalData);
+}
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param SubmissionVersionLookup The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeSubmissionVersionLookup(writer: SerializationWriter, submissionVersionLookup: Partial<SubmissionVersionLookup> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!submissionVersionLookup || isSerializingDerivedType) { return; }
+    writer.writeDateValue("approvedAt", submissionVersionLookup.approvedAt);
+    writer.writeGuidValue("id", submissionVersionLookup.id);
+    writer.writeBooleanValue("isCurrent", submissionVersionLookup.isCurrent);
+    writer.writeDateValue("recordedAt", submissionVersionLookup.recordedAt);
+    writer.writeStringValue("validationCode", submissionVersionLookup.validationCode);
+    writer.writeAdditionalData(submissionVersionLookup.additionalData);
+}
+export interface SubmissionLookup extends AdditionalDataHolder, Parsable {
+    /**
+     * The form property
+     */
+    form?: string | null;
+    /**
+     * The formVersion property
+     */
+    formVersion?: Guid | null;
+    /**
+     * The index property
+     */
+    index?: number | null;
+    /**
+     * The recordedAt property
+     */
+    recordedAt?: Date | null;
+    /**
+     * The versions property
+     */
+    versions?: SubmissionVersionLookup[] | null;
+}
+/**
+ * A single submission response
+ */
+export interface SubmissionResponse extends AdditionalDataHolder, Parsable {
+    /**
+     * UUID of the form field
+     */
+    fieldId?: Guid | null;
+    /**
+     * The form identifier/slug
+     */
+    form?: string | null;
+    /**
+     * UUID of the form version
+     */
+    formVersion?: Guid | null;
+    /**
+     * The index of the submission
+     */
+    submissionIndex?: number | null;
+    /**
+     * UUID of the submission version (response_id in database)
+     */
+    submissionVersionId?: Guid | null;
+    /**
+     * The response value for the field
+     */
+    value?: string | null;
+}
+export interface SubmissionVersionLookup extends AdditionalDataHolder, Parsable {
+    /**
+     * The approvedAt property
+     */
+    approvedAt?: Date | null;
+    /**
+     * The id property
+     */
+    id?: Guid | null;
+    /**
+     * The isCurrent property
+     */
+    isCurrent?: boolean | null;
+    /**
+     * The recordedAt property
+     */
+    recordedAt?: Date | null;
+    /**
+     * The validationCode property
+     */
+    validationCode?: string | null;
+}
+export const FormItemDefinition_typeObject = {
+    Field: "field",
+    Note: "note",
+    Image: "image",
+    Group: "group",
+    List: "list",
+    Separator: "separator",
+} as const;
 /* tslint:enable */
 /* eslint-enable */

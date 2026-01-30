@@ -11,13 +11,13 @@ import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type Requ
  */
 export interface LookupRequestBuilder extends BaseRequestBuilder<LookupRequestBuilder> {
     /**
-     * Lookup all form definitions
+     * Lookup all forms
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<FormLookup[]>}
      */
      get(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<FormLookup[] | undefined>;
     /**
-     * Lookup all form definitions
+     * Lookup all forms
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
      */

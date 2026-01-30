@@ -1,41 +1,24 @@
 <form class="container mx-auto">
-	<div hlmFieldGroup class="px-4 py-2">
-		<div class="grid grid-cols-[150px_1fr] gap-x-3">
-			<div hlmFieldGroup>
-				<div hlmField>
-					<cv-form-logo-upload [formField]="formModel.logo" />
-				</div>
-			</div>
-			<div hlmFieldGroup>
-				<div hlmField>
-					<input
-						placeholder="Form Title"
-						[formField]="formModel.label"
-						class="selection:text-primary-foreground selection:bg-primary [&.ng-invalid.ng-dirty]:ring-destructive/20 dark:[&.ng-invalid.ng-dirty]:ring-destructive/40 [&.ng-invalid.ng-dirty]:border-destructive text-2xl focus:max-w-full max-w-125 focus:outline-none focus:ring-2 focus:ring-(--primary) rounded p-2 font-extrabold text-muted-foreground focus:text-foreground"
-					/>
-					<ng-container
-						[ngTemplateOutlet]="fieldErrorsTemplate"
-						[ngTemplateOutletContext]="{$implicit: formModel.label}"
-					/>
-				</div>
-				<div hlmField>
-					<textarea
-						placeholder="Form Description"
-						[formField]="formModel.description"
-						rows="3"
-						class="min-h-lh max-h-[10lh] field-sizing-content resize-none selection:text-primary-foreground selection:bg-primary [&.ng-invalid.ng-dirty]:ring-destructive/20 dark:[&.ng-invalid.ng-dirty]:ring-destructive/40 [&.ng-invalid.ng-dirty]:border-destructive text-lg line-clamp-2 text-ellipsis focus:line-clamp-none focus:max-w-full max-w-137.5 focus:outline-none focus:ring-2 focus:ring-(--primary) rounded p-2 text-muted-foreground focus:text-foreground"
-					></textarea>
-					<ng-container
-						[ngTemplateOutlet]="fieldErrorsTemplate"
-						[ngTemplateOutletContext]="{$implicit: formModel.description}"
-					/>
-				</div>
-			</div>
+	<div class="flex justify-end items-center flex-wrap gap-3 p-2 sticky top-2">
+		<div hlmButtonGroup>
+			<button title="Add Item" hlmBtn size="icon-sm" variant="outline">
+				<ng-icon name="lucidePlus" />
+			</button>
 		</div>
-		<hlm-field-separator />
-		<fieldset hlmFieldSet></fieldset>
+	</div>
+	<div hlmFieldGroup class="px-4 py-2">
+		<div hlmFieldGroup>@for(field of formModel.items; track field) { }</div>
+		<div>
+			@if(enableEditingControls()){
+			<ng-container [ngTemplateOutlet]="additionControls" />
+			}
+		</div>
 	</div>
 </form>
+
+<ng-template #additionControls let-parent>
+	<div class="space-y-2"></div>
+</ng-template>
 
 <ng-template #fieldErrorsTemplate let-field>
 	@if(field().pending()) {

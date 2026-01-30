@@ -27,6 +27,7 @@
     "studio": "pnpm drizzle-kit studio",
     "prepublish:electron": "pnpm clean && pnpm build:electron && pnpm build:ng && pnpm manifest",
     "sdk:init": "kiota generate --co --cc -l typescript -d http://localhost:3000/_docs/openapi.json -c CivilioSdk -o libs/sdk -e \"/_docs/*\" -e \"/api/{*param1}\" -e \"/_swagger\"",
+    "sdk:update": "kiota generate -l typescript -d http://localhost:3000/_docs/openapi.json -c CivilioSdk -o libs/sdk -e \"/_docs/*\" -e \"/api/{*param1}\" -e \"/_swagger\"",
     "publish:electron": "electron-forge publish",
     "generate:page": "ng g c --project civilio --type page",
     "generate:layout": "ng g c --project civilio --type layout",

@@ -1,56 +1,67 @@
 import { Signal } from "@angular/core";
-import { applyEach, debounce, hidden, maxLength, required, SchemaPathTree } from "@angular/forms/signals";
-import { FormDefinitionInput, FormDefinitionInputSchema } from "@app/model/form";
+import { applyEach, debounce, hidden, required, SchemaPathTree } from "@angular/forms/signals";
+import { Strict } from "@app/model/form";
+import { FormItemDefinition, FormVersionDefinition } from "@civilio/sdk/models";
+
+export type FormModel = Strict<FormVersionDefinition>;
 
 const debounceDuration = 200;
 
-
-export function defineFormDefinitionFieldsFormSchema(paths: SchemaPathTree<FormDefinitionInput['fields'][number]>) {
-
-}
-
-export function defineFormDefinitionSectionFormSchema(paths: SchemaPathTree<FormDefinitionInput['sections'][number]>) {
+function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemDefinition>>) {
+	// title
 	debounce(paths.title, debounceDuration);
-	required(paths.title, { message: 'A section must have a label' });
+	required(paths.title, { message: 'A title is required' });
 
+	// description
+	debounce(paths.description, debounceDuration);
+
+	// id
+	hidden(paths.id, () => true);
+
+	// meta
+	hidden(paths.meta, () => true);
+
+	// position
+	hidden(paths.position, () => true);
+
+	// type
+	required(paths.type, { message: 'A type is required' });
 }
 
-export function defineFormDefinitionFormSchema() {
-	return (paths: SchemaPathTree<FormDefinitionInput>) => {
-		hidden(paths.name, () => true);
-		debounce(paths.label, debounceDuration);
-		debounce(paths.description, debounceDuration);
-
-		// Name
-		// required(paths.name, { message: 'A form must have a unique name' });
-		// validateHttp<string, { available: boolean }>(paths.name, {
-		// 	request: ({ value }) => value() && value() !== options.currentName() ? `${options.apiUrl()}/forms/name-available?name=${encodeURIComponent(value())}` : undefined,
-		// 	onError: () => ({
-		// 		kind: 'networkError',
-		// 		message: 'Could not validate form name availability due to a network error'
-		// 	}),
-		// 	onSuccess: (response,) => {
-		// 		if (!response.available) {
-		// 			return { kind: 'uniqueName', message: 'This form name is already taken' };
-		// 		}
-		// 		return null;
-		// 	}
-		// });
-
-		// Label
-		required(paths.label, { message: 'A form must have a label' });
-
-		// Description
-		maxLength(paths.description, 500, { message: 'Description cannot exceed 500 characters' });
-
-		// Fields
-		applyEach(paths.fields, defineFormDefinitionFieldsFormSchema);
-
-		// Sections
-		applyEach(paths.sections, defineFormDefinitionSectionFormSchema);
+export function defineFormDefinitionFormSchema(options: {
+	enableEditing: Signal<boolean>
+}) {
+	return (paths: SchemaPathTree<ReturnType<typeof defaultFormDefinitionSchemaValue>>) => {
+		hidden(paths.id, () => true);
+		hidden(paths.parentId, () => true);
+		applyEach(paths.items, defineFormItemDefinitionFormSchema as any);
 	}
 }
 
 export function defaultFormDefinitionSchemaValue() {
-	return FormDefinitionInputSchema.parse({});
+	return {
+		id: '',
+		parentId: '',
+		items: [],
+	} as FormModel
+}
+export function domainToStrictFormDefinition(value: FormVersionDefinition) {
+	return value as FormModel;
+}
+export function defaultFormItemDefinitionSchemaValue(position: number) {
+	return {
+		description: '',
+		id: '',
+		meta: { additionalData: {} },
+		position,
+		relevance: {
+			dependencies: [],
+			additionalData: {}
+		},
+		parent: {
+			id: ''
+		},
+		title: '',
+		type: 'field'
+	} as FormModel['items'][number]
 }

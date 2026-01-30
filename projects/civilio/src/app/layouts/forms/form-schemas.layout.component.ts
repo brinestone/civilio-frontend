@@ -1,7 +1,5 @@
-import { httpResource } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterOutlet } from '@angular/router';
-import { FormDefinitionLookupSchema } from '@app/model/form';
 import { FormService2 } from '@app/services/form';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideFormInput, lucidePlus } from '@ng-icons/lucide';

@@ -1,9 +1,10 @@
-import { Component, InputSignal, InputSignalWithTransform, model, ModelSignal, OutputRef, signal } from '@angular/core';
+import { booleanAttribute, Component, HostListener, input, InputSignal, InputSignalWithTransform, model, ModelSignal, OutputRef, signal } from '@angular/core';
 import { DisabledReason, FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideFilePlus, lucideUpload, lucideX } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { random } from 'lodash';
+import { hostBinding } from 'ngxtension/host-binding';
 
 const placeholderLogosLight = [
 	`<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,10 +76,13 @@ const placeholderLogosDark = [
 export class FormLogoUploadComponent implements FormValueControl<string | null> {
 	readonly value = model<string | null>(null);
 	protected readonly placeholderLogo = signal('');
+	protected readonly droppingFile = hostBinding('class.hovering-file', signal(false));
 	errors?: InputSignal<readonly WithOptionalField<ValidationError>[]> | InputSignalWithTransform<readonly WithOptionalField<ValidationError>[], unknown> | undefined;
 	disabled?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
 	disabledReasons?: InputSignal<readonly WithOptionalField<DisabledReason>[]> | InputSignalWithTransform<readonly WithOptionalField<DisabledReason>[], unknown> | undefined;
-	readonly?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
+	readonly = input<boolean, unknown>(false, {
+		transform: booleanAttribute,
+	});
 	hidden?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
 	invalid?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
 	pending?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
@@ -91,6 +95,44 @@ export class FormLogoUploadComponent implements FormValueControl<string | null> 
 	max?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
 	maxLength?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
 	pattern?: InputSignal<readonly RegExp[]> | InputSignalWithTransform<readonly RegExp[], unknown> | undefined;
+
+	@HostListener('window:drop', ['$event'])
+	protected onWindowDrop(event: DragEvent) {
+		if (this.readonly()) {
+			event.preventDefault();
+			return;
+		}
+		if (!event.dataTransfer) return;
+		if ([...event.dataTransfer.items].some(i => i.kind == 'file')) {
+			event.preventDefault();
+		}
+	}
+
+	@HostListener('drop', ['$event'])
+	protected onDrop(event: DragEvent) {
+		if (this.readonly()) {
+			event.preventDefault();
+			return;
+		}
+		console.log('file dropped');
+	}
+
+	@HostListener('dragover', ['$event'])
+	protected onDragOver(event: DragEvent) {
+		if (this.readonly()) {
+			event.preventDefault();
+			return;
+		}
+		console.log(event);
+	}
+
+	@HostListener('dragleave')
+	protected onDragLeave() {
+		if (this.readonly()) {
+			return;
+		}
+		this.droppingFile.set(false);
+	}
 
 	constructor() {
 		const watcher = matchMedia('(prefers-color-scheme: dark)');

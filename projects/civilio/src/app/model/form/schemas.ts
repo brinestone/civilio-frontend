@@ -6,6 +6,8 @@ import {
 } from "@civilio/shared";
 import z from "zod";
 import { adjectives, animals, colors, Config, uniqueNamesGenerator } from 'unique-names-generator';
+import { randomString } from "@app/util";
+import { FormVersionDefinition } from "@civilio/sdk/models";
 
 const randomNameConfig: Config = {
 	dictionaries: [adjectives, colors, animals],
@@ -14,79 +16,6 @@ const randomNameConfig: Config = {
 	style: 'lowerCase'
 };
 const randomLabelConfig: Config = { ...randomNameConfig, separator: ' ', style: 'capital' };
-
-export const FormItemRelevanceDefinition = z.object({
-	dependencies: z.string().array(),
-	logic: z.record(z.string(), z.any())
-});
-
-export const FormDefinitionLookupSchema = z.object({
-	name: z.string(),
-	label: z.string(),
-	logo: z.string().nullish(),
-	description: z.string().nullish(),
-	createdBy: z.string().nullish(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date()
-});
-
-export const FormFieldDefinitionSchema = z.object({
-	id: z.uuid(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date(),
-	readonly: z.boolean(),
-	title: z.string(),
-	description: z.string().nullish(),
-	relevance: FormItemRelevanceDefinition.optional(),
-});
-
-export const FormFieldDefinitionInputSchema = FormFieldDefinitionSchema.omit({
-	createdAt: true,
-	updatedAt: true,
-}).extend({
-	title: z.string().default(''),
-	description: z.string().nullish().default(''),
-	readonly: z.boolean().default(false),
-	relevance: FormItemRelevanceDefinition.nullish().default(null),
-	id: z.uuid().nullish().default(null),
-});
-
-export const FormSectionDefinitionSchema = z.object({
-	key: z.string(),
-	title: z.string(),
-	relevance: FormItemRelevanceDefinition.optional(),
-	fields: FormFieldDefinitionSchema.array(),
-	createdAt: z.coerce.date(),
-	updatedAt: z.coerce.date()
-});
-
-export const FormSectionDefinitionInputSchema = FormSectionDefinitionSchema.omit({
-	createdAt: true,
-	updatedAt: true,
-}).extend({
-	title: z.string().default(''),
-	relevance: FormItemRelevanceDefinition.nullish().default(null),
-	key: z.string().default(''),
-	fields: FormFieldDefinitionInputSchema.array(),
-});
-
-export const FormDefinitionSchema = FormDefinitionLookupSchema.extend({
-	fields: FormFieldDefinitionSchema.array(),
-	sections: FormSectionDefinitionSchema.array()
-});
-
-export const FormDefinitionInputSchema = FormDefinitionSchema.omit({
-	createdAt: true,
-	updatedAt: true,
-	createdBy: true
-}).extend({
-	name: z.string().default(() => uniqueNamesGenerator(randomNameConfig)),
-	label: z.string().default(() => uniqueNamesGenerator(randomLabelConfig)),
-	logo: z.string().nullish().default(null),
-	description: z.string().default(''),
-	fields: FormFieldDefinitionInputSchema.array().default([]),
-	sections: FormSectionDefinitionInputSchema.array().default([])
-});
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
@@ -315,7 +244,10 @@ export type DefinitionLike = {
 	relevance?: RelevanceDefinition,
 	default?: any
 };
-export type FormDefinitionLookup = z.output<typeof FormDefinitionLookupSchema>;
-export type FormDefinitionLookupInput = z.input<typeof FormDefinitionLookupSchema>;
-export type FormDefinition = z.output<typeof FormDefinitionSchema>;
-export type FormDefinitionInput = z.infer<typeof FormDefinitionInputSchema>;
+export type Strict<T> = {
+	[P in keyof T]-?: T[P] extends (infer U)[]
+	? Strict<U>[]
+	: T[P] extends object | null | undefined
+	? Strict<NonNullable<T[P]>>
+	: NonNullable<T[P]>;
+};
