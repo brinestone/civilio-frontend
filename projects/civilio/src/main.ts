@@ -1,3 +1,5 @@
+/// <reference types="@angular/localize" />
+
 import { bootstrapApplication } from '@angular/platform-browser';
 import { enableArrayMethods } from 'immer';
 import { App } from './app/app';
