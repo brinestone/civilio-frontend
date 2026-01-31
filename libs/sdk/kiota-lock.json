@@ -1,5 +1,5 @@
 {
-  "descriptionHash": "3A9EE46A3A240C8B911E88FD30599811E017DC85A6968F6558FBA9FB327488547494726C003A1B193AFA6CB58FCBEDB5BB8633984C68FA0742623C1BEB5EFFEC",
+  "descriptionHash": "63CE9261291F67839EF08FD94F15C53FA210BF3EA5E0C0180CA96D7F4C58AF194F3B30BE130ADE544E001D62797379E8E37935B9FE6EBD7F89AD9B00BDD1B939",
   "descriptionLocation": "http://localhost:3000/_docs/openapi.json",
   "lockFileVersion": "1.0.0",
   "kiotaVersion": "1.30.0",
@@ -7,7 +7,7 @@
   "typeAccessModifier": "Public",
   "clientNamespaceName": "ApiSdk",
   "language": "TypeScript",
-  "usesBackingStore": true,
+  "usesBackingStore": false,
   "excludeBackwardCompatible": false,
   "includeAdditionalData": true,
   "disableSSLValidation": false,

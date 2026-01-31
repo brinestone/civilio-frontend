@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { hlm } from '@spartan-ng/helm/utils';
-import { ClassValue } from 'clsx';
+import type { ClassValue } from 'clsx';
 
 @Component({
 	selector: 'hlm-field-error',
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<div role="alert" data-slot="field-error" [class]="_computedClass()">
 			<ng-content>
@@ -21,7 +22,6 @@ import { ClassValue } from 'clsx';
 			</ng-content>
 		</div>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmFieldError {
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });

@@ -1,11 +1,21 @@
 import {
-	AllSectionKeysSchema,
 	FieldKeySchema,
 	FormTypeSchema,
 	GeoPointSchema,
 	OptionSchema
 } from "@civilio/shared";
 import z from "zod";
+import { adjectives, animals, colors, Config, uniqueNamesGenerator } from 'unique-names-generator';
+import { randomString } from "@app/util";
+import { FormVersionDefinition } from "@civilio/sdk/models";
+
+const randomNameConfig: Config = {
+	dictionaries: [adjectives, colors, animals],
+	seed: Date.now(),
+	separator: '-',
+	style: 'lowerCase'
+};
+const randomLabelConfig: Config = { ...randomNameConfig, separator: ' ', style: 'capital' };
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
@@ -198,7 +208,7 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 ])
 
 const GroupBaseSchema = z.object({
-	id: AllSectionKeysSchema,
+	id: z.string(),
 	fields: FieldDefinitionSchema.array(),
 	relevance: RelevanceDefinitionSchema.optional(),
 });
@@ -220,10 +230,6 @@ export const FormModelDefinitionSchema = z.object({
 	})
 });
 
-// const DefinitionLikeSchema = z.object({
-//   type:
-// });
-
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
 export type GroupFieldSchema = Extract<FieldSchema, { type: 'group' }>;
 export type TabularFieldSchema = Extract<FieldSchema, { type: 'table' }>;
@@ -237,4 +243,11 @@ export type DefinitionLike = {
 	type: FieldSchema['type'] | ColumnDefinition['type'],
 	relevance?: RelevanceDefinition,
 	default?: any
+};
+export type Strict<T> = {
+	[P in keyof T]-?: T[P] extends (infer U)[]
+	? Strict<U>[]
+	: T[P] extends object | null | undefined
+	? Strict<NonNullable<T[P]>>
+	: NonNullable<T[P]>;
 };

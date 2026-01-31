@@ -10,15 +10,19 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { ApiConfigFormComponent } from '@app/components';
+import { AgoDatePipe } from '@app/pipes';
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
+	DiscoverServer,
 	IntrospectDb,
 	RemoveConnection,
+	SetServerUrl,
 	TestDb,
 	UseConnection
 } from '@app/store/config';
-import { connections, dbConfig, migrationNeeded } from '@app/store/selectors';
+import { apiInfo, connections, dbConfig, migrationNeeded } from '@app/store/selectors';
 import { isActionLoading } from '@app/util';
 import { TestDbConnectionRequestSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -32,7 +36,6 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
-import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import {
 	Actions,
 	dispatch,
@@ -41,16 +44,17 @@ import {
 	select
 } from '@ngxs/store';
 import { HlmAlertImports } from '@spartan-ng/helm/alert';
+import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
+import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmItemImports } from '@spartan-ng/helm/item';
 import { HlmLabel } from '@spartan-ng/helm/label';
+import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
 import { toast } from 'ngx-sonner';
 import { map, merge, startWith } from 'rxjs';
-import { HlmBadge } from '@spartan-ng/helm/badge';
-import { AgoDatePipe } from '@app/pipes';
 
 @Component({
 	selector: 'cv-advanced-settings',
@@ -78,7 +82,9 @@ import { AgoDatePipe } from '@app/pipes';
 		HlmH4,
 		HlmH3,
 		AgoDatePipe,
-		HlmBadge
+		HlmSeparator,
+		HlmBadge,
+		ApiConfigFormComponent
 	],
 	host: {
 		'class': 'page'
@@ -95,7 +101,10 @@ export class AdvancedSettingsPage {
 	protected readonly testingDbConnection = isActionLoading(TestDb);
 	protected readonly applyMigrations = dispatch(ApplyPendingMigrations);
 	private cdr = inject(ChangeDetectorRef);
+	protected readonly discoveringServer = isActionLoading(DiscoverServer);
+	protected readonly discoverServer = dispatch(DiscoverServer);
 	private readonly dbConfig = select(dbConfig);
+	protected readonly apiInfo = select(apiInfo);
 	protected readonly fieldSchema = computed(() => {
 		const config = this.dbConfig();
 		return [
@@ -150,6 +159,7 @@ export class AdvancedSettingsPage {
 		]
 	});
 	private readonly ts = inject(TranslateService);
+	private readonly setServerurl = dispatch(SetServerUrl);
 	private readonly removeConnection = dispatch(RemoveConnection);
 	private readonly clearConnections = dispatch(ClearConnections);
 	private readonly navigate = dispatch(Navigate);
@@ -236,5 +246,16 @@ export class AdvancedSettingsPage {
 
 	protected onClearConnectionsButtonClicked() {
 		this.clearConnections();
+	}
+
+	protected onUrlChanged(newUrl: string) {
+		this.setServerurl(newUrl).subscribe({
+			error: (e: Error) => {
+				toast.error(this.ts.instant('misc.error.title'), { description: e.message });
+			},
+			complete: () => {
+				toast.success(this.ts.instant('misc.changes_saved.title'));
+			}
+		});
 	}
 }

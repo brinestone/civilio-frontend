@@ -1,19 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { hlm } from '@spartan-ng/helm/utils';
+import { Directive } from '@angular/core';
+import { BrnCommandSeparator } from '@spartan-ng/brain/command';
+import { classes } from '@spartan-ng/helm/utils';
 
-@Component({
-	selector: 'hlm-command-separator',
-	template: '',
+@Directive({
+	selector: '[hlmCommandSeparator],hlm-command-separator',
+	hostDirectives: [BrnCommandSeparator],
 	host: {
-		role: 'separator',
-		'[class]': '_computedClass()',
+		'data-slot': 'command-separator',
 	},
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmCommandSeparator {
-	/** The user defined class  */
-	public readonly userClass = input<string>('', { alias: 'class' });
-
-	/** The styles to apply  */
-	protected readonly _computedClass = computed(() => hlm('bg-border -mx-1 block h-px', this.userClass()));
+	constructor() {
+		classes(() => 'bg-border -mx-1 block h-px w-auto data-hidden:hidden');
+	}
 }

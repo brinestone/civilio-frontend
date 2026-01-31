@@ -1,19 +1,15 @@
 declare global {
 	interface Window {
 		electron: {
-			send: (channel: string, data: any) => void;
-			on: (channel: string, func: (...args: any[]) => void) => void;
-			sendSync: (channel: string, data: any) => any;
-			removeListener: (channel: string, func: (...args: any[]) => void) => void;
-			off: (channel: string, func: (...args: any[]) => void) => void;
-			openExternalLink: (link: string) => void;
+			invoke: <T>(channel: string, ...args: any[]) => Promise<T>;
 			platform: 'aix'
 			| 'darwin'
 			| 'freebsd'
 			| 'linux'
 			| 'openbsd'
 			| 'sunos'
-			| 'win32'
+			| 'win32',
+			uploadFile: (options: { multiple?: true, filters: string[] }) => Promise<string | null>
 		};
 	}
 }

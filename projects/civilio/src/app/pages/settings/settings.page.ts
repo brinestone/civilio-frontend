@@ -5,6 +5,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideCheck,
+	lucideFormInput,
 	lucideInfo,
 	lucideListCheck,
 	lucideSave,
@@ -33,6 +34,11 @@ const sections = [
 		icon: 'lucideListCheck',
 		path: 'choice-editor'
 	},
+	// {
+	// 	label: 'forms.page_title',
+	// 	icon: 'lucideFormInput',
+	// 	path: 'forms'
+	// },
 	{ label: 'settings.advanced.title', icon: 'lucideWrench', path: 'advanced' },
 	{ label: 'settings.about.title', icon: 'lucideInfo', path: 'about' },
 ] as const
@@ -43,6 +49,7 @@ const sections = [
 		provideIcons({
 			lucideSettings,
 			lucideSave,
+			lucideFormInput,
 			lucideInfo,
 			lucideTrash2,
 			lucideSlidersVertical,

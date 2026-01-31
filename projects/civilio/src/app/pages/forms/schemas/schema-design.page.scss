@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply block relative w-full h-full;
+}

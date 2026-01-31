@@ -1,20 +1,29 @@
 import { Routes } from '@angular/router';
-import { dbConfiguredGuard } from './guards/config-valid-guard';
-import { provideFormStore } from './store/form';
+import { provideFormStore } from './store/form/data';
+import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
+import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
+const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
 	{
-		canActivate: [dbConfigValidGuardFn],
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
 		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
 	{
+		path: 'schemas',
+		loadComponent: () => import('./layouts/forms/form-schemas.layout.component').then(m => m.SchemasLayout),
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
+		providers: [provideFormStore()],
+		loadChildren: () => import('./schemas.routes').then(m => m.schemaRoutes),
+	},
+	{
 		path: 'forms',
-		loadComponent: () => import('./layouts/form/form.layout').then(m => m.FormLayout),
-		canActivate: [dbConfigValidGuardFn],
+		title: 'forms.page_title',
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},

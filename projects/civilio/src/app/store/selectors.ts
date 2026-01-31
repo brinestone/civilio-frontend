@@ -5,7 +5,7 @@ import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries, get, isEmpty, keys, values } from "lodash";
 import { CONFIG_STATE } from "./config";
 import { DATASET_STATE } from "./dataset";
-import { FORM_STATE } from "./form";
+import { FORM_STATE } from "./form/data";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);
@@ -111,4 +111,14 @@ export const hasValidValidationCode = createSelector([formSlices.activeSections,
 		return validators.reduce((acc, curr) => acc && (curr(value) === null), true);
 	}
 	return false;
+})
+export const apiInfo = createSelector([configSlices.config], c => {
+	return c?.apiServer;
+});
+export const apiUrl = createSelector([apiInfo], info => {
+	return info ? info.baseUrl : '';
+});
+export const apiOrigin = createSelector([apiUrl], url => {
+	if (url == '') return '';
+	return new URL(url).origin;
 })

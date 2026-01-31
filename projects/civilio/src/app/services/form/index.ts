@@ -1,10 +1,13 @@
 import {
 	EnvironmentProviders,
 	forwardRef,
+	inject,
+	Injectable,
 	InjectionToken,
 	makeEnvironmentProviders
 } from "@angular/core";
 import { FormSchema } from "@app/model/form";
+import { LookupRequestBuilderGetQueryParameters } from "@civilio/sdk/api/submissions/lookup";
 import {
 	DeleteOptionGroupByIdRequest,
 	DeleteOptionGroupOptionByIdRequest,
@@ -45,10 +48,38 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from "@civilio/shared";
+import { SdkService } from "../sdk";
+
+@Injectable({
+	providedIn: null
+})
+export class FormService2 {
+	private readonly sdk = inject(SdkService);
+
+	private get client() {
+		return this.sdk.client;
+	}
+
+	async findFormDefinition(slug: string, formVersion?: string) {
+		return await this.client.api.forms.byForm(slug).definition.get({
+			queryParameters: { version: formVersion }
+		})
+	}
+
+	async findFormSubmissions(req: LookupRequestBuilderGetQueryParameters) {
+		return await this.client.api.submissions.lookup.get({ queryParameters: req });
+	}
+
+	async lookupFormDefinitions() {
+		return await this.client.api.forms.lookup.get();
+	}
+}
 
 export interface FormService {
 	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
+
 	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void>;
+
 	saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void>;
 
 	loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse>;
@@ -85,7 +116,7 @@ export interface FormService {
 
 	findFieldMappings(arg: FindFieldMappingsRequest): Promise<FindFieldMappingsResponse>;
 
-	findFormSubmissions(form: FormType, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
+	findFormSubmissions(form: string, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
 
 	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
 
@@ -103,6 +134,11 @@ export function provideDomainForms(...providers: EnvironmentProviders[]) {
 		{
 			provide: FORM_SERVICE,
 			useExisting: forwardRef(() => FORM_SERVICE_IMPL)
-		}
+		},
+		{
+			useClass: FormService2,
+			provide: FormService2,
+			multi: false
+		},
 	]);
 }

@@ -71,8 +71,10 @@ misc:
   yes: Oui
   no: Non
   config_required:
-    notice: Il y a un problème avec les paramètres de votre serveur de base de
-      données. Veuillez le résoudre avant de continuer
+    db: Il y a un problème avec les paramètres de votre serveur de base de données.
+      Veuillez le résoudre avant de continuer
+    api: Le serveur n'a pas pu être détecté. Veuillez vérifier vos paramètres avant
+      de continuer
   dialogs:
     version_revert:
       title: Revenir à cette version ?
@@ -196,6 +198,8 @@ settings:
           title: Titre
           description: Un texte lisible par l'homme pour cet ensemble de données.
         key:
+          actions:
+            generate: Générer aléatoire
           title: Clé
           description: Une clé unique qui peut être utilisée dans les requêtes.
         parent:
@@ -248,6 +252,23 @@ settings:
   advanced:
     title: Avancé
     page_title: Paramètres avancés
+    api:
+      title: Serveur API
+      description: Configurer les paramètres du serveur API
+      form:
+        fields:
+          baseUrl:
+            title: URL de base de l'API
+            description: L'URL de base du serveur API
+        actions:
+          discover: Découvrir le serveur sur le réseau local
+          test: Tester la connexion
+        messages:
+          discovering: Découverte du serveur...
+          testing: Essai...
+          testingFailed: Impossible d'atteindre le serveur
+          invalidUrl: Format d'URL invalide
+          required: Ce champ est obligatoire
     db:
       pwd: Mot de passe
       host: Hôte
@@ -301,9 +322,6 @@ settings:
         progress: Test de connexion...
         success: Connexion réussie
         failed: La connexion a échoué
-    api:
-      origin: Origine de l'API
-      title: Paramètres de l'API
   general:
     title: Général
     page_title: Paramètres généraux
@@ -1049,6 +1067,8 @@ fosa:
       value_out_of_range: Valeur hors plage
   open_filters: Filtres
 forms:
+  title: Formulaires
+  page_title: Formulaires
   validation_code_required_notice: Pour les nouvelles soumissions, le code de validation est requis
   validation:
     msg:

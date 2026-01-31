@@ -69,7 +69,8 @@ misc:
   yes: Yes
   no: No
   config_required:
-    notice: There is an issue with your database server settings. Please resolve it before proceeding
+    db: There is an issue with your database server settings. Please resolve it before proceeding
+    api: The server could not be detected. Please verify your settings before proceeding
   dialogs:
     version_revert:
       title: Revert to this version?
@@ -189,6 +190,8 @@ settings:
           title: Title
           description: A human-readable for this dataset.
         key:
+          actions:
+            generate: Generate random
           title: Key
           description: A unique key which can be used in queries.
         parent:
@@ -237,6 +240,23 @@ settings:
   advanced:
     title: Advanced
     page_title: Advanced Settings
+    api:
+      title: API Server
+      description: Configure the API server settings
+      form:
+        fields:
+          baseUrl:
+            title: API Base URL
+            description: The base URL of the API server
+        actions:
+          discover: Discover server on local network
+          test: Test connection
+        messages:
+          discovering: Discovering server...
+          testing: Testing...
+          testingFailed: Unable to reach server
+          invalidUrl: Invalid URL Format
+          required: This field is required
     db:
       pwd: Password
       host: Host
@@ -289,9 +309,6 @@ settings:
         progress: Testing connection...
         success: Connection successful
         failed: Connection failed
-    api:
-      origin: API Origin
-      title: API Settings
   general:
     title: General
     page_title: General Settings
@@ -1030,6 +1047,8 @@ fosa:
     finish: ""
   open_filters: Filters
 forms:
+  title: Forms
+  page_title: Forms
   validation_code_required_notice: For new submissions, the validation code is required
   validation:
     msg:

@@ -1,0 +1,38 @@
+@if(enableEditingControls()) {
+<om-dotpattern styleClass="block w-full h-full">
+	<ng-container [ngTemplateOutlet]="formTemplate" />
+</om-dotpattern>
+} @else {
+<ng-container [ngTemplateOutlet]="renderTemplate" />
+}
+
+<ng-template #renderTemplate> </ng-template>
+<ng-template #formTemplate>
+	<form class="w-full h-full block">
+		<div class="container mx-auto">
+			<div
+				class="flex justify-end items-center flex-wrap gap-3 p-2 sticky top-2"
+			>
+				<div hlmButtonGroup>
+					<button
+						type="button"
+						title="Add {{lastAddedItemType()}}"
+						hlmBtn
+						class="capitalize"
+						size="sm"
+						variant="outline"
+					>
+						<ng-icon name="lucidePlus" />
+						<span>Add {{ lastAddedItemType() }}</span>
+					</button>
+					<button hlmBtn type="button" size="sm" variant="outline">
+						<ng-icon name="lucideChevronDown" />
+					</button>
+				</div>
+			</div>
+			<div hlmFieldGroup class="px-4 py-2">
+
+			</div>
+		</div>
+	</form>
+</ng-template>

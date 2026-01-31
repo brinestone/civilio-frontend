@@ -4,6 +4,7 @@ import {
 	CscFormDefinition,
 	FosaFormDefinition
 } from '@app/model/form';
+import { apiUrl } from '@app/store/selectors';
 import { sendRpcMessageAsync } from '@app/util';
 import {
 	createPaginatedResultSchema,
@@ -45,15 +46,17 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from '@civilio/shared';
-import { FORM_SERVICE_IMPL, FormService } from '../form';
+import { select } from '@ngxs/store';
 import { omit } from 'lodash';
+import { FORM_SERVICE_IMPL, FormService } from '../form';
 
 @Injectable({
 	providedIn: null
 })
 export class ElectronFormService implements FormService {
+	// TODO: rename this to deleteDatasetItem in base interface
 	async deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest) {
-		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.groupId}/${req.optionId}`, {
+		const response = await fetch(`${this.baseApiUrl()}/forms/options/${req.groupId}/${req.optionId}`, {
 			method: 'DELETE'
 		});
 		if (!response.ok) {
@@ -61,8 +64,9 @@ export class ElectronFormService implements FormService {
 			throw new Error(message);
 		}
 	}
+	// TODO: rename this to deleteDatasetById in base interface
 	async deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void> {
-		const response = await fetch(`${this.baseApiUrl}/forms/options/${req.id}`, {
+		const response = await fetch(`${this.baseApiUrl()}/forms/options/${req.id}`, {
 			method: 'DELETE'
 		});
 		if (!response.ok) {
@@ -70,10 +74,11 @@ export class ElectronFormService implements FormService {
 			throw new Error(message);
 		}
 	}
-	private readonly baseApiUrl = 'http://localhost:3000/api';
+	private readonly baseApiUrl = select(apiUrl);
+	// TODO: rename this to saveFormOptions in the base interface
 	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
 		const body = req.groups.map(g => ({ ...(omit(g, 'meta')), isNew: g.meta.isNew }));
-		const response = await fetch(`${this.baseApiUrl}/forms/options`, {
+		const response = await fetch(`${this.baseApiUrl()}/forms/options`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -85,8 +90,9 @@ export class ElectronFormService implements FormService {
 			throw new Error(message);
 		}
 	}
+	// TODO: Rename this to loadDatasets in the base interface
 	async loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {
-		const response = await fetch(`${this.baseApiUrl}/forms/options`);
+		const response = await fetch(`${this.baseApiUrl()}/forms/options`);
 		const obj = await response.json();
 
 		return FindFormOptionGroupsResponseSchema.parse(obj);

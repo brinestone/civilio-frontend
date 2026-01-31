@@ -1,26 +1,29 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { provideIcons } from '@ng-icons/core';
 import { lucideEllipsis } from '@ng-icons/lucide';
-import { HlmIcon } from '@spartan-ng/helm/icon';
-import { hlm } from '@spartan-ng/helm/utils';
-import type { ClassValue } from 'clsx';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Component({
 	selector: 'hlm-pagination-ellipsis',
-	imports: [NgIcon, HlmIcon],
+	imports: [HlmIconImports],
 	providers: [provideIcons({ lucideEllipsis })],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	host: {
+		'data-slot': 'pagination-ellipsis',
+	},
 	template: `
-		<span [class]="_computedClass()">
+		<span aria-hidden="true">
 			<ng-icon hlm size="sm" name="lucideEllipsis" />
 			<span class="sr-only">{{ srOnlyText() }}</span>
 		</span>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmPaginationEllipsis {
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
+	constructor() {
+		classes(() => 'flex size-9 items-center justify-center');
+	}
+
 	/** Screen reader only text for the ellipsis */
 	public readonly srOnlyText = input<string>('More pages');
-
-	protected readonly _computedClass = computed(() => hlm('flex size-9 items-center justify-center', this.userClass()));
 }

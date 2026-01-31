@@ -1,6 +1,7 @@
 import z from "zod";
 import { FieldKeySchema } from "../field-keys";
 import {
+	ApiServerInfoSchema,
 	AppConfigSchema,
 	DbColumnSpecSchema,
 	DbConnectionRefInputSchema,
@@ -18,6 +19,8 @@ import {
 	ThemeSchema,
 	ThirdPartyLicenceSchema
 } from "../schema";
+
+export const DiscoverServerResponseSchema = ApiServerInfoSchema;
 
 export const DeleteOptionGroupByIdRequestSchema = z.object({
 	id: z.uuid()
@@ -296,3 +299,4 @@ export type UpdateFormOptionsDataSetRequest = z.input<typeof UpdateFormOptionsDa
 export type FindFormOptionGroupsResponse = z.output<typeof FindFormOptionGroupsResponseSchema>;
 export type DeleteOptionGroupOptionByIdRequest = z.input<typeof DeleteOptionGroupOptionByIdRequestSchema>;
 export type DeleteOptionGroupByIdRequest = z.input<typeof DeleteOptionGroupByIdRequestSchema>;
+export type DiscoverServerResponse = z.output<typeof DiscoverServerResponseSchema>;
