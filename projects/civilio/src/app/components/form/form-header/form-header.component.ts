@@ -35,6 +35,7 @@ import { MaskPipe } from '@app/pipes';
 import { toast } from 'ngx-sonner';
 import { BooleanInput } from '@angular/cdk/coercion';
 import { HlmH4 } from '@spartan-ng/helm/typography';
+import { BrnPopoverContent } from '@spartan-ng/brain/popover';
 
 @Component({
 	selector: 'cv-form-header',
@@ -56,6 +57,7 @@ import { HlmH4 } from '@spartan-ng/helm/typography';
 		TranslatePipe,
 		HlmAutocompleteImports,
 		MaskPipe,
+		BrnPopoverContent,
 		HlmH4,
 	],
 	templateUrl: './form-header.component.html',

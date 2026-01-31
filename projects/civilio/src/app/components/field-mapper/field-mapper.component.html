@@ -118,11 +118,11 @@
 		@switch (schema.type) {
 			@default {
 				<label [for]="schemaKey + '_mapper_selector'" class="block" hlmLabel>{{
-						label
-					}}</label>
+					label
+				}}</label>
 				<div class="flex items-center gap-2 group">
 					<brn-popover class="w-full" sideOffset="5">
-						<input [formControlName]="schemaKey" class="hidden"/>
+						<input [formControlName]="schemaKey" class="hidden" />
 						<button
 							[class.!font-normal]="
 								!fg.controls[schemaKey].value && !loadedMappings()[schemaKey]
@@ -138,8 +138,8 @@
 						>
 							{{
 								fg.controls[schemaKey].value?.name ||
-								$any(loadedMappings()[schemaKey])?.dbColumn ||
-								"Select column"
+									$any(loadedMappings()[schemaKey])?.dbColumn ||
+									"Select column"
 							}}
 						</button>
 						<hlm-command
@@ -147,14 +147,15 @@
 							class="w-full p-0"
 							hlmPopoverContent
 						>
-							<hlm-command-search>
+							<hlm-command-input placeholder="" />
+							<!-- <hlm-command-search>
 								<ng-icon hlm name="lucideSearch"/>
 								<input
 									hlm-command-search-input
 									placeholder="Search Column..."
 								/>
-							</hlm-command-search>
-							<div *brnCommandEmpty class="w-full" hlmCommandEmpty>
+							</hlm-command-search> -->
+							<div *hlmCommandEmptyState class="w-full" hlmCommandEmpty>
 								{{ "tmpl.autocomplete.empty_text" | translate }}
 							</div>
 							<hlm-command-list>
@@ -172,14 +173,16 @@
 												<p class="block text-start w-full">{{ spec.name }}</p>
 												<span
 													class="block text-start text-sm text-(--muted-foreground)"
-												>table: {{ spec.tableName }}</span
+													>table: {{ spec.tableName }}</span
 												>
 											</div>
-											@if (fg.controls[schemaKey].value ===
-											$any(loadedMappings()[schemaKey])?.dbColumn &&
-											fg.controls[schemaKey].value !== undefined &&
-											fg.controls[schemaKey].value !== null) {
-												<ng-icon name="lucideCheck"/>
+											@if (
+												fg.controls[schemaKey].value ===
+													$any(loadedMappings()[schemaKey])?.dbColumn &&
+												fg.controls[schemaKey].value !== undefined &&
+												fg.controls[schemaKey].value !== null
+											) {
+												<ng-icon name="lucideCheck" />
 											}
 										</button>
 									}
@@ -189,17 +192,24 @@
 					</brn-popover>
 
 					<button
-						(click)="removeMapping(fg.controls[schemaKey], schemaKey)" [disabled]="updatingMapping() === schemaKey"
+						(click)="removeMapping(fg.controls[schemaKey], schemaKey)"
+						[disabled]="updatingMapping() === schemaKey"
 						[ngClass]="{
-						'opacity-0 group-hover:opacity-100': updatingMapping() !== schemaKey || updatingMapping() === undefined,
+							'opacity-0 group-hover:opacity-100':
+								updatingMapping() !== schemaKey ||
+								updatingMapping() === undefined,
 						}"
 						hlmBtn
 						size="icon"
 						type="button"
 						variant="ghost"
 					>
-						<ng-icon [class.animate-spin]="updatingMapping() === schemaKey"
-										 [name]="updatingMapping() === schemaKey ? 'lucideLoader' : 'lucideX'"/>
+						<ng-icon
+							[class.animate-spin]="updatingMapping() === schemaKey"
+							[name]="
+								updatingMapping() === schemaKey ? 'lucideLoader' : 'lucideX'
+							"
+						/>
 					</button>
 				</div>
 			}

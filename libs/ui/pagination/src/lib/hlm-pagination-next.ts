@@ -5,17 +5,16 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronRight } from '@ng-icons/lucide';
 import type { ButtonVariants } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
-import { hlm } from '@spartan-ng/helm/utils';
-import type { ClassValue } from 'clsx';
+import { classes } from '@spartan-ng/helm/utils';
 import { HlmPaginationLink } from './hlm-pagination-link';
 
 @Component({
 	selector: 'hlm-pagination-next',
 	imports: [HlmPaginationLink, NgIcon, HlmIcon],
 	providers: [provideIcons({ lucideChevronRight })],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<a
-			[class]="_computedClass()"
 			hlmPaginationLink
 			[link]="link()"
 			[queryParams]="queryParams()"
@@ -27,10 +26,12 @@ import { HlmPaginationLink } from './hlm-pagination-link';
 			<ng-icon hlm size="sm" name="lucideChevronRight" />
 		</a>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmPaginationNext {
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
+	constructor() {
+		classes(() => ['gap-1 px-2.5', !this.iconOnly() ? 'sm:pr-2.5' : '']);
+	}
+
 	/** The link to navigate to the next page. */
 	public readonly link = input<RouterLink['routerLink']>();
 	/** The query parameters to pass to the next page. */
@@ -49,8 +50,4 @@ export class HlmPaginationNext {
 	protected readonly _labelClass = computed(() => (this.iconOnly() ? 'sr-only' : 'hidden sm:block'));
 
 	protected readonly _size = computed<ButtonVariants['size']>(() => (this.iconOnly() ? 'icon' : 'default'));
-
-	protected readonly _computedClass = computed(() =>
-		hlm('gap-1', !this.iconOnly() ? 'sm:pr-2.5' : '', this.userClass()),
-	);
 }

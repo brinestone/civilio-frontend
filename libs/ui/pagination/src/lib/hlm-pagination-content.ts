@@ -1,21 +1,14 @@
-import { Directive, computed, input } from '@angular/core';
-import { hlm } from '@spartan-ng/helm/utils';
-import { type VariantProps, cva } from 'class-variance-authority';
-import type { ClassValue } from 'clsx';
-
-export const paginationContentVariants = cva('flex flex-row items-center gap-1', {
-	variants: {},
-	defaultVariants: {},
-});
-export type PaginationContentVariants = VariantProps<typeof paginationContentVariants>;
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: '[hlmPaginationContent]',
+	selector: 'ul[hlmPaginationContent]',
 	host: {
-		'[class]': '_computedClass()',
+		'data-slot': 'pagination-content',
 	},
 })
 export class HlmPaginationContent {
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
-	protected readonly _computedClass = computed(() => hlm(paginationContentVariants(), this.userClass()));
+	constructor() {
+		classes(() => 'flex flex-row items-center gap-1');
+	}
 }

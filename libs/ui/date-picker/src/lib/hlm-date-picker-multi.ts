@@ -12,14 +12,14 @@ import {
 	signal,
 } from '@angular/core';
 import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+import { provideIcons } from '@ng-icons/core';
 import { lucideChevronDown } from '@ng-icons/lucide';
 import type { BrnDialogState } from '@spartan-ng/brain/dialog';
 import type { ChangeFn, TouchFn } from '@spartan-ng/brain/forms';
-import { BrnPopover, BrnPopoverContent, BrnPopoverTrigger } from '@spartan-ng/brain/popover';
+import { BrnPopoverImports } from '@spartan-ng/brain/popover';
 import { HlmCalendarMulti } from '@spartan-ng/helm/calendar';
-import { HlmIcon } from '@spartan-ng/helm/icon';
-import { HlmPopoverContent } from '@spartan-ng/helm/popover';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
+import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import type { ClassValue } from 'clsx';
 import { injectHlmDatePickerMultiConfig } from './hlm-date-picker-multi.token';
@@ -34,16 +34,20 @@ let nextId = 0;
 
 @Component({
 	selector: 'hlm-date-picker-multi',
-	imports: [NgIcon, HlmIcon, BrnPopover, BrnPopoverTrigger, BrnPopoverContent, HlmPopoverContent, HlmCalendarMulti],
+	imports: [HlmIconImports, BrnPopoverImports, HlmPopoverImports, HlmCalendarMulti],
 	providers: [HLM_DATE_PICKER_MUTLI_VALUE_ACCESSOR, provideIcons({ lucideChevronDown })],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	host: {
+		class: 'block',
+	},
 	template: `
-		<brn-popover sideOffset="5" [state]="_popoverState()" (stateChanged)="_popoverState.set($event)">
+		<hlm-popover sideOffset="5" [state]="_popoverState()" (stateChanged)="_popoverState.set($event)">
 			<button
 				[id]="buttonId()"
 				type="button"
 				[class]="_computedClass()"
 				[disabled]="_mutableDisabled()"
-				brnPopoverTrigger
+				hlmPopoverTrigger
 			>
 				<span class="truncate">
 					@if (_formattedDate(); as formattedDate) {
@@ -69,12 +73,8 @@ let nextId = 0;
 					(dateChange)="_handleChange($event)"
 				/>
 			</div>
-		</brn-popover>
+		</hlm-popover>
 	`,
-	host: {
-		class: 'block',
-	},
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmDatePickerMulti<T> implements ControlValueAccessor {
 	private readonly _config = injectHlmDatePickerMultiConfig<T>();
@@ -151,7 +151,7 @@ export class HlmDatePickerMulti<T> implements ControlValueAccessor {
 		if (value === undefined) return;
 
 		if (this._mutableDisabled()) return;
-		const transformedDate = this.transformDates()(value);
+		const transformedDate = value !== undefined ? this.transformDates()(value) : value;
 
 		this._mutableDate.set(transformedDate);
 		this._onChange?.(transformedDate);

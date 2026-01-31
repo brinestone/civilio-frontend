@@ -14,12 +14,12 @@ import {
 import { FormGroupDirective, NgControl, NgForm } from '@angular/forms';
 import { BrnFormFieldControl } from '@spartan-ng/brain/form-field';
 import { ErrorStateMatcher, ErrorStateTracker } from '@spartan-ng/brain/forms';
-import { hlm } from '@spartan-ng/helm/utils';
+import { classes } from '@spartan-ng/helm/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type { ClassValue } from 'clsx';
+import { ClassValue } from 'clsx';
 
 export const textareaVariants = cva(
-	'selection:bg-primary selection:text-primary-foreground border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 flex [field-sizing:content] min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+	'border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 flex [field-sizing:content] min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 	{
 		variants: {
 			error: {
@@ -36,16 +36,15 @@ type TextareaVariants = VariantProps<typeof textareaVariants>;
 
 @Directive({
 	selector: '[hlmTextarea]',
-	host: {
-		'data-slot': 'textarea',
-		'[class]': '_computedClass()',
-	},
 	providers: [
 		{
 			provide: BrnFormFieldControl,
 			useExisting: forwardRef(() => HlmTextarea),
 		},
 	],
+	host: {
+		'data-slot': 'textarea',
+	},
 })
 export class HlmTextarea implements BrnFormFieldControl, DoCheck {
 	private readonly _injector = inject(Injector);
@@ -57,11 +56,6 @@ export class HlmTextarea implements BrnFormFieldControl, DoCheck {
 	private readonly _parentForm = inject(NgForm, { optional: true });
 	private readonly _parentFormGroup = inject(FormGroupDirective, { optional: true });
 
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
-	protected readonly _computedClass = computed(() =>
-		hlm(textareaVariants({ error: this._state().error }), this.userClass(), this._additionalClasses()),
-	);
-
 	public readonly error = input<TextareaVariants['error']>('auto');
 
 	protected readonly _state = linkedSignal(() => ({ error: this.error() }));
@@ -71,6 +65,8 @@ export class HlmTextarea implements BrnFormFieldControl, DoCheck {
 	public readonly errorState = computed(() => this._errorStateTracker.errorState());
 
 	constructor() {
+		classes(() => [textareaVariants({ error: this._state().error }), this._additionalClasses()]);
+
 		this._errorStateTracker = new ErrorStateTracker(
 			this._defaultErrorStateMatcher,
 			this.ngControl,

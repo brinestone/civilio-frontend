@@ -45,7 +45,6 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Actions, dispatch, ofActionSuccessful, Store } from '@ngxs/store';
-import { BrnCommandImports } from '@spartan-ng/brain/command';
 import {
 	BrnPopover,
 	BrnPopoverContent,
@@ -86,7 +85,6 @@ type SectionForm = FormGroup<{
 	imports: [
 		HlmLabel,
 		TranslatePipe,
-		BrnCommandImports,
 		NgClass,
 		HlmCommandImports,
 		NgIcon,
@@ -229,8 +227,8 @@ export class FieldMapperComponent implements OnInit {
 			let initialValue: DbColumnSpec | null = null;
 			if (mapping) {
 				initialValue = this.columns().find(({
-																							name, tableName
-																						}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+					name, tableName
+				}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
 			}
 			return [key, new FormControl<typeof initialValue>(initialValue, { nonNullable: false })] as [string, FieldControl];
 		}).reduce((acc, [k, control]) => ({
@@ -248,9 +246,9 @@ export class FieldMapperComponent implements OnInit {
 			let initialValue: DbColumnSpec | null = null;
 			if (mapping) {
 				initialValue = this.columns().find(({
-																							name,
-																							tableName
-																						}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+					name,
+					tableName
+				}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
 			}
 			return [c.key, new FormControl<typeof initialValue>(initialValue, { nonNullable: false })] as [string, FieldControl];
 		}).reduce((acc, [k, control]) => ({
@@ -265,9 +263,9 @@ export class FieldMapperComponent implements OnInit {
 		let initialValue: DbColumnSpec | null = null;
 		if (mapping) {
 			initialValue = this.columns().find(({
-																						name,
-																						tableName
-																					}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
+				name,
+				tableName
+			}) => name == mapping.dbColumn && tableName == mapping.dbTable) ?? null;
 		}
 		return new FormControl<DbColumnSpec | null>(initialValue, { nonNullable: false })
 	}
