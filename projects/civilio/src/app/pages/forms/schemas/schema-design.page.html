@@ -1,36 +1,38 @@
-<form class="container mx-auto">
-	<div class="flex justify-end items-center flex-wrap gap-3 p-2 sticky top-2">
-		<div hlmButtonGroup>
-			<button title="Add Item" hlmBtn size="icon-sm" variant="outline">
-				<ng-icon name="lucidePlus" />
-			</button>
-		</div>
-	</div>
-	<div hlmFieldGroup class="px-4 py-2">
-		<div hlmFieldGroup>@for(field of formModel.items; track field) { }</div>
-		<div>
-			@if(enableEditingControls()){
-			<ng-container [ngTemplateOutlet]="additionControls" />
-			}
-		</div>
-	</div>
-</form>
+@if(enableEditingControls()) {
+<om-dotpattern styleClass="block w-full h-full">
+	<ng-container [ngTemplateOutlet]="formTemplate" />
+</om-dotpattern>
+} @else {
+<ng-container [ngTemplateOutlet]="renderTemplate" />
+}
 
-<ng-template #additionControls let-parent>
-	<div class="space-y-2"></div>
-</ng-template>
+<ng-template #renderTemplate> </ng-template>
+<ng-template #formTemplate>
+	<form class="w-full h-full block">
+		<div class="container mx-auto">
+			<div
+				class="flex justify-end items-center flex-wrap gap-3 p-2 sticky top-2"
+			>
+				<div hlmButtonGroup>
+					<button
+						type="button"
+						title="Add {{lastAddedItemType()}}"
+						hlmBtn
+						class="capitalize"
+						size="sm"
+						variant="outline"
+					>
+						<ng-icon name="lucidePlus" />
+						<span>Add {{ lastAddedItemType() }}</span>
+					</button>
+					<button hlmBtn type="button" size="sm" variant="outline">
+						<ng-icon name="lucideChevronDown" />
+					</button>
+				</div>
+			</div>
+			<div hlmFieldGroup class="px-4 py-2">
 
-<ng-template #fieldErrorsTemplate let-field>
-	@if(field().pending()) {
-	<div class="flex items-center gap-2 text-sm">
-		<ng-icon name="lucideLoader" class="animate-spin" />
-		<span>Checking...</span>
-	</div>
-	} @else if(field().invalid() && field().dirty() ) {
-	<div class="space-y-1">
-		@for(error of field().errors(); track error) {
-		<hlm-field-error>{{ error.message }}</hlm-field-error>
-		}
-	</div>
-	}
+			</div>
+		</div>
+	</form>
 </ng-template>

@@ -76,15 +76,6 @@ export function createFormItemDefinitionFromDiscriminatorValue(parseNode: ParseN
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {FormItemParentRef}
- */
-// @ts-ignore
-export function createFormItemParentRefFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoFormItemParentRef;
-}
-/**
- * Creates a new instance of the appropriate class based on discriminator value
- * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {FormLookup}
  */
 // @ts-ignore
@@ -307,10 +298,10 @@ export function deserializeIntoDatasetResponse(datasetResponse: Partial<DatasetR
 // @ts-ignore
 export function deserializeIntoFormItemDefinition(formItemDefinition: Partial<FormItemDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
+        "children": n => { formItemDefinition.children = n.getCollectionOfObjectValues<FormItemDefinition>(createFormItemDefinitionFromDiscriminatorValue); },
         "description": n => { formItemDefinition.description = n.getStringValue(); },
         "id": n => { formItemDefinition.id = n.getGuidValue(); },
         "meta": n => { formItemDefinition.meta = n.getObjectValue<FormItemDefinition_meta>(createFormItemDefinition_metaFromDiscriminatorValue); },
-        "parent": n => { formItemDefinition.parent = n.getObjectValue<FormItemParentRef>(createFormItemParentRefFromDiscriminatorValue); },
         "position": n => { formItemDefinition.position = n.getNumberValue(); },
         "relevance": n => { formItemDefinition.relevance = n.getObjectValue<RelevanceDefinition>(createRelevanceDefinitionFromDiscriminatorValue); },
         "title": n => { formItemDefinition.title = n.getStringValue(); },
@@ -325,17 +316,6 @@ export function deserializeIntoFormItemDefinition(formItemDefinition: Partial<Fo
 // @ts-ignore
 export function deserializeIntoFormItemDefinition_meta(formItemDefinition_meta: Partial<FormItemDefinition_meta> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-    }
-}
-/**
- * The deserialization information for the current model
- * @param FormItemParentRef The instance to deserialize into.
- * @returns {Record<string, (node: ParseNode) => void>}
- */
-// @ts-ignore
-export function deserializeIntoFormItemParentRef(formItemParentRef: Partial<FormItemParentRef> | undefined = {}) : Record<string, (node: ParseNode) => void> {
-    return {
-        "id": n => { formItemParentRef.id = n.getGuidValue(); },
     }
 }
 /**
@@ -444,6 +424,10 @@ export function deserializeIntoSubmissionVersionLookup(submissionVersionLookup: 
 }
 export interface FormItemDefinition extends Parsable {
     /**
+     * The children property
+     */
+    children?: FormItemDefinition[] | null;
+    /**
      * The description property
      */
     description?: string | null;
@@ -455,10 +439,6 @@ export interface FormItemDefinition extends Parsable {
      * The meta property
      */
     meta?: FormItemDefinition_meta | null;
-    /**
-     * The parent property
-     */
-    parent?: FormItemParentRef | null;
     /**
      * The position property
      */
@@ -479,12 +459,6 @@ export interface FormItemDefinition extends Parsable {
 export interface FormItemDefinition_meta extends AdditionalDataHolder, Parsable {
 }
 export type FormItemDefinition_type = (typeof FormItemDefinition_typeObject)[keyof typeof FormItemDefinition_typeObject];
-export interface FormItemParentRef extends Parsable {
-    /**
-     * The id property
-     */
-    id?: Guid | null;
-}
 export interface FormLookup extends AdditionalDataHolder, Parsable {
     /**
      * The createdAt property
@@ -652,10 +626,10 @@ export function serializeDatasetResponse(writer: SerializationWriter, datasetRes
 // @ts-ignore
 export function serializeFormItemDefinition(writer: SerializationWriter, formItemDefinition: Partial<FormItemDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!formItemDefinition || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfObjectValues<FormItemDefinition>("children", formItemDefinition.children, serializeFormItemDefinition);
     writer.writeStringValue("description", formItemDefinition.description);
     writer.writeGuidValue("id", formItemDefinition.id);
     writer.writeObjectValue<FormItemDefinition_meta>("meta", formItemDefinition.meta, serializeFormItemDefinition_meta);
-    writer.writeObjectValue<FormItemParentRef>("parent", formItemDefinition.parent, serializeFormItemParentRef);
     writer.writeNumberValue("position", formItemDefinition.position);
     writer.writeObjectValue<RelevanceDefinition>("relevance", formItemDefinition.relevance, serializeRelevanceDefinition);
     writer.writeStringValue("title", formItemDefinition.title);
@@ -671,17 +645,6 @@ export function serializeFormItemDefinition(writer: SerializationWriter, formIte
 export function serializeFormItemDefinition_meta(writer: SerializationWriter, formItemDefinition_meta: Partial<FormItemDefinition_meta> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!formItemDefinition_meta || isSerializingDerivedType) { return; }
     writer.writeAdditionalData(formItemDefinition_meta.additionalData);
-}
-/**
- * Serializes information the current object
- * @param FormItemParentRef The instance to serialize from.
- * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
- * @param writer Serialization writer to use to serialize this model
- */
-// @ts-ignore
-export function serializeFormItemParentRef(writer: SerializationWriter, formItemParentRef: Partial<FormItemParentRef> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!formItemParentRef || isSerializingDerivedType) { return; }
-    writer.writeGuidValue("id", formItemParentRef.id);
 }
 /**
  * Serializes information the current object

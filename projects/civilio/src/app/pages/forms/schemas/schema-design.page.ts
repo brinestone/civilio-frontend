@@ -1,22 +1,24 @@
+import { CdkDrag, CdkDragHandle, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, linkedSignal, OnDestroy, OnInit, resource, signal } from '@angular/core';
-import { form, FormField } from '@angular/forms/signals';
-import { FormLogoUploadComponent } from '@app/components';
+import { FieldTree, form } from '@angular/forms/signals';
 import { FormService2 } from '@app/services/form';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCopy, lucideCopyCheck, lucideEdit, lucideEye, lucideFormInput, lucideGroup, lucideInfo, lucideLoader, lucidePlus } from '@ng-icons/lucide';
+import { lucideChevronDown, lucideCopy, lucideCopyCheck, lucideEdit, lucideEye, lucideFormInput, lucideGroup, lucideInfo, lucideLoader, lucidePlus } from '@ng-icons/lucide';
 import { ErrorStateMatcher, ShowOnDirtyErrorStateMatcher } from '@spartan-ng/brain/forms';
-import { BrnHoverCard, BrnHoverCardContent, BrnHoverCardTrigger } from '@spartan-ng/brain/hover-card';
-import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmHoverCardContent } from '@spartan-ng/helm/hover-card';
-import { HlmInput } from '@spartan-ng/helm/input';
-import { HlmH3 } from "@spartan-ng/helm/typography";
-import { current, produce, setAutoFreeze } from 'immer';
-import { defaultFormDefinitionSchemaValue, defaultFormItemDefinitionSchemaValue, defineFormDefinitionFormSchema, domainToStrictFormDefinition } from './form-schemas';
 import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { current, produce, setAutoFreeze } from 'immer';
+import { injectQueryParams } from 'ngxtension/inject-query-params';
+import { defaultFormDefinitionSchemaValue, defaultFormItemDefinitionSchemaValue, defineFormDefinitionFormSchema, domainToStrictFormDefinition, FormModel } from './form-schemas';
+import { FormItemDefinition } from '@civilio/sdk/models';
+import { NgxDotpatternComponent } from '@omnedia/ngx-dotpattern';
+// import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 
+
+type FormItemAddTarget = FieldTree<{ items: FormModel['items'] }>;
+type FormItemType = NonNullable<FormItemDefinition['type']>;
 @Component({
 	selector: 'cv-forms',
 	viewProviders: [
@@ -29,37 +31,35 @@ import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
 			lucideEdit,
 			lucideFormInput,
 			lucideGroup,
-			lucidePlus
+			lucidePlus,
+			lucideChevronDown
 		}),
 		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
 	],
 	imports: [
 		HlmFieldImports,
-		HlmInput,
 		HlmButtonGroup,
+		NgxDotpatternComponent,
 		HlmButton,
-		BrnHoverCard,
-		HlmHoverCardContent,
-		BrnHoverCardTrigger,
-		BrnHoverCardContent,
 		NgIcon,
-		FormLogoUploadComponent,
-		FormField,
-		HlmBadge,
 		NgTemplateOutlet,
-		HlmH3
+		CdkDrag,
+		CdkDropList,
+		CdkDragHandle,
+		CdkDropListGroup
 	],
 	templateUrl: './schema-design.page.html',
 	styleUrl: './schema-design.page.scss',
 })
 export class SchemaDesignPage implements OnInit, OnDestroy {
 	readonly slug = input<string>();
+	private readonly formVersionQueryParameter = injectQueryParams<string>('fv', { defaultValue: 'current' })
 	private readonly formService = inject(FormService2);
 	private readonly formDefinition = resource({
-		params: () => ({ slug: this.slug() }),
+		params: () => ({ slug: this.slug(), version: this.formVersionQueryParameter() }),
 		loader: async ({ params }) => {
 			if (!params.slug) return undefined;
-			return await this.formService.findFormDefinition(params.slug);
+			return await this.formService.findFormDefinition(params.slug, params.version ?? undefined);
 		}
 	})
 	private readonly formData = linkedSignal(() => {
@@ -67,6 +67,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		if (v) return domainToStrictFormDefinition(v);
 		return defaultFormDefinitionSchemaValue();
 	});
+	protected readonly lastAddedItemType = signal<FormItemType>('field');
 	protected readonly slugCopied = signal(false);
 	protected readonly enableEditingControls = linkedSignal(() => !this.slug());
 	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema({
@@ -81,38 +82,25 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		setAutoFreeze(true)
 	}
 
-	// protected async copyFormIdButtonClicked() {
-	// 	await navigator.clipboard.writeText(this.formData().slug).then(() => {
-	// 		this.slugCopied.set(true);
-	// 		setTimeout(() => {
-	// 			this.slugCopied.set(false);
-	// 		}, 3000);
-	// 	});
-	// }
-
 	protected toggleEditingButtonClicked() {
 		this.enableEditingControls.update(v => !v);
 	}
 
-	protected addField(parent?: string) {
-		this.formModel.items().setControlValue(produce(this.formModel.items().value(), draft => {
+	private addFormItem(target: FormItemAddTarget, type: FormItemType) {
+		const state = target.items().controlValue();
+		target.items().setControlValue(produce(state, draft => {
 			const item = defaultFormItemDefinitionSchemaValue(current(draft).length);
-			item.type = 'field';
+			item.type = type;
 			draft.push(item);
-			if (parent) {
-				item.parent.id = parent;
-			}
-		}))
+		}));
+		this.lastAddedItemType.set(type);
 	}
 
-	protected addNote(parent?: string) {
-		this.formModel.items().setControlValue(produce(this.formModel.items().value(), draft => {
-			const item = defaultFormItemDefinitionSchemaValue(current(draft).length);
-			item.type = 'note';
-			draft.push(item);
-			if (parent) {
-				item.parent.id = parent;
-			}
-		}))
+	protected addField(target: FormItemAddTarget) {
+		this.addFormItem(target, 'field');
+	}
+
+	protected addNote(target: FormItemAddTarget) {
+		this.addFormItem(target, 'note');
 	}
 }

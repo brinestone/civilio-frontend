@@ -54,6 +54,7 @@ export function defaultFormItemDefinitionSchemaValue(position: number) {
 		id: '',
 		meta: { additionalData: {} },
 		position,
+		children: [],
 		relevance: {
 			dependencies: [],
 			additionalData: {}
