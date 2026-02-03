@@ -26,34 +26,35 @@ export const DeleteOptionGroupByIdRequestSchema = z.object({
 	id: z.uuid()
 });
 export const DeleteOptionGroupOptionByIdRequestSchema = z.object({
-	groupId: z.uuid(),
-	optionId: z.uuid()
+	dataset: z.uuid(),
+	itemId: z.uuid()
 });
-
 export const UpdateFormOptionsDataSetRequestSchema = z.object({
-	groups: z.object({
-		meta: z.object({
-			isNew: z.boolean()
-		}),
-		data: z.object({
-			description: z.string().nullish(),
-			title: z.string(),
-			id: z.uuid().nullable(),
-			parentId: z.uuid().nullable(),
-			key: z.string().nullable(),
-			options: z.object({
-				id: z.string().nullish(),
-				parentValue: z.string().nullish(),
-				ordinal: z.number(),
-				i18nKey: z.string().nullable(),
-				isNew: z.boolean(),
-				key: z.string().optional(),
-				label: z.string(),
-				value: z.string(),
-			}).array().default([])
-		})
-	}).array()
-});
+	meta: z.object({
+		isNew: z.coerce.string().pipe(z.union([z.literal('true'), z.literal('false')]))
+	}),
+	data: z.object({
+		description: z.string().trim().nullish(),
+		title: z.string().trim(),
+		id: z.uuid().nullable(),
+		parentId: z.uuid().nullable(),
+		key: z.string().trim().nullable(),
+		items: z.object({
+			id: z.string().nullish(),
+			parentValue: z.string().nullish(),
+			ordinal: z.number(),
+			i18nKey: z.string().nullable(),
+			isNew: z.coerce.string().pipe(z.union([z.literal('true'), z.literal('false')])),
+			label: z.string().trim(),
+			value: z.string().trim(),
+		}).array().default([])
+	})
+}).transform(d => {
+	return {
+		...d.meta,
+		data: d.data
+	}
+}).array();
 
 export const FindFormOptionGroupsResponseSchema = z.object({
 	groups: OptionGroupSchema.array()
@@ -295,7 +296,7 @@ export type VersionExistsRequest = z.input<typeof VersionExistsRequestSchema>;
 export type VersionExistsResponse = z.infer<typeof VersionExistsResponseSchema>;
 export type LoadAllFormOptionsResponse = z.output<typeof LoadAllFormOptionsResponseSchema>;
 export type LoadAllFormOptionsRequest = z.input<typeof LoadAllFormOptionsRequestSchema>;
-export type UpdateFormOptionsDataSetRequest = z.input<typeof UpdateFormOptionsDataSetRequestSchema>;
+export type UpdateFormOptionsDataSetRequest = z.output<typeof UpdateFormOptionsDataSetRequestSchema>;
 export type FindFormOptionGroupsResponse = z.output<typeof FindFormOptionGroupsResponseSchema>;
 export type DeleteOptionGroupOptionByIdRequest = z.input<typeof DeleteOptionGroupOptionByIdRequestSchema>;
 export type DeleteOptionGroupByIdRequest = z.input<typeof DeleteOptionGroupByIdRequestSchema>;

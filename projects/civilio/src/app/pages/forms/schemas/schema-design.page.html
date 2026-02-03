@@ -1,38 +1,425 @@
-@if(enableEditingControls()) {
-<om-dotpattern styleClass="block w-full h-full">
-	<ng-container [ngTemplateOutlet]="formTemplate" />
-</om-dotpattern>
+@if (enableEditingControls()) {
+<ng-container [ngTemplateOutlet]="formTemplate" />
 } @else {
-<ng-container [ngTemplateOutlet]="renderTemplate" />
+<ng-container [ngTemplateOutlet]="previewTemplate" />
 }
 
-<ng-template #renderTemplate> </ng-template>
+<ng-template #previewTemplate>
+	<ng-container [ngTemplateOutlet]="header" />
+</ng-template>
 <ng-template #formTemplate>
-	<form class="w-full h-full block">
-		<div class="container mx-auto">
-			<div
-				class="flex justify-end items-center flex-wrap gap-3 p-2 sticky top-2"
-			>
-				<div hlmButtonGroup>
-					<button
-						type="button"
-						title="Add {{lastAddedItemType()}}"
-						hlmBtn
-						class="capitalize"
-						size="sm"
-						variant="outline"
-					>
-						<ng-icon name="lucidePlus" />
-						<span>Add {{ lastAddedItemType() }}</span>
-					</button>
-					<button hlmBtn type="button" size="sm" variant="outline">
-						<ng-icon name="lucideChevronDown" />
-					</button>
+	<ng-container [ngTemplateOutlet]="header" />
+	<form class="h-full block">
+		<div class="container mx-auto py-9">
+			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-3">
+				@for (item of formModel.items; track item) {
+				<div
+					cdkDrag
+					cdkDragLockAxis="y"
+					[class.border-border]="enableEditingControls()"
+					class="z-20 group/form-item focus-within:border-primary border border-border relative p-3 shadow bg-card rounded"
+				>
+					<div *cdkDragPlaceholder class="drag-placeholder"></div>
+					<div>
+						<div
+							cdkDragHandle
+							class="cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-[100.5%] bg-muted py-1 px-2"
+						>
+							<ng-icon name="lucideGrip" />
+							<hlm-separator orientation="vertical" />
+							<ng-icon [name]="formItemTypesMap[item.type().value()].icon" />
+							<span>{{ formItemTypesMap[item.type().value()].label }}</span>
+						</div>
+						<div>
+							@switch (item.type().value()) { @case ('separator') {
+							<hlm-separator />
+							} @case ('note') {
+							<ng-container
+								[ngTemplateOutlet]="noteItemTemplate"
+								[ngTemplateOutletContext]="{$implicit: item.title, meta: item.meta}"
+							/>
+							<ng-container
+								[ngTemplateOutlet]="errorsTemplate"
+								[ngTemplateOutletContext]="{$implicit: item.title, index: $index}"
+							/>
+							} @case ('field') {
+							<ng-container
+								[ngTemplateOutlet]="fieldItemTemplate"
+								[ngTemplateOutletContext]="{$implicit: item, index: $index}"
+							/>
+							} }
+						</div>
+						<div
+							hlmButtonGroup
+							orientation="vertical"
+							class="absolute left-[100.5%] top-0 opacity-0 group-focus-within/form-item:opacity-100 group-hover/form-item:opacity-100"
+						>
+							<ng-container
+								[ngTemplateOutlet]="formItemEditorButtons"
+								[ngTemplateOutletContext]="{
+								parent: formModel,
+								index: $index
+							}"
+							/>
+						</div>
+					</div>
+					<div class="flex flex-wrap gap-x-3 gap-y-2"></div>
 				</div>
-			</div>
-			<div hlmFieldGroup class="px-4 py-2">
-
+				}
 			</div>
 		</div>
 	</form>
+</ng-template>
+
+<ng-template #errorsTemplate let-ctrl>
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+	<div class="inline-flex gap-2 items-center text-sm">
+		<hlm-spinner />
+		<span>Checking...</span>
+	</div>
+	} @else if (control().invalid() && control().dirty()) {
+	<div class="space-y-1">
+		@for (error of control().errors(); track error) {
+		<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+		}
+	</div>
+	}
+</ng-template>
+
+<ng-template #formItemEditorButtons let-parent="parent" let-index="index">
+	<button hlmBtn class="flex" variant="outline" type="button" size="icon-sm">
+		<ng-icon name="lucideEye" />
+	</button>
+	<button
+		hlmBtn
+		class="flex"
+		variant="destructive"
+		(click)="removeFormItem(parent, index)"
+		type="button"
+		size="icon-sm"
+	>
+		<ng-icon name="lucideTrash2" />
+	</button>
+</ng-template>
+
+<ng-template #fieldItemTemplate let-ctrl let-index="index">
+	<ng-container> @let item = asFormItem(ctrl); </ng-container>
+	<ng-container>
+		@let meta = asFieldMeta(item.meta).additionalData;
+	</ng-container>
+	<div hlmFieldGroup>
+		<div hlmFieldGroup>
+			<div hlmField>
+				<div hlmFieldContent>
+					<input
+						hlmInput
+						placeholder="Question title *"
+						[formField]="item.title"
+					/>
+					<ng-container
+						[ngTemplateOutlet]="errorsTemplate"
+						[ngTemplateOutletContext]="{$implicit: item.title}"
+					/>
+				</div>
+			</div>
+			<div hlmField>
+				<div hlmFieldContent>
+					<textarea
+						hlmTextarea
+						placeholder="Description"
+						[formField]="item.description"
+					></textarea>
+					<ng-container
+						[ngTemplateOutlet]="errorsTemplate"
+						[ngTemplateOutletContext]="{$implicit: item.description}"
+					/>
+				</div>
+			</div>
+			<div hlmField>
+				<div hlmFieldContent>
+					<brn-select
+						placeholder="Value type *"
+						(valueChange)="onFieldTypeChanged(asFieldMeta(item.meta), $event)"
+						[formField]="meta.type"
+						class="w-full"
+					>
+						<hlm-select-trigger class="w-full">
+							<hlm-select-value class="capitalize" />
+						</hlm-select-trigger>
+						<hlm-select-content class="w-full">
+							@for (option of fieldItemTypes; track $index) {
+							<hlm-option [value]="option" class="capitalize">
+								{{ option }}
+							</hlm-option>
+							}
+						</hlm-select-content>
+					</brn-select>
+				</div>
+			</div>
+		</div>
+		<hlm-field-separator />
+		<cv-debug-panel
+			class="absolute top-0 right-[calc(100%+5px)] max-h-full min-w-65"
+		>
+			<cv-debug-header> Item State</cv-debug-header>
+			<div class="px-2 py-1">
+				<dl>
+					<dt>Validity</dt>
+					<dd>{{ item().valid() ? 'Valid' : 'Invalid' }}</dd>
+					@if (item().errorSummary().length > 0) {
+					<dt>Errors</dt>
+					<dd>
+						<ul>
+							@for (err of item().errorSummary(); track $index) {
+							<li>{{ err.fieldTree().keyInParent() }}: {{ err.message }}</li>
+							}
+						</ul>
+					</dd>
+					}
+					<dt>Value</dt>
+					<dd>
+						<pre>{{ item().value() | json }}</pre>
+					</dd>
+				</dl>
+			</div>
+		</cv-debug-panel>
+		<ng-template #configTitleTemplate>
+			<legend hlmFieldLegend>Field Configuration</legend>
+		</ng-template>
+		<div hlmFieldGroup>
+			<div hlmFieldGroup>
+				<ng-container>
+					@if (meta.type().value() == 'text' || meta.type().value() ==
+					'multiline') {
+					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
+					<ng-container
+						[ngTemplateOutlet]="textFieldMetaConfigTemplate"
+						[ngTemplateOutletContext]="{$implicit: item.meta}"
+					/>
+					<hlm-field-separator />
+					}
+				</ng-container>
+			</div>
+			<div hlmFieldGroup>
+				<legend hlmFieldLegend class="">Additional Configuration</legend>
+				<ng-container
+					[ngTemplateOutlet]="baseFieldMetaConfigTemplate"
+					[ngTemplateOutletContext]="{$implicit: item.meta, index}"
+				/>
+			</div>
+		</div>
+	</div>
+</ng-template>
+
+<ng-template #textFieldMetaConfigTemplate let-metaControl>
+	<ng-container
+		>@let meta =
+		asTextFieldMeta(asFieldMeta(metaControl).additionalData);</ng-container
+	>
+	@if(!meta.minlength().hidden()) {
+	<div hlmField>
+		<input
+			hlmInput
+			type="number"
+			placeholder="Min length"
+			[formField]="meta.minlength"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.minlength}"
+		/>
+		<p hlmFieldDescription>
+			The minimum number of characters allowed for this question's response
+		</p>
+	</div>
+	} @if(!meta.maxlength().hidden()) {
+	<div hlmField>
+		<input
+			hlmInput
+			type="number"
+			placeholder="Max length"
+			[formField]="meta.maxlength"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.maxlength}"
+		/>
+		<p hlmFieldDescription>
+			The maximum number of characters allowed for this question's response
+		</p>
+	</div>
+	} @if(!meta.pattern().hidden()) {
+	<div hlmField>
+		<input [formField]="meta.pattern" hlmInput placeholder="Value pattern" />
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.pattern}"
+		/>
+		<p hlmFieldDescription>
+			A regular expression pattern which response values must match.
+			<a
+				target="_blank"
+				tabindex="-1"
+				href="https://en.wikipedia.org/wiki/Regular_expression"
+				>Learn more about regular expressions.</a
+			>
+		</p>
+	</div>
+	} @if(!meta.default().hidden()) {
+	<div hlmField>
+		@if(meta.type().value() === 'text') {
+		<input
+			[formField]="meta.default"
+			hlmInput
+			placeholder="Default value{{meta.default().required() ? ' *' :''}}"
+		/>
+		} @else {
+		<textarea
+			hlmTextarea
+			[formField]="meta.default"
+			placeholder="Default value{{meta.default().required() ? ' *' :''}}"
+		></textarea>
+		}
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.default}"
+		/>
+		<p hlmFieldDescription>A value to be used by default for this field.</p>
+	</div>
+	}
+</ng-template>
+
+<ng-template #baseFieldMetaConfigTemplate let-node let-index="index">
+	<ng-container>@let meta = asFieldMeta(node).additionalData;</ng-container>
+	@if(!meta.required().hidden()) {
+	<div hlmFieldGroup>
+		@let requiredIdentifier = `${index}__required_input`;
+		<div hlmField orientation="horizontal">
+			<hlm-checkbox [id]="requiredIdentifier" [formField]="meta.required" />
+			<label hlmFieldLabel [for]="requiredIdentifier"
+				>Make this field required</label
+			>
+		</div>
+		<div hlmFieldContent>
+			<p hlmFieldDescription>
+				When enabled, the respondent will be required to provide a response for
+				this question.
+			</p>
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.required}"
+			/>
+		</div>
+	</div>
+	}
+	<div hlmFieldGroup>
+		@let readonlyIdentifier = `${index}__readonly_input`;
+		<div hlmField orientation="horizontal">
+			<hlm-checkbox
+				(checkedChange)="onFieldReadonlyStatusChanged(node, $event)"
+				[id]="readonlyIdentifier"
+				[formField]="meta.readonly"
+			/>
+			<label hlmFieldLabel [for]="readonlyIdentifier"
+				>Make this field readonly</label
+			>
+		</div>
+		<div hlmFieldContent>
+			<p hlmFieldDescription>
+				When enabled, the respondent will not be allowed to provide a response
+				for this question.
+			</p>
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.readonly}"
+			/>
+		</div>
+	</div>
+</ng-template>
+
+<ng-template #noteItemTemplate let-control let-meta="meta">
+	@let noteMeta = asNoteMeta(meta);
+	<div hlmField>
+		<textarea
+			[ngStyle]="{
+			fontSize: `${noteMeta.additionalData.fontSize().value()}px`
+		}"
+			[formField]="control"
+			hlmTextarea
+			placeholder="Enter note here..."
+		></textarea>
+	</div>
+</ng-template>
+
+<ng-template #header>
+	<div class="sticky top-0 backdrop-blur z-99 border-b border-muted">
+		<div class="container mx-auto">
+			<div
+				class="flex justify-between items-center flex-wrap gap-3 p-2 sticky top-2"
+			>
+				<div>
+					@if (enableEditingControls()) {
+					<div hlmButtonGroup>
+						<button
+							type="button"
+							title="Add {{formItemTypesMap[lastAddedItemType()].label}}"
+							hlmBtn
+							class="capitalize"
+							size="sm"
+							variant="outline"
+							(click)="addFormItem(formModel, lastAddedItemType())"
+						>
+							<ng-icon [name]="formItemTypesMap[lastAddedItemType()].icon" />
+							<span>Add {{ formItemTypesMap[lastAddedItemType()].label }}</span>
+						</button>
+						<button
+							hlmBtn
+							[hlmDropdownMenuTrigger]="itemTypesMenuTemplate"
+							type="button"
+							size="sm"
+							variant="outline"
+						>
+							<ng-icon name="lucideChevronDown" />
+						</button>
+					</div>
+					}
+				</div>
+				<div hlmButtonGroup>
+					<button
+						(click)="toggleEditingButtonClicked()"
+						hlmBtn
+						variant="outline"
+						size="sm"
+						type="button"
+					>
+						<ng-icon
+							[name]="enableEditingControls() ? 'lucideEye' : 'lucideEdit'"
+						/>
+						<span> {{ !enableEditingControls() ? 'Edit' : 'Preview' }} </span>
+					</button>
+				</div>
+			</div>
+			<div hlmFieldGroup class="px-4 py-2"></div>
+		</div>
+	</div>
+</ng-template>
+
+<ng-template #itemTypesMenuTemplate>
+	<hlm-dropdown-menu>
+		<hlm-dropdown-menu-label>Item Types</hlm-dropdown-menu-label>
+		<hlm-dropdown-menu-group>
+			@for (item of formItemTypes; track $index) {
+			<button
+				(click)="addFormItem(formModel, item.value)"
+				type="button"
+				class="cursor-pointer"
+				hlmDropdownMenuItem
+			>
+				<ng-icon [name]="item.icon" />
+				<span>{{ item.label }}</span>
+			</button>
+			}
+		</hlm-dropdown-menu-group>
+	</hlm-dropdown-menu>
 </ng-template>

@@ -28,7 +28,7 @@
         "./libs/sdk/models/index.ts"
       ],
       "@civilio/sdk": [
-        "./libs/sdk/civilioSdk.ts"
+        "./libs/sdk/civilioClient.ts"
       ],
       "@civilio/shared": [
         "./libs/shared/index.ts"
@@ -134,6 +134,12 @@
       ],
       "@spartan-ng/helm/dialog": [
         "./libs/ui/dialog/src/index.ts"
+      ],
+      "@spartan-ng/helm/spinner": [
+        "./libs/ui/spinner/src/index.ts"
+      ],
+      "@spartan-ng/helm/collapsible": [
+        "./libs/ui/collapsible/src/index.ts"
       ]
     }
   },

@@ -53,7 +53,6 @@ import {
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
-import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmPopoverContent } from '@spartan-ng/helm/popover';
 import { cloneDeep, differenceWith, entries, values } from 'lodash';
@@ -88,7 +87,6 @@ type SectionForm = FormGroup<{
 		NgClass,
 		HlmCommandImports,
 		NgIcon,
-		HlmIcon,
 		HlmBadge,
 		HlmButton,
 		BrnPopover,

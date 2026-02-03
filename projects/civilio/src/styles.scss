@@ -126,3 +126,7 @@ hlm-option {
 .cdk-overlay-container {
 	@apply z-9999999999999;
 }
+
+textarea {
+	@apply selection:bg-(--primary) selection:text-(--primary-foreground)
+}

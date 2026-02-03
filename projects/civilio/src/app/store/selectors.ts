@@ -4,14 +4,10 @@ import { FieldKey, FormSectionKey, FormType, Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { entries, get, isEmpty, keys, values } from "lodash";
 import { CONFIG_STATE } from "./config";
-import { DATASET_STATE } from "./dataset";
 import { FORM_STATE } from "./form/data";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
 const formSlices = createPropertySelectors(FORM_STATE);
-const datasetSlices = createPropertySelectors(DATASET_STATE);
-
-export const dataGroups = datasetSlices.groups;
 
 export const currentTheme = createSelector([configSlices.config], (config) => {
 	return config?.prefs?.theme ?? "system";

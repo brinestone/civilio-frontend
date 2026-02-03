@@ -176,6 +176,8 @@ settings:
       unique_labels: Labels must be unique
       unique_values: Values must be unique
       required: This field is required
+      unavailable_key: This key is already in use
+      network_unavailable: Could not check availability
     toasts:
       unloadable: Could not load datasets
       unsavable: Could not save changes

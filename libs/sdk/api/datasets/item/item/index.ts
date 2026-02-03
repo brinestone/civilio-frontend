@@ -5,15 +5,14 @@
 import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
- * Builds and executes requests for operations under /api/datasets/{group}/{item}
+ * Builds and executes requests for operations under /api/datasets/{dataset}/{item}
  */
 export interface WithItemItemRequestBuilder extends BaseRequestBuilder<WithItemItemRequestBuilder> {
     /**
      * Delete an item from a dataset
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
-     * @returns {Promise<ArrayBuffer>}
      */
-     delete(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<ArrayBuffer | undefined>;
+     delete(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<void>;
     /**
      * Delete an item from a dataset
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
@@ -24,15 +23,14 @@ export interface WithItemItemRequestBuilder extends BaseRequestBuilder<WithItemI
 /**
  * Uri template for the request builder.
  */
-export const WithItemItemRequestBuilderUriTemplate = "{+baseurl}/api/datasets/{group}/{item}";
+export const WithItemItemRequestBuilderUriTemplate = "{+baseurl}/api/datasets/{dataset}/{item}";
 /**
  * Metadata for all the requests in the request builder.
  */
 export const WithItemItemRequestBuilderRequestsMetadata: RequestsMetadata = {
     delete: {
         uriTemplate: WithItemItemRequestBuilderUriTemplate,
-        adapterMethodName: "sendPrimitive",
-        responseBodyFactory:  "ArrayBuffer",
+        adapterMethodName: "sendNoResponseContent",
     },
 };
 /* tslint:enable */

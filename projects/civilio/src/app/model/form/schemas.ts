@@ -1,21 +1,83 @@
+import { FormVersionDefinition } from "@civilio/sdk/models";
 import {
 	FieldKeySchema,
 	FormTypeSchema,
 	GeoPointSchema,
-	OptionSchema
+	OptionSchema,
+	Strict,
 } from "@civilio/shared";
 import z from "zod";
-import { adjectives, animals, colors, Config, uniqueNamesGenerator } from 'unique-names-generator';
-import { randomString } from "@app/util";
-import { FormVersionDefinition } from "@civilio/sdk/models";
 
-const randomNameConfig: Config = {
-	dictionaries: [adjectives, colors, animals],
-	seed: Date.now(),
-	separator: '-',
-	style: 'lowerCase'
-};
-const randomLabelConfig: Config = { ...randomNameConfig, separator: ' ', style: 'capital' };
+export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'geo-point']);
+export const BaseFieldItemMetaSchema = z.object({
+	required: z.boolean().nullish().default(true),
+	span: z.int().nullish().default(12),
+	default: z.any().nullish().default(null),
+	readonly: z.boolean().nullish().default(false),
+});
+
+export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['geo-point']),
+	default: z.object({
+		lat: z.coerce.number(),
+		lon: z.coerce.number()
+	}).nullish().default({
+		lat: 3.8614800698189145, lon: 11.520851415955367
+	})
+})
+export const DateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	min: z.coerce.date().nullish(),
+	max: z.coerce.date().nullish(),
+	default: z.coerce.date().nullish().default(new Date()),
+	type: FieldTypeSchema.extract(['date', 'date-time'])
+})
+export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	min: z.number().nullish().default(null),
+	max: z.number().nullish().default(null),
+	default: z.number().nullish().default(0),
+	type: FieldTypeSchema.extract(['integer', 'float'])
+});
+export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['boolean']),
+	default: z.boolean().nullish().default(false)
+});
+
+export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
+	optionSourceRef: z.string().nullish().default(null),
+	default: z.any().nullish(),
+	hardOptions: OptionSchema.omit({
+		parent: true
+	}).array().default([])
+});
+// export const AutocompleteSourceDefinitionSchema = z.object({
+// 	allowNewItems
+// })
+export const TextFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	default: z.string().nullish().default(null),
+	// autocomplete: AutocompleteSourceDefinitionSchema.nullish(),
+	pattern: z.string().nullish().default(null),
+	minlength: z.number().nullish().default(null),
+	maxlength: z.number().nullish().default(null),
+	type: FieldTypeSchema.extract(['text', 'multiline']),
+});
+export const FieldItemMetaSchema = z.discriminatedUnion('type', [
+	GeoPointFieldItemMetaSchema,
+	DateFieldItemMetaSchema,
+	NumberFieldItemMetaSchema,
+	BooleanFieldItemMetaSchema,
+	TextFieldItemMetaSchema,
+	SelectFieldItemMetaSchema
+]);
+export const NoteItemMetaSchema = z.object({
+	fontSize: z.number().optional().default(13)
+})
+export type FieldType = z.infer<typeof FieldTypeSchema>;
+export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;
+type MetaWrapper<T> = {
+	additionalData: T;
+}
+export type FormItemMetaOf<T = Strict<FormVersionDefinition>['items'][number]['type']> = T extends 'field' ? MetaWrapper<z.output<typeof FieldItemMetaSchema>> : T extends 'note' ? MetaWrapper<z.output<typeof NoteItemMetaSchema>> : never;
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
@@ -243,11 +305,4 @@ export type DefinitionLike = {
 	type: FieldSchema['type'] | ColumnDefinition['type'],
 	relevance?: RelevanceDefinition,
 	default?: any
-};
-export type Strict<T> = {
-	[P in keyof T]-?: T[P] extends (infer U)[]
-	? Strict<U>[]
-	: T[P] extends object | null | undefined
-	? Strict<NonNullable<T[P]>>
-	: NonNullable<T[P]>;
 };

@@ -32,7 +32,7 @@ const sections = [
 	{
 		label: 'settings.dataset.page_title',
 		icon: 'lucideListCheck',
-		path: 'choice-editor'
+		path: 'dataset-editor'
 	},
 	// {
 	// 	label: 'forms.page_title',

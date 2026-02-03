@@ -56,7 +56,7 @@ import { FORM_SERVICE_IMPL, FormService } from '../form';
 export class ElectronFormService implements FormService {
 	// TODO: rename this to deleteDatasetItem in base interface
 	async deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest) {
-		const response = await fetch(`${this.baseApiUrl()}/forms/options/${req.groupId}/${req.optionId}`, {
+		const response = await fetch(`${this.baseApiUrl()}/forms/options/${req.dataset}/${req.itemId}`, {
 			method: 'DELETE'
 		});
 		if (!response.ok) {
@@ -77,18 +77,18 @@ export class ElectronFormService implements FormService {
 	private readonly baseApiUrl = select(apiUrl);
 	// TODO: rename this to saveFormOptions in the base interface
 	async saveOptionGroups(req: UpdateFormOptionsDataSetRequest): Promise<void> {
-		const body = req.groups.map(g => ({ ...(omit(g, 'meta')), isNew: g.meta.isNew }));
-		const response = await fetch(`${this.baseApiUrl()}/forms/options`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(body)
-		});
-		if (!response.ok) {
-			const { message } = await response.json();
-			throw new Error(message);
-		}
+		// const body = req.groups.map(g => ({ ...(omit(g, 'meta')), isNew: g.meta.isNew }));
+		// const response = await fetch(`${this.baseApiUrl()}/forms/options`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	},
+		// 	body: JSON.stringify(body)
+		// });
+		// if (!response.ok) {
+		// 	const { message } = await response.json();
+		// 	throw new Error(message);
+		// }
 	}
 	// TODO: Rename this to loadDatasets in the base interface
 	async loadUngroupedFormOptions(): Promise<FindFormOptionGroupsResponse> {

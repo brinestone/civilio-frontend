@@ -17,18 +17,18 @@ import { TextParseNodeFactory, TextSerializationWriterFactory } from '@microsoft
 /**
  * The main entry point of the SDK, exposes the configuration and the fluent API.
  */
-export interface CivilioSdk extends BaseRequestBuilder<CivilioSdk> {
+export interface CivilioClient extends BaseRequestBuilder<CivilioClient> {
     /**
      * The api property
      */
     get api(): ApiRequestBuilder;
 }
 /**
- * Instantiates a new {@link CivilioSdk} and sets the default values.
+ * Instantiates a new {@link CivilioClient} and sets the default values.
  * @param requestAdapter The request adapter to use to execute the requests.
  */
 // @ts-ignore
-export function createCivilioSdk(requestAdapter: RequestAdapter) {
+export function createCivilioClient(requestAdapter: RequestAdapter) {
     if (requestAdapter === undefined) {
         throw new Error("requestAdapter cannot be undefined");
     }
@@ -55,16 +55,16 @@ export function createCivilioSdk(requestAdapter: RequestAdapter) {
     const pathParameters: Record<string, unknown> = {
         "baseurl": requestAdapter.baseUrl,
     };
-    return apiClientProxifier<CivilioSdk>(requestAdapter, pathParameters, CivilioSdkNavigationMetadata, undefined);
+    return apiClientProxifier<CivilioClient>(requestAdapter, pathParameters, CivilioClientNavigationMetadata, undefined);
 }
 /**
  * Uri template for the request builder.
  */
-export const CivilioSdkUriTemplate = "{+baseurl}";
+export const CivilioClientUriTemplate = "{+baseurl}";
 /**
  * Metadata for all the navigation properties in the request builder.
  */
-export const CivilioSdkNavigationMetadata: Record<Exclude<keyof CivilioSdk, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+export const CivilioClientNavigationMetadata: Record<Exclude<keyof CivilioClient, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     api: {
         navigationMetadata: ApiRequestBuilderNavigationMetadata,
     },

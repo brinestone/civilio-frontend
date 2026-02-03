@@ -6,6 +6,7 @@ import {
 	InjectionToken,
 	makeEnvironmentProviders
 } from "@angular/core";
+import { CivilioSdk } from "@app/adapters/sdk";
 import { FormSchema } from "@app/model/form";
 import { LookupRequestBuilderGetQueryParameters } from "@civilio/sdk/api/submissions/lookup";
 import {
@@ -48,16 +49,15 @@ import {
 	VersionRevertRequest,
 	VersionRevertResponse
 } from "@civilio/shared";
-import { SdkService } from "../sdk";
 
 @Injectable({
 	providedIn: null
 })
 export class FormService2 {
-	private readonly sdk = inject(SdkService);
+	private readonly sdk = inject(CivilioSdk).client;
 
 	private get client() {
-		return this.sdk.client;
+		return this.sdk;
 	}
 
 	async findFormDefinition(slug: string, formVersion?: string) {

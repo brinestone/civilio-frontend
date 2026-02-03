@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply font-extrabold text-gray-400 dark:text-gray-300
+}

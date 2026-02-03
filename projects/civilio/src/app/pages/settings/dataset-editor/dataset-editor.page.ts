@@ -8,13 +8,14 @@ import {
 } from '@angular/cdk/drag-drop';
 import { NgClass, NgTemplateOutlet } from "@angular/common";
 import {
-	AfterViewInit,
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	effect,
 	ElementRef,
 	HostListener,
 	inject,
+	resource,
 	signal,
 	untracked,
 	viewChildren
@@ -29,12 +30,10 @@ import {
 } from "@angular/forms";
 import { HasPendingChanges } from "@app/model/form";
 import { ValuesPipe } from '@app/pipes';
-import { DeleteDataset, LoadDatasets, SaveDatasets } from "@app/store/dataset";
-import { dataGroups } from "@app/store/selectors";
-import { randomString } from "@app/util";
+import { DatasetService } from '@app/services/dataset';
+import { debouncedAsyncValidator, randomString } from "@app/util";
+import { Dataset, DatasetItem } from '@civilio/sdk/models';
 import {
-	DatasetGroup,
-	DatasetItem,
 	UpdateFormOptionsDataSetRequestSchema
 } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -55,7 +54,7 @@ import {
 	lucideX
 } from "@ng-icons/lucide";
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Actions, dispatch, ofActionSuccessful, select } from "@ngxs/store";
+import { Actions } from "@ngxs/store";
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSelectImports } from "@spartan-ng/brain/select";
@@ -67,30 +66,31 @@ import { HlmKbdImports } from '@spartan-ng/helm/kbd';
 import { HlmLabel } from "@spartan-ng/helm/label";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSeparator } from '@spartan-ng/helm/separator';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from "@spartan-ng/helm/textarea";
 import { HlmH3 } from "@spartan-ng/helm/typography";
 import { toast } from "ngx-sonner";
-import { from, map, mergeMap, Observable, scan, switchMap, take } from "rxjs";
+import { from, map, mergeMap, Observable, scan } from "rxjs";
 
 type ItemForm = FormGroup<{
 	isNew: FormControl<boolean>;
-	id: FormControl<DatasetGroup['options'][number]['id']>;
-	label: FormControl<DatasetGroup['options'][number]['label']>;
-	ordinal: FormControl<DatasetGroup['options'][number]['ordinal']>;
-	value: FormControl<DatasetGroup['options'][number]['value']>;
-	parentValue: FormControl<DatasetGroup['options'][number]['parentValue']>;
-	i18nKey: FormControl<DatasetGroup['options'][number]['i18nKey']>;
+	id: FormControl<Required<NonNullable<Dataset['items']>>[number]['id']>;
+	label: FormControl<Required<NonNullable<Dataset['items']>>[number]['label']>;
+	ordinal: FormControl<Required<NonNullable<Dataset['items']>>[number]['ordinal']>;
+	value: FormControl<Required<NonNullable<Dataset['items']>>[number]['value']>;
+	parentValue: FormControl<Required<NonNullable<Dataset['items']>>[number]['parentValue']>;
+	i18nKey: FormControl<Required<NonNullable<Dataset['items']>>[number]['i18nKey']>;
 	trackingKey: FormControl<string>;
 }>;
 
-type GroupForm = FormGroup<{
+type DatasetForm = FormGroup<{
 	data: FormGroup<{
-		id: FormControl<DatasetGroup['id']>;
-		title: FormControl<DatasetGroup['title']>;
-		key: FormControl<DatasetGroup['key']>;
-		parentId: FormControl<DatasetGroup['parentId']>;
-		description: FormControl<DatasetGroup['description']>;
-		options: FormArray<ItemForm>;
+		id: FormControl<Dataset['id']>;
+		title: FormControl<Dataset['title']>;
+		key: FormControl<Dataset['key']>;
+		parentId: FormControl<Dataset['parentId']>;
+		description: FormControl<Dataset['description']>;
+		items: FormArray<ItemForm>;
 	}>;
 	meta: FormGroup<{
 		trackingKey: FormControl<string>;
@@ -135,6 +135,7 @@ const requiredValidator = (control: AbstractControl) => {
 		HlmKbdImports,
 		BrnAlertDialogImports,
 		HlmAlertDialogImports,
+		HlmSpinner,
 		CdkDrag,
 		HlmSeparator,
 		CdkDragHandle,
@@ -152,34 +153,35 @@ const requiredValidator = (control: AbstractControl) => {
 		ValuesPipe,
 		NgClass,
 	],
-	templateUrl: './choice-editor.page.html',
-	styleUrl: './choice-editor.page.scss',
+	templateUrl: './dataset-editor.page.html',
+	styleUrl: './dataset-editor.page.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
+export class DatasetEditorPage implements HasPendingChanges {
 	private expansionPanels = viewChildren<ElementRef<HTMLDivElement>>('expansionPanel');
-	private readonly actions$ = inject(Actions);
+	private readonly datasetService = inject(DatasetService);
 	protected readonly isMac: boolean;
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly ts = inject(TranslateService);
 	protected readonly form = new FormGroup({
-		groups: new FormArray<GroupForm>([])
+		datasets: new FormArray<DatasetForm>([])
 	});
 	protected readonly lineDeletionDialogState = signal<BrnDialogState>('closed');
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
 
-	private loadGroups = dispatch(LoadDatasets);
-	private deleteDataset = dispatch(DeleteDataset);
-	private saveDatasets = dispatch(SaveDatasets);
-
-	protected groups = select(dataGroups);
-	protected readonly hasExistingGroups = toSignal(this.form.controls.groups.valueChanges.pipe(
+	protected datasets = resource({
+		loader: async () => {
+			return await this.datasetService.findDatasets();
+		},
+		defaultValue: []
+	})
+	protected readonly hasExistingGroups = toSignal(this.form.controls.datasets.valueChanges.pipe(
 		map(gs => gs.some(g => g.meta?.isNew === false && g.data?.id))
 	), { initialValue: true });
-	protected readonly availableParents = toSignal(this.form.controls.groups.valueChanges.pipe(
+	protected readonly availableParents = toSignal(this.form.controls.datasets.valueChanges.pipe(
 		map(groups => groups.map(gg => groups.filter(g => g.meta?.isNew !== true && gg.data?.id != g.data?.id))),
 	), { initialValue: [] });
-	protected readonly parents = toSignal(this.form.controls.groups.valueChanges.pipe(
+	protected readonly parents = toSignal(this.form.controls.datasets.valueChanges.pipe(
 		map(groups => groups.map(g => !!g.data?.parentId ? (groups.find(gg => gg.data?.id == g.data?.parentId) ?? null) : null))
 	), { initialValue: [] });
 	protected savingChanges = signal(false);
@@ -222,9 +224,9 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	}
 
 	protected readonly itemsSequential = toSignal(this.form.valueChanges.pipe(
-		mergeMap(data => from(data.groups ?? []).pipe(
+		mergeMap(data => from(data.datasets ?? []).pipe(
 			map(group => {
-				const items = group.data?.options ?? [];
+				const items = group.data?.items ?? [];
 				const values = items.map(i => Number(i.value));
 				if (values.some(v => isNaN(v))) return false;
 				const min = Math.min(...values);
@@ -240,16 +242,16 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 
 	protected readonly newOptions = toSignal(this.form.valueChanges.pipe(
 		map(data => {
-			return data.groups?.map(g => {
-				if (g.meta?.isNew) return g.data?.options ?? [];
-				return g.data?.options?.filter(i => i.isNew) ?? [];
+			return data.datasets?.map(g => {
+				if (g.meta?.isNew) return g.data?.items ?? [];
+				return g.data?.items?.filter(i => i.isNew) ?? [];
 			}) ?? []
 		})
 	), { initialValue: [] });
 	protected readonly newItemsIndexOffset = toSignal(this.form.valueChanges.pipe(
 		map(data => {
-			if (!data.groups) return [];
-			return data.groups.map(g => g.meta?.isNew ? 0 : (g.data!.options!.findIndex(i => i.isNew) ?? -1) < 0 ? g.data!.options!.length : g.data!.options!.findIndex(i => i.isNew));
+			if (!data.datasets) return [];
+			return data.datasets.map(g => g.meta?.isNew ? 0 : (g.data!.items!.findIndex(i => i.isNew) ?? -1) < 0 ? g.data!.items!.length : g.data!.items!.findIndex(i => i.isNew));
 		})
 	), {
 		initialValue: []
@@ -261,8 +263,8 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		action: 'save' | 'leave' | 'close'
 	}) => void;
 
-	protected onNewItemReordered(event: CdkDragDrop<GroupForm['controls']['data']['controls']['options']['controls'][number]>, lineIndex: number) {
-		const g = this.form.controls.groups.at(lineIndex).controls.data.controls.options;
+	protected onNewItemReordered(event: CdkDragDrop<DatasetForm['controls']['data']['controls']['items']['controls'][number]>, lineIndex: number) {
+		const g = this.form.controls.datasets.at(lineIndex).controls.data.controls.items;
 		const offset = Math.max(0, this.newItemsIndexOffset()[lineIndex]);
 		const prev = event.previousIndex - offset;
 		const next = event.currentIndex - offset;
@@ -274,8 +276,8 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		this.cdr.markForCheck();
 	}
 
-	protected onItemReordered(event: CdkDragDrop<GroupForm['controls']['data']['controls']['options']['controls'][number]>, lineIndex: number) {
-		const g = this.form.controls.groups.at(lineIndex).controls.data.controls.options;
+	protected onItemReordered(event: CdkDragDrop<DatasetForm['controls']['data']['controls']['items']['controls'][number]>, lineIndex: number) {
+		const g = this.form.controls.datasets.at(lineIndex).controls.data.controls.items;
 		moveItemInArray(g.controls, event.previousIndex, event.currentIndex);
 		g.controls.forEach((c, i) => {
 			c.controls.ordinal.setValue(i + 1, { emitEvent: true });
@@ -286,19 +288,23 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 
 	constructor() {
 		this.isMac = window.electron.platform == 'darwin';
+		effect(() => {
+			this.datasets.value();
+			this.doResetForm();
+		});
 	}
 
 	protected onDeleteLineButtonClicked(lineIndex: number) {
-		const currentGroupValue = this.form.controls.groups.at(lineIndex).value;
+		const currentGroupValue = this.form.controls.datasets.at(lineIndex).value;
 
 		// 1. Handle dependents (Dialog logic)
-		if (this.groupHasDependentGroups(lineIndex)) {
+		if (this.datasetHasDependentDatasets(lineIndex)) {
 			this.lineDeletionConfirmationCallback = async (cb) => {
 				try {
-					this.form.controls.groups.removeAt(lineIndex); // Removed once
+					this.form.controls.datasets.removeAt(lineIndex); // Removed once
 					await this.doDeleteExistingLine(currentGroupValue.data?.id as string);
 				} catch (e) {
-					this.restoreDatasetGroupControl(lineIndex, currentGroupValue);
+					this.restoreDatasetControl(lineIndex, currentGroupValue);
 				} finally {
 					cb();
 					this.lineDeletionDialogState.set('closed');
@@ -310,7 +316,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		}
 
 		// 2. Immediate UI Removal
-		this.form.controls.groups.removeAt(lineIndex);
+		this.form.controls.datasets.removeAt(lineIndex);
 		// this.form.controls.groups.markAsDirty();
 
 		// 3. Handle API persistence for existing items
@@ -320,7 +326,7 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 					label: 'Undo',
 					onClick: () => {
 						console.log(toast.dismiss(toastId));
-						this.restoreDatasetGroupControl(lineIndex, currentGroupValue);
+						this.restoreDatasetControl(lineIndex, currentGroupValue);
 					}
 				},
 				onAutoClose: async () => {
@@ -328,17 +334,17 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 						await this.doDeleteExistingLine(currentGroupValue.data?.id as string);
 					} catch (e) {
 						toast.error(this.ts.instant('misc.toasts.delete_failed', { domain: currentGroupValue.data?.title }), { description: (e as Error).message });
-						this.restoreDatasetGroupControl(lineIndex, currentGroupValue);
+						this.restoreDatasetControl(lineIndex, currentGroupValue);
 					}
 				}
 			});
 		}
 	}
 
-	private restoreDatasetGroupControl(index: number, value: any) {
+	private restoreDatasetControl(index: number, value: any) {
 		const control = this.createGroupForm();
 		control.patchValue(value);
-		this.form.controls.groups.insert(index, control, { emitEvent: false });
+		this.form.controls.datasets.insert(index, control, { emitEvent: false });
 		control.markAsUntouched();
 		control.markAsPristine();
 		for (const item of value.data.options) {
@@ -346,34 +352,29 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			itemControl.setValue(item, { emitEvent: false });
 			itemControl.markAsUntouched();
 			itemControl.markAsPristine();
-			control.controls.data.controls.options.push(itemControl, { emitEvent: false });
+			control.controls.data.controls.items.push(itemControl, { emitEvent: false });
 		}
 		this.cdr.markForCheck();
 	}
 
 	private async doDeleteExistingLine(id: string) {
-		return new Promise<void>((resolve, reject) => {
-			this.deleteDataset(id).subscribe({
-				error: reject,
-				complete: resolve
-			});
-		})
+		return await this.datasetService.deleteDataset({ id });
 	}
 
-	private groupHasDependentGroups(lineIndex: number) {
-		const formGroup = this.form.controls.groups.at(lineIndex);
+	private datasetHasDependentDatasets(lineIndex: number) {
+		const formGroup = this.form.controls.datasets.at(lineIndex);
 		if (formGroup.value.meta?.isNew === true) return false;
 
 		const id = formGroup.value.data?.id as string;
-		return this.form.value.groups?.some(g => g.data?.parentId == id) ?? false;
+		return this.form.value.datasets?.some(g => g.data?.parentId == id) ?? false;
 	}
 
 	private doResetForm() {
-		const groups = untracked(this.groups);
+		const datasets = untracked(this.datasets.value);
 
-		this.form.controls.groups.clear({ emitEvent: false });
-		for (const group of groups) {
-			this.form.controls.groups.push(this.createGroupForm(group));
+		this.form.controls.datasets.clear({ emitEvent: false });
+		for (const group of datasets) {
+			this.form.controls.datasets.push(this.createGroupForm(group));
 		}
 		this.form.markAsUntouched();
 		this.form.markAsPristine();
@@ -403,10 +404,10 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 
 	protected generateGroupKeyAt(index: number) {
 		const str = randomString(6);
-		this.form.controls.groups.at(index).controls.data.controls.key.setValue(str);
+		this.form.controls.datasets.at(index).controls.data.controls.key.setValue(str);
 	}
 
-	protected createGroupForm(group?: DatasetGroup) {
+	protected createGroupForm(dataset?: Dataset) {
 		const uniqueLabelsValidator = (control: AbstractControl<ItemForm['value'][]>) => {
 			const items = control.value;
 			if (items.length == 0) return null;
@@ -424,38 +425,36 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 			return { duplicateValues: { message: 'settings.dataset.validation.unique_values' } };
 		}
 
+		const keyValidator = (ref?: string) => debouncedAsyncValidator<string>(300, async (key) => {
+			try {
+				const result = await this.datasetService.isKeyAvailable(key, ref);
+				return !result ? { uniqueKey: { message: 'settings.dataset.validation.unavailable_key' } } : null
+			} catch (e) {
+				return { networkError: { message: 'settings.dataset.validation.network_unavailable' } };
+			}
+		})
+
 		return new FormGroup({
 			data: new FormGroup({
-				id: new FormControl(group?.id),
-				key: new FormControl(group?.key || '', [requiredValidator]),
-				parentId: new FormControl(group?.parentId),
-				title: new FormControl(group?.title || '', {
+				id: new FormControl(dataset?.id),
+				key: new FormControl(dataset?.key || '', [requiredValidator], [keyValidator(dataset?.id ?? undefined)]),
+				parentId: new FormControl(dataset?.parentId),
+				title: new FormControl(dataset?.title || '', {
 					validators: [requiredValidator],
 					updateOn: 'change'
 				}),
-				description: new FormControl(group?.description),
-				options: new FormArray<ItemForm>(group?.options.map(i => this.createItemForm(i)) ?? [], [
+				description: new FormControl(dataset?.description),
+				items: new FormArray<ItemForm>((dataset?.items ?? []).map(i => this.createItemForm(i)) ?? [], [
 					uniqueLabelsValidator,
 					uniqueValuesValidator
 				])
 			}),
 			meta: new FormGroup({
-				trackingKey: new FormControl(group?.id || randomString()),
-				expanded: new FormControl(!group),
-				isNew: new FormControl(!group)
+				trackingKey: new FormControl(dataset?.id || randomString()),
+				expanded: new FormControl(!dataset),
+				isNew: new FormControl(!dataset)
 			})
-		}) as GroupForm;
-	}
-
-	ngAfterViewInit() {
-		this.loadGroups().subscribe({
-			error: (e: Error) => {
-				toast.error(this.ts.instant('settings.dataset.toasts.unloadable'), { description: e.message });
-			},
-			complete: () => {
-				this.doResetForm();
-			}
-		});
+		}) as DatasetForm;
 	}
 
 	protected async onFormSubmit() {
@@ -463,18 +462,17 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	}
 
 	private async doSubmitChanges() {
-		const modifiedGroups = this.form.controls.groups.controls.filter(g => g.dirty).map(g => g.value);
-		const payload = UpdateFormOptionsDataSetRequestSchema.parse({ groups: modifiedGroups });
-		this.saveDatasets(payload).pipe(
-			switchMap(() => this.actions$.pipe(ofActionSuccessful(LoadDatasets), take(1)))
-		).subscribe({
-			error: (e: Error) => {
-				toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), { description: e.message });
-			},
-			complete: () => {
-				this.onFormReset();
-			}
-		});
+		const modifiedGroups = this.form.controls.datasets.controls.filter(g => g.dirty).map(g => g.value);
+		const payload = UpdateFormOptionsDataSetRequestSchema.parse(modifiedGroups);
+		try {
+			await this.datasetService.saveDatasets(payload);
+			this.datasets.reload();
+		} catch (e) {
+			const message = e instanceof Error ? e.message : this.ts.instant('errors.unknown');
+			toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), {
+				description: message
+			});
+		}
 	}
 
 	protected onFormReset(event?: Event) {
@@ -487,21 +485,21 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 	}
 
 	private doAddEmptyGroup() {
-		this.form.controls.groups.insert(0, this.createGroupForm());
+		this.form.controls.datasets.insert(0, this.createGroupForm());
 		this.cdr.markForCheck();
 	}
 
 	protected onSetParentId(id: string | null | undefined, lineIndex: number) {
-		this.form.controls.groups.at(lineIndex).controls.data.controls.parentId.setValue(id);
+		this.form.controls.datasets.at(lineIndex).controls.data.controls.parentId.setValue(id);
 		this.cdr.markForCheck();
 	}
 
 	protected onToggleExpanded({
-															 currentTarget,
-															 target,
-															 type
-														 }: Event, lineIndex: number) {
-		const fg = this.form.controls.groups.at(lineIndex);
+		currentTarget,
+		target,
+		type
+	}: Event, lineIndex: number) {
+		const fg = this.form.controls.datasets.at(lineIndex);
 		if (
 			(type == 'click' && target instanceof HTMLButtonElement) ||
 			(type == 'dblclick' && currentTarget === target && currentTarget === this.expansionPanels()[lineIndex].nativeElement)
@@ -511,22 +509,29 @@ export class ChoiceEditorPage implements AfterViewInit, HasPendingChanges {
 		}
 	}
 
-	protected onAddOptionButtonClicked(lineIndex: number) {
-		this.doAddGroupItem(lineIndex);
+	protected onAddItemButtonClicked(lineIndex: number) {
+		this.doAddDatasetItem(lineIndex);
 	}
 
-	private doAddGroupItem(lineIndex: number) {
-		const group = this.form.controls.groups.at(lineIndex);
+	private doAddDatasetItem(lineIndex: number) {
+		const isSequential = untracked(this.itemsSequential)[lineIndex];
+		const group = this.form.controls.datasets.at(lineIndex);
 		const item = this.createItemForm();
-		item.patchValue({ ordinal: group.controls.data.controls.options.length + 1 });
-		group.controls.data.controls.options.insert(this.newItemsIndexOffset()[lineIndex], item);
+		item.patchValue({ ordinal: group.controls.data.controls.items.length + 1 });
+		if (isSequential) {
+			const nextValue = Math.max(...(group.value.data?.items ?? []).map(i => Number(i.value))) + 1;
+			item.patchValue({
+				value: String(nextValue)
+			})
+		}
+		group.controls.data.controls.items.insert(this.newItemsIndexOffset()[lineIndex], item);
 		this.cdr.markForCheck();
 	}
 
-	protected onDeleteGroupOptionButtonClicked(lineIndex: number, itemIndex: number) {
-		const group = this.form.controls.groups.at(lineIndex);
-		group.controls.data.controls.options.removeAt(itemIndex);
-		group.controls.data.controls.options.markAsDirty();
+	protected onDeleteDatasetItemButtonClicked(lineIndex: number, itemIndex: number) {
+		const group = this.form.controls.datasets.at(lineIndex);
+		group.controls.data.controls.items.removeAt(itemIndex);
+		group.controls.data.controls.items.markAsDirty();
 		this.cdr.markForCheck();
 	}
 }

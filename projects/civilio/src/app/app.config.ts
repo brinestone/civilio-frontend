@@ -21,11 +21,11 @@ import {
 	provideTranslationLoader
 } from './adapters/ngx-translate/ngx-translate';
 import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
+import { provideCivilioSdk } from './adapters/sdk';
 import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
-import { provideCivilioSdk } from './services/sdk';
 import { ConfigState } from './store/config';
 
 export const appConfig: ApplicationConfig = {

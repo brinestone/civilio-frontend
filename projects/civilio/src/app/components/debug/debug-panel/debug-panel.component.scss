@@ -1,0 +1,37 @@
+@reference "tailwindcss";
+
+:host {
+	interpolate-size: allow-keywords;
+	@apply grid grid-rows-[auto_auto_1fr] border border-(--border) rounded bg-(--card) overflow-hidden;
+}
+
+keyframes expand-item {
+	from {
+		overflow-y: hidden;
+		height: 0;
+	}
+	to {
+		height: minmax(calc-size(max-content, size + 0), 500px);
+		overflow-y: auto;
+	}
+}
+
+@keyframes shrink-item {
+	from {
+		overflow-y: hidden;
+		height: minmax(calc-size(max-content, size + 0), 500px);
+	}
+	to {
+		height: 0;
+	}
+}
+
+*.expand {
+	overflow: hidden;
+	animation: 0.3s expand-item forwards linear;
+}
+
+*.shrink {
+	overflow: hidden;
+	animation: 0.25s shrink-item forwards linear;
+}

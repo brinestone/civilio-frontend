@@ -1,14 +1,14 @@
 import { Routes } from "@angular/router";
-import { provideFormStore } from "./store/form/data";
+import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
+import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
+import { hasChangesGuard } from "./guards/has-changes-guard";
 import {
 	ChefferieFormDefinition,
 	CscFormDefinition,
 	FosaFormDefinition
 } from "./model/form";
-import { hasChangesGuard } from "./guards/has-changes-guard";
-import { provideDatasets } from "./store/dataset";
-import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
-import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
+import { DatasetService } from "./services/dataset";
+import { provideFormStore } from "./store/form/data";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
@@ -19,12 +19,12 @@ export const settingsRoutes: Routes = [
 		loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage)
 	},
 	{
-		path: 'choice-editor',
+		path: 'dataset-editor',
 		title: 'settings.dataset.page_title',
-		providers: [provideDatasets()],
+		providers: [DatasetService],
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],
-		loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage),
+		loadComponent: () => import('./pages/settings/dataset-editor/dataset-editor.page').then(m => m.DatasetEditorPage),
 	},
 	{
 		providers: [

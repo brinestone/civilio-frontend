@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
-import { dbConfig } from '@app/store/selectors';
+import { apiOrigin, apiUrl, dbConfig } from '@app/store/selectors';
 import {
 	AppConfig,
 	CheckMigrationsResponse,
@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
 	Action,
 	NgxsOnInit,
+	select,
 	State,
 	StateContext,
 	StateToken,
@@ -41,6 +42,7 @@ import {
 	UpdateMiscConfig,
 	UseConnection
 } from './actions';
+import { CivilioSdk, SdkRequestAdapter } from '@app/adapters/sdk';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -70,6 +72,14 @@ export class ConfigState implements NgxsOnInit {
 	private readonly store = inject(Store);
 	private readonly configService = inject(CONFIG_SERVICE);
 	private readonly translateService = inject(TranslateService);
+	private readonly requestAdapter = inject(SdkRequestAdapter);
+	private readonly apiOrigin = select(apiOrigin);
+
+	constructor() {
+		effect(() => {
+			this.requestAdapter.baseUrl = this.apiOrigin();
+		})
+	}
 
 	ngxsOnInit(ctx: Context): void {
 		const state = ctx.getState();
@@ -228,7 +238,7 @@ export class ConfigState implements NgxsOnInit {
 			tap((config) => {
 				const lang = (config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 				this.translateService.use(lang);
-			})
+			}),
 		)
 	}
 }

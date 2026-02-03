@@ -7,3 +7,4 @@ export * from './is-string-pipe';
 export * from './mask-pipe';
 export * from './ago-date-pipe'
 export * from './value-type-pipe';
+export * from './clamp-pipe';

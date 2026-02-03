@@ -183,6 +183,8 @@ settings:
       unique_labels: Les étiquettes doivent être uniques
       unique_values: Les valeurs doivent être uniques
       required: Ce champ est obligatoire
+      unavailable_key: Cette clé est déjà utilisée
+      network_unavailable: Impossible de vérifier la disponibilité
     toasts:
       unloadable: Impossible de charger les ensembles de données
       unsavable: Impossible d'enregistrer les modifications

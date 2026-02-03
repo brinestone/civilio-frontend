@@ -1,9 +1,9 @@
 {
-  "descriptionHash": "63CE9261291F67839EF08FD94F15C53FA210BF3EA5E0C0180CA96D7F4C58AF194F3B30BE130ADE544E001D62797379E8E37935B9FE6EBD7F89AD9B00BDD1B939",
+  "descriptionHash": "96EF034F2FF7F3C3FE84054EBF2B9845E2599AE16523371E428FB6FCE74041C6B96A98226EB75542DBFD368330A04ECF71708D45D253B1FF3BFC9F69847949DE",
   "descriptionLocation": "http://localhost:3000/_docs/openapi.json",
   "lockFileVersion": "1.0.0",
   "kiotaVersion": "1.30.0",
-  "clientClassName": "CivilioSdk",
+  "clientClassName": "CivilioClient",
   "typeAccessModifier": "Public",
   "clientNamespaceName": "ApiSdk",
   "language": "TypeScript",

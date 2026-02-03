@@ -1,0 +1,33 @@
+<div class="p-2 flex items-center justify-between">
+	<div class="space-y-1">
+		<small class="block text-muted-foreground" hlmSmall>Debug Panel</small>
+		<ng-content select="cv-debug-header" />
+	</div>
+	<button
+		type="button"
+		hlmBtn
+		(click)="toggleExpanded()"
+		variant="secondary"
+		class="rounded-full"
+		size="icon-sm"
+	>
+		<ng-icon [name]="expanded() ? 'lucideChevronUp' : 'lucideChevronDown'" />
+	</button>
+</div>
+<hlm-separator />
+@if (expanded()) {
+	<div
+		class="grid grid-rows-[1fr_auto]"
+		animate.enter="expand"
+		animate.leave="shrink"
+	>
+		<div
+			class="bg-background overflow-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+		>
+			<ng-content />
+		</div>
+		<div>
+			<ng-content select="cv-debug-footer" />
+		</div>
+	</div>
+}

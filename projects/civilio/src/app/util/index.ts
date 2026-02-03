@@ -4,16 +4,11 @@ import {
 	toObservable,
 	toSignal,
 } from "@angular/core/rxjs-interop";
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 import {
-	AppErrorSchema,
 	Channel,
 	ChannelArg,
-	ChannelResponse,
-	computeReplyChannel,
-	RpcBaseSchema,
-	RpcInputHeaders,
-	rpcMessageSchema,
-	TimeoutError,
+	ChannelResponse
 } from "@civilio/shared";
 import {
 	Actions,
@@ -23,16 +18,31 @@ import {
 } from "@ngxs/store";
 import { derivedFrom } from "ngxtension/derived-from";
 import {
+	catchError,
 	debounceTime,
 	filter,
 	from,
 	map,
 	merge,
 	mergeMap,
+	Observable,
+	of,
 	OperatorFunction,
 	pipe,
 	scan,
+	switchMap,
+	timer,
 } from "rxjs";
+
+export function debouncedAsyncValidator<T>(duration: number, logic: (value: T) => Promise<ValidationErrors | null> | Observable<ValidationErrors | null>) {
+	return (control: AbstractControl<T>) => {
+		if (!control.value) return of(null);
+		return timer(duration).pipe(
+			switchMap(() => logic(control.value)),
+			catchError(() => of(null))
+		)
+	}
+}
 
 export function maskString(value: string, maskChar = '.', maskMaxLength = 3) {
 	if (value.length <= 4) return value;
