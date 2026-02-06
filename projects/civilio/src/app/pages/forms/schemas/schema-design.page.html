@@ -214,6 +214,15 @@
 					<hlm-field-separator />
 					}
 				</ng-container>
+				<ng-container>
+					@if(meta.type().value() == 'boolean') {
+					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
+					<ng-container
+						[ngTemplateOutlet]="booleanFieldMetaConfigTemplate"
+						[ngTemplateOutletContext]="metaCtx"
+					/>
+					}
+				</ng-container>
 			</div>
 			<div hlmFieldGroup>
 				<legend hlmFieldLegend class="">Additional Configuration</legend>
@@ -223,6 +232,32 @@
 				/>
 			</div>
 		</div>
+	</div>
+</ng-template>
+
+<ng-template
+	#booleanFieldMetaConfigTemplate
+	let-metaControl
+	let-formItemIndex="formItemIndex"
+>
+	<ng-container
+		>@let meta =
+		asBooleanFieldMeta(asFieldMeta(metaControl).additionalData);</ng-container
+	>
+	<div hlmField orientation="horizontal" class="items-center">
+		@let idExp = `${formItemIndex}__default_checkbox`;
+		<hlm-checkbox
+			class="cursor-pointer"
+			[id]="idExp"
+			[formField]="meta.default"
+		/>
+		<label class="cursor-pointer" hlmFieldLabel [for]="idExp">
+			Default Value
+		</label>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.default}"
+		/>
 	</div>
 </ng-template>
 

@@ -1,5 +1,4 @@
 import { isDevMode } from "@angular/core";
-import { randomString } from "@app/util";
 import { FormVersionDefinition } from "@civilio/sdk/models";
 import {
 	FieldKeySchema,

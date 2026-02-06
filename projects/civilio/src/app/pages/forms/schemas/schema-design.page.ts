@@ -314,6 +314,10 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>
 	}
 
+	protected asBooleanFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'boolean' }>>;
+	}
+
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {
 		const state = node.additionalData().controlValue();
 		const baseState = BaseFieldItemMetaSchema.parse(state);
