@@ -79,7 +79,6 @@ type ItemForm = FormGroup<{
 	ordinal: FormControl<Required<NonNullable<Dataset['items']>>[number]['ordinal']>;
 	value: FormControl<Required<NonNullable<Dataset['items']>>[number]['value']>;
 	parentValue: FormControl<Required<NonNullable<Dataset['items']>>[number]['parentValue']>;
-	i18nKey: FormControl<Required<NonNullable<Dataset['items']>>[number]['i18nKey']>;
 	trackingKey: FormControl<string>;
 }>;
 
@@ -391,7 +390,6 @@ export class DatasetEditorPage implements HasPendingChanges {
 
 	protected createItemForm(item?: DatasetItem) {
 		return new FormGroup({
-			i18nKey: new FormControl(item?.i18nKey),
 			id: new FormControl(item?.id),
 			isNew: new FormControl(!item),
 			label: new FormControl(item?.label, requiredValidator),

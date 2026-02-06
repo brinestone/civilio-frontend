@@ -27,7 +27,13 @@ export interface KeyAvailableRequestBuilder extends BaseRequestBuilder<KeyAvaila
  * Check if dataset key is available to be used to create a new dataset
  */
 export interface KeyAvailableRequestBuilderGetQueryParameters {
+    /**
+     * The key value to use to check
+     */
     key?: string;
+    /**
+     * A dataset reference ID to use in the check
+     */
     ref?: Guid;
 }
 /**

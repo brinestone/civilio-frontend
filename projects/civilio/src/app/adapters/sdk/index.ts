@@ -1,16 +1,8 @@
 import { inject, Injectable, InjectionToken, makeEnvironmentProviders, OnDestroy } from "@angular/core";
+import { DatasetService } from "@app/services/dataset";
 import { CivilioClient, createCivilioClient } from '@civilio/sdk';
 import { AnonymousAuthenticationProvider, RequestAdapter } from "@microsoft/kiota-abstractions";
 import { FetchRequestAdapter } from "@microsoft/kiota-http-fetchlibrary";
-
-// @Injectable({ providedIn: null })
-// class FetchAdapterWrapper extends FetchRequestAdapter implements OnDestroy {
-// 	constructor() {
-// 		super(new AnonymousAuthenticationProvider());
-// 	}
-// 	ngOnDestroy() {
-// 	}
-// }
 
 @Injectable({ providedIn: null })
 class SdkClientWrapper implements OnDestroy {
@@ -22,12 +14,12 @@ class SdkClientWrapper implements OnDestroy {
 	ngOnDestroy(): void {
 	}
 }
-
 export const SdkRequestAdapter = new InjectionToken<RequestAdapter>('api.fetch.adapter');
 export const CivilioSdk = new InjectionToken<{ client: CivilioClient }>('api.sdk');
 
 export function provideCivilioSdk() {
 	return makeEnvironmentProviders([
+		{ provide: DatasetService, multi: false },
 		{
 			provide: SdkRequestAdapter,
 			useValue: new FetchRequestAdapter(new AnonymousAuthenticationProvider())

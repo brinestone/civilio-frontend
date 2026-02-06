@@ -8,3 +8,4 @@ export * from './mask-pipe';
 export * from './ago-date-pipe'
 export * from './value-type-pipe';
 export * from './clamp-pipe';
+export * from './compact-number-pipe'

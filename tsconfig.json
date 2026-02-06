@@ -140,6 +140,9 @@
       ],
       "@spartan-ng/helm/collapsible": [
         "./libs/ui/collapsible/src/index.ts"
+      ],
+      "@spartan-ng/helm/tabs": [
+        "./libs/ui/tabs/src/index.ts"
       ]
     }
   },

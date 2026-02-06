@@ -155,10 +155,10 @@ export const DbColumnSpecSchema = z.object({
 	tableName: z.string()
 });
 export const OptionSchema = z.object({
-	label: z.string().nullable(),
-	value: z.string().nullable(),
-	parent: z.string().nullable(),
-	i18nKey: z.string().nullable()
+	label: z.string().nullish(),
+	value: z.string().nullish(),
+	parent: z.string().nullish(),
+	i18nKey: z.string().nullish()
 });
 
 export function createPaginatedResultSchema<T extends z.ZodTypeAny>(schema: T) {

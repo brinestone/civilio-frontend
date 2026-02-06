@@ -1,4 +1,4 @@
-import { Signal } from "@angular/core";
+import { isDevMode, Signal } from "@angular/core";
 import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, maxLength, min, minLength, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
 import { FieldItemMeta, FieldItemMetaSchema, NoteItemMetaSchema, } from "@app/model/form";
 import { FormItemDefinition, FormVersionDefinition } from "@civilio/sdk/models";
@@ -58,7 +58,20 @@ function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMe
 function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'float' | 'integer' }>>) {
 }
 function defineSelectionFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'single-select' | 'multi-select' }>>) {
-	disabled(paths.default, ({ valueOf }) => valueOf(paths.optionSourceRef) === null && (valueOf(paths.hardOptions) ?? []).length == 0)
+	hidden(paths.optionSourceRef, () => true);
+	applyEach(paths.hardOptions, innerPaths => {
+		debounce(innerPaths.label, debounceDuration);
+		debounce(innerPaths.value, debounceDuration);
+
+		required(innerPaths.label, { message: 'A label is required' });
+		required(innerPaths.value, { message: 'A value is required' });
+	});
+
+	required(paths.default, {
+		when: ({ valueOf, stateOf }) => valueOf(paths.readonly) === true,
+		message: 'A default value is required when readonly is enabled'
+	});
+	disabled(paths.default, ({ valueOf, stateOf }) => (valueOf(paths.optionSourceRef) === null || stateOf(paths.optionSourceRef).invalid()) && (stateOf(paths.hardOptions).invalid() || (valueOf(paths.hardOptions) ?? []).length == 0));
 }
 function defineBooleanFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'boolean' }>>) {
 
@@ -147,13 +160,13 @@ export function defaultFormDefinitionSchemaValue() {
 	return {
 		id: '',
 		parentId: '',
-		items: [defaultFormItemDefinitionSchemaValue(0, 'field')],
+		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue(0, 'field')] : [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: 'single-select' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}

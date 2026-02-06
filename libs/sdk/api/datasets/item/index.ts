@@ -4,12 +4,18 @@
 // @ts-ignore
 import { type WithItemItemRequestBuilder, WithItemItemRequestBuilderRequestsMetadata } from './item/index.js';
 // @ts-ignore
+import { ItemsRequestBuilderRequestsMetadata, type ItemsRequestBuilder } from './items/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
  * Builds and executes requests for operations under /api/datasets/{dataset}
  */
 export interface WithDatasetItemRequestBuilder extends BaseRequestBuilder<WithDatasetItemRequestBuilder> {
+    /**
+     * The items property
+     */
+    get items(): ItemsRequestBuilder;
     /**
      * Gets an item from the ApiSdk.api.datasets.item.item collection
      * @param item The item's ID
@@ -39,6 +45,9 @@ export const WithDatasetItemRequestBuilderNavigationMetadata: Record<Exclude<key
     byItem: {
         requestsMetadata: WithItemItemRequestBuilderRequestsMetadata,
         pathParametersMappings: ["item"],
+    },
+    items: {
+        requestsMetadata: ItemsRequestBuilderRequestsMetadata,
     },
 };
 /**

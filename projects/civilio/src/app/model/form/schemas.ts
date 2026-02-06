@@ -1,3 +1,5 @@
+import { isDevMode } from "@angular/core";
+import { randomString } from "@app/util";
 import { FormVersionDefinition } from "@civilio/sdk/models";
 import {
 	FieldKeySchema,
@@ -44,10 +46,14 @@ export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 
 export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
-	optionSourceRef: z.string().nullish().default(null),
-	default: z.any().nullish(),
+	optionSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
+	default: z.any().nullish().default(null),
 	hardOptions: OptionSchema.omit({
-		parent: true
+		parent: true,
+		i18nKey: true
+	}).extend({
+		label: z.string().nullish().default(null),
+		value: z.string().nullish().default(null),
 	}).array().default([])
 });
 // export const AutocompleteSourceDefinitionSchema = z.object({

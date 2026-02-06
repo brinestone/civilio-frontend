@@ -23,7 +23,7 @@
 					<div>
 						<div
 							cdkDragHandle
-							class="cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-[100.5%] bg-muted py-1 px-2"
+							class="cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-full bg-muted py-1 px-2"
 						>
 							<ng-icon name="lucideGrip" />
 							<hlm-separator orientation="vertical" />
@@ -107,6 +107,9 @@
 	<ng-container> @let item = asFormItem(ctrl); </ng-container>
 	<ng-container>
 		@let meta = asFieldMeta(item.meta).additionalData;
+	</ng-container>
+	<ng-container>
+		@let metaCtx = {$implicit: item.meta, formItemIndex: index};
 	</ng-container>
 	<div hlmFieldGroup>
 		<div hlmFieldGroup>
@@ -195,7 +198,18 @@
 					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
 					<ng-container
 						[ngTemplateOutlet]="textFieldMetaConfigTemplate"
-						[ngTemplateOutletContext]="{$implicit: item.meta}"
+						[ngTemplateOutletContext]="metaCtx"
+					/>
+					<hlm-field-separator />
+					}
+				</ng-container>
+				<ng-container>
+					@if(meta.type().value() == 'single-select' || meta.type().value() ==
+					'multi-select') {
+					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
+					<ng-container
+						[ngTemplateOutlet]="selectFieldMetaConfigTemplate"
+						[ngTemplateOutletContext]="metaCtx"
 					/>
 					<hlm-field-separator />
 					}
@@ -205,10 +219,165 @@
 				<legend hlmFieldLegend class="">Additional Configuration</legend>
 				<ng-container
 					[ngTemplateOutlet]="baseFieldMetaConfigTemplate"
-					[ngTemplateOutletContext]="{$implicit: item.meta, index}"
+					[ngTemplateOutletContext]="metaCtx"
 				/>
 			</div>
 		</div>
+	</div>
+</ng-template>
+
+<ng-template
+	#selectFieldMetaConfigTemplate
+	let-metaControl
+	let-formItemIndex="formItemIndex"
+>
+	<ng-container>
+		@let meta = asSelectFieldMeta(asFieldMeta(metaControl).additionalData);
+	</ng-container>
+	<ng-container>
+		@let sourceLinked = !!meta.optionSourceRef().value();
+	</ng-container>
+	<div hlmField>
+		<p hlmFieldTitle>Options</p>
+		<div hlmFieldContent>
+			<div class="flex gap-2 flex-wrap">
+				<button
+					(click)="onAddHardOptionButtonClicked(meta)"
+					hlmBtn
+					type="button"
+					variant="ghost"
+					size="sm"
+				>
+					<ng-icon name="lucidePlus" />
+					<span>Add an option</span>
+				</button>
+				<button
+					hlmBtn
+					(click)="onLinkOptionSourceButtonClicked(meta)"
+					type="button"
+					[variant]="sourceLinked ? 'secondary' : 'ghost'"
+					size="sm"
+				>
+					<ng-icon [name]="sourceLinked ? 'lucideLink' : 'lucideUnlink'" />
+					<span>
+						{{sourceLinked ? 'Unlink option source' : 'Link an option source'}}
+					</span>
+				</button>
+			</div>
+			@if(meta.hardOptions.length > 0) {
+			<div
+				class="max-h-75 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+			>
+				<div
+					class="space-y-3 p-1"
+					cdkDropList
+					(cdkDropListDropped)="onHardOptionsReordered($event, meta)"
+				>
+					@for(option of meta.hardOptions; track option) {
+					<div
+						class="grid grid-cols-[auto_1fr] items-center gap-x-3"
+						cdkDrag
+						cdkDragLockAxis="y"
+					>
+						<div
+							cdkDragHandle
+							class="cursor-grab active:cursor-grabbing flex items-center justify-center"
+						>
+							<ng-icon name="lucideGrip" />
+						</div>
+						<div *cdkDragPlaceholder matchSize="true"></div>
+						<div
+							class="grid grid-rows-[auto_auto_auto] lg:grid-rows-none lg:grid-cols-[1fr_1fr_auto] gap-2"
+						>
+							<div class="space-y-1">
+								<input
+									hlmInput
+									placeholder="Label *"
+									[formField]="option.label"
+								/>
+								<ng-container
+									[ngTemplateOutlet]="errorsTemplate"
+									[ngTemplateOutletContext]="{$implicit: option.label}"
+								/>
+							</div>
+							<div class="space-y-1">
+								<input
+									hlmInput
+									placeholder="Value *"
+									[formField]="option.value"
+								/>
+								<ng-container
+									[ngTemplateOutlet]="errorsTemplate"
+									[ngTemplateOutletContext]="{$implicit: option.value}"
+								/>
+							</div>
+							<div class="block lg:flex lg:items-center lg:justify-center">
+								<button
+									type="button"
+									(click)="onRemoveHardOptionButtonClicked(meta, $index)"
+									hlmBtn
+									size="icon-sm"
+									variant="destructive"
+								>
+									<ng-icon name="lucideTrash2" />
+								</button>
+							</div>
+						</div>
+					</div>
+					}
+				</div>
+			</div>
+			}
+		</div>
+	</div>
+	<div hlmField>
+		<hlm-select
+			[formField]="meta.default"
+			scrollable="true"
+			[multiple]="meta.type().value() === 'multi-select'"
+			placeholder="Default selection"
+		>
+			<hlm-select-trigger class="w-full">
+				<hlm-select-value />
+			</hlm-select-trigger>
+			<hlm-select-content class="w-full">
+				<hlm-select-scroll-up />
+				<ng-container
+					>@let fixedOptions = meta.hardOptions().value();</ng-container
+				>
+				<ng-container
+					>@let linkedOptions =
+					linkedOptionSources()[meta.optionSourceRef().value()];</ng-container
+				>
+				<ng-container>
+					@if((linkedOptions?.length ?? 0) > 0) {
+					<ng-container>
+						@if(linkedOptions) {
+						<hlm-select-group>
+							<hlm-select-label>Linked options</hlm-select-label>
+							@for(item of linkedOptions; track item) {
+							<hlm-option [value]="item.value">{{ item.label }}</hlm-option>
+							}
+						</hlm-select-group>
+						}
+					</ng-container>
+					}
+				</ng-container>
+				<ng-container>
+					@if(fixedOptions.length > 0) {
+					<ng-container>
+						<hlm-select-group>
+							<hlm-select-label>Fixed options</hlm-select-label>
+							@for(option of fixedOptions; track option) {
+							<hlm-option [value]="option.value">{{ option.label }}</hlm-option>
+							}
+						</hlm-select-group>
+					</ng-container>
+					}
+				</ng-container>
+				<hlm-select-scroll-down />
+			</hlm-select-content>
+		</hlm-select>
 	</div>
 </ng-template>
 
@@ -423,3 +592,45 @@
 		</hlm-dropdown-menu-group>
 	</hlm-dropdown-menu>
 </ng-template>
+
+<hlm-dialog
+	[state]="optionSourceImportSheetState()"
+	(stateChanged)="onOptionSourceImportDialogStateChanged($event)"
+>
+	<hlm-dialog-content
+		*brnDialogContent="let ctx"
+		class="min-w-[80vw]! max-h-[80vh] min-h-[50vh] grid-rows-[auto_1fr]!"
+	>
+		<hlm-dialog-header>
+			<h3 hlmDialogTitle>Link option source</h3>
+		</hlm-dialog-header>
+		<div class="overflow-hidden grid h-full grid-rows-[auto_1fr] gap-y-3">
+			<div
+				hlmTabs
+				[tab]="activeImportTab()"
+				class="w-full"
+				orientation="horizontal"
+			>
+				<div hlmTabsList>
+					@for (source of importSources; track $index) {
+					<a
+						[routerLink]="[{outlets: {importer: [`import-${source.value}`]}}]"
+						class="cursor-pointer"
+						[hlmTabsTrigger]="source.value"
+					>
+						<ng-icon [name]="source.icon" />
+						<span>{{ source.label }}</span>
+					</a>
+					}
+				</div>
+			</div>
+			<div class="overflow-hidden border border-border">
+				<router-outlet
+					(deactivate)="importerOutletRouteActivationCallback = undefined"
+					(activate)="importerOutletRouteActivationCallback?.($event)"
+					name="importer"
+				/>
+			</div>
+		</div>
+	</hlm-dialog-content>
+</hlm-dialog>

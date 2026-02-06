@@ -1,14 +1,17 @@
 import {
 	CdkDrag,
+	CdkDragDrop,
 	CdkDragHandle,
 	CdkDragPlaceholder,
 	CdkDropList,
-	CdkDropListGroup
+	CdkDropListGroup,
+	moveItemInArray
 } from '@angular/cdk/drag-drop';
 import { JsonPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
-	computed,
 	effect,
 	inject,
 	input,
@@ -16,9 +19,11 @@ import {
 	OnDestroy,
 	OnInit,
 	resource,
-	signal
+	signal,
+	untracked
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -27,10 +32,13 @@ import {
 	BaseFieldItemMetaSchema,
 	FieldItemMetaSchema,
 	FieldTypeSchema,
-	FormItemMetaOf
+	FormItemMetaOf,
+	SelectFieldItemMetaSchema
 } from '@app/model/form';
+import { Importer } from '@app/pages/importers';
+import { DatasetService } from '@app/services/dataset';
 import { FormService2 } from '@app/services/form';
-import { FormItemDefinition } from '@civilio/sdk/models';
+import { DatasetItem, FormItemDefinition } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -38,20 +46,27 @@ import {
 	lucideChevronsUpDown,
 	lucideCopy,
 	lucideCopyCheck,
+	lucideDatabase,
 	lucideEdit,
 	lucideEye,
+	lucideFile,
 	lucideFormInput,
 	lucideGrip,
 	lucideGroup,
 	lucideImage,
 	lucideInfo,
+	lucideLink,
 	lucideList,
 	lucideLoader,
 	lucidePlus,
 	lucideSeparatorHorizontal,
 	lucideStickyNote,
-	lucideTrash2
+	lucideTrash2,
+	lucideUnlink
 } from '@ng-icons/lucide';
+import { Navigate } from '@ngxs/router-plugin';
+import { dispatch } from '@ngxs/store';
+import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
 import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher
@@ -60,12 +75,14 @@ import { BrnSelect, BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
+import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { current, produce, setAutoFreeze } from 'immer';
 import { keyBy } from 'lodash';
@@ -119,16 +136,24 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideImage,
 			lucideList,
 			lucideSeparatorHorizontal,
+			lucideDatabase,
+			lucideFile,
 			lucideGrip,
-			lucideTrash2
+			lucideTrash2,
+			lucideLink,
+			lucideUnlink
 		}),
+		DatasetService,
 		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
 	],
 	imports: [
 		HlmFieldImports,
 		HlmSelectImports,
 		BrnSelectImports,
+		HlmTabsImports,
 		HlmDropdownMenuImports,
+		HlmDialogImports,
+		BrnDialogContent,
 		HlmButtonGroup,
 		HlmButton,
 		HlmCheckbox,
@@ -147,9 +172,10 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		CdkDropListGroup,
 		DebugPanelComponent,
 		JsonPipe,
-		// ClampPipe,
 		DebugHeaderComponent,
-		BrnSelect
+		BrnSelect,
+		RouterOutlet,
+		RouterLink
 	],
 	templateUrl: './schema-design.page.html',
 	styleUrl: './schema-design.page.scss',
@@ -158,10 +184,13 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		'[class.scrollbar-thin]': 'true',
 		'[class.scrollbar-thumb-primary/50]': 'true',
 		'[class.scrollbar-track-transparent]': 'true',
-	}
+	},
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SchemaDesignPage implements OnInit, OnDestroy {
 	readonly slug = input<string>();
+	private readonly navigate = dispatch(Navigate);
+	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly formVersionQueryParameter = injectQueryParams<string>('fv', { defaultValue: 'current' })
 	private readonly formService = inject(FormService2);
 	private readonly formDefinition = resource({
@@ -173,7 +202,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 			if (!params.slug) return undefined;
 			return await this.formService.findFormDefinition(params.slug, params.version ?? undefined);
 		}
-	})
+	});
 	private readonly formData = linkedSignal(() => {
 		const v = this.formDefinition.value();
 		if (v) return domainToStrictFormDefinition(v);
@@ -184,15 +213,52 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema({
 		enableEditing: this.enableEditingControls
 	}));
+	protected readonly ds = inject(DatasetService);
 	protected readonly formItemTypes = formItemTypes;
 	protected readonly formItemTypesMap = formItemTypesMap;
 	protected readonly lastAddedItemType = signal<FormItemType>('field');
 	protected readonly fieldItemTypes = FieldTypeSchema.options;
+	protected readonly optionSourceImportSheetState = signal<BrnDialogState>('closed');
+	protected readonly activeImportTab = signal('dataset');
+	protected readonly importComponents = {
+		dataset: () => import('../../importers/dataset/dataset-import.page').then(m => m.DatasetImportPage),
+		file: () => import('../../importers/file/file-importer.page').then(m => m.FilePage)
+	}
+	protected readonly linkedOptionSources = signal<Record<string, DatasetItem[]>>({});
+	protected readonly importSources = [
+		{ value: 'dataset', icon: 'lucideDatabase', label: 'Dataset' }
+	];
 
 	constructor() {
 		effect(() => {
-			console.log(this.formData());
+			const formData = this.formData();
+			const linkedOptionsRegistry = untracked(this.linkedOptionSources);
+			for (const i of formData.items) {
+				this.walkFormItemTree(i, async item => {
+					if (item.type != 'field') return;
+					const meta = item.meta as FormItemMetaOf<'field'>;
+					if (meta.additionalData.type != 'multi-select' && meta.additionalData.type != 'single-select') return;
+					const _meta = meta.additionalData;
+					const ref = _meta.optionSourceRef;
+					if (!ref || linkedOptionsRegistry[ref]) return;
+					this.ds.getDatasetRefItems(ref).then(v => {
+						if (!v || v.length == 0) return;
+						this.linkedOptionSources.update(reg => produce(reg, draft => {
+							draft[ref] = v;
+						}))
+					})
+				})
+			}
 		})
+	}
+
+	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
+		cb(item);
+		if (item.children.length > 0) {
+			for (const child of item.children) {
+				cb(child);
+			}
+		}
 	}
 
 	ngOnInit() {
@@ -240,8 +306,12 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		return node as FieldTree<Strict<FormItemMetaOf<'field'>>>;
 	}
 
-	protected asTextFieldMeta(node: any){
+	protected asTextFieldMeta(node: any) {
 		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multiline' | 'text' }>>
+	}
+
+	protected asSelectFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>
 	}
 
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {
@@ -255,5 +325,70 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected onFieldReadonlyStatusChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newState: any) {
 		if (newState === false) return;
 		node.additionalData.required().setControlValue(false);
+	}
+
+	protected onAddHardOptionButtonClicked(node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>) {
+		const state = node.hardOptions().controlValue();
+		const newOption = SelectFieldItemMetaSchema.shape.hardOptions.unwrap().unwrap().parse({});
+		node.hardOptions().setControlValue(produce(state, draft => {
+			draft.unshift(newOption as any);
+			setTimeout(() => this.cdr.markForCheck(), 0);
+		}))
+	}
+
+	protected onRemoveHardOptionButtonClicked(node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>, index: number) {
+		const state = node().controlValue();
+		node().setControlValue(produce(state, draft => {
+			const defaultValue = current(draft).default;
+			const targetOption = current(draft).hardOptions[index];
+			const isDefault = defaultValue && defaultValue === targetOption.value;
+
+			if (isDefault) draft.default = null;
+			draft.hardOptions.splice(index, 1);
+		}));
+	}
+
+	protected onHardOptionsReordered(event: CdkDragDrop<any>, node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>) {
+		const state = node().controlValue();
+		node().setControlValue(produce(state, draft => {
+			moveItemInArray(draft.hardOptions, event.previousIndex, event.currentIndex);
+		}))
+	}
+	protected onOptionSourceImportDialogStateChanged(value: BrnDialogState) {
+		this.optionSourceImportSheetState.set(value);
+		if (value == 'open')
+			this.navigate([{ outlets: { importer: ['import-dataset'] } }]).subscribe();
+		else this.navigate([{ outlets: { importer: null } }]).subscribe();
+	}
+	protected importerOutletRouteActivationCallback?: (i: Importer) => void;
+	protected onLinkOptionSourceButtonClicked(meta: ReturnType<typeof this.asSelectFieldMeta>) {
+		const linked = !!meta.optionSourceRef().value();
+		const state = meta().controlValue();
+		if (!linked) {
+			this.importerOutletRouteActivationCallback = importer => {
+				importer.finished.subscribe(refId => {
+					meta().setControlValue(produce(state, draft => {
+						draft.optionSourceRef = refId;
+						setTimeout(() => this.optionSourceImportSheetState.set('closed'))
+					}));
+					// this.ds.getDatasetRefItems(refId).then(items => {
+					// 	if (!items) {
+					// 		meta().setControlValue(produce(state, draft => {
+					// 			(draft as any).optionSourceRef = null;
+					// 		}))
+					// 	} else {
+					// 		this.linkedOptionSources.update(reg => produce(reg, draft => {
+					// 			draft[refId] = items
+					// 		}))
+					// 	}
+					// });
+				})
+			};
+			this.optionSourceImportSheetState.set('open');
+		} else {
+			meta().setControlValue(produce(state, draft => {
+				(draft as any).optionSourceRef = null;
+			}));
+		}
 	}
 }

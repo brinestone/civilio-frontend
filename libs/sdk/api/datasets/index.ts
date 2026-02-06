@@ -8,6 +8,10 @@ import { type WithDatasetItemRequestBuilder, WithDatasetItemRequestBuilderNaviga
 // @ts-ignore
 import { KeyAvailableRequestBuilderRequestsMetadata, type KeyAvailableRequestBuilder } from './keyAvailable/index.js';
 // @ts-ignore
+import { LookupRequestBuilderRequestsMetadata, type LookupRequestBuilder } from './lookup/index.js';
+// @ts-ignore
+import { RefsRequestBuilderNavigationMetadata, RefsRequestBuilderRequestsMetadata, type RefsRequestBuilder } from './refs/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type ParseNode, type RequestConfiguration, type RequestInformation, type RequestsMetadata, type SerializationWriter } from '@microsoft/kiota-abstractions';
 
 /**
@@ -41,6 +45,14 @@ export interface DatasetsRequestBuilder extends BaseRequestBuilder<DatasetsReque
      */
     get keyAvailable(): KeyAvailableRequestBuilder;
     /**
+     * The lookup property
+     */
+    get lookup(): LookupRequestBuilder;
+    /**
+     * The refs property
+     */
+    get refs(): RefsRequestBuilder;
+    /**
      * Gets an item from the ApiSdk.api.datasets.item collection
      * @param dataset Unique identifier of the item
      * @returns {WithDatasetItemRequestBuilder}
@@ -50,6 +62,7 @@ export interface DatasetsRequestBuilder extends BaseRequestBuilder<DatasetsReque
      * Get Datasets
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {Promise<Dataset[]>}
+     * @deprecated 
      */
      get(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<Dataset[] | undefined>;
     /**
@@ -62,6 +75,7 @@ export interface DatasetsRequestBuilder extends BaseRequestBuilder<DatasetsReque
      * Get Datasets
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns {RequestInformation}
+     * @deprecated 
      */
      toGetRequestInformation(requestConfiguration?: RequestConfiguration<object> | undefined) : RequestInformation;
     /**
@@ -117,6 +131,13 @@ export const DatasetsRequestBuilderNavigationMetadata: Record<Exclude<keyof Data
     },
     keyAvailable: {
         requestsMetadata: KeyAvailableRequestBuilderRequestsMetadata,
+    },
+    lookup: {
+        requestsMetadata: LookupRequestBuilderRequestsMetadata,
+    },
+    refs: {
+        requestsMetadata: RefsRequestBuilderRequestsMetadata,
+        navigationMetadata: RefsRequestBuilderNavigationMetadata,
     },
 };
 /**

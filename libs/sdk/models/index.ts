@@ -58,6 +58,15 @@ export function createDatasetItemFromDiscriminatorValue(parseNode: ParseNode | u
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {DatasetLookup}
+ */
+// @ts-ignore
+export function createDatasetLookupFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoDatasetLookup;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {DatasetParentRef}
  */
 // @ts-ignore
@@ -263,10 +272,6 @@ export interface DatasetInsert_data extends Parsable {
 export type DatasetInsert_isNew = (typeof DatasetInsert_isNewObject)[keyof typeof DatasetInsert_isNewObject];
 export interface DatasetItem extends Parsable {
     /**
-     * The i18nKey property
-     */
-    i18nKey?: string | null;
-    /**
      * The id property
      */
     id?: Guid | null;
@@ -286,6 +291,32 @@ export interface DatasetItem extends Parsable {
      * The value property
      */
     value?: string | null;
+}
+export interface DatasetLookup extends Parsable {
+    /**
+     * The createdAt property
+     */
+    createdAt?: Date | null;
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The id property
+     */
+    id?: Guid | null;
+    /**
+     * The itemCount property
+     */
+    itemCount?: number | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+    /**
+     * The updatedAt property
+     */
+    updatedAt?: Date | null;
 }
 export interface DatasetParentRef extends Parsable {
     /**
@@ -404,12 +435,27 @@ export function deserializeIntoDatasetInsert_data(datasetInsert_data: Partial<Da
 // @ts-ignore
 export function deserializeIntoDatasetItem(datasetItem: Partial<DatasetItem> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "i18nKey": n => { datasetItem.i18nKey = n.getStringValue(); },
         "id": n => { datasetItem.id = n.getGuidValue(); },
         "label": n => { datasetItem.label = n.getStringValue(); },
         "ordinal": n => { datasetItem.ordinal = n.getNumberValue(); },
         "parentValue": n => { datasetItem.parentValue = n.getStringValue(); },
         "value": n => { datasetItem.value = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param DatasetLookup The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoDatasetLookup(datasetLookup: Partial<DatasetLookup> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "createdAt": n => { datasetLookup.createdAt = n.getDateValue(); },
+        "description": n => { datasetLookup.description = n.getStringValue(); },
+        "id": n => { datasetLookup.id = n.getGuidValue(); },
+        "itemCount": n => { datasetLookup.itemCount = n.getNumberValue(); },
+        "title": n => { datasetLookup.title = n.getStringValue(); },
+        "updatedAt": n => { datasetLookup.updatedAt = n.getDateValue(); },
     }
 }
 /**
@@ -473,7 +519,6 @@ export function deserializeIntoDatasetUpdate_data_items(datasetUpdate_data_items
 // @ts-ignore
 export function deserializeIntoExistingDatasetItemUpdate(existingDatasetItemUpdate: Partial<ExistingDatasetItemUpdate> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "i18nKey": n => { existingDatasetItemUpdate.i18nKey = n.getStringValue(); },
         "id": n => { existingDatasetItemUpdate.id = n.getGuidValue(); },
         "isNew": n => { existingDatasetItemUpdate.isNew = n.getEnumValue<ExistingDatasetItemUpdate_isNew>(ExistingDatasetItemUpdate_isNewObject); },
         "label": n => { existingDatasetItemUpdate.label = n.getStringValue(); },
@@ -565,7 +610,6 @@ export function deserializeIntoFormVersionLookup(formVersionLookup: Partial<Form
 // @ts-ignore
 export function deserializeIntoNewDatasetItem(newDatasetItem: Partial<NewDatasetItem> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "i18nKey": n => { newDatasetItem.i18nKey = n.getStringValue(); },
         "isNew": n => { newDatasetItem.isNew = n.getEnumValue<NewDatasetItem_isNew>(NewDatasetItem_isNewObject); },
         "label": n => { newDatasetItem.label = n.getStringValue(); },
         "ordinal": n => { newDatasetItem.ordinal = n.getNumberValue(); },
@@ -631,10 +675,6 @@ export function deserializeIntoSubmissionVersionLookup(submissionVersionLookup: 
     }
 }
 export interface ExistingDatasetItemUpdate extends Parsable {
-    /**
-     * The i18nKey property
-     */
-    i18nKey?: string | null;
     /**
      * The id property
      */
@@ -777,10 +817,6 @@ export interface FormVersionLookup extends AdditionalDataHolder, Parsable {
 }
 export interface NewDatasetItem extends Parsable {
     /**
-     * The i18nKey property
-     */
-    i18nKey?: string | null;
-    /**
      * The isNew property
      */
     isNew?: NewDatasetItem_isNew | null;
@@ -874,12 +910,27 @@ export function serializeDatasetInsert_data(writer: SerializationWriter, dataset
 // @ts-ignore
 export function serializeDatasetItem(writer: SerializationWriter, datasetItem: Partial<DatasetItem> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!datasetItem || isSerializingDerivedType) { return; }
-    writer.writeStringValue("i18nKey", datasetItem.i18nKey);
     writer.writeGuidValue("id", datasetItem.id);
     writer.writeStringValue("label", datasetItem.label);
     writer.writeNumberValue("ordinal", datasetItem.ordinal);
     writer.writeStringValue("parentValue", datasetItem.parentValue);
     writer.writeStringValue("value", datasetItem.value);
+}
+/**
+ * Serializes information the current object
+ * @param DatasetLookup The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeDatasetLookup(writer: SerializationWriter, datasetLookup: Partial<DatasetLookup> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!datasetLookup || isSerializingDerivedType) { return; }
+    writer.writeDateValue("createdAt", datasetLookup.createdAt);
+    writer.writeStringValue("description", datasetLookup.description);
+    writer.writeGuidValue("id", datasetLookup.id);
+    writer.writeNumberValue("itemCount", datasetLookup.itemCount);
+    writer.writeStringValue("title", datasetLookup.title);
+    writer.writeDateValue("updatedAt", datasetLookup.updatedAt);
 }
 /**
  * Serializes information the current object
@@ -942,7 +993,6 @@ export function serializeDatasetUpdate_data_items(writer: SerializationWriter, d
 // @ts-ignore
 export function serializeExistingDatasetItemUpdate(writer: SerializationWriter, existingDatasetItemUpdate: Partial<ExistingDatasetItemUpdate> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!existingDatasetItemUpdate || isSerializingDerivedType) { return; }
-    writer.writeStringValue("i18nKey", existingDatasetItemUpdate.i18nKey);
     writer.writeGuidValue("id", existingDatasetItemUpdate.id);
     writer.writeEnumValue<ExistingDatasetItemUpdate_isNew>("isNew", existingDatasetItemUpdate.isNew);
     writer.writeStringValue("label", existingDatasetItemUpdate.label);
@@ -1037,7 +1087,6 @@ export function serializeFormVersionLookup(writer: SerializationWriter, formVers
 // @ts-ignore
 export function serializeNewDatasetItem(writer: SerializationWriter, newDatasetItem: Partial<NewDatasetItem> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!newDatasetItem || isSerializingDerivedType) { return; }
-    writer.writeStringValue("i18nKey", newDatasetItem.i18nKey);
     writer.writeEnumValue<NewDatasetItem_isNew>("isNew", newDatasetItem.isNew);
     writer.writeStringValue("label", newDatasetItem.label);
     writer.writeNumberValue("ordinal", newDatasetItem.ordinal);
