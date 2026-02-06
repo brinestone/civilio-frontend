@@ -19,8 +19,11 @@ import {
 	OnDestroy,
 	OnInit,
 	resource,
+	Signal,
 	signal,
-	untracked
+	TemplateRef,
+	untracked,
+	viewChild
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
@@ -31,6 +34,7 @@ import {
 import {
 	BaseFieldItemMetaSchema,
 	FieldItemMetaSchema,
+	FieldType,
 	FieldTypeSchema,
 	FormItemMetaOf,
 	SelectFieldItemMetaSchema
@@ -189,6 +193,26 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 })
 export class SchemaDesignPage implements OnInit, OnDestroy {
 	readonly slug = input<string>();
+	protected readonly booleanTemplate = viewChild.required<TemplateRef<any>>('booleanFieldMetaConfigTemplate');
+	protected readonly dateTemplate = viewChild.required<TemplateRef<any>>('dateFieldMetaConfigTemplate');
+	protected readonly textTemplate = viewChild.required<TemplateRef<any>>('textFieldMetaConfigTemplate');
+	protected readonly selectTemplate = viewChild.required<TemplateRef<any>>('selectFieldMetaConfigTemplate');
+	protected readonly numberTemplate = viewChild.required<TemplateRef<any>>('numberFieldMetaConfigTemplate');
+	protected readonly geoPointTemplate = viewChild.required<TemplateRef<any>>('geoPointFieldMetaConfigTemplate');
+
+	// 2. Reference in Map
+	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
+		'boolean': this.booleanTemplate,
+		'date-time': this.dateTemplate,
+		'date': this.dateTemplate,
+		'text': this.textTemplate,
+		'multiline': this.textTemplate,
+		'single-select': this.selectTemplate,
+		'multi-select': this.selectTemplate,
+		'float': this.numberTemplate,
+		'integer': this.numberTemplate,
+		'geo-point': this.geoPointTemplate,
+	};
 	private readonly navigate = dispatch(Navigate);
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly formVersionQueryParameter = injectQueryParams<string>('fv', { defaultValue: 'current' })
@@ -316,6 +340,10 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 
 	protected asBooleanFieldMeta(node: any) {
 		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'boolean' }>>;
+	}
+
+	protected asNumberFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'integer' | 'float' }>>;
 	}
 
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {

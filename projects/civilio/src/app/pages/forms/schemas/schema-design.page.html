@@ -193,36 +193,15 @@
 		<div hlmFieldGroup>
 			<div hlmFieldGroup>
 				<ng-container>
-					@if (meta.type().value() == 'text' || meta.type().value() ==
-					'multiline') {
-					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
-					<ng-container
-						[ngTemplateOutlet]="textFieldMetaConfigTemplate"
-						[ngTemplateOutletContext]="metaCtx"
-					/>
-					<hlm-field-separator />
-					}
+					@let template = metaConfigTemplatesMap[meta.type().value()];
 				</ng-container>
-				<ng-container>
-					@if(meta.type().value() == 'single-select' || meta.type().value() ==
-					'multi-select') {
-					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
-					<ng-container
-						[ngTemplateOutlet]="selectFieldMetaConfigTemplate"
-						[ngTemplateOutletContext]="metaCtx"
-					/>
-					<hlm-field-separator />
-					}
-				</ng-container>
-				<ng-container>
-					@if(meta.type().value() == 'boolean') {
-					<ng-container [ngTemplateOutlet]="configTitleTemplate" />
-					<ng-container
-						[ngTemplateOutlet]="booleanFieldMetaConfigTemplate"
-						[ngTemplateOutletContext]="metaCtx"
-					/>
-					}
-				</ng-container>
+				@if(template) {
+				<ng-container [ngTemplateOutlet]="configTitleTemplate" />
+				<ng-container
+					[ngTemplateOutletContext]="metaCtx"
+					[ngTemplateOutlet]="template()"
+				/>
+				}
 			</div>
 			<div hlmFieldGroup>
 				<legend hlmFieldLegend class="">Additional Configuration</legend>
@@ -232,6 +211,57 @@
 				/>
 			</div>
 		</div>
+	</div>
+</ng-template>
+
+<ng-template #geoPointFieldMetaConfigTemplate let-metaControl let-formItemIndex>
+</ng-template>
+<ng-template #dateFieldMetaConfigTemplate let-metaControl let-formItemIndex>
+</ng-template>
+
+<ng-template #numberFieldMetaConfigTemplate let-metaControl let-formItemIndex>
+	<ng-container>
+		@let meta = asNumberFieldMeta(asFieldMeta(metaControl).additionalData);
+	</ng-container>
+	<div hlmField>
+		@let accuracy = meta.type().value() == 'float' ? .1 : 1;
+		<input
+			type="number"
+			[formField]="meta.min"
+			hlmInput
+			[step]="accuracy"
+			placeholder="Minimum Value"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.min}"
+		/>
+	</div>
+	<div hlmField>
+		<input
+			type="number"
+			[step]="accuracy"
+			[formField]="meta.max"
+			hlmInput
+			placeholder="Maximum Value"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.max}"
+		/>
+	</div>
+	<div hlmField>
+		<input
+			type="number"
+			[step]="accuracy"
+			[formField]="meta.default"
+			hlmInput
+			placeholder="Default Value"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: meta.default}"
+		/>
 	</div>
 </ng-template>
 

@@ -35,7 +35,7 @@ export const DateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	min: z.number().nullish().default(null),
 	max: z.number().nullish().default(null),
-	default: z.number().nullish().default(0),
+	default: z.number().nullish().default(null),
 	type: FieldTypeSchema.extract(['integer', 'float'])
 });
 export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({

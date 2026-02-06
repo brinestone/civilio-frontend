@@ -1,5 +1,5 @@
 import { isDevMode, Signal } from "@angular/core";
-import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, maxLength, min, minLength, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
+import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
 import { FieldItemMeta, FieldItemMetaSchema, NoteItemMetaSchema, } from "@app/model/form";
 import { FormItemDefinition, FormVersionDefinition } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
@@ -56,6 +56,25 @@ function defineGeopointFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldIt
 function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-time' | 'date' }>>) {
 }
 function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'float' | 'integer' }>>) {
+	validate(paths.min, ({ valueOf, value }) => {
+		const currentValue = Number(value() ?? undefined);
+		const maxValue = Number(valueOf(paths.max) ?? undefined);
+		if (!maxValue || !currentValue) return null;
+		else if (currentValue - maxValue >= 0) return { kind: 'rangeError', message: 'The minimum value cannot be greater than or equal to the maximum value' };
+		return null;
+	});
+
+	validate(paths.max, ({ valueOf, value }) => {
+		const currentValue = Number(value() ?? undefined);
+		const minValue = Number(valueOf(paths.min) ?? undefined);
+		if (!minValue || !currentValue) return null;
+		else if (currentValue - minValue <= 0) return { kind: 'rangeError', message: 'The maximum value cannot be greater than or equal to the minimum value' };
+		return null;
+	});
+
+	min(paths.default, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: ({ valueOf }) => `Value cannot be less than ${valueOf(paths.min)}` });
+	max(paths.default, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: ({ valueOf }) => `Value cannot be greater than ${valueOf(paths.max)}` });
+	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' })
 }
 function defineSelectionFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'single-select' | 'multi-select' }>>) {
 	hidden(paths.optionSourceRef, () => true);
@@ -166,7 +185,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'boolean' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'integer' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}
