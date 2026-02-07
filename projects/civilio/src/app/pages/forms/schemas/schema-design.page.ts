@@ -100,7 +100,7 @@ import {
 	FormModel
 } from './form-schemas';
 import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
-import { HlmDatePicker } from '@app/components';
+import { DateRangePickerComponent, HlmDatePicker } from '@app/components';
 
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<{
 	items: FormModel['items']
@@ -160,6 +160,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmDropdownMenuImports,
 		HlmDialogImports,
 		HlmDatePicker,
+		DateRangePickerComponent,
 		BrnDialogContent,
 		HlmButtonGroup,
 		HlmButton,
@@ -203,7 +204,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly numberTemplate = viewChild.required<TemplateRef<any>>('numberFieldMetaConfigTemplate');
 	protected readonly geoPointTemplate = viewChild.required<TemplateRef<any>>('geoPointFieldMetaConfigTemplate');
 	protected readonly multiDateTemplate = viewChild.required<TemplateRef<any>>('multiDateFieldMetaConfigTemplate');
-	protected readonly rangeDateTemplate = viewChild.required<TemplateRef<any>>('rangeDateTemplate');
+	protected readonly rangeDateTemplate = viewChild.required<TemplateRef<any>>('rangeDateFieldMetaConfigTemplate');
 
 	// 2. Reference in Map
 	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {

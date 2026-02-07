@@ -31,7 +31,7 @@
 			(change)="onTimeInputValueChanged($event)"
 			class="group-[:is(.ng-invalid)]/date-picker:text-destructive! selection:bg-primary selection:text-primary-foreground bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
 		/>
-		} @if(enableClear()) {
+		} @if(enableClear() && value()) {
 		<button
 			[disabled]="disabled()"
 			(click)="onClearButtonClicked()"

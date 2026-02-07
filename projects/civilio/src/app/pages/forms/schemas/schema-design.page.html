@@ -237,7 +237,9 @@
 	<ng-container>
 		@let defaultId = `${formItemIndex}__date_default_input`;
 	</ng-container>
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+	<div
+		class="grid grid-cols-1 md:grid-cols-[auto_auto] lg:grid-cols-[auto_auto_auto] gap-x-2"
+	>
 		<div hlmField>
 			<label hlmFieldLabel [for]="minId">Minimum Date</label>
 			<hlm-date-picker
@@ -273,19 +275,10 @@
 				[id]="defaultId"
 				[formField]="meta.default"
 			/>
-			<div hlmFieldContent>
-				@if(meta.default().invalid()){
-				<ul>
-					@for(error of meta.default().errors(); track error) {
-					<li class="block text-destructive text-sm">{{ error.message }}</li>
-					}
-				</ul>
-				}
-			</div>
-			<!-- <ng-container
+			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
 				[ngTemplateOutletContext]="{$implicit: meta.default}"
-			/> -->
+			/>
 		</div>
 	</div>
 </ng-template>
@@ -297,8 +290,47 @@
 <ng-template
 	#rangeDateFieldMetaConfigTemplate
 	let-metaControl
-	let-formItemIndex
-></ng-template>
+	let-itemIndex="formItemIndex"
+>
+	<ng-container>
+		@let meta = asRangeDateFieldMeta(asFieldMeta(metaControl).additionalData);
+	</ng-container>
+	<ng-container>
+		@let minId = `${itemIndex}__date_range_min_input`;
+	</ng-container>
+	<ng-container>
+		@let maxId = `${itemIndex}__date_range_max_input`;
+	</ng-container>
+	<ng-container>
+		@let defaultId = `${itemIndex}__date_range_default_input`;
+	</ng-container>
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+		<div hlmField>
+			<label hlmFieldLabel [for]="minId">Minimum Date</label>
+			<hlm-date-picker autoCloseOnSelect [id]="minId" [formField]="meta.min" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.min}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="maxId">Maxiumum Date</label>
+			<hlm-date-picker autoCloseOnSelect [id]="maxId" [formField]="meta.max" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.max}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="defaultId">Default Value</label>
+			<date-range-picker clearable [formField]="$any(meta.default)" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.default}"
+			/>
+		</div>
+	</div>
+</ng-template>
 
 <ng-template
 	#numberFieldMetaConfigTemplate

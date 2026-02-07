@@ -37,7 +37,7 @@ export const SimpleDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend(
 });
 export const RangeDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['date-range']),
-	default: z.tuple([z.coerce.date().nullish(), z.coerce.date().nullish()]).default([null, null])
+	default: z.tuple([z.coerce.date().nullish(), z.coerce.date().nullish()]).nullish().default(null)
 });
 export const MultiDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['multi-date']),
@@ -96,6 +96,7 @@ export const NoteItemMetaSchema = z.object({
 export type FieldType = z.infer<typeof FieldTypeSchema>;
 export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
 export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;
+export type DatefieldItemMeta = z.infer<typeof DateFieldItemMetaSchema>;
 type MetaWrapper<T> = {
 	additionalData: T;
 }

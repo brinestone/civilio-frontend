@@ -73,7 +73,26 @@ function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMe
 	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when field is marked readonly' });
 }
 function defineRangeDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-range' }>>) {
+	validate(paths.min, ({ valueOf, value }) => {
+		const minValue = value();
+		const maxValue = valueOf(paths.max);
+		if (!maxValue || !minValue) return null;
+		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The minimum date must be a date before the maximum date' };
+		return null;
+	});
+	validate(paths.max, ({ valueOf, value }) => {
+		const minValue = valueOf(paths.min);
+		const maxValue = value();
+		if (!minValue || !maxValue) return null;
+		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The maximum date must be a date after the minimum date' };
+		return null;
+	});
+	min(paths.default as any, ({ valueOf }) => valueOf(paths.min)?.valueOf() ?? undefined, { message: 'Value must be a date after the minimum date' })
+	max(paths.default as any, ({ valueOf }) => valueOf(paths.max)?.valueOf() ?? undefined, { message: 'Value must be a date before the minimum date' })
+	// required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when field is marked readonly' });
+	validate(paths.default, ({valueOf, value}) => {
 
+	})
 }
 function defineMultiDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'multi-date' }>>) {
 
@@ -212,7 +231,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date-range' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}
