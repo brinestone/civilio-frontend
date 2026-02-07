@@ -9,7 +9,8 @@ import {
 } from "@civilio/shared";
 import z from "zod";
 
-export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'geo-point']);
+export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'date-range', 'multi-date', 'geo-point']);
+export const DateFieldTypesSchema = FieldTypeSchema.extract(['date', 'multi-date', 'date-range', 'date-time']);
 export const BaseFieldItemMetaSchema = z.object({
 	required: z.boolean().nullish().default(true),
 	span: z.int().nullish().default(12),
@@ -25,13 +26,28 @@ export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	}).nullish().default({
 		lat: 3.8614800698189145, lon: 11.520851415955367
 	})
+});
+export const BaseDateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	min: z.coerce.date().nullish().default(null),
+	max: z.coerce.date().nullish().default(null),
+});
+export const SimpleDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['date', 'date-time']),
+	default: z.coerce.date().nullish().default(null)
+});
+export const RangeDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['date-range']),
+	default: z.tuple([z.coerce.date().nullish(), z.coerce.date().nullish()]).default([null, null])
+});
+export const MultiDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['multi-date']),
+	default: z.coerce.date().array().nullish().default([])
 })
-export const DateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
-	min: z.coerce.date().nullish(),
-	max: z.coerce.date().nullish(),
-	default: z.coerce.date().nullish().default(new Date()),
-	type: FieldTypeSchema.extract(['date', 'date-time'])
-})
+export const DateFieldItemMetaSchema = z.discriminatedUnion('type', [
+	SimpleDateFieldItemMetaSchema,
+	RangeDateFieldItemMetaSchema,
+	MultiDateFieldItemMetaSchema
+])
 export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	min: z.number().nullish().default(null),
 	max: z.number().nullish().default(null),
@@ -78,6 +94,7 @@ export const NoteItemMetaSchema = z.object({
 	fontSize: z.number().optional().default(13)
 })
 export type FieldType = z.infer<typeof FieldTypeSchema>;
+export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
 export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;
 type MetaWrapper<T> = {
 	additionalData: T;

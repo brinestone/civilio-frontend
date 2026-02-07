@@ -99,6 +99,8 @@ import {
 	FormItemType,
 	FormModel
 } from './form-schemas';
+import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
+import { HlmDatePicker } from '@app/components';
 
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<{
 	items: FormModel['items']
@@ -148,7 +150,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideUnlink
 		}),
 		DatasetService,
-		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
+		// { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
 	],
 	imports: [
 		HlmFieldImports,
@@ -157,6 +159,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmTabsImports,
 		HlmDropdownMenuImports,
 		HlmDialogImports,
+		HlmDatePicker,
 		BrnDialogContent,
 		HlmButtonGroup,
 		HlmButton,
@@ -199,12 +202,16 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly selectTemplate = viewChild.required<TemplateRef<any>>('selectFieldMetaConfigTemplate');
 	protected readonly numberTemplate = viewChild.required<TemplateRef<any>>('numberFieldMetaConfigTemplate');
 	protected readonly geoPointTemplate = viewChild.required<TemplateRef<any>>('geoPointFieldMetaConfigTemplate');
+	protected readonly multiDateTemplate = viewChild.required<TemplateRef<any>>('multiDateFieldMetaConfigTemplate');
+	protected readonly rangeDateTemplate = viewChild.required<TemplateRef<any>>('rangeDateTemplate');
 
 	// 2. Reference in Map
 	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
 		'boolean': this.booleanTemplate,
 		'date-time': this.dateTemplate,
 		'date': this.dateTemplate,
+		'date-range': this.rangeDateTemplate,
+		'multi-date': this.multiDateTemplate,
 		'text': this.textTemplate,
 		'multiline': this.textTemplate,
 		'single-select': this.selectTemplate,
@@ -344,6 +351,18 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 
 	protected asNumberFieldMeta(node: any) {
 		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'integer' | 'float' }>>;
+	}
+
+	protected asDateFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], {type: 'date' | 'date-time'}>>;
+	}
+
+	protected asRangeDateFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'date-range' }>>;
+	}
+
+	protected asMultiDateFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multi-range' }>>;
 	}
 
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {

@@ -54,6 +54,29 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMe
 function defineGeopointFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'geo-point' }>>) {
 }
 function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-time' | 'date' }>>) {
+	validate(paths.min, ({ valueOf, value }) => {
+		const minValue = value();
+		const maxValue = valueOf(paths.max);
+		if (!maxValue || !minValue) return null;
+		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The minimum date must be a date before the maximum date' };
+		return null;
+	});
+	validate(paths.max, ({ valueOf, value }) => {
+		const minValue = valueOf(paths.min);
+		const maxValue = value();
+		if (!minValue || !maxValue) return null;
+		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The maximum date must be a date after the minimum date' };
+		return null;
+	});
+	min(paths.default as any, ({ valueOf }) => valueOf(paths.min)?.valueOf() ?? undefined, { message: 'Value must be a date after the minimum date' })
+	max(paths.default as any, ({ valueOf }) => valueOf(paths.max)?.valueOf() ?? undefined, { message: 'Value must be a date before the minimum date' })
+	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when field is marked readonly' });
+}
+function defineRangeDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-range' }>>) {
+
+}
+function defineMultiDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'multi-date' }>>) {
+
 }
 function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'float' | 'integer' }>>) {
 	validate(paths.min, ({ valueOf, value }) => {
@@ -123,6 +146,8 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 		const isGeo = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'geo-point' }> => v.type === 'geo-point';
 		const isDate = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'date' | 'date-time' }> =>
 			v.type === 'date' || v.type === 'date-time';
+		const isDateRange = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'date-range' }> => v.type === 'date-range';
+		const isMultiDate = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'multi-date' }> => v.type === 'multi-date';
 		const isNumber = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'float' | 'integer' }> => v.type === 'integer' || v.type === 'float';
 		const isSelection = (v: FieldItemMeta): v is Extract<FieldItemMeta, { type: 'single-select' | 'multi-select' }> => v.type === 'multi-select' || v.type === 'single-select';
 
@@ -133,6 +158,8 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 		applyWhenValue(fieldPaths, isBoolean, defineBooleanFieldMetaFormSchema);
 		applyWhenValue(fieldPaths, isNumber, defineNumberFieldMetaFormSchema);
 		applyWhenValue(fieldPaths, isSelection, defineSelectionFieldMetaFormSchema);
+		applyWhenValue(fieldPaths, isDateRange, defineRangeDateFieldMetaFormSchema);
+		applyWhenValue(fieldPaths, isMultiDate, defineMultiDateFieldMetaFormSchema);
 	});
 
 	// position
@@ -165,7 +192,7 @@ export function defaultFormItemDefinitionSchemaValue(position: number, type: For
 		children: [],
 		relevance: {
 			dependencies: [],
-			additionalData: {}
+			logic: { additionalData: {} }
 		},
 		parent: {
 			id: ''
@@ -185,7 +212,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'integer' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}

@@ -13,3 +13,4 @@ export * from '../pages/settings/dataset-editor/dataset-editor.page';
 export * from './api-config-form/api-config-form.component';
 export * from './form-logo-upload/form-logo-upload.component';
 export * from './ref-importer/ref-importer.component';
+export * from './date-picker/hlm-date-picker';

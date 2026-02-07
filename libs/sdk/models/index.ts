@@ -166,6 +166,15 @@ export function createNewDatasetItemFromDiscriminatorValue(parseNode: ParseNode 
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {RelevanceDefinition_logic}
+ */
+// @ts-ignore
+export function createRelevanceDefinition_logicFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoRelevanceDefinition_logic;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {RelevanceDefinition}
  */
 // @ts-ignore
@@ -626,6 +635,17 @@ export function deserializeIntoNewDatasetItem(newDatasetItem: Partial<NewDataset
 export function deserializeIntoRelevanceDefinition(relevanceDefinition: Partial<RelevanceDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "dependencies": n => { relevanceDefinition.dependencies = n.getCollectionOfPrimitiveValues<string>(); },
+        "logic": n => { relevanceDefinition.logic = n.getObjectValue<RelevanceDefinition_logic>(createRelevanceDefinition_logicFromDiscriminatorValue); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param RelevanceDefinition_logic The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoRelevanceDefinition_logic(relevanceDefinition_logic: Partial<RelevanceDefinition_logic> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
     }
 }
 /**
@@ -838,11 +858,17 @@ export interface NewDatasetItem extends Parsable {
     value?: string | null;
 }
 export type NewDatasetItem_isNew = (typeof NewDatasetItem_isNewObject)[keyof typeof NewDatasetItem_isNewObject];
-export interface RelevanceDefinition extends AdditionalDataHolder, Parsable {
+export interface RelevanceDefinition extends Parsable {
     /**
      * The dependencies property
      */
     dependencies?: string[] | null;
+    /**
+     * The logic property
+     */
+    logic?: RelevanceDefinition_logic | null;
+}
+export interface RelevanceDefinition_logic extends AdditionalDataHolder, Parsable {
 }
 /**
  * Serializes information the current object
@@ -1103,7 +1129,18 @@ export function serializeNewDatasetItem(writer: SerializationWriter, newDatasetI
 export function serializeRelevanceDefinition(writer: SerializationWriter, relevanceDefinition: Partial<RelevanceDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!relevanceDefinition || isSerializingDerivedType) { return; }
     writer.writeCollectionOfPrimitiveValues<string>("dependencies", relevanceDefinition.dependencies);
-    writer.writeAdditionalData(relevanceDefinition.additionalData);
+    writer.writeObjectValue<RelevanceDefinition_logic>("logic", relevanceDefinition.logic, serializeRelevanceDefinition_logic);
+}
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param RelevanceDefinition_logic The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeRelevanceDefinition_logic(writer: SerializationWriter, relevanceDefinition_logic: Partial<RelevanceDefinition_logic> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!relevanceDefinition_logic || isSerializingDerivedType) { return; }
+    writer.writeAdditionalData(relevanceDefinition_logic.additionalData);
 }
 /**
  * Serializes information the current object
