@@ -175,7 +175,10 @@
 					<dd>
 						<ul>
 							@for (err of item().errorSummary(); track $index) {
-							<li>{{ err.fieldTree().keyInParent() }}: {{ err.message }}</li>
+							<li>
+								{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind
+								}}
+							</li>
 							}
 						</ul>
 					</dd>
@@ -238,11 +241,11 @@
 		@let defaultId = `${formItemIndex}__date_default_input`;
 	</ng-container>
 	<div
-		class="grid grid-cols-1 md:grid-cols-[auto_auto] lg:grid-cols-[auto_auto_auto] gap-x-2"
+		class="grid grid-cols-1 md:grid-cols-[250px_250px] gap-3"
 	>
 		<div hlmField>
 			<label hlmFieldLabel [for]="minId">Minimum Date</label>
-			<hlm-date-picker
+			<cv-date-picker
 				[pickTime]="meta.type().value() == 'date-time'"
 				autoCloseOnSelect
 				[id]="minId"
@@ -255,7 +258,7 @@
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel [for]="maxId">Maxiumum Date</label>
-			<hlm-date-picker
+			<cv-date-picker
 				[pickTime]="meta.type().value() == 'date-time'"
 				autoCloseOnSelect
 				[id]="maxId"
@@ -269,7 +272,7 @@
 
 		<div hlmField>
 			<label hlmFieldLabel [for]="defaultId">Default Value</label>
-			<hlm-date-picker
+			<cv-date-picker
 				[pickTime]="meta.type().value() == 'date-time'"
 				autoCloseOnSelect="true"
 				[id]="defaultId"
@@ -285,8 +288,109 @@
 <ng-template
 	#multiDateFieldMetaConfigTemplate
 	let-metaControl
-	let-formItemIndex
-></ng-template>
+	let-itemIndex="formItemIndex"
+>
+	<ng-container>
+		@let meta = asMultiDateFieldMeta(asFieldMeta(metaControl).additionalData);
+	</ng-container>
+	<ng-container>
+		@let minId = `${itemIndex}__date_multi_min_input`;
+	</ng-container>
+	<ng-container>
+		@let maxId = `${itemIndex}__date_multi_max_input`;
+	</ng-container>
+	<ng-container>
+		@let defaultId = `${itemIndex}__date_multi_default_input`;
+	</ng-container>
+	<ng-container>
+		@let minSelectionId = `${itemIndex}__date_multi_min_selection_input`;
+	</ng-container>
+	<ng-container>
+		@let maxSelectionId = `${itemIndex}__date_multi_max_selection_input`;
+	</ng-container>
+	<div class="grid grid-cols-1 md:grid-cols-[250px_250px] gap-3">
+		<div hlmField>
+			<label hlmFieldLabel [for]="minId">Minimum Date</label>
+			<cv-date-picker autoCloseOnSelect [id]="minId" [formField]="meta.min" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.min}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="maxId">Maxiumum Date</label>
+			<cv-date-picker autoCloseOnSelect [id]="maxId" [formField]="meta.max" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.max}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="minSelectionId">Minimum Selection</label>
+			<div hlmButtonGroup>
+				<input
+					[id]="minSelectionId"
+					hlmInput
+					type="number"
+					class="max-w-70"
+					[formField]="meta.minSelection"
+				/>
+				@if(meta.minSelection().controlValue() !== null) {
+				<button
+					(click)="meta.minSelection().setControlValue($any(null))"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+				}
+			</div>
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.minSelection}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="maxSelectionId">Maximum Selection</label>
+			<div hlmButtonGroup>
+				<input
+					[id]="maxSelectionId"
+					hlmInput
+					type="number"
+					class="max-w-70"
+					[formField]="meta.maxSelection"
+				/>
+				@if(meta.maxSelection().controlValue() !== null) {
+				<button
+					(click)="meta.maxSelection().setControlValue($any(null))"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+				}
+			</div>
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.maxSelection}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel [for]="defaultId">Default Value</label>
+			<mult-date-picker
+				[maxSelection]="meta.maxSelection().value()"
+				[minSelection]="meta.minSelection().value()"
+				[formField]="$any(meta.default)"
+			/>
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: meta.default}"
+			/>
+		</div>
+	</div>
+</ng-template>
 <ng-template
 	#rangeDateFieldMetaConfigTemplate
 	let-metaControl
@@ -307,7 +411,7 @@
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 		<div hlmField>
 			<label hlmFieldLabel [for]="minId">Minimum Date</label>
-			<hlm-date-picker autoCloseOnSelect [id]="minId" [formField]="meta.min" />
+			<cv-date-picker autoCloseOnSelect [id]="minId" [formField]="meta.min" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
 				[ngTemplateOutletContext]="{$implicit: meta.min}"
@@ -315,7 +419,7 @@
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel [for]="maxId">Maxiumum Date</label>
-			<hlm-date-picker autoCloseOnSelect [id]="maxId" [formField]="meta.max" />
+			<cv-date-picker autoCloseOnSelect [id]="maxId" [formField]="meta.max" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
 				[ngTemplateOutletContext]="{$implicit: meta.max}"
@@ -323,7 +427,7 @@
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel [for]="defaultId">Default Value</label>
-			<date-range-picker clearable [formField]="$any(meta.default)" />
+			<date-range-picker clearable [formField]="meta.default" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
 				[ngTemplateOutletContext]="{$implicit: meta.default}"

@@ -23,7 +23,7 @@
 					<span>{{ $any(end()) | date }}</span>
 				}
 			</div>
-			<ng-icon name="lucideChevronDown" />
+			<ng-icon name="lucideChevronDown" hlm size="sm" />
 		</button>
 		@if (clearable() && (start() || end())) {
 			<button
@@ -32,6 +32,7 @@
 				hlmBtn
 				type="button"
 				variant="outline"
+				class="group-[:is(.ng-invalid)]/date-range-picker:border-destructive! group-[:is(.ng-invalid)]/date-range-picker:text-destructive! group-[:is(.ng-invalid)]/date-range-picker:ring-destructive/40!"
 			>
 				<ng-icon name="lucideX" />
 			</button>

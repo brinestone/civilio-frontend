@@ -27,6 +27,7 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { DatePicker, DateRangePickerComponent, MultDatePickerComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -66,18 +67,15 @@ import {
 	lucideSeparatorHorizontal,
 	lucideStickyNote,
 	lucideTrash2,
-	lucideUnlink
+	lucideUnlink,
+	lucideX
 } from '@ng-icons/lucide';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch } from '@ngxs/store';
 import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
-import {
-	ErrorStateMatcher,
-	ShowOnDirtyErrorStateMatcher
-} from '@spartan-ng/brain/forms';
 import { BrnSelect, BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
+import { HlmButtonGroup, HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
@@ -99,8 +97,6 @@ import {
 	FormItemType,
 	FormModel
 } from './form-schemas';
-import { HlmDatePickerImports } from '@spartan-ng/helm/date-picker';
-import { DateRangePickerComponent, HlmDatePicker } from '@app/components';
 
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<{
 	items: FormModel['items']
@@ -143,6 +139,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideList,
 			lucideSeparatorHorizontal,
 			lucideDatabase,
+			lucideX,
 			lucideFile,
 			lucideGrip,
 			lucideTrash2,
@@ -158,8 +155,9 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		BrnSelectImports,
 		HlmTabsImports,
 		HlmDropdownMenuImports,
+		HlmButtonGroupImports,
 		HlmDialogImports,
-		HlmDatePicker,
+		DatePicker,
 		DateRangePickerComponent,
 		BrnDialogContent,
 		HlmButtonGroup,
@@ -183,6 +181,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		DebugHeaderComponent,
 		BrnSelect,
 		RouterOutlet,
+		MultDatePickerComponent,
 		RouterLink
 	],
 	templateUrl: './schema-design.page.html',
@@ -363,7 +362,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	}
 
 	protected asMultiDateFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multi-range' }>>;
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multi-date' }>>;
 	}
 
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {

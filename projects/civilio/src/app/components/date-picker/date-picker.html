@@ -16,19 +16,28 @@
 			variant="outline"
 			hlmPopoverTrigger
 		>
-			<span class="truncate text-start">{{$any(value()) | date }}</span>
+			<span
+				[ngClass]="{
+				'italic text-muted-foreground font-normal': value() === null || value() === undefined,
+			}"
+				class="truncate text-start group-[:is(.ng-invalid)]/date-picker:text-destructive!"
+				>{{$any(dateValue()) | date }}</span
+			>
 			<ng-icon hlm size="sm" name="lucideChevronDown" />
 		</button>
 		@if(timePicker()) {
 		<input
 			type="time"
 			defaultValue="00:00"
-			[disabled]="disabled() || !mutableValue()"
+			[disabled]="disabled()"
 			hlmInput
 			[min]="timeMin()"
 			[max]="timeMax()"
 			[value]="mutableTime()"
 			(change)="onTimeInputValueChanged($event)"
+			[ngClass]="{
+				'italic text-muted-foreground font-normal': value() === null || value() === undefined,
+			}"
 			class="group-[:is(.ng-invalid)]/date-picker:text-destructive! selection:bg-primary selection:text-primary-foreground bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
 		/>
 		} @if(enableClear() && value()) {
@@ -51,7 +60,7 @@
 		<hlm-calendar
 			calendarClass="border-0 rounded-none"
 			[captionLayout]="captionLayout()"
-			[date]="mutableValue() ?? today"
+			[date]="dateValue()"
 			[min]="transformedMin()"
 			[max]="transformedMax()"
 			[disabled]="disabled()"

@@ -1,8 +1,9 @@
 import { isDevMode, Signal } from "@angular/core";
-import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
-import { FieldItemMeta, FieldItemMetaSchema, NoteItemMetaSchema, } from "@app/model/form";
+import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, required, RequiredValidationError, SchemaPath, SchemaPathTree, validate, ValidationError } from "@angular/forms/signals";
+import { DateRange, FieldItemMeta, FieldItemMetaSchema, NoteItemMetaSchema, } from "@app/model/form";
 import { FormItemDefinition, FormVersionDefinition } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { last } from "lodash";
 
 export type FormModel = Strict<FormVersionDefinition>;
 export type FormItemType = FormModel['items'][number]['type'];
@@ -54,47 +55,61 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMe
 function defineGeopointFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'geo-point' }>>) {
 }
 function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-time' | 'date' }>>) {
-	validate(paths.min, ({ valueOf, value }) => {
-		const minValue = value();
-		const maxValue = valueOf(paths.max);
-		if (!maxValue || !minValue) return null;
-		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The minimum date must be a date before the maximum date' };
-		return null;
-	});
-	validate(paths.max, ({ valueOf, value }) => {
-		const minValue = valueOf(paths.min);
-		const maxValue = value();
-		if (!minValue || !maxValue) return null;
-		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The maximum date must be a date after the minimum date' };
-		return null;
-	});
-	min(paths.default as any, ({ valueOf }) => valueOf(paths.min)?.valueOf() ?? undefined, { message: 'Value must be a date after the minimum date' })
-	max(paths.default as any, ({ valueOf }) => valueOf(paths.max)?.valueOf() ?? undefined, { message: 'Value must be a date before the minimum date' })
+	max(paths.min, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: 'The minimum date must be a date before the maximum date' });
+	min(paths.max, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: 'The maximum date must be a date after the minimum date' });
+	min(paths.default, ({ valueOf }) => valueOf(paths.min)?.valueOf() ?? undefined, { message: 'Value must be a date after or on the minimum date' })
+	max(paths.default, ({ valueOf }) => valueOf(paths.max)?.valueOf() ?? undefined, { message: 'Value must be a date before or on the minimum date' })
 	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when field is marked readonly' });
 }
 function defineRangeDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-range' }>>) {
-	validate(paths.min, ({ valueOf, value }) => {
-		const minValue = value();
-		const maxValue = valueOf(paths.max);
-		if (!maxValue || !minValue) return null;
-		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The minimum date must be a date before the maximum date' };
-		return null;
-	});
-	validate(paths.max, ({ valueOf, value }) => {
-		const minValue = valueOf(paths.min);
-		const maxValue = value();
-		if (!minValue || !maxValue) return null;
-		if (maxValue.valueOf() - minValue.valueOf() <= 0) return { kind: 'rangeError', message: 'The maximum date must be a date after the minimum date' };
-		return null;
-	});
-	min(paths.default as any, ({ valueOf }) => valueOf(paths.min)?.valueOf() ?? undefined, { message: 'Value must be a date after the minimum date' })
-	max(paths.default as any, ({ valueOf }) => valueOf(paths.max)?.valueOf() ?? undefined, { message: 'Value must be a date before the minimum date' })
-	// required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when field is marked readonly' });
-	validate(paths.default, ({valueOf, value}) => {
+	applyWhenValue(paths.default, (v) => !!v, (innerPaths: SchemaPathTree<DateRange>) => {
+		min(innerPaths.start, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: 'The start date must be on or after the minimum date', });
+		max(innerPaths.start, ({ valueOf }) => valueOf(innerPaths.end) ?? undefined, { message: 'The start date must be on or before the end date' });
 
-	})
+		min(innerPaths.end, ({ valueOf }) => valueOf(innerPaths.start) ?? undefined, { message: 'The end date must be on or after the start date' });
+		max(innerPaths.end, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: 'The end date must be on or before the maximum date' });
+		required(innerPaths.end, { message: 'The end date is required' });
+		required(innerPaths.start, { message: 'The start date is required' });
+	});
+	max(paths.min, ({ valueOf }) => {
+		const max = valueOf(paths.max);
+		if (max === null) return undefined;
+		return max - 60000;
+	}, { message: 'The minimum date must be a date before the maximum date' });
+	min(paths.max, ({ valueOf }) => {
+		const min = valueOf(paths.min);
+		if (min === null) return undefined;
+		return min + 60000;
+	}, { message: 'The maximum date must be a date after the minimum date' });
+	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' });
+	min(paths.default as any, ({ valueOf }) => valueOf(paths.min) ?? undefined);
+	max(paths.default as any, ({ valueOf }) => valueOf(paths.max) ?? undefined);
 }
 function defineMultiDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'multi-date' }>>) {
+	max(paths.min, ({ valueOf }) => {
+		const max = valueOf(paths.max);
+		if (max === null) return undefined;
+		return max - 60000;
+	}, { message: 'The minimum date must be before the maximum' });
+	min(paths.max, ({ valueOf }) => {
+		const min = valueOf(paths.min);
+		if (min === null) return undefined;
+		return min + 60000;
+	}, { message: 'The maximum date must be before the minimum' });
+	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' });
+	minLength(paths.default as SchemaPath<number[]>, ({ valueOf }) => valueOf(paths.readonly) ? 1 : undefined, { message: 'At least one selection must be made when field is readonly' });
+	applyWhenValue(paths.default, v => (v?.length ?? 0) > 0, schema => {
+		applyEach(schema as SchemaPath<number[]>, s => {
+			min(s, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: 'All selected dates must be the same date as or after the minimum date' });
+			max(s, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: 'All selected dates must be the same date as or before the maximum date' });
+		});
+		maxLength(schema as SchemaPath<number[]>, ({ valueOf }) => valueOf(paths.maxSelection) ?? undefined, { message: ({ valueOf }) => `At most ${valueOf(paths.maxSelection)} date${valueOf(paths.maxSelection) != 1 ? 's' : ''} can be selected` });
+		minLength(schema as SchemaPath<number[]>, ({ valueOf }) => valueOf(paths.minSelection) ?? undefined, { message: ({ valueOf }) => `At least ${valueOf(paths.minSelection)} date${valueOf(paths.minSelection) != 1 ? 's' : ''} should be selected` });
+	});
+
+	min(paths.minSelection, 0, { message: 'Value cannot be less than zero' });
+	max(paths.minSelection, ({ valueOf }) => valueOf(paths.maxSelection) ?? undefined, { message: ({ valueOf }) => `Value cannot be greater than ${valueOf(paths.maxSelection)}` });
+	min(paths.maxSelection, ({ valueOf }) => valueOf(paths.minSelection) ?? undefined, { message: ({ valueOf }) => `Value cannot be less than ${valueOf(paths.minSelection)}` });
 
 }
 function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'float' | 'integer' }>>) {
@@ -231,7 +246,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date-range' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'multi-date' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}

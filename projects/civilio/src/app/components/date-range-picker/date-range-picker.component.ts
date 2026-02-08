@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DatePipe } from '@angular/common';
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, input, linkedSignal, model, output, signal, untracked } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, HostListener, input, linkedSignal, model, OnDestroy, OnInit, signal, untracked } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideX } from '@ng-icons/lucide';
@@ -14,6 +14,9 @@ import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import { ClassValue } from 'clsx';
 import { isDate } from 'date-fns';
+import { HlmIcon } from "@spartan-ng/helm/icon";
+import { DateRange } from '@app/model/form';
+import { produce, setAutoFreeze } from 'immer';
 
 let nextId = 0;
 function toNumericalDate(arg: unknown) {
@@ -46,48 +49,54 @@ function toDate(arg: number | undefined | null) {
 		DatePipe,
 		HlmButton,
 		NgIcon,
-		HlmCalendarRange
+		HlmCalendarRange,
+		HlmIcon
 	],
 	host: {
-		'class': 'group/date-range-picker'
+		'class': 'group/date-range-picker',
+		'[class.ng-invalid]': 'invalid()',
+		'[class.ng-valid]': 'valid()',
+		'[class.ng-touched]': 'touched()',
+		'[class.ng-untouched]': '!touched()',
+		'[class.ng-dirty]': 'dirty()',
+		'[class.ng-pristine]': '!dirty()',
+		'[class.ng-pending]': 'pending()',
+		'[attr.aria-invalid]': 'invalid()',
+		'[attr.aria-valid]': 'valid()',
+		'[attr.aria-touched]': 'touched()',
+		'[attr.aria-untouched]': '!touched()',
+		'[attr.aria-dirty]': 'dirty()',
+		'[attr.aria-pristine]': '!dirty()',
+		'[attr.aria-pending]': 'pending()',
 	},
 	templateUrl: './date-range-picker.component.html',
 	styleUrl: './date-range-picker.component.scss',
 })
-export class DateRangePickerComponent<T> implements FormValueControl<undefined | null | [T | null, T | null]> {
-	private readonly config = injectHlmDateRangePickerConfig<T>();
-
-	// public readonly rangeChanged = output<[T | null, T | null]>();
-	public readonly value = model<[T | null, T | null] | undefined | null>([null, null]);
+export class DateRangePickerComponent implements FormValueControl<undefined | null | DateRange>, OnInit, OnDestroy {
+	public readonly value = model<DateRange | undefined | null>(undefined);
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	public readonly buttonId = input<string>(`date-range-picker-${++nextId}`, { alias: 'id' });
 	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
 	public readonly min = input<number | undefined, unknown>(undefined, { transform: toNumericalDate })
 	public readonly max = input<number | undefined, unknown>(undefined, { transform: toNumericalDate })
 	public readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
-	public readonly autoCloseOnEndSelection = input<boolean, BooleanInput>(this.config.autoCloseOnEndSelection, { transform: booleanAttribute });
+	public readonly autoCloseOnEndSelection = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	public readonly size = input<ButtonVariants['size']>('default');
 	public readonly clearable = input<boolean, unknown>(false, { transform: booleanAttribute });
+	public readonly valid = computed(() => !this.invalid());
+	public readonly invalid = input<boolean, unknown>(false, { transform: booleanAttribute });
+	public readonly dirty = input<boolean, unknown>(false, { transform: booleanAttribute });
+	public readonly touched = model<boolean>(false);
+	public readonly pending = model<boolean>(false);
 
 	protected readonly minDate = computed(() => toDate(this.min()));
 	protected readonly maxDate = computed(() => toDate(this.max()));
-	protected readonly start = linkedSignal(() => {
-		const value = this.value();
-		if (!value) return undefined;
-		const [target] = value;
-		return target;
-	});
-	protected readonly end = linkedSignal(() => {
-		const value = this.value();
-		if (!value) return undefined;
-		const [_, target] = value;
-		return target;
-	});
+	protected readonly start = linkedSignal(() => toDate(this.value()?.start));
+	protected readonly end = linkedSignal(() => toDate(this.value()?.end));
 	protected readonly computedClass = computed(() => hlm(
-		'grid grid-cols-[1fr_auto] w-70 items-center',
+		'flex justify-between w-70 items-center group-[:is(.ng-invalid)]/date-range-picker:border-destructive! group-[:is(.ng-invalid)]/date-range-picker:text-destructive! group-[:is(.ng-invalid)]/date-range-picker:ring-destructive/40!',
 		this.userClass()
 	));
-	protected readonly transformDates = input<(date: [T, T]) => [T, T]>(this.config.transformDates);
 	protected readonly popoverState = signal<BrnDialogState>('closed');
 
 
@@ -96,11 +105,27 @@ export class DateRangePickerComponent<T> implements FormValueControl<undefined |
 			const min = this.min();
 			const start = untracked(this.start);
 			if (min === undefined || !start) return;
-			const startDate = start as unknown as Date;
-			const diff = startDate.valueOf() - min;
+			const diff = start.valueOf() - min;
 			if (diff > 0) return;
-			this.value.set(untracked(this.transformDates)([new Date(min) as unknown as T, untracked(this.end) as T]))
+			this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
+				draft.start = min;
+			}))
 		});
+		effect(() => {
+			const max = this.max();
+			const end = untracked(this.end);
+			if (max === undefined || !end) return;
+			const diff = end.valueOf() - max;
+			if (diff < 0) return;
+			this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
+				draft.end = max;
+			}));
+		});
+	}
+	ngOnDestroy() {
+	}
+	ngOnInit() {
+		setAutoFreeze(false);
 	}
 
 	public open() {
@@ -111,17 +136,19 @@ export class DateRangePickerComponent<T> implements FormValueControl<undefined |
 		this.popoverState.set('closed');
 	}
 
-	protected onStartDayChanged(value: T) {
-		this.start.set(value as any);
+	protected onStartDayChanged(value: Date) {
+		this.start.set(value);
 	}
-	protected onEndDayChanged(value: T) {
-		this.end.set(value as any);
+	protected onEndDayChanged(value: Date) {
+		this.end.set(value);
 		if (this.disabled()) return;
 
 		const start = this.start();
 		if (!start || !value) return;
-		const transformedDates = this.transformDates()([start, value]);
-		this.value.set(transformedDates);
+		this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
+			draft.end = this.end()?.valueOf() ?? null;
+			draft.start = this.start()?.valueOf() ?? null;
+		}));
 		if (this.autoCloseOnEndSelection()) {
 			this.close();
 		}
@@ -132,5 +159,9 @@ export class DateRangePickerComponent<T> implements FormValueControl<undefined |
 		// 	this.start.set(dates[0] as any);
 		// 	this.end.set(dates[1] as any);
 		// }
+	}
+	@HostListener('click')
+	protected onClicked() {
+		this.touched.set(true);
 	}
 }

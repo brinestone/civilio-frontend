@@ -28,20 +28,27 @@ export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	})
 });
 export const BaseDateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
-	min: z.coerce.date().nullish().default(null),
-	max: z.coerce.date().nullish().default(null),
+	min: z.coerce.number().nullish().default(null),
+	max: z.coerce.number().nullish().default(null),
 });
 export const SimpleDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['date', 'date-time']),
-	default: z.coerce.date().nullish().default(null)
+	default: z.coerce.number().nullish().default(null)
 });
+export const DateRangeSchema = z.object({
+	start: z.int().nullish().default(null),
+	end: z.int().nullish().default(null)
+});
+export type DateRange = z.infer<typeof DateRangeSchema>;
 export const RangeDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['date-range']),
-	default: z.tuple([z.coerce.date().nullish(), z.coerce.date().nullish()]).nullish().default(null)
+	default: DateRangeSchema.nullish().default(null)
 });
 export const MultiDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['multi-date']),
-	default: z.coerce.date().array().nullish().default([])
+	default: z.coerce.number().array().nullish().default(null),
+	minSelection: z.int().nullish().default(null),
+	maxSelection: z.int().nullish().default(null),
 })
 export const DateFieldItemMetaSchema = z.discriminatedUnion('type', [
 	SimpleDateFieldItemMetaSchema,
