@@ -114,22 +114,8 @@ function defineMultiDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldI
 
 }
 function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'float' | 'integer' }>>) {
-	validate(paths.min, ({ valueOf, value }) => {
-		const currentValue = Number(value() ?? undefined);
-		const maxValue = Number(valueOf(paths.max) ?? undefined);
-		if (!maxValue || !currentValue) return null;
-		else if (currentValue - maxValue >= 0) return { kind: 'rangeError', message: 'The minimum value cannot be greater than or equal to the maximum value' };
-		return null;
-	});
-
-	validate(paths.max, ({ valueOf, value }) => {
-		const currentValue = Number(value() ?? undefined);
-		const minValue = Number(valueOf(paths.min) ?? undefined);
-		if (!minValue || !currentValue) return null;
-		else if (currentValue - minValue <= 0) return { kind: 'rangeError', message: 'The maximum value cannot be greater than or equal to the minimum value' };
-		return null;
-	});
-
+	min(paths.max, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: 'The maximum value cannot be less than the minimum value' });
+	max(paths.min, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: 'The minimum value cannot be greater than the maximum value' });
 	min(paths.default, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: ({ valueOf }) => `Value cannot be less than ${valueOf(paths.min)}` });
 	max(paths.default, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: ({ valueOf }) => `Value cannot be greater than ${valueOf(paths.max)}` });
 	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' })
@@ -247,7 +233,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'geo-point' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'text' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}

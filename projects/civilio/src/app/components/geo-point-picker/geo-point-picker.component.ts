@@ -1,16 +1,13 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe, NgClass } from '@angular/common';
-import { AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, InputSignal, InputSignalWithTransform, linkedSignal, model, untracked, viewChild } from '@angular/core';
+import { AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, linkedSignal, model, untracked, viewChild } from '@angular/core';
 import { FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
 import { GeoPoint } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle, lucideX } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmIcon } from '@spartan-ng/helm/icon';
-import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { control, icon, LatLng, latLng, LeafletMouseEvent, map, Map, marker, Marker, tileLayer } from 'leaflet';
 import { injectNetwork } from 'ngxtension/inject-network';
-import { boolean } from 'zod';
 
 @Component({
 	selector: 'cv-geo-point-picker',
