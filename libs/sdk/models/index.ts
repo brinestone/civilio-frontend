@@ -635,6 +635,7 @@ export function deserializeIntoNewDatasetItem(newDatasetItem: Partial<NewDataset
 export function deserializeIntoRelevanceDefinition(relevanceDefinition: Partial<RelevanceDefinition> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         "dependencies": n => { relevanceDefinition.dependencies = n.getCollectionOfPrimitiveValues<string>(); },
+        "enabled": n => { relevanceDefinition.enabled = n.getBooleanValue(); },
         "logic": n => { relevanceDefinition.logic = n.getObjectValue<RelevanceDefinition_logic>(createRelevanceDefinition_logicFromDiscriminatorValue); },
     }
 }
@@ -863,6 +864,10 @@ export interface RelevanceDefinition extends Parsable {
      * The dependencies property
      */
     dependencies?: string[] | null;
+    /**
+     * The enabled property
+     */
+    enabled?: boolean | null;
     /**
      * The logic property
      */
@@ -1129,6 +1134,7 @@ export function serializeNewDatasetItem(writer: SerializationWriter, newDatasetI
 export function serializeRelevanceDefinition(writer: SerializationWriter, relevanceDefinition: Partial<RelevanceDefinition> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!relevanceDefinition || isSerializingDerivedType) { return; }
     writer.writeCollectionOfPrimitiveValues<string>("dependencies", relevanceDefinition.dependencies);
+    writer.writeBooleanValue("enabled", relevanceDefinition.enabled);
     writer.writeObjectValue<RelevanceDefinition_logic>("logic", relevanceDefinition.logic, serializeRelevanceDefinition_logic);
 }
 /**

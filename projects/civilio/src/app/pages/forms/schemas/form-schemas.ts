@@ -212,6 +212,7 @@ export function defaultFormItemDefinitionSchemaValue(position: number, type: For
 		position,
 		children: [],
 		relevance: {
+			enabled: isDevMode(),
 			dependencies: [],
 			logic: { additionalData: {} }
 		},

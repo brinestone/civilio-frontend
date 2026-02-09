@@ -30,8 +30,24 @@
 							<ng-icon [name]="formItemTypesMap[item.type().value()].icon" />
 							<span>{{ formItemTypesMap[item.type().value()].label }}</span>
 						</div>
-						<div>
-							@switch (item.type().value()) { @case ('separator') {
+						<ng-container>
+							@let template = itemTemplatesMap[item.type().value()];
+						</ng-container>
+						<ng-container>
+							@let ctx = {$implicit: item, index: $index};
+						</ng-container>
+						<div hlmFieldGroup>
+							@if (template !== undefined) {
+							<ng-container
+								[ngTemplateOutlet]="template()"
+								[ngTemplateOutletContext]="ctx"
+							/>
+							<ng-container
+								[ngTemplateOutlet]="relevanceConfigTemplate"
+								[ngTemplateOutletContext]="ctx"
+							/>
+							}
+							<!-- @switch (item.type().value()) { @case ('separator') {
 							<hlm-separator />
 							} @case ('note') {
 							<ng-container
@@ -47,7 +63,7 @@
 								[ngTemplateOutlet]="fieldItemTemplate"
 								[ngTemplateOutletContext]="{$implicit: item, index: $index}"
 							/>
-							} }
+							} } -->
 						</div>
 						<div
 							hlmButtonGroup
@@ -102,7 +118,6 @@
 		<ng-icon name="lucideTrash2" />
 	</button>
 </ng-template>
-
 <ng-template #fieldItemTemplate let-ctrl let-index="index">
 	<ng-container> @let item = asFormItem(ctrl); </ng-container>
 	<ng-container>
@@ -216,7 +231,6 @@
 		</div>
 	</div>
 </ng-template>
-
 <ng-template
 	#geoPointFieldMetaConfigTemplate
 	let-metaControl
@@ -439,7 +453,6 @@
 		</div>
 	</div>
 </ng-template>
-
 <ng-template
 	#numberFieldMetaConfigTemplate
 	let-metaControl
@@ -489,7 +502,6 @@
 		/>
 	</div>
 </ng-template>
-
 <ng-template
 	#booleanFieldMetaConfigTemplate
 	let-metaControl
@@ -515,7 +527,6 @@
 		/>
 	</div>
 </ng-template>
-
 <ng-template
 	#selectFieldMetaConfigTemplate
 	let-metaControl
@@ -670,7 +681,6 @@
 		</hlm-select>
 	</div>
 </ng-template>
-
 <ng-template #textFieldMetaConfigTemplate let-metaControl>
 	<ng-container
 		>@let meta =
@@ -748,7 +758,6 @@
 	</div>
 	}
 </ng-template>
-
 <ng-template #baseFieldMetaConfigTemplate let-node let-index="index">
 	<ng-container>@let meta = asFieldMeta(node).additionalData;</ng-container>
 	@if(!meta.required().hidden()) {
@@ -796,19 +805,75 @@
 		</div>
 	</div>
 </ng-template>
-
-<ng-template #noteItemTemplate let-control let-meta="meta">
-	@let noteMeta = asNoteMeta(meta);
+<ng-template #noteItemTemplate let-ctrl>
+	@let control = asFormItem(ctrl); @let meta = control.meta; @let noteMeta =
+	asNoteMeta(meta);
 	<div hlmField>
 		<textarea
 			[ngStyle]="{
 			fontSize: `${noteMeta.additionalData.fontSize().value()}px`
 		}"
-			[formField]="control"
+			[formField]="control.title"
 			hlmTextarea
 			placeholder="Enter note here..."
 		></textarea>
 	</div>
+</ng-template>
+
+<ng-template #relevanceConfigTemplate let-item let-index="index">
+	<ng-container>@let control = asFormItem(item);</ng-container>
+	@if(control.type().value() != 'separator') {
+	<hlm-field-separator />
+	}
+	<div hlmFieldGroup>
+		<legend hlmFieldLegend>Item Relevance</legend>
+		<p hlmFieldDescription>
+			Configure when this field becomes relevant in the form
+		</p>
+		<ng-container>
+			@let viableDependencies =
+			viableRelevanceDependencies()[control.position().value()];
+		</ng-container>
+		@if(viableDependencies.length > 0) {
+		<div hlmFieldGroup>
+			<div hlmField orientation="horizontal">
+				<hlm-checkbox
+					[formField]="control.relevance.enabled"
+					id="{{index}}_{{ control.position().value() }}__relevance-toggle"
+				/>
+				<label
+					hlmFieldLabel
+					for="{{index}}_{{ control.position().value() }}__relevance-toggle"
+					class="cursor-pointer"
+					>Enable Relevance</label
+				>
+			</div>
+			<p hlmFieldDescription>
+				@if(control.relevance.enabled().value()) {
+				<span
+					>This item will only be seen if the relevance condition is met.</span
+				>} @else {
+				<span
+					>This item will always be relevant and the relevance condition won't
+					be evaluated.</span
+				>
+				}
+			</p>
+		</div>
+		} @else {
+		<div hlmAlert class="inline-block!">
+			<h4 hlmAlertTitle>No Dependencies</h4>
+			<p hlmAlertDescription>
+				There is no available form item to use. Add at least one field item to
+				use
+			</p>
+		</div>
+		}
+	</div>
+</ng-template>
+
+<ng-template #separatorItemTemplate>
+	<hlm-separator />
 </ng-template>
 
 <ng-template #header>

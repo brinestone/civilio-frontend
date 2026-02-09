@@ -12,6 +12,7 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	computed,
 	effect,
 	inject,
 	input,
@@ -43,7 +44,7 @@ import {
 import { Importer } from '@app/pages/importers';
 import { DatasetService } from '@app/services/dataset';
 import { FormService2 } from '@app/services/form';
-import { DatasetItem, FormItemDefinition } from '@civilio/sdk/models';
+import { DatasetItem, FormItemDefinition, FormItemDefinition_type } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -97,6 +98,8 @@ import {
 	FormItemType,
 	FormModel
 } from './form-schemas';
+import { HlmAlertImports } from '@spartan-ng/helm/alert';
+
 
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<{
 	items: FormModel['items']
@@ -144,7 +147,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideGrip,
 			lucideTrash2,
 			lucideLink,
-			lucideUnlink
+			lucideUnlink,
 		}),
 		DatasetService,
 		// { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
@@ -156,6 +159,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmTabsImports,
 		HlmDropdownMenuImports,
 		HlmButtonGroupImports,
+		HlmAlertImports,
 		HlmDialogImports,
 		DatePicker,
 		DateRangePickerComponent,
@@ -206,6 +210,16 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly multiDateTemplate = viewChild.required<TemplateRef<any>>('multiDateFieldMetaConfigTemplate');
 	protected readonly rangeDateTemplate = viewChild.required<TemplateRef<any>>('rangeDateFieldMetaConfigTemplate');
 
+	protected readonly noteItemTemplate = viewChild.required<TemplateRef<any>>('noteItemTemplate');
+	protected readonly fieldItemTemplate = viewChild.required<TemplateRef<any>>('fieldItemTemplate');
+	protected readonly separatorItemTemplate = viewChild.required<TemplateRef<any>>('separatorItemTemplate');
+
+	protected readonly itemTemplatesMap: Record<FormItemDefinition_type | string, Signal<TemplateRef<any>>> = {
+		'field': this.fieldItemTemplate,
+		'note': this.noteItemTemplate,
+		'separator': this.separatorItemTemplate,
+	}
+
 	// 2. Reference in Map
 	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
 		'boolean': this.booleanTemplate,
@@ -252,16 +266,25 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly fieldItemTypes = FieldTypeSchema.options;
 	protected readonly optionSourceImportSheetState = signal<BrnDialogState>('closed');
 	protected readonly activeImportTab = signal('dataset');
-	protected readonly importComponents = {
-		dataset: () => import('../../importers/dataset/dataset-import.page').then(m => m.DatasetImportPage),
-		file: () => import('../../importers/file/file-importer.page').then(m => m.FilePage)
-	}
 	protected readonly linkedOptionSources = signal<Record<string, DatasetItem[]>>({});
 	protected readonly importSources = [
 		{ value: 'dataset', icon: 'lucideDatabase', label: 'Dataset' }
 	];
+	protected readonly viableRelevanceDependencies = computed(() => {
+		const formData = this.formData();
+		const reg: Record<number, number[]> = {};
+
+		for (const item of formData.items) {
+			reg[item.position] = formData.items.filter(i => i.position != item.position && i.type == 'field').map(i => i.position);
+		}
+
+		return reg;
+	})
 
 	constructor() {
+		effect(() => {
+			console.log(this.viableRelevanceDependencies());
+		})
 		effect(() => {
 			const formData = this.formData();
 			const linkedOptionsRegistry = untracked(this.linkedOptionSources);
