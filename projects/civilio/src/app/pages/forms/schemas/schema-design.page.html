@@ -222,6 +222,12 @@
 	let-metaControl
 	let-formItemIndex="formItemIndex"
 >
+	<div hlmField>
+		<ng-container>
+			@let meta = asGeoPointFieldMeta(asFieldMeta(metaControl).additionalData);
+		</ng-container>
+		<cv-geo-point-picker [formField]="meta.default" />
+	</div>
 </ng-template>
 <ng-template
 	#dateFieldMetaConfigTemplate
@@ -240,9 +246,7 @@
 	<ng-container>
 		@let defaultId = `${formItemIndex}__date_default_input`;
 	</ng-container>
-	<div
-		class="grid grid-cols-1 md:grid-cols-[250px_250px] gap-3"
-	>
+	<div class="grid grid-cols-1 md:grid-cols-[250px_250px] gap-3">
 		<div hlmField>
 			<label hlmFieldLabel [for]="minId">Minimum Date</label>
 			<cv-date-picker

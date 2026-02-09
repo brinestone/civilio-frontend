@@ -53,6 +53,7 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMe
 	});
 }
 function defineGeopointFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'geo-point' }>>) {
+	required(paths.default, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is marked readonly' });
 }
 function defineDateFieldMetaFormSchema(paths: SchemaPathTree<Extract<FieldItemMeta, { type: 'date-time' | 'date' }>>) {
 	max(paths.min, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: 'The minimum date must be a date before the maximum date' });
@@ -246,7 +247,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'multi-date' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'geo-point' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
 		default: return {}
 	}

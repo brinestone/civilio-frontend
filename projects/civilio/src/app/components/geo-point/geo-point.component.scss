@@ -1,5 +1,5 @@
 @reference "tailwindcss";
 
 :host {
-  @apply relative grid grid-rows-[1fr_auto] h-48 rounded-md overflow-hidden border border-[var(--border)];
+  @apply relative grid grid-rows-[1fr_auto] h-48 rounded-md overflow-hidden border border-(--border);
 }

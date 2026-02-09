@@ -1,0 +1,59 @@
+<div #mapContainer class="overflow-hidden"></div>
+<!-- <hlm-separator class="group-[:is(.ng-invalid)]/geo-point-picker:border-destructive!"/> -->
+<div
+	class="group-[:is(.ng-invalid)]/geo-point-picker:text-destructive/60! group-[:is(.ng-invalid)]/geo-point-picker:border-destructive! rounded-b-md border-t border-input justify-between flex items-center text-muted-foreground bg-card text-sm gap-1 py-1 px-3"
+>
+	<div class="flex items-center gap-2 italic">
+		@if (value()) {
+			<span>Lat: {{ resolvedCoords().lat | number: "1.1-4" }},</span>
+			<span>Lon: {{ resolvedCoords().lng | number: "1.1-4" }}</span>
+		} @else {
+			<span>Nothing selected</span>
+		}
+	</div>
+	@if (clearable() && value() && !disabled()) {
+		<button
+			(click)="value.set(null)"
+			type="button"
+			[disabled]="disabled()"
+			hlmBtn
+			variant="secondary"
+			size="xs"
+		>
+			<ng-icon name="lucideX" />
+			<span>Clear</span>
+		</button>
+	}
+</div>
+@if (errors().length > 0 && !disabled()) {
+	<div class="flex gap-2 absolute left-[calc(100%+5px)] flex-col">
+		<ul
+			class="relative bg-card rounded-md shadow-md min-w-75 border-input border text-sm max-h-70 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+		>
+			<li
+				class="sticky top-0 font-medium px-2 py-1 text-muted-foreground bg-secondary flex items-center gap-x-2"
+			>
+				<ng-icon name="lucideAlertTriangle" />
+				<span>Errors</span>
+				<span>{{ errors().length }}</span>
+			</li>
+			@for (error of errors(); track error) {
+				<li
+					class="px-2 py-1 text-destructive"
+					[ngClass]="{
+						'border-t border-border': !$first,
+					}"
+				>
+					{{ error.message }}
+				</li>
+			}
+		</ul>
+	</div>
+}
+@if (!network.online()) {
+	<div
+		class="absolute top-0 h-full left-0 w-full flex items-center justify-center bg-background/50 backdrop-blur-md z-50 rounded-md"
+	>
+		<p>No Internet Connection</p>
+	</div>
+}

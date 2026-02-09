@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { DatePicker, DateRangePickerComponent, MultDatePickerComponent } from '@app/components';
+import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, MultDatePickerComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -170,6 +170,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		NgStyle,
 		CdkDropList,
 		HlmInput,
+		GeoPointPickerComponent,
 		CdkDragHandle,
 		HlmSpinner,
 		FormField,
@@ -354,7 +355,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	}
 
 	protected asDateFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], {type: 'date' | 'date-time'}>>;
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'date' | 'date-time' }>>;
 	}
 
 	protected asRangeDateFieldMeta(node: any) {
@@ -363,6 +364,9 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 
 	protected asMultiDateFieldMeta(node: any) {
 		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multi-date' }>>;
+	}
+	protected asGeoPointFieldMeta(node: any) {
+		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'geo-point' }>>;
 	}
 
 	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {

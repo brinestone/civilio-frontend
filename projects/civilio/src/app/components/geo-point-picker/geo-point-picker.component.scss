@@ -1,0 +1,8 @@
+@reference "tailwindcss";
+
+:host {
+	@apply relative max-w-120 aspect-video grid grid-rows-[1fr_auto_auto] border border-(--input) rounded-md bg-(--secondary)/50;
+	&.ng-invalid {
+		@apply border-(--destructive);
+	}
+}

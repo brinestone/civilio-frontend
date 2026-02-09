@@ -22,10 +22,8 @@ export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['geo-point']),
 	default: z.object({
 		lat: z.coerce.number(),
-		lon: z.coerce.number()
-	}).nullish().default({
-		lat: 3.8614800698189145, lon: 11.520851415955367
-	})
+		long: z.coerce.number()
+	}).nullish().default(null)
 });
 export const BaseDateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	min: z.coerce.number().nullish().default(null),
