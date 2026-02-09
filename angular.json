@@ -37,7 +37,7 @@
 				}
 			},
 			"i18n": {
-				"sourceLocale": "en-US",
+				"sourceLocale": "en",
 				"locales": {
 					"fr": {
 						"translation": "projects/civilio/src/locales/messages.fr.xlf",
@@ -52,7 +52,8 @@
 				"build": {
 					"builder": "@angular/build:application",
 					"options": {
-						"localize": ["fr"],
+						"localize": true,
+						"i18nMissingTranslation": "warning",
 						"allowedCommonJsDependencies": ["leaflet", "lodash"],
 						"browser": "projects/civilio/src/main.ts",
 						"tsConfig": "projects/civilio/tsconfig.app.json",
