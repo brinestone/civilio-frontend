@@ -30,8 +30,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class BaseLayout {
 	protected leftLinks = [
-		{ label: 'submissions.title', icon: 'lucideTable2', path: '/submissions' },
-		{ label: 'settings.title', icon: 'lucideSettings', path: '/settings' },
+		{ label: $localize`:site header|A section of the application which deals with survey form submissions:Form Submissions`, icon: 'lucideTable2', path: '/submissions' },
+		{ label: $localize`:site header|A section of the application which deals with configurations and user preferences:Settings`, icon: 'lucideSettings', path: '/settings' },
 	];
 	protected readonly wideLogoUrl = resource({
 		loader: async () => {

@@ -1,131 +1,135 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "cli": {
-    "packageManager": "pnpm",
-    "analytics": false
-  },
-  "newProjectRoot": "projects",
-  "projects": {
-    "civilio": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss",
-          "skipTests": true
-        },
-        "@schematics/angular:class": {
-          "skipTests": true
-        },
-        "@schematics/angular:directive": {
-          "skipTests": true
-        },
-        "@schematics/angular:guard": {
-          "skipTests": true
-        },
-        "@schematics/angular:interceptor": {
-          "skipTests": true
-        },
-        "@schematics/angular:pipe": {
-          "skipTests": true
-        },
-        "@schematics/angular:resolver": {
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "skipTests": true
-        }
-      },
-      "root": "projects/civilio",
-      "sourceRoot": "projects/civilio/src",
-      "prefix": "cv",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "allowedCommonJsDependencies": ["leaflet", "lodash"],
-            "browser": "projects/civilio/src/main.ts",
-            "tsConfig": "projects/civilio/tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/civilio/public"
-              }
-            ],
-            "styles": [
-              "node_modules/inter-ui/inter.css",
-              "projects/civilio/src/styles.scss"
-            ],
-            "polyfills": [
-              "@angular/localize/init"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "baseHref": "./",
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "3MB",
-                  "maximumError": "5.5MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
-              ],
-              "outputHashing": "all"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "civilio:build:production"
-            },
-            "development": {
-              "buildTarget": "civilio:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "tsConfig": "projects/civilio/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "projects/civilio/public"
-              },
-              {
-                "glob": "**/*",
-                "input": "./node_modules/leaflet/dist/images",
-                "output": "/media"
-              }
-            ],
-            "styles": [
-              "projects/civilio/src/styles.scss"
-            ],
-            "polyfills": [
-              "@angular/localize/init"
-            ]
-          }
-        }
-      }
-    }
-  }
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"cli": {
+		"packageManager": "pnpm",
+		"analytics": false
+	},
+	"newProjectRoot": "projects",
+	"projects": {
+		"civilio": {
+			"projectType": "application",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss",
+					"skipTests": true
+				},
+				"@schematics/angular:class": {
+					"skipTests": true
+				},
+				"@schematics/angular:directive": {
+					"skipTests": true
+				},
+				"@schematics/angular:guard": {
+					"skipTests": true
+				},
+				"@schematics/angular:interceptor": {
+					"skipTests": true
+				},
+				"@schematics/angular:pipe": {
+					"skipTests": true
+				},
+				"@schematics/angular:resolver": {
+					"skipTests": true
+				},
+				"@schematics/angular:service": {
+					"skipTests": true
+				}
+			},
+			"i18n": {
+				"sourceLocale": "en-US",
+				"locales": {
+					"fr": {
+						"translation": "projects/civilio/src/locales/messages.fr.xlf",
+						"subPath": ""
+					}
+				}
+			},
+			"root": "projects/civilio",
+			"sourceRoot": "projects/civilio/src",
+			"prefix": "cv",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"options": {
+						"localize": ["fr"],
+						"allowedCommonJsDependencies": ["leaflet", "lodash"],
+						"browser": "projects/civilio/src/main.ts",
+						"tsConfig": "projects/civilio/tsconfig.app.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "projects/civilio/public"
+							}
+						],
+						"styles": [
+							"node_modules/inter-ui/inter.css",
+							"projects/civilio/src/styles.scss"
+						],
+						"polyfills": ["@angular/localize/init"]
+					},
+					"configurations": {
+						"production": {
+							"baseHref": "./",
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "3MB",
+									"maximumError": "5.5MB"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "4kB",
+									"maximumError": "8kB"
+								}
+							],
+							"outputHashing": "all"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"configurations": {
+						"production": {
+							"buildTarget": "civilio:build:production"
+						},
+						"development": {
+							"buildTarget": "civilio:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
+				},
+				"extract-i18n": {
+					"builder": "@angular/build:extract-i18n"
+				},
+				"test": {
+					"builder": "@angular/build:karma",
+					"options": {
+						"tsConfig": "projects/civilio/tsconfig.spec.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "projects/civilio/public"
+							},
+							{
+								"glob": "**/*",
+								"input": "./node_modules/leaflet/dist/images",
+								"output": "/media"
+							}
+						],
+						"styles": ["projects/civilio/src/styles.scss"],
+						"polyfills": ["@angular/localize/init"]
+					}
+				}
+			}
+		}
+	}
 }
