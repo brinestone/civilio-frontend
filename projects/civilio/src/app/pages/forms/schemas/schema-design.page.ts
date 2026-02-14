@@ -28,7 +28,7 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, MultDatePickerComponent } from '@app/components';
+import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, MultDatePickerComponent, NumberRangeInputComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -38,13 +38,13 @@ import {
 	FieldItemMetaSchema,
 	FieldType,
 	FieldTypeSchema,
-	FormItemMetaOf,
+	isGroupItem,
 	SelectFieldItemMetaSchema
 } from '@app/model/form';
 import { Importer } from '@app/pages/importers';
 import { DatasetService } from '@app/services/dataset';
 import { FormService2 } from '@app/services/form';
-import { DatasetItem, FormItemDefinition, FormItemDefinition_type } from '@civilio/sdk/models';
+import { BooleanFieldMeta, DatasetItem, FieldItemMeta, FormItemDefinition, FormItemField, FormItemGroup, FormItemNote, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -54,6 +54,7 @@ import {
 	lucideCopyCheck,
 	lucideDatabase,
 	lucideEdit,
+	lucideEllipsis,
 	lucideEye,
 	lucideFile,
 	lucideFormInput,
@@ -75,35 +76,39 @@ import { Navigate } from '@ngxs/router-plugin';
 import { dispatch } from '@ngxs/store';
 import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSelect, BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroup, HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmInputGroupImports } from '@spartan-ng/helm/input-group';
+import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { current, produce, setAutoFreeze } from 'immer';
-import { keyBy } from 'lodash';
+import { get, keyBy } from 'lodash';
 import { injectQueryParams } from 'ngxtension/inject-query-params';
 import {
 	defaultFormDefinitionSchemaValue,
 	defaultFormItemDefinitionSchemaValue,
+	defaultRelevanceExpression,
+	defaultRelevanceLogic,
 	defineFormDefinitionFormSchema,
 	domainToStrictFormDefinition,
 	FormItemType,
-	FormModel
+	FormModel,
+	pathSeparator
 } from './form-schemas';
-import { HlmAlertImports } from '@spartan-ng/helm/alert';
 
-
-type FormItemAddTarget = FieldTree<FormModel> | FieldTree<{
-	items: FormModel['items']
-}>;
+const isFieldTree = (v: FieldTree<Strict<FormItemDefinition>>): v is FieldTree<Strict<FormItemField>> => v.type().value() === 'field';
+type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 const formItemTypes = [
 	{
 		label: 'Question',
@@ -121,6 +126,43 @@ const formItemTypes = [
 	},
 ];
 const formItemTypesMap = keyBy(formItemTypes, 'value');
+const operatorsMap = {
+	in: { label: 'Contains', operandCount: 1 },
+	eq: { label: 'Equals', operandCount: 1 },
+	ne: { label: 'Not equal to', operandCount: 1 },
+	gt: { label: 'Greater than', operandCount: 1 },
+	lt: { label: 'Less than', operandCount: 1 },
+	lte: { label: 'Less than or equal to', operandCount: 1 },
+	gte: { label: 'Greater than or equal to', operandCount: 1 },
+	empty: { label: 'Is Empty', operandCount: 0 },
+	between: { label: 'Is between', operandCount: 2 },
+	match: { label: 'Matches', operandCount: 1 },
+	isNull: { label: 'Has no value', operandCount: 0 },
+	isNotNull: {label: 'Has a value', operandCount: 0},
+	checked: { label: 'Checked', operandCount: 0 },
+	unchecked: { label: 'Unchecked', operandCount: 0 },
+	selectedAny: { label: 'Contains any of', operandCount: 1 },
+	selectedAll: { label: 'Contains all of', operandCount: 1 },
+	noselection: { label: 'Has no selection', operandCount: 0 },
+	before: { label: 'Is before', operandCount: 1 },
+	after: { label: 'Is after', operandCount: 1 },
+	afterOrOn: { label: 'Is after or on', operandCount: 1 },
+	beforeOrOn: { label: 'Is before or on', operandCount: 1 },
+} as const;
+const fieldTypeExpressionOperatorsMap = {
+	'boolean': ['checked', 'unchecked'],
+	'date-time': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'date': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'multi-date': ['empty', 'in', 'between', 'before', 'after'],
+	'date-range': ['isNull', 'before', 'after'],
+	'single-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'multi-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'float': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'integer': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'geo-point': ['isNull', 'isNotNull'],
+	'multiline': ['eq', 'ne', 'in', 'empty', 'match'],
+	'text': ['eq', 'ne', 'in', 'empty', 'match'],
+} as Record<string, (keyof typeof operatorsMap)[]>;
 
 @Component({
 	selector: 'cv-forms',
@@ -139,6 +181,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideChevronsUpDown,
 			lucideChevronDown,
 			lucideImage,
+			lucideEllipsis,
 			lucideList,
 			lucideSeparatorHorizontal,
 			lucideDatabase,
@@ -149,22 +192,24 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideLink,
 			lucideUnlink,
 		}),
-		DatasetService,
-		// { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher }
 	],
 	imports: [
 		HlmFieldImports,
 		HlmSelectImports,
 		BrnSelectImports,
 		HlmTabsImports,
+		HlmInputGroupImports,
 		HlmDropdownMenuImports,
 		HlmButtonGroupImports,
 		HlmAlertImports,
 		HlmDialogImports,
 		DatePicker,
+		NumberRangeInputComponent,
 		DateRangePickerComponent,
 		BrnDialogContent,
 		HlmButtonGroup,
+		HlmIcon,
+		HlmLabel,
 		HlmButton,
 		HlmCheckbox,
 		HlmSeparator,
@@ -214,11 +259,33 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly fieldItemTemplate = viewChild.required<TemplateRef<any>>('fieldItemTemplate');
 	protected readonly separatorItemTemplate = viewChild.required<TemplateRef<any>>('separatorItemTemplate');
 
-	protected readonly itemTemplatesMap: Record<FormItemDefinition_type | string, Signal<TemplateRef<any>>> = {
+	protected readonly textExpressionValueTemplate = viewChild.required<TemplateRef<any>>('textExpressionValueTemplate');
+	protected readonly numberExpressionValueTemplate = viewChild.required<TemplateRef<any>>('numberExpressionValueTemplate');
+	protected readonly selectExpressionValueTemplate = viewChild.required<TemplateRef<any>>('selectExpressionValueTemplate');
+	protected readonly dateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('dateExpressionValueTemplate');
+	protected readonly multiDateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('multiDateExpressionValueTemplate');
+	protected readonly rangeDateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('rangeDateExpressionValueTemplate');
+
+	protected readonly fieldTypeExpressionValueTemplatesMap = {
+		'date-range': this.rangeDateExpressionValueTemplate,
+		'multi-date': this.multiDateExpressionValueTemplate,
+		'date-time': this.dateExpressionValueTemplate,
+		'date': this.dateExpressionValueTemplate,
+		'single-select': this.selectExpressionValueTemplate,
+		'multi-select': this.selectExpressionValueTemplate,
+		'float': this.numberExpressionValueTemplate,
+		'integer': this.numberExpressionValueTemplate,
+		'text': this.textExpressionValueTemplate,
+		'multiline': this.textExpressionValueTemplate,
+	} as Record<string, Signal<TemplateRef<any>>>;
+
+	protected readonly itemTemplatesMap: Record<string, Signal<TemplateRef<any>>> = {
 		'field': this.fieldItemTemplate,
 		'note': this.noteItemTemplate,
 		'separator': this.separatorItemTemplate,
-	}
+	};
+	protected readonly operatorsMap = operatorsMap;
+	protected readonly fieldTypeExpressionOperatorsMap = fieldTypeExpressionOperatorsMap;
 
 	// 2. Reference in Map
 	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
@@ -254,7 +321,6 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		if (v) return domainToStrictFormDefinition(v);
 		return defaultFormDefinitionSchemaValue();
 	});
-	protected readonly slugCopied = signal(false);
 	protected readonly enableEditingControls = linkedSignal(() => !this.slug());
 	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema({
 		enableEditing: this.enableEditingControls
@@ -272,29 +338,36 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	];
 	protected readonly viableRelevanceDependencies = computed(() => {
 		const formData = this.formData();
-		const reg: Record<number, number[]> = {};
-
+		const reg: Record<string, string[]> = {};
 		for (const item of formData.items) {
-			reg[item.position] = formData.items.filter(i => i.position != item.position && i.type == 'field').map(i => i.position);
+			reg[item.path] = formData.items.filter(i => i.path != item.path && i.type == 'field').map(i => i.path);
 		}
-
+		return reg;
+	});
+	protected readonly fieldItems = computed(() => {
+		const { items } = this.formData();
+		const reg = {} as Record<string, FieldTree<Strict<FormItemField>>>;
+		for (const i of items) {
+			this.walkFormItemTree(i, item => {
+				const tree = get(this.formModel.items, item.path.split(pathSeparator)) as FieldTree<Strict<FormItemDefinition>>;
+				if (isFieldTree(tree) && tree().valid()) {
+					reg[item.path] = tree;
+				}
+			})
+		}
 		return reg;
 	})
 
 	constructor() {
-		effect(() => {
-			console.log(this.viableRelevanceDependencies());
-		})
 		effect(() => {
 			const formData = this.formData();
 			const linkedOptionsRegistry = untracked(this.linkedOptionSources);
 			for (const i of formData.items) {
 				this.walkFormItemTree(i, async item => {
 					if (item.type != 'field') return;
-					const meta = item.meta as FormItemMetaOf<'field'>;
-					if (meta.additionalData.type != 'multi-select' && meta.additionalData.type != 'single-select') return;
-					const _meta = meta.additionalData;
-					const ref = _meta.optionSourceRef;
+					const meta = item.meta as FieldItemMeta;
+					if (meta.type != 'multi-select' && meta.type != 'single-select') return;
+					const ref = meta.optionSourceRef;
 					if (!ref || linkedOptionsRegistry[ref]) return;
 					this.ds.getDatasetRefItems(ref).then(v => {
 						if (!v || v.length == 0) return;
@@ -309,9 +382,10 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
 		cb(item);
-		if (item.children.length > 0) {
+		if (isGroupItem(item) && item.children.length > 0) {
 			for (const child of item.children) {
 				cb(child);
+				this.walkFormItemTree(child, cb);
 			}
 		}
 	}
@@ -329,28 +403,52 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	}
 
 	protected addFormItem(target: FormItemAddTarget, type: FormItemType) {
-		const state = target.items().controlValue();
-		target.items().setControlValue(produce(state, draft => {
-			const item = defaultFormItemDefinitionSchemaValue(current(draft).length, type);
-			item.type = type;
-			draft.push(item);
-		}));
+		const isGroup = (t: FormItemAddTarget): t is FieldTree<Strict<FormItemGroup>> => 'children' in t().value();
+		const isRoot = (t: FormItemAddTarget): t is FieldTree<FormModel> => 'items' in t().value();
+		if (isGroup(target)) {
+			target().value.update(state => produce(state, draft => {
+				const path = `${current(draft).path}${pathSeparator}${current(draft).children.length}`;
+				const item = defaultFormItemDefinitionSchemaValue(path, type);
+				draft.children.push(item);
+			}));
+		} else if (isRoot(target)) {
+			target().value.update(state => produce(state, draft => {
+				const path = `${current(draft).items.length}`;
+				const item = defaultFormItemDefinitionSchemaValue(path, type);
+				draft.items.push(item);
+			}))
+		}
 		this.lastAddedItemType.set(type);
 	}
 
-	protected removeFormItem(target: FormItemAddTarget, index: number) {
-		const state = target.items().controlValue();
-		target.items().setControlValue(produce(state, draft => {
-			draft.splice(index, 1);
-		}));
+	protected onRemoveFormItemButtonClicked(target: FormItemAddTarget, index: number) {
+		const isGroup = (t: FormItemAddTarget): t is FieldTree<Strict<FormItemGroup>> => 'children' in t().value();
+		const isRoot = (t: FormItemAddTarget): t is FieldTree<FormModel> => 'items' in t().value();
+		if (isGroup(target)) {
+			target().value.update(state => produce(state, draft => {
+				draft.children.splice(index, 1);
+			}));
+		} else if (isRoot(target)) {
+			target().value.update(state => produce(state, draft => {
+				draft.items.splice(index, 1);
+			}))
+		}
+	}
+
+	protected isArray(v: any): v is unknown[] {
+		return Array.isArray(v);
 	}
 
 	protected asFormItem(ctrl: any) {
 		return ctrl as FieldTree<Strict<FormItemDefinition>>;
 	}
 
-	protected asNoteMeta(node: any) {
-		return node as FieldTree<Strict<FormItemMetaOf<'note'>>>;
+	protected asFieldItem(ctrl: any) {
+		return ctrl as FieldTree<Strict<FormItemField>>;
+	}
+
+	protected asNoteItem(node: any) {
+		return node as FieldTree<Strict<FormItemNote>>;
 	}
 
 	protected asGenericControl(node: any) {
@@ -358,54 +456,64 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	}
 
 	protected asFieldMeta(node: any) {
-		return node as FieldTree<Strict<FormItemMetaOf<'field'>>>;
+		return node as FieldTree<Strict<FormItemField>['meta']>;
 	}
 
 	protected asTextFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multiline' | 'text' }>>
+		return node as FieldTree<Strict<TextFieldMeta>>;
 	}
 
 	protected asSelectFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>
+		return node as FieldTree<Strict<SelectFieldMeta>>
 	}
 
 	protected asBooleanFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'boolean' }>>;
+		return node as FieldTree<Strict<BooleanFieldMeta>>;
 	}
 
 	protected asNumberFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'integer' | 'float' }>>;
+		return node as FieldTree<Strict<NumberFieldMeta>>;
 	}
 
 	protected asDateFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'date' | 'date-time' }>>;
+		return node as FieldTree<Strict<SimpleDateFieldMeta>>;
 	}
 
 	protected asRangeDateFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'date-range' }>>;
+		return node as FieldTree<Strict<RangeDateFieldMeta>>;
 	}
 
 	protected asMultiDateFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'multi-date' }>>;
+		return node as FieldTree<Strict<MultiDateFieldMeta>>;
 	}
 	protected asGeoPointFieldMeta(node: any) {
-		return node as FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'geo-point' }>>;
+		return node as FieldTree<Strict<GeoPointFieldMeta>>;
 	}
 
-	protected onFieldTypeChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newType: any) {
-		const state = node.additionalData().controlValue();
-		const baseState = BaseFieldItemMetaSchema.parse(state);
-		const { default: _, ...baseWithouttDefault } = baseState;
-		const newState = FieldItemMetaSchema.parse({ ...baseWithouttDefault, type: newType });
-		node.additionalData().setControlValue(newState as any);
+	protected asRelevanceCondition(node: any) {
+		return node as FieldTree<Strict<RelevanceCondition>>;
+	}
+	protected asOperatorKey(v: any) {
+		return v as keyof typeof operatorsMap;
 	}
 
-	protected onFieldReadonlyStatusChanged(node: FieldTree<Strict<FormItemMetaOf<'field'>>>, newState: any) {
+	protected onFieldTypeChanged(node: FieldTree<Strict<FieldItemMeta>>, newType: any) {
+		const baseState = BaseFieldItemMetaSchema.parse(node().value());
+		const { defaultValue: _, ...baseWithoutDefault } = baseState;
+		const newState = FieldItemMetaSchema.parse({ ...baseWithoutDefault, type: newType });
+		node().setControlValue(newState as any);
+		// const baseState = BaseFieldItemMetaSchema.parse(state);
+		// const { default: _, ...baseWithouttDefault } = baseState;
+		// const newState = FieldItemMetaSchema.parse({ ...baseWithouttDefault, type: newType });
+		// node.additionalData().setControlValue(newState as any);
+	}
+
+	protected onFieldReadonlyStatusChanged(node: FieldTree<Strict<FieldItemMeta>>, newState: any) {
 		if (newState === false) return;
-		node.additionalData.required().setControlValue(false);
+		node.required().setControlValue(false);
 	}
 
-	protected onAddHardOptionButtonClicked(node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>) {
+	protected onAddHardOptionButtonClicked(node: FieldTree<Strict<SelectFieldMeta>>) {
 		const state = node.hardOptions().controlValue();
 		const newOption = SelectFieldItemMetaSchema.shape.hardOptions.unwrap().unwrap().parse({});
 		node.hardOptions().setControlValue(produce(state, draft => {
@@ -414,19 +522,19 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		}))
 	}
 
-	protected onRemoveHardOptionButtonClicked(node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>, index: number) {
+	protected onRemoveHardOptionButtonClicked(node: FieldTree<SelectFieldMeta>, index: number) {
 		const state = node().controlValue();
 		node().setControlValue(produce(state, draft => {
-			const defaultValue = current(draft).default;
-			const targetOption = current(draft).hardOptions[index];
-			const isDefault = defaultValue && defaultValue === targetOption.value;
+			const defaultValue = current(draft).defaultValue;
+			const targetOption = current(draft).hardOptions?.[index];
+			const isDefault = defaultValue && defaultValue === targetOption?.value;
 
-			if (isDefault) draft.default = null;
-			draft.hardOptions.splice(index, 1);
+			if (isDefault) draft.defaultValue = null;
+			draft.hardOptions?.splice(index, 1);
 		}));
 	}
 
-	protected onHardOptionsReordered(event: CdkDragDrop<any>, node: FieldTree<Extract<Strict<FormItemMetaOf<'field'>>['additionalData'], { type: 'single-select' | 'multi-select' }>>) {
+	protected onHardOptionsReordered(event: CdkDragDrop<any>, node: FieldTree<Strict<SelectFieldMeta>>) {
 		const state = node().controlValue();
 		node().setControlValue(produce(state, draft => {
 			moveItemInArray(draft.hardOptions, event.previousIndex, event.currentIndex);
@@ -449,17 +557,6 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 						draft.optionSourceRef = refId;
 						setTimeout(() => this.optionSourceImportSheetState.set('closed'))
 					}));
-					// this.ds.getDatasetRefItems(refId).then(items => {
-					// 	if (!items) {
-					// 		meta().setControlValue(produce(state, draft => {
-					// 			(draft as any).optionSourceRef = null;
-					// 		}))
-					// 	} else {
-					// 		this.linkedOptionSources.update(reg => produce(reg, draft => {
-					// 			draft[refId] = items
-					// 		}))
-					// 	}
-					// });
 				})
 			};
 			this.optionSourceImportSheetState.set('open');
@@ -468,5 +565,33 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 				(draft as any).optionSourceRef = null;
 			}));
 		}
+	}
+	protected onAddConditionButtonClicked(item: FieldTree<Strict<FormItemDefinition>>) {
+		item.relevance.logic().value.update(v => produce(v, draft => {
+			draft.unshift(defaultRelevanceLogic('or'));
+		}));
+	}
+	protected onAddExpressionButtonClicked(item: FieldTree<Strict<FormItemDefinition>>, conditionIndex?: number) {
+		item.relevance.logic().value.update(v => produce(v, draft => {
+			if (conditionIndex !== undefined)
+				draft[conditionIndex].expressions.unshift(defaultRelevanceExpression() as Strict<ReturnType<typeof defaultRelevanceExpression>>);
+		}));
+	}
+	protected onRemoveExpressionButtonClicked(conditionIndex: number, index: number, item: FieldTree<Strict<FormItemDefinition>>) {
+		item.relevance.logic[conditionIndex]().value.update(v => produce(v, draft => {
+			draft.expressions.splice(index, 1);
+		}))
+	}
+	protected onExpressionOperatorChanged(expression: FieldTree<Strict<FormItemDefinition>['relevance']['logic'][number]['expressions'][number]>, operator?: keyof typeof operatorsMap | (keyof typeof operatorsMap)[]) {
+		expression().value.update(v => produce(v, draft => {
+			// const op = this.operatorsMap[operator as keyof typeof operatorsMap];
+			// if (!op || op.operandCount > 0) return;
+			draft.value = null as any;
+		}));
+	}
+	protected onRemoveConditionButtonClicked(item: FieldTree<Strict<FormItemDefinition>>, conditionIndex: number) {
+		item().value.update(v => produce(v, draft => {
+			draft.relevance.logic.splice(conditionIndex, 1);
+		}));
 	}
 }

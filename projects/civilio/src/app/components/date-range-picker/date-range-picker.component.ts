@@ -2,6 +2,7 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import { DatePipe } from '@angular/common';
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, HostListener, input, linkedSignal, model, OnDestroy, OnInit, signal, untracked } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
+import { NumberRange } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideX } from '@ng-icons/lucide';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
@@ -9,13 +10,11 @@ import { BrnPopoverImports } from '@spartan-ng/brain/popover';
 import { ButtonVariants, HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmCalendarRange } from '@spartan-ng/helm/calendar';
-import { injectHlmDateRangePickerConfig } from '@spartan-ng/helm/date-picker';
+import { HlmIcon } from "@spartan-ng/helm/icon";
 import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import { ClassValue } from 'clsx';
 import { isDate } from 'date-fns';
-import { HlmIcon } from "@spartan-ng/helm/icon";
-import { DateRange } from '@app/model/form';
 import { produce, setAutoFreeze } from 'immer';
 
 let nextId = 0;
@@ -72,8 +71,8 @@ function toDate(arg: number | undefined | null) {
 	templateUrl: './date-range-picker.component.html',
 	styleUrl: './date-range-picker.component.scss',
 })
-export class DateRangePickerComponent implements FormValueControl<undefined | null | DateRange>, OnInit, OnDestroy {
-	public readonly value = model<DateRange | undefined | null>(undefined);
+export class DateRangePickerComponent implements FormValueControl<undefined | null | NumberRange>, OnInit, OnDestroy {
+	public readonly value = model<NumberRange | undefined | null>(undefined);
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	public readonly buttonId = input<string>(`date-range-picker-${++nextId}`, { alias: 'id' });
 	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');

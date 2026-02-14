@@ -47,28 +47,11 @@
 								[ngTemplateOutletContext]="ctx"
 							/>
 							}
-							<!-- @switch (item.type().value()) { @case ('separator') {
-							<hlm-separator />
-							} @case ('note') {
-							<ng-container
-								[ngTemplateOutlet]="noteItemTemplate"
-								[ngTemplateOutletContext]="{$implicit: item.title, meta: item.meta}"
-							/>
-							<ng-container
-								[ngTemplateOutlet]="errorsTemplate"
-								[ngTemplateOutletContext]="{$implicit: item.title, index: $index}"
-							/>
-							} @case ('field') {
-							<ng-container
-								[ngTemplateOutlet]="fieldItemTemplate"
-								[ngTemplateOutletContext]="{$implicit: item, index: $index}"
-							/>
-							} } -->
 						</div>
 						<div
 							hlmButtonGroup
 							orientation="vertical"
-							class="absolute left-[100.5%] top-0 opacity-0 group-focus-within/form-item:opacity-100 group-hover/form-item:opacity-100"
+							class="absolute left-[100.5%] top-0"
 						>
 							<ng-container
 								[ngTemplateOutlet]="formItemEditorButtons"
@@ -111,7 +94,7 @@
 		hlmBtn
 		class="flex"
 		variant="destructive"
-		(click)="removeFormItem(parent, index)"
+		(click)="onRemoveFormItemButtonClicked(parent, index)"
 		type="button"
 		size="icon-sm"
 	>
@@ -119,12 +102,9 @@
 	</button>
 </ng-template>
 <ng-template #fieldItemTemplate let-ctrl let-index="index">
-	<ng-container> @let item = asFormItem(ctrl); </ng-container>
+	<ng-container> @let field = asFieldItem(ctrl); </ng-container>
 	<ng-container>
-		@let meta = asFieldMeta(item.meta).additionalData;
-	</ng-container>
-	<ng-container>
-		@let metaCtx = {$implicit: item.meta, formItemIndex: index};
+		@let metaCtx = {$implicit: field.meta, formItemIndex: index};
 	</ng-container>
 	<div hlmFieldGroup>
 		<div hlmFieldGroup>
@@ -133,11 +113,11 @@
 					<input
 						hlmInput
 						placeholder="Question title *"
-						[formField]="item.title"
+						[formField]="field.title"
 					/>
 					<ng-container
 						[ngTemplateOutlet]="errorsTemplate"
-						[ngTemplateOutletContext]="{$implicit: item.title}"
+						[ngTemplateOutletContext]="{$implicit: field.title}"
 					/>
 				</div>
 			</div>
@@ -146,20 +126,20 @@
 					<textarea
 						hlmTextarea
 						placeholder="Description"
-						[formField]="item.description"
+						[formField]="field.description"
 					></textarea>
 					<ng-container
 						[ngTemplateOutlet]="errorsTemplate"
-						[ngTemplateOutletContext]="{$implicit: item.description}"
+						[ngTemplateOutletContext]="{$implicit: field.description}"
 					/>
 				</div>
 			</div>
 			<div hlmField>
 				<div hlmFieldContent>
-					<brn-select
+					<hlm-select
 						placeholder="Value type *"
-						(valueChange)="onFieldTypeChanged(asFieldMeta(item.meta), $event)"
-						[formField]="meta.type"
+						(valueChange)="onFieldTypeChanged(field.meta, $event)"
+						[formField]="field.meta.type"
 						class="w-full"
 					>
 						<hlm-select-trigger class="w-full">
@@ -172,7 +152,7 @@
 							</hlm-option>
 							}
 						</hlm-select-content>
-					</brn-select>
+					</hlm-select>
 				</div>
 			</div>
 		</div>
@@ -184,12 +164,12 @@
 			<div class="px-2 py-1">
 				<dl>
 					<dt>Validity</dt>
-					<dd>{{ item().valid() ? 'Valid' : 'Invalid' }}</dd>
-					@if (item().errorSummary().length > 0) {
+					<dd>{{ field().valid() ? 'Valid' : 'Invalid' }}</dd>
+					@if (field().errorSummary().length > 0) {
 					<dt>Errors</dt>
 					<dd>
 						<ul>
-							@for (err of item().errorSummary(); track $index) {
+							@for (err of field().errorSummary(); track $index) {
 							<li>
 								{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind
 								}}
@@ -200,18 +180,18 @@
 					}
 					<dt>Value</dt>
 					<dd>
-						<pre>{{ item().value() | json }}</pre>
+						<pre>{{ field().value() | json }}</pre>
 					</dd>
 				</dl>
 			</div>
 		</cv-debug-panel>
 		<ng-template #configTitleTemplate>
-			<legend hlmFieldLegend>Field Configuration</legend>
+			<legend hlmFieldLegend>Configuration</legend>
 		</ng-template>
 		<div hlmFieldGroup>
 			<div hlmFieldGroup>
 				<ng-container>
-					@let template = metaConfigTemplatesMap[meta.type().value()];
+					@let template = metaConfigTemplatesMap[field.meta.type().value()];
 				</ng-container>
 				@if(template) {
 				<ng-container [ngTemplateOutlet]="configTitleTemplate" />
@@ -238,9 +218,9 @@
 >
 	<div hlmField>
 		<ng-container>
-			@let meta = asGeoPointFieldMeta(asFieldMeta(metaControl).additionalData);
+			@let meta = asGeoPointFieldMeta(asFieldMeta(metaControl));
 		</ng-container>
-		<cv-geo-point-picker [formField]="meta.default" />
+		<cv-geo-point-picker [formField]="meta.defaultValue" />
 	</div>
 </ng-template>
 <ng-template
@@ -249,7 +229,7 @@
 	let-formItemIndex="formItemIndex"
 >
 	<ng-container>
-		@let meta = asDateFieldMeta(asFieldMeta(metaControl).additionalData);
+		@let meta = asDateFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<ng-container>
 		@let minId = `${formItemIndex}__date_min_input`;
@@ -294,11 +274,11 @@
 				[pickTime]="meta.type().value() == 'date-time'"
 				autoCloseOnSelect="true"
 				[id]="defaultId"
-				[formField]="meta.default"
+				[formField]="meta.defaultValue"
 			/>
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: meta.default}"
+				[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 			/>
 		</div>
 	</div>
@@ -309,7 +289,7 @@
 	let-itemIndex="formItemIndex"
 >
 	<ng-container>
-		@let meta = asMultiDateFieldMeta(asFieldMeta(metaControl).additionalData);
+		@let meta = asMultiDateFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<ng-container>
 		@let minId = `${itemIndex}__date_multi_min_input`;
@@ -400,11 +380,11 @@
 			<mult-date-picker
 				[maxSelection]="meta.maxSelection().value()"
 				[minSelection]="meta.minSelection().value()"
-				[formField]="$any(meta.default)"
+				[formField]="$any(meta.defaultValue)"
 			/>
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: meta.default}"
+				[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 			/>
 		</div>
 	</div>
@@ -415,7 +395,7 @@
 	let-itemIndex="formItemIndex"
 >
 	<ng-container>
-		@let meta = asRangeDateFieldMeta(asFieldMeta(metaControl).additionalData);
+		@let meta = asRangeDateFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<ng-container>
 		@let minId = `${itemIndex}__date_range_min_input`;
@@ -445,10 +425,10 @@
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel [for]="defaultId">Default Value</label>
-			<date-range-picker clearable [formField]="meta.default" />
+			<date-range-picker clearable [formField]="meta.defaultValue" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: meta.default}"
+				[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 			/>
 		</div>
 	</div>
@@ -459,7 +439,7 @@
 	let-formItemIndex="formItemIndex"
 >
 	<ng-container>
-		@let meta = asNumberFieldMeta(asFieldMeta(metaControl).additionalData);
+		@let meta = asNumberFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<div hlmField>
 		@let accuracy = meta.type().value() == 'float' ? .1 : 1;
@@ -492,13 +472,13 @@
 		<input
 			type="number"
 			[step]="accuracy"
-			[formField]="meta.default"
+			[formField]="meta.defaultValue"
 			hlmInput
 			placeholder="Default Value"
 		/>
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
-			[ngTemplateOutletContext]="{$implicit: meta.default}"
+			[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 		/>
 	</div>
 </ng-template>
@@ -508,22 +488,21 @@
 	let-formItemIndex="formItemIndex"
 >
 	<ng-container
-		>@let meta =
-		asBooleanFieldMeta(asFieldMeta(metaControl).additionalData);</ng-container
+		>@let meta = asBooleanFieldMeta(asFieldMeta(metaControl));</ng-container
 	>
 	<div hlmField orientation="horizontal" class="items-center">
 		@let idExp = `${formItemIndex}__default_checkbox`;
 		<hlm-checkbox
 			class="cursor-pointer"
 			[id]="idExp"
-			[formField]="meta.default"
+			[formField]="meta.defaultValue"
 		/>
 		<label class="cursor-pointer" hlmFieldLabel [for]="idExp">
 			Default Value
 		</label>
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
-			[ngTemplateOutletContext]="{$implicit: meta.default}"
+			[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 		/>
 	</div>
 </ng-template>
@@ -533,7 +512,7 @@
 	let-formItemIndex="formItemIndex"
 >
 	<ng-container>
-		@let meta = asSelectFieldMeta(asFieldMeta(metaControl).additionalData);
+		@let meta = asSelectFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<ng-container>
 		@let sourceLinked = !!meta.optionSourceRef().value();
@@ -604,7 +583,7 @@
 							<div class="space-y-1">
 								<input
 									hlmInput
-									placeholder="Value *"
+									placeholder="Value {{option.value().required() ? '*':''}}"
 									[formField]="option.value"
 								/>
 								<ng-container
@@ -618,9 +597,9 @@
 									(click)="onRemoveHardOptionButtonClicked(meta, $index)"
 									hlmBtn
 									size="icon-sm"
-									variant="destructive"
+									variant="ghost"
 								>
-									<ng-icon name="lucideTrash2" />
+									<ng-icon name="lucideX" hlm size="sm" />
 								</button>
 							</div>
 						</div>
@@ -632,59 +611,21 @@
 		</div>
 	</div>
 	<div hlmField>
-		<hlm-select
-			[formField]="meta.default"
-			scrollable="true"
-			[multiple]="meta.type().value() === 'multi-select'"
-			placeholder="Default selection"
-		>
-			<hlm-select-trigger class="w-full">
-				<hlm-select-value />
-			</hlm-select-trigger>
-			<hlm-select-content class="w-full">
-				<hlm-select-scroll-up />
-				<ng-container
-					>@let fixedOptions = meta.hardOptions().value();</ng-container
-				>
-				<ng-container
-					>@let linkedOptions =
-					linkedOptionSources()[meta.optionSourceRef().value()];</ng-container
-				>
-				<ng-container>
-					@if((linkedOptions?.length ?? 0) > 0) {
-					<ng-container>
-						@if(linkedOptions) {
-						<hlm-select-group>
-							<hlm-select-label>Linked options</hlm-select-label>
-							@for(item of linkedOptions; track item) {
-							<hlm-option [value]="item.value">{{ item.label }}</hlm-option>
-							}
-						</hlm-select-group>
-						}
-					</ng-container>
-					}
-				</ng-container>
-				<ng-container>
-					@if(fixedOptions.length > 0) {
-					<ng-container>
-						<hlm-select-group>
-							<hlm-select-label>Fixed options</hlm-select-label>
-							@for(option of fixedOptions; track option) {
-							<hlm-option [value]="option.value">{{ option.label }}</hlm-option>
-							}
-						</hlm-select-group>
-					</ng-container>
-					}
-				</ng-container>
-				<hlm-select-scroll-down />
-			</hlm-select-content>
-		</hlm-select>
+		<ng-container
+			[ngTemplateOutlet]="selectTemplate"
+			[ngTemplateOutletContext]="{
+			$implicit: meta.defaultValue,
+			placeholder: 'Default selection',
+			multiple: meta.type().value() === 'multi-select',
+			fixedOptions: meta.hardOptions().value(),
+			ref: meta.optionSourceRef().value(),
+		}"
+		/>
 	</div>
 </ng-template>
 <ng-template #textFieldMetaConfigTemplate let-metaControl>
 	<ng-container
-		>@let meta =
-		asTextFieldMeta(asFieldMeta(metaControl).additionalData);</ng-container
+		>@let meta = asTextFieldMeta(asFieldMeta(metaControl));</ng-container
 	>
 	@if(!meta.minlength().hidden()) {
 	<div hlmField>
@@ -735,31 +676,31 @@
 			>
 		</p>
 	</div>
-	} @if(!meta.default().hidden()) {
+	} @if(!meta.defaultValue().hidden()) {
 	<div hlmField>
 		@if(meta.type().value() === 'text') {
 		<input
-			[formField]="meta.default"
+			[formField]="meta.defaultValue"
 			hlmInput
-			placeholder="Default value{{meta.default().required() ? ' *' :''}}"
+			placeholder="Default value{{meta.defaultValue().required() ? ' *' :''}}"
 		/>
 		} @else {
 		<textarea
 			hlmTextarea
-			[formField]="meta.default"
-			placeholder="Default value{{meta.default().required() ? ' *' :''}}"
+			[formField]="meta.defaultValue"
+			placeholder="Default value{{meta.defaultValue().required() ? ' *' :''}}"
 		></textarea>
 		}
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
-			[ngTemplateOutletContext]="{$implicit: meta.default}"
+			[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 		/>
 		<p hlmFieldDescription>A value to be used by default for this field.</p>
 	</div>
 	}
 </ng-template>
 <ng-template #baseFieldMetaConfigTemplate let-node let-index="index">
-	<ng-container>@let meta = asFieldMeta(node).additionalData;</ng-container>
+	<ng-container>@let meta = asFieldMeta(node);</ng-container>
 	@if(!meta.required().hidden()) {
 	<div hlmFieldGroup>
 		@let requiredIdentifier = `${index}__required_input`;
@@ -806,12 +747,11 @@
 	</div>
 </ng-template>
 <ng-template #noteItemTemplate let-ctrl>
-	@let control = asFormItem(ctrl); @let meta = control.meta; @let noteMeta =
-	asNoteMeta(meta);
+	@let control = asNoteItem(ctrl);
 	<div hlmField>
 		<textarea
 			[ngStyle]="{
-			fontSize: `${noteMeta.additionalData.fontSize().value()}px`
+			fontSize: `${control.meta.fontSize().value()}px`
 		}"
 			[formField]="control.title"
 			hlmTextarea
@@ -832,18 +772,18 @@
 		</p>
 		<ng-container>
 			@let viableDependencies =
-			viableRelevanceDependencies()[control.position().value()];
+			viableRelevanceDependencies()[control.path().value()];
 		</ng-container>
 		@if(viableDependencies.length > 0) {
 		<div hlmFieldGroup>
 			<div hlmField orientation="horizontal">
 				<hlm-checkbox
 					[formField]="control.relevance.enabled"
-					id="{{index}}_{{ control.position().value() }}__relevance-toggle"
+					id="{{index}}_{{ control.path().value() }}__relevance-toggle"
 				/>
 				<label
 					hlmFieldLabel
-					for="{{index}}_{{ control.position().value() }}__relevance-toggle"
+					for="{{index}}_{{ control.path().value() }}__relevance-toggle"
 					class="cursor-pointer"
 					>Enable Relevance</label
 				>
@@ -859,6 +799,36 @@
 				>
 				}
 			</p>
+			<div>
+				<button
+					(click)="onAddConditionButtonClicked(control)"
+					hlmBtn
+					variant="outline"
+					size="sm"
+					type="button"
+				>
+					<ng-icon name="lucidePlus" />
+					<span>Add Condition</span>
+				</button>
+			</div>
+			<div class="space-y-2">
+				@for(condition of control.relevance.logic; track condition) {
+				<ng-container
+					[ngTemplateOutlet]="logicTemplate"
+					[ngTemplateOutletContext]="{
+						index: $index,
+						itemIndex: index,
+						item,
+						condition
+					}"
+				/>
+				<ng-container>
+					@if(!$last) {
+					<hlm-separator />
+					}
+				</ng-container>
+				}
+			</div>
 		</div>
 		} @else {
 		<div hlmAlert class="inline-block!">
@@ -870,6 +840,331 @@
 		</div>
 		}
 	</div>
+</ng-template>
+
+<ng-template
+	#logicTemplate
+	let-item="item"
+	let-itemIndex="itemIndex"
+	let-conditionIndex="index"
+	let-cd="condition"
+>
+	<ng-container
+		>@let operatorId = `${itemIndex}__operator_select`;</ng-container
+	>
+	<ng-container>@let condition = asRelevanceCondition(cd);</ng-container>
+	<ng-container> @let itemControl = asFormItem(item); </ng-container>
+	<div class="grid grid-cols-[auto_1fr] items-end gap-x-2">
+		<div class="h-full py-2">
+			<div
+				hlmButtonGroup
+				class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none"
+			>
+				@if(condition.expressions().value().length > 1) {
+				<hlm-select
+					id="{{operatorId}}"
+					placeholder="Select operator"
+					[formField]="condition.operator"
+				>
+					<hlm-select-trigger class="w-full"
+						><hlm-select-value
+					/></hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						<hlm-select-group>
+							<hlm-select-label>Operators</hlm-select-label>
+							<hlm-option value="or">OR</hlm-option>
+							<hlm-option value="and">AND</hlm-option>
+						</hlm-select-group>
+					</hlm-select-content>
+				</hlm-select>
+				}
+				<button
+					[hlmDropdownMenuTrigger]="conditionActionsTemplate"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideEllipsis" />
+				</button>
+				<ng-template #conditionActionsTemplate>
+					<hlm-dropdown-menu>
+						<hlm-dropdown-menu-group>
+							<button
+								(click)="onAddExpressionButtonClicked(itemControl, conditionIndex)"
+								class="cursor-pointer"
+								type="button"
+								hlmDropdownMenuItem
+							>
+								<ng-icon name="lucidePlus" />
+								<span>Add expression</span>
+							</button>
+							<button
+								(click)="onRemoveConditionButtonClicked(itemControl, conditionIndex)"
+								class="cursor-pointer"
+								type="button"
+								hlmDropdownMenuItem
+							>
+								<ng-icon name="lucideX" />
+								<span>Remove condition</span>
+							</button>
+						</hlm-dropdown-menu-group>
+					</hlm-dropdown-menu>
+				</ng-template>
+			</div>
+		</div>
+		<div
+			class="max-h-100 overflow-y-auto grid gap-2 grid-cols-[1fr_1fr_1fr_auto] p-2"
+		>
+			@for(expression of condition.expressions; track expression) {
+			<ng-container>
+				@let viableDependencies =
+				viableRelevanceDependencies()[itemControl.path().value()];
+				<hlm-select [formField]="expression.field">
+					<hlm-select-trigger class="w-full"
+						><hlm-select-value
+					/></hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						@for(dep of viableDependencies; track $index) {
+						<ng-container>
+							@let refFieldControl = fieldItems()[dep];
+						</ng-container>
+						@if(refFieldControl) {
+						<hlm-option [value]="dep"
+							>{{ refFieldControl.title().value() }}</hlm-option
+						>
+						} }
+					</hlm-select-content>
+				</hlm-select>
+				<ng-container>
+					@let selectedRefControl = fieldItems()[expression.field().value()];
+				</ng-container>
+				<hlm-select
+					[formField]="expression.operator"
+					(valueChange)="onExpressionOperatorChanged(expression, $event)"
+				>
+					<hlm-select-trigger class="w-full"
+						><hlm-select-value
+					/></hlm-select-trigger>
+					<hlm-select-content>
+						@if($any(selectedRefControl)) {
+						<ng-container>
+							@let operators =
+							fieldTypeExpressionOperatorsMap[selectedRefControl.meta.type().value()];
+						</ng-container>
+						@for(op of operators; track $index) {
+						<hlm-option [value]="op">{{ operatorsMap[op].label }}</hlm-option>
+						} }
+					</hlm-select-content>
+				</hlm-select>
+				<div>
+					<ng-container>
+						@let operandCount =
+						operatorsMap[expression.operator().value()]?.operandCount ?? 0;
+					</ng-container>
+					@if($any(selectedRefControl) && operandCount > 0) {
+					<ng-container>
+						@let template =
+						fieldTypeExpressionValueTemplatesMap[selectedRefControl.meta.type().value()];
+					</ng-container>
+					<ng-container>
+						@if(template) {
+						<ng-container
+							[ngTemplateOutlet]="template()"
+							[ngTemplateOutletContext]="{
+							$implicit: expression.value,
+							refField: selectedRefControl,
+							operator: expression.operator().value(),
+						}"
+						/>
+						}
+					</ng-container>
+					}
+				</div>
+				<button
+					(click)="onRemoveExpressionButtonClicked(conditionIndex, $index, item)"
+					hlmBtn
+					size="icon-sm"
+					variant="ghost"
+					type="button"
+				>
+					<ng-icon hlm size="sm" name="lucideX" />
+				</button>
+				<!-- </div> -->
+			</ng-container>
+			}
+		</div>
+	</div>
+</ng-template>
+
+<ng-template #rangeDateExpressionValueTemplate let-control> </ng-template>
+
+<ng-template
+	#multiDateExpressionValueTemplate
+	let-control
+	let-operator="operator"
+>
+	@switch(operator) { @case('between') {
+	<date-range-picker [formField]="control" />
+	} @case('in') {
+	<mult-date-picker [formField]="control" />
+	} @default {
+	<cv-date-picker [formField]="control" />
+	} }
+</ng-template>
+
+<ng-template
+	#dateExpressionValueTemplate
+	let-control
+	let-refField="refField"
+	let-operator="operator"
+>
+	<ng-container>@let ref = asFieldItem(refField);</ng-container>
+	<ng-container>@let refMeta = asDateFieldMeta(ref.meta);</ng-container>
+	@if(operator == 'between') {
+	<div class="flex gap-2 items-center">
+		<date-range-picker [formField]="control" />
+	</div>
+	} @else {
+	<cv-date-picker
+		[formField]="control"
+		autoCloseOnSelect
+		[pickTime]="refMeta.type().value() == 'date-time'"
+	/>
+	}
+</ng-template>
+
+<ng-template #selectExpressionValueTemplate let-control let-refField="refField">
+	<ng-container> @let ref = asFieldItem(refField); </ng-container>
+	<ng-container> @let refMeta = asSelectFieldMeta(ref.meta); </ng-container>
+	<ng-container
+		[ngTemplateOutlet]="selectTemplate"
+		[ngTemplateOutletContext]="{
+		$implicit: control,
+		placeholder: 'Select values',
+		multiple: true,
+		fixed: refMeta.hardOptions().value(),
+		ref: refMeta.optionSourceRef().value(),
+	}"
+	/>
+</ng-template>
+
+<ng-template
+	#selectTemplate
+	let-control
+	let-itemId="id"
+	let-placeholder="placeholder"
+	let-multiple="multiple"
+	let-fixedOptions="fixed"
+	let-valueTemplate="valueTemplate"
+	let-valueTemplateContext="valueTemplateContext"
+	let-clearable="clearable"
+	let-ref="ref"
+	let-defaultValue="defaultValue"
+>
+	<ng-container>@let linkedOptions = linkedOptionSources()[ref];</ng-container>
+	@if(clearable) {
+	<div
+		hlmButtonGroup
+		class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none"
+	>
+		<ng-container
+			[ngTemplateOutlet]="selectTemplate"
+			[ngTemplateOutletContext]="{
+				$implicit: control,
+				id: itemId,
+				placeholder,
+				multiple,
+				fixed: fixedOptions,
+				valueTemplate,
+				valueTemplateContext,
+				ref
+			}"
+		/>
+		@if(control().value() !== undefined && control().value() !== null ||
+		(isArray(control().value()) && control().value().length == 0)) {
+		<button
+			type="button"
+			(click)="control.value.set(defaultValue ?? null)"
+			hlmBtn
+			variant="outline"
+		>
+			<ng-icon name="lucideX" hlm size="sm" />
+		</button>
+		}
+	</div>
+	} @else {
+	<hlm-select
+		[id]="itemId"
+		[formField]="asGenericControl(control)"
+		scrollable="true"
+		[multiple]="multiple === true"
+		[placeholder]="placeholder"
+	>
+		<hlm-select-trigger class="w-full">
+			@if(valueTemplate) {
+			<hlm-select-value>
+				<ng-container *brnSelectValue="let value">
+					<ng-container
+						[ngTemplateOutlet]="valueTemplate"
+						[ngTemplateOutletContext]="{value: value}"
+					/>
+				</ng-container>
+			</hlm-select-value>
+			} @else {
+			<hlm-select-value />
+			}
+		</hlm-select-trigger>
+		<hlm-select-content class="w-full">
+			<hlm-select-scroll-up />
+			<ng-container>
+				@if(linkedOptions && linkedOptions.length > 0) {
+				<hlm-select-group>
+					<hlm-select-label>Linked options</hlm-select-label>
+					@for(item of linkedOptions; track $index) {
+					<hlm-option [value]="item.value">{{ item.label }}</hlm-option>
+					}
+				</hlm-select-group>
+				}
+			</ng-container>
+			<ng-container>
+				@if(fixedOptions && fixedOptions.length > 0) {
+				<hlm-select-group>
+					<hlm-select-label>Fixed options</hlm-select-label>
+					@for(item of fixedOptions; track $index) {
+					<hlm-option [value]="item.value">{{item.label}}</hlm-option>
+					}
+				</hlm-select-group>
+				}
+			</ng-container>
+			<hlm-select-scroll-down />
+		</hlm-select-content>
+	</hlm-select>
+	}
+</ng-template>
+
+<ng-template #textExpressionValueTemplate let-control>
+	<input hlmInput [formField]="control" placeholder="Value" />
+</ng-template>
+
+<ng-template
+	#numberExpressionValueTemplate
+	let-control
+	let-refField="refField"
+	let-operator="operator"
+>
+	<ng-container>@let ref = asFieldItem(refField);</ng-container>
+	<ng-container>@let refMeta = asNumberFieldMeta(ref.meta);</ng-container>
+	@switch(operator) { @case('between') {
+	<cv-number-range-input [formField]="control" [step]="refMeta.type().value() == 'float' ? .1 : 1" />
+	} @default {
+	<input
+		hlmInput
+		[formField]="control"
+		placeholder="Value"
+		type="number"
+		[step]="refMeta.type().value() == 'float' ? .1 : 1"
+	/>
+	} }
 </ng-template>
 
 <ng-template #separatorItemTemplate>

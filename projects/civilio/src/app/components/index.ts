@@ -17,3 +17,4 @@ export * from './date-picker/date-picker';
 export * from './date-range-picker/date-range-picker.component'
 export * from './mult-date-picker/mult-date-picker.component';
 export * from './geo-point-picker/geo-point-picker.component';
+export * from './number-range-input/number-range-input.component';
