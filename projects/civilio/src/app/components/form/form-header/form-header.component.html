@@ -7,7 +7,7 @@
 			size="sm"
 			variant="outline"
 		>
-			<ng-icon name="lucideChevronLeft"/>
+			<ng-icon name="lucideChevronLeft" />
 			<span>{{ "forms.header.actions.navigation.prev" | translate }}</span>
 		</button>
 		<button
@@ -18,47 +18,79 @@
 			variant="outline"
 		>
 			<span>{{ "forms.header.actions.navigation.next" | translate }}</span>
-			<ng-icon name="lucideChevronRight"/>
+			<ng-icon name="lucideChevronRight" />
 		</button>
 		<hlm-autocomplete
 			(valueChange)="onAutoCompleteIndexValueChanged($any($event))"
 			[(search)]="indexInputFilter"
-			[emptyText]="'tmpl.autocomplete.empty_text' | translate"
-			[filteredOptions]="refSuggestions.value()"
-			[loadingText]="'loading.txt' | translate"
-			[loading]="refSuggestions.isLoading()"
-			[searchPlaceholderText]="'misc.placeholder.jump_to_index' | translate"
 			[value]="submissionIndex()"
-			class="max-w-[158px]"
-		/>
+			class="max-w-39.5"
+		>
+			<hlm-autocomplete-input
+				[placeholder]="'misc.placeholder.jump_to_index' | translate"
+			/>
+			<div *brnPopoverContent hlmAutocompleteContent>
+				<hlm-autocomplete-empty>{{
+					"tmpl.autocomplete.empty_text" | translate
+				}}</hlm-autocomplete-empty>
+				<div hlmAutocompleteList>
+					@for (option of refSuggestions.value(); track option) {
+						<hlm-autocomplete-item [value]="option">{{
+							option
+						}}</hlm-autocomplete-item>
+					}
+				</div>
+			</div>
+		</hlm-autocomplete>
 		@if (facilityName()) {
 			<span>-</span>
-			<p [title]="facilityName()" class="line-clamp-1 max-w-[450px] text-lg font-semibold">{{ facilityName() }}</p>
+			<p
+				[title]="facilityName()"
+				class="line-clamp-1 max-w-[450px] text-lg font-semibold"
+			>
+				{{ facilityName() }}
+			</p>
 		}
 		@if (version()) {
 			<span>-</span>
 			<div class="inline-flex items-center gap-2 text-sm">
 				<span class="font-semibold">{{ version() | mask }}</span>
-				<button (click)="onCopyVersionButtonClicked()" [title]="'misc.actions.copy_version' | translate" hlmBtn
-								size="sm"
-								variant="ghost">
-					<ng-icon name="lucideCopy"/>
+				<button
+					(click)="onCopyVersionButtonClicked()"
+					[title]="'misc.actions.copy_version' | translate"
+					hlmBtn
+					size="sm"
+					variant="ghost"
+				>
+					<ng-icon name="lucideCopy" />
 				</button>
 			</div>
 		}
 	} @else {
-		<h4 hlmH4>{{ 'submissions.new_submission.title' | translate }}</h4>
+		<h4 hlmH4>{{ "submissions.new_submission.title" | translate }}</h4>
 	}
 </div>
 <div class="flex items-center gap-2">
 	@if (canUndo() || canRedo() || isNewSubmission()) {
-		<button (click)="undo.emit()" [disabled]="!canUndo()" [title]="'forms.header.actions.undo' | translate" hlmBtn
-						size="icon" variant="ghost">
-			<ng-icon name="lucideUndo2"/>
+		<button
+			(click)="undo.emit()"
+			[disabled]="!canUndo()"
+			[title]="'forms.header.actions.undo' | translate"
+			hlmBtn
+			size="icon"
+			variant="ghost"
+		>
+			<ng-icon name="lucideUndo2" />
 		</button>
-		<button (click)="redo.emit()" [disabled]="!canRedo()" [title]="'forms.header.actions.redo' | translate" hlmBtn
-						size="icon" variant="ghost">
-			<ng-icon name="lucideRedo2"/>
+		<button
+			(click)="redo.emit()"
+			[disabled]="!canRedo()"
+			[title]="'forms.header.actions.redo' | translate"
+			hlmBtn
+			size="icon"
+			variant="ghost"
+		>
+			<ng-icon name="lucideRedo2" />
 		</button>
 	}
 	<!--	<hlm-sheet-->

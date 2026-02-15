@@ -9,4 +9,12 @@ export * from './version-cell/version-cell.component';
 export * from './date-cell/date-cell.component';
 export * from './badge-cell/badge-cell.component';
 export * from './group-field/group-field.component';
-export * from '../pages/settings/choice-editor/choice-editor.page';
+export * from '../pages/settings/dataset-editor/dataset-editor.page';
+export * from './api-config-form/api-config-form.component';
+export * from './form-logo-upload/form-logo-upload.component';
+export * from './ref-importer/ref-importer.component';
+export * from './date-picker/date-picker';
+export * from './date-range-picker/date-range-picker.component'
+export * from './mult-date-picker/mult-date-picker.component';
+export * from './geo-point-picker/geo-point-picker.component';
+export * from './number-range-input/number-range-input.component';

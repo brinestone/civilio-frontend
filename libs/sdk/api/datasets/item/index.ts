@@ -4,24 +4,29 @@
 // @ts-ignore
 import { type WithItemItemRequestBuilder, WithItemItemRequestBuilderRequestsMetadata } from './item/index.js';
 // @ts-ignore
-import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
+import { ItemsRequestBuilderRequestsMetadata, type ItemsRequestBuilder } from './items/index.js';
+// @ts-ignore
+import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
- * Builds and executes requests for operations under /api/datasets/{group}
+ * Builds and executes requests for operations under /api/datasets/{dataset}
  */
-export interface WithGroupItemRequestBuilder extends BaseRequestBuilder<WithGroupItemRequestBuilder> {
+export interface WithDatasetItemRequestBuilder extends BaseRequestBuilder<WithDatasetItemRequestBuilder> {
+    /**
+     * The items property
+     */
+    get items(): ItemsRequestBuilder;
     /**
      * Gets an item from the ApiSdk.api.datasets.item.item collection
      * @param item The item's ID
      * @returns {WithItemItemRequestBuilder}
      */
-     byItem(item: string) : WithItemItemRequestBuilder;
+     byItem(item: Guid) : WithItemItemRequestBuilder;
     /**
      * Delete a dataset including its items, unlinking any dependent datasets
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
-     * @returns {Promise<ArrayBuffer>}
      */
-     delete(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<ArrayBuffer | undefined>;
+     delete(requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<void>;
     /**
      * Delete a dataset including its items, unlinking any dependent datasets
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
@@ -32,24 +37,26 @@ export interface WithGroupItemRequestBuilder extends BaseRequestBuilder<WithGrou
 /**
  * Uri template for the request builder.
  */
-export const WithGroupItemRequestBuilderUriTemplate = "{+baseurl}/api/datasets/{group}";
+export const WithDatasetItemRequestBuilderUriTemplate = "{+baseurl}/api/datasets/{dataset}";
 /**
  * Metadata for all the navigation properties in the request builder.
  */
-export const WithGroupItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithGroupItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+export const WithDatasetItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithDatasetItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     byItem: {
         requestsMetadata: WithItemItemRequestBuilderRequestsMetadata,
         pathParametersMappings: ["item"],
+    },
+    items: {
+        requestsMetadata: ItemsRequestBuilderRequestsMetadata,
     },
 };
 /**
  * Metadata for all the requests in the request builder.
  */
-export const WithGroupItemRequestBuilderRequestsMetadata: RequestsMetadata = {
+export const WithDatasetItemRequestBuilderRequestsMetadata: RequestsMetadata = {
     delete: {
-        uriTemplate: WithGroupItemRequestBuilderUriTemplate,
-        adapterMethodName: "sendPrimitive",
-        responseBodyFactory:  "ArrayBuffer",
+        uriTemplate: WithDatasetItemRequestBuilderUriTemplate,
+        adapterMethodName: "sendNoResponseContent",
     },
 };
 /* tslint:enable */

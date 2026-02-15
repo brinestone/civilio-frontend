@@ -1,0 +1,66 @@
+<hlm-popover sideOffset="5" (stateChanged)="popoverState.set($event)">
+	<div hlmButtonGroup>
+		<button
+			hlmBtn
+			type="button"
+			variant="outline"
+			[disabled]="disabled()"
+			[size]="size()"
+			[class]="computedClass()"
+			[attr.aria-invalid]="invalid()"
+			[attr.aria-valid]="valid()"
+			[attr.aria-touched]="touched()"
+			[attr.aria-untouched]="!touched()"
+			hlmPopoverTrigger
+		>
+			@let dateCount = value()?.length ?? 0;
+			<div class="truncate">
+				@switch (dateCount) {
+					@case (0) {
+						<span></span>
+					}
+					@case (1)
+					@case (2) {
+						<div class="flex gap-2 flex-wrap">
+							@for (date of value(); track $index) {
+								<span>{{ $any(date) | date }}</span>
+							}
+						</div>
+					}
+					@default {
+						<span>{{ dateCount <= 99 ? dateCount : "99+" }} dates</span>
+					}
+				}
+			</div>
+			<ng-icon name="lucideChevronDown" size="sm" hlm />
+		</button>
+		@if (clearable() && dateCount > 0) {
+			<button
+				type="button"
+				tabindex="-1"
+				hlmBtn
+				(click)="onClearButtonClicked()"
+				variant="outline"
+				[size]="size()"
+				class="group-[:is(.ng-invalid)]/multi-date-picker:border-destructive! group-[:is(.ng-invalid)]/multi-date-picker:text-destructive! group-[:is(.ng-invalid)]/multi-date-picker:ring-destructive/40!"
+				[disabled]="disabled()"
+			>
+				<ng-icon name="lucideX" />
+			</button>
+		}
+	</div>
+
+	<div hlmPopoverContent class="w-auto p-0" *brnPopoverContent="let ctx">
+		<hlm-calendar-multi
+			calendarClass="border-0 rounded-none"
+			[captionLayout]="captionLayout()"
+			[minSelection]="minSelection()"
+			[maxSelection]="maxSelection()"
+			[disabled]="disabled()"
+			[min]="minDate()"
+			[max]="maxDate()"
+			[date]="mutableValue()"
+			(dateChange)="onSelectionChanged($event)"
+		/>
+	</div>
+</hlm-popover>

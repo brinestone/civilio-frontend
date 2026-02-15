@@ -1,0 +1,171 @@
+<div
+	class="relative overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<div
+		class="bg-background/50 sticky top-0 pb-2 pt-1 space-y-1 backdrop-blur border-b border-border px-2"
+	>
+		<div class="flex justify-between items-center">
+			<h3 hlmH4>Datasets</h3>
+			<ng-container>
+				@let resultCount = datasetRefs.value()?.totalRecords;
+			</ng-container>
+			@if(datasetRefs.isLoading()) {
+			<hlm-skeleton class="h-3 w-15 rounded!" />
+			} @else {<span class="text-muted-foreground text-xs"
+				>{{ resultCount | compact }} result{{ resultCount != 1 ? 's' :
+				''}}</span
+			>}
+		</div>
+		<div hlmInputGroup>
+			<input
+				[(ngModel)]="datasetFilter"
+				hlmInputGroupInput
+				placeholder="Filter..."
+			/>
+			<div hlmInputGroupAddon>
+				<ng-icon name="lucideSearch" />
+			</div>
+			@if(datasetRefs.isLoading() || !datasetRefs.hasValue()) {
+			<div hlmInputGroupAddon align="inline-end">
+				<hlm-spinner class="text-lg" />
+			</div>
+			}
+		</div>
+	</div>
+	<div cdkListbox [formField]="formModel.dataset" class="flex flex-col">
+		<ng-container> @let refs = datasetRefs.value()?.data ?? []; </ng-container>
+		@for(ref of refs; track ref.id) {
+		<div [cdkOption]="ref.id" class="group/dataset dataset-list-item">
+			<div class="space-y-0 px-2">
+				<p class="font-medium">{{ ref.title }}</p>
+				<p
+					class="text-sm text-muted-foreground group-[:is(.cdk-option-active)]/dataset:text-primary-foreground/50 max-w-full line-clamp-1 text-ellipsis"
+				>
+					{{ ref.description}}
+				</p>
+			</div>
+			<div
+				class="flex items-center text-muted-foreground group-[:is(.cdk-option-active)]/dataset:text-primary-foreground/50"
+			>
+				<ng-icon name="lucideChevronRight" class="text-15" />
+			</div>
+		</div>
+		<hlm-separator />
+		}
+	</div>
+</div>
+<hlm-separator orientation="vertical" />
+<div
+	class="relative overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	@if(selectedDataset()) {
+	<div
+		class="bg-background/50 sticky top-0 pb-2 pt-1 space-y-2 backdrop-blur border-b border-border px-2"
+	>
+		<div class="flex justify-between items-center">
+			<h3 hlmH4>Items</h3>
+			<ng-container>
+				@let itemsCount = datasetItems.value()?.totalRecords;
+			</ng-container>
+			@if(datasetItems.isLoading()) {
+			<hlm-skeleton class="h-3 w-15 rounded!" />
+			} @else {<span class="text-muted-foreground text-xs"
+				>{{ itemsCount | compact }} result{{ itemsCount != 1 ? 's' : ''}}</span
+			>}
+		</div>
+		<div hlmInputGroup>
+			<input
+				[(ngModel)]="datasetItemFilter"
+				hlmInputGroupInput
+				placeholder="Filter..."
+			/>
+			<div hlmInputGroupAddon>
+				<ng-icon name="lucideSearch" />
+			</div>
+			@if(datasetItems.isLoading() || !datasetItems.hasValue()) {
+			<div hlmInputGroupAddon align="inline-end">
+				<hlm-spinner class="text-lg" />
+			</div>
+			}
+		</div>
+		<div class="flex justify-between items-center">
+			<div class="flex flex-wrap gap-3">
+				<label class="cursor-pointer flex items-center gap-2" hlmLabel
+					><hlm-checkbox [formField]="formModel.selectAll" />
+					<span>Select All</span></label
+				>
+				@if(!formModel.followDatasetUpdates().hidden()) {
+				<label class="cursor-pointer flex items-center gap-2" hlmLabel>
+					<hlm-checkbox [formField]="formModel.followDatasetUpdates" />
+					<span>Update when the dataset updates</span>
+				</label>
+				}
+			</div>
+			@let selectedItemCount = formData().selectAll ?
+			(datasetItems.value()?.totalRecords ?? 0) :
+			formData().selectedItems.length;
+			<span class="text-muted-foreground text-xs">
+				{{selectedItemCount | compact}} item{{selectedItemCount != 1 ? 's': ''}}
+				selected
+			</span>
+		</div>
+	</div>
+	<div
+		cdkListbox
+		cdkListboxMultiple
+		[formField]="formModel.selectedItems"
+		class="item-list"
+	>
+		@for(item of datasetItems.value()?.data; track $index) {
+		<div [cdkOption]="item.id" class="dataset-item">
+			<div class="p-2 grid grid-cols-[1fr_auto] items-center">
+				<span>{{ item.label }}</span>
+				@if(formData().selectedItems.includes($any(item.id))) {
+				<ng-icon name="lucideCheck" />
+				}
+			</div>
+			<hlm-separator />
+		</div>
+		}
+	</div>
+	} @else {
+	<div class="flex items-center justify-center">
+		<div hlmEmpty>
+			<div hlmEmptyHeader>
+				<div hlmEmptyMedia variant="icon">
+					<ng-icon name="lucideListCheck" />
+				</div>
+				<div hlmEmptyTitle>No dataset selected</div>
+				<div hlmEmptyDescription>
+					Select a dataset from the list on the left to see its items here.
+				</div>
+			</div>
+		</div>
+	</div>
+	}
+</div>
+<hlm-separator orientation="vertical" />
+<div>
+	@if (formModel().valid()) {
+	<div class="flex items-center justify-center h-full gap-y-2 flex-col px-2">
+		<button
+			[disabled]="formModel().submitting()"
+			(click)="onFinishButtonClicked()"
+			hlmBtn
+			type="button"
+		>
+			@if(formModel().submitting()) {
+				<hlm-spinner />
+			}
+			<span>Finish</span>
+		</button>
+	</div>
+	} @else {
+	<p class="text-lg font-medium px-2 pt-2">Errors</p>
+	<ul class="list-disc list-inside p-2">
+		@for(err of formModel().errorSummary(); track $index) {
+		<li class="text-sm text-destructive">{{ err.message }}</li>
+		}
+	</ul>
+	}
+</div>

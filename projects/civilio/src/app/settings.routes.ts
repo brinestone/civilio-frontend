@@ -1,15 +1,17 @@
 import { Routes } from "@angular/router";
-import { dbConfiguredGuard } from "./guards/config-valid-guard";
-import { provideFormStore } from "./store/form";
+import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
+import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
+import { hasChangesGuard } from "./guards/has-changes-guard";
 import {
 	ChefferieFormDefinition,
 	CscFormDefinition,
 	FosaFormDefinition
 } from "./model/form";
-import { hasChangesGuard } from "./guards/has-changes-guard";
-import { provideDatasets } from "./store/dataset";
+import { DatasetService } from "./services/dataset";
+import { provideFormStore } from "./store/form/data";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
+const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const settingsRoutes: Routes = [
 	{
 		path: 'general',
@@ -17,18 +19,18 @@ export const settingsRoutes: Routes = [
 		loadComponent: () => import('./pages/settings/general-settings/general-settings.page').then(m => m.GeneralSettingsPage)
 	},
 	{
-		path: 'choice-editor',
+		path: 'dataset-editor',
 		title: 'settings.dataset.page_title',
-		providers: [provideDatasets()],
-		canActivate: [dbConfigValidGuardFn],
+		providers: [DatasetService],
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],
-		loadComponent: () => import('./pages/settings/choice-editor/choice-editor.page').then(m => m.ChoiceEditorPage),
+		loadComponent: () => import('./pages/settings/dataset-editor/dataset-editor.page').then(m => m.DatasetEditorPage),
 	},
 	{
 		providers: [
 			provideFormStore()
 		],
-		canActivate: [dbConfigValidGuardFn],
+		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		path: 'field-mapping',
 		title: 'settings.mapping.title',
 		loadComponent: () => import('./pages/settings/field-mapping-settings/field-mapping-settings.page').then(m => m.FieldMappingSettingsPage),

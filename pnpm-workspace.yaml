@@ -9,5 +9,6 @@ onlyBuiltDependencies:
   - electron
   - electron-winstaller
   - esbuild
+  - less
   - lmdb
   - msgpackr-extract

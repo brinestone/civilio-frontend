@@ -423,7 +423,7 @@ export async function initializeSubmissionVersioning({
 	//language=PostgreSQL
 	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(
 																										${ index },
-																										${ form }::civilio.form_types) AS version`);
+																										${ form }) AS version`);
 	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
 }
 
@@ -435,7 +435,7 @@ export async function findCurrentSubmissionVersion({
 	const queryResult = await db.execute(sql`
 		SELECT d.*
 		FROM revisions.get_version_chain(${ index },
-																		 ${ form }::civilio.form_types) d
+																		 ${ form }) d
 		WHERE d.is_current = true
 		LIMIT 1;
 	`);
@@ -454,7 +454,7 @@ export async function findSubmissionVersions({
 	const queryResult = await db.execute(sql`
 		SELECT d.*
 		FROM revisions.get_version_chain(${ index },
-																		 ${ form }::civilio.form_types) d
+																		 ${ form }) d
 		WHERE d.changed_at <= COALESCE(${ changeOffset ?? null }, NOW())
 		LIMIT ${ limit };
 	`);
@@ -565,7 +565,7 @@ export async function findFormData({
 	for (const tableName of tableNames) {
 		// language=PostgreSQL
 		queryResult = await db.execute(sql`
-			SELECT revisions.get_version_data(${ form }::civilio.form_types,
+			SELECT revisions.get_version_data(${ form },
 																				${ index }, ${ tableName },
 																				${ version || null }) AS "data";
 		`);

@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const ApiServerInfoSchema = z.object({
+	baseUrl: z.url(),
+	nodeName: z.string()
+});
+
 export const OptionItemSchema = z.object({
 	id: z.uuid().nullable(),
 	label: z.string(),
@@ -9,23 +14,23 @@ export const OptionItemSchema = z.object({
 	ordinal: z.int()
 });
 
-export const DatasetItemSchema = z.object({
-	id: z.uuid().nullable(),
-	label: z.string(),
-	value: z.string(),
-	parentValue: z.string().nullish(),
-	i18nKey: z.string().nullable(),
-	ordinal: z.int()
-});
+// export const DatasetItemSchema = z.object({
+// 	id: z.uuid().nullable(),
+// 	label: z.string(),
+// 	value: z.string(),
+// 	parentValue: z.string().nullish(),
+// 	i18nKey: z.string().nullable(),
+// 	ordinal: z.int()
+// });
 
-export const DatasetGroupSchema = z.object({
-	title: z.string(),
-	description: z.string().nullish(),
-	key: z.string().nullish(),
-	id: z.uuid().nullish(),
-	parentId: z.uuid().nullish(),
-	options: DatasetItemSchema.array(),
-})
+// export const DatasetGroupSchema = z.object({
+// 	title: z.string(),
+// 	description: z.string().nullish(),
+// 	key: z.string().nullish(),
+// 	id: z.uuid().nullish(),
+// 	parentId: z.uuid().nullish(),
+// 	items: DatasetItemSchema.array(),
+// })
 
 export const OptionGroupSchema = z.object({
 	description: z.string().nullable(),
@@ -150,10 +155,10 @@ export const DbColumnSpecSchema = z.object({
 	tableName: z.string()
 });
 export const OptionSchema = z.object({
-	label: z.string().nullable(),
-	value: z.string().nullable(),
-	parent: z.string().nullable(),
-	i18nKey: z.string().nullable()
+	label: z.string().nullish(),
+	value: z.string().nullish(),
+	parent: z.string().nullish(),
+	i18nKey: z.string().nullish()
 });
 
 export function createPaginatedResultSchema<T extends z.ZodTypeAny>(schema: T) {
@@ -202,7 +207,8 @@ export const DbConfigSchema = z.object({
 });
 export const AppConfigSchema = z.object({
 	prefs: AppPrefsSchema.partial().optional(),
-	misc: z.record(z.string(), z.unknown()).optional()
+	misc: z.record(z.string(), z.unknown()).optional(),
+	apiServer: ApiServerInfoSchema.optional()
 }).default({});
 
 export const GeoPointSchema = z.object({
@@ -253,5 +259,13 @@ export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
 export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
 export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
-export type DatasetItem = z.infer<typeof DatasetItemSchema>;
-export type DatasetGroup = z.infer<typeof DatasetGroupSchema>;
+// export type DatasetItem = z.infer<typeof DatasetItemSchema>;
+// export type DatasetGroup = z.infer<typeof DatasetGroupSchema>;
+export type ApiServerInfo = z.infer<typeof ApiServerInfoSchema>;
+export type Strict<T> = {
+	[P in keyof T]-?: T[P] extends (infer U)[]
+	? Strict<U>[]
+	: T[P] extends object | null | undefined
+	? Strict<NonNullable<T[P]>>
+	: NonNullable<T[P]>;
+};

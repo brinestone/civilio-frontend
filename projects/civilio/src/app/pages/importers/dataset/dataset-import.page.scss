@@ -1,0 +1,30 @@
+@reference "tailwindcss";
+
+:host {
+	@apply grid grid-cols-[200px_auto_1fr_auto_150px] overflow-y-auto h-full;
+}
+
+.item-list {
+	&[aria-disabled="true"] {
+		& > .dataset-item {
+			@apply bg-gray-300! text-gray-400! cursor-not-allowed dark:bg-gray-800! dark:text-gray-700!;
+		}
+	}
+}
+
+.dataset-item {
+	@apply cursor-pointer flex flex-col hover:bg-(--secondary)/30;
+	&.cdk-option-active {
+		@apply bg-(--primary) text-(--primary-foreground);
+	}
+	/* &:disabled {
+		@apply cursor-not-allowed bg-(--secondary) text-(--secondary-foreground);
+	} */
+}
+
+.dataset-list-item {
+	@apply grid grid-cols-[1fr_auto] cursor-pointer py-2 items-center hover:bg-(--secondary)/30;
+	&.cdk-option-active {
+		@apply bg-(--primary) text-(--primary-foreground);
+	}
+}

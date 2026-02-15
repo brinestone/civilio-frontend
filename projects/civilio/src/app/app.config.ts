@@ -1,4 +1,3 @@
-import { provideHttpClient } from '@angular/common/http';
 import {
 	ApplicationConfig,
 	isDevMode,
@@ -6,6 +5,9 @@ import {
 	provideZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
+import { usingElectron } from '@app/services/electron';
+import { usingWeb } from '@app/services/web';
+import { isDesktop } from '@app/util';
 import { provideNgIconLoader } from '@ng-icons/core';
 import {
 	provideMissingTranslationHandler,
@@ -18,21 +20,18 @@ import {
 	MissingTranslationHandlerImpl,
 	provideTranslationLoader
 } from './adapters/ngx-translate/ngx-translate';
+import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
+import { provideCivilioSdk } from './adapters/sdk';
 import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
 import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
 import { ConfigState } from './store/config';
-import { isDesktop } from '@app/util';
-import { usingElectron } from '@app/services/electron';
-import { usingWeb } from '@app/services/web';
-import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
-import { provideClientSdk } from './adapters/sdk';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideBrowserGlobalErrorListeners(),
-		provideClientSdk(),
+		provideCivilioSdk(),
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),

@@ -1,0 +1,70 @@
+<hlm-popover sideOffset="5" (stateChanged)="_popoverState.set($event)">
+	<div
+		hlmButtonGroup
+		[ngClass]="{
+		'border-destructive!': invalid()
+	}"
+	>
+		<button
+			[id]="buttonId()"
+			type="button"
+			[disabled]="disabled()"
+			[class]="_computedClass()"
+			[attr.aria-invalid]="invalid()"
+			[size]="buttonSize()"
+			hlmBtn
+			variant="outline"
+			hlmPopoverTrigger
+		>
+			<span
+				[ngClass]="{
+				'italic text-muted-foreground font-normal': value() === null || value() === undefined,
+			}"
+				class="truncate text-start group-[:is(.ng-invalid)]/date-picker:text-destructive!"
+				>{{$any(dateValue()) | date }}</span
+			>
+			<ng-icon hlm size="sm" name="lucideChevronDown" />
+		</button>
+		@if(timePicker()) {
+		<input
+			type="time"
+			defaultValue="00:00"
+			[disabled]="disabled()"
+			hlmInput
+			[min]="timeMin()"
+			[max]="timeMax()"
+			[value]="mutableTime()"
+			(change)="onTimeInputValueChanged($event)"
+			[ngClass]="{
+				'italic text-muted-foreground font-normal': value() === null || value() === undefined,
+			}"
+			class="group-[:is(.ng-invalid)]/date-picker:text-destructive! selection:bg-primary selection:text-primary-foreground bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+		/>
+		} @if(enableClear() && value()) {
+		<button
+			[disabled]="disabled()"
+			(click)="onClearButtonClicked()"
+			tabindex="-1"
+			hlmBtn
+			class="group-[:is(.ng-invalid)]/date-picker:border-destructive! group-[:is(.ng-invalid)]/date-picker:text-destructive! group-[:is(.ng-invalid)]/date-picker:ring-destructive/40!"
+			type="button"
+			[size]="buttonSize()"
+			variant="outline"
+		>
+			<ng-icon name="lucideX" />
+		</button>
+		}
+	</div>
+
+	<div hlmPopoverContent class="w-auto p-0" *brnPopoverContent="let ctx">
+		<hlm-calendar
+			calendarClass="border-0 rounded-none"
+			[captionLayout]="captionLayout()"
+			[date]="dateValue()"
+			[min]="transformedMin()"
+			[max]="transformedMax()"
+			[disabled]="disabled()"
+			(dateChange)="_handleDateChange($event)"
+		/>
+	</div>
+</hlm-popover>

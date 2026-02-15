@@ -1,0 +1,54 @@
+<hlm-popover
+	sideOffset="5"
+	[state]="popoverState()"
+	(stateChanged)="popoverState.set($event)"
+	(closed)="onPopoverClosed()"
+>
+	<div hlmButtonGroup>
+		<button
+			type="button"
+			[size]="size()"
+			hlmBtn
+			[disabled]="disabled()"
+			variant="outline"
+			[class]="computedClass()"
+			hlmPopoverTrigger
+		>
+			<div class="flex items-center gap-2">
+				@if (start()) {
+					<span>{{ $any(start()) | date }}</span>
+				}
+				@if (end()) {
+					<span>-</span>
+					<span>{{ $any(end()) | date }}</span>
+				}
+			</div>
+			<ng-icon name="lucideChevronDown" hlm size="sm" />
+		</button>
+		@if (clearable() && (start() || end())) {
+			<button
+				(click)="value.set(null)"
+				[size]="size()"
+				hlmBtn
+				type="button"
+				variant="outline"
+				class="group-[:is(.ng-invalid)]/date-range-picker:border-destructive! group-[:is(.ng-invalid)]/date-range-picker:text-destructive! group-[:is(.ng-invalid)]/date-range-picker:ring-destructive/40!"
+			>
+				<ng-icon name="lucideX" />
+			</button>
+		}
+	</div>
+	<div hlmPopoverContent class="w-auto p-0" *brnPopoverContent="let ctx">
+		<hlm-calendar-range
+			calendarClass="border-0 rounded-none"
+			[startDate]="start()"
+			[captionLayout]="captionLayout()"
+			[endDate]="end()"
+			[min]="minDate()"
+			[max]="maxDate()"
+			[disabled]="disabled()"
+			(startDateChange)="onStartDayChanged($event)"
+			(endDateChange)="onEndDayChanged($event)"
+		/>
+	</div>
+</hlm-popover>

@@ -34,6 +34,10 @@ import {
 import { createNotifier } from 'ngxtension/create-notifier';
 import { injectNetwork } from 'ngxtension/inject-network';
 
+/**
+ * @deprecated
+ *
+ */
 @Component({
 	selector: 'cv-geo-point',
 	viewProviders: [

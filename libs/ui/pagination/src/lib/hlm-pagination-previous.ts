@@ -5,17 +5,16 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronLeft } from '@ng-icons/lucide';
 import type { ButtonVariants } from '@spartan-ng/helm/button';
 import { HlmIcon } from '@spartan-ng/helm/icon';
-import { hlm } from '@spartan-ng/helm/utils';
-import type { ClassValue } from 'clsx';
+import { classes } from '@spartan-ng/helm/utils';
 import { HlmPaginationLink } from './hlm-pagination-link';
 
 @Component({
 	selector: 'hlm-pagination-previous',
 	imports: [HlmPaginationLink, NgIcon, HlmIcon],
 	providers: [provideIcons({ lucideChevronLeft })],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<a
-			[class]="_computedClass()"
 			hlmPaginationLink
 			[link]="link()"
 			[queryParams]="queryParams()"
@@ -27,10 +26,8 @@ import { HlmPaginationLink } from './hlm-pagination-link';
 			<span [class]="_labelClass()">{{ text() }}</span>
 		</a>
 	`,
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HlmPaginationPrevious {
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	/** The link to navigate to the previous page. */
 	public readonly link = input<RouterLink['routerLink']>();
 	/** The query parameters to pass to the previous page. */
@@ -47,10 +44,9 @@ export class HlmPaginationPrevious {
 		transform: booleanAttribute,
 	});
 	protected readonly _labelClass = computed(() => (this.iconOnly() ? 'sr-only' : 'hidden sm:block'));
-
 	protected readonly _size = computed<ButtonVariants['size']>(() => (this.iconOnly() ? 'icon' : 'default'));
 
-	protected readonly _computedClass = computed(() =>
-		hlm('gap-1', !this.iconOnly() ? 'sm:pl-2.5' : '', this.userClass()),
-	);
+	constructor() {
+		classes(() => ['gap-1 px-2.5', !this.iconOnly() ? 'sm:pl-2.5' : '']);
+	}
 }

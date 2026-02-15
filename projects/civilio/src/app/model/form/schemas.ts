@@ -1,11 +1,155 @@
+import { isDevMode } from "@angular/core";
+import { FormItemDefinition, FormItemField, FormItemGroup } from "@civilio/sdk/models";
 import {
-	AllSectionKeysSchema,
 	FieldKeySchema,
 	FormTypeSchema,
 	GeoPointSchema,
 	OptionSchema
 } from "@civilio/shared";
 import z from "zod";
+
+const logicOperators = {
+	gt: '>',
+	gte: '>=',
+	lt: '<',
+	lte: '<=',
+	not: '!',
+	truthy: '!!',
+	and: 'and',
+	or: 'or',
+	eq: '==',
+	ne: '!=',
+} as const;
+
+const mathOperators = {
+	add: '+',
+	minus: '-',
+	mult: '*',
+	div: '/',
+	mod: '%',
+	min: 'min',
+	max: 'max'
+} as const;
+
+const arrayOperators = {
+	in: 'in',
+	merge: 'merge',
+	len: 'length',
+	get: 'get'
+} as const;
+
+export function isGroupItem(v: FormItemDefinition): v is FormItemGroup {
+	return v?.type === 'group';
+}
+export function isFieldItem(v: FormItemDefinition): v is FormItemField {
+	return v.type === 'field';
+}
+
+export const ArrayOperatorsSchema = z.enum(arrayOperators);
+export const MathOperatorsSchema = z.enum(mathOperators);
+export const LogicOperatorsSchema = z.enum(logicOperators);
+export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'date-range', 'multi-date', 'geo-point']);
+export const DateFieldTypesSchema = FieldTypeSchema.extract(['date', 'multi-date', 'date-range', 'date-time']);
+export const BaseFieldItemMetaSchema = z.object({
+	required: z.boolean().nullish().default(true),
+	span: z.int().nullish().default(12),
+	defaultValue: z.any().nullish().default(null),
+	readonly: z.boolean().nullish().default(false),
+});
+
+export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['geo-point']),
+	default: z.object({
+		lat: z.coerce.number(),
+		long: z.coerce.number()
+	}).nullish().default(null)
+});
+export const BaseDateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	min: z.coerce.number().nullish().default(null),
+	max: z.coerce.number().nullish().default(null),
+});
+export const SimpleDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['date', 'date-time']),
+	defaultValue: z.coerce.number().nullish().default(null)
+});
+export const DateRangeSchema = z.object({
+	start: z.int().nullish().default(null),
+	end: z.int().nullish().default(null)
+});
+export const RangeDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['date-range']),
+	defaultValue: DateRangeSchema.nullish().default(null)
+});
+export const MultiDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['multi-date']),
+	defaultValue: z.coerce.number().array().nullish().default(null),
+	minSelection: z.int().nullish().default(null),
+	maxSelection: z.int().nullish().default(null),
+})
+export const DateFieldItemMetaSchema = z.discriminatedUnion('type', [
+	SimpleDateFieldItemMetaSchema,
+	RangeDateFieldItemMetaSchema,
+	MultiDateFieldItemMetaSchema
+])
+export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	min: z.number().nullish().default(null),
+	max: z.number().nullish().default(null),
+	defaultValue: z.number().nullish().default(null),
+	type: FieldTypeSchema.extract(['integer', 'float'])
+});
+export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['boolean']),
+	defaultValue: z.boolean().nullish().default(false)
+});
+
+export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
+	optionSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
+	defaultValue: z.any().nullish().default(null),
+	hardOptions: OptionSchema.omit({
+		parent: true,
+		i18nKey: true
+	}).extend({
+		label: z.string().nullish().default(null),
+		value: z.string().nullish().default(null),
+	}).array().default([])
+});
+// export const AutocompleteSourceDefinitionSchema = z.object({
+// 	allowNewItems
+// })
+export const TextFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+	defaultValue: z.string().nullish().default(null),
+	// autocomplete: AutocompleteSourceDefinitionSchema.nullish(),
+	pattern: z.string().nullish().default(null),
+	minlength: z.number().nullish().default(null),
+	maxlength: z.number().nullish().default(null),
+	type: FieldTypeSchema.extract(['text', 'multiline']),
+});
+export const FieldItemMetaSchema = z.discriminatedUnion('type', [
+	GeoPointFieldItemMetaSchema,
+	DateFieldItemMetaSchema,
+	NumberFieldItemMetaSchema,
+	BooleanFieldItemMetaSchema,
+	TextFieldItemMetaSchema,
+	SelectFieldItemMetaSchema
+]);
+export const ImageItemMetaSchema = z.object({
+	aspectRatio: z.coerce.number().nullish().default(100),
+	caption: z.string().trim().nullish().default(null),
+	height: z.coerce.number().nullish().default(null),
+	width: z.coerce.number().nullish().default(null)
+})
+export const NoteItemMetaSchema = z.object({
+	fontSize: z.number().optional().default(13)
+});
+export const SeparatorItemMetaSchema = z.object({
+	orientation: z.enum(['vertical', 'horizontal']).nullish().default('horizontal')
+});
+export type FieldType = z.infer<typeof FieldTypeSchema>;
+export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
+export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;
+export type DatefieldItemMeta = z.infer<typeof DateFieldItemMetaSchema>;
+// export type FormItemMetaOf<T = Strict<FormVersionDefinition>['items'][number]['type']> = T extends 'field' ? MetaWrapper<z.output<typeof FieldItemMetaSchema>> : T extends 'note' ? MetaWrapper<z.output<typeof NoteItemMetaSchema>> : never;
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);
@@ -198,7 +342,7 @@ export const FieldDefinitionSchema = z.discriminatedUnion('type', [
 ])
 
 const GroupBaseSchema = z.object({
-	id: AllSectionKeysSchema,
+	id: z.string(),
 	fields: FieldDefinitionSchema.array(),
 	relevance: RelevanceDefinitionSchema.optional(),
 });
@@ -219,10 +363,6 @@ export const FormModelDefinitionSchema = z.object({
 		label: z.string().optional()
 	})
 });
-
-// const DefinitionLikeSchema = z.object({
-//   type:
-// });
 
 export type FieldSchema = z.output<typeof FieldDefinitionSchema>;
 export type GroupFieldSchema = Extract<FieldSchema, { type: 'group' }>;

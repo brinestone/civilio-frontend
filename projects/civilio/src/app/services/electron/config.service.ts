@@ -5,6 +5,7 @@ import {
 	AppConfigSchema,
 	CheckMigrationsResponse,
 	DbConfig,
+	DiscoverServerResponse,
 	FindConnectionHistoryResponse,
 	Locale,
 	TestDbConnectionRequest,
@@ -18,6 +19,16 @@ import { ConfigService } from '../config';
 	providedIn: null
 })
 export class ElectronConfigService implements ConfigService {
+	async setServerUrl(url: string): Promise<AppConfigResponse> {
+		return await sendRpcMessageAsync('config:update', {
+			path: 'apiServer.baseUrl' as AppConfigPaths,
+			value: url
+		})
+	}
+	async discoverServer(): Promise<DiscoverServerResponse> {
+		return await sendRpcMessageAsync('discovery:init');
+	}
+
 	async useConnection(id: number): Promise<void> {
 		return await sendRpcMessageAsync('db-conn:use', id);
 	}
@@ -35,7 +46,7 @@ export class ElectronConfigService implements ConfigService {
 	}
 
 	async applyPendingMigrations() {
-		return await sendRpcMessageAsync('migrations:apply', undefined, 1000000)
+		return await sendRpcMessageAsync('migrations:apply');
 	}
 
 	checkMigrations(): Promise<CheckMigrationsResponse> {

@@ -1,0 +1,8 @@
+@reference "tailwindcss";
+
+:host {
+	@apply flex items-center justify-center flex-col gap-3 aspect-square rounded-md bg-(--secondary)/40 border-2 border-dashed border-transparent;
+	&.file-hovering {
+		@apply border-(--primary)/40
+	}
+}

@@ -1,0 +1,2 @@
+Warning: KiotaBuilder Unable to check for updates
+Warning: KiotaBuilder OpenAPI warning: #/ - The schema RelevanceExpressionValue is a polymorphic type but does not define a discriminator. This will result in serialization errors.

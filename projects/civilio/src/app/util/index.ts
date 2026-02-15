@@ -4,16 +4,11 @@ import {
 	toObservable,
 	toSignal,
 } from "@angular/core/rxjs-interop";
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 import {
-	AppErrorSchema,
 	Channel,
 	ChannelArg,
-	ChannelResponse,
-	computeReplyChannel,
-	RpcBaseSchema,
-	RpcInputHeaders,
-	rpcMessageSchema,
-	TimeoutError,
+	ChannelResponse
 } from "@civilio/shared";
 import {
 	Actions,
@@ -23,16 +18,31 @@ import {
 } from "@ngxs/store";
 import { derivedFrom } from "ngxtension/derived-from";
 import {
+	catchError,
 	debounceTime,
 	filter,
 	from,
 	map,
 	merge,
 	mergeMap,
+	Observable,
+	of,
 	OperatorFunction,
 	pipe,
 	scan,
+	switchMap,
+	timer,
 } from "rxjs";
+
+export function debouncedAsyncValidator<T>(duration: number, logic: (value: T) => Promise<ValidationErrors | null> | Observable<ValidationErrors | null>) {
+	return (control: AbstractControl<T>) => {
+		if (!control.value) return of(null);
+		return timer(duration).pipe(
+			switchMap(() => logic(control.value)),
+			catchError(() => of(null))
+		)
+	}
+}
 
 export function maskString(value: string, maskChar = '.', maskMaxLength = 3) {
 	if (value.length <= 4) return value;
@@ -138,53 +148,49 @@ function generateMessageId() {
 export async function sendRpcMessageAsync<TChannel extends Channel>(
 	channel: TChannel,
 	data: ChannelArg<TChannel> | undefined = undefined,
-	timeout: number = 30000,
 ): Promise<ChannelResponse<TChannel>> {
-	const id = generateMessageId();
-	const timeKey = `${channel}::${id}`;
-	console.time(timeKey);
-	const replyChannel = computeReplyChannel(channel);
-	return new Promise((resolve, reject) => {
-		const cleanup = (closeTimer = true) => {
-			window.electron.off("error", errorHandler);
-			window.electron.off(replyChannel, replyHandler);
-			if (closeTimer) clearTimeout(timer);
-			console.timeEnd(timeKey);
-		};
-		const errorHandler = (_: any, arg: any) => {
-			const rpc = rpcMessageSchema(AppErrorSchema).parse(arg);
-			if (rpc.headers.messageId === id && rpc.headers.srcChannel === channel) {
-				reject(rpc.body);
-				cleanup();
-			}
-		};
-		const replyHandler = (_: any, arg: any) => {
-			const rpc = RpcBaseSchema.parse(arg);
-			if (id === rpc.headers.messageId && rpc.headers.srcChannel === channel) {
-				if (arg && "body" in arg) {
-					resolve(arg.body);
-				}
-				cleanup();
-			}
-		};
-		window.electron.on("error", errorHandler);
-		window.electron.on(replyChannel, replyHandler);
-		window.electron.send(channel, {
-			headers: {
-				srcChannel: channel,
-				messageId: id,
-				ts: Date.now(),
-				timeout,
-			} as RpcInputHeaders,
-			body: data ?? undefined,
-		});
-		const timer = setTimeout(() => {
-			reject(new TimeoutError(timeout, channel, id));
-			cleanup(false);
-		}, timeout);
+	return new Promise(async (resolve, reject) => {
+		try {
+			resolve(await window.electron.invoke(channel, data));
+		} catch (e) {
+			reject(e);
+		}
+		// const cleanup = (closeTimer = true) => {
+		// 	window.electron.off("error", errorHandler);
+		// 	window.electron.off(replyChannel, replyHandler);
+		// 	if (closeTimer) clearTimeout(timer);
+		// 	console.timeEnd(timeKey);
+		// };
+		// const errorHandler = (_: any, arg: any) => {
+		// 	const rpc = rpcMessageSchema(AppErrorSchema).parse(arg);
+		// 	if (rpc.headers.messageId === id && rpc.headers.srcChannel === channel) {
+		// 		reject(rpc.body);
+		// 		cleanup();
+		// 	}
+		// };
+		// const replyHandler = (_: any, arg: any) => {
+		// 	const rpc = RpcBaseSchema.parse(arg);
+		// 	if (id === rpc.headers.messageId && rpc.headers.srcChannel === channel) {
+		// 		if (arg && "body" in arg) {
+		// 			resolve(arg.body);
+		// 		}
+		// 		cleanup();
+		// 	}
+		// };
+		// window.electron.on("error", errorHandler);
+		// window.electron.on(replyChannel, replyHandler);
+		// window.electron.send(channel, {
+		// 	headers: {
+		// 		srcChannel: channel,
+		// 		messageId: id,
+		// 		ts: Date.now(),
+		// 		timeout,
+		// 	} as RpcInputHeaders,
+		// 	body: data ?? undefined,
+		// });
+		// const timer = setTimeout(() => {
+		// 	reject(new TimeoutError(timeout, channel, id));
+		// 	cleanup(false);
+		// }, timeout);
 	});
-}
-
-export function openLinkInBrowser(link: string) {
-	window.electron.openExternalLink(link);
 }

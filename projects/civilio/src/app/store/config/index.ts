@@ -1,5 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable } from '@angular/core';
 import { CONFIG_SERVICE } from '@app/services/config';
+import { apiOrigin, apiUrl, dbConfig } from '@app/store/selectors';
 import {
 	AppConfig,
 	CheckMigrationsResponse,
@@ -9,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import {
 	Action,
 	NgxsOnInit,
+	select,
 	State,
 	StateContext,
 	StateToken,
@@ -19,7 +21,6 @@ import {
 	catchError,
 	concatMap,
 	EMPTY,
-	forkJoin,
 	from,
 	tap,
 	throwError
@@ -27,6 +28,7 @@ import {
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
+	DiscoverServer,
 	InitChecks,
 	IntrospectDb,
 	LoadConfig,
@@ -34,12 +36,13 @@ import {
 	RemoveConnection,
 	SetFontSize,
 	SetLocale,
+	SetServerUrl,
 	SetTheme,
 	TestDb,
 	UpdateMiscConfig,
 	UseConnection
 } from './actions';
-import { dbConfig } from '@app/store/selectors';
+import { CivilioSdk, SdkRequestAdapter } from '@app/adapters/sdk';
 
 export * from './actions';
 type ConfigStateModel = {
@@ -49,6 +52,7 @@ type ConfigStateModel = {
 	migrationState?: CheckMigrationsResponse;
 	preInit: boolean;
 	connectionsLoaded: boolean;
+	serverOnline: boolean;
 }
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
@@ -60,13 +64,22 @@ export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
 		connectionsLoaded: false,
 		knownConnections: [],
 		env: 'desktop',
-		preInit: true
+		preInit: true,
+		serverOnline: false,
 	}
 })
 export class ConfigState implements NgxsOnInit {
 	private readonly store = inject(Store);
 	private readonly configService = inject(CONFIG_SERVICE);
 	private readonly translateService = inject(TranslateService);
+	private readonly requestAdapter = inject(SdkRequestAdapter);
+	private readonly apiOrigin = select(apiOrigin);
+
+	constructor() {
+		effect(() => {
+			this.requestAdapter.baseUrl = this.apiOrigin();
+		})
+	}
 
 	ngxsOnInit(ctx: Context): void {
 		const state = ctx.getState();
@@ -80,6 +93,26 @@ export class ConfigState implements NgxsOnInit {
 			}
 		});
 	}
+
+	@Action(SetServerUrl)
+	async onSetServerUrl(ctx: Context, { url }: SetServerUrl) {
+		const result = await this.configService.setServerUrl(url);
+		ctx.setState(patch({
+			config: result
+		}));
+	}
+
+	@Action(DiscoverServer)
+	async onDiscoverServer(ctx: Context) {
+		const response = await this.configService.discoverServer();
+		ctx.setState(patch({
+			config: patch({
+				apiServer: response,
+			}),
+			serverOnline: true
+		}));
+	}
+
 
 	@Action(ClearConnections)
 	async onClearConnections(ctx: Context) {
@@ -128,7 +161,7 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(InitChecks)
 	onInitChecks(ctx: Context) {
-		ctx.dispatch([LoadConfig, IntrospectDb, LoadKnownConnections])
+		ctx.dispatch([LoadConfig, DiscoverServer, IntrospectDb, LoadKnownConnections]);
 	}
 
 	@Action(IntrospectDb)
@@ -198,13 +231,11 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(LoadConfig)
 	onLoadConfig(ctx: Context) {
-		return forkJoin([
-			this.configService.loadConfig(),
-		]).pipe(
-			tap(([config]) => ctx.setState(patch({
+		return from(this.configService.loadConfig()).pipe(
+			tap((config) => ctx.setState(patch({
 				config,
 			}))),
-			tap(([config]) => {
+			tap((config) => {
 				const lang = (config?.prefs?.locale ?? 'en-CM').substring(0, 2);
 				this.translateService.use(lang);
 			}),
