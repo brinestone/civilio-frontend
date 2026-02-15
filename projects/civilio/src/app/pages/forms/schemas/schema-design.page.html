@@ -42,11 +42,12 @@
 								[ngTemplateOutlet]="template()"
 								[ngTemplateOutletContext]="ctx"
 							/>
+							@if(!item.relevance().hidden()) {
 							<ng-container
 								[ngTemplateOutlet]="relevanceConfigTemplate"
 								[ngTemplateOutletContext]="ctx"
 							/>
-							}
+							} }
 						</div>
 						<div
 							hlmButtonGroup
@@ -68,6 +69,33 @@
 			</div>
 		</div>
 	</form>
+</ng-template>
+
+<ng-template #imageItemTemplate let-ctrl let-index="index">
+	<ng-container>@let item = asImageItem(ctrl);</ng-container>
+	<div class="grid grid-cols-[auto_50%] items-start gap-x-3">
+		<div class="relative resize">
+			<img [width]="item.meta.width().value()" [height]="item.meta.height()" />
+		</div>
+		<div hlmFieldGroup>
+			<div hlmField>
+				<input
+					type="number"
+					hlmInput
+					placeholder="Width"
+					[formField]="item.meta.width"
+				/>
+			</div>
+			<div hlmField>
+				<input
+					type="number"
+					hlmInput
+					placeholder="Height"
+					[formField]="item.meta.height"
+				/>
+			</div>
+		</div>
+	</div>
 </ng-template>
 
 <ng-template #errorsTemplate let-ctrl>
@@ -661,7 +689,33 @@
 	</div>
 	} @if(!meta.pattern().hidden()) {
 	<div hlmField>
-		<input [formField]="meta.pattern" hlmInput placeholder="Value pattern" />
+		<input
+			(valueChange)="onTextFieldPatternInputValueChanged(metaControl)"
+			[formField]="meta.pattern"
+			hlmInput
+			placeholder="Value pattern"
+		/>
+		<div class="flex gap-2 items-center">
+			<span class="text-sm text-muted-foreground font-medim">Presets: </span>
+			<hlm-toggle-group
+				(valueChange)="onTextFieldPatternPresetChanged(metaControl, $event)"
+				variant="outline"
+				type="single"
+				size="sm"
+			>
+				@for(preset of patternPresets; track $index) {
+				<button
+					type="button"
+					hlmToggleGroupItem
+					class="cursor-pointer"
+					[value]="preset.regex.toString().slice(1,-1)"
+				>
+					<ng-icon [name]="preset.icon" />
+					<span>{{preset.label}}</span>
+				</button>
+				}
+			</hlm-toggle-group>
+		</div>
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
 			[ngTemplateOutletContext]="{$implicit: meta.pattern}"
@@ -1142,8 +1196,10 @@
 	}
 </ng-template>
 
-<ng-template #textExpressionValueTemplate let-control>
+<ng-template #textExpressionValueTemplate let-control let-operator="operator">
+	@if(operator == 'match') { } @else {
 	<input hlmInput [formField]="control" placeholder="Value" />
+	}
 </ng-template>
 
 <ng-template
@@ -1155,7 +1211,10 @@
 	<ng-container>@let ref = asFieldItem(refField);</ng-container>
 	<ng-container>@let refMeta = asNumberFieldMeta(ref.meta);</ng-container>
 	@switch(operator) { @case('between') {
-	<cv-number-range-input [formField]="control" [step]="refMeta.type().value() == 'float' ? .1 : 1" />
+	<cv-number-range-input
+		[formField]="control"
+		[step]="refMeta.type().value() == 'float' ? .1 : 1"
+	/>
 	} @default {
 	<input
 		hlmInput

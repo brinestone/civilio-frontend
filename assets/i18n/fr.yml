@@ -35,6 +35,8 @@ misc:
   changed_at: Enregistré à
   changed_by: Enregistré par
   size: Taille de la commune
+  changes_saved:
+    title: Modifications enregistrées avec succès
   notes: Remarques
   version: Version
   action: Action

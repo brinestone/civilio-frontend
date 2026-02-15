@@ -1,15 +1,52 @@
 import { isDevMode, Signal } from "@angular/core";
-import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
-import { FieldItemMetaSchema, NoteItemMetaSchema } from "@app/model/form";
-import {NumberRange, BooleanFieldMeta, FormItemDefinition, FormItemField, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
+import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, pattern, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
+import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
+import { NumberRange, BooleanFieldMeta, FormItemDefinition, FormItemField, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta, RelevanceLogicExpressionOperator, FormItemField_type, ImageItemMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+
+export const operatorsMap = {
+	in: { label: 'Contains', operandCount: 1 },
+	eq: { label: 'Equals', operandCount: 1 },
+	ne: { label: 'Not equal to', operandCount: 1 },
+	gt: { label: 'Greater than', operandCount: 1 },
+	lt: { label: 'Less than', operandCount: 1 },
+	lte: { label: 'Less than or equal to', operandCount: 1 },
+	gte: { label: 'Greater than or equal to', operandCount: 1 },
+	empty: { label: 'Is Empty', operandCount: 0 },
+	between: { label: 'Is between', operandCount: 2 },
+	match: { label: 'Matches', operandCount: 1 },
+	isNull: { label: 'Has no value', operandCount: 0 },
+	isNotNull: { label: 'Has a value', operandCount: 0 },
+	checked: { label: 'Checked', operandCount: 0 },
+	unchecked: { label: 'Unchecked', operandCount: 0 },
+	selectedAny: { label: 'Contains any of', operandCount: 1 },
+	selectedAll: { label: 'Contains all of', operandCount: 1 },
+	noselection: { label: 'Has no selection', operandCount: 0 },
+	before: { label: 'Is before', operandCount: 1 },
+	after: { label: 'Is after', operandCount: 1 },
+	afterOrOn: { label: 'Is after or on', operandCount: 1 },
+	beforeOrOn: { label: 'Is before or on', operandCount: 1 },
+} as Record<RelevanceLogicExpressionOperator, { label: string, operandCount: number }>;
+export const fieldTypeExpressionOperatorsMap = {
+	'boolean': ['checked', 'unchecked'],
+	'date-time': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'date': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'multi-date': ['empty', 'in', 'between', 'before', 'after'],
+	'date-range': ['isNull', 'before', 'after'],
+	'single-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'multi-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'float': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'integer': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'geo-point': ['isNull', 'isNotNull'],
+	'multiline': ['eq', 'ne', 'in', 'empty', 'match'],
+	'text': ['eq', 'ne', 'in', 'empty', 'match'],
+} as Record<string, (keyof typeof operatorsMap)[]>;
 
 export type FormModel = Strict<FormVersionDefinition>;
 export type FormItemType = FormModel['items'][number]['type'];
 export const pathSeparator = '.';
 
 const debounceDuration = 200;
-
 
 function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMeta>>) {
 	debounce(paths.pattern, debounceDuration);
@@ -52,6 +89,16 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 	applyWhen(paths.defaultValue, ({ valueOf, stateOf }) => !!valueOf(paths.minlength) && !stateOf(paths.minlength).hidden() && stateOf(paths.minlength).valid(), p => {
 		minLength(p as SchemaPath<string, 1>, ({ valueOf }) => Number(valueOf(paths.minlength)), { message: ({ valueOf }) => `Value cannot have less than ${valueOf(paths.minlength)} characters` })
 	});
+	pattern(paths.defaultValue, ({ valueOf }) => {
+		const pattern = valueOf(paths.pattern);
+		try {
+			if (!pattern) return undefined;
+			const regex = new RegExp(pattern);
+			return regex;
+		} catch {
+			return undefined;
+		}
+	}, { message: 'Invalid format' })
 }
 function defineGeopointFieldMetaFormSchema(paths: SchemaPathTree<Strict<GeoPointFieldMeta>>) {
 	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is marked readonly' });
@@ -142,7 +189,6 @@ function defineBooleanFieldMetaFormSchema(paths: SchemaPathTree<Strict<BooleanFi
 }
 
 function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemDefinition>>) {
-
 	applyWhen(paths, ({ value }) => value().type == 'field', paths => {
 		const fp = paths as unknown as SchemaPathTree<Strict<FormItemField>>;
 		debounce(fp.title, debounceDuration);
@@ -175,11 +221,18 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 			applyWhenValue(meta, isMultiDate, defineMultiDateFieldMetaFormSchema);
 		})
 	});
+
+	hidden(paths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(paths.type)));
+	disabled(paths.relevance.logic, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
+	applyEach(paths.relevance.logic, paths => {
+		required(paths.operator, { message: 'An operator must be provided for a condition' });
+		applyEach(paths.expressions, paths => {
+
+		})
+	})
 }
 
-export function defineFormDefinitionFormSchema(options: {
-	enableEditing: Signal<boolean>
-}) {
+export function defineFormDefinitionFormSchema() {
 	return (paths: SchemaPathTree<ReturnType<typeof defaultFormDefinitionSchemaValue>>) => {
 		hidden(paths.id, () => true);
 		hidden(paths.parentId, () => true);
@@ -214,14 +267,16 @@ export function defaultFormDefinitionSchemaValue() {
 	return {
 		id: 'new',
 		parentId: '',
-		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'field')] : [], // TODO: Remove this in prod and make an empty array instead
+		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'image')] : [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
 		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'text' : 'text' });
-		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 })
+		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 });
+		case 'separator': return SeparatorItemMetaSchema.parse({});
+		case 'image': return ImageItemMetaSchema.parse({});
 		default: throw new Error('Unknown form item type')
 	}
 }

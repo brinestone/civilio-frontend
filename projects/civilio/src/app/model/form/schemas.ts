@@ -133,9 +133,18 @@ export const FieldItemMetaSchema = z.discriminatedUnion('type', [
 	TextFieldItemMetaSchema,
 	SelectFieldItemMetaSchema
 ]);
+export const ImageItemMetaSchema = z.object({
+	aspectRatio: z.coerce.number().nullish().default(100),
+	caption: z.string().trim().nullish().default(null),
+	height: z.coerce.number().nullish().default(null),
+	width: z.coerce.number().nullish().default(null)
+})
 export const NoteItemMetaSchema = z.object({
 	fontSize: z.number().optional().default(13)
-})
+});
+export const SeparatorItemMetaSchema = z.object({
+	orientation: z.enum(['vertical', 'horizontal']).nullish().default('horizontal')
+});
 export type FieldType = z.infer<typeof FieldTypeSchema>;
 export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
 export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;

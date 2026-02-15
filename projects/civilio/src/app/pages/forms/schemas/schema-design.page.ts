@@ -44,10 +44,11 @@ import {
 import { Importer } from '@app/pages/importers';
 import { DatasetService } from '@app/services/dataset';
 import { FormService2 } from '@app/services/form';
-import { BooleanFieldMeta, DatasetItem, FieldItemMeta, FormItemDefinition, FormItemField, FormItemGroup, FormItemNote, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from '@civilio/sdk/models';
+import { BooleanFieldMeta, DatasetItem, FieldItemMeta, FormItemDefinition, FormItemField, FormItemGroup, FormItemImage, FormItemNote, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
+	lucideAtSign,
 	lucideChevronDown,
 	lucideChevronsUpDown,
 	lucideCopy,
@@ -65,6 +66,7 @@ import {
 	lucideLink,
 	lucideList,
 	lucideLoader,
+	lucidePhone,
 	lucidePlus,
 	lucideSeparatorHorizontal,
 	lucideStickyNote,
@@ -92,6 +94,7 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { HlmToggleGroup, HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { current, produce, setAutoFreeze } from 'immer';
 import { get, keyBy } from 'lodash';
 import { injectQueryParams } from 'ngxtension/inject-query-params';
@@ -102,8 +105,10 @@ import {
 	defaultRelevanceLogic,
 	defineFormDefinitionFormSchema,
 	domainToStrictFormDefinition,
+	fieldTypeExpressionOperatorsMap,
 	FormItemType,
 	FormModel,
+	operatorsMap,
 	pathSeparator
 } from './form-schemas';
 
@@ -126,48 +131,14 @@ const formItemTypes = [
 	},
 ];
 const formItemTypesMap = keyBy(formItemTypes, 'value');
-const operatorsMap = {
-	in: { label: 'Contains', operandCount: 1 },
-	eq: { label: 'Equals', operandCount: 1 },
-	ne: { label: 'Not equal to', operandCount: 1 },
-	gt: { label: 'Greater than', operandCount: 1 },
-	lt: { label: 'Less than', operandCount: 1 },
-	lte: { label: 'Less than or equal to', operandCount: 1 },
-	gte: { label: 'Greater than or equal to', operandCount: 1 },
-	empty: { label: 'Is Empty', operandCount: 0 },
-	between: { label: 'Is between', operandCount: 2 },
-	match: { label: 'Matches', operandCount: 1 },
-	isNull: { label: 'Has no value', operandCount: 0 },
-	isNotNull: {label: 'Has a value', operandCount: 0},
-	checked: { label: 'Checked', operandCount: 0 },
-	unchecked: { label: 'Unchecked', operandCount: 0 },
-	selectedAny: { label: 'Contains any of', operandCount: 1 },
-	selectedAll: { label: 'Contains all of', operandCount: 1 },
-	noselection: { label: 'Has no selection', operandCount: 0 },
-	before: { label: 'Is before', operandCount: 1 },
-	after: { label: 'Is after', operandCount: 1 },
-	afterOrOn: { label: 'Is after or on', operandCount: 1 },
-	beforeOrOn: { label: 'Is before or on', operandCount: 1 },
-} as const;
-const fieldTypeExpressionOperatorsMap = {
-	'boolean': ['checked', 'unchecked'],
-	'date-time': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
-	'date': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
-	'multi-date': ['empty', 'in', 'between', 'before', 'after'],
-	'date-range': ['isNull', 'before', 'after'],
-	'single-select': ['selectedAny', 'selectedAll', 'noselection'],
-	'multi-select': ['selectedAny', 'selectedAll', 'noselection'],
-	'float': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
-	'integer': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
-	'geo-point': ['isNull', 'isNotNull'],
-	'multiline': ['eq', 'ne', 'in', 'empty', 'match'],
-	'text': ['eq', 'ne', 'in', 'empty', 'match'],
-} as Record<string, (keyof typeof operatorsMap)[]>;
+
 
 @Component({
 	selector: 'cv-forms',
 	viewProviders: [
 		provideIcons({
+			lucideAtSign,
+			lucidePhone,
 			lucideLoader,
 			lucideCopy,
 			lucideEye,
@@ -203,6 +174,7 @@ const fieldTypeExpressionOperatorsMap = {
 		HlmButtonGroupImports,
 		HlmAlertImports,
 		HlmDialogImports,
+		HlmToggleGroupImports,
 		DatePicker,
 		NumberRangeInputComponent,
 		DateRangePickerComponent,
@@ -258,6 +230,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly noteItemTemplate = viewChild.required<TemplateRef<any>>('noteItemTemplate');
 	protected readonly fieldItemTemplate = viewChild.required<TemplateRef<any>>('fieldItemTemplate');
 	protected readonly separatorItemTemplate = viewChild.required<TemplateRef<any>>('separatorItemTemplate');
+	protected readonly imageItemTemplate = viewChild.required<TemplateRef<any>>('imageItemTemplate');
 
 	protected readonly textExpressionValueTemplate = viewChild.required<TemplateRef<any>>('textExpressionValueTemplate');
 	protected readonly numberExpressionValueTemplate = viewChild.required<TemplateRef<any>>('numberExpressionValueTemplate');
@@ -283,6 +256,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		'field': this.fieldItemTemplate,
 		'note': this.noteItemTemplate,
 		'separator': this.separatorItemTemplate,
+		'image': this.imageItemTemplate,
 	};
 	protected readonly operatorsMap = operatorsMap;
 	protected readonly fieldTypeExpressionOperatorsMap = fieldTypeExpressionOperatorsMap;
@@ -322,9 +296,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		return defaultFormDefinitionSchemaValue();
 	});
 	protected readonly enableEditingControls = linkedSignal(() => !this.slug());
-	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema({
-		enableEditing: this.enableEditingControls
-	}));
+	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema());
 	protected readonly ds = inject(DatasetService);
 	protected readonly formItemTypes = formItemTypes;
 	protected readonly formItemTypesMap = formItemTypesMap;
@@ -336,6 +308,10 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly importSources = [
 		{ value: 'dataset', icon: 'lucideDatabase', label: 'Dataset' }
 	];
+	protected readonly patternPresets = [
+		{ name: 'email', label: 'Email', icon: 'lucideAtSign', regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
+		{ name: 'phone', label: 'Phone', icon: 'lucidePhone', regex: /^(\+?237|\(\+?237\))?6([5679]|[2])\d{7}$/ }
+	]
 	protected readonly viableRelevanceDependencies = computed(() => {
 		const formData = this.formData();
 		const reg: Record<string, string[]> = {};
@@ -433,6 +409,10 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 				draft.items.splice(index, 1);
 			}))
 		}
+	}
+
+	protected asImageItem(node: any) {
+		return node as FieldTree<Strict<FormItemImage>>;
 	}
 
 	protected isArray(v: any): v is unknown[] {
@@ -592,6 +572,21 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected onRemoveConditionButtonClicked(item: FieldTree<Strict<FormItemDefinition>>, conditionIndex: number) {
 		item().value.update(v => produce(v, draft => {
 			draft.relevance.logic.splice(conditionIndex, 1);
+		}));
+	}
+	protected onTextFieldPatternInputValueChanged(metaControl: FieldTree<Strict<TextFieldMeta>>, preseter?: HlmToggleGroup) {
+		metaControl().value.update(v => produce(v, draft => {
+			const pattern = current(draft).pattern;
+			const required = current
+			if (!pattern) {
+				draft.pattern = null as any;
+				return;
+			}
+		}));
+	}
+	protected onTextFieldPatternPresetChanged(metaControl: FieldTree<Strict<TextFieldMeta>>, preset: string) {
+		metaControl().value.update(v => produce(v, draft => {
+			draft.pattern = preset;
 		}));
 	}
 }

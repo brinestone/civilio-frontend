@@ -33,6 +33,8 @@ misc:
   changed_at: Recorded at
   changed_by: Recorded by
   size: Size of the commune
+  changes_saved:
+    title: Changes saved successfully
   notes: Notes
   version: Version
   action: Action
