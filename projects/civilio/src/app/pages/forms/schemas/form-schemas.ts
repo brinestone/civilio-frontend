@@ -1,7 +1,7 @@
-import { isDevMode, Signal } from "@angular/core";
+import { isDevMode } from "@angular/core";
 import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, pattern, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
 import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
-import { NumberRange, BooleanFieldMeta, FormItemDefinition, FormItemField, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta, RelevanceLogicExpressionOperator, FormItemField_type, ImageItemMeta } from "@civilio/sdk/models";
+import { BooleanFieldMeta, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, RelevanceLogicExpressionOperator, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 
 export const operatorsMap = {
@@ -17,8 +17,8 @@ export const operatorsMap = {
 	match: { label: 'Matches', operandCount: 1 },
 	isNull: { label: 'Has no value', operandCount: 0 },
 	isNotNull: { label: 'Has a value', operandCount: 0 },
-	checked: { label: 'Checked', operandCount: 0 },
-	unchecked: { label: 'Unchecked', operandCount: 0 },
+	checked: { label: 'Is Checked', operandCount: 0 },
+	unchecked: { label: 'Is Unchecked', operandCount: 0 },
 	selectedAny: { label: 'Contains any of', operandCount: 1 },
 	selectedAll: { label: 'Contains all of', operandCount: 1 },
 	noselection: { label: 'Has no selection', operandCount: 0 },
@@ -219,17 +219,23 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 			applyWhenValue(meta, isSelection, defineSelectionFieldMetaFormSchema);
 			applyWhenValue(meta, isDateRange, defineRangeDateFieldMetaFormSchema);
 			applyWhenValue(meta, isMultiDate, defineMultiDateFieldMetaFormSchema);
-		})
+
+		});
 	});
+
+	applyWhen(paths, ({ value }) => value().type == 'image', paths => {
+		const ip = paths as unknown as SchemaPathTree<Strict<FormItemImage>>;
+		apply(ip.meta, paths => {
+			min(paths.width, 142);
+			max(paths.width, 436);
+
+			min(paths.height, 144);
+			max(paths.height, 438);
+		})
+	})
 
 	hidden(paths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(paths.type)));
 	disabled(paths.relevance.logic, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
-	applyEach(paths.relevance.logic, paths => {
-		required(paths.operator, { message: 'An operator must be provided for a condition' });
-		applyEach(paths.expressions, paths => {
-
-		})
-	})
 }
 
 export function defineFormDefinitionFormSchema() {
@@ -255,19 +261,23 @@ export function defaultFormItemDefinitionSchemaValue(path: string, type: FormIte
 			enabled: isDevMode(),
 			logic: []
 		},
-		parent: {
-			id: ''
-		},
 		title: '',
-		type
+		type,
+		...formItemPropertiesFor(type),
 	} as FormModel['items'][number];
 	return result;
+}
+function formItemPropertiesFor(type: FormItemType) {
+	switch (type) {
+		case 'image': return { url: null };
+		default: return {}
+	}
 }
 export function defaultFormDefinitionSchemaValue() {
 	return {
 		id: 'new',
 		parentId: '',
-		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'image')] : [], // TODO: Remove this in prod and make an empty array instead
+		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'field')] : [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }
 

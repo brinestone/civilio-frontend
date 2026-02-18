@@ -1,5 +1,7 @@
-import { booleanAttribute, Component, HostListener, input, InputSignal, InputSignalWithTransform, model, ModelSignal, OutputRef, signal } from '@angular/core';
-import { DisabledReason, FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
+import { NumberInput } from '@angular/cdk/coercion';
+import { NgStyle, PercentPipe } from '@angular/common';
+import { booleanAttribute, Component, computed, HostListener, input, model, numberAttribute, output, signal } from '@angular/core';
+import { FormValueControl } from '@angular/forms/signals';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideFilePlus, lucideUpload, lucideX } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -58,7 +60,7 @@ const placeholderLogosDark = [
 ];
 
 @Component({
-	selector: 'cv-form-logo-upload',
+	selector: 'cv-form-img',
 	viewProviders: [
 		provideIcons({
 			lucideFilePlus,
@@ -66,35 +68,40 @@ const placeholderLogosDark = [
 			lucideUpload
 		})
 	],
+	host: {
+		'[style.width]': 'widthStyle()',
+		'[style.height]': 'heightStyle()',
+		'[class.group/img-item]': 'true',
+	},
 	imports: [
 		NgIcon,
-		HlmButton
+		HlmButton,
+		PercentPipe,
+		NgStyle,
 	],
-	templateUrl: './form-logo-upload.component.html',
-	styleUrl: './form-logo-upload.component.scss',
+	templateUrl: './image-form-item.component.html',
+	styleUrl: './image-form-item.component.scss',
 })
-export class FormLogoUploadComponent implements FormValueControl<string | null> {
-	readonly value = model<string | null>(null);
-	protected readonly placeholderLogo = signal('');
-	protected readonly droppingFile = hostBinding('class.hovering-file', signal(false));
-	errors?: InputSignal<readonly WithOptionalField<ValidationError>[]> | InputSignalWithTransform<readonly WithOptionalField<ValidationError>[], unknown> | undefined;
-	disabled?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	disabledReasons?: InputSignal<readonly WithOptionalField<DisabledReason>[]> | InputSignalWithTransform<readonly WithOptionalField<DisabledReason>[], unknown> | undefined;
-	readonly = input<boolean, unknown>(false, {
+export class ImageFormItem implements FormValueControl<string | null | undefined> {
+	readonly value = model<string | null | undefined>();
+	readonly progress = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
+	readonly imagePicked = output<FileList>();
+	readonly resize = output<{ width: number, height: number }>();
+	readonly filter = input<string>();
+	readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
+	readonly readonly = input<boolean, unknown>(false, {
 		transform: booleanAttribute,
 	});
-	hidden?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	invalid?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	pending?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	touched?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | ModelSignal<boolean> | OutputRef<boolean> | undefined;
-	dirty?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	name?: InputSignal<string> | InputSignalWithTransform<string, unknown> | undefined;
-	required?: InputSignal<boolean> | InputSignalWithTransform<boolean, unknown> | undefined;
-	min?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
-	minLength?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
-	max?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
-	maxLength?: InputSignal<number | undefined> | InputSignalWithTransform<number | undefined, unknown> | undefined;
-	pattern?: InputSignal<readonly RegExp[]> | InputSignalWithTransform<readonly RegExp[], unknown> | undefined;
+	readonly width = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
+	readonly height = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
+	readonly caption = input<string>();
+
+	protected readonly placeholderLogo = signal('');
+	protected readonly droppingFile = hostBinding('class.hovering-file', signal(false));
+	protected readonly widthStyle = computed(() => `${this.width()}px`);
+	protected readonly heightStyle = computed(() => `${this.height()}px`);
+	protected readonly resizing = signal(false);
+	protected resizeBurst?: number;
 
 	@HostListener('window:drop', ['$event'])
 	protected onWindowDrop(event: DragEvent) {
@@ -150,7 +157,8 @@ export class FormLogoUploadComponent implements FormValueControl<string | null> 
 	}
 
 	protected onFileSelected(files: FileList | null) {
-		console.log(files);
+		if (files == null || files.length == 0) return;
+		this.imagePicked.emit(files);
 	}
 
 }

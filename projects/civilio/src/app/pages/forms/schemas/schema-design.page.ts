@@ -7,6 +7,7 @@ import {
 	CdkDropListGroup,
 	moveItemInArray
 } from '@angular/cdk/drag-drop';
+import { CdkListbox, CdkOption } from '@angular/cdk/listbox';
 import { JsonPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
@@ -16,6 +17,7 @@ import {
 	effect,
 	inject,
 	input,
+	isDevMode,
 	linkedSignal,
 	OnDestroy,
 	OnInit,
@@ -28,11 +30,12 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, MultDatePickerComponent, NumberRangeInputComponent } from '@app/components';
+import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, ImageFormItem, MultDatePickerComponent, NumberRangeInputComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
 } from '@app/components/debug';
+import { Resizable } from '@app/directives';
 import {
 	BaseFieldItemMetaSchema,
 	FieldItemMetaSchema,
@@ -44,13 +47,21 @@ import {
 import { Importer } from '@app/pages/importers';
 import { DatasetService } from '@app/services/dataset';
 import { FormService2 } from '@app/services/form';
-import { BooleanFieldMeta, DatasetItem, FieldItemMeta, FormItemDefinition, FormItemField, FormItemGroup, FormItemImage, FormItemNote, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from '@civilio/sdk/models';
+import { UploadService } from '@app/services/upload';
+import { BooleanFieldMeta, DatasetItem, FieldItemMeta, FormItemDefinition, FormItemField, FormItemGroup, FormItemImage, FormItemNote, GeoPointFieldMeta, ImageItemMeta_filter, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideAtSign,
+	lucideBoxSelect,
+	lucideCalendar,
+	lucideCalendarCheck,
+	lucideCalendarRange,
+	lucideCheck,
+	lucideCheckSquare,
 	lucideChevronDown,
 	lucideChevronsUpDown,
+	lucideClock,
 	lucideCopy,
 	lucideCopyCheck,
 	lucideDatabase,
@@ -58,18 +69,26 @@ import {
 	lucideEllipsis,
 	lucideEye,
 	lucideFile,
+	lucideFolderPlus,
 	lucideFormInput,
 	lucideGrip,
 	lucideGroup,
+	lucideHash,
 	lucideImage,
 	lucideInfo,
+	lucideLetterText,
 	lucideLink,
 	lucideList,
+	lucideListChecks,
 	lucideLoader,
+	lucideMapPin,
 	lucidePhone,
 	lucidePlus,
 	lucideSeparatorHorizontal,
+	lucideSettings,
 	lucideStickyNote,
+	lucideText,
+	lucideTextCursorInput,
 	lucideTrash2,
 	lucideUnlink,
 	lucideX
@@ -94,9 +113,11 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { HlmToggle } from '@spartan-ng/helm/toggle';
 import { HlmToggleGroup, HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { current, produce, setAutoFreeze } from 'immer';
 import { get, keyBy } from 'lodash';
+import { toast } from 'ngx-sonner';
 import { injectQueryParams } from 'ngxtension/inject-query-params';
 import {
 	defaultFormDefinitionSchemaValue,
@@ -111,6 +132,9 @@ import {
 	operatorsMap,
 	pathSeparator
 } from './form-schemas';
+import z from 'zod';
+
+type DesignerState = { expanded: boolean; previewing: boolean; activeConfigSection: string; };
 
 const isFieldTree = (v: FieldTree<Strict<FormItemDefinition>>): v is FieldTree<Strict<FormItemField>> => v.type().value() === 'field';
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
@@ -122,7 +146,7 @@ const formItemTypes = [
 	},
 	{ label: 'Group', value: 'group' as FormItemType, icon: 'lucideGroup' },
 	{ label: 'Image', value: 'image' as FormItemType, icon: 'lucideImage' },
-	{ label: 'List', value: 'list' as FormItemType, icon: 'lucideList' },
+	// { label: 'List', value: 'list' as FormItemType, icon: 'lucideList' },
 	{ label: 'Note', value: 'note' as FormItemType, icon: 'lucideStickyNote' },
 	{
 		label: 'Separator',
@@ -132,7 +156,6 @@ const formItemTypes = [
 ];
 const formItemTypesMap = keyBy(formItemTypes, 'value');
 
-
 @Component({
 	selector: 'cv-forms',
 	viewProviders: [
@@ -140,6 +163,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideAtSign,
 			lucidePhone,
 			lucideLoader,
+			lucideSettings,
 			lucideCopy,
 			lucideEye,
 			lucideInfo,
@@ -149,6 +173,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideGroup,
 			lucidePlus,
 			lucideStickyNote,
+			lucideTextCursorInput,
 			lucideChevronsUpDown,
 			lucideChevronDown,
 			lucideImage,
@@ -158,10 +183,21 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 			lucideDatabase,
 			lucideX,
 			lucideFile,
+			lucideFolderPlus,
 			lucideGrip,
 			lucideTrash2,
 			lucideLink,
 			lucideUnlink,
+			lucideCheckSquare,
+			lucideCalendar,
+			lucideCheck,
+			lucideListChecks,
+			lucideText,
+			lucideClock,
+			lucideHash,
+			lucideCalendarCheck,
+			lucideCalendarRange,
+			lucideMapPin
 		}),
 	],
 	imports: [
@@ -175,6 +211,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmAlertImports,
 		HlmDialogImports,
 		HlmToggleGroupImports,
+		HlmTabsImports,
 		DatePicker,
 		NumberRangeInputComponent,
 		DateRangePickerComponent,
@@ -183,6 +220,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmIcon,
 		HlmLabel,
 		HlmButton,
+		HlmToggle,
 		HlmCheckbox,
 		HlmSeparator,
 		NgIcon,
@@ -190,6 +228,8 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		CdkDrag,
 		NgStyle,
 		CdkDropList,
+		ImageFormItem,
+		Resizable,
 		HlmInput,
 		GeoPointPickerComponent,
 		CdkDragHandle,
@@ -218,6 +258,10 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 })
 export class SchemaDesignPage implements OnInit, OnDestroy {
 	readonly slug = input<string>();
+	private readonly uploadService = inject(UploadService);
+
+	protected readonly relevanceConfigTemplate = viewChild.required<TemplateRef<any>>('relevanceConfigTemplate');
+
 	protected readonly booleanTemplate = viewChild.required<TemplateRef<any>>('booleanFieldMetaConfigTemplate');
 	protected readonly dateTemplate = viewChild.required<TemplateRef<any>>('dateFieldMetaConfigTemplate');
 	protected readonly textTemplate = viewChild.required<TemplateRef<any>>('textFieldMetaConfigTemplate');
@@ -239,6 +283,8 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly multiDateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('multiDateExpressionValueTemplate');
 	protected readonly rangeDateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('rangeDateExpressionValueTemplate');
 
+	protected readonly fieldItemMetaTemplate = viewChild.required<TemplateRef<any>>('fieldItemMetaTemplate');
+
 	protected readonly fieldTypeExpressionValueTemplatesMap = {
 		'date-range': this.rangeDateExpressionValueTemplate,
 		'multi-date': this.multiDateExpressionValueTemplate,
@@ -258,11 +304,14 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		'separator': this.separatorItemTemplate,
 		'image': this.imageItemTemplate,
 	};
+	protected readonly itemMetaTemplatesMap: Record<string, { meta: Signal<TemplateRef<any>>, relevance: Signal<TemplateRef<any>> }> = {
+		'field': { meta: this.fieldItemMetaTemplate, relevance: this.relevanceConfigTemplate }
+	}
 	protected readonly operatorsMap = operatorsMap;
 	protected readonly fieldTypeExpressionOperatorsMap = fieldTypeExpressionOperatorsMap;
 
 	// 2. Reference in Map
-	protected readonly metaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
+	protected readonly fieldMetaConfigTemplatesMap: Record<FieldType, Signal<TemplateRef<any>>> = {
 		'boolean': this.booleanTemplate,
 		'date-time': this.dateTemplate,
 		'date': this.dateTemplate,
@@ -295,6 +344,12 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		if (v) return domainToStrictFormDefinition(v);
 		return defaultFormDefinitionSchemaValue();
 	});
+	protected readonly formItemMetaConfigSections = {
+		field: [
+			{ label: 'Question configuration', value: 'meta' },
+			{ label: 'Relevance configuration', value: 'relevance' }
+		]
+	} as Record<string, { label: string, value: string }[]>;
 	protected readonly enableEditingControls = linkedSignal(() => !this.slug());
 	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema());
 	protected readonly ds = inject(DatasetService);
@@ -302,6 +357,20 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly formItemTypesMap = formItemTypesMap;
 	protected readonly lastAddedItemType = signal<FormItemType>('field');
 	protected readonly fieldItemTypes = FieldTypeSchema.options;
+	protected readonly fieldItemTypesMap = {
+		'boolean': { label: 'True/False', icon: 'lucideCheckSquare' },
+		'date': { label: 'Date', icon: 'lucideCalendar' },
+		"single-select": { label: 'Single select', icon: 'lucideCheck' },
+		"multi-select": { label: 'Multi-select', icon: 'lucideListChecks' },
+		'date-time': { label: 'Date-time', icon: 'lucideClock' },
+		'text': { label: 'Single-line Text', icon: 'lucideTextCursorInput' },
+		'multiline': { label: 'Multi-line Text', icon: 'lucideText' },
+		'float': { label: 'Decimal', icon: 'lucideHash' },
+		'integer': { label: 'Integer', icon: 'lucideHash' },
+		'geo-point': { label: 'GPS Location', icon: 'lucideMapPin' },
+		'multi-date': { label: 'Multi-date', icon: 'lucideCalendarCheck' },
+		'date-range': { label: 'Date range', icon: 'lucideCalendarRange' },
+	} as Record<z.infer<typeof FieldTypeSchema>, { label: string, icon: string }>;
 	protected readonly optionSourceImportSheetState = signal<BrnDialogState>('closed');
 	protected readonly activeImportTab = signal('dataset');
 	protected readonly linkedOptionSources = signal<Record<string, DatasetItem[]>>({});
@@ -332,9 +401,23 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 			})
 		}
 		return reg;
-	})
+	});
+	protected readonly imageFilters = [
+		{ label: 'Shadow', value: 'shadow', },
+		{ label: 'None', value: 'none' }
+	] as { label: string, value: ImageItemMeta_filter }[];
+	protected readonly itemDesignerStates = signal<Record<string, DesignerState>>({});
 
 	constructor() {
+		effect(() => {
+			const { items } = this.formData();
+			for (const item of items) {
+				this.itemDesignerStates.update(v => produce(v, draft => {
+					draft[item.path] = current(draft)[item.path] ?? { expanded: isDevMode(), previewing: false, activeConfigSection: 'meta' };
+				}))
+			}
+			console.log(untracked(this.itemDesignerStates));
+		})
 		effect(() => {
 			const formData = this.formData();
 			const linkedOptionsRegistry = untracked(this.linkedOptionSources);
@@ -482,10 +565,6 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		const { defaultValue: _, ...baseWithoutDefault } = baseState;
 		const newState = FieldItemMetaSchema.parse({ ...baseWithoutDefault, type: newType });
 		node().setControlValue(newState as any);
-		// const baseState = BaseFieldItemMetaSchema.parse(state);
-		// const { default: _, ...baseWithouttDefault } = baseState;
-		// const newState = FieldItemMetaSchema.parse({ ...baseWithouttDefault, type: newType });
-		// node.additionalData().setControlValue(newState as any);
 	}
 
 	protected onFieldReadonlyStatusChanged(node: FieldTree<Strict<FieldItemMeta>>, newState: any) {
@@ -588,5 +667,42 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		metaControl().value.update(v => produce(v, draft => {
 			draft.pattern = preset;
 		}));
+	}
+	protected async onImagePickerImagePicked(node: FieldTree<Strict<FormItemImage>>, files: FileList) {
+		try {
+			const result = await this.uploadService.uploadFiles(files);
+			if (result) {
+				node().value.update(v => produce(v, draft => {
+					draft.url = result[0].urlPath;
+				}));
+			}
+		} catch (e) {
+			console.error(e);
+			toast.error('Upload failed', { description: (e as Error).message });
+		}
+	}
+	protected onImagePickerResized(node: FieldTree<Strict<FormItemImage>>, event: { width: number, height: number }) {
+		node().value.update(v => produce(v, draft => {
+			draft.meta.width = event.width;
+			draft.meta.height = event.height;
+		}))
+	}
+	protected onItemDesignerSettingsButtonClicked(item: FieldTree<Strict<FormItemDefinition>>) {
+		const path = item.path().value();
+		this.itemDesignerStates.update(v => produce(v, draft => {
+			draft[path].expanded = !current(draft)[path].expanded;
+		}))
+	}
+	protected onItemDesignerPreviewButtonClicked(item: FieldTree<Strict<FormItemDefinition>>) {
+		const path = item.path().value();
+		this.itemDesignerStates.update(v => produce(v, draft => {
+			draft[path].previewing = !current(draft)[path].previewing;
+		}))
+	}
+	protected itemConfigTabChanged(item: FieldTree<Strict<FormItemDefinition>>, tab: string) {
+		const path = item.path().value();
+		this.itemDesignerStates.update(v => produce(v, draft => {
+			draft[path].activeConfigSection = tab;
+		}))
 	}
 }

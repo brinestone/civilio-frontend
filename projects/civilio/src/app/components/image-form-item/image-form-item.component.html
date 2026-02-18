@@ -1,0 +1,63 @@
+<img
+	[src]="value() ?? placeholderLogo()"
+	class="absolute max-w-full max-h-full z-10"
+	[ngStyle]="{
+		filter: filter(),
+	}"
+/>
+@if (progress()) {
+	<div
+		class="absolute top-0 h-1 bg-primary/20 w-full transition-all left-0 z-11"
+	>
+		<div
+			class="absolute top-0 h-1 bg-primary w-[{{
+				progress() | percent
+			}}] transition-all animate-pulse left-0 z-12"
+		></div>
+	</div>
+}
+<div class="flex gap-3">
+	@if (readonly() !== true) {
+		<div
+			class="opacity-0 pointer-events-none group-hover/img-item:opacity-100 group-hover/img-item:pointer-events-auto group-hover/img-item:backdrop-blur absolute z-11 bg-white/50 dark:bg-black/50 w-full h-full top-0 left-0 flex items-center justify-center transition-all"
+		>
+			<button
+				type="button"
+				[disabled]="disabled()"
+				(click)="fileSelector.click()"
+				hlmBtn
+				variant="ghost"
+				size="icon"
+			>
+				<ng-icon name="lucideUpload" />
+			</button>
+			@if (value()) {
+				<button
+					(click)="value.set(null)"
+					type="button"
+					[disabled]="disabled()"
+					hlmBtn
+					variant="ghost"
+					size="icon"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+			}
+		</div>
+	}
+	<input
+		(change)="onFileSelected($event.target.files)"
+		hidden
+		[disabled]="readonly()"
+		type="file"
+		accept="image/png, image/jpeg"
+		#fileSelector
+	/>
+</div>
+@if (resizing()) {
+	<div
+		class="bg-secondary rounded shadow z-11 px-2 py-1 absolute bottom-3 text-sm text-muted-foreground"
+	>
+		{{ width() }} &times; {{ height() }}
+	</div>
+}

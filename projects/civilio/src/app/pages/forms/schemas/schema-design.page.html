@@ -13,17 +13,20 @@
 		<div class="container mx-auto py-9">
 			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-3">
 				@for (item of formModel.items; track item) {
+				<ng-container>
+					@let designerState = itemDesignerStates()[item.path().value()];
+				</ng-container>
 				<div
 					cdkDrag
 					cdkDragLockAxis="y"
 					[class.border-border]="enableEditingControls()"
-					class="z-20 group/form-item focus-within:border-primary border border-border relative p-3 shadow bg-card rounded"
+					class="grid grid-rows-[auto_1fr] z-20 group/form-item focus-within:border-primary border border-border relative shadow bg-card rounded rounded-tl-none"
 				>
 					<div *cdkDragPlaceholder class="drag-placeholder"></div>
 					<div>
 						<div
 							cdkDragHandle
-							class="cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-full bg-muted py-1 px-2"
+							class="-left-px cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-full bg-muted py-1 px-2"
 						>
 							<ng-icon name="lucideGrip" />
 							<hlm-separator orientation="vertical" />
@@ -38,14 +41,85 @@
 						</ng-container>
 						<div hlmFieldGroup>
 							@if (template !== undefined) {
+							<div
+								class="px-3 pt-3"
+								[class.pb-3]="designerState?.expanded !== true"
+							>
+								<ng-container
+									[ngTemplateOutlet]="template()"
+									[ngTemplateOutletContext]="ctx"
+								/>
+							</div>
+							@if(item.type().value() != 'separator') {
+							<ng-container>
+								@if(designerState?.expanded) {
+								<div
+									class="bg-background relative grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] overflow-hidden max-h-100 border-t border-border rounded-b"
+								>
+									<div
+										class="flex items-center justify-between col-span-2 row-start-1 row-span-1 col-start-1 border-b border-border py-2 px-3"
+									>
+										<div class="font-extrabold flex items-center gap-2">
+											<ng-icon name="lucideSettings" />
+											<span>Settings</span>
+										</div>
+										<button
+											(click)="onItemDesignerSettingsButtonClicked(item)"
+											class="rounded-full"
+											hlmBtn
+											type="button"
+											variant="secondary"
+											size="icon"
+										>
+											<ng-icon hlm size="sm" name="lucideX" />
+										</button>
+									</div>
+									<div
+										class="border-r border-border col-span-1 row-start-2 row-span-1 col-start-1 pt-3 pl-3 pb-3"
+									>
+										@let sections =
+										formItemMetaConfigSections[item.type().value()];
+										<hlm-tabs
+											[tab]="itemDesignerStates()[item.path().value()].activeConfigSection"
+											(tabActivated)="itemConfigTabChanged(item, $event)"
+											#tabs
+											orientation="vertical"
+											class="w-full"
+										>
+											<hlm-tabs-list class="" variant="line">
+												@for(section of sections; track $index) {
+												<button
+													[hlmTabsTrigger]="section.value"
+													class="cursor-pointer"
+												>
+													{{section.label}}
+												</button>
+												}
+											</hlm-tabs-list>
+										</hlm-tabs>
+									</div>
+									<div
+										class="col-start-2 col-span-1 row-span-1 row-start-2 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+									>
+										<ng-container
+											>@let templates =
+											itemMetaTemplatesMap[item.type().value()];</ng-container
+										>
+										@if(templates != null) {
+										<div class="p-3">
+											<ng-container
+												[ngTemplateOutlet]="$any(templates)[itemDesignerStates()[item.path().value()].activeConfigSection]()"
+												[ngTemplateOutletContext]="{$implicit: item, index: $index}"
+											/>
+										</div>
+										}
+									</div>
+								</div>
+								}
+							</ng-container>
 							<ng-container
-								[ngTemplateOutlet]="template()"
-								[ngTemplateOutletContext]="ctx"
-							/>
-							@if(!item.relevance().hidden()) {
-							<ng-container
-								[ngTemplateOutlet]="relevanceConfigTemplate"
-								[ngTemplateOutletContext]="ctx"
+								[ngTemplateOutlet]="debugPanel"
+								[ngTemplateOutletContext]="{$implicit: item}"
 							/>
 							} }
 						</div>
@@ -58,7 +132,8 @@
 								[ngTemplateOutlet]="formItemEditorButtons"
 								[ngTemplateOutletContext]="{
 								parent: formModel,
-								index: $index
+								index: $index,
+								item
 							}"
 							/>
 						</div>
@@ -70,34 +145,78 @@
 		</div>
 	</form>
 </ng-template>
+<ng-template #fieldItemMetaTemplate let-item let-index="index">
+	<ng-container>@let itemTree = asFieldItem(item);</ng-container>
 
+	<ng-container
+		>@let template =
+		fieldMetaConfigTemplatesMap[itemTree.meta.type().value()];</ng-container
+	>
+	<ng-container
+		>@let metaCtx = {$implicit: itemTree.meta, formItemIndex: index};
+	</ng-container>
+	@if(template != null) {
+	<div hlmFieldGroup>
+		<div hlmFieldGroup>
+			<div hlmField>
+				<label for="{{index}}__field_type" hlmFieldLabel>Question Type</label>
+				<hlm-select
+					(valueChange)="onFieldTypeChanged(itemTree.meta, $event)"
+					id="{{index}}__field_type"
+					[formField]="itemTree.meta.type"
+				>
+					<hlm-select-trigger class="w-full">
+						<hlm-select-value>
+							<div class="flex items-center gap-2" *hlmSelectValue="let value">
+								<ng-icon [name]="$any(fieldItemTypesMap)[value]?.icon" />
+								<span>{{ $any(fieldItemTypesMap)[$any(value)]?.label }}</span>
+							</div>
+						</hlm-select-value>
+					</hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						@for(option of fieldItemTypes; track $index) {
+						<hlm-option [value]="option">
+							<ng-icon [name]="fieldItemTypesMap[option]?.icon" />
+							<span>{{ fieldItemTypesMap[option]?.label }}</span>
+						</hlm-option>
+						}
+					</hlm-select-content>
+				</hlm-select>
+			</div>
+		</div>
+		<hlm-field-separator />
+		<div hlmFieldGroup>
+			<legend hlmFieldLegend>Configuration</legend>
+			<ng-container
+				[ngTemplateOutlet]="template()"
+				[ngTemplateOutletContext]="metaCtx"
+			/>
+		</div>
+		<hlm-field-separator />
+		<div hlmFieldGroup>
+			<legend hlmFieldLegend>Additional Configuration</legend>
+			<ng-container
+				[ngTemplateOutlet]="baseFieldMetaConfigTemplate"
+				[ngTemplateOutletContext]="metaCtx"
+			/>
+		</div>
+	</div>
+	}
+</ng-template>
 <ng-template #imageItemTemplate let-ctrl let-index="index">
 	<ng-container>@let item = asImageItem(ctrl);</ng-container>
 	<div class="grid grid-cols-[auto_50%] items-start gap-x-3">
-		<div class="relative resize">
-			<img [width]="item.meta.width().value()" [height]="item.meta.height()" />
-		</div>
-		<div hlmFieldGroup>
-			<div hlmField>
-				<input
-					type="number"
-					hlmInput
-					placeholder="Width"
-					[formField]="item.meta.width"
-				/>
-			</div>
-			<div hlmField>
-				<input
-					type="number"
-					hlmInput
-					placeholder="Height"
-					[formField]="item.meta.height"
-				/>
-			</div>
-		</div>
+		<cv-form-img
+			cvResizable
+			[filter]="item.meta.filter().value()"
+			(imagePicked)="onImagePickerImagePicked(item, $event)"
+			[width]="item.meta.width().value()"
+			[formField]="item.url"
+			[height]="item.meta.height().value()"
+			(resize)="onImagePickerResized(item, $event)"
+		/>
 	</div>
 </ng-template>
-
 <ng-template #errorsTemplate let-ctrl>
 	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
 	@if (control().pending()) {
@@ -113,10 +232,40 @@
 	</div>
 	}
 </ng-template>
-
-<ng-template #formItemEditorButtons let-parent="parent" let-index="index">
-	<button hlmBtn class="flex" variant="outline" type="button" size="icon-sm">
+<ng-template
+	#formItemEditorButtons
+	let-item="item"
+	let-parent="parent"
+	let-index="index"
+>
+	@let designerState = itemDesignerStates()[item.path().value()];
+	<button
+		(click)="onItemDesignerSettingsButtonClicked(item)"
+		hlmToggle
+		class="cursor-pointer"
+		type="button"
+		variant="outline"
+		[state]="designerState?.expanded === true ? 'on' : 'off'"
+		size="sm"
+	>
+		<ng-icon name="lucideSettings" />
+	</button>
+	<button
+		hlmToggle
+		class="cursor-pointer"
+		type="button"
+		variant="outline"
+		(click)="onItemDesignerPreviewButtonClicked(item)"
+		size="sm"
+		[state]="designerState?.previewing === true ? 'on' : 'off'"
+	>
 		<ng-icon name="lucideEye" />
+	</button>
+	<button hlmBtn class="flex" variant="outline" type="button" size="icon-sm">
+		<ng-icon name="lucideCopy" />
+	</button>
+	<button hlmBtn class="" type="button" variant="outline" size="icon-sm">
+		<ng-icon name="lucideFolderPlus" />
 	</button>
 	<button
 		hlmBtn
@@ -131,9 +280,6 @@
 </ng-template>
 <ng-template #fieldItemTemplate let-ctrl let-index="index">
 	<ng-container> @let field = asFieldItem(ctrl); </ng-container>
-	<ng-container>
-		@let metaCtx = {$implicit: field.meta, formItemIndex: index};
-	</ng-container>
 	<div hlmFieldGroup>
 		<div hlmFieldGroup>
 			<div hlmField>
@@ -150,90 +296,10 @@
 				</div>
 			</div>
 			<div hlmField>
-				<div hlmFieldContent>
-					<textarea
-						hlmTextarea
-						placeholder="Description"
-						[formField]="field.description"
-					></textarea>
-					<ng-container
-						[ngTemplateOutlet]="errorsTemplate"
-						[ngTemplateOutletContext]="{$implicit: field.description}"
-					/>
-				</div>
-			</div>
-			<div hlmField>
-				<div hlmFieldContent>
-					<hlm-select
-						placeholder="Value type *"
-						(valueChange)="onFieldTypeChanged(field.meta, $event)"
-						[formField]="field.meta.type"
-						class="w-full"
-					>
-						<hlm-select-trigger class="w-full">
-							<hlm-select-value class="capitalize" />
-						</hlm-select-trigger>
-						<hlm-select-content class="w-full">
-							@for (option of fieldItemTypes; track $index) {
-							<hlm-option [value]="option" class="capitalize">
-								{{ option }}
-							</hlm-option>
-							}
-						</hlm-select-content>
-					</hlm-select>
-				</div>
-			</div>
-		</div>
-		<hlm-field-separator />
-		<cv-debug-panel
-			class="absolute top-0 right-[calc(100%+5px)] max-h-full min-w-65"
-		>
-			<cv-debug-header> Item State</cv-debug-header>
-			<div class="px-2 py-1">
-				<dl>
-					<dt>Validity</dt>
-					<dd>{{ field().valid() ? 'Valid' : 'Invalid' }}</dd>
-					@if (field().errorSummary().length > 0) {
-					<dt>Errors</dt>
-					<dd>
-						<ul>
-							@for (err of field().errorSummary(); track $index) {
-							<li>
-								{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind
-								}}
-							</li>
-							}
-						</ul>
-					</dd>
-					}
-					<dt>Value</dt>
-					<dd>
-						<pre>{{ field().value() | json }}</pre>
-					</dd>
-				</dl>
-			</div>
-		</cv-debug-panel>
-		<ng-template #configTitleTemplate>
-			<legend hlmFieldLegend>Configuration</legend>
-		</ng-template>
-		<div hlmFieldGroup>
-			<div hlmFieldGroup>
-				<ng-container>
-					@let template = metaConfigTemplatesMap[field.meta.type().value()];
-				</ng-container>
-				@if(template) {
-				<ng-container [ngTemplateOutlet]="configTitleTemplate" />
-				<ng-container
-					[ngTemplateOutletContext]="metaCtx"
-					[ngTemplateOutlet]="template()"
-				/>
-				}
-			</div>
-			<div hlmFieldGroup>
-				<legend hlmFieldLegend class="">Additional Configuration</legend>
-				<ng-container
-					[ngTemplateOutlet]="baseFieldMetaConfigTemplate"
-					[ngTemplateOutletContext]="metaCtx"
+				<input
+					placeholder="Hint or description"
+					[formField]="field.description"
+					hlmInput
 				/>
 			</div>
 		</div>
@@ -250,6 +316,35 @@
 		</ng-container>
 		<cv-geo-point-picker [formField]="meta.defaultValue" />
 	</div>
+</ng-template>
+<ng-template #debugPanel let-field>
+	<cv-debug-panel
+		class="absolute top-0 right-[calc(100%+5px)] max-h-100 min-w-65"
+	>
+		<cv-debug-header> Item State</cv-debug-header>
+		<div class="px-2 py-1">
+			<dl>
+				<dt>Validity</dt>
+				<dd>{{ field().valid() ? 'Valid' : 'Invalid' }}</dd>
+				@if (field().errorSummary().length > 0) {
+				<dt>Errors</dt>
+				<dd>
+					<ul>
+						@for (err of field().errorSummary(); track $index) {
+						<li>
+							{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind }}
+						</li>
+						}
+					</ul>
+				</dd>
+				}
+				<dt>Value</dt>
+				<dd>
+					<pre>{{ field().value() | json }}</pre>
+				</dd>
+			</dl>
+		</div>
+	</cv-debug-panel>
 </ng-template>
 <ng-template
 	#dateFieldMetaConfigTemplate
@@ -518,8 +613,21 @@
 	<ng-container
 		>@let meta = asBooleanFieldMeta(asFieldMeta(metaControl));</ng-container
 	>
+	<div hlmField>
+		<label hlmFieldLabel for="{{formItemIndex}}_render_as">Render as</label>
+		<hlm-select id="{{formItemIndex}}_render_as" [formField]="meta.renderAs">
+			<hlm-select-trigger class="w-full"
+				><hlm-select-value
+			/></hlm-select-trigger>
+			<hlm-select-content class="w-full">
+				<hlm-option value="checkbox">Checkbox</hlm-option>
+				<hlm-option value="select">Dropdown</hlm-option>
+			</hlm-select-content>
+		</hlm-select>
+	</div>
+	@let idExp = `${formItemIndex}__default_value`; @if(meta.renderAs().value() ==
+	'checkbox') {
 	<div hlmField orientation="horizontal" class="items-center">
-		@let idExp = `${formItemIndex}__default_checkbox`;
 		<hlm-checkbox
 			class="cursor-pointer"
 			[id]="idExp"
@@ -533,6 +641,18 @@
 			[ngTemplateOutletContext]="{$implicit: meta.defaultValue}"
 		/>
 	</div>
+	}@else {
+	<label class="cursor-pointer" hlmFieldLabel [for]="idExp"
+		>Default Value</label
+	>
+	<hlm-select [formField]="meta.defaultValue" [id]="idExp">
+		<hlm-select-trigger class="w-full"><hlm-select-value /></hlm-select-trigger>
+		<hlm-select-content class="w-full">
+			<hlm-option [value]="true">Yes</hlm-option>
+			<hlm-option [value]="false">No</hlm-option>
+		</hlm-select-content>
+	</hlm-select>
+	}
 </ng-template>
 <ng-template
 	#selectFieldMetaConfigTemplate
@@ -639,11 +759,11 @@
 		</div>
 	</div>
 	<div hlmField>
+		<label hlmFieldLabel>Default selection</label>
 		<ng-container
 			[ngTemplateOutlet]="selectTemplate"
 			[ngTemplateOutletContext]="{
 			$implicit: meta.defaultValue,
-			placeholder: 'Default selection',
 			multiple: meta.type().value() === 'multi-select',
 			fixedOptions: meta.hardOptions().value(),
 			ref: meta.optionSourceRef().value(),
@@ -813,7 +933,6 @@
 		></textarea>
 	</div>
 </ng-template>
-
 <ng-template #relevanceConfigTemplate let-item let-index="index">
 	<ng-container>@let control = asFormItem(item);</ng-container>
 	@if(control.type().value() != 'separator') {
@@ -895,7 +1014,6 @@
 		}
 	</div>
 </ng-template>
-
 <ng-template
 	#logicTemplate
 	let-item="item"
@@ -1049,9 +1167,7 @@
 		</div>
 	</div>
 </ng-template>
-
 <ng-template #rangeDateExpressionValueTemplate let-control> </ng-template>
-
 <ng-template
 	#multiDateExpressionValueTemplate
 	let-control
@@ -1065,7 +1181,6 @@
 	<cv-date-picker [formField]="control" />
 	} }
 </ng-template>
-
 <ng-template
 	#dateExpressionValueTemplate
 	let-control
@@ -1086,7 +1201,6 @@
 	/>
 	}
 </ng-template>
-
 <ng-template #selectExpressionValueTemplate let-control let-refField="refField">
 	<ng-container> @let ref = asFieldItem(refField); </ng-container>
 	<ng-container> @let refMeta = asSelectFieldMeta(ref.meta); </ng-container>
@@ -1101,7 +1215,6 @@
 	}"
 	/>
 </ng-template>
-
 <ng-template
 	#selectTemplate
 	let-control
@@ -1195,13 +1308,46 @@
 	</hlm-select>
 	}
 </ng-template>
-
 <ng-template #textExpressionValueTemplate let-control let-operator="operator">
-	@if(operator == 'match') { } @else {
+	@if(operator == 'match') {
+	<div hlmField>
+		<div hlmButtonGroup>
+			<input [formField]="control" hlmInput placeholder="Regular expression" />
+			<button
+				[hlmDropdownMenuTrigger]="menu"
+				type="button"
+				hlmBtn
+				variant="outline"
+				size="icon"
+			>
+				<ng-icon name="lucideEllipsis" />
+			</button>
+			<ng-template #menu>
+				<hlm-dropdown-menu>
+					<hlm-dropdown-menu-group>
+						@for(preset of patternPresets; track $index) {
+						<button
+							(click)="control().value.set(preset.regex.toString().slice(1,-1))"
+							hlmDropdownMenuItem
+							class="cursor-pointer"
+						>
+							<ng-icon [name]="preset.icon" />
+							<span>{{ preset.label }}</span>
+						</button>
+						}
+					</hlm-dropdown-menu-group>
+				</hlm-dropdown-menu>
+			</ng-template>
+		</div>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: control}"
+		/>
+	</div>
+	} @else {
 	<input hlmInput [formField]="control" placeholder="Value" />
 	}
 </ng-template>
-
 <ng-template
 	#numberExpressionValueTemplate
 	let-control
@@ -1225,11 +1371,9 @@
 	/>
 	} }
 </ng-template>
-
 <ng-template #separatorItemTemplate>
 	<hlm-separator />
 </ng-template>
-
 <ng-template #header>
 	<div class="sticky top-0 backdrop-blur z-99 border-b border-muted">
 		<div class="container mx-auto">
@@ -1282,7 +1426,6 @@
 		</div>
 	</div>
 </ng-template>
-
 <ng-template #itemTypesMenuTemplate>
 	<hlm-dropdown-menu>
 		<hlm-dropdown-menu-label>Item Types</hlm-dropdown-menu-label>
@@ -1301,7 +1444,6 @@
 		</hlm-dropdown-menu-group>
 	</hlm-dropdown-menu>
 </ng-template>
-
 <hlm-dialog
 	[state]="optionSourceImportSheetState()"
 	(stateChanged)="onOptionSourceImportDialogStateChanged($event)"
