@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+textarea {
+	@apply resize-none field-sizing-content min-h-[3lh];
+}
