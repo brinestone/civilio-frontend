@@ -1,0 +1,86 @@
+<div hlmField>
+	<label hlmFieldLabel for="{{ index() }}__render_as">Render as</label>
+	<hlm-select id="{{ index() }}__render_as" [formField]="meta().renderAs">
+		<hlm-select-trigger class="w-full">
+			<hlm-select-value />
+		</hlm-select-trigger>
+		<hlm-select-content class="w-full">
+			<hlm-option value="checkbox">Checkbox</hlm-option>
+			<hlm-option value="select">Dropdown</hlm-option>
+		</hlm-select-content>
+	</hlm-select>
+</div>
+<div
+	hlmField
+	[orientation]="
+		meta().renderAs().value() == 'select' ? 'vertical' : 'horizontal'
+	"
+>
+	@let idExp = `${index()}__default_value`;
+	<ng-container>
+		@if (meta().renderAs().value() == "checkbox") {
+			<hlm-checkbox
+				class="cursor-pointer"
+				[id]="idExp"
+				[formField]="meta().defaultValue"
+			/>
+			<label hlmFieldLabel for="{{ idExp }}" class="cursor-pointer"
+				>Default Value</label
+			>
+		} @else {
+			<div
+				hlmButtonGroup
+				[ngClass]="{
+					'[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none w-full':
+						!!meta().defaultValue().value(),
+				}"
+			>
+				<hlm-select
+					[formField]="meta().defaultValue"
+					[id]="idExp"
+					class="w-full"
+				>
+					<hlm-select-trigger class="w-full"
+						><hlm-select-value
+					/></hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						<hlm-option [value]="true">Yes</hlm-option>
+						<hlm-option [value]="false">No</hlm-option>
+					</hlm-select-content>
+				</hlm-select>
+				@if (!!meta().defaultValue().value()) {
+					<button
+						(click)="onClearDefaultValueButtonClicked()"
+						type="button"
+						hlmBtn
+						variant="outline"
+					>
+						<ng-icon name="lucideX" />
+					</button>
+				}
+			</div>
+		}
+	</ng-container>
+	<ng-container
+		[ngTemplateOutlet]="errorsTemplate"
+		[ngTemplateOutletContext]="{
+			$implicit: meta().defaultValue,
+			eager: true,
+		}"
+	/>
+</div>
+<ng-template #errorsTemplate let-ctrl let-eager="eager">
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+		<div class="inline-flex gap-2 items-center text-sm">
+			<hlm-spinner />
+			<span>Checking...</span>
+		</div>
+	} @else if (control().invalid() && (eager || control().dirty())) {
+		<div class="space-y-1">
+			@for (error of control().errors(); track error) {
+				<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+			}
+		</div>
+	}
+</ng-template>

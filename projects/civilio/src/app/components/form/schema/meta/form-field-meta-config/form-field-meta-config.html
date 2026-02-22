@@ -1,0 +1,70 @@
+<div hlmFieldGroup>
+	<div hlmField>
+		<label hlmFieldLabel for="{{index()}}__field_type">Question type</label>
+		<hlm-select
+			(valueChange)="onFieldTypeChanged(meta(), $event)"
+			[formField]="meta().type"
+			id="{{index()}}__field_type"
+		>
+			<hlm-select-trigger class="w-full">
+				<hlm-select-value>
+					<div class="flex items-center gap-2" *hlmSelectValue="let value">
+						<ng-icon [name]="$any(fieldItemTypesMap)[value].icon" />
+						<span>{{ $any(fieldItemTypesMap)[value].label }}</span>
+					</div>
+				</hlm-select-value>
+			</hlm-select-trigger>
+			<hlm-select-content class="w-full">
+				@for(type of fieldItemTypes; track $index) {
+				<hlm-option [value]="type">
+					<div class="flex items-center gap-2">
+						<ng-icon [name]="fieldItemTypesMap[type].icon" />
+						<span>{{ fieldItemTypesMap[type].label }}</span>
+					</div>
+				</hlm-option>
+				}
+			</hlm-select-content>
+		</hlm-select>
+	</div>
+	@if(!meta().required().hidden()) {
+	<div hlmField orientation="horizontal" class="items-center">
+		<hlm-checkbox
+			class="cursor-pointer"
+			[formField]="meta().required"
+			id="{{index()}}__required_input"
+		/>
+		<label
+			class="cursor-pointer"
+			hlmFieldLabel
+			for="{{index()}}__required_input"
+			>Make this field mandatory</label
+		>
+	</div>
+	} @if(!meta().readonly().hidden()) {
+	<div hlmField orientation="horizontal" class="items-center">
+		<hlm-checkbox
+			class="cursor-pointer"
+			[formField]="meta().readonly"
+			id="{{index()}}__readonly_input"
+		/>
+		<label
+			class="cursor-pointer"
+			hlmFieldLabel
+			for="{{index()}}__readonly_input"
+			>Make this field readonly</label
+		>
+	</div>
+	} @let component = fieldMetaConfigComponentsMap[meta().type().value()];
+	<ng-container>
+		@if(component) {
+		<hlm-field-separator />
+		<ng-container
+			[ngComponentOutlet]="component | async"
+			[ngComponentOutletInputs]="{
+				meta: meta(),
+				index: index()
+			}"
+		/>
+		}
+	</ng-container>
+</div>
