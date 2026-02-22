@@ -1,0 +1,42 @@
+@if (!meta().min().hidden()) {
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}__min_value">Min value</label>
+		<input
+			type="number"
+			[formField]="meta().min"
+			hlmInput
+			[step]="step()"
+			id="{{ index() }}__min_value"
+		/>
+		<cv-field-error [field]="meta().min" eager />
+	</div>
+}
+@if (!meta().max().hidden()) {
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}__max_value">Max value</label>
+		<input
+			type="number"
+			[step]="step()"
+			[formField]="meta().max"
+			hlmInput
+			id="{{ index() }}__max_value"
+		/>
+		<cv-field-error [field]="meta().max" eager />
+	</div>
+}
+<div hlmField>
+	<label hlmFieldLabel for="{{ index() }}__default_value"
+		>Default value
+		@if (meta().defaultValue().required()) {
+			<span class="text-red-500">*</span>
+		}
+	</label>
+	<input
+		type="number"
+		[step]="step()"
+		id="{{ index() }}__default_value"
+		[formField]="meta().defaultValue"
+		hlmInput
+	/>
+	<cv-field-error [field]="meta().defaultValue" eager />
+</div>
