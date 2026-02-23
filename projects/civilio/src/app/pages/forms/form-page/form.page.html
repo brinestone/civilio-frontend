@@ -203,7 +203,7 @@
 	[state]="pendingChangesDialogState()"
 >
 	<hlm-alert-dialog-content
-		*brnAlertDialogContent="let ctx"
+		*hlmAlertDialogPortal="let ctx"
 		class="max-w-[500px]!"
 	>
 		<hlm-alert-dialog-header>
@@ -259,7 +259,7 @@
 	(stateChanged)="onSaveChangesDialogToggled($event)"
 >
 	<hlm-alert-dialog-content
-		*brnAlertDialogContent="let ctx"
+		*hlmAlertDialogPortal="let ctx"
 		class="max-w-[500px]!"
 	>
 		<hlm-alert-dialog-header class="max-w-full">
@@ -309,7 +309,7 @@
 	(stateChanged)="onRevertDialogToggled($event)"
 >
 	<hlm-alert-dialog-content
-		*brnAlertDialogContent="let ctx"
+		*hlmAlertDialogPortal="let ctx"
 		class="max-w-[500px]"
 	>
 		<hlm-alert-dialog-header class="max-w-full">

@@ -1,3 +1,4 @@
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
 	booleanAttribute,
 	Component,
@@ -9,7 +10,9 @@ import {
 	signal
 } from '@angular/core';
 import { FormSchema } from '@app/model/form';
+import { MaskPipe } from '@app/pipes';
 import { FORM_SERVICE } from '@app/services/form';
+import { facilityName } from '@app/store/selectors';
 import { FormType } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
@@ -23,19 +26,15 @@ import {
 	lucideUnlink2
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { select } from '@ngxs/store';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmH4 } from '@spartan-ng/helm/typography';
+import { toast } from 'ngx-sonner';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { debounceTime, map, pipe } from 'rxjs';
 import z from 'zod';
-import { select } from '@ngxs/store';
-import { facilityName } from '@app/store/selectors';
-import { MaskPipe } from '@app/pipes';
-import { toast } from 'ngx-sonner';
-import { BooleanInput } from '@angular/cdk/coercion';
-import { HlmH4 } from '@spartan-ng/helm/typography';
-import { BrnPopoverContent } from '@spartan-ng/brain/popover';
 
 @Component({
 	selector: 'cv-form-header',
@@ -52,12 +51,11 @@ import { BrnPopoverContent } from '@spartan-ng/brain/popover';
 		})
 	],
 	imports: [
+		HlmAutocompleteImports,
 		HlmButton,
 		NgIcon,
 		TranslatePipe,
-		HlmAutocompleteImports,
 		MaskPipe,
-		BrnPopoverContent,
 		HlmH4,
 	],
 	templateUrl: './form-header.component.html',

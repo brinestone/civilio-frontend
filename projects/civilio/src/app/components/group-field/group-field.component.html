@@ -4,10 +4,10 @@
 	@if (enableMutation()) {
 		<div>
 			<hlm-sheet (closed)="onFormSheetClosed()" side="right">
-				<button brnSheetTrigger hlmBtn size="sm" variant="ghost">
+				<button hlmSheetTrigger hlmBtn size="sm" variant="ghost">
 					<ng-icon name="lucidePencil"/>
 				</button>
-				<hlm-sheet-content *brnSheetContent="let ctx">
+				<hlm-sheet-content *hlmSheetPortal="let ctx">
 					<hlm-sheet-header>
 						<h2 hlmSheetTitle>
 							{{ editFormHeader() ?? ("tmpl.group.form.title" | translate) }}

@@ -3,7 +3,6 @@ import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden
 import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
 import { BooleanFieldMeta, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, RelevanceLogicExpressionOperator, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
-import { at } from "lodash";
 
 export const operatorsMap = {
 	in: { label: 'Contains', operandCount: 1 },
@@ -270,17 +269,17 @@ export function domainToStrictFormDefinition(value: FormVersionDefinition) {
 export function defaultFormItemDefinitionSchemaValue(path: string, type: FormItemType) {
 	const meta = formItemDefaultMeta(type);
 	const result = {
-		description: '',
-		id: '',
+		description: null as any,
+		id: null as any,
 		meta,
 		path,
 		children: [],
 		relevance: {
-			enabled: isDevMode(),
+			enabled: false,
 			operator: 'or',
 			logic: []
 		},
-		title: '',
+		title: null as any,
 		type,
 		...formItemPropertiesFor(type),
 	} as FormModel['items'][number];
@@ -294,8 +293,8 @@ function formItemPropertiesFor(type: FormItemType) {
 }
 export function defaultFormDefinitionSchemaValue() {
 	return {
-		id: 'new',
-		parentId: '',
+		id: null as any,
+		parentId: null as any,
 		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'field')] : [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }

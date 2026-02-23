@@ -121,7 +121,7 @@
 					label
 				}}</label>
 				<div class="flex items-center gap-2 group">
-					<brn-popover class="w-full" sideOffset="5">
+					<hlm-popover class="w-full" sideOffset="5">
 						<input [formControlName]="schemaKey" class="hidden" />
 						<button
 							[class.!font-normal]="
@@ -131,7 +131,7 @@
 								!fg.controls[schemaKey].value && !loadedMappings()[schemaKey]
 							"
 							[id]="schemaKey + '_mapper_selector'"
-							brnPopoverTrigger
+							hlmPopoverTrigger
 							class="w-full justify-between overflow-ellipsis line-clamp-1 text-start!"
 							hlmBtn
 							variant="outline"
@@ -143,7 +143,7 @@
 							}}
 						</button>
 						<hlm-command
-							*brnPopoverContent="let ctx"
+							*hlmPopoverPortal="let ctx"
 							class="w-full p-0"
 							hlmPopoverContent
 						>
@@ -189,7 +189,7 @@
 								</hlm-command-group>
 							</hlm-command-list>
 						</hlm-command>
-					</brn-popover>
+					</hlm-popover>
 
 					<button
 						(click)="removeMapping(fg.controls[schemaKey], schemaKey)"

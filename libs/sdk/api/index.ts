@@ -4,7 +4,7 @@
 // @ts-ignore
 import { DatasetsRequestBuilderNavigationMetadata, DatasetsRequestBuilderRequestsMetadata, type DatasetsRequestBuilder } from './datasets/index.js';
 // @ts-ignore
-import { FormsRequestBuilderNavigationMetadata, type FormsRequestBuilder } from './forms/index.js';
+import { FormsRequestBuilderNavigationMetadata, FormsRequestBuilderRequestsMetadata, type FormsRequestBuilder } from './forms/index.js';
 // @ts-ignore
 import { HealthRequestBuilderRequestsMetadata, type HealthRequestBuilder } from './health/index.js';
 // @ts-ignore
@@ -52,6 +52,7 @@ export const ApiRequestBuilderNavigationMetadata: Record<Exclude<keyof ApiReques
         navigationMetadata: DatasetsRequestBuilderNavigationMetadata,
     },
     forms: {
+        requestsMetadata: FormsRequestBuilderRequestsMetadata,
         navigationMetadata: FormsRequestBuilderNavigationMetadata,
     },
     health: {

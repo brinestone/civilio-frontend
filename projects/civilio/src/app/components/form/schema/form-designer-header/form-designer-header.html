@@ -1,35 +1,75 @@
-<div class="container mx-auto">
-	<div
-		class="flex justify-between items-center flex-wrap gap-3 p-2 sticky top-2"
-	>
-		<div>
-			@if(editable()) {
-			<div hlmButtonGroup>
-				<button
-					type="button"
-					[title]="'Add' + lastAddedItemLabel()"
-					hlmBtn
-					class="capitalize"
-					size="sm"
-					variant="outline"
-					(click)="itemAdd.emit(lastAddedItemType())"
-				>
-					<ng-icon [name]="lastAddedItemIcon()" />
-					<span>Add {{ lastAddedItemLabel() }}</span>
-				</button>
-				<button
-					hlmBtn
-					[hlmDropdownMenuTrigger]="itemTypesMenu"
-					type="button"
-					size="sm"
-					variant="outline"
-					aria-label="Select item Type"
-				>
-					<ng-icon name="lucideChevronDown" />
-				</button>
-			</div>
-			}
+<div class="flex justify-between items-center flex-wrap gap-3 sticky top-2">
+	<div>
+		@if(editable()) {
+		<div hlmButtonGroup>
+			<button
+				type="button"
+				[title]="'Add' + lastAddedItemLabel()"
+				hlmBtn
+				class="capitalize"
+				size="sm"
+				variant="outline"
+				(click)="itemAdd.emit(lastAddedItemType())"
+			>
+				<ng-icon [name]="lastAddedItemIcon()" />
+				<span>Add {{ lastAddedItemLabel() }}</span>
+			</button>
+			<button
+				hlmBtn
+				[hlmDropdownMenuTrigger]="itemTypesMenu"
+				type="button"
+				size="sm"
+				variant="outline"
+				aria-label="Select item Type"
+			>
+				<ng-icon name="lucideChevronDown" />
+			</button>
 		</div>
+		}
+	</div>
+	<div class="flex items-center gap-2">
+		@if(formState().dirty()) {
+		<button
+			hlmBtn
+			size="sm"
+			(click)="onSubmit.emit()"
+			type="button"
+			[disabled]="formState().invalid() || formState().submitting()"
+			variant="default"
+		>
+			@if(formState().submitting()) {
+			<hlm-spinner />
+			} @else {
+			<ng-icon name="lucideSave" />
+			}
+			<span
+				>{{formState().submitting() ? 'Submitting' : 'Submit'}} changes</span
+			>
+		</button>
+		<button
+			(click)="onDiscard.emit()"
+			hlmBtn
+			size="sm"
+			[disabled]="formState().submitting()"
+			type="button"
+			variant="destructive"
+		>
+			<ng-icon name="lucideTrash2" />
+			<span>Discard changes</span>
+		</button>
+		}
+		<button
+			(click)="onTogglePreviewButtonClicked()"
+			[disabled]="formState().submitting()"
+			class="cursor-pointer"
+			type="button"
+			hlmBtn
+			variant="outline"
+			size="sm"
+		>
+			<ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
+			<span> @if(previewing()) { Design } @else { Preview } </span>
+		</button>
 	</div>
 </div>
 <ng-template #itemTypesMenu>
