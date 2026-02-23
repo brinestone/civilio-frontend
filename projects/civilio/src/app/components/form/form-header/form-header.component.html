@@ -29,7 +29,7 @@
 			<hlm-autocomplete-input
 				[placeholder]="'misc.placeholder.jump_to_index' | translate"
 			/>
-			<div *brnPopoverContent hlmAutocompleteContent>
+			<div *hlmAutocompletePortal hlmAutocompleteContent>
 				<hlm-autocomplete-empty>{{
 					"tmpl.autocomplete.empty_text" | translate
 				}}</hlm-autocomplete-empty>
@@ -93,33 +93,4 @@
 			<ng-icon name="lucideRedo2" />
 		</button>
 	}
-	<!--	<hlm-sheet-->
-	<!--		[state]="mapperSheetState()"-->
-	<!--		(stateChanged)="mapperSheetState.set($event)"-->
-	<!--		side="right"-->
-	<!--	>-->
-	<!--		<button hlmBtn size="sm" variant="ghost" brnSheetTrigger>-->
-	<!--			<ng-icon name="lucideUnlink"/>-->
-	<!--			<span>{{ "forms.header.actions.field_mapper" | translate }}</span>-->
-	<!--		</button>-->
-	<!--		<hlm-sheet-content-->
-	<!--			class="lg:min-w-[70vw] xl:min-w-[75vw] min-w-full"-->
-	<!--			*brnSheetContent-->
-	<!--		>-->
-	<!--			<hlm-sheet-header>-->
-	<!--				<h3 hlmSheetTitle>{{ "field_mapper.title" | translate }}</h3>-->
-	<!--				<p hlmSheetDescription>-->
-	<!--					{{ "field_mapper.description" | translate }}-->
-	<!--				</p>-->
-	<!--			</hlm-sheet-header>-->
-	<!--			<div class="max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent">-->
-	<!--				@defer (when formType()) {-->
-	<!--					@let schema = formSchema();-->
-	<!--					@if (schema) {-->
-	<!--						<cv-field-mapper [formModel]="schema" [form]="formType()"/>-->
-	<!--					}-->
-	<!--				}-->
-	<!--			</div>-->
-	<!--		</hlm-sheet-content>-->
-	<!--	</hlm-sheet>-->
 </div>

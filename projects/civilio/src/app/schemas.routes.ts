@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { hasChangesGuard } from './guards/has-changes-guard';
 
 export const schemaRoutes: Routes = [
 	{
@@ -11,6 +12,7 @@ export const schemaRoutes: Routes = [
 		],
 		title: 'Form Designer',
 		path: 'create-new',
+		canDeactivate: [hasChangesGuard],
 		loadComponent: () => import('./pages/forms/schemas/schema-design.page').then(m => m.SchemaDesignPage)
 	},
 ];

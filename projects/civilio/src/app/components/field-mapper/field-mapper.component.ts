@@ -45,16 +45,11 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Actions, dispatch, ofActionSuccessful, Store } from '@ngxs/store';
-import {
-	BrnPopover,
-	BrnPopoverContent,
-	BrnPopoverTrigger
-} from '@spartan-ng/brain/popover';
 import { HlmBadge } from '@spartan-ng/helm/badge';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCommandImports } from '@spartan-ng/helm/command';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { HlmPopoverContent } from '@spartan-ng/helm/popover';
+import { HlmPopoverImports, HlmPopoverPortal } from '@spartan-ng/helm/popover';
 import { cloneDeep, differenceWith, entries, values } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { createNotifier } from 'ngxtension/create-notifier';
@@ -82,20 +77,17 @@ type SectionForm = FormGroup<{
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
+		HlmPopoverImports,
+		HlmCommandImports,
 		HlmLabel,
 		TranslatePipe,
 		NgClass,
-		HlmCommandImports,
 		NgIcon,
 		HlmBadge,
 		HlmButton,
-		BrnPopover,
 		ValuesPipe,
 		ReactiveFormsModule,
-		BrnPopoverTrigger,
-		HlmPopoverContent,
 		NgTemplateOutlet,
-		BrnPopoverContent,
 		IsStringPipe,
 	],
 	templateUrl: './field-mapper.component.html',

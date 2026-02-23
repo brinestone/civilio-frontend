@@ -11,16 +11,18 @@ import {
 	input,
 	linkedSignal,
 	resource,
+	signal,
 	Type
 } from '@angular/core';
 import { FieldTree, form, submit } from '@angular/forms/signals';
 import { FormDesignerHeader } from '@app/components/form/schema';
 import { createFormItemContextInjector } from '@app/components/form/schema/items';
 import {
+	HasPendingChanges,
 	isGroupItem
 } from '@app/model/form';
 import { FormService2 } from '@app/services/form';
-import { FormItemDefinition, FormItemField, FormItemGroup } from '@civilio/sdk/models';
+import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { current, produce } from 'immer';
@@ -37,6 +39,9 @@ import {
 } from './form-schemas';
 import { toast } from 'ngx-sonner';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { Observable } from 'rxjs';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 const isFieldTree = (v: FieldTree<Strict<FormItemDefinition>>): v is FieldTree<Strict<FormItemField>> => v.type().value() === 'field';
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 
@@ -48,6 +53,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 		NgTemplateOutlet,
 		CdkDropList,
 		CdkDropListGroup,
+		HlmSpinner,
 		FormDesignerHeader,
 		AsyncPipe,
 		NgComponentOutlet
@@ -62,7 +68,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 	},
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SchemaDesignPage {
+export class SchemaDesignPage implements HasPendingChanges {
 	readonly slug = input<string>();
 	protected readonly formItemComponents = {
 		'field': import('../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
@@ -103,6 +109,9 @@ export class SchemaDesignPage {
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
 		allFields: this.fieldItems
 	});
+	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
+	protected readonly formNameDialogState = signal<BrnDialogState>('closed');
+	protected pendingChangesActionCallback?: (action: 'save' | 'stay' | 'discard') => void;
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
 		cb(item);
@@ -140,17 +149,43 @@ export class SchemaDesignPage {
 		}))
 	}
 
-	protected onFormSubmit(event?: SubmitEvent) {
+	protected async onFormSubmit(event?: SubmitEvent) {
 		event?.preventDefault();
 		if (!this.formModel().valid()) {
-			toast.warning('Invalid form state', {description: 'The current state of the form designer is invalid. Pleace update the form\'s state and try again'});
+			toast.warning('Invalid form state', { description: 'The current state of the form designer is invalid. Pleace update the form\'s state and try again' });
 		}
-		submit(this.formModel, async tree => {
+		await submit(this.formModel, async tree => {
 			const value = tree().value();
+			console.log(value);
 		})
 	}
 
 	protected onFormDiscard() {
 
+	}
+	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
+		if (!this.formModel().dirty()) return false;
+		this.pendingChangesDialogState.set('open');
+		return new Observable<boolean>(subscriber => {
+			subscriber.add(() => {
+				this.pendingChangesActionCallback = undefined;
+				this.pendingChangesDialogState.set('closed');
+			})
+			this.pendingChangesActionCallback = async action => {
+				switch (action) {
+					case 'discard':
+						subscriber.next(false);
+						break;
+					case 'stay':
+						subscriber.next(true);
+						break;
+					case 'save':
+						await this.onFormSubmit();
+						subscriber.next(this.formModel().dirty());
+						break;
+				}
+				subscriber.complete();
+			}
+		})
 	}
 }

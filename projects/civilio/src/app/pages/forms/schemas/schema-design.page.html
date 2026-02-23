@@ -43,8 +43,48 @@
 		</div>
 	</div>
 </ng-template>
-<hlm-alert-dialog>
-	<!-- <hlm-alert-dialog-content *hlmAlertDialogPortal="">
-
-	</hlm-alert-dialog-content> -->
+<hlm-alert-dialog
+	#pendingChanges
+	[state]="pendingChangesDialogState()"
+	(stateChanged)="pendingChangesDialogState.set($event)"
+>
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>You have unsaved changes</h2>
+			<p hlmAlertDialogDescription>
+				Leaving will discard the pending changes you've made. Are you sure you
+				want to proceed?
+			</p>
+		</hlm-alert-dialog-header>
+		<hlm-alert-dialog-footer>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('save')"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+			>
+				@if(formModel().submitting()) {
+				<hlm-spinner />
+				}
+				<span>Save and leave</span>
+			</button>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('discard')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+				variant="destructive"
+			>
+				Discard and leave
+			</button>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('stay')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+			>
+				Stay here
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
 </hlm-alert-dialog>

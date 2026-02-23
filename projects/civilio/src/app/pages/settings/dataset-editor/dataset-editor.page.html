@@ -410,7 +410,7 @@
 </form>
 
 <hlm-alert-dialog [state]="pendingChangesDialogState()" #pendingChangesDialog>
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx" class="min-w-125!">
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx" class="min-w-125!">
 		<hlm-alert-dialog-header>
 			<h2 hlmAlertDialogTitle>
 				{{ 'misc.dialogs.pending_changes.title' | translate }}
@@ -457,7 +457,7 @@
 </hlm-alert-dialog>
 
 <hlm-alert-dialog [state]="lineDeletionDialogState()" #lineDeletionConfirmation>
-	<hlm-alert-dialog-content *brnAlertDialogContent="let ctx">
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
 		<hlm-alert-dialog-header>
 			<h2 hlmAlertDialogTitle>
 				{{ 'settings.dataset.form.dialogs.group_deletion.title' | translate }}

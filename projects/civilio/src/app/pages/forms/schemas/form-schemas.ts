@@ -269,8 +269,8 @@ export function domainToStrictFormDefinition(value: FormVersionDefinition) {
 export function defaultFormItemDefinitionSchemaValue(path: string, type: FormItemType) {
 	const meta = formItemDefaultMeta(type);
 	const result = {
-		description: '',
-		id: '',
+		description: null as any,
+		id: null as any,
 		meta,
 		path,
 		children: [],
@@ -279,7 +279,7 @@ export function defaultFormItemDefinitionSchemaValue(path: string, type: FormIte
 			operator: 'or',
 			logic: []
 		},
-		title: '',
+		title: null as any,
 		type,
 		...formItemPropertiesFor(type),
 	} as FormModel['items'][number];
