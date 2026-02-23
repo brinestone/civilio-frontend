@@ -71,15 +71,15 @@ export class FormFieldMetaConfigComponent extends BaseMetaConfigComponent<FieldI
 		'boolean': import('../boolean-meta/boolean-meta.component').then(m => m.BooleanMetaComponent),
 		'date-time': import('../simple-date/simple-date.component').then(m => m.SimpleDateComponent),
 		'date': import('../simple-date/simple-date.component').then(m => m.SimpleDateComponent),
-		'date-range': import('../range-date/range-date.component').then(m => m.RangeDateComponent),
-		'multi-date': import('../multi-date/multi-date.component').then(m => m.MultiDateComponent),
+		'date-range': import('../range-date/range-date.component').then(m => m.RangeDateMetaComponent),
+		'multi-date': import('../multi-date/multi-date.component').then(m => m.MultiDateMetaComponent),
 		'text': import('../text-meta/text-meta.component').then(m => m.TextMetaComponent),
 		'multiline': import('../text-meta/text-meta.component').then(m => m.TextMetaComponent),
 		'single-select': import('../select-meta/select-meta.component').then(m => m.SelectMetaComponent),
 		'multi-select': import('../select-meta/select-meta.component').then(m => m.SelectMetaComponent),
 		'float': import('../number/number.component').then(m => m.NumberComponent),
 		'integer': import('../number/number.component').then(m => m.NumberComponent),
-		'geo-point': import('../geo-point/geo-point.component').then(m => m.GeoPointComponent),
+		'geo-point': import('../geo-point/geo-point.component').then(m => m.GeoPointMetaComponent),
 	} as Record<z.infer<typeof FieldTypeSchema>, Promise<typeof BaseMetaConfigComponent>>;
 	protected onFieldTypeChanged(node: FieldTree<Strict<FieldItemMeta>>, newType: any) {
 		const baseState = BaseFieldItemMetaSchema.parse(node().value());

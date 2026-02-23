@@ -31,7 +31,7 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { DatePicker, DateRangePicker, GeoPointPickerComponent, ImageFormItem, MultiDatePicker, NumberRangeInputComponent } from '@app/components';
+import { DatePicker, DateRangePicker, GeoPointPicker, ImageFormItem, MultiDatePicker, NumberRangeInputComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -231,7 +231,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		ImageFormItem,
 		Resizable,
 		HlmInput,
-		GeoPointPickerComponent,
+		GeoPointPicker,
 		CdkDragHandle,
 		HlmSpinner,
 		FormField,

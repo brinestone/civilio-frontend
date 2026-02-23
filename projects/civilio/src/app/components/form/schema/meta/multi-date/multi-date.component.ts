@@ -12,7 +12,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
 @Component({
-	selector: 'cv-multi-date',
+	selector: 'cv-multi-date-meta',
 	viewProviders: [
 		provideIcons({
 			lucideX
@@ -37,6 +37,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './multi-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiDateComponent extends BaseMetaConfigComponent<MultiDateFieldMeta> {
+export class MultiDateMetaComponent extends BaseMetaConfigComponent<MultiDateFieldMeta> {
 
 }

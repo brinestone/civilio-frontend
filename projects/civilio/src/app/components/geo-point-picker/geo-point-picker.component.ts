@@ -44,7 +44,7 @@ import { injectNetwork } from 'ngxtension/inject-network';
 		class: 'group/geo-point-picker'
 	}
 })
-export class GeoPointPickerComponent implements AfterViewInit, FormValueControl<GeoPoint | null | undefined> {
+export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint | null | undefined> {
 	public readonly value = model<GeoPoint | null | undefined>();
 	public readonly dirty = input<boolean, unknown>(false, { transform: booleanAttribute })
 	public readonly pending = input<boolean, unknown>(false, { transform: booleanAttribute })

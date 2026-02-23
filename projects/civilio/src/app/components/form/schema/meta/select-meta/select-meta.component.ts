@@ -23,7 +23,7 @@ import { produce } from 'immer';
 import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
 @Component({
-	selector: 'cv-select',
+	selector: 'cv-select-meta',
 	viewProviders: [
 		provideIcons({
 			lucidePlus,

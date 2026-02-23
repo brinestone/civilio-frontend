@@ -7,7 +7,7 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 
 @Component({
-	selector: 'cv-range-date',
+	selector: 'cv-range-date-meta',
 	imports: [
 		DatePicker,
 		HlmField,
@@ -23,6 +23,6 @@ import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 	styleUrl: './range-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RangeDateComponent extends BaseMetaConfigComponent<RangeDateFieldMeta> {
+export class RangeDateMetaComponent extends BaseMetaConfigComponent<RangeDateFieldMeta> {
 
 }
