@@ -3,3 +3,6 @@
 :host {
 	@apply grid grid-rows-[auto_1fr] grid-cols-[auto_1fr] h-full overflow-hidden;
 }
+textarea {
+	@apply resize-none field-sizing-content min-h-[3lh];
+}

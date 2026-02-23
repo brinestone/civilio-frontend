@@ -8,8 +8,72 @@ import { LookupRequestBuilderRequestsMetadata, type LookupRequestBuilder } from 
 // @ts-ignore
 import { SlugCheckRequestBuilderRequestsMetadata, type SlugCheckRequestBuilder } from './slugCheck/index.js';
 // @ts-ignore
-import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
+import { TitleCheckRequestBuilderRequestsMetadata, type TitleCheckRequestBuilder } from './titleCheck/index.js';
+// @ts-ignore
+import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata, type Parsable, type ParsableFactory, type ParseNode, type RequestConfiguration, type RequestInformation, type RequestsMetadata, type SerializationWriter } from '@microsoft/kiota-abstractions';
 
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormsPostRequestBody}
+ */
+// @ts-ignore
+export function createFormsPostRequestBodyFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormsPostRequestBody;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormsPostResponse}
+ */
+// @ts-ignore
+export function createFormsPostResponseFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormsPostResponse;
+}
+/**
+ * The deserialization information for the current model
+ * @param FormsPostRequestBody The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormsPostRequestBody(formsPostRequestBody: Partial<FormsPostRequestBody> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { formsPostRequestBody.description = n.getStringValue(); },
+        "title": n => { formsPostRequestBody.title = n.getStringValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param FormsPostResponse The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormsPostResponse(formsPostResponse: Partial<FormsPostResponse> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "slug": n => { formsPostResponse.slug = n.getStringValue(); },
+        "version": n => { formsPostResponse.version = n.getGuidValue(); },
+    }
+}
+export interface FormsPostRequestBody extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string | null;
+    /**
+     * The title property
+     */
+    title?: string | null;
+}
+export interface FormsPostResponse extends Parsable {
+    /**
+     * The slug property
+     */
+    slug?: string | null;
+    /**
+     * The version property
+     */
+    version?: Guid | null;
+}
 /**
  * Builds and executes requests for operations under /api/forms
  */
@@ -23,11 +87,53 @@ export interface FormsRequestBuilder extends BaseRequestBuilder<FormsRequestBuil
      */
     get slugCheck(): SlugCheckRequestBuilder;
     /**
+     * The titleCheck property
+     */
+    get titleCheck(): TitleCheckRequestBuilder;
+    /**
      * Gets an item from the ApiSdk.api.forms.item collection
      * @param form Unique identifier of the item
      * @returns {WithFormItemRequestBuilder}
      */
      byForm(form: string) : WithFormItemRequestBuilder;
+    /**
+     * Create form
+     * @param body The request body
+     * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
+     * @returns {Promise<FormsPostResponse>}
+     */
+     post(body: FormsPostRequestBody, requestConfiguration?: RequestConfiguration<object> | undefined) : Promise<FormsPostResponse | undefined>;
+    /**
+     * Create form
+     * @param body The request body
+     * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
+     * @returns {RequestInformation}
+     */
+     toPostRequestInformation(body: FormsPostRequestBody, requestConfiguration?: RequestConfiguration<object> | undefined) : RequestInformation;
+}
+/**
+ * Serializes information the current object
+ * @param FormsPostRequestBody The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormsPostRequestBody(writer: SerializationWriter, formsPostRequestBody: Partial<FormsPostRequestBody> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formsPostRequestBody || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", formsPostRequestBody.description);
+    writer.writeStringValue("title", formsPostRequestBody.title);
+}
+/**
+ * Serializes information the current object
+ * @param FormsPostResponse The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormsPostResponse(writer: SerializationWriter, formsPostResponse: Partial<FormsPostResponse> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formsPostResponse || isSerializingDerivedType) { return; }
+    writer.writeStringValue("slug", formsPostResponse.slug);
+    writer.writeGuidValue("version", formsPostResponse.version);
 }
 /**
  * Uri template for the request builder.
@@ -46,6 +152,23 @@ export const FormsRequestBuilderNavigationMetadata: Record<Exclude<keyof FormsRe
     },
     slugCheck: {
         requestsMetadata: SlugCheckRequestBuilderRequestsMetadata,
+    },
+    titleCheck: {
+        requestsMetadata: TitleCheckRequestBuilderRequestsMetadata,
+    },
+};
+/**
+ * Metadata for all the requests in the request builder.
+ */
+export const FormsRequestBuilderRequestsMetadata: RequestsMetadata = {
+    post: {
+        uriTemplate: FormsRequestBuilderUriTemplate,
+        responseBodyContentType: "application/json",
+        adapterMethodName: "send",
+        responseBodyFactory:  createFormsPostResponseFromDiscriminatorValue,
+        requestBodyContentType: "application/json",
+        requestBodySerializer: serializeFormsPostRequestBody,
+        requestInformationContentSetMethod: "setContentFromParsable",
     },
 };
 /* tslint:enable */
