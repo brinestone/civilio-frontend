@@ -9,6 +9,7 @@ import {
 import { CivilioSdk } from "@app/adapters/sdk";
 import { FormSchema } from "@app/model/form";
 import { LookupRequestBuilderGetQueryParameters } from "@civilio/sdk/api/submissions/lookup";
+import { FormVersionDefinition } from "@civilio/sdk/models";
 import {
 	DeleteOptionGroupByIdRequest,
 	DeleteOptionGroupOptionByIdRequest,
@@ -58,6 +59,10 @@ export class FormService2 {
 
 	private get client() {
 		return this.sdk;
+	}
+
+	async upsertFormDefinition(req: FormVersionDefinition) {
+		// return await this.client.api.forms.
 	}
 
 	async findFormDefinition(slug: string, formVersion?: string) {
