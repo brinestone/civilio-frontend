@@ -1,4 +1,4 @@
-import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, NgComponentOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import { BaseFieldItemMetaSchema, FieldItemMetaSchema, FieldTypeSchema } from '@app/model/form';
@@ -8,13 +8,13 @@ import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCalendar, lucideCalendarCheck, lucideCalendarRange, lucideCheck, lucideCheckSquare, lucideClock, lucideHash, lucideListChecks, lucideMapPin, lucideText, lucideTextCursorInput } from '@ng-icons/lucide';
 import { BrnDialogImports } from '@spartan-ng/brain/dialog';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import z from 'zod';
 import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
-import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 
 @Component({
 	selector: 'cv-form-item-meta-config',

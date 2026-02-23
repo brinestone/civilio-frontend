@@ -5,4 +5,8 @@
 	&.ng-invalid {
 		@apply border-(--destructive);
 	}
+
+	.leaflet-container {
+		@apply rounded-t;
+	}
 }

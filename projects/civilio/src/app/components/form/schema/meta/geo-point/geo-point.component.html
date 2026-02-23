@@ -1,3 +1,9 @@
 <div hlmField>
-	<cv-geo-point-picker [formField]="meta().defaultValue" />
+	<label hlmFieldLabel for="{{ index() }}_geo-point-meta-config"
+		>Default Value</label
+	>
+	<cv-geo-point-picker
+		id="{{ index() }}_geo-point-meta-config"
+		[formField]="meta().defaultValue"
+	/>
 </div>

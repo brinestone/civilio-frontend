@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe, NgClass } from '@angular/common';
-import { AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, linkedSignal, model, untracked, viewChild } from '@angular/core';
+import { AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, linkedSignal, model, Renderer2, untracked, viewChild, ViewContainerRef } from '@angular/core';
 import { FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
 import { GeoPoint } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -41,7 +41,7 @@ import { injectNetwork } from 'ngxtension/inject-network';
 		'[attr.aria-dirty]': 'dirty()',
 		'[attr.aria-pristine]': '!dirty()',
 		'[attr.aria-pending]': 'pending()',
-		class: 'group/geo-point-picker'
+		class: 'group/geo-point-picker',
 	}
 })
 export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint | null | undefined> {
@@ -54,6 +54,7 @@ export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint 
 	public readonly errors = input<readonly WithOptionalField<ValidationError>[]>([]);
 	public readonly clearable = input<boolean, BooleanInput>(true, { transform: booleanAttribute });
 	public readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
+	public readonly elementId = input<string>(undefined, { alias: 'id' });
 
 	protected readonly lat = linkedSignal(() => this.value()?.lat ?? 3.8614800698189145);
 	protected readonly long = linkedSignal(() => this.value()?.long ?? 11.520851415955367);
@@ -65,7 +66,7 @@ export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint 
 	private readonly cdr = inject(ChangeDetectorRef);
 	protected readonly network = injectNetwork();
 
-	constructor() {
+	constructor(renderer: Renderer2, container: ViewContainerRef) {
 		effect(() => {
 			const marker = this.marker;
 			const value = this.value();
@@ -78,6 +79,14 @@ export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint 
 				this.map?.setView(untracked(this.resolvedCoords));
 			}
 		});
+		effect(() => {
+			const id = this.elementId();
+			if (id) {
+				renderer.setAttribute(container.element.nativeElement, 'id', id);
+			} else {
+				renderer.removeAttribute(container.element.nativeElement, 'id');
+			}
+		})
 	}
 
 	ngAfterViewInit() {
