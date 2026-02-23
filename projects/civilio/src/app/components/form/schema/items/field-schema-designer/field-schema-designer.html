@@ -1,0 +1,115 @@
+@let field = node();
+<div
+	cdkDragHandle
+	class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
+>
+	<ng-icon name="lucideGrip" />
+	<span>Question</span>
+</div>
+<div class="absolute top-0 left-[calc(100%+5px)]">
+	<cv-form-item-actions
+		orientation="vertical"
+		(delete)="context.itemDeleteHandler(field.path().value(), index())"
+		(togglePreview)="editing.set(!$event)"
+		(toggleSettings)="expanded.set($event)"
+	/>
+</div>
+@if(showDebug()){
+<div class="absolute top-0 right-[calc(100%+5px)]">
+	<cv-debug-panel
+		class="absolute top-0 right-[calc(100%+5px)] max-h-100 min-w-65"
+	>
+		<cv-debug-header> Item State</cv-debug-header>
+		<div class="px-2 py-1">
+			<dl>
+				<dt>Validity</dt>
+				<dd>{{ field().valid() ? 'Valid' : 'Invalid' }}</dd>
+				@if (field().errorSummary().length > 0) {
+				<dt>Errors</dt>
+				<dd>
+					<ul>
+						@for (err of field().errorSummary(); track $index) {
+						<li>
+							{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind }}
+						</li>
+						}
+					</ul>
+				</dd>
+				}
+				<dt>Value</dt>
+				<dd>
+					<pre>{{ field().value() | json }}</pre>
+				</dd>
+			</dl>
+		</div>
+	</cv-debug-panel>
+</div>
+}
+<div class="p-3">
+	<div hlmFieldGroup>
+		<div hlmField>
+			<label hlmFieldLabel>Question Title</label>
+			<input hlmInput [formField]="field.title" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: field.title}"
+			/>
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel>Question Hint</label>
+			<input hlmInput [formField]="field.description" />
+			<ng-container
+				[ngTemplateOutlet]="errorsTemplate"
+				[ngTemplateOutletContext]="{$implicit: field.description}"
+			/>
+		</div>
+	</div>
+</div>
+@if(expanded()){
+<cv-form-item-settings
+	[tabs]="configTabs"
+	[(tab)]="currentConfigTab"
+	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
+	(close)="expanded.set(false)"
+>
+	@if(currentConfigTab() == 'meta') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-meta-config [meta]="field.meta" [index]="index()" />
+		}
+	</ng-container>
+	} @if(currentConfigTab() == 'validation') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-validation-config />
+		}
+	</ng-container>
+	} @if(currentConfigTab() == 'relevance') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-relevance-config
+			[item]="field"
+			[index]="index()"
+			[relevance]="field.relevance"
+		/>
+		}
+	</ng-container>
+	}
+</cv-form-item-settings>
+}
+
+<ng-template #errorsTemplate let-ctrl>
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+	<div class="inline-flex gap-2 items-center text-sm">
+		<hlm-spinner />
+		<span>Checking...</span>
+	</div>
+	} @else if (control().invalid() && control().dirty()) {
+	<div class="space-y-1">
+		@for (error of control().errors(); track error) {
+		<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+		}
+	</div>
+	}
+</ng-template>

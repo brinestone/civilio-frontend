@@ -71,7 +71,7 @@ function toDate(arg: number | undefined | null) {
 	templateUrl: './date-range-picker.component.html',
 	styleUrl: './date-range-picker.component.scss',
 })
-export class DateRangePickerComponent implements FormValueControl<undefined | null | NumberRange>, OnInit, OnDestroy {
+export class DateRangePicker implements FormValueControl<undefined | null | NumberRange>, OnInit, OnDestroy {
 	public readonly value = model<NumberRange | undefined | null>(undefined);
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	public readonly buttonId = input<string>(`date-range-picker-${++nextId}`, { alias: 'id' });

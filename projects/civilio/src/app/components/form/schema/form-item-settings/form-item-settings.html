@@ -1,0 +1,44 @@
+<div
+	class="flex justify-between items-center px-3 border-b border-border col-start-1 col-span-2 row-start-1 row-span-1 py-2"
+>
+	<p class="flex items-center gap-2 font-extrabold text-lg">
+		<ng-icon name="lucideSettings" />
+		<span>Settings</span>
+	</p>
+	<button
+		hlmBtn
+		class="rounded-full"
+		size="icon-sm"
+		variant="secondary"
+		type="button"
+		(click)="close.emit()"
+	>
+		<ng-icon name="lucideX" />
+	</button>
+</div>
+<div
+	class="pl-3 row-start-2 row-span-1 col-start-1 col-span-1 border-r border-border scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-auto"
+>
+	<div
+		hlmTabs
+		[tab]="activeConfigTab()"
+		(tabActivated)="activeConfigTab.set($event)"
+		orientation="vertical"
+	>
+		<div hlmTabsList variant="line">
+			@for(tab of configTabs(); track $index) {
+			<button type="button" [hlmTabsTrigger]="tab.value" class="cursor-pointer">
+				@if(tab.icon) {
+				<ng-icon [name]="tab.icon" />
+				}@else {<span></span>}
+				<span>{{tab.label}}</span>
+			</button>
+			}
+		</div>
+	</div>
+</div>
+<div
+	class="max-h-80 row-start-2 row-span-1 col-start-2 col-span-1 scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-auto"
+>
+	<ng-content />
+</div>

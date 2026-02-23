@@ -1,0 +1,120 @@
+@if (!meta().minlength().hidden()) {
+	<div hlmField>
+		<input
+			hlmInput
+			type="number"
+			placeholder="Min length"
+			[formField]="meta().minlength"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{ $implicit: meta().minlength }"
+		/>
+		<p hlmFieldDescription>
+			The minimum number of characters allowed for this question's response
+		</p>
+	</div>
+}
+@if (!meta().maxlength().hidden()) {
+	<div hlmField>
+		<input
+			hlmInput
+			type="number"
+			placeholder="Max length"
+			[formField]="meta().maxlength"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{ $implicit: meta().maxlength }"
+		/>
+		<p hlmFieldDescription>
+			The maximum number of characters allowed for this question's response
+		</p>
+	</div>
+}
+@if (!meta().pattern().hidden()) {
+	<div hlmField>
+		<input
+			(valueChange)="onTextFieldPatternInputValueChanged()"
+			[formField]="meta().pattern"
+			hlmInput
+			placeholder="Value pattern"
+		/>
+		<div class="flex gap-2 items-center">
+			<span class="text-sm text-muted-foreground font-medim">Presets: </span>
+			<hlm-toggle-group
+				(valueChange)="onTextFieldPatternPresetChanged($any($event))"
+				[value]="meta().pattern().value()"
+				variant="outline"
+				type="single"
+				size="sm"
+			>
+				@for (preset of patternPresets; track $index) {
+					<button
+						type="button"
+						hlmToggleGroupItem
+						class="cursor-pointer"
+						[value]="preset.regex"
+					>
+						<ng-icon [name]="preset.icon" />
+						<span>{{ preset.label }}</span>
+					</button>
+				}
+			</hlm-toggle-group>
+		</div>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{ $implicit: meta().pattern }"
+		/>
+		<p hlmFieldDescription>
+			A regular expression pattern which response values must match.
+			<a
+				target="_blank"
+				tabindex="-1"
+				href="https://en.wikipedia.org/wiki/Regular_expression"
+				>Learn more about regular expressions.</a
+			>
+		</p>
+	</div>
+}
+@if (!meta().defaultValue().hidden()) {
+	<div hlmField>
+		@if (meta().type().value() === "text") {
+			<input
+				[formField]="meta().defaultValue"
+				hlmInput
+				placeholder="Default value{{
+					meta().defaultValue().required() ? ' *' : ''
+				}}"
+			/>
+		} @else {
+			<textarea
+				hlmTextarea
+				[formField]="meta().defaultValue"
+				placeholder="Default value{{
+					meta().defaultValue().required() ? ' *' : ''
+				}}"
+			></textarea>
+		}
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{ $implicit: meta().defaultValue }"
+		/>
+		<p hlmFieldDescription>A value to be used by default for this field.</p>
+	</div>
+}
+<ng-template #errorsTemplate let-ctrl>
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+		<div class="inline-flex gap-2 items-center text-sm">
+			<hlm-spinner />
+			<span>Checking...</span>
+		</div>
+	} @else if (control().invalid() && control().dirty()) {
+		<div class="space-y-1">
+			@for (error of control().errors(); track error) {
+				<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+			}
+		</div>
+	}
+</ng-template>

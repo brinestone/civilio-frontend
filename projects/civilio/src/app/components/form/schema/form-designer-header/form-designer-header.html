@@ -1,0 +1,52 @@
+<div class="container mx-auto">
+	<div
+		class="flex justify-between items-center flex-wrap gap-3 p-2 sticky top-2"
+	>
+		<div>
+			@if(editable()) {
+			<div hlmButtonGroup>
+				<button
+					type="button"
+					[title]="'Add' + lastAddedItemLabel()"
+					hlmBtn
+					class="capitalize"
+					size="sm"
+					variant="outline"
+					(click)="itemAdd.emit(lastAddedItemType())"
+				>
+					<ng-icon [name]="lastAddedItemIcon()" />
+					<span>Add {{ lastAddedItemLabel() }}</span>
+				</button>
+				<button
+					hlmBtn
+					[hlmDropdownMenuTrigger]="itemTypesMenu"
+					type="button"
+					size="sm"
+					variant="outline"
+					aria-label="Select item Type"
+				>
+					<ng-icon name="lucideChevronDown" />
+				</button>
+			</div>
+			}
+		</div>
+	</div>
+</div>
+<ng-template #itemTypesMenu>
+	<hlm-dropdown-menu>
+		<hlm-dropdown-menu-label>Item Types</hlm-dropdown-menu-label>
+		<hlm-dropdown-menu-group>
+			@for (entry of itemTypes | keyvalue; track $index) {
+			<button
+				(click)="itemAdd.emit($any(entry.key))"
+				type="button"
+				class="cursor-pointer"
+				hlmDropdownMenuItem
+			>
+				<ng-icon [name]="entry.value.icon" />
+				<span>{{ entry.value.label }}</span>
+			</button>
+			}
+		</hlm-dropdown-menu-group>
+	</hlm-dropdown-menu>
+</ng-template>

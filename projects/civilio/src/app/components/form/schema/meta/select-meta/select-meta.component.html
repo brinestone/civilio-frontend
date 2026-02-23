@@ -1,0 +1,217 @@
+<div hlmField>
+	<p hlmFieldTitle>Items</p>
+	<div hlmFieldContent>
+		<div class="flex gap-2 flex-wrap">
+			<button
+				(click)="onAddHardItemButtonClicked()"
+				hlmBtn
+				type="button"
+				variant="ghost"
+				size="sm"
+			>
+				<ng-icon name="lucidePlus" />
+				<span>Add an item</span>
+			</button>
+			<button
+				hlmBtn
+				(click)="onLinkItemSourceButtonClicked()"
+				type="button"
+				[variant]="sourceLinked() ? 'secondary' : 'ghost'"
+				size="sm"
+			>
+				<ng-icon [name]="sourceLinked() ? 'lucideLink' : 'lucideUnlink'" />
+				<span>
+					{{ sourceLinked() ? "Unlink item source" : "Link item source" }}
+				</span>
+			</button>
+		</div>
+		@if (meta().hardItems.length > 0) {
+			<div
+				class="max-h-75 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/50"
+			>
+				<div cdkDropList class="space-y-3 p-1">
+					@for (item of meta().hardItems; track item) {
+						<div
+							cdkDrag
+							cdkDragLockAxis="y"
+							class="grid items-center gap-x-3 grid-cols-[auto_1fr]"
+						>
+							<div
+								cdkDragHandle
+								class="cursor-grab active:cursor-grabbing flex items-center justify-center"
+							>
+								<ng-icon name="lucideGrip" />
+							</div>
+							<div *cdkDragPlaceholder matchSize="true"></div>
+							<div
+								class="grid grid-rows-[auto_auto_auto] lg:grid-rows-none lg:grid-cols-[1fr_1fr_auto] gap-2"
+							>
+								<div class="space-y-1">
+									<input
+										hlmInput
+										placeholder="Label *"
+										[formField]="item.label"
+									/>
+									<ng-container
+										[ngTemplateOutlet]="errorsTemplate"
+										[ngTemplateOutletContext]="{
+											$implicit: item.label,
+											eager: true,
+										}"
+									/>
+								</div>
+								<div class="space-y-1">
+									<input
+										hlmInput
+										placeholder="Value {{ item.value().required() ? '*' : '' }}"
+										[formField]="item.value"
+									/>
+									<ng-container
+										[ngTemplateOutlet]="errorsTemplate"
+										[ngTemplateOutletContext]="{
+											$implicit: item.label,
+											eager: true,
+										}"
+									/>
+								</div>
+								<div class="block lg:flex lg:items-center lg:justify-center">
+									<button
+										type="button"
+										(click)="onRemoveHardItemButtonClicked($index)"
+										hlmBtn
+										size="icon-sm"
+										variant="ghost"
+									>
+										<ng-icon name="lucideX" hlm size="sm" />
+									</button>
+								</div>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+	</div>
+</div>
+@if (!meta().defaultValue().hidden()) {
+	<div hlmField>
+		<label hlmFieldLabel>Default selection</label>
+		<div
+			hlmButtonGroup
+			[ngClass]="{
+				'[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none w-full':
+					!!meta().defaultValue().value(),
+			}"
+		>
+			<hlm-select
+				class="w-full"
+				id="{{ index() }}__default_value"
+				[formField]="meta().defaultValue"
+				scrollable="true"
+				[multiple]="meta().type().value() == 'multi-select'"
+			>
+				<hlm-select-trigger class="w-full">
+					<hlm-select-value />
+				</hlm-select-trigger>
+				<hlm-select-content class="w-full">
+					<hlm-select-scroll-up />
+					<ng-container>
+						@if (linkedItems.value().length > 0) {
+							<hlm-select-group>
+								<hlm-select-label>Linked items</hlm-select-label>
+								@for (item of linkedItems.value(); track $index) {
+									<hlm-option [value]="item.value">{{ item.label }}</hlm-option>
+								}
+							</hlm-select-group>
+						}
+					</ng-container>
+					<ng-container>
+						@if (meta().hardItems.length > 0) {
+							<hlm-select-group>
+								<hlm-select-label>Fixed items</hlm-select-label>
+								@for (item of meta().hardItems; track item) {
+									<hlm-option [value]="item.value().value()">{{
+										item.label().value()
+									}}</hlm-option>
+								}
+							</hlm-select-group>
+						}
+					</ng-container>
+				</hlm-select-content>
+			</hlm-select>
+			@if (!!meta().defaultValue().value()) {
+				<button
+					(click)="onClearDefaultValueButtonClicked()"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+			}
+		</div>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{
+				$implicit: meta().defaultValue,
+				eager: true,
+			}"
+		/>
+	</div>
+}
+<ng-template #errorsTemplate let-ctrl let-eager="eager">
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+		<div class="inline-flex gap-2 items-center text-sm">
+			<hlm-spinner />
+			<span>Checking...</span>
+		</div>
+	} @else if (control().invalid() && (eager || control().dirty())) {
+		<div class="space-y-1">
+			@for (error of control().errors(); track error) {
+				<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+			}
+		</div>
+	}
+</ng-template>
+<hlm-dialog
+	[state]="importDialogState()"
+	(stateChanged)="importDialogState.set($event)"
+>
+	<hlm-dialog-content
+		*brnDialogContent="let ctx"
+		class="min-w-[80vw]! max-h-[80vh] min-h-[50vh] grid-rows-[auto_1fr]!"
+	>
+		<hlm-dialog-header>
+			<h3 hlmDialogTitle>Create item source</h3>
+		</hlm-dialog-header>
+		<div class="overflow-hidden grid h-full grid-rows-[auto_1fr] gap-y-3">
+			<div
+				hlmTabs
+				[tab]="activeImportTab()"
+				(tabActivated)="activeImportTab.set($event)"
+				class="w-full"
+				orientation="horizontal"
+			>
+				<div hlmTabsList>
+					@for (source of importSources; track $index) {
+						<button
+							type="button"
+							class="cursor-pointer"
+							[hlmTabsTrigger]="source.value"
+						>
+							<ng-icon [name]="source.icon" />
+							<span>{{ source.label }}</span>
+						</button>
+					}
+				</div>
+			</div>
+			<div class="overflow-hidden border border-border">
+				<ng-container
+					[ngComponentOutlet]="importPageComponents[activeImportTab()] | async"
+					[ngComponentOutletInjector]="importerInjector"
+				/>
+			</div>
+		</div>
+	</hlm-dialog-content>
+</hlm-dialog>

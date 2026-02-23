@@ -31,7 +31,7 @@
 		"publish:electron": "electron-forge publish",
 		"generate:page": "ng g c --project civilio --type page",
 		"generate:layout": "ng g c --project civilio --type layout",
-		"generate:component": "ng g c --project civilio --type component",
+		"generate:component": "ng g c --project civilio --type component -c OnPush",
 		"generate:guard": "ng g g --project civilio",
 		"generate:pipe": "ng g p --project civilio",
 		"verify:electron": "node -e \"const fs = require('fs'); const path = require('path'); const mainFile = path.join(__dirname, 'dist', 'electron', 'index.js'); if (!fs.existsSync(mainFile)) { console.error('ERROR: Main entry point not found at:', mainFile); process.exit(1); } else { console.log('✓ Main entry point found at:', mainFile); }\"",

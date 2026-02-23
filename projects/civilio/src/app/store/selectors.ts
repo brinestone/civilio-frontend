@@ -117,4 +117,5 @@ export const apiUrl = createSelector([apiInfo], info => {
 export const apiOrigin = createSelector([apiUrl], url => {
 	if (url == '') return '';
 	return new URL(url).origin;
-})
+});
+export const uploadUrl = createSelector([apiOrigin], url => `${url}/upload`);

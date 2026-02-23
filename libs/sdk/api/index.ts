@@ -10,6 +10,8 @@ import { HealthRequestBuilderRequestsMetadata, type HealthRequestBuilder } from 
 // @ts-ignore
 import { SubmissionsRequestBuilderNavigationMetadata, type SubmissionsRequestBuilder } from './submissions/index.js';
 // @ts-ignore
+import { type UploadRequestBuilder, UploadRequestBuilderRequestsMetadata } from './upload/index.js';
+// @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
 
 /**
@@ -32,6 +34,10 @@ export interface ApiRequestBuilder extends BaseRequestBuilder<ApiRequestBuilder>
      * The submissions property
      */
     get submissions(): SubmissionsRequestBuilder;
+    /**
+     * The upload property
+     */
+    get upload(): UploadRequestBuilder;
 }
 /**
  * Uri template for the request builder.
@@ -53,6 +59,9 @@ export const ApiRequestBuilderNavigationMetadata: Record<Exclude<keyof ApiReques
     },
     submissions: {
         navigationMetadata: SubmissionsRequestBuilderNavigationMetadata,
+    },
+    upload: {
+        requestsMetadata: UploadRequestBuilderRequestsMetadata,
     },
 };
 /* tslint:enable */

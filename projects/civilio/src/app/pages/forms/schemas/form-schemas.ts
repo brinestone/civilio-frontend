@@ -1,8 +1,9 @@
-import { isDevMode, Signal } from "@angular/core";
+import { isDevMode } from "@angular/core";
 import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, pattern, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
 import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
-import { NumberRange, BooleanFieldMeta, FormItemDefinition, FormItemField, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta, RelevanceLogicExpressionOperator, FormItemField_type, ImageItemMeta } from "@civilio/sdk/models";
+import { BooleanFieldMeta, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, RelevanceLogicExpressionOperator, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { at } from "lodash";
 
 export const operatorsMap = {
 	in: { label: 'Contains', operandCount: 1 },
@@ -17,8 +18,8 @@ export const operatorsMap = {
 	match: { label: 'Matches', operandCount: 1 },
 	isNull: { label: 'Has no value', operandCount: 0 },
 	isNotNull: { label: 'Has a value', operandCount: 0 },
-	checked: { label: 'Checked', operandCount: 0 },
-	unchecked: { label: 'Unchecked', operandCount: 0 },
+	checked: { label: 'Is Checked', operandCount: 0 },
+	unchecked: { label: 'Is Unchecked', operandCount: 0 },
 	selectedAny: { label: 'Contains any of', operandCount: 1 },
 	selectedAll: { label: 'Contains all of', operandCount: 1 },
 	noselection: { label: 'Has no selection', operandCount: 0 },
@@ -55,6 +56,7 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 	debounce(paths.defaultValue, debounceDuration);
 
 	min(paths.minlength, 0);
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.maxlength, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.minlength, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.pattern, ({ valueOf }) => valueOf(paths.readonly) === true);
@@ -62,10 +64,11 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 		const currentValue = value();
 		if (!currentValue) return null;
 		try {
-			new RegExp(currentValue, valueOf(paths.type) == 'multiline' ? 'm' : undefined);
+			new RegExp(currentValue, valueOf(paths.type) == 'multiline' ? 'gm' : undefined);
 			return null;
-		} catch {
-			return { message: 'Invalid regular expression', kind: 'badRegex' };
+		} catch (e) {
+			console.error(e);
+			return { message: 'Invalid regular expression', kind: 'regex' };
 		}
 	});
 	validate(paths.maxlength, ({ valueOf, value }) => {
@@ -82,7 +85,7 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 		else if (maxlength - currentValue <= 0) return { kind: 'rangeError', message: 'The minimum length cannot be greater than or equal to the maximum length' }
 		return null;
 	})
-	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required' });
+	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when a field is readonly' });
 	applyWhen(paths.defaultValue, ({ valueOf, stateOf }) => !!valueOf(paths.maxlength) && !stateOf(paths.maxlength).hidden() && stateOf(paths.maxlength).valid(), p => {
 		maxLength(p as SchemaPath<string, 1>, ({ valueOf }) => Number(valueOf(paths.maxlength)), { message: ({ valueOf }) => `Value cannot have more than ${valueOf(paths.maxlength)} characters` });
 	});
@@ -167,22 +170,26 @@ function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Strict<NumberFiel
 	min(paths.defaultValue, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: ({ valueOf }) => `Value cannot be less than ${valueOf(paths.min)}` });
 	max(paths.defaultValue, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: ({ valueOf }) => `Value cannot be greater than ${valueOf(paths.max)}` });
 	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' })
+
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.min, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.max, ({ valueOf }) => valueOf(paths.readonly) === true);
 }
 function defineSelectionFieldMetaFormSchema(paths: SchemaPathTree<Strict<SelectFieldMeta>>) {
-	hidden(paths.optionSourceRef, () => true);
-	applyEach(paths.hardOptions, innerPaths => {
+	hidden(paths.itemSourceRef, () => true);
+	applyEach(paths.hardItems, innerPaths => {
 		debounce(innerPaths.label, debounceDuration);
 		debounce(innerPaths.value, debounceDuration);
 
 		required(innerPaths.label, { message: 'A label is required' });
-		// required(innerPaths.value, { message: 'A value is required' });
 	});
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
 
 	required(paths.defaultValue, {
 		when: ({ valueOf, stateOf }) => valueOf(paths.readonly) === true,
 		message: 'A default value is required when readonly is enabled'
 	});
-	disabled(paths.defaultValue, ({ valueOf, stateOf }) => (valueOf(paths.optionSourceRef) === null || stateOf(paths.optionSourceRef).invalid()) && (stateOf(paths.hardOptions).invalid() || (valueOf(paths.hardOptions) ?? []).length == 0));
+	disabled(paths.defaultValue, ({ valueOf, stateOf }) => (valueOf(paths.itemSourceRef) === null || stateOf(paths.itemSourceRef).invalid()) && (stateOf(paths.hardItems).invalid() || (valueOf(paths.hardItems) ?? []).length == 0));
 }
 function defineBooleanFieldMetaFormSchema(paths: SchemaPathTree<Strict<BooleanFieldMeta>>) {
 
@@ -219,17 +226,24 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 			applyWhenValue(meta, isSelection, defineSelectionFieldMetaFormSchema);
 			applyWhenValue(meta, isDateRange, defineRangeDateFieldMetaFormSchema);
 			applyWhenValue(meta, isMultiDate, defineMultiDateFieldMetaFormSchema);
-		})
+
+		});
 	});
+
+	applyWhen(paths, ({ value }) => value().type == 'image', paths => {
+		const ip = paths as unknown as SchemaPathTree<Strict<FormItemImage>>;
+		apply(ip.meta, paths => {
+			min(paths.width, 142);
+			max(paths.width, 436);
+
+			min(paths.height, 144);
+			max(paths.height, 438);
+		})
+	})
 
 	hidden(paths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(paths.type)));
 	disabled(paths.relevance.logic, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
-	applyEach(paths.relevance.logic, paths => {
-		required(paths.operator, { message: 'An operator must be provided for a condition' });
-		applyEach(paths.expressions, paths => {
-
-		})
-	})
+	disabled(paths.relevance.operator, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
 }
 
 export function defineFormDefinitionFormSchema() {
@@ -237,6 +251,16 @@ export function defineFormDefinitionFormSchema() {
 		hidden(paths.id, () => true);
 		hidden(paths.parentId, () => true);
 		applyEach(paths.items, defineFormItemDefinitionFormSchema);
+		validate(paths.items, ({ value }) => {
+			const fieldItems = (value() ?? []).filter(item => item.type === 'field');
+			const titles = fieldItems.map(item => item.title);
+			// const duplicateIndexes = titles
+			// 	.map((title, index) => ({ title, index }))
+			// 	.filter(({ title }, _, arr) => title && arr.filter(item => item.title === title).length > 1)
+			// 	.map(({ index }) => index);
+			const duplicates = titles.filter((title, index) => title && titles.indexOf(title) !== index);
+			return duplicates.length > 0 ? { kind: 'duplicateTitles', message: 'Field titles must be unique' } : null;
+		});
 	}
 }
 
@@ -253,21 +277,26 @@ export function defaultFormItemDefinitionSchemaValue(path: string, type: FormIte
 		children: [],
 		relevance: {
 			enabled: isDevMode(),
+			operator: 'or',
 			logic: []
 		},
-		parent: {
-			id: ''
-		},
 		title: '',
-		type
+		type,
+		...formItemPropertiesFor(type),
 	} as FormModel['items'][number];
 	return result;
+}
+function formItemPropertiesFor(type: FormItemType) {
+	switch (type) {
+		case 'image': return { url: null };
+		default: return {}
+	}
 }
 export function defaultFormDefinitionSchemaValue() {
 	return {
 		id: 'new',
 		parentId: '',
-		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'image')] : [], // TODO: Remove this in prod and make an empty array instead
+		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'field')] : [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }
 

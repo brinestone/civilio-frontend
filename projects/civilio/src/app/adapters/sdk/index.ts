@@ -1,5 +1,6 @@
 import { inject, Injectable, InjectionToken, makeEnvironmentProviders, OnDestroy } from "@angular/core";
 import { DatasetService } from "@app/services/dataset";
+import { UploadService } from "@app/services/upload";
 import { CivilioClient, createCivilioClient } from '@civilio/sdk';
 import { AnonymousAuthenticationProvider, RequestAdapter } from "@microsoft/kiota-abstractions";
 import { FetchRequestAdapter } from "@microsoft/kiota-http-fetchlibrary";
@@ -20,6 +21,7 @@ export const CivilioSdk = new InjectionToken<{ client: CivilioClient }>('api.sdk
 export function provideCivilioSdk() {
 	return makeEnvironmentProviders([
 		{ provide: DatasetService, multi: false },
+		{ provide: UploadService, multi: false },
 		{
 			provide: SdkRequestAdapter,
 			useValue: new FetchRequestAdapter(new AnonymousAuthenticationProvider())

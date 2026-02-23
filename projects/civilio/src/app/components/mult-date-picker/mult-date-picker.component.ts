@@ -30,7 +30,7 @@ function toDate(arg: number | undefined | null) {
 	return new Date(arg);
 }
 @Component({
-	selector: 'mult-date-picker',
+	selector: 'multi-date-picker',
 	viewProviders: [
 		provideIcons({
 			lucideChevronDown,
@@ -68,7 +68,7 @@ function toDate(arg: number | undefined | null) {
 	templateUrl: './mult-date-picker.component.html',
 	styleUrl: './mult-date-picker.component.scss',
 })
-export class MultDatePickerComponent implements FormValueControl<number[] | null | undefined> {
+export class MultiDatePicker implements FormValueControl<number[] | null | undefined> {
 
 	public readonly dirty = input<boolean, unknown>(false, { transform: booleanAttribute });
 	public readonly pending = input<boolean, unknown>(false, { transform: booleanAttribute });

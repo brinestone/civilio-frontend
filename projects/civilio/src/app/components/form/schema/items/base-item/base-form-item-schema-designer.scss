@@ -1,0 +1,8 @@
+@reference "tailwindcss";
+
+:host {
+	@apply relative grid grid-rows-[auto_1fr] z-20 focus-within:border-(--primary) border border-(--border) shadow bg-(--card) rounded rounded-tl-none;
+	&.cdk-drag-placeholder {
+		@apply opacity-50;
+	}
+}

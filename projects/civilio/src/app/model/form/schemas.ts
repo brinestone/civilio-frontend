@@ -99,14 +99,15 @@ export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 });
 export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['boolean']),
-	defaultValue: z.boolean().nullish().default(false)
+	defaultValue: z.boolean().nullish().default(false),
+	renderAs: z.enum(['select', 'checkbox']).nullish().default('checkbox')
 });
 
 export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
-	optionSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
+	itemSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
 	defaultValue: z.any().nullish().default(null),
-	hardOptions: OptionSchema.omit({
+	hardItems: OptionSchema.omit({
 		parent: true,
 		i18nKey: true
 	}).extend({
@@ -136,8 +137,9 @@ export const FieldItemMetaSchema = z.discriminatedUnion('type', [
 export const ImageItemMetaSchema = z.object({
 	aspectRatio: z.coerce.number().nullish().default(100),
 	caption: z.string().trim().nullish().default(null),
-	height: z.coerce.number().nullish().default(null),
-	width: z.coerce.number().nullish().default(null)
+	height: z.coerce.number().nullish().default(144),
+	width: z.coerce.number().nullish().default(142),
+	filter: z.enum(['shadow', 'blur', 'none']).nullish().default('none')
 })
 export const NoteItemMetaSchema = z.object({
 	fontSize: z.number().optional().default(13)

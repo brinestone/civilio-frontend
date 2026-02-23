@@ -1,0 +1,80 @@
+<div class="grid grid-cols-1 md:grid-cols-[250px_250px] gap-3">
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}_min_value">Minimum Date</label>
+		<cv-date-picker
+			autoCloseOnSelect
+			id="{{ index() }}_min_value"
+			[formField]="meta().min"
+		/>
+		<cv-field-error [field]="meta().min" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}_max_value">Maximum Date</label>
+		<cv-date-picker
+			autoCloseOnSelect
+			id="{{ index() }}_max_value"
+			[formField]="meta().max"
+		/>
+		<cv-field-error [field]="meta().max" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}_min_selection_input"
+			>Minimum selection</label
+		>
+		<div hlmButtonGroup>
+			<input
+				id="{{ index() }}_min_selection_input"
+				hlmInput
+				type="number"
+				class="max-w-70"
+				[formField]="meta().minSelection"
+			/>
+			@if (meta().minSelection().value() !== null) {
+				<button
+					(click)="meta().minSelection().setControlValue($any(null))"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+			}
+		</div>
+		<cv-field-error [field]="meta().minSelection" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}_max_selection_input"
+			>Maximum selection</label
+		>
+
+		<div hlmButtonGroup>
+			<input
+				id="{{ index() }}_max_selection_input"
+				hlmInput
+				type="number"
+				class="max-w-70"
+				[formField]="meta().maxSelection"
+			/>
+			@if (meta().maxSelection().value() !== null) {
+				<button
+					(click)="meta().maxSelection().setControlValue($any(null))"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucideX" />
+				</button>
+			}
+		</div>
+		<cv-field-error [field]="meta().maxSelection" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel >Default Value</label>
+		<multi-date-picker
+			[maxSelection]="meta().maxSelection().value()"
+			[minSelection]="meta().minSelection().value()"
+			[formField]="$any(meta().defaultValue)"
+		/>
+		<cv-field-error [field]="meta().defaultValue" />
+	</div>
+</div>
