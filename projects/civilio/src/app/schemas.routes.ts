@@ -4,14 +4,9 @@ export const schemaRoutes: Routes = [
 	{
 		children: [
 			{
-				path: 'import-dataset',
-				outlet: 'importer',
-				loadComponent: () => import('./pages/importers/dataset/dataset-import.page').then(m => m.DatasetImportPage),
-			},
-			{
-				path: 'import-file',
-				outlet: 'importer',
-				loadComponent: () => import('./pages/importers/file/file-importer.page').then(m => m.FilePage)
+				path: 'assets',
+				loadComponent: () => import('./pages/forms/schemas/library/library.page').then(m => m.LibraryPage),
+				outlet: 'library'
 			}
 		],
 		title: 'Form Designer',

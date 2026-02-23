@@ -7,7 +7,7 @@ import { Importer } from '..';
 	templateUrl: './file-importer.page.html',
 	styleUrl: './file-importer.page.scss',
 })
-export class FilePage implements Importer {
-	finished = output<string>();
+export class FileImportPage implements Importer<any> {
+	finished = output<any>();
 
 }

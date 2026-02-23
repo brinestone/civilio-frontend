@@ -1,0 +1,25 @@
+@for (action of actions(); track $index) {
+	@if (action.type == "button") {
+		<button
+			[ariaLabel]="action.label"
+			[title]="action.label"
+			type="button"
+			(click)="action.handler?.($event)"
+			hlmBtn
+			[variant]="$any(action.variant ?? 'outline')"
+			size="icon-sm"
+		>
+			<ng-icon [name]="action.icon" />
+		</button>
+	} @else {
+		<button
+			size="sm"
+			variant="outline"
+			(stateChange)="action.toggle?.($event)"
+			hlmToggle
+			class="cursor-pointer"
+		>
+			<ng-icon [name]="action.icon" />
+		</button>
+	}
+}

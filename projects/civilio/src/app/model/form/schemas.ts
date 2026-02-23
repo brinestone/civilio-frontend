@@ -105,9 +105,9 @@ export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 
 export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
-	optionSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
+	itemSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
 	defaultValue: z.any().nullish().default(null),
-	hardOptions: OptionSchema.omit({
+	hardItems: OptionSchema.omit({
 		parent: true,
 		i18nKey: true
 	}).extend({

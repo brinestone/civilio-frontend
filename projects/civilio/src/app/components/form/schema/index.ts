@@ -1,2 +1,1 @@
-export * from './form-field/form-field.component';
-export * from './base-item/form-item-schema-item'
+export * from './form-designer-header/form-designer-header';

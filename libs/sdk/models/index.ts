@@ -468,11 +468,11 @@ export function createRelevanceLogicExpressionFromDiscriminatorValue(parseNode: 
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
- * @returns {SelectFieldMeta_hardOptions}
+ * @returns {SelectFieldMeta_hardItems}
  */
 // @ts-ignore
-export function createSelectFieldMeta_hardOptionsFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
-    return deserializeIntoSelectFieldMeta_hardOptions;
+export function createSelectFieldMeta_hardItemsFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoSelectFieldMeta_hardItems;
 }
 /**
  * Creates a new instance of the appropriate class based on discriminator value
@@ -1268,21 +1268,21 @@ export function deserializeIntoSelectFieldMeta(selectFieldMeta: Partial<SelectFi
     return {
         ...deserializeIntoBaseFieldProps(selectFieldMeta),
         "defaultValue": n => { selectFieldMeta.defaultValue = n.getStringValue(); },
-        "hardOptions": n => { selectFieldMeta.hardOptions = n.getCollectionOfObjectValues<SelectFieldMeta_hardOptions>(createSelectFieldMeta_hardOptionsFromDiscriminatorValue); },
-        "optionSourceRef": n => { selectFieldMeta.optionSourceRef = n.getStringValue(); },
+        "hardItems": n => { selectFieldMeta.hardItems = n.getCollectionOfObjectValues<SelectFieldMeta_hardItems>(createSelectFieldMeta_hardItemsFromDiscriminatorValue); },
+        "itemSourceRef": n => { selectFieldMeta.itemSourceRef = n.getStringValue(); },
         "type": n => { selectFieldMeta.type = n.getEnumValue<SelectFieldMeta_type>(SelectFieldMeta_typeObject); },
     }
 }
 /**
  * The deserialization information for the current model
- * @param SelectFieldMeta_hardOptions The instance to deserialize into.
+ * @param SelectFieldMeta_hardItems The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
 // @ts-ignore
-export function deserializeIntoSelectFieldMeta_hardOptions(selectFieldMeta_hardOptions: Partial<SelectFieldMeta_hardOptions> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+export function deserializeIntoSelectFieldMeta_hardItems(selectFieldMeta_hardItems: Partial<SelectFieldMeta_hardItems> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "label": n => { selectFieldMeta_hardOptions.label = n.getStringValue(); },
-        "value": n => { selectFieldMeta_hardOptions.value = n.getStringValue(); },
+        "label": n => { selectFieldMeta_hardItems.label = n.getStringValue(); },
+        "value": n => { selectFieldMeta_hardItems.value = n.getStringValue(); },
     }
 }
 /**
@@ -1757,19 +1757,19 @@ export interface SelectFieldMeta extends BaseFieldProps, Parsable {
      */
     defaultValue?: string | null;
     /**
-     * The hardOptions property
+     * The hardItems property
      */
-    hardOptions?: SelectFieldMeta_hardOptions[] | null;
+    hardItems?: SelectFieldMeta_hardItems[] | null;
     /**
-     * The optionSourceRef property
+     * The itemSourceRef property
      */
-    optionSourceRef?: string | null;
+    itemSourceRef?: string | null;
     /**
      * The type property
      */
     type?: SelectFieldMeta_type | null;
 }
-export interface SelectFieldMeta_hardOptions extends Parsable {
+export interface SelectFieldMeta_hardItems extends Parsable {
     /**
      * The label property
      */
@@ -2380,21 +2380,21 @@ export function serializeSelectFieldMeta(writer: SerializationWriter, selectFiel
     if (!selectFieldMeta || isSerializingDerivedType) { return; }
     serializeBaseFieldProps(writer, selectFieldMeta, isSerializingDerivedType)
     writer.writeStringValue("defaultValue", selectFieldMeta.defaultValue);
-    writer.writeCollectionOfObjectValues<SelectFieldMeta_hardOptions>("hardOptions", selectFieldMeta.hardOptions, serializeSelectFieldMeta_hardOptions);
-    writer.writeStringValue("optionSourceRef", selectFieldMeta.optionSourceRef);
+    writer.writeCollectionOfObjectValues<SelectFieldMeta_hardItems>("hardItems", selectFieldMeta.hardItems, serializeSelectFieldMeta_hardItems);
+    writer.writeStringValue("itemSourceRef", selectFieldMeta.itemSourceRef);
     writer.writeEnumValue<SelectFieldMeta_type>("type", selectFieldMeta.type);
 }
 /**
  * Serializes information the current object
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
- * @param SelectFieldMeta_hardOptions The instance to serialize from.
+ * @param SelectFieldMeta_hardItems The instance to serialize from.
  * @param writer Serialization writer to use to serialize this model
  */
 // @ts-ignore
-export function serializeSelectFieldMeta_hardOptions(writer: SerializationWriter, selectFieldMeta_hardOptions: Partial<SelectFieldMeta_hardOptions> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
-    if (!selectFieldMeta_hardOptions || isSerializingDerivedType) { return; }
-    writer.writeStringValue("label", selectFieldMeta_hardOptions.label);
-    writer.writeStringValue("value", selectFieldMeta_hardOptions.value);
+export function serializeSelectFieldMeta_hardItems(writer: SerializationWriter, selectFieldMeta_hardItems: Partial<SelectFieldMeta_hardItems> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!selectFieldMeta_hardItems || isSerializingDerivedType) { return; }
+    writer.writeStringValue("label", selectFieldMeta_hardItems.label);
+    writer.writeStringValue("value", selectFieldMeta_hardItems.value);
 }
 /**
  * Serializes information the current object

@@ -18,7 +18,7 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmH4 } from "@spartan-ng/helm/typography";
 import { z } from 'zod';
-import { Importer } from '..';
+import { Importer, injectImportContext } from '..';
 
 const pagination = {
 	page: 0,
@@ -67,8 +67,9 @@ const FormModelSchema = z.object({
 	templateUrl: './dataset-import.page.html',
 	styleUrl: './dataset-import.page.scss',
 })
-export class DatasetImportPage implements Importer{
+export class DatasetImportPage implements Importer<string> {
 	readonly finished = output<string>();
+	private readonly ctx = injectImportContext<string>();
 	private readonly datasetService = inject(DatasetService);
 	protected readonly datasetFilter = signal('');
 	protected readonly datasetItemFilter = signal('')
@@ -147,6 +148,7 @@ export class DatasetImportPage implements Importer{
 				selectedItems: []
 			});
 			this.finished.emit(ref);
+			this.ctx?.onFinished(ref);
 		})
 	}
 }

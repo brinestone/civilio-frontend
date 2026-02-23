@@ -7,8 +7,7 @@ import {
 	CdkDropListGroup,
 	moveItemInArray
 } from '@angular/cdk/drag-drop';
-import { CdkListbox, CdkOption } from '@angular/cdk/listbox';
-import { JsonPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, JsonPipe, NgComponentOutlet, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -16,6 +15,7 @@ import {
 	computed,
 	effect,
 	inject,
+	Injector,
 	input,
 	isDevMode,
 	linkedSignal,
@@ -25,6 +25,7 @@ import {
 	Signal,
 	signal,
 	TemplateRef,
+	Type,
 	untracked,
 	viewChild
 } from '@angular/core';
@@ -53,7 +54,6 @@ import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideAtSign,
-	lucideBoxSelect,
 	lucideCalendar,
 	lucideCalendarCheck,
 	lucideCalendarRange,
@@ -76,7 +76,6 @@ import {
 	lucideHash,
 	lucideImage,
 	lucideInfo,
-	lucideLetterText,
 	lucideLink,
 	lucideList,
 	lucideListChecks,
@@ -119,6 +118,7 @@ import { current, produce, setAutoFreeze } from 'immer';
 import { get, keyBy } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { injectQueryParams } from 'ngxtension/inject-query-params';
+import z from 'zod';
 import {
 	defaultFormDefinitionSchemaValue,
 	defaultFormItemDefinitionSchemaValue,
@@ -132,7 +132,7 @@ import {
 	operatorsMap,
 	pathSeparator
 } from './form-schemas';
-import z from 'zod';
+import { FormItemContext, FormItemContextToken } from '@app/components/form/schema/items';
 
 type DesignerState = { expanded: boolean; previewing: boolean; activeConfigSection: string; };
 
@@ -244,7 +244,9 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		BrnSelect,
 		RouterOutlet,
 		MultDatePickerComponent,
-		RouterLink
+		AsyncPipe,
+		RouterLink,
+		NgComponentOutlet
 	],
 	templateUrl: './schema-design.page.html',
 	styleUrl: './schema-design.page.scss',
@@ -259,6 +261,10 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 export class SchemaDesignPage implements OnInit, OnDestroy {
 	readonly slug = input<string>();
 	private readonly uploadService = inject(UploadService);
+
+	protected readonly formItemComponents = {
+		'field': import('../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
+	} as Record<string, Promise<Type<any>>>;
 
 	protected readonly relevanceConfigTemplate = viewChild.required<TemplateRef<any>>('relevanceConfigTemplate');
 
@@ -407,8 +413,17 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		{ label: 'None', value: 'none' }
 	] as { label: string, value: ImageItemMeta_filter }[];
 	protected readonly itemDesignerStates = signal<Record<string, DesignerState>>({});
-
-	constructor() {
+	protected readonly itemComponentInjector: Injector;
+	constructor(injector: Injector) {
+		this.itemComponentInjector = Injector.create({
+			providers: [
+				{
+					provide: FormItemContextToken, useValue: {
+						itemDeleteHandler: this.onRemoveFormItem.bind(this)
+					} as FormItemContext
+				}
+			]
+		})
 		effect(() => {
 			const { items } = this.formData();
 			for (const item of items) {
@@ -426,7 +441,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 					if (item.type != 'field') return;
 					const meta = item.meta as FieldItemMeta;
 					if (meta.type != 'multi-select' && meta.type != 'single-select') return;
-					const ref = meta.optionSourceRef;
+					const ref = meta.itemSourceRef;
 					if (!ref || linkedOptionsRegistry[ref]) return;
 					this.ds.getDatasetRefItems(ref).then(v => {
 						if (!v || v.length == 0) return;
@@ -436,7 +451,8 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 					})
 				})
 			}
-		})
+		});
+
 	}
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
@@ -478,6 +494,15 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 			}))
 		}
 		this.lastAddedItemType.set(type);
+	}
+
+	protected onRemoveFormItem(path: string, index: number) {
+		const segments = path.split(pathSeparator);
+		const target = (segments.length == 1 ? this.formModel.items : get(this.formModel.items, segments.slice(0, -1))) as FieldTree<unknown[]>;
+		if (!target) return;
+		target().value.update(state => produce(state, draft => {
+			draft.splice(index, 1);
+		}))
 	}
 
 	protected onRemoveFormItemButtonClicked(target: FormItemAddTarget, index: number) {
@@ -573,9 +598,9 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	}
 
 	protected onAddHardOptionButtonClicked(node: FieldTree<Strict<SelectFieldMeta>>) {
-		const state = node.hardOptions().controlValue();
-		const newOption = SelectFieldItemMetaSchema.shape.hardOptions.unwrap().unwrap().parse({});
-		node.hardOptions().setControlValue(produce(state, draft => {
+		const state = node.hardItems().controlValue();
+		const newOption = SelectFieldItemMetaSchema.shape.hardItems.unwrap().unwrap().parse({});
+		node.hardItems().setControlValue(produce(state, draft => {
 			draft.unshift(newOption as any);
 			setTimeout(() => this.cdr.markForCheck(), 0);
 		}))
@@ -585,18 +610,18 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 		const state = node().controlValue();
 		node().setControlValue(produce(state, draft => {
 			const defaultValue = current(draft).defaultValue;
-			const targetOption = current(draft).hardOptions?.[index];
+			const targetOption = current(draft).hardItems?.[index];
 			const isDefault = defaultValue && defaultValue === targetOption?.value;
 
 			if (isDefault) draft.defaultValue = null;
-			draft.hardOptions?.splice(index, 1);
+			draft.hardItems?.splice(index, 1);
 		}));
 	}
 
-	protected onHardOptionsReordered(event: CdkDragDrop<any>, node: FieldTree<Strict<SelectFieldMeta>>) {
+	protected onhardItemsReordered(event: CdkDragDrop<any>, node: FieldTree<Strict<SelectFieldMeta>>) {
 		const state = node().controlValue();
 		node().setControlValue(produce(state, draft => {
-			moveItemInArray(draft.hardOptions, event.previousIndex, event.currentIndex);
+			moveItemInArray(draft.hardItems, event.previousIndex, event.currentIndex);
 		}))
 	}
 	protected onOptionSourceImportDialogStateChanged(value: BrnDialogState) {
@@ -605,15 +630,15 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 			this.navigate([{ outlets: { importer: ['import-dataset'] } }]).subscribe();
 		else this.navigate([{ outlets: { importer: null } }]).subscribe();
 	}
-	protected importerOutletRouteActivationCallback?: (i: Importer) => void;
+	protected importerOutletRouteActivationCallback?: (i: Importer<string>) => void;
 	protected onLinkOptionSourceButtonClicked(meta: ReturnType<typeof this.asSelectFieldMeta>) {
-		const linked = !!meta.optionSourceRef().value();
+		const linked = !!meta.itemSourceRef().value();
 		const state = meta().controlValue();
 		if (!linked) {
 			this.importerOutletRouteActivationCallback = importer => {
-				importer.finished.subscribe(refId => {
+				importer.finished.subscribe((refId) => {
 					meta().setControlValue(produce(state, draft => {
-						draft.optionSourceRef = refId;
+						draft.itemSourceRef = refId;
 						setTimeout(() => this.optionSourceImportSheetState.set('closed'))
 					}));
 				})
@@ -621,7 +646,7 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 			this.optionSourceImportSheetState.set('open');
 		} else {
 			meta().setControlValue(produce(state, draft => {
-				(draft as any).optionSourceRef = null;
+				(draft as any).itemSourceRef = null;
 			}));
 		}
 	}

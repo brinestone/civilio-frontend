@@ -5,7 +5,7 @@ import { HlmFieldGroup, HlmFieldImports, HlmFieldLabel } from '@spartan-ng/helm/
 import { HlmInput } from '@spartan-ng/helm/input';
 import { FormField } from '@angular/forms/signals';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
-import { FieldErrorComponent } from '@app/components/form/field-error/field-error.component';
+import { FieldError } from '@app/components/form/field-error/field-error.component';
 
 @Component({
 	selector: 'cv-number-meta',
@@ -14,7 +14,7 @@ import { FieldErrorComponent } from '@app/components/form/field-error/field-erro
 		HlmInput,
 		HlmFieldLabel,
 		FormField,
-		FieldErrorComponent
+		FieldError
 	],
 	templateUrl: './number.component.html',
 	styleUrl: './number.component.scss',

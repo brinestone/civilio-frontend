@@ -14,133 +14,18 @@
 			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-3">
 				@for (item of formModel.items; track item) {
 				<ng-container>
-					@let designerState = itemDesignerStates()[item.path().value()];
+					@let component = formItemComponents[item.type().value()];
 				</ng-container>
-				<div
-					cdkDrag
-					cdkDragLockAxis="y"
-					[class.border-border]="enableEditingControls()"
-					class="grid grid-rows-[auto_1fr] z-20 group/form-item focus-within:border-primary border border-border relative shadow bg-card rounded rounded-tl-none"
-				>
-					<div *cdkDragPlaceholder class="drag-placeholder"></div>
-					<div>
-						<div
-							cdkDragHandle
-							class="-left-px cursor-grab active:cursor-grabbing z-21 group-focus-within/form-item:border-primary capitalize text-xs rounded-t border-t border-x flex items-center gap-2 absolute bottom-full bg-muted py-1 px-2"
-						>
-							<ng-icon name="lucideGrip" />
-							<hlm-separator orientation="vertical" />
-							<ng-icon [name]="formItemTypesMap[item.type().value()].icon" />
-							<span>{{ formItemTypesMap[item.type().value()].label }}</span>
-						</div>
-						<ng-container>
-							@let template = itemTemplatesMap[item.type().value()];
-						</ng-container>
-						<ng-container>
-							@let ctx = {$implicit: item, index: $index};
-						</ng-container>
-						<div hlmFieldGroup>
-							@if (template !== undefined) {
-							<div
-								class="px-3 pt-3"
-								[class.pb-3]="designerState?.expanded !== true"
-							>
-								<ng-container
-									[ngTemplateOutlet]="template()"
-									[ngTemplateOutletContext]="ctx"
-								/>
-							</div>
-							@if(item.type().value() != 'separator') {
-							<ng-container>
-								@if(designerState?.expanded) {
-								<div
-									class="bg-background relative grid grid-cols-[auto_1fr] grid-rows-[auto_1fr] overflow-hidden max-h-100 border-t border-border rounded-b"
-								>
-									<div
-										class="flex items-center justify-between col-span-2 row-start-1 row-span-1 col-start-1 border-b border-border py-2 px-3"
-									>
-										<div class="font-extrabold flex items-center gap-2">
-											<ng-icon name="lucideSettings" />
-											<span>Settings</span>
-										</div>
-										<button
-											(click)="onItemDesignerSettingsButtonClicked(item)"
-											class="rounded-full"
-											hlmBtn
-											type="button"
-											variant="secondary"
-											size="icon"
-										>
-											<ng-icon hlm size="sm" name="lucideX" />
-										</button>
-									</div>
-									<div
-										class="border-r border-border col-span-1 row-start-2 row-span-1 col-start-1 pt-3 pl-3 pb-3"
-									>
-										@let sections =
-										formItemMetaConfigSections[item.type().value()];
-										<hlm-tabs
-											[tab]="itemDesignerStates()[item.path().value()].activeConfigSection"
-											(tabActivated)="itemConfigTabChanged(item, $event)"
-											#tabs
-											orientation="vertical"
-											class="w-full"
-										>
-											<hlm-tabs-list class="" variant="line">
-												@for(section of sections; track $index) {
-												<button
-													[hlmTabsTrigger]="section.value"
-													class="cursor-pointer"
-												>
-													{{section.label}}
-												</button>
-												}
-											</hlm-tabs-list>
-										</hlm-tabs>
-									</div>
-									<div
-										class="col-start-2 col-span-1 row-span-1 row-start-2 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
-									>
-										<ng-container
-											>@let templates =
-											itemMetaTemplatesMap[item.type().value()];</ng-container
-										>
-										@if(templates != null) {
-										<div class="p-3">
-											<ng-container
-												[ngTemplateOutlet]="$any(templates)[itemDesignerStates()[item.path().value()].activeConfigSection]()"
-												[ngTemplateOutletContext]="{$implicit: item, index: $index}"
-											/>
-										</div>
-										}
-									</div>
-								</div>
-								}
-							</ng-container>
-							<ng-container
-								[ngTemplateOutlet]="debugPanel"
-								[ngTemplateOutletContext]="{$implicit: item}"
-							/>
-							} }
-						</div>
-						<div
-							hlmButtonGroup
-							orientation="vertical"
-							class="absolute left-[100.5%] top-0"
-						>
-							<ng-container
-								[ngTemplateOutlet]="formItemEditorButtons"
-								[ngTemplateOutletContext]="{
-								parent: formModel,
-								index: $index,
-								item
-							}"
-							/>
-						</div>
-					</div>
-					<div class="flex flex-wrap gap-x-3 gap-y-2"></div>
-				</div>
-				}
+				@if(component != null) {
+				<ng-container
+					[ngComponentOutlet]="component | async"
+					[ngComponentOutletInputs]="{
+						node: item,
+						index: $index
+					}"
+					[ngComponentOutletInjector]="itemComponentInjector"
+				/>
+				} }
 			</div>
 		</div>
 	</form>
@@ -346,8 +231,7 @@
 		</div>
 	</cv-debug-panel>
 </ng-template>
-<ng-template
-	#dateFieldMetaConfigTemplate
+<ng-template #dateFieldMetaConfigTemplate
 	let-metaControl
 	let-formItemIndex="formItemIndex"
 >
@@ -406,8 +290,7 @@
 		</div>
 	</div>
 </ng-template>
-<ng-template
-	#multiDateFieldMetaConfigTemplate
+<ng-template #multiDateFieldMetaConfigTemplate
 	let-metaControl
 	let-itemIndex="formItemIndex"
 >
@@ -512,8 +395,7 @@
 		</div>
 	</div>
 </ng-template>
-<ng-template
-	#rangeDateFieldMetaConfigTemplate
+<ng-template #rangeDateFieldMetaConfigTemplate
 	let-metaControl
 	let-itemIndex="formItemIndex"
 >
@@ -556,8 +438,7 @@
 		</div>
 	</div>
 </ng-template>
-<ng-template
-	#numberFieldMetaConfigTemplate
+<ng-template #numberFieldMetaConfigTemplate
 	let-metaControl
 	let-formItemIndex="formItemIndex"
 >
@@ -605,8 +486,7 @@
 		/>
 	</div>
 </ng-template>
-<ng-template
-	#booleanFieldMetaConfigTemplate
+<ng-template #booleanFieldMetaConfigTemplate
 	let-metaControl
 	let-formItemIndex="formItemIndex"
 >
@@ -654,8 +534,7 @@
 	</hlm-select>
 	}
 </ng-template>
-<ng-template
-	#selectFieldMetaConfigTemplate
+<ng-template #selectFieldMetaConfigTemplate
 	let-metaControl
 	let-formItemIndex="formItemIndex"
 >
@@ -663,10 +542,10 @@
 		@let meta = asSelectFieldMeta(asFieldMeta(metaControl));
 	</ng-container>
 	<ng-container>
-		@let sourceLinked = !!meta.optionSourceRef().value();
+		@let sourceLinked = !!meta.itemSourceRef().value();
 	</ng-container>
 	<div hlmField>
-		<p hlmFieldTitle>Options</p>
+		<p hlmFieldTitle>Options</p> 
 		<div hlmFieldContent>
 			<div class="flex gap-2 flex-wrap">
 				<button
@@ -692,16 +571,15 @@
 					</span>
 				</button>
 			</div>
-			@if(meta.hardOptions.length > 0) {
+			@if(meta.hardItems.length > 0) {
 			<div
 				class="max-h-75 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 			>
 				<div
 					class="space-y-3 p-1"
 					cdkDropList
-					(cdkDropListDropped)="onHardOptionsReordered($event, meta)"
 				>
-					@for(option of meta.hardOptions; track option) {
+					@for(option of meta.hardItems; track option) {
 					<div
 						class="grid grid-cols-[auto_1fr] items-center gap-x-3"
 						cdkDrag
@@ -765,8 +643,8 @@
 			[ngTemplateOutletContext]="{
 			$implicit: meta.defaultValue,
 			multiple: meta.type().value() === 'multi-select',
-			fixedOptions: meta.hardOptions().value(),
-			ref: meta.optionSourceRef().value(),
+			fixedOptions: meta.hardItems().value(),
+			ref: meta.itemSourceRef().value(),
 		}"
 		/>
 	</div>
@@ -1210,8 +1088,8 @@
 		$implicit: control,
 		placeholder: 'Select values',
 		multiple: true,
-		fixed: refMeta.hardOptions().value(),
-		ref: refMeta.optionSourceRef().value(),
+		fixed: refMeta.hardItems().value(),
+		ref: refMeta.itemSourceRef().value(),
 	}"
 	/>
 </ng-template>
@@ -1348,8 +1226,7 @@
 	<input hlmInput [formField]="control" placeholder="Value" />
 	}
 </ng-template>
-<ng-template
-	#numberExpressionValueTemplate
+<ng-template #numberExpressionValueTemplate
 	let-control
 	let-refField="refField"
 	let-operator="operator"

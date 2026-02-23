@@ -55,6 +55,7 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 	debounce(paths.defaultValue, debounceDuration);
 
 	min(paths.minlength, 0);
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.maxlength, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.minlength, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.pattern, ({ valueOf }) => valueOf(paths.readonly) === true);
@@ -62,10 +63,11 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 		const currentValue = value();
 		if (!currentValue) return null;
 		try {
-			new RegExp(currentValue, valueOf(paths.type) == 'multiline' ? 'm' : undefined);
+			new RegExp(currentValue, valueOf(paths.type) == 'multiline' ? 'gm' : undefined);
 			return null;
-		} catch {
-			return { message: 'Invalid regular expression', kind: 'badRegex' };
+		} catch (e) {
+			console.error(e);
+			return { message: 'Invalid regular expression', kind: 'regex' };
 		}
 	});
 	validate(paths.maxlength, ({ valueOf, value }) => {
@@ -82,7 +84,7 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 		else if (maxlength - currentValue <= 0) return { kind: 'rangeError', message: 'The minimum length cannot be greater than or equal to the maximum length' }
 		return null;
 	})
-	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required' });
+	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when a field is readonly' });
 	applyWhen(paths.defaultValue, ({ valueOf, stateOf }) => !!valueOf(paths.maxlength) && !stateOf(paths.maxlength).hidden() && stateOf(paths.maxlength).valid(), p => {
 		maxLength(p as SchemaPath<string, 1>, ({ valueOf }) => Number(valueOf(paths.maxlength)), { message: ({ valueOf }) => `Value cannot have more than ${valueOf(paths.maxlength)} characters` });
 	});
@@ -167,22 +169,26 @@ function defineNumberFieldMetaFormSchema(paths: SchemaPathTree<Strict<NumberFiel
 	min(paths.defaultValue, ({ valueOf }) => valueOf(paths.min) ?? undefined, { message: ({ valueOf }) => `Value cannot be less than ${valueOf(paths.min)}` });
 	max(paths.defaultValue, ({ valueOf }) => valueOf(paths.max) ?? undefined, { message: ({ valueOf }) => `Value cannot be greater than ${valueOf(paths.max)}` });
 	required(paths.defaultValue, { when: ({ valueOf }) => valueOf(paths.readonly) === true, message: 'A default value is required when the field is readonly' })
+
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.min, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.max, ({ valueOf }) => valueOf(paths.readonly) === true);
 }
 function defineSelectionFieldMetaFormSchema(paths: SchemaPathTree<Strict<SelectFieldMeta>>) {
-	hidden(paths.optionSourceRef, () => true);
-	applyEach(paths.hardOptions, innerPaths => {
+	hidden(paths.itemSourceRef, () => true);
+	applyEach(paths.hardItems, innerPaths => {
 		debounce(innerPaths.label, debounceDuration);
 		debounce(innerPaths.value, debounceDuration);
 
 		required(innerPaths.label, { message: 'A label is required' });
-		// required(innerPaths.value, { message: 'A value is required' });
 	});
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
 
 	required(paths.defaultValue, {
 		when: ({ valueOf, stateOf }) => valueOf(paths.readonly) === true,
 		message: 'A default value is required when readonly is enabled'
 	});
-	disabled(paths.defaultValue, ({ valueOf, stateOf }) => (valueOf(paths.optionSourceRef) === null || stateOf(paths.optionSourceRef).invalid()) && (stateOf(paths.hardOptions).invalid() || (valueOf(paths.hardOptions) ?? []).length == 0));
+	disabled(paths.defaultValue, ({ valueOf, stateOf }) => (valueOf(paths.itemSourceRef) === null || stateOf(paths.itemSourceRef).invalid()) && (stateOf(paths.hardItems).invalid() || (valueOf(paths.hardItems) ?? []).length == 0));
 }
 function defineBooleanFieldMetaFormSchema(paths: SchemaPathTree<Strict<BooleanFieldMeta>>) {
 
@@ -283,7 +289,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'text' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 });
 		case 'separator': return SeparatorItemMetaSchema.parse({});
 		case 'image': return ImageItemMetaSchema.parse({});
