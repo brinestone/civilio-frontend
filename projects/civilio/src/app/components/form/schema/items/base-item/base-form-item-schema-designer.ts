@@ -31,9 +31,5 @@ export abstract class BaseFormItemSchemaDesigner<T extends FormItemDefinition> {
 	readonly expanded = model<boolean>(isDevMode())
 	readonly editing = model<boolean>(true);
 	readonly showDebug = input<boolean, BooleanInput>(isDevMode(), { transform: booleanAttribute });
-
-	// readonly deleted = output();
-	// readonly duplicate = output();
-
 	protected readonly context = injectFormItemContext();
 }

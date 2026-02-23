@@ -1243,6 +1243,7 @@ export function deserializeIntoRelevanceDefinition(relevanceDefinition: Partial<
     return {
         "enabled": n => { relevanceDefinition.enabled = n.getBooleanValue(); },
         "logic": n => { relevanceDefinition.logic = n.getCollectionOfObjectValues<RelevanceCondition>(createRelevanceConditionFromDiscriminatorValue); },
+        "operator": n => { relevanceDefinition.operator = n.getEnumValue<RelevanceDefinition_operator>(RelevanceDefinition_operatorObject) ?? RelevanceDefinition_operatorObject.And; },
     }
 }
 /**
@@ -1735,7 +1736,12 @@ export interface RelevanceDefinition extends Parsable {
      * The logic property
      */
     logic?: RelevanceCondition[] | null;
+    /**
+     * The operator property
+     */
+    operator?: RelevanceDefinition_operator | null;
 }
+export type RelevanceDefinition_operator = (typeof RelevanceDefinition_operatorObject)[keyof typeof RelevanceDefinition_operatorObject];
 export interface RelevanceLogicExpression extends Parsable {
     /**
      * The field property
@@ -2355,6 +2361,7 @@ export function serializeRelevanceDefinition(writer: SerializationWriter, releva
     if (!relevanceDefinition || isSerializingDerivedType) { return; }
     writer.writeBooleanValue("enabled", relevanceDefinition.enabled);
     writer.writeCollectionOfObjectValues<RelevanceCondition>("logic", relevanceDefinition.logic, serializeRelevanceCondition);
+    writer.writeEnumValue<RelevanceDefinition_operator>("operator", relevanceDefinition.operator ?? RelevanceDefinition_operatorObject.And);
 }
 /**
  * Serializes information the current object
@@ -2678,6 +2685,10 @@ export const RangeDateFieldMeta_typeObject = {
     DateRange: "date-range",
 } as const;
 export const RelevanceCondition_operatorObject = {
+    And: "and",
+    Or: "or",
+} as const;
+export const RelevanceDefinition_operatorObject = {
     And: "and",
     Or: "or",
 } as const;

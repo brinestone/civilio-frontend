@@ -36,6 +36,7 @@ import {
 	DebugHeaderComponent,
 	DebugPanelComponent
 } from '@app/components/debug';
+import { createFormItemContextInjector } from '@app/components/form/schema/items';
 import { Resizable } from '@app/directives';
 import {
 	BaseFieldItemMetaSchema,
@@ -132,7 +133,6 @@ import {
 	operatorsMap,
 	pathSeparator
 } from './form-schemas';
-import { FormItemContext, FormItemContextToken } from '@app/components/form/schema/items';
 
 type DesignerState = { expanded: boolean; previewing: boolean; activeConfigSection: string; };
 
@@ -415,14 +415,9 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 	protected readonly itemDesignerStates = signal<Record<string, DesignerState>>({});
 	protected readonly itemComponentInjector: Injector;
 	constructor(injector: Injector) {
-		this.itemComponentInjector = Injector.create({
-			providers: [
-				{
-					provide: FormItemContextToken, useValue: {
-						itemDeleteHandler: this.onRemoveFormItem.bind(this)
-					} as FormItemContext
-				}
-			]
+		this.itemComponentInjector = createFormItemContextInjector({
+			itemDeleteHandler: this.onRemoveFormItem.bind(this),
+			allFields: this.fieldItems
 		})
 		effect(() => {
 			const { items } = this.formData();
@@ -431,7 +426,6 @@ export class SchemaDesignPage implements OnInit, OnDestroy {
 					draft[item.path] = current(draft)[item.path] ?? { expanded: isDevMode(), previewing: false, activeConfigSection: 'meta' };
 				}))
 			}
-			console.log(untracked(this.itemDesignerStates));
 		})
 		effect(() => {
 			const formData = this.formData();

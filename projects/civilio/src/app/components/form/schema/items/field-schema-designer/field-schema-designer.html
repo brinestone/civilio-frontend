@@ -72,13 +72,29 @@
 	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
 	(close)="expanded.set(false)"
 >
-	@switch (currentConfigTab()) { @case('meta') {
-	<cv-form-item-meta-config [meta]="field.meta" [index]="index()" />
-	} @case('validation'){
-	<cv-form-item-validation-config />
-	} @case('relevance'){
-	<cv-form-item-relevance-config />
-	} }
+	@if(currentConfigTab() == 'meta') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-meta-config [meta]="field.meta" [index]="index()" />
+		}
+	</ng-container>
+	} @if(currentConfigTab() == 'validation') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-validation-config />
+		}
+	</ng-container>
+	} @if(currentConfigTab() == 'relevance') {
+	<ng-container>
+		@defer (when true) {
+		<cv-form-item-relevance-config
+			[item]="field"
+			[index]="index()"
+			[relevance]="field.relevance"
+		/>
+		}
+	</ng-container>
+	}
 </cv-form-item-settings>
 }
 

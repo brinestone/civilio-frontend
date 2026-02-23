@@ -3,6 +3,7 @@ import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden
 import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
 import { BooleanFieldMeta, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, RelevanceLogicExpressionOperator, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { at } from "lodash";
 
 export const operatorsMap = {
 	in: { label: 'Contains', operandCount: 1 },
@@ -242,6 +243,7 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 
 	hidden(paths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(paths.type)));
 	disabled(paths.relevance.logic, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
+	disabled(paths.relevance.operator, ({ valueOf }) => valueOf(paths.relevance.enabled) !== true);
 }
 
 export function defineFormDefinitionFormSchema() {
@@ -249,6 +251,16 @@ export function defineFormDefinitionFormSchema() {
 		hidden(paths.id, () => true);
 		hidden(paths.parentId, () => true);
 		applyEach(paths.items, defineFormItemDefinitionFormSchema);
+		validate(paths.items, ({ value }) => {
+			const fieldItems = (value() ?? []).filter(item => item.type === 'field');
+			const titles = fieldItems.map(item => item.title);
+			// const duplicateIndexes = titles
+			// 	.map((title, index) => ({ title, index }))
+			// 	.filter(({ title }, _, arr) => title && arr.filter(item => item.title === title).length > 1)
+			// 	.map(({ index }) => index);
+			const duplicates = titles.filter((title, index) => title && titles.indexOf(title) !== index);
+			return duplicates.length > 0 ? { kind: 'duplicateTitles', message: 'Field titles must be unique' } : null;
+		});
 	}
 }
 
@@ -265,6 +277,7 @@ export function defaultFormItemDefinitionSchemaValue(path: string, type: FormIte
 		children: [],
 		relevance: {
 			enabled: isDevMode(),
+			operator: 'or',
 			logic: []
 		},
 		title: '',
@@ -289,7 +302,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'geo-point' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'text' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 });
 		case 'separator': return SeparatorItemMetaSchema.parse({});
 		case 'image': return ImageItemMetaSchema.parse({});

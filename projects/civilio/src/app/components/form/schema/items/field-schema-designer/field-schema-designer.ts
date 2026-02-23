@@ -12,7 +12,7 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { FormFieldMetaConfigComponent } from '../../meta/form-field-meta-config/form-field-meta-config';
 import { FormItemActionsComponent } from '../../form-item-actions/form-item-actions.component';
-import { FormItemRelevanceConfigComponent } from '../../form-item-relevance-config/form-item-relevance-config.component';
+import { FormItemRelevanceConfig } from '../../form-item-relevance-config/form-item-relevance-config.component';
 import { ConfigTab, FormItemSettingsDesigner } from '../../form-item-settings/form-item-settings';
 import { FormItemValidationConfigComponent } from '../../form-item-validation-config/form-item-validation-config.component';
 import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-designer';
@@ -41,7 +41,7 @@ import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-d
 		HlmSpinner,
 		NgTemplateOutlet,
 		FormFieldMetaConfigComponent,
-		FormItemRelevanceConfigComponent,
+		FormItemRelevanceConfig,
 		FormItemValidationConfigComponent,
 		DebugPanelComponent,
 		FormItemActionsComponent,
@@ -57,7 +57,7 @@ import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-d
 })
 export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField> {
 	readonly node = input.required<FieldTree<Strict<FormItemField>>>();
-	protected readonly currentConfigTab = signal('meta');
+	protected readonly currentConfigTab = signal('relevance');
 	protected configTabs = [
 		{ label: 'Question configuration', value: 'meta', icon: 'lucideSliders' },
 		{ label: 'Relevance', value: 'relevance', icon: 'lucideEye' },
