@@ -289,7 +289,7 @@ export function defaultFormDefinitionSchemaValue() {
 
 export function formItemDefaultMeta(type: FormItemType) {
 	switch (type) {
-		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date' : 'text' });
+		case 'field': return FieldItemMetaSchema.parse({ type: isDevMode() ? 'date-range' : 'text' });
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 });
 		case 'separator': return SeparatorItemMetaSchema.parse({});
 		case 'image': return ImageItemMetaSchema.parse({});

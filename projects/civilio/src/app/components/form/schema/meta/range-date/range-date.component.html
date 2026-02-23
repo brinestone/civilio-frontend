@@ -1,1 +1,35 @@
-<p>range-date works!</p>
+<div class="grid grid-cols-1 gap-3 md:grid-cols-[250px_250px]">
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}__date_range_min_input"
+			>Minimum Date</label
+		>
+		<cv-date-picker
+			autoCloseOnSelect
+			id="{{ index() }}__date_range_min_input"
+			[formField]="meta().min"
+		/>
+		<cv-field-error [field]="meta().min" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}__date_range_max_input"
+			>Maxiumum Date</label
+		>
+		<cv-date-picker
+			autoCloseOnSelect
+			id="{{ index() }}__date_range_max_input"
+			[formField]="meta().max"
+		/>
+		<cv-field-error [field]="meta().max" />
+	</div>
+	<div hlmField>
+		<label hlmFieldLabel for="{{ index() }}__date_range_default_input"
+			>Default Value</label
+		>
+		<date-range-picker
+			id="{{ index() }}__date_range_default_input"
+			clearable
+			[formField]="meta().defaultValue"
+		/>
+		<cv-field-error [field]="meta().defaultValue" />
+	</div>
+</div>

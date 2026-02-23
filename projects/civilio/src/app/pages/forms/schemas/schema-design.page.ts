@@ -31,7 +31,7 @@ import {
 } from '@angular/core';
 import { FieldTree, form, FormField } from '@angular/forms/signals';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { DatePicker, DateRangePickerComponent, GeoPointPickerComponent, ImageFormItem, MultDatePickerComponent, NumberRangeInputComponent } from '@app/components';
+import { DatePicker, DateRangePicker, GeoPointPickerComponent, ImageFormItem, MultDatePickerComponent, NumberRangeInputComponent } from '@app/components';
 import {
 	DebugHeaderComponent,
 	DebugPanelComponent
@@ -214,7 +214,7 @@ const formItemTypesMap = keyBy(formItemTypes, 'value');
 		HlmTabsImports,
 		DatePicker,
 		NumberRangeInputComponent,
-		DateRangePickerComponent,
+		DateRangePicker,
 		BrnDialogContent,
 		HlmButtonGroup,
 		HlmIcon,
