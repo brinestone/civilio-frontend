@@ -383,7 +383,7 @@
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel [for]="defaultId">Default Value</label>
-			<mult-date-picker
+			<multi-date-picker
 				[maxSelection]="meta.maxSelection().value()"
 				[minSelection]="meta.minSelection().value()"
 				[formField]="$any(meta.defaultValue)"
@@ -545,7 +545,7 @@
 		@let sourceLinked = !!meta.itemSourceRef().value();
 	</ng-container>
 	<div hlmField>
-		<p hlmFieldTitle>Options</p> 
+		<p hlmFieldTitle>Options</p>
 		<div hlmFieldContent>
 			<div class="flex gap-2 flex-wrap">
 				<button
