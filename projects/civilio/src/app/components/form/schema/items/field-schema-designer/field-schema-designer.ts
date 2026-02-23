@@ -57,11 +57,11 @@ import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-d
 })
 export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField> {
 	readonly node = input.required<FieldTree<Strict<FormItemField>>>();
-	protected readonly currentConfigTab = signal('relevance');
+	protected readonly currentConfigTab = signal('meta');
 	protected configTabs = [
 		{ label: 'Question configuration', value: 'meta', icon: 'lucideSliders' },
 		{ label: 'Relevance', value: 'relevance', icon: 'lucideEye' },
-		{ label: 'Validation', value: 'validation', icon: 'lucideCheck' }
+		// { label: 'Validation', value: 'validation', icon: 'lucideCheck' }
 	] as ConfigTab[];
 
 	protected asGenericControl(node: any) {
