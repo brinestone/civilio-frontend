@@ -333,6 +333,15 @@ export function createFormItemSeparatorFromDiscriminatorValue(parseNode: ParseNo
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormLookup_currentVersion}
+ */
+// @ts-ignore
+export function createFormLookup_currentVersionFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormLookup_currentVersion;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {FormLookup}
  */
 // @ts-ignore
@@ -1061,13 +1070,22 @@ export function deserializeIntoFormItemSeparator(formItemSeparator: Partial<Form
 // @ts-ignore
 export function deserializeIntoFormLookup(formLookup: Partial<FormLookup> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
-        "createdAt": n => { formLookup.createdAt = n.getDateValue(); },
         "createdBy": n => { formLookup.createdBy = n.getStringValue(); },
-        "description": n => { formLookup.description = n.getStringValue(); },
-        "label": n => { formLookup.label = n.getStringValue(); },
-        "logo": n => { formLookup.logo = n.getStringValue(); },
+        "currentVersion": n => { formLookup.currentVersion = n.getObjectValue<FormLookup_currentVersion>(createFormLookup_currentVersionFromDiscriminatorValue); },
         "slug": n => { formLookup.slug = n.getStringValue(); },
+        "title": n => { formLookup.title = n.getStringValue(); },
         "updatedAt": n => { formLookup.updatedAt = n.getDateValue(); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param FormLookup_currentVersion The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormLookup_currentVersion(formLookup_currentVersion: Partial<FormLookup_currentVersion> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "id": n => { formLookup_currentVersion.id = n.getGuidValue(); },
     }
 }
 /**
@@ -1509,33 +1527,31 @@ export interface FormItemSeparator extends BaseFormItemDefinition, Parsable {
 export type FormItemSeparator_type = (typeof FormItemSeparator_typeObject)[keyof typeof FormItemSeparator_typeObject];
 export interface FormLookup extends Parsable {
     /**
-     * The createdAt property
-     */
-    createdAt?: Date | null;
-    /**
      * The createdBy property
      */
     createdBy?: string | null;
     /**
-     * The description property
+     * The currentVersion property
      */
-    description?: string | null;
-    /**
-     * The label property
-     */
-    label?: string | null;
-    /**
-     * The logo property
-     */
-    logo?: string | null;
+    currentVersion?: FormLookup_currentVersion | null;
     /**
      * The slug property
      */
     slug?: string | null;
     /**
+     * The title property
+     */
+    title?: string | null;
+    /**
      * The updatedAt property
      */
     updatedAt?: Date | null;
+}
+export interface FormLookup_currentVersion extends Parsable {
+    /**
+     * The id property
+     */
+    id?: Guid | null;
 }
 export interface FormVersionDefinition extends Parsable {
     /**
@@ -2179,13 +2195,22 @@ export function serializeFormItemSeparator(writer: SerializationWriter, formItem
 // @ts-ignore
 export function serializeFormLookup(writer: SerializationWriter, formLookup: Partial<FormLookup> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!formLookup || isSerializingDerivedType) { return; }
-    writer.writeDateValue("createdAt", formLookup.createdAt);
     writer.writeStringValue("createdBy", formLookup.createdBy);
-    writer.writeStringValue("description", formLookup.description);
-    writer.writeStringValue("label", formLookup.label);
-    writer.writeStringValue("logo", formLookup.logo);
+    writer.writeObjectValue<FormLookup_currentVersion>("currentVersion", formLookup.currentVersion, serializeFormLookup_currentVersion);
     writer.writeStringValue("slug", formLookup.slug);
+    writer.writeStringValue("title", formLookup.title);
     writer.writeDateValue("updatedAt", formLookup.updatedAt);
+}
+/**
+ * Serializes information the current object
+ * @param FormLookup_currentVersion The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormLookup_currentVersion(writer: SerializationWriter, formLookup_currentVersion: Partial<FormLookup_currentVersion> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formLookup_currentVersion || isSerializingDerivedType) { return; }
+    writer.writeGuidValue("id", formLookup_currentVersion.id);
 }
 /**
  * Serializes information the current object

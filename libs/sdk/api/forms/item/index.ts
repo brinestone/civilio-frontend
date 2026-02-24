@@ -4,6 +4,8 @@
 // @ts-ignore
 import { DefinitionRequestBuilderRequestsMetadata, type DefinitionRequestBuilder } from './definition/index.js';
 // @ts-ignore
+import { ToggleArchiveRequestBuilderRequestsMetadata, type ToggleArchiveRequestBuilder } from './toggleArchive/index.js';
+// @ts-ignore
 import { type VersionsRequestBuilder, VersionsRequestBuilderRequestsMetadata } from './versions/index.js';
 // @ts-ignore
 import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
@@ -16,6 +18,10 @@ export interface WithFormItemRequestBuilder extends BaseRequestBuilder<WithFormI
      * The definition property
      */
     get definition(): DefinitionRequestBuilder;
+    /**
+     * The toggleArchive property
+     */
+    get toggleArchive(): ToggleArchiveRequestBuilder;
     /**
      * The versions property
      */
@@ -31,6 +37,9 @@ export const WithFormItemRequestBuilderUriTemplate = "{+baseurl}/api/forms/{form
 export const WithFormItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithFormItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
     definition: {
         requestsMetadata: DefinitionRequestBuilderRequestsMetadata,
+    },
+    toggleArchive: {
+        requestsMetadata: ToggleArchiveRequestBuilderRequestsMetadata,
     },
     versions: {
         requestsMetadata: VersionsRequestBuilderRequestsMetadata,

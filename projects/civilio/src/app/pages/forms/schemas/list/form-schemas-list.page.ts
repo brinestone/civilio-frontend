@@ -1,24 +1,28 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, resource, Signal, signal } from '@angular/core';
-import { debounce, form, FormField, required, submit, validateAsync } from '@angular/forms/signals';
-import { ActivatedRoute, RouterOutlet } from '@angular/router';
+import { debounce, form, FormField, hidden, required, submit, validate, validateAsync } from '@angular/forms/signals';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldError } from '@app/components/form';
 import { HasPendingChanges } from '@app/model/form';
 import { FormService2 } from '@app/services/form';
+import { FormLookup } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideFormInput, lucidePlus, lucideSave, lucideTrash2 } from '@ng-icons/lucide';
+import { lucideArchive, lucideCopy, lucideEye, lucideFormInput, lucidePencil, lucidePlus, lucideSave, lucideTrash2 } from '@ng-icons/lucide';
 import { Navigate } from '@ngxs/router-plugin';
 import { dispatch } from '@ngxs/store';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmDialogImports } from '@spartan-ng/helm/dialog';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmH3 } from "@spartan-ng/helm/typography";
+import { produce } from 'immer';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -26,19 +30,26 @@ import { Observable } from 'rxjs';
 	viewProviders: [
 		provideIcons({
 			lucideFormInput,
+			lucideArchive,
+			lucideEye,
+			lucideCopy,
+			lucidePencil,
 			lucideSave,
-			lucideTrash2,
 			lucidePlus
 		})
 	],
 	imports: [
 		HlmEmptyImports,
 		HlmDialogImports,
+		HlmAlertDialogImports,
 		HlmFieldImports,
-		RouterOutlet,
+		RouterLink,
 		NgIcon,
 		FormField,
 		HlmTextarea,
+		HlmButton,
+		DatePipe,
+		HlmSeparator,
 		HlmButton,
 		HlmSpinner,
 		FieldError,
@@ -47,10 +58,10 @@ import { Observable } from 'rxjs';
 		HlmH3
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	templateUrl: './form-schemas.layout.component.html',
-	styleUrl: './form-schemas.layout.component.scss',
+	templateUrl: './form-schemas-list.page.html',
+	styleUrl: './form-schemas-list.page.scss',
 })
-export class SchemasLayout implements HasPendingChanges {
+export class FormSchemasPage implements HasPendingChanges {
 	private readonly navigate = dispatch(Navigate);
 	private readonly formService = inject(FormService2);
 	private readonly titleCheckCache = new Map<string, boolean>();
@@ -83,6 +94,30 @@ export class SchemasLayout implements HasPendingChanges {
 			}
 		});
 	});
+	protected readonly archivingFormData = signal<ArchiveFormFormData>(defaultArchiveFormData());
+	protected readonly archivingPromptForm = form(this.archivingFormData, paths => {
+		hidden(paths.title, () => true);
+		debounce(paths.confirmationTitle, 200);
+		required(paths.confirmationTitle, { message: 'A value is required' });
+		validate(paths.confirmationTitle, ({ valueOf, value }) => {
+			if (!value()) return null;
+			return value() !== valueOf(paths.title) ? { message: `Value must equal "${valueOf(paths.title)}"`, kind: 'match' } : null;
+		});
+	})
+	protected readonly formActions = [
+		{ icon: 'lucidePencil', route: (form: FormLookup) => [form.slug, 'edit', form.currentVersion?.id] },
+		{ icon: 'lucideArchive', handler: this.onArchiveFormButtonClicked.bind(this) }
+	];
+	protected readonly formArchivingDialogState = signal<BrnDialogState>('closed');
+
+	private onArchiveFormButtonClicked(form: FormLookup) {
+		this.archivingPromptForm
+		this.archivingPromptForm().value.update(v => produce(v, draft => {
+			draft.title = form.title as string;
+			draft.slug = form.slug as string;
+		}));
+		this.formArchivingDialogState.set('open');
+	}
 
 	private createFormTitleCheckResource(titleSignal: Signal<string | undefined>) {
 		return resource({
@@ -112,8 +147,30 @@ export class SchemasLayout implements HasPendingChanges {
 		this.newFormDialogState.set(state);
 	}
 
-	protected async onFormSubmit(event: Event) {
-		event?.preventDefault();
+	protected onArchivingFormDialogStateChanged(state: BrnDialogState) {
+		if (state == 'closed') {
+			this.archivingPromptForm().reset(defaultArchiveFormData());
+		}
+		this.formArchivingDialogState.set(state);
+	}
+
+	protected async onSubmitArchivingForm(event: Event) {
+		event.preventDefault();
+		if (this.archivingPromptForm().invalid()) {
+			return;
+		}
+		await submit(this.archivingPromptForm, async tree => {
+			await this.formService.toggleArchived(tree.slug().value());
+			this.formArchivingDialogState.set('closed');
+			this.forms.reload();
+		})
+	}
+
+	protected async onSubmitNewFormForm(event: Event) {
+		event.preventDefault();
+		if (this.newFormForm().invalid()) {
+			return;
+		}
 		await submit(this.newFormForm, async tree => {
 			const value = tree().value();
 			try {
@@ -123,10 +180,7 @@ export class SchemasLayout implements HasPendingChanges {
 				});
 				tree().reset(defaultFormData());
 				this.newFormDialogState.set('closed');
-				this.navigate(['create-new'], {
-					fv: result.version,
-					slug: result.slug,
-				}, {
+				this.navigate([result.slug, 'edit', result.version], {
 					relativeTo: this.route
 				}).subscribe();
 				return null;
@@ -135,6 +189,15 @@ export class SchemasLayout implements HasPendingChanges {
 			}
 		});
 	}
+	protected async onCopyButtonClicked(text: string) {
+		navigator.clipboard.writeText(text);
+	}
+}
+
+type ArchiveFormFormData = {
+	confirmationTitle: string;
+	title: string;
+	slug: string;
 }
 
 type NewFormData = {
@@ -142,6 +205,13 @@ type NewFormData = {
 	description: string;
 }
 
+function defaultArchiveFormData() {
+	return {
+		confirmationTitle: null as any,
+		title: null as any,
+		slug: null as any,
+	} as Strict<ArchiveFormFormData>;
+}
 function defaultFormData() {
 	return {
 		title: null as any,

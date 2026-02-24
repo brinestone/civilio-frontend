@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
-import { provideFormStore } from './store/form/data';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
+import { hasChangesGuard } from './guards/has-changes-guard';
+import { provideFormStore } from './store/form/data';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
@@ -14,11 +15,23 @@ export const routes: Routes = [
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
 	{
+		children: [
+			{
+				path: 'assets',
+				loadComponent: () => import('./pages/forms/schemas/library/library.page').then(m => m.LibraryPage),
+				outlet: 'library'
+			}
+		],
+		title: 'Form Designer',
+		path: 'schemas/:slug/edit/:version',
+		canDeactivate: [hasChangesGuard],
+		loadComponent: () => import('./pages/forms/schemas/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
+	},
+	{
 		path: 'schemas',
-		loadComponent: () => import('./layouts/forms/form-schemas.layout.component').then(m => m.SchemasLayout),
+		loadComponent: () => import('./pages/forms/schemas/list/form-schemas-list.page').then(m => m.FormSchemasPage),
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore()],
-		loadChildren: () => import('./schemas.routes').then(m => m.schemaRoutes),
 	},
 	{
 		path: 'forms',
