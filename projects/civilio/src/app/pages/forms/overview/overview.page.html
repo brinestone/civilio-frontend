@@ -58,7 +58,7 @@
 						<h4 hlmH4>{{ 'overview.map.title' | translate }}</h4>
 						<cv-map
 							[coords]="f.coords"
-							class="w-full lg:min-w-[400px] lg:min-h-[200px]"
+							class="w-full lg:min-w-100 lg:min-h-50"
 						/>
 					</div>
 					}
@@ -66,7 +66,7 @@
 				<section class="space-y-2">
 					<h4 hlmH4>{{ 'misc.change_history' | translate }}</h4>
 					<div
-						class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent border-border block w-full rounded-md max-h-[400px] overflow-auto relative border"
+						class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent border-border block w-full rounded-md max-h-100 overflow-auto relative border"
 					>
 						<table hlmTable>
 							@let showPagination = table.getCanPreviousPage() ||
@@ -302,7 +302,7 @@
 >
 	<hlm-alert-dialog-content
 		*hlmAlertDialogPortal="let ctx"
-		class="max-w-[500px]"
+		class="max-w-125"
 	>
 		<hlm-alert-dialog-header>
 			<h2 class="flex items-baseline gap-2" hlmAlertDialogTitle>

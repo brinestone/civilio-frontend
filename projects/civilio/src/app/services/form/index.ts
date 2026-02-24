@@ -62,6 +62,11 @@ export class FormService2 {
 		return this.sdk;
 	}
 
+	async toggleArchived(slug: string) {
+		const result = await this.client.forms.byForm(slug).toggleArchive.patch();
+		return result;
+	}
+
 	async createNewForm(req: FormsPostRequestBody) {
 		const result = await this.client.forms.post(req);
 		if (!result) throw new Error('Could not create new form - Unknown error');

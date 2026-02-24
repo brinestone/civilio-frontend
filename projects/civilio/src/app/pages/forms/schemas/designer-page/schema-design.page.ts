@@ -22,12 +22,16 @@ import {
 	isGroupItem
 } from '@app/model/form';
 import { FormService2 } from '@app/services/form';
-import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition } from '@civilio/sdk/models';
+import { FormItemDefinition, FormItemField, FormItemGroup } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { current, produce } from 'immer';
 import { get } from 'lodash';
-import { injectQueryParams } from 'ngxtension/inject-query-params';
+import { toast } from 'ngx-sonner';
+import { Observable } from 'rxjs';
 import {
 	defaultFormDefinitionSchemaValue,
 	defaultFormItemDefinitionSchemaValue,
@@ -36,12 +40,7 @@ import {
 	FormItemType,
 	FormModel,
 	pathSeparator
-} from './form-schemas';
-import { toast } from 'ngx-sonner';
-import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { Observable } from 'rxjs';
-import { BrnDialogState } from '@spartan-ng/brain/dialog';
-import { HlmSpinner } from '@spartan-ng/helm/spinner';
+} from '../form-schemas';
 const isFieldTree = (v: FieldTree<Strict<FormItemDefinition>>): v is FieldTree<Strict<FormItemField>> => v.type().value() === 'field';
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 
@@ -69,16 +68,16 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SchemaDesignPage implements HasPendingChanges {
-	readonly slug = input<string>();
+	readonly slug = input.required<string>();
+	readonly formVersion = input.required<string>();
 	protected readonly formItemComponents = {
-		'field': import('../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
+		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
 	} as Record<string, Promise<Type<any>>>;
-	private readonly formVersionQueryParameter = injectQueryParams<string>('fv', { defaultValue: 'current' })
 	private readonly formService = inject(FormService2);
 	private readonly formDefinition = resource({
 		params: () => ({
 			slug: this.slug(),
-			version: this.formVersionQueryParameter()
+			version: this.formVersion()
 		}),
 		loader: async ({ params }) => {
 			if (!params.slug) return undefined;

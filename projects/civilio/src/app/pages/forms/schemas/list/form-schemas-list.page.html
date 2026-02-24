@@ -1,0 +1,210 @@
+<div
+	class="border-b border-muted overflow-x-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-hidden"
+>
+	<div class="flex justify-between items-center px-4 py-1">
+		<div class="space-y-1">
+			<h2 hlmH3>Forms</h2>
+			<p class="text-muted-foreground text-sm">Add or import forms</p>
+		</div>
+		<div class="flex items-center gap-2">
+			@if (formsAvailable()) {
+			<ng-container [ngTemplateOutlet]="addFormTemplate" />
+			}
+		</div>
+	</div>
+</div>
+<div
+	class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto"
+>
+	@if (!formsAvailable()) {
+	<div hlmEmpty>
+		<div hlmEmptyHeader>
+			<div hlmEmptyMedia variant="icon">
+				<ng-icon name="lucideFormInput" />
+			</div>
+			<div hlmEmptyTitle>No Forms Yet</div>
+			<div hlmEmptyDescription>
+				You haven't created any forms yet. Get started by creating your first
+				form.
+			</div>
+		</div>
+		<div hlmEmptyContent>
+			<div class="flex gap-2">
+				<ng-container [ngTemplateOutlet]="addFormTemplate" />
+			</div>
+		</div>
+	</div>
+	} @else {
+	<div class="container mx-auto space-y-2 pt-10">
+		@for(form of forms.value(); track form.slug){
+		<div class="flex items-center justify-between group/row">
+			<div class="space-y-1 max-w-1/2">
+				<a
+					[routerLink]="[form.slug, 'edit', form.currentVersion?.id ?? 'current']"
+					class="font-semibold line-clamp-1 text-ellipsis text-primary"
+				>
+					{{ form.title }}
+				</a>
+				<span class="text-muted-foreground text-sm"
+					>{{form.updatedAt | date}}</span
+				>
+			</div>
+			<div
+				class="flex items-center gap-2 opacity-0 transition-opacity group-hover/row:opacity-100"
+			>
+				@for(action of formActions; track $index) {
+				<ng-container>
+					@if (action.route) {
+					<a
+						[routerLink]="action.route(form)"
+						hlmBtn
+						variant="outline"
+						size="icon-sm"
+					>
+						<ng-icon [name]="action.icon" />
+					</a>
+					} @else {
+					<button
+						(click)="action.handler(form)"
+						hlmBtn
+						size="icon-sm"
+						[variant]="'outline'"
+					>
+						<ng-icon [name]="action.icon" /></button
+					>}
+				</ng-container>
+				}
+			</div>
+		</div>
+		@if(!$last) {
+		<hlm-separator />
+		} }
+	</div>
+	}
+</div>
+
+<hlm-alert-dialog
+	#archivePrompt
+	[state]="formArchivingDialogState()"
+	(stateChanged)="onArchivingFormDialogStateChanged($event)"
+>
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>Are you sure?</h2>
+			<p hlmAlertDialogDescription>
+				Archiving this form will hide all versions and their responses
+			</p>
+		</hlm-alert-dialog-header>
+		<form novalidate (submit)="onSubmitArchivingForm($event)">
+			<div hlmField>
+				<p
+					hlmFieldDescription
+					class="select-text!"
+				>
+					<span>Type in </span>
+					<strong class="select-text!"
+						>{{ archivingPromptForm.title().value() }}</strong
+					>
+					<button
+						type="button"
+						(click)="onCopyButtonClicked(archivingPromptForm.title().value())"
+						hlmBtn
+						variant="ghost"
+						size="icon-sm"
+					>
+						<ng-icon name="lucideCopy" />
+					</button>
+					<span> below and then confirm archiving</span>
+				</p>
+				<input hlmInput [formField]="archivingPromptForm.confirmationTitle" />
+				<cv-field-error [field]="archivingPromptForm.confirmationTitle" />
+			</div>
+		</form>
+		<hlm-alert-dialog-footer>
+			<button
+				hlmAlertDialogAction
+				(click)="onSubmitArchivingForm($event)"
+				class="flex-1 cursor-pointer"
+				[disabled]="archivingPromptForm().invalid() || archivingPromptForm().submitting()"
+			>
+				@if(archivingPromptForm().submitting()) {
+				<hlm-spinner />
+				}
+				<span>Proceed</span>
+			</button>
+			<button
+				(click)="ctx.close()"
+				hlmAlertDialogCancel
+				class="flex-1 cursor-pointer"
+			>
+				<span>Cancel</span>
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>
+
+<ng-template #addFormTemplate let-variant="variant">
+	<hlm-dialog
+		[state]="newFormDialogState()"
+		(stateChanged)="onNewFormDialogStateChanged($event)"
+	>
+		<button
+			[variant]="variant ?? 'default'"
+			hlmBtn
+			hlmDialogTrigger
+			class="cursor-pointer"
+		>
+			<ng-icon name="lucidePlus" />
+			<span>Create Form</span>
+		</button>
+		<hlm-dialog-content *hlmDialogPortal>
+			<hlm-dialog-header>
+				<h3 hlmDialogTitle>✨ New Form</h3>
+				<p hlmDialogDescription>Start off by assigning a title to your form</p>
+			</hlm-dialog-header>
+			<form novalidate (submit)="($event)">
+				<fieldset hlmFieldSet>
+					<div hlmFieldGroup>
+						<div hlmField>
+							<label hlmFieldLabel for="new_form_title">Title</label>
+							<input
+								id="new_form_title"
+								hlmInput
+								[formField]="newFormForm.title"
+							/>
+							<cv-field-error eager [field]="newFormForm.title" />
+						</div>
+						<div hlmField>
+							<label hlmFieldLabel="new_form_description">Description</label>
+							<textarea
+								hlmTextarea
+								id="new_form_description"
+								[formField]="newFormForm.description"
+							></textarea>
+							<cv-field-error eager [field]="newFormForm.description" />
+						</div>
+					</div>
+				</fieldset>
+			</form>
+			<hlm-dialog-footer>
+				<button
+					(click)="onSubmitNewFormForm($event)"
+					[disabled]="
+						newFormForm().submitting() ||
+						newFormForm().invalid() ||
+						newFormForm().pending()
+					"
+					hlmBtn
+					class="w-full flex"
+				>
+					@if (newFormForm().submitting()) {
+					<hlm-spinner />
+					} @else {
+					<ng-icon name="lucideSave" />
+					}
+					<span>Continue {{ newFormForm().submitting() ? "..." : "" }}</span>
+				</button>
+			</hlm-dialog-footer>
+		</hlm-dialog-content>
+	</hlm-dialog>
+</ng-template>

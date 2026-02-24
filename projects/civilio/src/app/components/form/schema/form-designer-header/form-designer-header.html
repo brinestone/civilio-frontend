@@ -2,6 +2,7 @@
 	<div>
 		@if(editable()) {
 		<div hlmButtonGroup>
+			@if(!previewing()) {
 			<button
 				type="button"
 				[title]="'Add' + lastAddedItemLabel()"
@@ -24,6 +25,7 @@
 			>
 				<ng-icon name="lucideChevronDown" />
 			</button>
+			}
 		</div>
 		}
 	</div>
@@ -43,7 +45,7 @@
 			<ng-icon name="lucideSave" />
 			}
 			<span
-				>{{formState().submitting() ? 'Submitting' : 'Submit'}} changes</span
+				>{{formState().submitting() ? 'Saving' : 'Save'}} changes</span
 			>
 		</button>
 		<button
