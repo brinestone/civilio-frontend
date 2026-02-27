@@ -4,11 +4,13 @@
 // @ts-ignore
 import { DefinitionRequestBuilderRequestsMetadata, type DefinitionRequestBuilder } from './definition/index.js';
 // @ts-ignore
+import { type WithVersionItemRequestBuilder, WithVersionItemRequestBuilderNavigationMetadata } from './item/index.js';
+// @ts-ignore
 import { ToggleArchiveRequestBuilderRequestsMetadata, type ToggleArchiveRequestBuilder } from './toggleArchive/index.js';
 // @ts-ignore
 import { type VersionsRequestBuilder, VersionsRequestBuilderRequestsMetadata } from './versions/index.js';
 // @ts-ignore
-import { type BaseRequestBuilder, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
+import { type BaseRequestBuilder, type Guid, type KeysToExcludeForNavigationMetadata, type NavigationMetadata } from '@microsoft/kiota-abstractions';
 
 /**
  * Builds and executes requests for operations under /api/forms/{form}
@@ -26,6 +28,12 @@ export interface WithFormItemRequestBuilder extends BaseRequestBuilder<WithFormI
      * The versions property
      */
     get versions(): VersionsRequestBuilder;
+    /**
+     * Gets an item from the ApiSdk.api.forms.item.item collection
+     * @param version Unique identifier of the item
+     * @returns {WithVersionItemRequestBuilder}
+     */
+     byVersion(version: Guid) : WithVersionItemRequestBuilder;
 }
 /**
  * Uri template for the request builder.
@@ -35,6 +43,10 @@ export const WithFormItemRequestBuilderUriTemplate = "{+baseurl}/api/forms/{form
  * Metadata for all the navigation properties in the request builder.
  */
 export const WithFormItemRequestBuilderNavigationMetadata: Record<Exclude<keyof WithFormItemRequestBuilder, KeysToExcludeForNavigationMetadata>, NavigationMetadata> = {
+    byVersion: {
+        navigationMetadata: WithVersionItemRequestBuilderNavigationMetadata,
+        pathParametersMappings: ["version"],
+    },
     definition: {
         requestsMetadata: DefinitionRequestBuilderRequestsMetadata,
     },

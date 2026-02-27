@@ -99,7 +99,7 @@
 							<hlm-select-content class="w-full">
 								@for (field of otherFieldsList(); track field) {
 									<hlm-option [value]="field.path().value()">{{
-										field.title().value()
+										field.meta.title().value()
 									}}</hlm-option>
 								}
 							</hlm-select-content>

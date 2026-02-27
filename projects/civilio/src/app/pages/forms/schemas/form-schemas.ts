@@ -1,6 +1,7 @@
 import { isDevMode } from "@angular/core";
 import { apply, applyEach, applyWhen, applyWhenValue, debounce, disabled, hidden, max, maxLength, min, minLength, pattern, required, SchemaPath, SchemaPathTree, validate } from "@angular/forms/signals";
-import { FieldItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
+import { FieldItemMetaSchema, GroupItemMetaSchema, ImageItemMetaSchema, NoteItemMetaSchema, SeparatorItemMetaSchema } from "@app/model/form";
+import { randomString } from "@app/util";
 import { BooleanFieldMeta, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldMeta, MultiDateFieldMeta, NumberFieldMeta, RangeDateFieldMeta, RelevanceCondition, RelevanceCondition_operator, RelevanceLogicExpression, RelevanceLogicExpressionOperator, SelectFieldMeta, SimpleDateFieldMeta, TextFieldMeta } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 
@@ -53,7 +54,6 @@ function defineTextFieldMetaFormSchema(paths: SchemaPathTree<Strict<TextFieldMet
 	debounce(paths.maxlength, debounceDuration);
 	debounce(paths.minlength, debounceDuration);
 	debounce(paths.defaultValue, debounceDuration);
-
 	min(paths.minlength, 0);
 	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.maxlength, ({ valueOf }) => valueOf(paths.readonly) === true);
@@ -197,10 +197,10 @@ function defineBooleanFieldMetaFormSchema(paths: SchemaPathTree<Strict<BooleanFi
 function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemDefinition>>) {
 	applyWhen(paths, ({ value }) => value().type == 'field', paths => {
 		const fp = paths as unknown as SchemaPathTree<Strict<FormItemField>>;
-		debounce(fp.title, debounceDuration);
-		required(fp.title, { message: 'A title is required' });
+		// debounce(fp.title, debounceDuration);
+		// required(fp.title, { message: 'A title is required' });
 
-		debounce(fp.description, debounceDuration);
+		// debounce(fp.description, debounceDuration);
 		hidden(fp.id, () => true);
 		hidden(fp.path, () => true);
 		hidden(fp.type, () => true);
@@ -226,6 +226,9 @@ function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormIte
 			applyWhenValue(meta, isDateRange, defineRangeDateFieldMetaFormSchema);
 			applyWhenValue(meta, isMultiDate, defineMultiDateFieldMetaFormSchema);
 
+			debounce(meta.title, debounceDuration);
+			debounce(meta.description, debounceDuration);
+			required(meta.title, { message: 'A title is required' });
 		});
 	});
 
@@ -250,44 +253,43 @@ export function defineFormDefinitionFormSchema() {
 		hidden(paths.id, () => true);
 		hidden(paths.parentId, () => true);
 		applyEach(paths.items, defineFormItemDefinitionFormSchema);
-		validate(paths.items, ({ value }) => {
-			const fieldItems = (value() ?? []).filter(item => item.type === 'field');
-			const titles = fieldItems.map(item => item.title);
-			// const duplicateIndexes = titles
-			// 	.map((title, index) => ({ title, index }))
-			// 	.filter(({ title }, _, arr) => title && arr.filter(item => item.title === title).length > 1)
-			// 	.map(({ index }) => index);
-			const duplicates = titles.filter((title, index) => title && titles.indexOf(title) !== index);
-			return duplicates.length > 0 ? { kind: 'duplicateTitles', message: 'Field titles must be unique' } : null;
-		});
+		// validate(paths.items, ({ value }) => {
+		// const fieldItems = (value() ?? []).filter(item => item.type === 'field');
+		// const titles = fieldItems.map(item => item.title);
+		// const duplicateIndexes = titles
+		// 	.map((title, index) => ({ title, index }))
+		// 	.filter(({ title }, _, arr) => title && arr.filter(item => item.title === title).length > 1)
+		// 	.map(({ index }) => index);
+		// const duplicates = titles.filter((title, index) => title && titles.indexOf(title) !== index);
+		// return duplicates.length > 0 ? { kind: 'duplicateTitles', message: 'Field titles must be unique' } : null;
+		// });
 	}
 }
 
 export function domainToStrictFormDefinition(value: FormVersionDefinition) {
+	debugger;
 	return value as FormModel;
 }
 export function defaultFormItemDefinitionSchemaValue(path: string, type: FormItemType) {
 	const meta = formItemDefaultMeta(type);
 	const result = {
-		description: null as any,
-		id: null as any,
+		id: 'new_' + randomString(10),
 		meta,
 		path,
-		children: [],
 		relevance: {
 			enabled: false,
 			operator: 'or',
 			logic: []
 		},
-		title: null as any,
 		type,
-		...formItemPropertiesFor(type),
+		// ...formItemPropertiesFor(type),
 	} as FormModel['items'][number];
 	return result;
 }
 function formItemPropertiesFor(type: FormItemType) {
 	switch (type) {
 		case 'image': return { url: null };
+		case 'group': return { fields: [] };
 		default: return {}
 	}
 }
@@ -305,6 +307,7 @@ export function formItemDefaultMeta(type: FormItemType) {
 		case 'note': return NoteItemMetaSchema.parse({ fontSize: 13 });
 		case 'separator': return SeparatorItemMetaSchema.parse({});
 		case 'image': return ImageItemMetaSchema.parse({});
+		case 'group': return GroupItemMetaSchema.parse({});
 		default: throw new Error('Unknown form item type')
 	}
 }

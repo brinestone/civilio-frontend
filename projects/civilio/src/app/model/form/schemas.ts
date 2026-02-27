@@ -52,7 +52,9 @@ export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'mu
 export const DateFieldTypesSchema = FieldTypeSchema.extract(['date', 'multi-date', 'date-range', 'date-time']);
 export const BaseFieldItemMetaSchema = z.object({
 	required: z.boolean().nullish().default(true),
-	span: z.int().nullish().default(12),
+	// span: z.int().nullish().default(12),
+	title: z.string().nullish().default(null),
+	description: z.string().nullish().default(null),
 	defaultValue: z.any().nullish().default(null),
 	readonly: z.boolean().nullish().default(false),
 });
@@ -147,6 +149,9 @@ export const NoteItemMetaSchema = z.object({
 export const SeparatorItemMetaSchema = z.object({
 	orientation: z.enum(['vertical', 'horizontal']).nullish().default('horizontal')
 });
+export const GroupItemMetaSchema = z.object({
+	fields: z.any().array().nullish().default([])
+})
 export type FieldType = z.infer<typeof FieldTypeSchema>;
 export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
 export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;

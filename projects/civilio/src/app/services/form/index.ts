@@ -10,7 +10,7 @@ import { CivilioSdk } from "@app/adapters/sdk";
 import { FormSchema } from "@app/model/form";
 import { FormsPostRequestBody } from "@civilio/sdk/api/forms";
 import { LookupRequestBuilderGetQueryParameters } from "@civilio/sdk/api/submissions/lookup";
-import { FormVersionDefinition } from "@civilio/sdk/models";
+import { UpdateFormDefinitionRequest } from "@civilio/sdk/models";
 import {
 	DeleteOptionGroupByIdRequest,
 	DeleteOptionGroupOptionByIdRequest,
@@ -79,11 +79,16 @@ export class FormService2 {
 		return result;
 	}
 
-	async upsertFormDefinition(req: FormVersionDefinition) {
-		// return await this.client.api.forms.
+	async updateFormVersionDefinition(req: UpdateFormDefinitionRequest, slug: string, version: string) {
+		req.addedItems?.forEach(i => {
+			if (i.id?.startsWith('new'))
+				delete i.id;
+		});
+		return await this.client.forms.byForm(slug).byVersion(version).definition.put(req)
 	}
 
 	async findFormDefinition(slug: string, formVersion?: string) {
+		debugger;
 		return await this.client.forms.byForm(slug).definition.get({
 			queryParameters: { version: formVersion }
 		})

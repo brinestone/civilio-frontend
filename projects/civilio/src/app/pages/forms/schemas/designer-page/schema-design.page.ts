@@ -29,7 +29,7 @@ import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { current, produce } from 'immer';
-import { get } from 'lodash';
+import { difference, differenceWith, get, intersection, intersectionWith } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { Observable } from 'rxjs';
 import {
@@ -69,7 +69,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 })
 export class SchemaDesignPage implements HasPendingChanges {
 	readonly slug = input.required<string>();
-	readonly formVersion = input.required<string>();
+	readonly formVersion = input.required<string>({ alias: 'version' });
 	protected readonly formItemComponents = {
 		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
 	} as Record<string, Promise<Type<any>>>;
@@ -114,8 +114,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
 		cb(item);
-		if (isGroupItem(item) && item.children.length > 0) {
-			for (const child of item.children) {
+		if (isGroupItem(item) && item.meta.fields.length > 0) {
+			for (const child of item.meta.fields) {
 				this.walkFormItemTree(child, cb);
 			}
 		}
@@ -126,9 +126,9 @@ export class SchemaDesignPage implements HasPendingChanges {
 		const isRoot = (t: FormItemAddTarget): t is FieldTree<FormModel> => 'items' in t().value();
 		if (isGroup(target)) {
 			target().value.update(state => produce(state, draft => {
-				const path = `${current(draft).path}${pathSeparator}${current(draft).children.length}`;
-				const item = defaultFormItemDefinitionSchemaValue(path, type);
-				draft.children.push(item);
+				const path = `${current(draft).path}${pathSeparator}${current(draft).meta.fields.length}`;
+				const item = defaultFormItemDefinitionSchemaValue(path, 'field') as Strict<FormItemField>;
+				draft.meta.fields.push(item);
 			}));
 		} else if (isRoot(target)) {
 			target().value.update(state => produce(state, draft => {
@@ -155,7 +155,26 @@ export class SchemaDesignPage implements HasPendingChanges {
 		}
 		await submit(this.formModel, async tree => {
 			const value = tree().value();
-			console.log(value);
+			const pristine = this.formDefinition.value();
+			const comparator = (a: FormItemDefinition, b: FormItemDefinition) => {
+				const symbolA = (a as unknown as { Symbol(): Symbol }).Symbol()
+				const symbolB = (b as unknown as { Symbol(): Symbol }).Symbol();
+				return symbolA == symbolB
+			}
+			const removedItems = differenceWith(pristine!.items!, value.items, comparator).map(i => i.id!);
+			const addedItems = differenceWith(value.items, pristine!.items!, comparator);
+			const updatedItems = intersectionWith(value.items, pristine!.items!, comparator);
+			const changedItems = updatedItems.filter((item, index) => {
+				const pristineItem = pristine!.items![pristine!.items!.indexOf(updatedItems[index])];
+				return JSON.stringify(item) !== JSON.stringify(pristineItem);
+			});
+			try {
+				await this.formService.updateFormVersionDefinition({
+					addedItems, removedItems, updatedItems: changedItems
+				}, this.slug(), this.formVersion());
+			} catch (e) {
+				toast.error('Could not save changes', { description: (e as Error).message });
+			}
 		})
 	}
 

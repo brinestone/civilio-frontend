@@ -180,9 +180,7 @@ export class FormSchemasPage implements HasPendingChanges {
 				});
 				tree().reset(defaultFormData());
 				this.newFormDialogState.set('closed');
-				this.navigate([result.slug, 'edit', result.version], {
-					relativeTo: this.route
-				}).subscribe();
+				this.navigate([result.slug, 'edit', result.version], undefined, { relativeTo: this.route }).subscribe();
 				return null;
 			} catch (e) {
 				return { kind: 'submitError', message: 'Could not submit' }

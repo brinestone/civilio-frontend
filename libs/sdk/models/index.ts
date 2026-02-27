@@ -22,6 +22,10 @@ export interface BaseDateFieldProps extends BaseFieldProps, Parsable {
 }
 export interface BaseFieldProps extends Parsable {
     /**
+     * The description property
+     */
+    description?: string | null;
+    /**
      * The readonly property
      */
     readonly?: boolean | null;
@@ -30,9 +34,9 @@ export interface BaseFieldProps extends Parsable {
      */
     required?: boolean | null;
     /**
-     * The span property
+     * The title property
      */
-    span?: number | null;
+    title?: string | null;
 }
 export interface BaseFormItemDefinition extends Parsable {
     /**
@@ -297,6 +301,15 @@ export function createFormItemFieldFromDiscriminatorValue(parseNode: ParseNode |
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {FormItemGroup_meta}
+ */
+// @ts-ignore
+export function createFormItemGroup_metaFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoFormItemGroup_meta;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {FormItemGroup}
  */
 // @ts-ignore
@@ -549,6 +562,15 @@ export function createTextFieldMetaFromDiscriminatorValue(parseNode: ParseNode |
 /**
  * Creates a new instance of the appropriate class based on discriminator value
  * @param parseNode The parse node to use to read the discriminator value and create the object
+ * @returns {UpdateFormDefinitionRequest}
+ */
+// @ts-ignore
+export function createUpdateFormDefinitionRequestFromDiscriminatorValue(parseNode: ParseNode | undefined) : ((instance?: Parsable) => Record<string, (node: ParseNode) => void>) {
+    return deserializeIntoUpdateFormDefinitionRequest;
+}
+/**
+ * Creates a new instance of the appropriate class based on discriminator value
+ * @param parseNode The parse node to use to read the discriminator value and create the object
  * @returns {UploadedFileInfo}
  */
 // @ts-ignore
@@ -758,9 +780,10 @@ export function deserializeIntoBaseDateFieldProps(baseDateFieldProps: Partial<Ba
 // @ts-ignore
 export function deserializeIntoBaseFieldProps(baseFieldProps: Partial<BaseFieldProps> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
+        "description": n => { baseFieldProps.description = n.getStringValue(); },
         "readonly": n => { baseFieldProps.readonly = n.getBooleanValue(); },
         "required": n => { baseFieldProps.required = n.getBooleanValue(); },
-        "span": n => { baseFieldProps.span = n.getNumberValue(); },
+        "title": n => { baseFieldProps.title = n.getStringValue(); },
     }
 }
 /**
@@ -1002,9 +1025,7 @@ export function deserializeIntoFormItemDefinition(formItemDefinition: Partial<Fo
 export function deserializeIntoFormItemField(formItemField: Partial<FormItemField> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         ...deserializeIntoBaseFormItemDefinition(formItemField),
-        "description": n => { formItemField.description = n.getStringValue(); },
         "meta": n => { formItemField.meta = n.getObjectValue<BooleanFieldMeta>(createBooleanFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<GeoPointFieldMeta>(createGeoPointFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<MultiDateFieldMeta>(createMultiDateFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<NumberFieldMeta>(createNumberFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<RangeDateFieldMeta>(createRangeDateFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<SelectFieldMeta>(createSelectFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<SimpleDateFieldMeta>(createSimpleDateFieldMetaFromDiscriminatorValue) ?? n.getObjectValue<TextFieldMeta>(createTextFieldMetaFromDiscriminatorValue); },
-        "title": n => { formItemField.title = n.getStringValue(); },
         "type": n => { formItemField.type = n.getEnumValue<FormItemField_type>(FormItemField_typeObject); },
     }
 }
@@ -1017,8 +1038,19 @@ export function deserializeIntoFormItemField(formItemField: Partial<FormItemFiel
 export function deserializeIntoFormItemGroup(formItemGroup: Partial<FormItemGroup> | undefined = {}) : Record<string, (node: ParseNode) => void> {
     return {
         ...deserializeIntoBaseFormItemDefinition(formItemGroup),
-        "children": n => { formItemGroup.children = n.getCollectionOfObjectValues<FormItemField>(createFormItemFieldFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemGroup>(createFormItemGroupFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemImage>(createFormItemImageFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemNote>(createFormItemNoteFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemSeparator>(createFormItemSeparatorFromDiscriminatorValue); },
+        "meta": n => { formItemGroup.meta = n.getObjectValue<FormItemGroup_meta>(createFormItemGroup_metaFromDiscriminatorValue); },
         "type": n => { formItemGroup.type = n.getEnumValue<FormItemGroup_type>(FormItemGroup_typeObject); },
+    }
+}
+/**
+ * The deserialization information for the current model
+ * @param FormItemGroup_meta The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoFormItemGroup_meta(formItemGroup_meta: Partial<FormItemGroup_meta> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "fields": n => { formItemGroup_meta.fields = n.getCollectionOfObjectValues<FormItemField>(createFormItemFieldFromDiscriminatorValue); },
     }
 }
 /**
@@ -1032,7 +1064,6 @@ export function deserializeIntoFormItemImage(formItemImage: Partial<FormItemImag
         ...deserializeIntoBaseFormItemDefinition(formItemImage),
         "meta": n => { formItemImage.meta = n.getObjectValue<ImageItemMeta>(createImageItemMetaFromDiscriminatorValue); },
         "type": n => { formItemImage.type = n.getEnumValue<FormItemImage_type>(FormItemImage_typeObject); },
-        "url": n => { formItemImage.url = n.getStringValue(); },
     }
 }
 /**
@@ -1045,7 +1076,6 @@ export function deserializeIntoFormItemNote(formItemNote: Partial<FormItemNote> 
     return {
         ...deserializeIntoBaseFormItemDefinition(formItemNote),
         "meta": n => { formItemNote.meta = n.getObjectValue<NoteItemMeta>(createNoteItemMetaFromDiscriminatorValue); },
-        "title": n => { formItemNote.title = n.getStringValue(); },
         "type": n => { formItemNote.type = n.getEnumValue<FormItemNote_type>(FormItemNote_typeObject); },
     }
 }
@@ -1155,6 +1185,7 @@ export function deserializeIntoImageItemMeta(imageItemMeta: Partial<ImageItemMet
         "caption": n => { imageItemMeta.caption = n.getStringValue(); },
         "filter": n => { imageItemMeta.filter = n.getEnumValue<ImageItemMeta_filter>(ImageItemMeta_filterObject); },
         "height": n => { imageItemMeta.height = n.getNumberValue(); },
+        "url": n => { imageItemMeta.url = n.getStringValue(); },
         "width": n => { imageItemMeta.width = n.getNumberValue(); },
     }
 }
@@ -1392,6 +1423,19 @@ export function deserializeIntoTextFieldMeta(textFieldMeta: Partial<TextFieldMet
 }
 /**
  * The deserialization information for the current model
+ * @param UpdateFormDefinitionRequest The instance to deserialize into.
+ * @returns {Record<string, (node: ParseNode) => void>}
+ */
+// @ts-ignore
+export function deserializeIntoUpdateFormDefinitionRequest(updateFormDefinitionRequest: Partial<UpdateFormDefinitionRequest> | undefined = {}) : Record<string, (node: ParseNode) => void> {
+    return {
+        "addedItems": n => { updateFormDefinitionRequest.addedItems = n.getCollectionOfObjectValues<FormItemField>(createFormItemFieldFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemGroup>(createFormItemGroupFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemImage>(createFormItemImageFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemNote>(createFormItemNoteFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemSeparator>(createFormItemSeparatorFromDiscriminatorValue); },
+        "removedItems": n => { updateFormDefinitionRequest.removedItems = n.getCollectionOfPrimitiveValues<Guid>(); },
+        "updatedItems": n => { updateFormDefinitionRequest.updatedItems = n.getCollectionOfObjectValues<FormItemField>(createFormItemFieldFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemGroup>(createFormItemGroupFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemImage>(createFormItemImageFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemNote>(createFormItemNoteFromDiscriminatorValue) ?? n.getCollectionOfObjectValues<FormItemSeparator>(createFormItemSeparatorFromDiscriminatorValue); },
+    }
+}
+/**
+ * The deserialization information for the current model
  * @param UploadedFileInfo The instance to deserialize into.
  * @returns {Record<string, (node: ParseNode) => void>}
  */
@@ -1456,17 +1500,9 @@ export interface FileUploadResponseBody extends Parsable {
 export type FormItemDefinition = FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator;
 export interface FormItemField extends BaseFormItemDefinition, Parsable {
     /**
-     * The description property
-     */
-    description?: string | null;
-    /**
      * The meta property
      */
     meta?: BooleanFieldMeta | GeoPointFieldMeta | MultiDateFieldMeta | NumberFieldMeta | RangeDateFieldMeta | SelectFieldMeta | SimpleDateFieldMeta | TextFieldMeta | null;
-    /**
-     * The title property
-     */
-    title?: string | null;
     /**
      * The type property
      */
@@ -1475,13 +1511,19 @@ export interface FormItemField extends BaseFormItemDefinition, Parsable {
 export type FormItemField_type = (typeof FormItemField_typeObject)[keyof typeof FormItemField_typeObject];
 export interface FormItemGroup extends BaseFormItemDefinition, Parsable {
     /**
-     * The children property
+     * The meta property
      */
-    children?: (FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator)[] | null;
+    meta?: FormItemGroup_meta | null;
     /**
      * The type property
      */
     type?: FormItemGroup_type | null;
+}
+export interface FormItemGroup_meta extends Parsable {
+    /**
+     * The fields property
+     */
+    fields?: FormItemField[] | null;
 }
 export type FormItemGroup_type = (typeof FormItemGroup_typeObject)[keyof typeof FormItemGroup_typeObject];
 export interface FormItemImage extends BaseFormItemDefinition, Parsable {
@@ -1493,10 +1535,6 @@ export interface FormItemImage extends BaseFormItemDefinition, Parsable {
      * The type property
      */
     type?: FormItemImage_type | null;
-    /**
-     * The url property
-     */
-    url?: string | null;
 }
 export type FormItemImage_type = (typeof FormItemImage_typeObject)[keyof typeof FormItemImage_typeObject];
 export interface FormItemNote extends BaseFormItemDefinition, Parsable {
@@ -1504,10 +1542,6 @@ export interface FormItemNote extends BaseFormItemDefinition, Parsable {
      * The meta property
      */
     meta?: NoteItemMeta | null;
-    /**
-     * The title property
-     */
-    title?: string | null;
     /**
      * The type property
      */
@@ -1638,6 +1672,10 @@ export interface ImageItemMeta extends Parsable {
      * The height property
      */
     height?: number | null;
+    /**
+     * The url property
+     */
+    url?: string | null;
     /**
      * The width property
      */
@@ -1842,9 +1880,10 @@ export function serializeBaseDateFieldProps(writer: SerializationWriter, baseDat
 // @ts-ignore
 export function serializeBaseFieldProps(writer: SerializationWriter, baseFieldProps: Partial<BaseFieldProps> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!baseFieldProps || isSerializingDerivedType) { return; }
+    writer.writeStringValue("description", baseFieldProps.description);
     writer.writeBooleanValue("readonly", baseFieldProps.readonly);
     writer.writeBooleanValue("required", baseFieldProps.required);
-    writer.writeNumberValue("span", baseFieldProps.span);
+    writer.writeStringValue("title", baseFieldProps.title);
 }
 /**
  * Serializes information the current object
@@ -2127,9 +2166,7 @@ export function serializeFormItemDefinition(writer: SerializationWriter, formIte
 export function serializeFormItemField(writer: SerializationWriter, formItemField: Partial<FormItemField> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!formItemField || isSerializingDerivedType) { return; }
     serializeBaseFormItemDefinition(writer, formItemField, isSerializingDerivedType)
-    writer.writeStringValue("description", formItemField.description);
     writer.writeObjectValue<BooleanFieldMeta | GeoPointFieldMeta | MultiDateFieldMeta | NumberFieldMeta | RangeDateFieldMeta | SelectFieldMeta | SimpleDateFieldMeta | TextFieldMeta>("meta", formItemField.meta, serializeFieldItemMeta);
-    writer.writeStringValue("title", formItemField.title);
     writer.writeEnumValue<FormItemField_type>("type", formItemField.type);
 }
 /**
@@ -2142,8 +2179,19 @@ export function serializeFormItemField(writer: SerializationWriter, formItemFiel
 export function serializeFormItemGroup(writer: SerializationWriter, formItemGroup: Partial<FormItemGroup> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
     if (!formItemGroup || isSerializingDerivedType) { return; }
     serializeBaseFormItemDefinition(writer, formItemGroup, isSerializingDerivedType)
-    writer.writeCollectionOfObjectValues<FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator>("children", formItemGroup.children, serializeFormItemDefinition);
+    writer.writeObjectValue<FormItemGroup_meta>("meta", formItemGroup.meta, serializeFormItemGroup_meta);
     writer.writeEnumValue<FormItemGroup_type>("type", formItemGroup.type);
+}
+/**
+ * Serializes information the current object
+ * @param FormItemGroup_meta The instance to serialize from.
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeFormItemGroup_meta(writer: SerializationWriter, formItemGroup_meta: Partial<FormItemGroup_meta> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!formItemGroup_meta || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfObjectValues<FormItemField>("fields", formItemGroup_meta.fields, serializeFormItemField);
 }
 /**
  * Serializes information the current object
@@ -2157,7 +2205,6 @@ export function serializeFormItemImage(writer: SerializationWriter, formItemImag
     serializeBaseFormItemDefinition(writer, formItemImage, isSerializingDerivedType)
     writer.writeObjectValue<ImageItemMeta>("meta", formItemImage.meta, serializeImageItemMeta);
     writer.writeEnumValue<FormItemImage_type>("type", formItemImage.type);
-    writer.writeStringValue("url", formItemImage.url);
 }
 /**
  * Serializes information the current object
@@ -2170,7 +2217,6 @@ export function serializeFormItemNote(writer: SerializationWriter, formItemNote:
     if (!formItemNote || isSerializingDerivedType) { return; }
     serializeBaseFormItemDefinition(writer, formItemNote, isSerializingDerivedType)
     writer.writeObjectValue<NoteItemMeta>("meta", formItemNote.meta, serializeNoteItemMeta);
-    writer.writeStringValue("title", formItemNote.title);
     writer.writeEnumValue<FormItemNote_type>("type", formItemNote.type);
 }
 /**
@@ -2280,6 +2326,7 @@ export function serializeImageItemMeta(writer: SerializationWriter, imageItemMet
     writer.writeStringValue("caption", imageItemMeta.caption);
     writer.writeEnumValue<ImageItemMeta_filter>("filter", imageItemMeta.filter);
     writer.writeNumberValue("height", imageItemMeta.height);
+    writer.writeStringValue("url", imageItemMeta.url);
     writer.writeNumberValue("width", imageItemMeta.width);
 }
 /**
@@ -2517,6 +2564,19 @@ export function serializeTextFieldMeta(writer: SerializationWriter, textFieldMet
 /**
  * Serializes information the current object
  * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
+ * @param UpdateFormDefinitionRequest The instance to serialize from.
+ * @param writer Serialization writer to use to serialize this model
+ */
+// @ts-ignore
+export function serializeUpdateFormDefinitionRequest(writer: SerializationWriter, updateFormDefinitionRequest: Partial<UpdateFormDefinitionRequest> | undefined | null = {}, isSerializingDerivedType: boolean = false) : void {
+    if (!updateFormDefinitionRequest || isSerializingDerivedType) { return; }
+    writer.writeCollectionOfObjectValues<FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator>("addedItems", updateFormDefinitionRequest.addedItems, serializeFormItemDefinition);
+    writer.writeCollectionOfPrimitiveValues<Guid>("removedItems", updateFormDefinitionRequest.removedItems);
+    writer.writeCollectionOfObjectValues<FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator>("updatedItems", updateFormDefinitionRequest.updatedItems, serializeFormItemDefinition);
+}
+/**
+ * Serializes information the current object
+ * @param isSerializingDerivedType A boolean indicating whether the serialization is for a derived type.
  * @param UploadedFileInfo The instance to serialize from.
  * @param writer Serialization writer to use to serialize this model
  */
@@ -2636,6 +2696,20 @@ export interface TextFieldMeta extends BaseFieldProps, Parsable {
     type?: TextFieldMeta_type | null;
 }
 export type TextFieldMeta_type = (typeof TextFieldMeta_typeObject)[keyof typeof TextFieldMeta_typeObject];
+export interface UpdateFormDefinitionRequest extends Parsable {
+    /**
+     * The addedItems property
+     */
+    addedItems?: (FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator)[] | null;
+    /**
+     * The removedItems property
+     */
+    removedItems?: Guid[] | null;
+    /**
+     * The updatedItems property
+     */
+    updatedItems?: (FormItemField | FormItemGroup | FormItemImage | FormItemNote | FormItemSeparator)[] | null;
+}
 export interface UploadedFileInfo extends Parsable {
     /**
      * The filename property

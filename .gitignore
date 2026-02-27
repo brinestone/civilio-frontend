@@ -44,3 +44,4 @@ testem.log
 
 .env
 /assets/3rdpartylicenses.txt
+*.log

@@ -49,18 +49,18 @@
 	<div hlmFieldGroup>
 		<div hlmField>
 			<label hlmFieldLabel>Question Title</label>
-			<input hlmInput [formField]="field.title" />
+			<input hlmInput [formField]="field.meta.title" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: field.title}"
+				[ngTemplateOutletContext]="{$implicit: field.meta.title}"
 			/>
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel>Question Hint</label>
-			<input hlmInput [formField]="field.description" />
+			<input hlmInput [formField]="field.meta.description" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: field.description}"
+				[ngTemplateOutletContext]="{$implicit: field.meta.description}"
 			/>
 		</div>
 	</div>

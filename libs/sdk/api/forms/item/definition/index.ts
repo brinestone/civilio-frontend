@@ -4,7 +4,7 @@
 // @ts-ignore
 import { createFormVersionDefinitionFromDiscriminatorValue, type FormVersionDefinition } from '../../../../models/index.js';
 // @ts-ignore
-import { type BaseRequestBuilder, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
+import { type BaseRequestBuilder, type Guid, type Parsable, type ParsableFactory, type RequestConfiguration, type RequestInformation, type RequestsMetadata } from '@microsoft/kiota-abstractions';
 
 /**
  * Builds and executes requests for operations under /api/forms/{form}/definition
@@ -27,7 +27,7 @@ export interface DefinitionRequestBuilder extends BaseRequestBuilder<DefinitionR
  * Get a form's definition by version
  */
 export interface DefinitionRequestBuilderGetQueryParameters {
-    version?: string;
+    version?: Guid;
 }
 /**
  * Uri template for the request builder.
