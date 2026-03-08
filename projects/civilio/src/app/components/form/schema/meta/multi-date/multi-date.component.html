@@ -31,7 +31,7 @@
 			/>
 			@if (meta().minSelection().value() !== null) {
 				<button
-					(click)="meta().minSelection().setControlValue($any(null))"
+					(click)="meta().minSelection().value.set($any(null))"
 					type="button"
 					hlmBtn
 					variant="outline"
@@ -57,7 +57,7 @@
 			/>
 			@if (meta().maxSelection().value() !== null) {
 				<button
-					(click)="meta().maxSelection().setControlValue($any(null))"
+					(click)="meta().maxSelection().value.set($any(null))"
 					type="button"
 					hlmBtn
 					variant="outline"

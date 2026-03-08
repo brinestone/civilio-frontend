@@ -61,6 +61,7 @@ misc:
   health_area: Health area
   health_district: Health district
   creation_date: Created at
+  could_not_fetch_items: Could not fetch dataset items
   none: None
   powered_by: Provided by
   developed_by: Developed by
@@ -1671,7 +1672,8 @@ services:
 submissions:
   title: Form Submissions
   actions:
-    add_submission: Add Submission
+    add_submission: Create
+    import: Import
   new_submission:
     title: New Submission
   context_menu:

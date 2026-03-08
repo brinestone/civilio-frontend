@@ -1,25 +1,25 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { SimpleDateFieldMeta } from '@civilio/sdk/models';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
-import { HlmFieldGroup, HlmField, HlmFieldLabel } from '@spartan-ng/helm/field';
-import { DatePicker } from '@app/components/date-picker/date-picker';
 import { FormField } from '@angular/forms/signals';
+import { DatePicker } from '@app/components/date-picker/date-picker';
 import { FieldError } from '@app/components/form';
+import { SimpleDateFieldConfig } from '@civilio/sdk/models';
+import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
+import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-simple-date',
 	imports: [
-    DatePicker,
+		DatePicker,
 		HlmFieldLabel,
 		FormField,
-    HlmField,
+		HlmField,
 		FieldError
-],
+	],
 	hostDirectives: [HlmFieldGroup],
 	templateUrl: './simple-date.component.html',
 	styleUrl: './simple-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SimpleDateComponent extends BaseMetaConfigComponent<SimpleDateFieldMeta> {
+export class SimpleDateComponent extends BaseMetaConfigComponent<SimpleDateFieldConfig> {
 
 }

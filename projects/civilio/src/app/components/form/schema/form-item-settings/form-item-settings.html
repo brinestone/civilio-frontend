@@ -27,12 +27,20 @@
 	>
 		<div hlmTabsList variant="line">
 			@for(tab of configTabs(); track $index) {
-			<button type="button" [hlmTabsTrigger]="tab.value" class="cursor-pointer">
-				@if(tab.icon) {
-				<ng-icon [name]="tab.icon" />
-				}@else {<span></span>}
-				<span>{{tab.label}}</span>
-			</button>
+			<ng-container>
+				@if(tab.hidden === undefined || !tab.hidden()) {
+				<button
+					type="button"
+					[hlmTabsTrigger]="tab.value"
+					class="cursor-pointer"
+				>
+					@if(tab.icon) {
+					<ng-icon [name]="tab.icon" />
+					}@else {<span></span>}
+					<span>{{tab.label}}</span>
+				</button>
+				}
+			</ng-container>
 			}
 		</div>
 	</div>

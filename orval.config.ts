@@ -6,25 +6,24 @@ export default defineConfig({
 			filters: {
 				mode: 'exclude',
 				tags: ['Internal', 'General', 'Miscellaneous'],
-
 			}
 		},
 		output: {
-			target: './projects/civilio/src/app/services/sdk',
 			mode: 'tags-split',
-			operationSchemas: './projects/civilio/src/dto',
-
-			indexFiles: false,
+			target: 'projects/civilio/src/sdk/services',
 			namingConvention: 'kebab-case',
+			client: 'angular',
 			override: {
 				angular: {
+					provideIn: false,
 					runtimeValidation: true
-				}
+				},
 			},
-			client: 'angular',
-			tsconfig: './tsconfig.json',
-			packageJson: './package.json',
-			httpClient: 'angular',
-		}
+			schemas: {
+				type: 'zod',
+				path: './libs/sdk/models'
+			},
+			operationSchemas: './libs/sdk/dto'
+		},
 	}
-})
+});

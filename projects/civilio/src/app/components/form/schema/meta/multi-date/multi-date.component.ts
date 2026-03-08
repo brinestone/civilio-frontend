@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { DatePicker, MultiDatePicker } from '@app/components';
 import { FieldError } from '@app/components/form';
-import { MultiDateFieldMeta } from '@civilio/sdk/models';
+import { MultiDateFieldConfig } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -37,6 +37,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './multi-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiDateMetaComponent extends BaseMetaConfigComponent<MultiDateFieldMeta> {
+export class MultiDateMetaComponent extends BaseMetaConfigComponent<MultiDateFieldConfig> {
 
 }

@@ -6,15 +6,15 @@ import { DebugHeaderComponent, DebugPanelComponent } from '@app/components/debug
 import { FormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCheck, lucideEye, lucideGrip, lucideSliders } from '@ng-icons/lucide';
+import { lucideEye, lucideGrip, lucideSliders, lucideTags } from '@ng-icons/lucide';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
-import { FormFieldMetaConfigComponent } from '../../meta/form-field-meta-config/form-field-meta-config';
 import { FormItemActionsComponent } from '../../form-item-actions/form-item-actions.component';
 import { FormItemRelevanceConfig } from '../../form-item-relevance-config/form-item-relevance-config.component';
 import { ConfigTab, FormItemSettingsDesigner } from '../../form-item-settings/form-item-settings';
 import { FormItemValidationConfigComponent } from '../../form-item-validation-config/form-item-validation-config.component';
+import { FormFieldMetaConfigComponent } from '../../meta/form-field-meta-config/form-field-meta-config';
 import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-designer';
 
 @Component({
@@ -22,8 +22,9 @@ import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-d
 	providers: [
 		provideIcons({
 			lucideSliders,
+			lucideTags,
 			lucideEye,
-			lucideCheck
+			// lucideCheck
 		})
 	],
 	viewProviders: [
@@ -61,7 +62,7 @@ export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemFiel
 	protected configTabs = [
 		{ label: 'Question configuration', value: 'meta', icon: 'lucideSliders' },
 		{ label: 'Relevance', value: 'relevance', icon: 'lucideEye' },
-		// { label: 'Validation', value: 'validation', icon: 'lucideCheck' }
+		{ label: 'Meta', value: 'tags', icon: 'lucideTags' }
 	] as ConfigTab[];
 
 	protected asGenericControl(node: any) {

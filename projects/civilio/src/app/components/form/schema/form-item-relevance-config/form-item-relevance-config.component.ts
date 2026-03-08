@@ -1,7 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input, Signal, TemplateRef, untracked, viewChild } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
-import { FormItemDefinition, RelevanceDefinition, RelevanceLogicExpressionOperator } from '@civilio/sdk/models';
+import { fieldTypeExpressionOperatorsMap, operatorsMap } from '@app/model/form';
+import { FormItemDefinition, RelevanceDefinition, RelevanceLogicExpression } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideEllipsis, lucideGlobe, lucidePlus, lucideX } from '@ng-icons/lucide';
@@ -18,44 +19,6 @@ import { produce } from 'immer';
 import { values } from 'lodash';
 import { FieldError } from '../../field-error/field-error.component';
 import { injectFormItemContext } from '../items';
-
-export const operatorsMap = {
-	in: { label: 'Contains', operandCount: 1 },
-	eq: { label: 'Equals', operandCount: 1 },
-	ne: { label: 'Not equal to', operandCount: 1 },
-	gt: { label: 'Greater than', operandCount: 1 },
-	lt: { label: 'Less than', operandCount: 1 },
-	lte: { label: 'Less than or equal to', operandCount: 1 },
-	gte: { label: 'Greater than or equal to', operandCount: 1 },
-	empty: { label: 'Is Empty', operandCount: 0 },
-	between: { label: 'Is between', operandCount: 2 },
-	match: { label: 'Matches', operandCount: 1 },
-	isNull: { label: 'Has no value', operandCount: 0 },
-	isNotNull: { label: 'Has a value', operandCount: 0 },
-	checked: { label: 'Is Checked', operandCount: 0 },
-	unchecked: { label: 'Is Unchecked', operandCount: 0 },
-	selectedAny: { label: 'Contains any of', operandCount: 1 },
-	selectedAll: { label: 'Contains all of', operandCount: 1 },
-	noselection: { label: 'Has no selection', operandCount: 0 },
-	before: { label: 'Is before', operandCount: 1 },
-	after: { label: 'Is after', operandCount: 1 },
-	afterOrOn: { label: 'Is after or on', operandCount: 1 },
-	beforeOrOn: { label: 'Is before or on', operandCount: 1 },
-} as Record<RelevanceLogicExpressionOperator, { label: string, operandCount: number }>;
-export const fieldTypeExpressionOperatorsMap = {
-	'boolean': ['checked', 'unchecked'],
-	'date-time': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
-	'date': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
-	'multi-date': ['empty', 'in', 'between', 'before', 'after'],
-	'date-range': ['isNull', 'before', 'after'],
-	'single-select': ['selectedAny', 'selectedAll', 'noselection'],
-	'multi-select': ['selectedAny', 'selectedAll', 'noselection'],
-	'float': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
-	'integer': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
-	'geo-point': ['isNull', 'isNotNull'],
-	'multiline': ['eq', 'ne', 'in', 'empty', 'match'],
-	'text': ['eq', 'ne', 'in', 'empty', 'match'],
-} as Record<string, (keyof typeof operatorsMap)[]>;
 
 @Component({
 	selector: 'cv-form-item-relevance-config',
@@ -136,7 +99,7 @@ export class FormItemRelevanceConfig {
 	}
 	protected onAddExpressionButtonClicked(conditionIndex: number) {
 		this.relevance().logic[conditionIndex].expressions().value.update(expressions => produce(expressions, draft => {
-			draft.unshift({ field: null as any, operator: null as any, value: null as any });
+			draft.unshift(RelevanceLogicExpression.parse({}) as any);
 		}));
 	}
 	protected onremoveConditionButtonClicked(conditionIndex: number) {

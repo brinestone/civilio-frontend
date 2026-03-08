@@ -1,11 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, effect, untracked } from '@angular/core';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
-import { NumberFieldMeta } from '@civilio/sdk/models';
+import { FormField } from '@angular/forms/signals';
+import { FieldError } from '@app/components/form/field-error/field-error.component';
+import { NumberFieldConfig } from '@civilio/sdk/models';
 import { HlmFieldGroup, HlmFieldImports, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { FormField } from '@angular/forms/signals';
-import { HlmSpinner } from '@spartan-ng/helm/spinner';
-import { FieldError } from '@app/components/form/field-error/field-error.component';
+import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-number-meta',
@@ -23,7 +22,7 @@ import { FieldError } from '@app/components/form/field-error/field-error.compone
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NumberComponent extends BaseMetaConfigComponent<NumberFieldMeta> {
+export class NumberComponent extends BaseMetaConfigComponent<NumberFieldConfig> {
 	protected readonly step = computed(() => {
 		return untracked(this.meta).type().value() == 'float' ? .1 : 1;
 	});

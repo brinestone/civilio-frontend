@@ -5,9 +5,6 @@ import {
 	provideZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter, TitleStrategy, withComponentInputBinding } from '@angular/router';
-import { usingElectron } from '@app/services/electron';
-import { usingWeb } from '@app/services/web';
-import { isDesktop } from '@app/util';
 import { provideNgIconLoader } from '@ng-icons/core';
 import {
 	provideMissingTranslationHandler,
@@ -21,21 +18,21 @@ import {
 	provideTranslationLoader
 } from './adapters/ngx-translate/ngx-translate';
 import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
-import { provideCivilioSdk } from './adapters/sdk';
 import { routes } from './app.routes';
 import { provideDomainConfig } from './services/config';
-import { provideDomainForms } from './services/form';
 import { provideNotifications } from './services/notification';
 import { ConfigState } from './store/config';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { apiUrlInterceptor } from './interceptors/api-url-interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
+		provideHttpClient(withInterceptors([apiUrlInterceptor])),
 		provideBrowserGlobalErrorListeners(),
-		provideCivilioSdk(),
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),
 		provideDomainConfig(),
-		provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
+		// provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
 		provideStore([ConfigState],
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({

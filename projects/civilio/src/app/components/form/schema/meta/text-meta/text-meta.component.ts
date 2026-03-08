@@ -1,16 +1,16 @@
+import { JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, untracked } from '@angular/core';
-import { HlmField, HlmFieldError, HlmFieldGroup, HlmFieldImports, HlmFieldLabel } from '@spartan-ng/helm/field';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
-import { TextFieldMeta } from '@civilio/sdk/models';
 import { FormField } from '@angular/forms/signals';
-import { HlmSpinner } from '@spartan-ng/helm/spinner';
-import { NgTemplateOutlet } from '@angular/common';
-import { HlmInput } from '@spartan-ng/helm/input';
-import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
+import { TextFieldConfig } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAtSign, lucideGlobe, lucidePhone } from '@ng-icons/lucide';
-import { current, produce } from 'immer';
+import { HlmFieldGroup, HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
+import { current, produce } from 'immer';
+import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-text-meta',
@@ -28,6 +28,7 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 		FormField,
 		HlmTextarea,
 		HlmSpinner,
+		JsonPipe,
 		HlmInput,
 		NgTemplateOutlet
 	],
@@ -38,7 +39,7 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 	styleUrl: './text-meta.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TextMetaComponent extends BaseMetaConfigComponent<TextFieldMeta> {
+export class TextMetaComponent extends BaseMetaConfigComponent<TextFieldConfig> {
 	protected readonly patternPresets = [
 		{ name: 'email', label: 'Email', icon: 'lucideAtSign', regex: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$` },
 		{ name: 'phone', label: 'Phone', icon: 'lucidePhone', regex: `^(\\+?237|\\(\\+?237\\))?6([5679]|[2])\\d{7}$` },
@@ -60,6 +61,9 @@ export class TextMetaComponent extends BaseMetaConfigComponent<TextFieldMeta> {
 	}
 	constructor() {
 		super();
+		effect(() => {
+			console.log(this.meta()().value());
+		})
 		effect(() => {
 			const readonly = untracked(this.meta).readonly().value();
 			if (readonly) {

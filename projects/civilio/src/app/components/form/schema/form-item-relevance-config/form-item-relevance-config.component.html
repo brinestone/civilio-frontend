@@ -7,12 +7,13 @@
 		/>
 		<label
 			class="cursor-pointer"
+			[class.opacity-50]="relevance()().disabled()"
 			for="{{ itemIndex() }}__enable_relevance"
 			hlmFieldLabel
 			>Enable Relevance</label
 		>
 	</div>
-	<p hlmFieldDescription>
+	<p hlmFieldDescription [class.opacity-50!]="relevance()().disabled()">
 		@if (relevance().enabled().value()) {
 			This field will become relevant <strong>ONLY</strong> when the defined
 			conditions are satisfied.
@@ -23,8 +24,12 @@
 </div>
 <hlm-field-separator />
 <div hlmFieldGroup>
-	<legend hlmFieldLegend>Conditions</legend>
-	<p hlmFieldDescription>A condition is a set of true/false expressions</p>
+	<legend [class.opacity-50!]="relevance()().disabled()" hlmFieldLegend>
+		Conditions
+	</legend>
+	<p hlmFieldDescription [class.opacity-50!]="relevance()().disabled()">
+		A condition is a set of true/false expressions
+	</p>
 	<div
 		hlmButtonGroup
 		class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-l-none [&>hlm-select>div>hlm-select-trigger>button]:border-l-0"
@@ -87,7 +92,7 @@
 						</button>
 					</div>
 				</div>
-				<div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
+				<div class="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2">
 					@for (expression of condition.expressions; track expression) {
 						<hlm-select
 							[formField]="expression.field"
@@ -99,7 +104,7 @@
 							<hlm-select-content class="w-full">
 								@for (field of otherFieldsList(); track field) {
 									<hlm-option [value]="field.path().value()">{{
-										field.meta.title().value()
+										field.config.title().value()
 									}}</hlm-option>
 								}
 							</hlm-select-content>
@@ -112,7 +117,7 @@
 								<ng-container>
 									@let operators =
 										fieldTypeExpressionOperatorsMap[
-											refField.meta.type().value()
+											refField.config.type().value()
 										];
 								</ng-container>
 								@if (operators != null) {
@@ -145,7 +150,7 @@
 							) {
 								<ng-container>
 									@let template =
-										expressionValueTemplates[refField.meta.type().value()];
+										expressionValueTemplates[refField.config.type().value()];
 								</ng-container>
 								@if (template != null) {
 									<ng-container
@@ -157,6 +162,22 @@
 									/>
 								}
 							}
+						</div>
+						<div class="flex items-center">
+							<div hlmField orientation="horizontal" class="items-center!">
+							<hlm-switch
+								class="cursor-pointer"
+								[formField]="expression.negated"
+								id="{{ $index }}__expression__negated"
+							/>
+							<label
+								class="cursor-pointer"
+								for="{{ $index }}__expression__negated"
+								hlmFieldLabel
+							>
+								Negated
+							</label>
+						</div>
 						</div>
 						<button
 							hlmBtn

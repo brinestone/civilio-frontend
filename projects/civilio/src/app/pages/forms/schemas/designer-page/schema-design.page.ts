@@ -1,8 +1,9 @@
+import { CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import {
-	CdkDropList,
-	CdkDropListGroup
-} from '@angular/cdk/drag-drop';
-import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
+	AsyncPipe,
+	NgComponentOutlet,
+	NgTemplateOutlet
+} from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -10,28 +11,34 @@ import {
 	inject,
 	input,
 	linkedSignal,
-	resource,
 	signal,
 	Type
 } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FieldTree, form, submit } from '@angular/forms/signals';
 import { FormDesignerHeader } from '@app/components/form/schema';
-import { createFormItemContextInjector } from '@app/components/form/schema/items';
 import {
-	HasPendingChanges,
-	isGroupItem
-} from '@app/model/form';
-import { FormService2 } from '@app/services/form';
-import { FormItemDefinition, FormItemField, FormItemGroup } from '@civilio/sdk/models';
+	createFormItemContextInjector
+} from '@app/components/form/schema/items';
+import { HasPendingChanges, isGroupItem } from '@app/model/form';
+import { randomString } from '@app/util';
+import {
+	FormItemDefinition,
+	FormItemField,
+	FormItemGroup,
+	NewFormItemDefinition,
+	NewFormItemField
+} from '@civilio/sdk/models';
+import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { current, produce } from 'immer';
-import { difference, differenceWith, get, intersection, intersectionWith } from 'lodash';
+import { differenceWith, get, intersectionWith } from 'lodash';
 import { toast } from 'ngx-sonner';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import {
 	defaultFormDefinitionSchemaValue,
 	defaultFormItemDefinitionSchemaValue,
@@ -47,7 +54,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 @Component({
 	selector: 'cv-forms',
 	imports: [
-		HlmDropdownMenuImports,
+		HlmFieldGroup,
 		HlmAlertDialogImports,
 		NgTemplateOutlet,
 		CdkDropList,
@@ -73,17 +80,15 @@ export class SchemaDesignPage implements HasPendingChanges {
 	protected readonly formItemComponents = {
 		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
 	} as Record<string, Promise<Type<any>>>;
-	private readonly formService = inject(FormService2);
-	private readonly formDefinition = resource({
-		params: () => ({
-			slug: this.slug(),
-			version: this.formVersion()
-		}),
-		loader: async ({ params }) => {
-			if (!params.slug) return undefined;
-			return await this.formService.findFormDefinition(params.slug, params.version ?? undefined);
+	private readonly formService = inject(FormsService);
+	private readonly formDefinition = rxResource({
+		params: () => ({ slug: this.slug(), version: this.formVersion() }),
+		stream: ({ params }) => {
+			return !params.slug ? EMPTY : this.formService.findFormDefinitionByVersion(params.slug, {
+				version: params.version
+			});
 		}
-	});
+	})
 	private readonly formData = linkedSignal(() => {
 		const v = this.formDefinition.value();
 		if (v) return domainToStrictFormDefinition(v);
@@ -109,14 +114,13 @@ export class SchemaDesignPage implements HasPendingChanges {
 		allFields: this.fieldItems
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
-	protected readonly formNameDialogState = signal<BrnDialogState>('closed');
 	protected pendingChangesActionCallback?: (action: 'save' | 'stay' | 'discard') => void;
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
 		cb(item);
-		if (isGroupItem(item) && item.meta.fields.length > 0) {
-			for (const child of item.meta.fields) {
-				this.walkFormItemTree(child, cb);
+		if (isGroupItem(item) && item.config.fields.length > 0) {
+			for (const child of item.config.fields) {
+				this.walkFormItemTree(child as any, cb);
 			}
 		}
 	}
@@ -126,26 +130,30 @@ export class SchemaDesignPage implements HasPendingChanges {
 		const isRoot = (t: FormItemAddTarget): t is FieldTree<FormModel> => 'items' in t().value();
 		if (isGroup(target)) {
 			target().value.update(state => produce(state, draft => {
-				const path = `${current(draft).path}${pathSeparator}${current(draft).meta.fields.length}`;
-				const item = defaultFormItemDefinitionSchemaValue(path, 'field') as Strict<FormItemField>;
-				draft.meta.fields.push(item);
+				const path = `${current(draft).path}${pathSeparator}${current(draft).config.fields.length}`;
+				const item = defaultFormItemDefinitionSchemaValue(path, 'field') as Strict<NewFormItemField>;
+				draft.config.fields.push(item);
 			}));
 		} else if (isRoot(target)) {
 			target().value.update(state => produce(state, draft => {
 				const path = `${current(draft).items.length}`;
-				const item = defaultFormItemDefinitionSchemaValue(path, type);
-				draft.items.push(item);
+				const item = defaultFormItemDefinitionSchemaValue(path, type) as Strict<NewFormItemDefinition>;
+				draft.items.push(item as any);
 			}))
 		}
 	}
 
 	protected onRemoveFormItem(path: string, index: number) {
 		const segments = path.split(pathSeparator);
-		const target = (segments.length == 1 ? this.formModel.items : get(this.formModel.items, segments.slice(0, -1))) as FieldTree<unknown[]>;
+		const target = (segments.length == 1 ? this.formModel.items : get(this.formModel.items, segments.slice(0, -1))) as FieldTree<FieldTree<Strict<FormItemDefinition>>[]>;
 		if (!target) return;
 		target().value.update(state => produce(state, draft => {
+			// const path = current(draft)[index].path().value();
+			// const dependents = current(draft).filter((f,i) => f.relevance.logic().value().some(c => c.expressions.some(e => e.field == path)))
+			// const dependents = current(draft).filter((f) => f.relevance.logic().value().some(c => c.expressions.some(e => e.field == path)));
 			draft.splice(index, 1);
-		}))
+		}));
+		// TODO: remove dependent relevance expressions.
 	}
 
 	protected async onFormSubmit(event?: SubmitEvent) {
@@ -157,9 +165,12 @@ export class SchemaDesignPage implements HasPendingChanges {
 			const value = tree().value();
 			const pristine = this.formDefinition.value();
 			const comparator = (a: FormItemDefinition, b: FormItemDefinition) => {
-				const symbolA = (a as unknown as { Symbol(): Symbol }).Symbol()
-				const symbolB = (b as unknown as { Symbol(): Symbol }).Symbol();
-				return symbolA == symbolB
+				const [aSymbolProp] = Object.getOwnPropertySymbols(a);
+				const [bSymbolProp] = Object.getOwnPropertySymbols(b);
+
+				const symbolA = (a as any)[aSymbolProp]
+				const symbolB = (b as any)[bSymbolProp];
+				return symbolA == symbolB;
 			}
 			const removedItems = differenceWith(pristine!.items!, value.items, comparator).map(i => i.id!);
 			const addedItems = differenceWith(value.items, pristine!.items!, comparator);
@@ -168,19 +179,23 @@ export class SchemaDesignPage implements HasPendingChanges {
 				const pristineItem = pristine!.items![pristine!.items!.indexOf(updatedItems[index])];
 				return JSON.stringify(item) !== JSON.stringify(pristineItem);
 			});
-			try {
-				await this.formService.updateFormVersionDefinition({
-					addedItems, removedItems, updatedItems: changedItems
-				}, this.slug(), this.formVersion());
-			} catch (e) {
-				toast.error('Could not save changes', { description: (e as Error).message });
-			}
+			this.formService.updateFormVersionDefinition(this.slug(), this.formVersion(), {
+				addedItems, removedItems, updatedItems: changedItems
+			}).subscribe({
+				error: (e: Error) => {
+					toast.error('Could not save changes', { description: e.message })
+				},
+				complete: () => {
+					this.formDefinition.reload();
+				}
+			});
 		})
 	}
 
 	protected onFormDiscard() {
 
 	}
+
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
 		if (!this.formModel().dirty()) return false;
 		this.pendingChangesDialogState.set('open');

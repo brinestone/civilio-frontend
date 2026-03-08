@@ -6,26 +6,25 @@
 			class="max-h-full overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 		>
 			<div class="py-10 space-y-4 pl-2">
-				@let f = facilityInfo.value();
-				@if (!facilityInfo.isLoading() && f !=
-				null) {
+				<ng-container> @let f = facilityInfo.value(); </ng-container>
+				@if (!facilityInfo.isLoading() && !!f) {
 				<div class="flex items-start gap-3">
 					<div class="space-y-1">
 						<h3 class="font-extrabold line-clamp-1 text-ellipsis" hlmH3>
-							{{ f.facilityName }}
+							{{ f?.extraInfo?.[standardTags.FacilityName] }}
 						</h3>
 						<div class="inline-flex items-center gap-1">
-							@if (f.location) {
+							@if (f?.extraInfo?.[standardTags.FacilityLocation] ) {
 							<div class="flex gap-0.5 items-center">
 								<ng-icon name="lucideMapPin" />
-								<p class="text-muted-foreground text-sm">{{ f.location }}</p>
+								<p class="text-muted-foreground text-sm">{{ f?.extraInfo?.[standardTags.FacilityLocation] }}</p>
 							</div>
-							} @if (f.createdAt) {
+							} @if (f?.extraInfo?.[standardTags.CreationDate]) {
 							<ng-icon name="lucideDot" />
 							<div class="flex gap-0.5 items-center">
 								<ng-icon name="lucideCalendar" />
 								<p class="text-muted-foreground text-sm">
-									{{ f.createdAt | date:'dd/MM/yyyy' }}
+									{{ $any(f?.extraInfo?.[standardTags.CreationDate]) | date:'dd/MM/yyyy' }}
 								</p>
 							</div>
 							}
@@ -53,11 +52,11 @@
 							} }
 						</div>
 					</div>
-					@if (f.coords && !isSmallScreen()) {
+					@if (f?.extraInfo?.[standardTags.FacilityCoords] && !isSmallScreen()) {
 					<div>
 						<h4 hlmH4>{{ 'overview.map.title' | translate }}</h4>
 						<cv-map
-							[coords]="f.coords"
+							[coords]="$any(f?.extraInfo?.[standardTags.FacilityCoords])"
 							class="w-full lg:min-w-100 lg:min-h-50"
 						/>
 					</div>
@@ -165,8 +164,9 @@
 					<small class="text-muted-foreground">Index</small>
 					<small>{{ submissionIndex() }}</small>
 				</div>
-								<hlm-separator />
-				<a draggable="false"
+				<hlm-separator />
+				<a
+					draggable="false"
 					hlmBtn
 					routerLink="/submissions"
 					variant="outline"
@@ -179,12 +179,13 @@
 				<div class="flex items-center gap-2">
 					<div>
 						@if(canGoPrev()){
-						<a draggable="false"
+						<a
+							draggable="false"
 							hlmBtn
 							routerLink="/submissions"
 							variant="outline"
 							size="sm"
-							[routerLink]="['../..', neighboringRefs.value()?.[0], 'overview']"
+							[routerLink]="['../..', selectedVersion()?.prev, 'overview']"
 							[relativeTo]="route"
 							title="{{'submissions.title' | translate}}"
 						>
@@ -197,9 +198,10 @@
 					</div>
 					<div>
 						@if(canGoNext()){
-						<a draggable="false"
+						<a
+							draggable="false"
 							hlmBtn
-							[routerLink]="['../..', neighboringRefs.value()?.[1], 'overview']"
+							[routerLink]="['../..', selectedVersion()?.next, 'overview']"
 							[relativeTo]="route"
 							variant="outline"
 							size="sm"
@@ -218,7 +220,7 @@
 					<div class="flex flex-col w-full gap-2">
 						<!-- @if(abs.can('update', 'Submission')) { -->
 						<a
-							[queryParams]="{version: selectedVersion.value()}"
+							[queryParams]="{version: selectedVersion()?.tag}"
 							[relativeTo]="route"
 							[routerLink]="['..']"
 							class="flex w-full"
@@ -300,10 +302,7 @@
 	(closed)="deleteDialogState.set('closed')"
 	[state]="deleteDialogState()"
 >
-	<hlm-alert-dialog-content
-		*hlmAlertDialogPortal="let ctx"
-		class="max-w-125"
-	>
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx" class="max-w-125">
 		<hlm-alert-dialog-header>
 			<h2 class="flex items-baseline gap-2" hlmAlertDialogTitle>
 				<ng-icon name="lucideTrash2" />

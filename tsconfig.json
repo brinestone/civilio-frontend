@@ -25,10 +25,10 @@
         "./libs/sdk/api/*"
       ],
       "@civilio/sdk/models": [
-        "./libs/sdk/models/index.ts"
+        "./libs/sdk/models/index.zod.ts"
       ],
-      "@civilio/sdk": [
-        "./libs/sdk/civilioClient.ts"
+      "@civilio/sdk/*": [
+        "./projects/civilio/src/sdk/*"
       ],
       "@civilio/shared": [
         "./libs/shared/index.ts"

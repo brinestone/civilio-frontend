@@ -1,8 +1,8 @@
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, untracked } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
-import { BaseFieldItemMetaSchema, FieldItemMetaSchema, FieldTypeSchema } from '@app/model/form';
-import { FieldItemMeta } from '@civilio/sdk/models';
+import { FieldTypeSchema } from '@app/model/form';
+import { FieldItemConfig } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCalendar, lucideCalendarCheck, lucideCalendarRange, lucideCheck, lucideCheckSquare, lucideClock, lucideHash, lucideListChecks, lucideMapPin, lucideText, lucideTextCursorInput } from '@ng-icons/lucide';
@@ -16,6 +16,7 @@ import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import z from 'zod';
 import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
 
+const slugifier = z.string().trim().slugify().nullish().default('');
 @Component({
 	selector: 'cv-form-item-meta-config',
 	viewProviders: [
@@ -50,7 +51,7 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	templateUrl: './form-field-meta-config.html',
 	styleUrl: './form-field-meta-config.scss',
 })
-export class FormFieldMetaConfigComponent extends BaseMetaConfigComponent<FieldItemMeta> {
+export class FormFieldMetaConfigComponent extends BaseMetaConfigComponent<FieldItemConfig> {
 	protected readonly fieldItemTypes = FieldTypeSchema.options;
 	protected readonly fieldItemTypesMap = {
 		'boolean': { label: 'True/False', icon: 'lucideCheckSquare' },
@@ -81,10 +82,19 @@ export class FormFieldMetaConfigComponent extends BaseMetaConfigComponent<FieldI
 		'integer': import('../number/number.component').then(m => m.NumberComponent),
 		'geo-point': import('../geo-point/geo-point.component').then(m => m.GeoPointMetaComponent),
 	} as Record<z.infer<typeof FieldTypeSchema>, Promise<typeof BaseMetaConfigComponent>>;
-	protected onFieldTypeChanged(node: FieldTree<Strict<FieldItemMeta>>, newType: any) {
-		const baseState = BaseFieldItemMetaSchema.parse(node().value());
+	protected onFieldTypeChanged(node: FieldTree<Strict<FieldItemConfig>>, newType: any) {
+		const baseState = FieldItemConfig.parse(node().value());
 		const { defaultValue: _, ...baseWithoutDefault } = baseState;
-		const newState = FieldItemMetaSchema.parse({ ...baseWithoutDefault, type: newType });
-		node().setControlValue(newState as any);
+		const newState = FieldItemConfig.parse({ ...baseWithoutDefault, type: newType });
+		node().value.set(newState as any);
+	}
+	constructor() {
+		super();
+		effect(() => {
+			const meta = untracked(this.meta);
+			const title = meta.title().value();
+			const slug = title ? slugifier.parse(this.path() + ' ' + title)! : '';
+			meta.dataKey().value.set(slug.slice(0, 20) || null as any);
+		});
 	}
 }

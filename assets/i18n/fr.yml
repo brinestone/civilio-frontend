@@ -63,6 +63,7 @@ misc:
   health_area: Espace santé
   health_district: District de santé
   creation_date: Créé à
+  could_not_fetch_items: Impossible de récupérer les éléments de l'ensemble de données
   none: Aucun
   powered_by: Fourni par
   developed_by: Développé par
@@ -1697,7 +1698,8 @@ services:
 submissions:
   title: Soumissions de formulaires
   actions:
-    add_submission: Ajouter une soumission
+    add_submission: Créer
+    import: Importer
   new_submission:
     title: Nouvelle soumission
   context_menu:

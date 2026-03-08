@@ -15,12 +15,11 @@ import {
 	ElementRef,
 	HostListener,
 	inject,
-	resource,
 	signal,
 	untracked,
 	viewChildren
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { rxResource, toSignal } from "@angular/core/rxjs-interop";
 import {
 	AbstractControl,
 	FormArray,
@@ -30,9 +29,9 @@ import {
 } from "@angular/forms";
 import { HasPendingChanges } from "@app/model/form";
 import { ValuesPipe } from '@app/pipes';
-import { DatasetService } from '@app/services/dataset';
 import { debouncedAsyncValidator, randomString } from "@app/util";
-import { Dataset, DatasetItem } from '@civilio/sdk/models';
+import { DatasetItem, DatasetLookup } from '@civilio/sdk/models';
+import { DatasetsService } from '@civilio/sdk/services/datasets/datasets.service';
 import {
 	UpdateFormOptionsDataSetRequestSchema
 } from "@civilio/shared";
@@ -54,7 +53,6 @@ import {
 	lucideX
 } from "@ng-icons/lucide";
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Actions } from "@ngxs/store";
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
 import { BrnDialogState } from '@spartan-ng/brain/dialog';
 import { BrnSelectImports } from "@spartan-ng/brain/select";
@@ -70,25 +68,25 @@ import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from "@spartan-ng/helm/textarea";
 import { HlmH3 } from "@spartan-ng/helm/typography";
 import { toast } from "ngx-sonner";
-import { from, map, mergeMap, Observable, scan } from "rxjs";
+import { catchError, from, map, mergeMap, Observable, of, scan } from "rxjs";
 
 type ItemForm = FormGroup<{
 	isNew: FormControl<boolean>;
-	id: FormControl<Required<NonNullable<Dataset['items']>>[number]['id']>;
-	label: FormControl<Required<NonNullable<Dataset['items']>>[number]['label']>;
-	ordinal: FormControl<Required<NonNullable<Dataset['items']>>[number]['ordinal']>;
-	value: FormControl<Required<NonNullable<Dataset['items']>>[number]['value']>;
-	parentValue: FormControl<Required<NonNullable<Dataset['items']>>[number]['parentValue']>;
+	id: FormControl<Required<NonNullable<DatasetItem['id']>>>;
+	label: FormControl<Required<NonNullable<DatasetItem['label']>>>;
+	ordinal: FormControl<Required<NonNullable<DatasetItem['ordinal']>>>;
+	value: FormControl<Required<NonNullable<DatasetItem['value']>>>;
+	parentValue: FormControl<Required<NonNullable<DatasetItem['parentValue']>>>;
 	trackingKey: FormControl<string>;
 }>;
 
 type DatasetForm = FormGroup<{
 	data: FormGroup<{
-		id: FormControl<Dataset['id']>;
-		title: FormControl<Dataset['title']>;
-		key: FormControl<Dataset['key']>;
-		parentId: FormControl<Dataset['parentId']>;
-		description: FormControl<Dataset['description']>;
+		id: FormControl<DatasetLookup['id']>;
+		title: FormControl<DatasetLookup['title']>;
+		key: FormControl<DatasetLookup['key']>;
+		parentId: FormControl<DatasetLookup['parentId']>;
+		description: FormControl<DatasetLookup['description']>;
 		items: FormArray<ItemForm>;
 	}>;
 	meta: FormGroup<{
@@ -158,7 +156,7 @@ const requiredValidator = (control: AbstractControl) => {
 })
 export class DatasetEditorPage implements HasPendingChanges {
 	private expansionPanels = viewChildren<ElementRef<HTMLDivElement>>('expansionPanel');
-	private readonly datasetService = inject(DatasetService);
+	private readonly datasetService = inject(DatasetsService);
 	protected readonly isMac: boolean;
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly ts = inject(TranslateService);
@@ -168,12 +166,13 @@ export class DatasetEditorPage implements HasPendingChanges {
 	protected readonly lineDeletionDialogState = signal<BrnDialogState>('closed');
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
 
-	protected datasets = resource({
-		loader: async () => {
-			return await this.datasetService.findDatasets();
+	protected datasets = rxResource({
+		stream: () => {
+			return this.datasetService.lookupDatasets();
 		},
-		defaultValue: []
-	})
+		defaultValue: { totalRecords: 0, data: [] }
+	});
+	private readonly loadedDatasetItems = new Set<string>();
 	protected readonly hasExistingGroups = toSignal(this.form.controls.datasets.valueChanges.pipe(
 		map(gs => gs.some(g => g.meta?.isNew === false && g.data?.id))
 	), { initialValue: true });
@@ -203,10 +202,10 @@ export class DatasetEditorPage implements HasPendingChanges {
 					subscriber.complete();
 				} else {
 					this.savingChanges.set(true);
-					from(this.doSubmitChanges()).subscribe({
+					this.doSubmitChanges().subscribe({
 						error: (e: Error) => {
 							this.savingChanges.set(false);
-							toast.error(this.ts.instant('msg.error.title'), { description: e.message });
+							toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), { description: e.message });
 							subscriber.next(true);
 							subscriber.complete();
 						},
@@ -356,8 +355,9 @@ export class DatasetEditorPage implements HasPendingChanges {
 		this.cdr.markForCheck();
 	}
 
-	private async doDeleteExistingLine(id: string) {
-		return await this.datasetService.deleteDataset({ id });
+	private doDeleteExistingLine(id: string) {
+		// return await this.datasetService.deleteDataset({ id });
+		this.datasetService.deleteDatasetById(id).subscribe();
 	}
 
 	private datasetHasDependentDatasets(lineIndex: number) {
@@ -369,7 +369,7 @@ export class DatasetEditorPage implements HasPendingChanges {
 	}
 
 	private doResetForm() {
-		const datasets = untracked(this.datasets.value);
+		const datasets = untracked(this.datasets.value).data;
 
 		this.form.controls.datasets.clear({ emitEvent: false });
 		for (const group of datasets) {
@@ -405,7 +405,7 @@ export class DatasetEditorPage implements HasPendingChanges {
 		this.form.controls.datasets.at(index).controls.data.controls.key.setValue(str);
 	}
 
-	protected createGroupForm(dataset?: Dataset) {
+	protected createGroupForm(dataset?: DatasetLookup) {
 		const uniqueLabelsValidator = (control: AbstractControl<ItemForm['value'][]>) => {
 			const items = control.value;
 			if (items.length == 0) return null;
@@ -424,12 +424,14 @@ export class DatasetEditorPage implements HasPendingChanges {
 		}
 
 		const keyValidator = (ref?: string) => debouncedAsyncValidator<string>(300, async (key) => {
-			try {
-				const result = await this.datasetService.isKeyAvailable(key, ref);
-				return !result ? { uniqueKey: { message: 'settings.dataset.validation.unavailable_key' } } : null
-			} catch (e) {
-				return { networkError: { message: 'settings.dataset.validation.network_unavailable' } };
-			}
+			return this.datasetService.isDatasetKeyAvailable({
+				key, ref
+			}, { cache: 'only-if-cached' }).pipe(
+				map(({ available }) => available ? null : { uniqueKey: { message: 'settings.dataset.validation.unavailable_key' } }),
+				catchError(() => {
+					return of({ networkError: { message: 'settings.dataset.validation.network_unavailable' } });
+				})
+			).subscribe();
 		})
 
 		return new FormGroup({
@@ -442,10 +444,7 @@ export class DatasetEditorPage implements HasPendingChanges {
 					updateOn: 'change'
 				}),
 				description: new FormControl(dataset?.description),
-				items: new FormArray<ItemForm>((dataset?.items ?? []).map(i => this.createItemForm(i)) ?? [], [
-					uniqueLabelsValidator,
-					uniqueValuesValidator
-				])
+				items: new FormArray<ItemForm>([])
 			}),
 			meta: new FormGroup({
 				trackingKey: new FormControl(dataset?.id || randomString()),
@@ -455,22 +454,21 @@ export class DatasetEditorPage implements HasPendingChanges {
 		}) as DatasetForm;
 	}
 
-	protected async onFormSubmit() {
-		await this.doSubmitChanges();
+	protected onFormSubmit() {
+		this.doSubmitChanges().subscribe({
+			error: (e: Error) => {
+				toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), {
+					description: e.message
+				})
+			},
+			complete: () => this.datasets.reload()
+		});
 	}
 
-	private async doSubmitChanges() {
+	private doSubmitChanges() {
 		const modifiedGroups = this.form.controls.datasets.controls.filter(g => g.dirty).map(g => g.value);
 		const payload = UpdateFormOptionsDataSetRequestSchema.parse(modifiedGroups);
-		try {
-			await this.datasetService.saveDatasets(payload);
-			this.datasets.reload();
-		} catch (e) {
-			const message = e instanceof Error ? e.message : this.ts.instant('errors.unknown');
-			toast.error(this.ts.instant('settings.dataset.toasts.unsavable'), {
-				description: message
-			});
-		}
+		return this.datasetService.upsertDataset(payload as any);
 	}
 
 	protected onFormReset(event?: Event) {
@@ -488,8 +486,27 @@ export class DatasetEditorPage implements HasPendingChanges {
 	}
 
 	protected onSetParentId(id: string | null | undefined, lineIndex: number) {
-		this.form.controls.datasets.at(lineIndex).controls.data.controls.parentId.setValue(id);
+		this.form.controls.datasets.at(lineIndex).controls.data.controls.parentId.setValue(id ?? undefined);
 		this.cdr.markForCheck();
+	}
+
+	private loadDatasetItems(lineIndex: number) {
+		const fg = this.form.controls.datasets.at(lineIndex);
+		const { data } = fg.value;
+		if (this.loadedDatasetItems.has(data!.id!)) return;
+		this.datasetService.lookupDatasetItems(data!.id!, { size: 1000 }).pipe(
+			map(({ data }) => data)
+		).subscribe({
+			error: (e: Error) => toast.error(this.ts.instant('could_not_fetch_items'), { description: e.message }),
+			next: (items) => {
+				for (const item of items) {
+					fg.controls.data.controls.items.push(this.createItemForm(item))
+				}
+			},
+			complete: () => {
+				this.loadedDatasetItems.add(data!.id!);
+			}
+		})
 	}
 
 	protected onToggleExpanded({
@@ -505,6 +522,8 @@ export class DatasetEditorPage implements HasPendingChanges {
 			const expansion = fg.controls.meta.controls.expanded;
 			expansion.setValue(!expansion.value);
 		}
+		if (fg.value.meta?.isNew || fg.value.meta?.expanded) return;
+		this.loadDatasetItems(lineIndex);
 	}
 
 	protected onAddItemButtonClicked(lineIndex: number) {

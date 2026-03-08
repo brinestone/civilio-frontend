@@ -1,4 +1,4 @@
-import { EnvironmentProviders, inject, Injectable } from "@angular/core";
+import { EnvironmentProviders, Injectable } from "@angular/core";
 import { ValidationErrors } from "@angular/forms";
 import {
 	ColumnDefinition,
@@ -19,7 +19,6 @@ import {
 	TabularFieldSchema
 } from "@app/model/form";
 import { DeltaChangeEvent } from "@app/model/form/events";
-import { FORM_SERVICE } from "@app/services/form";
 import {
 	FieldKey,
 	FieldMapping,
@@ -57,7 +56,6 @@ import {
 } from "lodash";
 import {
 	concat,
-	concatMap,
 	EMPTY,
 	filter,
 	from,
@@ -69,7 +67,6 @@ import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
 	ActivateSection,
-	ChangesSaved,
 	DeactivateForm,
 	DeleteSubmission,
 	DiscardChanges,
@@ -91,7 +88,7 @@ import {
 	UpdateMappings,
 	UpdateRelevance,
 	UpdateSection,
-	UpdateValidity,
+	UpdateValidity
 } from "./actions";
 
 export type SectionForm = {
@@ -186,7 +183,6 @@ function splitChangePath(path: string) {
 	},
 })
 class FormDataState {
-	private readonly formService = inject(FORM_SERVICE);
 
 	@Action(ToggleApprovalStatus)
 	onToggleApprovalStatus(_: Context, {
@@ -194,16 +190,16 @@ class FormDataState {
 		index,
 		status
 	}: ToggleApprovalStatus) {
-		return from(this.formService.toggleApprovalStatus({
-			form,
-			index,
-			value: status
-		}))
+		// return from(this.formService.toggleApprovalStatus({
+		// 	form,
+		// 	index,
+		// 	value: status
+		// }))
 	}
 
 	@Action(DeleteSubmission)
 	onDeleteSubmission(_: Context, action: DeleteSubmission) {
-		return from(this.formService.deleteSubmission(action));
+		// return from(this.formService.deleteSubmission(action));
 	}
 
 	@Action(RevertToVersion)
@@ -214,14 +210,14 @@ class FormDataState {
 		customVersion
 	}: RevertToVersion) {
 		const targetVersion = ctx.getState().workingVersion;
-		if (!targetVersion) return throwError(() => new Error('Please specify a version to revert to'));
-		return from(this.formService.revertSubmissionVersion({
-			form,
-			index,
-			targetVersion,
-			changeNotes,
-			customVersion
-		}))
+		// if (!targetVersion) return throwError(() => new Error('Please specify a version to revert to'));
+		// return from(this.formService.revertSubmissionVersion({
+		// 	form,
+		// 	index,
+		// 	targetVersion,
+		// 	changeNotes,
+		// 	customVersion
+		// }))
 	}
 
 	@Action(SaveChanges)
@@ -233,26 +229,26 @@ class FormDataState {
 	}: SaveChanges) {
 		const deltas = this.extractDeltas(ctx, ctx.getState().schemas[form], index);
 		const { activeSections } = ctx.getState();
-		return from(this.formService.updateFormSubmission({
-			changeNotes,
-			form,
-			submissionIndex: index,
-			deltas,
-			parentVersion: ctx.getState().workingVersion,
-			customVersion
-		})).pipe(
-			tap(i => ctx.dispatch(new ChangesSaved(i, index === null || index === undefined || index === 'new'))),
-			tap(() => ctx.setState(patch({
-				undoStack: [],
-				redoStack: [],
-				activeSections: patch({
-					...Object.fromEntries(
-						entries(activeSections)
-							.filter(([_, { dirty }]) => dirty)
-							.map(([k, s]) => ([k, { ...s, dirty: false }])))
-				})
-			})))
-		);
+		// return from(this.formService.updateFormSubmission({
+		// 	changeNotes,
+		// 	form,
+		// 	submissionIndex: index,
+		// 	deltas,
+		// 	parentVersion: ctx.getState().workingVersion,
+		// 	customVersion
+		// })).pipe(
+		// 	tap(i => ctx.dispatch(new ChangesSaved(i, index === null || index === undefined || index === 'new'))),
+		// 	tap(() => ctx.setState(patch({
+		// 		undoStack: [],
+		// 		redoStack: [],
+		// 		activeSections: patch({
+		// 			...Object.fromEntries(
+		// 				entries(activeSections)
+		// 					.filter(([_, { dirty }]) => dirty)
+		// 					.map(([k, s]) => ([k, { ...s, dirty: false }])))
+		// 		})
+		// 	})))
+		// );
 	}
 
 	@Action(RecordDeltaChange, { cancelUncompleted: true })
@@ -461,14 +457,14 @@ class FormDataState {
 
 	@Action(InitVersioning)
 	onInitVersioning(ctx: Context, arg: InitVersioning) {
-		return from(this.formService.initializeSubmissionVersion(arg)).pipe(
-			concatMap((version) => {
-				if (version == null) {
-					console.log(`submission does not exist with index: ${ arg.index } in form ${ arg.form }`);
-				}
-				return EMPTY;
-			})
-		)
+		// return from(this.formService.initializeSubmissionVersion(arg)).pipe(
+		// 	concatMap((version) => {
+		// 		if (version == null) {
+		// 			console.log(`submission does not exist with index: ${ arg.index } in form ${ arg.form }`);
+		// 		}
+		// 		return EMPTY;
+		// 	})
+		// )
 	}
 
 	@Action(ActivateSection)
@@ -582,46 +578,46 @@ class FormDataState {
 		version
 	}: LoadSubmissionData) {
 		const schema = ctx.getState().schemas[form];
-		return from(this.formService.findSubmissionData({
-			form, index: Number(index), version
-		})).pipe(
-			tap((data) => {
-				if (!data) return;
-				console.log(data);
-				const parsedData = this.parseRawData(schema, data);
-				ctx.setState(
-					patch({
-						workingVersion: version ?? undefined,
-						rawData: patch({
-							...parsedData,
-						}),
-					}),
-				);
-				const sections = flattenSections(schema);
-				for (const section of sections) {
-					if (section.fields.length == 0) continue;
-					const formData = section.fields.reduce(
-						(acc, curr) => ({
-							...acc,
-							[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
-						}),
-						{} as typeof parsedData,
-					);
+		// return from(this.formService.findSubmissionData({
+		// 	form, index: Number(index), version
+		// })).pipe(
+		// 	tap((data) => {
+		// 		if (!data) return;
+		// 		console.log(data);
+		// 		const parsedData = this.parseRawData(schema, data);
+		// 		ctx.setState(
+		// 			patch({
+		// 				workingVersion: version ?? undefined,
+		// 				rawData: patch({
+		// 					...parsedData,
+		// 				}),
+		// 			}),
+		// 		);
+		// 		const sections = flattenSections(schema);
+		// 		for (const section of sections) {
+		// 			if (section.fields.length == 0) continue;
+		// 			const formData = section.fields.reduce(
+		// 				(acc, curr) => ({
+		// 					...acc,
+		// 					[extractFieldKey(curr.key)]: parsedData[extractFieldKey(curr.key)]
+		// 				}),
+		// 				{} as typeof parsedData,
+		// 			);
 
-					ctx.setState(
-						patch({
-							activeSections: patch({
-								[section.id]: patch({
-									model: formData,
-								}),
-							}),
-						}),
-					);
-				}
-				ctx.dispatch(new UpdateRelevance(form));
-				// setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
-			}),
-		);
+		// 			ctx.setState(
+		// 				patch({
+		// 					activeSections: patch({
+		// 						[section.id]: patch({
+		// 							model: formData,
+		// 						}),
+		// 					}),
+		// 				}),
+		// 			);
+		// 		}
+		// 		ctx.dispatch(new UpdateRelevance(form));
+		// 		// setTimeout(() => ctx.dispatch(new UpdateValidity(form)), 0);
+		// 	}),
+		// );
 	}
 
 	@Action(UpdateSection, { cancelUncompleted: true })
@@ -671,19 +667,19 @@ class FormDataState {
 
 	@Action(RemoveMapping)
 	onRemoveMapping(ctx: Context, arg: RemoveMapping) {
-		return from(this.formService.removeMapping(arg)).pipe(
-			tap((v) => {
-				const mappings = ctx.getState().mappings;
-				if (!mappings) return;
-				if (!v) return;
-				delete mappings[arg.form][arg.field];
-				ctx.setState(
-					patch({
-						mappings,
-					}),
-				);
-			}),
-		);
+		// return from(this.formService.removeMapping(arg)).pipe(
+		// 	tap((v) => {
+		// 		const mappings = ctx.getState().mappings;
+		// 		if (!mappings) return;
+		// 		if (!v) return;
+		// 		delete mappings[arg.form][arg.field];
+		// 		ctx.setState(
+		// 			patch({
+		// 				mappings,
+		// 			}),
+		// 		);
+		// 	}),
+		// );
 	}
 
 	@Action(SetFormType)
@@ -697,75 +693,75 @@ class FormDataState {
 
 	@Action(UpdateMappings)
 	onUpdateMappings(ctx: Context, { form, mappings }: UpdateMappings) {
-		return from(this.formService.updateFieldMappings(form, ...mappings)).pipe(
-			tap((result) => {
-				const obj = result.reduce((acc, curr) => {
-					return { ...acc, [curr.field]: curr };
-				}, {});
-				ctx.setState(
-					patch({
-						mappings: patch({
-							[form]: patch(obj),
-						}),
-					}),
-				);
-			}),
-		);
+		// return from(this.formService.updateFieldMappings(form, ...mappings)).pipe(
+		// 	tap((result) => {
+		// 		const obj = result.reduce((acc, curr) => {
+		// 			return { ...acc, [curr.field]: curr };
+		// 		}, {});
+		// 		ctx.setState(
+		// 			patch({
+		// 				mappings: patch({
+		// 					[form]: patch(obj),
+		// 				}),
+		// 			}),
+		// 		);
+		// 	}),
+		// );
 	}
 
 	@Action(LoadDbColumns)
 	onLoadDbColumns(ctx: Context, { form }: LoadDbColumns) {
-		if (ctx.getState().columns?.[form] !== undefined) {
-			return EMPTY;
-		}
-		return from(this.formService.loadDbColumnSpecsFor(form)).pipe(
-			tap((specs) =>
-				ctx.setState(
-					patch({
-						columns: patch({
-							[form]: specs,
-						}),
-					}),
-				),
-			),
-		);
+		// if (ctx.getState().columns?.[form] !== undefined) {
+		// 	return EMPTY;
+		// }
+		// return from(this.formService.loadDbColumnSpecsFor(form)).pipe(
+		// 	tap((specs) =>
+		// 		ctx.setState(
+		// 			patch({
+		// 				columns: patch({
+		// 					[form]: specs,
+		// 				}),
+		// 			}),
+		// 		),
+		// 	),
+		// );
 	}
 
 	@Action(LoadOptions)
 	onLoadOptions(ctx: Context, { form }: LoadOptions) {
-		if (ctx.getState().options?.[form] !== undefined) {
-			return EMPTY;
-		}
-		return from(this.formService.loadFormOptionsFor(form)).pipe(
-			tap((options) =>
-				ctx.setState(
-					patch({
-						options: patch({
-							[form]: options,
-						}),
-					}),
-				),
-			),
-		);
+		// if (ctx.getState().options?.[form] !== undefined) {
+		// 	return EMPTY;
+		// }
+		// return from(this.formService.loadFormOptionsFor(form)).pipe(
+		// 	tap((options) =>
+		// 		ctx.setState(
+		// 			patch({
+		// 				options: patch({
+		// 					[form]: options,
+		// 				}),
+		// 			}),
+		// 		),
+		// 	),
+		// );
 	}
 
 	@Action(LoadMappings)
 	onLoadMappings(ctx: Context, action: LoadMappings) {
-		return from(this.formService.findFieldMappings(action)).pipe(
-			tap((mappings) => {
-				for (const mapping of mappings) {
-					ctx.setState(
-						patch({
-							mappings: patch({
-								[action.form]: patch({
-									[mapping.field]: mapping,
-								}),
-							}),
-						}),
-					);
-				}
-			}),
-		);
+		// return from(this.formService.findFieldMappings(action)).pipe(
+		// 	tap((mappings) => {
+		// 		for (const mapping of mappings) {
+		// 			ctx.setState(
+		// 				patch({
+		// 					mappings: patch({
+		// 						[action.form]: patch({
+		// 							[mapping.field]: mapping,
+		// 						}),
+		// 					}),
+		// 				}),
+		// 			);
+		// 		}
+		// 	}),
+		// );
 	}
 
 	private extractDeltas(ctx: Context, formSchema: FormSchema, submissionIndex?: number | string) {
