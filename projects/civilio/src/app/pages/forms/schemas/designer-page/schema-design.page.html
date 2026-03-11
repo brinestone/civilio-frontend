@@ -1,32 +1,36 @@
 @if (!renderForm()) {
-	<ng-container [ngTemplateOutlet]="formTemplate"/>
+<ng-container [ngTemplateOutlet]="formTemplate" />
 } @else {
-	<ng-container [ngTemplateOutlet]="previewTemplate"/>
+<ng-container [ngTemplateOutlet]="previewTemplate" />
 }
 
 <ng-template #previewTemplate>
-	<ng-container [ngTemplateOutlet]="header"/>
+	<ng-container [ngTemplateOutlet]="header" />
 </ng-template>
 <ng-template #formTemplate>
-	<ng-container [ngTemplateOutlet]="header"/>
-	<form class="h-full block" (submit)="onFormSubmit($event)" novalidate>
+	<ng-container [ngTemplateOutlet]="header" />
+	<form
+		class="h-full block"
+		(reset)="onFormDiscard($event)"
+		(submit)="onFormSubmit($event)"
+		novalidate
+	>
 		<div class="container mx-auto py-9">
 			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-10">
 				@for (item of formModel.items; track item) {
-					<ng-container>
-						@let component = formItemComponents[item.type().value()];
-					</ng-container>
-					@if (component != null) {
-						<ng-container
-							[ngComponentOutlet]="component | async"
-							[ngComponentOutletInputs]="{
+				<ng-container>
+					@let component = formItemComponents[item.type().value()];
+				</ng-container>
+				@if (component != null) {
+				<ng-container
+					[ngComponentOutlet]="component | async"
+					[ngComponentOutletInputs]="{
 						node: item,
 						index: $index
 					}"
-							[ngComponentOutletInjector]="itemComponentInjector"
-						/>
-					}
-				}
+					[ngComponentOutletInjector]="itemComponentInjector"
+				/>
+				} }
 			</div>
 		</div>
 	</form>
@@ -40,6 +44,7 @@
 				(onDiscard)="onFormDiscard()"
 				(itemAdd)="addFormItem(formModel, $event)"
 				[(previewing)]="renderForm"
+
 			/>
 		</div>
 	</div>
@@ -65,7 +70,7 @@
 				hlmAlertDialogAction
 			>
 				@if (formModel().submitting()) {
-					<hlm-spinner/>
+				<hlm-spinner />
 				}
 				<span>Save and leave</span>
 			</button>

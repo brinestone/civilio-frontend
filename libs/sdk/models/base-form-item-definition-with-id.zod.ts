@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const baseFormItemDefinitionWithIdOnePathDefault = null;
+export const baseFormItemDefinitionWithIdOneTagsItemKeyDefault = null;
+export const baseFormItemDefinitionWithIdOneTagsItemValueDefault = null;
 export const baseFormItemDefinitionWithIdOneTagsDefault = [];
+export const baseFormItemDefinitionWithIdOneMetaTagDefault = null;
 export const baseFormItemDefinitionWithIdOneRelevanceEnabledDefault = true;
 export const baseFormItemDefinitionWithIdOneRelevanceOperatorDefault = `and`;
 export const baseFormItemDefinitionWithIdOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,8 +18,13 @@ export const baseFormItemDefinitionWithIdOneRelevanceLogicItemExpressionsItemOpe
 export const baseFormItemDefinitionWithIdOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const baseFormItemDefinitionWithIdOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const BaseFormItemDefinitionWithId = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(baseFormItemDefinitionWithIdOnePathDefault),
-  "tags": zod.array(zod.string()).default(baseFormItemDefinitionWithIdOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(baseFormItemDefinitionWithIdOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(baseFormItemDefinitionWithIdOneTagsItemValueDefault)
+})).default(baseFormItemDefinitionWithIdOneTagsDefault),
+  "metaTag": zod.string().nullish().default(baseFormItemDefinitionWithIdOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(baseFormItemDefinitionWithIdOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(baseFormItemDefinitionWithIdOneRelevanceOperatorDefault),
@@ -32,8 +40,9 @@ export const BaseFormItemDefinitionWithId = zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 }))
 
 export type BaseFormItemDefinitionWithId = zod.input<typeof BaseFormItemDefinitionWithId>;

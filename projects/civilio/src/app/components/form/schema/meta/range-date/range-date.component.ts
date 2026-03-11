@@ -4,7 +4,7 @@ import { DatePicker, DateRangePicker } from '@app/components';
 import { FieldError } from '@app/components/form';
 import { RangeDateFieldConfig } from '@civilio/sdk/models';
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-range-date-meta',
@@ -23,6 +23,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './range-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RangeDateMetaComponent extends BaseMetaConfigComponent<RangeDateFieldConfig> {
+export class RangeDateMetaComponent extends BaseFieldConfig<RangeDateFieldConfig> {
 
 }

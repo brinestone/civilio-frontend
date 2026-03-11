@@ -9,7 +9,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-multi-date-meta',
@@ -37,6 +37,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './multi-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiDateMetaComponent extends BaseMetaConfigComponent<MultiDateFieldConfig> {
+export class MultiDateMetaComponent extends BaseFieldConfig<MultiDateFieldConfig> {
 
 }

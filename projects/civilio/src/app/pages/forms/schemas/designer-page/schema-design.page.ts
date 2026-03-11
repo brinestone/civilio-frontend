@@ -4,10 +4,12 @@ import {
 	NgComponentOutlet,
 	NgTemplateOutlet
 } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
 	ChangeDetectionStrategy,
 	Component,
 	computed,
+	effect,
 	inject,
 	input,
 	linkedSignal,
@@ -16,18 +18,19 @@ import {
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FieldTree, form, submit } from '@angular/forms/signals';
+import { Router } from '@angular/router';
 import { FormDesignerHeader } from '@app/components/form/schema';
 import {
-	createFormItemContextInjector
+	createFormSchemaContextInjector
 } from '@app/components/form/schema/items';
 import { HasPendingChanges, isGroupItem } from '@app/model/form';
-import { randomString } from '@app/util';
 import {
 	FormItemDefinition,
 	FormItemField,
 	FormItemGroup,
 	NewFormItemDefinition,
-	NewFormItemField
+	NewFormItemField,
+	NewFormItemGroup
 } from '@civilio/sdk/models';
 import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
@@ -36,9 +39,9 @@ import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { current, produce } from 'immer';
-import { differenceWith, get, intersectionWith } from 'lodash';
+import { differenceWith, get, intersectionWith, remove } from 'lodash';
 import { toast } from 'ngx-sonner';
-import { EMPTY, Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import {
 	defaultFormDefinitionSchemaValue,
 	defaultFormItemDefinitionSchemaValue,
@@ -84,7 +87,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 	private readonly formDefinition = rxResource({
 		params: () => ({ slug: this.slug(), version: this.formVersion() }),
 		stream: ({ params }) => {
-			return !params.slug ? EMPTY : this.formService.findFormDefinitionByVersion(params.slug, {
+			return !params.slug ? of(undefined) : this.formService.findFormDefinitionByVersion(params.slug, {
 				version: params.version
 			});
 		}
@@ -109,7 +112,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 		}
 		return reg;
 	});
-	protected readonly itemComponentInjector = createFormItemContextInjector({
+	protected readonly itemComponentInjector = createFormSchemaContextInjector({
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
 		allFields: this.fieldItems
 	});
@@ -141,6 +144,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 				draft.items.push(item as any);
 			}))
 		}
+		this.computeItemPaths();
+		this.formModel().markAsDirty();
 	}
 
 	protected onRemoveFormItem(path: string, index: number) {
@@ -148,12 +153,46 @@ export class SchemaDesignPage implements HasPendingChanges {
 		const target = (segments.length == 1 ? this.formModel.items : get(this.formModel.items, segments.slice(0, -1))) as FieldTree<FieldTree<Strict<FormItemDefinition>>[]>;
 		if (!target) return;
 		target().value.update(state => produce(state, draft => {
-			// const path = current(draft)[index].path().value();
-			// const dependents = current(draft).filter((f,i) => f.relevance.logic().value().some(c => c.expressions.some(e => e.field == path)))
-			// const dependents = current(draft).filter((f) => f.relevance.logic().value().some(c => c.expressions.some(e => e.field == path)));
 			draft.splice(index, 1);
 		}));
-		// TODO: remove dependent relevance expressions.
+		this.removeDependentRelevanceExpressionsFor(path);
+		this.computeItemPaths();
+		this.formModel().markAsDirty();
+	}
+
+	private computeItemPaths() {
+		for (let i = 0; i < this.formModel.items.length; i++) {
+			const item = this.formModel.items[i];
+			const newPath = String(i);
+			if (item.type().value() == 'group') {
+				const config = item.config as unknown as FieldTree<Strict<FormItemGroup | NewFormItemGroup>['config']>;
+				for (let j = 0; j < config.fields.length; j++) {
+					const field = config.fields[j];
+					field.path().value.set([newPath, String(j)].join(pathSeparator));
+				}
+			}
+			item.path().value.set(newPath);
+		}
+	}
+
+	private removeDependentRelevanceExpressionsFor(path: string) {
+		for (const item of this.formModel.items) {
+			if (item.type().value() == 'group') {
+				const config = item.config as unknown as FieldTree<Strict<FormItemGroup | NewFormItemGroup>['config']>;
+				for (const field of config.fields) {
+					for (const logic of field.relevance.logic) {
+						logic().value.update(v => produce(v, draft => {
+							draft.expressions = remove(current(draft).expressions, e => e.field == path);
+						}))
+					}
+				}
+			}
+			for (const logic of item.relevance.logic) {
+				logic().value.update(v => produce(v, draft => {
+					draft.expressions = remove(current(draft).expressions, e => e.field == path);
+				}))
+			}
+		}
 	}
 
 	protected async onFormSubmit(event?: SubmitEvent) {
@@ -187,13 +226,18 @@ export class SchemaDesignPage implements HasPendingChanges {
 				},
 				complete: () => {
 					this.formDefinition.reload();
+					tree().reset(this.formData());
 				}
 			});
-		})
+		});
 	}
 
-	protected onFormDiscard() {
-
+	protected onFormDiscard(event?: Event) {
+		event?.preventDefault();
+		const value = this.formDefinition.value();
+		if (value) {
+			this.formModel().reset(domainToStrictFormDefinition(value));
+		}
 	}
 
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
@@ -220,5 +264,17 @@ export class SchemaDesignPage implements HasPendingChanges {
 				subscriber.complete();
 			}
 		})
+	}
+
+	constructor(router: Router) {
+		effect(() => {
+			const error = this.formDefinition.error();
+			const loadingFinished = !this.formDefinition.isLoading();
+			if (loadingFinished && error instanceof HttpErrorResponse && error.status == 404) {
+				router.navigate(['/schemas']).then(() => {
+					toast.warning('Not found', { description: 'Could not find the specified form version' })
+				})
+			}
+		});
 	}
 }

@@ -1,5 +1,17 @@
 <div class="flex justify-between items-center flex-wrap gap-3 sticky top-2">
-	<div>
+	<div class="flex items-center gap-2">
+		<button
+			(click)="onTogglePreviewButtonClicked()"
+			[disabled]="formState().submitting()"
+			class="cursor-pointer"
+			type="button"
+			hlmBtn
+			variant="outline"
+			size="sm"
+		>
+			<ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
+			<span> @if(previewing()) { Design } @else { Preview } </span>
+		</button>
 		@if(editable()) {
 		<div hlmButtonGroup>
 			@if(!previewing()) {
@@ -30,7 +42,7 @@
 		}
 	</div>
 	<div class="flex items-center gap-2">
-		@if(formState().dirty()) {
+		@if(formState().dirty() && !previewing()) {
 		<button
 			hlmBtn
 			size="sm"
@@ -44,9 +56,7 @@
 			} @else {
 			<ng-icon name="lucideSave" />
 			}
-			<span
-				>{{formState().submitting() ? 'Saving' : 'Save'}} changes</span
-			>
+			<span>{{formState().submitting() ? 'Saving' : 'Save'}} changes</span>
 		</button>
 		<button
 			(click)="onDiscard.emit()"
@@ -60,18 +70,6 @@
 			<span>Discard changes</span>
 		</button>
 		}
-		<button
-			(click)="onTogglePreviewButtonClicked()"
-			[disabled]="formState().submitting()"
-			class="cursor-pointer"
-			type="button"
-			hlmBtn
-			variant="outline"
-			size="sm"
-		>
-			<ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
-			<span> @if(previewing()) { Design } @else { Preview } </span>
-		</button>
 	</div>
 </div>
 <ng-template #itemTypesMenu>

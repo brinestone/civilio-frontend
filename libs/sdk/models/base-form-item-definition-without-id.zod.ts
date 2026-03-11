@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const baseFormItemDefinitionWithoutIdPathDefault = null;
+export const baseFormItemDefinitionWithoutIdTagsItemKeyDefault = null;
+export const baseFormItemDefinitionWithoutIdTagsItemValueDefault = null;
 export const baseFormItemDefinitionWithoutIdTagsDefault = [];
+export const baseFormItemDefinitionWithoutIdMetaTagDefault = null;
 export const baseFormItemDefinitionWithoutIdRelevanceEnabledDefault = true;
 export const baseFormItemDefinitionWithoutIdRelevanceOperatorDefault = `and`;
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,8 +18,13 @@ export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemOpe
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemValueDefault = null;
 export const BaseFormItemDefinitionWithoutId = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(baseFormItemDefinitionWithoutIdPathDefault),
-  "tags": zod.array(zod.string()).default(baseFormItemDefinitionWithoutIdTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(baseFormItemDefinitionWithoutIdTagsItemKeyDefault),
+  "value": zod.string().nullable().default(baseFormItemDefinitionWithoutIdTagsItemValueDefault)
+})).default(baseFormItemDefinitionWithoutIdTagsDefault),
+  "metaTag": zod.string().nullish().default(baseFormItemDefinitionWithoutIdMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(baseFormItemDefinitionWithoutIdRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(baseFormItemDefinitionWithoutIdRelevanceOperatorDefault),

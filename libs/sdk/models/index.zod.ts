@@ -78,6 +78,7 @@ export * from './simple-date-field-config.zod';
 export * from './submission-lookup.zod';
 export * from './submission-response.zod';
 export * from './submission-version-lookup.zod';
+export * from './tag.zod';
 export * from './text-field-config.zod';
 export * from './toggle-submission-approval-status-params.zod';
 export * from './update-form-definition-request.zod';

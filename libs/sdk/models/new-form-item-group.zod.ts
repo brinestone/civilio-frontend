@@ -7,15 +7,27 @@
 import { z as zod } from 'zod';
 
 export const newFormItemGroupOnePathDefault = null;
+export const newFormItemGroupOneTagsItemKeyDefault = null;
+export const newFormItemGroupOneTagsItemValueDefault = null;
 export const newFormItemGroupOneTagsDefault = [];
+export const newFormItemGroupOneMetaTagDefault = null;
 export const newFormItemGroupOneRelevanceEnabledDefault = true;
 export const newFormItemGroupOneRelevanceOperatorDefault = `and`;
 export const newFormItemGroupOneRelevanceLogicItemExpressionsItemFieldDefault = null;
 export const newFormItemGroupOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemGroupOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemGroupOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemGroupTwoConfigTitleDefault = null;
+export const newFormItemGroupTwoConfigDescriptionDefault = null;
+export const newFormItemGroupTwoConfigRepeatableDefault = true;
+export const newFormItemGroupTwoConfigDivisionCountDefault = 1;
+
+export const newFormItemGroupTwoConfigOrientationDefault = null;
 export const newFormItemGroupTwoConfigFieldsItemOnePathDefault = null;
+export const newFormItemGroupTwoConfigFieldsItemOneTagsItemKeyDefault = null;
+export const newFormItemGroupTwoConfigFieldsItemOneTagsItemValueDefault = null;
 export const newFormItemGroupTwoConfigFieldsItemOneTagsDefault = [];
+export const newFormItemGroupTwoConfigFieldsItemOneMetaTagDefault = null;
 export const newFormItemGroupTwoConfigFieldsItemOneRelevanceEnabledDefault = true;
 export const newFormItemGroupTwoConfigFieldsItemOneRelevanceOperatorDefault = `and`;
 export const newFormItemGroupTwoConfigFieldsItemOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -94,8 +106,13 @@ export const newFormItemGroupTwoConfigFieldsItemTwoConfigEightOneTwoMaxDefault =
 export const newFormItemGroupTwoConfigFieldsItemTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const newFormItemGroupTwoConfigFieldsDefault = [];
 export const NewFormItemGroup = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemGroupOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemGroupOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemGroupOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemGroupOneTagsItemValueDefault)
+})).default(newFormItemGroupOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemGroupOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemGroupOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemGroupOneRelevanceOperatorDefault),
@@ -112,9 +129,19 @@ export const NewFormItemGroup = zod.object({
 }).and(zod.object({
   "type": zod.enum(['group']),
   "config": zod.object({
+  "title": zod.string().nullable().default(newFormItemGroupTwoConfigTitleDefault),
+  "description": zod.string().nullish().default(newFormItemGroupTwoConfigDescriptionDefault),
+  "repeatable": zod.boolean().default(newFormItemGroupTwoConfigRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(newFormItemGroupTwoConfigDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).nullable().default(newFormItemGroupTwoConfigOrientationDefault),
   "fields": zod.array(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemGroupTwoConfigFieldsItemOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemGroupTwoConfigFieldsItemOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemGroupTwoConfigFieldsItemOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemGroupTwoConfigFieldsItemOneTagsItemValueDefault)
+})).default(newFormItemGroupTwoConfigFieldsItemOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemGroupTwoConfigFieldsItemOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemGroupTwoConfigFieldsItemOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemGroupTwoConfigFieldsItemOneRelevanceOperatorDefault),

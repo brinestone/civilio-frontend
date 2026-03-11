@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, model, output, Signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, model, output, Signal, Type } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideSettings, lucideX } from "@ng-icons/lucide";
 import { HlmButton } from "@spartan-ng/helm/button";
@@ -7,7 +7,8 @@ import { HlmTabsImports } from "@spartan-ng/helm/tabs";
 export type ConfigTab = {
 	label: string;
 	value: string;
-	hidden?: Signal<boolean>
+	hidden?: Signal<boolean>;
+	// loader: () => Promise<Type<any>>;
 	icon?: string;
 }
 

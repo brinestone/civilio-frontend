@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const newFormItemSeparatorOnePathDefault = null;
+export const newFormItemSeparatorOneTagsItemKeyDefault = null;
+export const newFormItemSeparatorOneTagsItemValueDefault = null;
 export const newFormItemSeparatorOneTagsDefault = [];
+export const newFormItemSeparatorOneMetaTagDefault = null;
 export const newFormItemSeparatorOneRelevanceEnabledDefault = true;
 export const newFormItemSeparatorOneRelevanceOperatorDefault = `and`;
 export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -16,8 +19,13 @@ export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemNegatedDefa
 export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const newFormItemSeparatorTwoConfigOrientationDefault = `vertical`;
 export const NewFormItemSeparator = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemSeparatorOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemSeparatorOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemSeparatorOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemSeparatorOneTagsItemValueDefault)
+})).default(newFormItemSeparatorOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemSeparatorOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemSeparatorOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemSeparatorOneRelevanceOperatorDefault),

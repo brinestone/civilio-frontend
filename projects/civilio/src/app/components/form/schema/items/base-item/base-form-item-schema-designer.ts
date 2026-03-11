@@ -2,9 +2,9 @@ import { BooleanInput } from "@angular/cdk/coercion";
 import { CdkDrag, CdkDragPlaceholder } from "@angular/cdk/drag-drop";
 import { booleanAttribute, ChangeDetectionStrategy, Component, InjectionToken, input, InputSignal, isDevMode, model, output } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { FormItemDefinition } from "@civilio/sdk/models";
+import { FormItemDefinition, FormItemField, NewFormItemDefinition, NewFormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
-import { injectFormItemContext } from "..";
+import { createFormItemSchemaContextInjector, injectFormSchemaContext } from "..";
 
 @Component({
 	selector: 'base-form-item',
@@ -25,11 +25,15 @@ import { injectFormItemContext } from "..";
 	},
 	styleUrl: './base-form-item-schema-designer.scss'
 })
-export abstract class BaseFormItemSchemaDesigner<T extends FormItemDefinition> {
-	abstract node: InputSignal<FieldTree<Strict<T>>>;
+export class BaseFormItemSchemaDesigner<T extends FormItemDefinition | NewFormItemDefinition> {
+	readonly node = input.required<FieldTree<Strict<T>>>();
 	readonly index = input.required<number>();
 	readonly expanded = model<boolean>(isDevMode())
 	readonly editing = model<boolean>(true);
 	readonly showDebug = input<boolean, BooleanInput>(isDevMode(), { transform: booleanAttribute });
-	protected readonly context = injectFormItemContext();
+	protected readonly context = injectFormSchemaContext();
+	protected readonly sectionInjector = createFormItemSchemaContextInjector<T>({
+		fieldTree: this.node,
+		index: this.index
+	})
 }

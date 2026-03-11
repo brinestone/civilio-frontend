@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const newFormItemImageOnePathDefault = null;
+export const newFormItemImageOneTagsItemKeyDefault = null;
+export const newFormItemImageOneTagsItemValueDefault = null;
 export const newFormItemImageOneTagsDefault = [];
+export const newFormItemImageOneMetaTagDefault = null;
 export const newFormItemImageOneRelevanceEnabledDefault = true;
 export const newFormItemImageOneRelevanceOperatorDefault = `and`;
 export const newFormItemImageOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -22,8 +25,13 @@ export const newFormItemImageTwoConfigHeightDefault = null;
 export const newFormItemImageTwoConfigAspectRatioDefault = null;
 export const newFormItemImageTwoConfigFilterDefault = null;
 export const NewFormItemImage = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemImageOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemImageOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemImageOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemImageOneTagsItemValueDefault)
+})).default(newFormItemImageOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemImageOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemImageOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemImageOneRelevanceOperatorDefault),

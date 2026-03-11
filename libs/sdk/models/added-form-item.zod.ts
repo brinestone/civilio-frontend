@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const addedFormItemOneOneOneOnePathDefault = null;
+export const addedFormItemOneOneOneOneTagsItemKeyDefault = null;
+export const addedFormItemOneOneOneOneTagsItemValueDefault = null;
 export const addedFormItemOneOneOneOneTagsDefault = [];
+export const addedFormItemOneOneOneOneMetaTagDefault = null;
 export const addedFormItemOneOneOneOneRelevanceEnabledDefault = true;
 export const addedFormItemOneOneOneOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneOneOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,15 +18,27 @@ export const addedFormItemOneOneOneOneRelevanceLogicItemExpressionsItemOperatorD
 export const addedFormItemOneOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneOneTwoOnePathDefault = null;
+export const addedFormItemOneOneTwoOneTagsItemKeyDefault = null;
+export const addedFormItemOneOneTwoOneTagsItemValueDefault = null;
 export const addedFormItemOneOneTwoOneTagsDefault = [];
+export const addedFormItemOneOneTwoOneMetaTagDefault = null;
 export const addedFormItemOneOneTwoOneRelevanceEnabledDefault = true;
 export const addedFormItemOneOneTwoOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneOneTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
 export const addedFormItemOneOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const addedFormItemOneOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const addedFormItemOneOneTwoTwoConfigTitleDefault = null;
+export const addedFormItemOneOneTwoTwoConfigDescriptionDefault = null;
+export const addedFormItemOneOneTwoTwoConfigRepeatableDefault = true;
+export const addedFormItemOneOneTwoTwoConfigDivisionCountDefault = 1;
+
+export const addedFormItemOneOneTwoTwoConfigOrientationDefault = null;
 export const addedFormItemOneOneTwoTwoConfigFieldsItemOnePathDefault = null;
+export const addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsItemKeyDefault = null;
+export const addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsItemValueDefault = null;
 export const addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsDefault = [];
+export const addedFormItemOneOneTwoTwoConfigFieldsItemOneMetaTagDefault = null;
 export const addedFormItemOneOneTwoTwoConfigFieldsItemOneRelevanceEnabledDefault = true;
 export const addedFormItemOneOneTwoTwoConfigFieldsItemOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneOneTwoTwoConfigFieldsItemOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -102,7 +117,10 @@ export const addedFormItemOneOneTwoTwoConfigFieldsItemTwoConfigEightOneTwoMaxDef
 export const addedFormItemOneOneTwoTwoConfigFieldsItemTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const addedFormItemOneOneTwoTwoConfigFieldsDefault = [];
 export const addedFormItemOneTwoOneOnePathDefault = null;
+export const addedFormItemOneTwoOneOneTagsItemKeyDefault = null;
+export const addedFormItemOneTwoOneOneTagsItemValueDefault = null;
 export const addedFormItemOneTwoOneOneTagsDefault = [];
+export const addedFormItemOneTwoOneOneMetaTagDefault = null;
 export const addedFormItemOneTwoOneOneRelevanceEnabledDefault = true;
 export const addedFormItemOneTwoOneOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneTwoOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -110,7 +128,10 @@ export const addedFormItemOneTwoOneOneRelevanceLogicItemExpressionsItemOperatorD
 export const addedFormItemOneTwoOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneTwoOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneTwoTwoOnePathDefault = null;
+export const addedFormItemOneTwoTwoOneTagsItemKeyDefault = null;
+export const addedFormItemOneTwoTwoOneTagsItemValueDefault = null;
 export const addedFormItemOneTwoTwoOneTagsDefault = [];
+export const addedFormItemOneTwoTwoOneMetaTagDefault = null;
 export const addedFormItemOneTwoTwoOneRelevanceEnabledDefault = true;
 export const addedFormItemOneTwoTwoOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -119,7 +140,10 @@ export const addedFormItemOneTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDe
 export const addedFormItemOneTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneTwoTwoTwoConfigFontSizeDefault = 13;
 export const addedFormItemOneThreeOneOnePathDefault = null;
+export const addedFormItemOneThreeOneOneTagsItemKeyDefault = null;
+export const addedFormItemOneThreeOneOneTagsItemValueDefault = null;
 export const addedFormItemOneThreeOneOneTagsDefault = [];
+export const addedFormItemOneThreeOneOneMetaTagDefault = null;
 export const addedFormItemOneThreeOneOneRelevanceEnabledDefault = true;
 export const addedFormItemOneThreeOneOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneThreeOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -127,7 +151,10 @@ export const addedFormItemOneThreeOneOneRelevanceLogicItemExpressionsItemOperato
 export const addedFormItemOneThreeOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneThreeOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneThreeTwoOnePathDefault = null;
+export const addedFormItemOneThreeTwoOneTagsItemKeyDefault = null;
+export const addedFormItemOneThreeTwoOneTagsItemValueDefault = null;
 export const addedFormItemOneThreeTwoOneTagsDefault = [];
+export const addedFormItemOneThreeTwoOneMetaTagDefault = null;
 export const addedFormItemOneThreeTwoOneRelevanceEnabledDefault = true;
 export const addedFormItemOneThreeTwoOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneThreeTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -205,7 +232,10 @@ export const addedFormItemOneThreeTwoTwoConfigEightOneTwoMinDefault = null;
 export const addedFormItemOneThreeTwoTwoConfigEightOneTwoMaxDefault = null;
 export const addedFormItemOneThreeTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const addedFormItemOneFourOneOnePathDefault = null;
+export const addedFormItemOneFourOneOneTagsItemKeyDefault = null;
+export const addedFormItemOneFourOneOneTagsItemValueDefault = null;
 export const addedFormItemOneFourOneOneTagsDefault = [];
+export const addedFormItemOneFourOneOneMetaTagDefault = null;
 export const addedFormItemOneFourOneOneRelevanceEnabledDefault = true;
 export const addedFormItemOneFourOneOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneFourOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -213,7 +243,10 @@ export const addedFormItemOneFourOneOneRelevanceLogicItemExpressionsItemOperator
 export const addedFormItemOneFourOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneFourOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneFourTwoOnePathDefault = null;
+export const addedFormItemOneFourTwoOneTagsItemKeyDefault = null;
+export const addedFormItemOneFourTwoOneTagsItemValueDefault = null;
 export const addedFormItemOneFourTwoOneTagsDefault = [];
+export const addedFormItemOneFourTwoOneMetaTagDefault = null;
 export const addedFormItemOneFourTwoOneRelevanceEnabledDefault = true;
 export const addedFormItemOneFourTwoOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneFourTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -228,7 +261,10 @@ export const addedFormItemOneFourTwoTwoConfigHeightDefault = null;
 export const addedFormItemOneFourTwoTwoConfigAspectRatioDefault = null;
 export const addedFormItemOneFourTwoTwoConfigFilterDefault = null;
 export const addedFormItemOneFiveOneOnePathDefault = null;
+export const addedFormItemOneFiveOneOneTagsItemKeyDefault = null;
+export const addedFormItemOneFiveOneOneTagsItemValueDefault = null;
 export const addedFormItemOneFiveOneOneTagsDefault = [];
+export const addedFormItemOneFiveOneOneMetaTagDefault = null;
 export const addedFormItemOneFiveOneOneRelevanceEnabledDefault = true;
 export const addedFormItemOneFiveOneOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneFiveOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -236,7 +272,10 @@ export const addedFormItemOneFiveOneOneRelevanceLogicItemExpressionsItemOperator
 export const addedFormItemOneFiveOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const addedFormItemOneFiveOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneFiveTwoOnePathDefault = null;
+export const addedFormItemOneFiveTwoOneTagsItemKeyDefault = null;
+export const addedFormItemOneFiveTwoOneTagsItemValueDefault = null;
 export const addedFormItemOneFiveTwoOneTagsDefault = [];
+export const addedFormItemOneFiveTwoOneMetaTagDefault = null;
 export const addedFormItemOneFiveTwoOneRelevanceEnabledDefault = true;
 export const addedFormItemOneFiveTwoOneRelevanceOperatorDefault = `and`;
 export const addedFormItemOneFiveTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -245,8 +284,13 @@ export const addedFormItemOneFiveTwoOneRelevanceLogicItemExpressionsItemNegatedD
 export const addedFormItemOneFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const addedFormItemOneFiveTwoTwoConfigOrientationDefault = `vertical`;
 export const AddedFormItem = zod.union([zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneOneOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneOneOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneOneOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneOneOneOneTagsItemValueDefault)
+})).default(addedFormItemOneOneOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneOneOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneOneOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneOneOneOneRelevanceOperatorDefault),
@@ -262,11 +306,17 @@ export const AddedFormItem = zod.union([zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneOneTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneOneTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneOneTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneOneTwoOneTagsItemValueDefault)
+})).default(addedFormItemOneOneTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneOneTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneOneTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneOneTwoOneRelevanceOperatorDefault),
@@ -283,9 +333,19 @@ export const AddedFormItem = zod.union([zod.object({
 }).and(zod.object({
   "type": zod.enum(['group']),
   "config": zod.object({
+  "title": zod.string().nullable().default(addedFormItemOneOneTwoTwoConfigTitleDefault),
+  "description": zod.string().nullish().default(addedFormItemOneOneTwoTwoConfigDescriptionDefault),
+  "repeatable": zod.boolean().default(addedFormItemOneOneTwoTwoConfigRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(addedFormItemOneOneTwoTwoConfigDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).nullable().default(addedFormItemOneOneTwoTwoConfigOrientationDefault),
   "fields": zod.array(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneOneTwoTwoConfigFieldsItemOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsItemValueDefault)
+})).default(addedFormItemOneOneTwoTwoConfigFieldsItemOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneOneTwoTwoConfigFieldsItemOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneOneTwoTwoConfigFieldsItemOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneOneTwoTwoConfigFieldsItemOneRelevanceOperatorDefault),
@@ -427,8 +487,13 @@ export const AddedFormItem = zod.union([zod.object({
 }))).and(zod.object({
   "type": zod.enum(['group'])
 })),zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneTwoOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneTwoOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneTwoOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneTwoOneOneTagsItemValueDefault)
+})).default(addedFormItemOneTwoOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneTwoOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneTwoOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneTwoOneOneRelevanceOperatorDefault),
@@ -444,11 +509,17 @@ export const AddedFormItem = zod.union([zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneTwoTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneTwoTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneTwoTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneTwoTwoOneTagsItemValueDefault)
+})).default(addedFormItemOneTwoTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneTwoTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneTwoTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneTwoTwoOneRelevanceOperatorDefault),
@@ -472,8 +543,13 @@ export const AddedFormItem = zod.union([zod.object({
 }))).and(zod.object({
   "type": zod.enum(['note'])
 })),zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneThreeOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneThreeOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneThreeOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneThreeOneOneTagsItemValueDefault)
+})).default(addedFormItemOneThreeOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneThreeOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneThreeOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneThreeOneOneRelevanceOperatorDefault),
@@ -489,11 +565,17 @@ export const AddedFormItem = zod.union([zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneThreeTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneThreeTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneThreeTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneThreeTwoOneTagsItemValueDefault)
+})).default(addedFormItemOneThreeTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneThreeTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneThreeTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneThreeTwoOneRelevanceOperatorDefault),
@@ -631,8 +713,13 @@ export const AddedFormItem = zod.union([zod.object({
 }))).and(zod.object({
   "type": zod.enum(['field'])
 })),zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneFourOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneFourOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneFourOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneFourOneOneTagsItemValueDefault)
+})).default(addedFormItemOneFourOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneFourOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneFourOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneFourOneOneRelevanceOperatorDefault),
@@ -648,11 +735,17 @@ export const AddedFormItem = zod.union([zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneFourTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneFourTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneFourTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneFourTwoOneTagsItemValueDefault)
+})).default(addedFormItemOneFourTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneFourTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneFourTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneFourTwoOneRelevanceOperatorDefault),
@@ -681,8 +774,13 @@ export const AddedFormItem = zod.union([zod.object({
 }))).and(zod.object({
   "type": zod.enum(['image'])
 })),zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneFiveOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneFiveOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneFiveOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneFiveOneOneTagsItemValueDefault)
+})).default(addedFormItemOneFiveOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneFiveOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneFiveOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneFiveOneOneRelevanceOperatorDefault),
@@ -698,11 +796,17 @@ export const AddedFormItem = zod.union([zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(addedFormItemOneFiveTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(addedFormItemOneFiveTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(addedFormItemOneFiveTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(addedFormItemOneFiveTwoOneTagsItemValueDefault)
+})).default(addedFormItemOneFiveTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(addedFormItemOneFiveTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(addedFormItemOneFiveTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(addedFormItemOneFiveTwoOneRelevanceOperatorDefault),

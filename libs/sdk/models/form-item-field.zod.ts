@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const formItemFieldOneOnePathDefault = null;
+export const formItemFieldOneOneTagsItemKeyDefault = null;
+export const formItemFieldOneOneTagsItemValueDefault = null;
 export const formItemFieldOneOneTagsDefault = [];
+export const formItemFieldOneOneMetaTagDefault = null;
 export const formItemFieldOneOneRelevanceEnabledDefault = true;
 export const formItemFieldOneOneRelevanceOperatorDefault = `and`;
 export const formItemFieldOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,7 +18,10 @@ export const formItemFieldOneOneRelevanceLogicItemExpressionsItemOperatorDefault
 export const formItemFieldOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemFieldOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const formItemFieldTwoOnePathDefault = null;
+export const formItemFieldTwoOneTagsItemKeyDefault = null;
+export const formItemFieldTwoOneTagsItemValueDefault = null;
 export const formItemFieldTwoOneTagsDefault = [];
+export const formItemFieldTwoOneMetaTagDefault = null;
 export const formItemFieldTwoOneRelevanceEnabledDefault = true;
 export const formItemFieldTwoOneRelevanceOperatorDefault = `and`;
 export const formItemFieldTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -93,8 +99,13 @@ export const formItemFieldTwoTwoConfigEightOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigEightOneTwoMaxDefault = null;
 export const formItemFieldTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const FormItemField = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemFieldOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemFieldOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemFieldOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemFieldOneOneTagsItemValueDefault)
+})).default(formItemFieldOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemFieldOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemFieldOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemFieldOneOneRelevanceOperatorDefault),
@@ -110,11 +121,17 @@ export const FormItemField = zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemFieldTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemFieldTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemFieldTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemFieldTwoOneTagsItemValueDefault)
+})).default(formItemFieldTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemFieldTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemFieldTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemFieldTwoOneRelevanceOperatorDefault),

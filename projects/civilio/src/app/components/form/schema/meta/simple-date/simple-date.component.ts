@@ -4,7 +4,7 @@ import { DatePicker } from '@app/components/date-picker/date-picker';
 import { FieldError } from '@app/components/form';
 import { SimpleDateFieldConfig } from '@civilio/sdk/models';
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-simple-date',
@@ -20,6 +20,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './simple-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SimpleDateComponent extends BaseMetaConfigComponent<SimpleDateFieldConfig> {
+export class SimpleDateComponent extends BaseFieldConfig<SimpleDateFieldConfig> {
 
 }

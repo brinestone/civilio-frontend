@@ -58,13 +58,7 @@
 	<ng-container>
 		@if(component) {
 		<hlm-field-separator />
-		<ng-container
-			[ngComponentOutlet]="component | async"
-			[ngComponentOutletInputs]="{
-				meta: meta(),
-				index: index()
-			}"
-		/>
+		<ng-container [ngComponentOutlet]="component | async" />
 		}
 	</ng-container>
 </div>

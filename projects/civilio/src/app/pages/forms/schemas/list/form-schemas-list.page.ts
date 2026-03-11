@@ -20,6 +20,7 @@ import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
+import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmH3 } from "@spartan-ng/helm/typography";
@@ -48,6 +49,7 @@ import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 		NgIcon,
 		FormField,
 		HlmTextarea,
+		HlmSkeleton,
 		HlmButton,
 		DatePipe,
 		HlmSeparator,
@@ -79,7 +81,7 @@ export class FormSchemasPage implements HasPendingChanges {
 		defaultValue: [],
 		stream: () => this.formService.lookupForms()
 	})
-	protected readonly formsAvailable = computed(() => this.forms.value().length > 0);
+	protected readonly formsAvailable = computed(() => this.forms.value().length > 0 && this.forms.status() == 'resolved');
 	private readonly formData = signal<NewFormData>(defaultFormData());
 	protected readonly newFormForm = form(this.formData, paths => {
 		required(paths.title, { message: 'This field is required' });

@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const newFormItemFieldOnePathDefault = null;
+export const newFormItemFieldOneTagsItemKeyDefault = null;
+export const newFormItemFieldOneTagsItemValueDefault = null;
 export const newFormItemFieldOneTagsDefault = [];
+export const newFormItemFieldOneMetaTagDefault = null;
 export const newFormItemFieldOneRelevanceEnabledDefault = true;
 export const newFormItemFieldOneRelevanceOperatorDefault = `and`;
 export const newFormItemFieldOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -85,8 +88,13 @@ export const newFormItemFieldTwoConfigEightOneTwoMinDefault = null;
 export const newFormItemFieldTwoConfigEightOneTwoMaxDefault = null;
 export const newFormItemFieldTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const NewFormItemField = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemFieldOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemFieldOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemFieldOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemFieldOneTagsItemValueDefault)
+})).default(newFormItemFieldOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemFieldOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemFieldOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemFieldOneRelevanceOperatorDefault),

@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const newFormItemNoteOnePathDefault = null;
+export const newFormItemNoteOneTagsItemKeyDefault = null;
+export const newFormItemNoteOneTagsItemValueDefault = null;
 export const newFormItemNoteOneTagsDefault = [];
+export const newFormItemNoteOneMetaTagDefault = null;
 export const newFormItemNoteOneRelevanceEnabledDefault = true;
 export const newFormItemNoteOneRelevanceOperatorDefault = `and`;
 export const newFormItemNoteOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -16,8 +19,13 @@ export const newFormItemNoteOneRelevanceLogicItemExpressionsItemNegatedDefault =
 export const newFormItemNoteOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const newFormItemNoteTwoConfigFontSizeDefault = 13;
 export const NewFormItemNote = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(newFormItemNoteOnePathDefault),
-  "tags": zod.array(zod.string()).default(newFormItemNoteOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(newFormItemNoteOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(newFormItemNoteOneTagsItemValueDefault)
+})).default(newFormItemNoteOneTagsDefault),
+  "metaTag": zod.string().nullish().default(newFormItemNoteOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(newFormItemNoteOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(newFormItemNoteOneRelevanceOperatorDefault),

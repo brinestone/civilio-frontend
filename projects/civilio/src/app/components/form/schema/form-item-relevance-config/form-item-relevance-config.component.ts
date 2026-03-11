@@ -1,16 +1,16 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, input, Signal, TemplateRef, untracked, viewChild } from '@angular/core';
-import { FieldTree, FormField } from '@angular/forms/signals';
+import { Component, computed, effect, Signal, TemplateRef, untracked, viewChild } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
 import { fieldTypeExpressionOperatorsMap, operatorsMap } from '@app/model/form';
-import { FormItemDefinition, RelevanceDefinition, RelevanceLogicExpression } from '@civilio/sdk/models';
-import { Strict } from '@civilio/shared';
+import { RelevanceLogicExpression } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideEllipsis, lucideGlobe, lucidePlus, lucideX } from '@ng-icons/lucide';
+import { lucideAlertOctagon, lucideEllipsis, lucideGlobe, lucidePlus, lucideX } from '@ng-icons/lucide';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmAlertImports } from '@spartan-ng/helm/alert';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
-import { HlmFieldGroup, HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -18,7 +18,7 @@ import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { produce } from 'immer';
 import { values } from 'lodash';
 import { FieldError } from '../../field-error/field-error.component';
-import { injectFormItemContext } from '../items';
+import { injectFormItemSchemaContext, injectFormSchemaContext } from '../items';
 
 @Component({
 	selector: 'cv-form-item-relevance-config',
@@ -27,6 +27,7 @@ import { injectFormItemContext } from '../items';
 			lucidePlus,
 			lucideEllipsis,
 			lucideX,
+			lucideAlertOctagon,
 			lucideGlobe,
 		})
 	],
@@ -35,6 +36,7 @@ import { injectFormItemContext } from '../items';
 		HlmSelectImports,
 		BrnSelectImports,
 		HlmFieldImports,
+		HlmAlertImports,
 		HlmButtonGroup,
 		HlmButton,
 		NgIcon,
@@ -45,18 +47,15 @@ import { injectFormItemContext } from '../items';
 		FormField,
 		HlmSwitch,
 	],
-	hostDirectives: [
-		HlmFieldGroup
-	],
 	templateUrl: './form-item-relevance-config.component.html',
 	styleUrl: './form-item-relevance-config.component.scss',
 })
 export class FormItemRelevanceConfig {
-	readonly relevance = input.required<FieldTree<Strict<RelevanceDefinition>>>();
-	readonly itemIndex = input.required<number>({ alias: 'index' });
-	readonly item = input.required<FieldTree<Strict<FormItemDefinition>>>();
-
-	private readonly context = injectFormItemContext();
+	private readonly formContext = injectFormSchemaContext();
+	private readonly ctx = injectFormItemSchemaContext();
+	protected readonly relevance = computed(() => this.ctx.fieldTree().relevance);
+	protected readonly path = computed(() => this.ctx.fieldTree().path().value());
+	protected readonly index = this.ctx.index;
 
 	private readonly booleanExpressionValueTemplate = viewChild.required<TemplateRef<any>>('booleanExpressionValueTemplate');
 	private readonly simpleDateExpressionValueTemplate = viewChild.required<TemplateRef<any>>('simpleDateExpressionValueTemplate');
@@ -69,7 +68,7 @@ export class FormItemRelevanceConfig {
 	protected readonly patternPresets = [
 		{ name: 'email', label: 'Email', icon: 'lucideAtSign', regex: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$` },
 		{ name: 'phone', label: 'Phone', icon: 'lucidePhone', regex: `^(\\+?237|\\(\\+?237\\))?6([5679]|[2])\\d{7}$` },
-		{ name: 'url', label: 'URL', icon: 'lucideGlobe', regex: `^((https?|ftp):\\/\\/)?((\\d{1,3}\\.){3}\\d{1,3}|(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6})\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$` }
+		{ name: 'url', label: 'URL', icon: 'lucideGlobe', regex: `^((https?|ftps?):\\/\\/)?((\\d{1,3}\\.){3}\\d{1,3}|(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6})\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)$` }
 	]
 	protected readonly expressionValueTemplates = {
 		'boolean': this.booleanExpressionValueTemplate,
@@ -84,9 +83,9 @@ export class FormItemRelevanceConfig {
 		'text': this.textExpressionValueTemplate,
 		'multiline': this.textExpressionValueTemplate,
 	} as Record<keyof typeof fieldTypeExpressionOperatorsMap, Signal<TemplateRef<any>>>;
-	protected readonly fieldMap = this.context.allFields;
+	protected readonly fieldMap = this.formContext.allFields;
 	protected readonly otherFieldsList = computed(() => {
-		return values(this.context.allFields()).filter(f => f.path().value() !== untracked(untracked(this.item).path().value));
+		return values(this.formContext.allFields()).filter(f => f.path().value() !== untracked(this.path));
 	});
 	protected readonly fieldTypeExpressionOperatorsMap = fieldTypeExpressionOperatorsMap;
 	protected readonly operatorsMap = operatorsMap;
@@ -111,5 +110,12 @@ export class FormItemRelevanceConfig {
 		this.relevance().logic[conditionIndex].expressions().value.update(expressions => produce(expressions, draft => {
 			draft.splice(expressionIndex, 1);
 		}));
+	}
+	constructor() {
+		effect(() => {
+			console.log(this.relevance().logic().value());
+			console.log(this.relevance().enabled().value());
+			console.log(this.relevance().operator().value());
+		})
 	}
 }

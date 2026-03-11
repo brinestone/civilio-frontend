@@ -4,7 +4,7 @@ import { FieldError } from '@app/components/form/field-error/field-error.compone
 import { NumberFieldConfig } from '@civilio/sdk/models';
 import { HlmFieldGroup, HlmFieldImports, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-number-meta',
@@ -22,7 +22,7 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NumberComponent extends BaseMetaConfigComponent<NumberFieldConfig> {
+export class NumberComponent extends BaseFieldConfig<NumberFieldConfig> {
 	protected readonly step = computed(() => {
 		return untracked(this.meta).type().value() == 'float' ? .1 : 1;
 	});

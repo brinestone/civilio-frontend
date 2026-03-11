@@ -3,7 +3,7 @@ import { FormField } from "@angular/forms/signals";
 import { GeoPointPicker } from '@app/components/geo-point-picker/geo-point-picker.component';
 import { GeoPointFieldConfig } from '@civilio/sdk/models';
 import { HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-geo-point-meta',
@@ -19,6 +19,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './geo-point.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeoPointMetaComponent extends BaseMetaConfigComponent<GeoPointFieldConfig> {
+export class GeoPointMetaComponent extends BaseFieldConfig<GeoPointFieldConfig> {
 
 }

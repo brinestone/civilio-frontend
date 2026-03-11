@@ -72,36 +72,14 @@
 	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
 	(close)="expanded.set(false)"
 >
-	@if(currentConfigTab() == 'meta') {
 	<ng-container>
-		@defer (when expanded()) {
-		<cv-form-item-meta-config
-			[path]="field.path().value()"
-			[meta]="field.config"
-			[index]="index()"
-		/>
-		}
+		@let component = tabContentComponents[currentConfigTab()] | async;
 	</ng-container>
-	} @if(currentConfigTab() == 'validation') {
-	<ng-container>
-		@defer (when expanded()) {
-		<cv-form-item-validation-config />
-		}
-	</ng-container>
-	} @if(currentConfigTab() == 'relevance') {
-	<ng-container>
-		@if(!field.relevance().hidden()) {
-		<ng-container>
-			@defer (when expanded()) {
-			<cv-form-item-relevance-config
-				[item]="field"
-				[index]="index()"
-				[relevance]="field.relevance"
-			/>
-			}
-		</ng-container>
-		}
-	</ng-container>
+	@if(component) {
+	<ng-container
+		[ngComponentOutlet]="component"
+		[ngComponentOutletInjector]="sectionInjector"
+	/>
 	}
 </cv-form-item-settings>
 }

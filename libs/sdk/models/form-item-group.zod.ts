@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const formItemGroupOneOnePathDefault = null;
+export const formItemGroupOneOneTagsItemKeyDefault = null;
+export const formItemGroupOneOneTagsItemValueDefault = null;
 export const formItemGroupOneOneTagsDefault = [];
+export const formItemGroupOneOneMetaTagDefault = null;
 export const formItemGroupOneOneRelevanceEnabledDefault = true;
 export const formItemGroupOneOneRelevanceOperatorDefault = `and`;
 export const formItemGroupOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,15 +18,27 @@ export const formItemGroupOneOneRelevanceLogicItemExpressionsItemOperatorDefault
 export const formItemGroupOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemGroupOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const formItemGroupTwoOnePathDefault = null;
+export const formItemGroupTwoOneTagsItemKeyDefault = null;
+export const formItemGroupTwoOneTagsItemValueDefault = null;
 export const formItemGroupTwoOneTagsDefault = [];
+export const formItemGroupTwoOneMetaTagDefault = null;
 export const formItemGroupTwoOneRelevanceEnabledDefault = true;
 export const formItemGroupTwoOneRelevanceOperatorDefault = `and`;
 export const formItemGroupTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
 export const formItemGroupTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemGroupTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemGroupTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemGroupTwoTwoConfigTitleDefault = null;
+export const formItemGroupTwoTwoConfigDescriptionDefault = null;
+export const formItemGroupTwoTwoConfigRepeatableDefault = true;
+export const formItemGroupTwoTwoConfigDivisionCountDefault = 1;
+
+export const formItemGroupTwoTwoConfigOrientationDefault = null;
 export const formItemGroupTwoTwoConfigFieldsItemOnePathDefault = null;
+export const formItemGroupTwoTwoConfigFieldsItemOneTagsItemKeyDefault = null;
+export const formItemGroupTwoTwoConfigFieldsItemOneTagsItemValueDefault = null;
 export const formItemGroupTwoTwoConfigFieldsItemOneTagsDefault = [];
+export const formItemGroupTwoTwoConfigFieldsItemOneMetaTagDefault = null;
 export const formItemGroupTwoTwoConfigFieldsItemOneRelevanceEnabledDefault = true;
 export const formItemGroupTwoTwoConfigFieldsItemOneRelevanceOperatorDefault = `and`;
 export const formItemGroupTwoTwoConfigFieldsItemOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -102,8 +117,13 @@ export const formItemGroupTwoTwoConfigFieldsItemTwoConfigEightOneTwoMaxDefault =
 export const formItemGroupTwoTwoConfigFieldsItemTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const formItemGroupTwoTwoConfigFieldsDefault = [];
 export const FormItemGroup = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemGroupOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemGroupOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemGroupOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemGroupOneOneTagsItemValueDefault)
+})).default(formItemGroupOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemGroupOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemGroupOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemGroupOneOneRelevanceOperatorDefault),
@@ -119,11 +139,17 @@ export const FormItemGroup = zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemGroupTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemGroupTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemGroupTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemGroupTwoOneTagsItemValueDefault)
+})).default(formItemGroupTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemGroupTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemGroupTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemGroupTwoOneRelevanceOperatorDefault),
@@ -140,9 +166,19 @@ export const FormItemGroup = zod.object({
 }).and(zod.object({
   "type": zod.enum(['group']),
   "config": zod.object({
+  "title": zod.string().nullable().default(formItemGroupTwoTwoConfigTitleDefault),
+  "description": zod.string().nullish().default(formItemGroupTwoTwoConfigDescriptionDefault),
+  "repeatable": zod.boolean().default(formItemGroupTwoTwoConfigRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(formItemGroupTwoTwoConfigDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).nullable().default(formItemGroupTwoTwoConfigOrientationDefault),
   "fields": zod.array(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemGroupTwoTwoConfigFieldsItemOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemGroupTwoTwoConfigFieldsItemOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemGroupTwoTwoConfigFieldsItemOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemGroupTwoTwoConfigFieldsItemOneTagsItemValueDefault)
+})).default(formItemGroupTwoTwoConfigFieldsItemOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemGroupTwoTwoConfigFieldsItemOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemGroupTwoTwoConfigFieldsItemOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemGroupTwoTwoConfigFieldsItemOneRelevanceOperatorDefault),

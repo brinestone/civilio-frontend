@@ -10,7 +10,7 @@ import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { current, produce } from 'immer';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-text-meta',
@@ -39,7 +39,7 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './text-meta.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TextMetaComponent extends BaseMetaConfigComponent<TextFieldConfig> {
+export class TextMetaComponent extends BaseFieldConfig<TextFieldConfig> {
 	protected readonly patternPresets = [
 		{ name: 'email', label: 'Email', icon: 'lucideAtSign', regex: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$` },
 		{ name: 'phone', label: 'Phone', icon: 'lucidePhone', regex: `^(\\+?237|\\(\\+?237\\))?6([5679]|[2])\\d{7}$` },
@@ -61,9 +61,6 @@ export class TextMetaComponent extends BaseMetaConfigComponent<TextFieldConfig> 
 	}
 	constructor() {
 		super();
-		effect(() => {
-			console.log(this.meta()().value());
-		})
 		effect(() => {
 			const readonly = untracked(this.meta).readonly().value();
 			if (readonly) {

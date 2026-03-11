@@ -7,7 +7,10 @@
 import { z as zod } from 'zod';
 
 export const formItemImageOneOnePathDefault = null;
+export const formItemImageOneOneTagsItemKeyDefault = null;
+export const formItemImageOneOneTagsItemValueDefault = null;
 export const formItemImageOneOneTagsDefault = [];
+export const formItemImageOneOneMetaTagDefault = null;
 export const formItemImageOneOneRelevanceEnabledDefault = true;
 export const formItemImageOneOneRelevanceOperatorDefault = `and`;
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -15,7 +18,10 @@ export const formItemImageOneOneRelevanceLogicItemExpressionsItemOperatorDefault
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const formItemImageTwoOnePathDefault = null;
+export const formItemImageTwoOneTagsItemKeyDefault = null;
+export const formItemImageTwoOneTagsItemValueDefault = null;
 export const formItemImageTwoOneTagsDefault = [];
+export const formItemImageTwoOneMetaTagDefault = null;
 export const formItemImageTwoOneRelevanceEnabledDefault = true;
 export const formItemImageTwoOneRelevanceOperatorDefault = `and`;
 export const formItemImageTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
@@ -30,8 +36,13 @@ export const formItemImageTwoTwoConfigHeightDefault = null;
 export const formItemImageTwoTwoConfigAspectRatioDefault = null;
 export const formItemImageTwoTwoConfigFilterDefault = null;
 export const FormItemImage = zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemImageOneOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemImageOneOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemImageOneOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemImageOneOneTagsItemValueDefault)
+})).default(formItemImageOneOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemImageOneOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemImageOneOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemImageOneOneRelevanceOperatorDefault),
@@ -47,11 +58,17 @@ export const FormItemImage = zod.object({
 })
 }).and(zod.object({
   "id": zod.uuid(),
-  "addedAt": zod.iso.datetime({}),
-  "updatedAt": zod.iso.datetime({})
+  "addedAt": zod.string(),
+  "updatedAt": zod.string(),
+  "itemId": zod.uuid()
 })).and(zod.object({
+  "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemImageTwoOnePathDefault),
-  "tags": zod.array(zod.string()).default(formItemImageTwoOneTagsDefault),
+  "tags": zod.array(zod.object({
+  "key": zod.string().nullable().default(formItemImageTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(formItemImageTwoOneTagsItemValueDefault)
+})).default(formItemImageTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(formItemImageTwoOneMetaTagDefault),
   "relevance": zod.object({
   "enabled": zod.boolean().default(formItemImageTwoOneRelevanceEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(formItemImageTwoOneRelevanceOperatorDefault),

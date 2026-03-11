@@ -6,7 +6,6 @@ import {
 	applyWhenValue,
 	debounce,
 	disabled,
-	FieldTree,
 	hidden,
 	max,
 	maxLength,
@@ -276,8 +275,19 @@ export function defineFormDefinitionFormSchema() {
 			hidden(itemPaths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(itemPaths.type)));
 			disabled(itemPaths.relevance.logic, ({ valueOf }) => valueOf(itemPaths.relevance.enabled) !== true);
 			disabled(itemPaths.relevance.operator, ({ valueOf }) => valueOf(itemPaths.relevance.enabled) !== true);
-			disabled(itemPaths.relevance, ({ valueOf }) => valueOf(paths.items).filter(i => i.type == 'field').length <= 1);
-		})
+			disabled(itemPaths.relevance, ({ valueOf }) => valueOf(paths.items).filter(i => i.type == 'field').length <= 1 ? 'There must be at least 1 other question in the form' : false, );
+			hidden(itemPaths.relevance.operator, ({ valueOf }) => valueOf(itemPaths.relevance.logic).length < 2);
+
+			applyEach(itemPaths.relevance.logic, conditionPaths => {
+				hidden(conditionPaths.operator, ({ valueOf }) => valueOf(conditionPaths.expressions).length < 2);
+			});
+			applyEach(itemPaths.tags, tagPaths => {
+				required(tagPaths.key, { message: 'The key is required' });
+				required(tagPaths.value, { message: 'The value is required' });
+				pattern(tagPaths.key, /^[a-zA-Z0-9_-]*$/, { message: 'Invalid format. Key must contain only letters, numbers, underscores or hyphens' })
+				// pattern(tagPaths.value, /^[a-zA-Z0-9_-]*$/, {message: 'Invalid format. Value must contain only letters, numbers, underscores or hyphens'})
+			});
+		});
 	}
 }
 
@@ -304,7 +314,7 @@ export function defaultFormDefinitionSchemaValue() {
 	return {
 		id: null as any,
 		parentId: null as any,
-		items: isDevMode() ? [defaultFormItemDefinitionSchemaValue('0', 'field')] : [], // TODO: Remove this in prod and make an empty array instead
+		items: [], // TODO: Remove this in prod and make an empty array instead
 	} as FormModel
 }
 

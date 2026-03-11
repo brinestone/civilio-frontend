@@ -12,6 +12,8 @@ import {
 } from "@civilio/shared";
 import z from "zod";
 
+// export const
+
 export const operatorsMap = {
 	in: { label: 'Contains', operandCount: 1 },
 	eq: { label: 'Equals', operandCount: 1 },
