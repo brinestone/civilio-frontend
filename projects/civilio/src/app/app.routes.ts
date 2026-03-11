@@ -1,15 +1,16 @@
 import { Routes } from '@angular/router';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
+import { provideFormStore } from '@app/store/form';
+import { provideDatasetSdk, provideFormsSdk, withDatasetSdk, withFormsSdk, withSubmissionsSdk } from '@civilio/sdk/providers';
 import { hasChangesGuard } from './guards/has-changes-guard';
-import { provideFormStore } from './store/form/data';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
 	{
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		providers: [provideFormStore()],
+		providers: [provideFormStore(withFormsSdk(), withSubmissionsSdk())],
 		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
@@ -24,6 +25,10 @@ export const routes: Routes = [
 		],
 		title: 'Form Designer',
 		path: 'schemas/:slug/edit/:version',
+		providers: [
+			provideFormsSdk(),
+			provideDatasetSdk()
+		],
 		canDeactivate: [hasChangesGuard],
 		loadComponent: () => import('./pages/forms/schemas/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
 	},
@@ -31,13 +36,13 @@ export const routes: Routes = [
 		path: 'schemas',
 		loadComponent: () => import('./pages/forms/schemas/list/form-schemas-list.page').then(m => m.FormSchemasPage),
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		providers: [provideFormStore()],
+		providers: [provideFormStore(withFormsSdk())],
 	},
 	{
 		path: 'forms',
 		title: 'forms.page_title',
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		providers: [provideFormStore()],
+		providers: [provideFormStore(withFormsSdk())],
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},
 	{

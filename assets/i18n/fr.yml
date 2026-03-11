@@ -63,6 +63,7 @@ misc:
   health_area: Espace santé
   health_district: District de santé
   creation_date: Créé à
+  could_not_fetch_items: Impossible de récupérer les éléments de l'ensemble de données
   none: Aucun
   powered_by: Fourni par
   developed_by: Développé par
@@ -804,8 +805,8 @@ fosa:
     recorded_on: Date
   form:
     filter: Filtre
-    title: Soumission PIED
-    page_title: Soumission : LE
+    title: Soumission FOSA
+    page_title: Soumission ::FOSA
     sections:
       respondent:
         title: Informations sur le répondant
@@ -1536,7 +1537,7 @@ chefferie:
       distance:
         title: Distance au centre d'état civil le plus proche
       fonction:
-        title: Fonction d'état civil
+        title: Fonction état civil
         description: Fonction d'état civil exercée par le chef ou un notable de la chefferie
         option:
           first: Oui, Officier de l'Etat Civil
@@ -1697,7 +1698,8 @@ services:
 submissions:
   title: Soumissions de formulaires
   actions:
-    add_submission: Ajouter une soumission
+    add_submission: Créer
+    import: Importer
   new_submission:
     title: Nouvelle soumission
   context_menu:

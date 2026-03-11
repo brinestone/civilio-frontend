@@ -9,23 +9,31 @@
 </ng-template>
 <ng-template #formTemplate>
 	<ng-container [ngTemplateOutlet]="header" />
-	<form class="h-full block" (submit)="onFormSubmit($event)" novalidate>
+	<form
+		class="h-full block"
+		(reset)="onFormDiscard($event)"
+		(submit)="onFormSubmit($event)"
+		novalidate
+	>
 		<div class="container mx-auto py-9">
 			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-10">
 				@for (item of formModel.items; track item) {
 				<ng-container>
 					@let component = formItemComponents[item.type().value()];
 				</ng-container>
-				@if(component != null) {
-				<ng-container
-					[ngComponentOutlet]="component | async"
-					[ngComponentOutletInputs]="{
+				<ng-container>
+					@if (component != null) {
+					<ng-container
+						[ngComponentOutlet]="component | async"
+						[ngComponentOutletInputs]="{
 						node: item,
 						index: $index
 					}"
-					[ngComponentOutletInjector]="itemComponentInjector"
-				/>
-				} }
+						[ngComponentOutletInjector]="itemComponentInjector"
+					/>
+					}
+				</ng-container>
+				}
 			</div>
 		</div>
 	</form>
@@ -63,7 +71,7 @@
 				class="cursor-pointer"
 				hlmAlertDialogAction
 			>
-				@if(formModel().submitting()) {
+				@if (formModel().submitting()) {
 				<hlm-spinner />
 				}
 				<span>Save and leave</span>

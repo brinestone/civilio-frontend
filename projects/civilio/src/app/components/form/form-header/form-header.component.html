@@ -34,7 +34,7 @@
 					"tmpl.autocomplete.empty_text" | translate
 				}}</hlm-autocomplete-empty>
 				<div hlmAutocompleteList>
-					@for (option of refSuggestions.value(); track option) {
+					@for (option of refSuggestions(); track option) {
 						<hlm-autocomplete-item [value]="option">{{
 							option
 						}}</hlm-autocomplete-item>

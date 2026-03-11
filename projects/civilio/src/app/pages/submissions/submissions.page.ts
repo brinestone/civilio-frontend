@@ -5,22 +5,23 @@ import {
 	inject,
 	Injector,
 	model,
-	OnInit,
-	resource,
 	signal
 } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { BadgeCell, DateCell, VersionCell } from '@app/components';
+import { DateCell } from '@app/components';
 import { ActionCell } from '@app/components/tabular-field/cells';
-import { FORM_SERVICE, FormService2 } from '@app/services/form';
 import { SetFormType } from '@app/store/form';
-import { lastFocusedFormType } from '@app/store/selectors';
 import { debounceSignal } from '@app/util';
-import { FormSubmission, FormType, FormTypeSchema } from '@civilio/shared';
+import { LookupFormSubmissions200 } from '@civilio/sdk/models';
+import { SubmissionsService } from '@civilio/sdk/services/submissions/submissions.service';
+import { FormType, FormTypeSchema } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideEye,
+	lucideFormInput,
+	lucideImport,
 	lucideInbox,
 	lucidePencil,
 	lucidePlus,
@@ -28,9 +29,11 @@ import {
 } from '@ng-icons/lucide';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Navigate } from '@ngxs/router-plugin';
-import { dispatch, select } from '@ngxs/store';
+import { dispatch } from '@ngxs/store';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmEmptyImports } from '@spartan-ng/helm/empty';
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';
@@ -50,6 +53,8 @@ import {
 			lucideInbox,
 			lucideRefreshCw,
 			lucidePencil,
+			lucideImport,
+			lucideFormInput,
 			lucidePlus,
 			lucideEye
 		})
@@ -64,6 +69,7 @@ import {
 		HlmTableImports,
 		HlmInput,
 		DecimalPipe,
+		HlmDropdownMenuImports,
 		TranslatePipe,
 		HlmEmptyImports,
 		RouterLink
@@ -74,36 +80,24 @@ import {
 	templateUrl: './submissions.page.html',
 	styleUrl: './submissions.page.scss'
 })
-export class SubmissionsPage implements OnInit {
+export class SubmissionsPage {
 	private navigate = dispatch(Navigate);
 	private setFormType = dispatch(SetFormType);
 
 	private readonly injector = inject(Injector);
-	private formService = inject(FORM_SERVICE);
-	private readonly f2 = inject(FormService2);
+	private submissionService = inject(SubmissionsService);
 	protected readonly formTypeOptions = FormTypeSchema.options
-	protected readonly formType = select(lastFocusedFormType);
 	protected readonly pagination = signal({ pageIndex: 0, pageSize: 100 });
 	protected readonly filter = model('');
 	private readonly filterQuery = debounceSignal(this.filter);
-	protected submissions = resource({
-		params: () => ({
-			filter: this.filterQuery()?.trim(),
-			form: this.formType(),
-			pagination: this.pagination()
-		}),
-		loader: async ({
-			params: {
-				form,
-				pagination: { pageIndex, pageSize },
-				filter
-			}
-		}) => {
-			if (!form) return { data: [], totalRecords: 0 };
-			return await this.formService.findFormSubmissions(form, pageIndex, pageSize, filter);
-		},
-		defaultValue: { data: [], totalRecords: 0 }
-	});
+	protected readonly submissions = rxResource({
+		defaultValue: { totalRecords: 0, data: [] },
+		params: () => ({ filter: this.filterQuery(), pagination: this.pagination() }),
+		stream: ({ params }) => {
+			return this.submissionService.lookupFormSubmissions({ limit: params.pagination.pageSize, page: params.pagination.pageIndex });
+		}
+	})
+	protected readonly totalRecords = computed(() => this.submissions.value().totalRecords ?? 0);
 	protected readonly currentRange = computed(() => [
 		this.pagination().pageIndex * this.pagination().pageSize,
 		this.pagination().pageIndex * this.pagination().pageSize + Math.min(this.submissions.value()?.data.length ?? 0, this.pagination().pageSize)
@@ -115,32 +109,12 @@ export class SubmissionsPage implements OnInit {
 		const { pageSize } = this.pagination();
 		return Math.ceil(totalRecords / pageSize);
 	});
-	private columnHelper = createColumnHelper<FormSubmission>();
+	private columnHelper = createColumnHelper<LookupFormSubmissions200['data'][number]>();
 	protected readonly columnConfig = [
-		{
-			accessorKey: 'validationStatus',
-			header: 'submissions.columns.validation_status.title',
-			cell: ({ getValue }: any) => flexRenderComponent(BadgeCell, {
-				injector: this.injector,
-				inputs: {
-					shouldTranslateText: true,
-					text: getValue() === 'validation_status_approved' ? 'submissions.columns.validation_status.options.approved' : 'submissions.columns.validation_status.options.unapproved',
-					variant: getValue() === 'validation_status_approved' ? 'default' : 'secondary'
-				}
-			})
-		},
-		{
-			accessorKey: 'index',
-			header: 'submissions.columns.index.title'
-		}, {
-			accessorKey: 'facilityName',
-			header: 'submissions.columns.facility_name.title'
-		},
-		this.columnHelper.accessor('validationCode', {
-			id: 'validationCode',
+		this.columnHelper.accessor('form', {
 			header: 'submissions.columns.validation_code.title'
 		}),
-		this.columnHelper.accessor('submissionTime', {
+		this.columnHelper.accessor('recordedAt', {
 			header: 'submissions.columns.submission_date.title',
 			cell: ({ getValue }) => flexRenderComponent(DateCell, {
 				inputs: {
@@ -148,24 +122,11 @@ export class SubmissionsPage implements OnInit {
 				}
 			})
 		}),
-		this.columnHelper.accessor('lastModifiedAt', {
+		this.columnHelper.accessor('lastUpdatedAt', {
 			header: 'submissions.columns.last_modified_at.title',
 			cell: ({ getValue }) => flexRenderComponent(DateCell, {
 				inputs: { date: getValue() ?? undefined }
 			})
-		}),
-		// this.columnHelper.accessor('lastModifiedBy', {
-		// 	header: 'submissions.columns.last_modified_by.title',
-		// }),
-		this.columnHelper.accessor('currentVersion', {
-			header: 'submissions.columns.version.title',
-			cell: ({ row }) => {
-				return flexRenderComponent(VersionCell, {
-					inputs: {
-						version: row.original.currentVersion ?? undefined
-					}
-				})
-			}
 		}),
 		this.columnHelper.display({
 			id: 'actions',
@@ -190,11 +151,11 @@ export class SubmissionsPage implements OnInit {
 					},
 					outputs: {
 						actionTriggered: ({ identifier }) => {
-							if (identifier == 'open') {
-								this.openSubmission(row.original.index, row.original.currentVersion, true);
-							} else if (identifier == 'view') {
-								this.openSubmission(row.original.index, row.original.currentVersion);
-							}
+							// if (identifier == 'open') {
+							// 	this.openSubmission(row.original.index, row.original.currentVersion, true);
+							// } else if (identifier == 'view') {
+							// 	this.openSubmission(row.original.index, row.original.currentVersion);
+							// }
 						},
 					}
 				})
@@ -203,29 +164,26 @@ export class SubmissionsPage implements OnInit {
 	];
 	protected readonly table = createAngularTable(() => {
 		return {
-			data: this.submissions.value()?.data ?? [],
+			data: this.submissions.value().data,
 			manualPagination: true,
-			rowCount: this.submissions.value()?.totalRecords ?? -1,
+			rowCount: this.submissions.value().totalRecords,
 			columns: this.columnConfig,
 			getCoreRowModel: getCoreRowModel(),
 			onPaginationChange: updater => updater instanceof Function ? this.pagination.update(updater) : this.pagination.set(updater),
 			initialState: {
-				pagination: this.pagination(),
+				pagination: this.pagination()
 			}
 		}
-	});
+	})
 
 	protected openSubmission(index: number, version: string | null, edit = false) {
-		const segments = ['/forms', this.formType(), index];
+		const segments = ['/forms', '', index]; // TODO: Update this and provide the form's slug instead
 		if (!edit) {
 			segments.push('overview')
 		}
 		this.navigate(segments, version ? { version } : undefined);
 	}
 
-	ngOnInit(): void {
-		this.f2.findFormSubmissions({}).then(v => console.log(v));
-	}
 
 	protected onFormTypeChanged(type: FormType) {
 		this.setFormType(type);
@@ -233,6 +191,6 @@ export class SubmissionsPage implements OnInit {
 	}
 
 	protected onNewSubmissionButtonClicked() {
-		this.navigate(['/forms', this.formType(), 'new']);
+		this.navigate(['/forms', '', 'new']); // TODO: Update this and provide the form's slug instead
 	}
 }

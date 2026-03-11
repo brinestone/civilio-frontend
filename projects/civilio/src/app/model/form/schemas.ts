@@ -1,5 +1,9 @@
 import { isDevMode } from "@angular/core";
-import { FormItemDefinition, FormItemField, FormItemGroup } from "@civilio/sdk/models";
+import {
+	FormItemDefinition,
+	FormItemGroup,
+	RelevanceLogicExpression, RelevanceLogicExpressionOperator
+} from "@civilio/sdk/models";
 import {
 	FieldKeySchema,
 	FormTypeSchema,
@@ -8,67 +12,82 @@ import {
 } from "@civilio/shared";
 import z from "zod";
 
-const logicOperators = {
-	gt: '>',
-	gte: '>=',
-	lt: '<',
-	lte: '<=',
-	not: '!',
-	truthy: '!!',
-	and: 'and',
-	or: 'or',
-	eq: '==',
-	ne: '!=',
-} as const;
+export const operatorsMap = {
+	in: { label: 'Contains', operandCount: 1 },
+	eq: { label: 'Equals', operandCount: 1 },
+	ne: { label: 'Not equal to', operandCount: 1 },
+	gt: { label: 'Greater than', operandCount: 1 },
+	lt: { label: 'Less than', operandCount: 1 },
+	lte: { label: 'Less than or equal to', operandCount: 1 },
+	gte: { label: 'Greater than or equal to', operandCount: 1 },
+	empty: { label: 'Is Empty', operandCount: 0 },
+	notEmpty: { label: 'Is not empty', operandCount: 0 },
+	between: { label: 'Is between', operandCount: 2 },
+	match: { label: 'Matches', operandCount: 1 },
+	isNull: { label: 'Has no value', operandCount: 0 },
+	isNotNull: { label: 'Has a value', operandCount: 0 },
+	checked: { label: 'Is Checked', operandCount: 0 },
+	unchecked: { label: 'Is Unchecked', operandCount: 0 },
+	selectedAny: { label: 'Contains any of', operandCount: 1 },
+	selectedAll: { label: 'Contains all of', operandCount: 1 },
+	noselection: { label: 'Has no selection', operandCount: 0 },
+	endsWith: { label: 'Ends with', operandCount: 1 },
+	startsWith: { label: 'Starts with', operandCount: 1 },
+	before: { label: 'Is before', operandCount: 1 },
+	after: { label: 'Is after', operandCount: 1 },
+	afterOrOn: { label: 'Is after or on', operandCount: 1 },
+	beforeOrOn: { label: 'Is before or on', operandCount: 1 },
+} as Record<RelevanceLogicExpressionOperator, {
+	label: string,
+	operandCount: number
+}>;
+export const fieldTypeExpressionOperatorsMap = {
+	'boolean': ['checked', 'unchecked'],
+	'date-time': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'date': ['between', 'before', 'after', 'afterOrOn', 'beforeOrOn', 'isNull'],
+	'multi-date': ['empty', 'in', 'between', 'before', 'after'],
+	'date-range': ['isNull', 'before', 'after'],
+	'single-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'multi-select': ['selectedAny', 'selectedAll', 'noselection'],
+	'float': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'integer': ['between', 'lt', 'gt', 'gte', 'lte', 'eq', 'ne', 'isNull'],
+	'geo-point': ['isNull', 'isNotNull'],
+	'multiline': ['eq', 'ne', 'in', 'empty', 'match', 'notEmpty', 'startsWith', 'endsWith'],
+	'text': ['eq', 'ne', 'in', 'empty', 'match', 'notEmpty', 'startsWith', 'endsWith'],
+} as Record<string, (keyof typeof operatorsMap)[]>;
 
-const mathOperators = {
-	add: '+',
-	minus: '-',
-	mult: '*',
-	div: '/',
-	mod: '%',
-	min: 'min',
-	max: 'max'
-} as const;
-
-const arrayOperators = {
-	in: 'in',
-	merge: 'merge',
-	len: 'length',
-	get: 'get'
-} as const;
-
+export const RelevanceLogicExpressionInputSchema = RelevanceLogicExpression.extend({
+	field: RelevanceLogicExpression.shape.field.nullish().default(null),
+	operator: RelevanceLogicExpression.shape.operator.nullish().default(null),
+	value: RelevanceLogicExpression.shape.value.default(null)
+})
+export type RelevanceLogicExpressionInput = z.input<typeof RelevanceLogicExpressionInputSchema>;
 export function isGroupItem(v: FormItemDefinition): v is FormItemGroup {
 	return v?.type === 'group';
 }
-export function isFieldItem(v: FormItemDefinition): v is FormItemField {
-	return v.type === 'field';
-}
-
-export const ArrayOperatorsSchema = z.enum(arrayOperators);
-export const MathOperatorsSchema = z.enum(mathOperators);
-export const LogicOperatorsSchema = z.enum(logicOperators);
 export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'date-range', 'multi-date', 'geo-point']);
 export const DateFieldTypesSchema = FieldTypeSchema.extract(['date', 'multi-date', 'date-range', 'date-time']);
-export const BaseFieldItemMetaSchema = z.object({
+export const BaseFieldItemConfigSchema = z.object({
 	required: z.boolean().nullish().default(true),
-	span: z.int().nullish().default(12),
+	dataKey: z.string().trim().nullish().default(null),
+	title: z.string().nullish().default(null),
+	description: z.string().nullish().default(null),
 	defaultValue: z.any().nullish().default(null),
 	readonly: z.boolean().nullish().default(false),
 });
 
-export const GeoPointFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const GeoPointFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['geo-point']),
 	default: z.object({
 		lat: z.coerce.number(),
 		long: z.coerce.number()
 	}).nullish().default(null)
 });
-export const BaseDateFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const BaseDateFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	min: z.coerce.number().nullish().default(null),
 	max: z.coerce.number().nullish().default(null),
 });
-export const SimpleDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+export const SimpleDateFieldItemConfigSchema = BaseDateFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['date', 'date-time']),
 	defaultValue: z.coerce.number().nullish().default(null)
 });
@@ -76,34 +95,34 @@ export const DateRangeSchema = z.object({
 	start: z.int().nullish().default(null),
 	end: z.int().nullish().default(null)
 });
-export const RangeDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+export const RangeDateFieldItemConfigSchema = BaseDateFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['date-range']),
 	defaultValue: DateRangeSchema.nullish().default(null)
 });
-export const MultiDateFieldItemMetaSchema = BaseDateFieldItemMetaSchema.extend({
+export const MultiDateFieldItemConfigSchema = BaseDateFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['multi-date']),
 	defaultValue: z.coerce.number().array().nullish().default(null),
 	minSelection: z.int().nullish().default(null),
 	maxSelection: z.int().nullish().default(null),
 })
-export const DateFieldItemMetaSchema = z.discriminatedUnion('type', [
-	SimpleDateFieldItemMetaSchema,
-	RangeDateFieldItemMetaSchema,
-	MultiDateFieldItemMetaSchema
+export const DateFieldItemConfigSchema = z.discriminatedUnion('type', [
+	SimpleDateFieldItemConfigSchema,
+	RangeDateFieldItemConfigSchema,
+	MultiDateFieldItemConfigSchema
 ])
-export const NumberFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const NumberFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	min: z.number().nullish().default(null),
 	max: z.number().nullish().default(null),
 	defaultValue: z.number().nullish().default(null),
 	type: FieldTypeSchema.extract(['integer', 'float'])
 });
-export const BooleanFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const BooleanFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['boolean']),
 	defaultValue: z.boolean().nullish().default(false),
 	renderAs: z.enum(['select', 'checkbox']).nullish().default('checkbox')
 });
 
-export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const SelectFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	type: FieldTypeSchema.extract(['single-select', 'multi-select']),
 	itemSourceRef: z.string().nullish().default(isDevMode() ? 'refs:dataset::aecbbee7b14a7b0324721bbcbb4359aaa796858fa92cbe01e32adbad35478f7b' : null),
 	defaultValue: z.any().nullish().default(null),
@@ -118,7 +137,7 @@ export const SelectFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 // export const AutocompleteSourceDefinitionSchema = z.object({
 // 	allowNewItems
 // })
-export const TextFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
+export const TextFieldItemConfigSchema = BaseFieldItemConfigSchema.extend({
 	defaultValue: z.string().nullish().default(null),
 	// autocomplete: AutocompleteSourceDefinitionSchema.nullish(),
 	pattern: z.string().nullish().default(null),
@@ -126,32 +145,35 @@ export const TextFieldItemMetaSchema = BaseFieldItemMetaSchema.extend({
 	maxlength: z.number().nullish().default(null),
 	type: FieldTypeSchema.extract(['text', 'multiline']),
 });
-export const FieldItemMetaSchema = z.discriminatedUnion('type', [
-	GeoPointFieldItemMetaSchema,
-	DateFieldItemMetaSchema,
-	NumberFieldItemMetaSchema,
-	BooleanFieldItemMetaSchema,
-	TextFieldItemMetaSchema,
-	SelectFieldItemMetaSchema
+export const FieldItemConfigSchema = z.discriminatedUnion('type', [
+	GeoPointFieldItemConfigSchema,
+	DateFieldItemConfigSchema,
+	NumberFieldItemConfigSchema,
+	BooleanFieldItemConfigSchema,
+	TextFieldItemConfigSchema,
+	SelectFieldItemConfigSchema
 ]);
-export const ImageItemMetaSchema = z.object({
+export const ImageItemConfigSchema = z.object({
 	aspectRatio: z.coerce.number().nullish().default(100),
 	caption: z.string().trim().nullish().default(null),
 	height: z.coerce.number().nullish().default(144),
 	width: z.coerce.number().nullish().default(142),
 	filter: z.enum(['shadow', 'blur', 'none']).nullish().default('none')
 })
-export const NoteItemMetaSchema = z.object({
+export const NoteItemConfigSchema = z.object({
 	fontSize: z.number().optional().default(13)
 });
-export const SeparatorItemMetaSchema = z.object({
+export const SeparatorItemConfigSchema = z.object({
 	orientation: z.enum(['vertical', 'horizontal']).nullish().default('horizontal')
 });
+export const GroupItemConfigSchema = z.object({
+	fields: z.any().array().nullish().default([])
+})
 export type FieldType = z.infer<typeof FieldTypeSchema>;
 export type DateFieldTypes = z.infer<typeof DateFieldTypesSchema>;
-export type FieldItemMeta = z.infer<typeof FieldItemMetaSchema>;
-export type DatefieldItemMeta = z.infer<typeof DateFieldItemMetaSchema>;
-// export type FormItemMetaOf<T = Strict<FormVersionDefinition>['items'][number]['type']> = T extends 'field' ? MetaWrapper<z.output<typeof FieldItemMetaSchema>> : T extends 'note' ? MetaWrapper<z.output<typeof NoteItemMetaSchema>> : never;
+export type FieldItemConfig = z.infer<typeof FieldItemConfigSchema>;
+export type DatefieldItemConfig = z.infer<typeof DateFieldItemConfigSchema>;
+// export type FormItemConfigOf<T = Strict<FormVersionDefinition>['items'][number]['type']> = T extends 'field' ? ConfigWrapper<z.output<typeof FieldItemConfigSchema>> : T extends 'note' ? ConfigWrapper<z.output<typeof NoteItemConfigSchema>> : never;
 
 const FieldValueBaseSchema = z.union([z.string(), z.number(), z.date(), z.boolean(), OptionSchema]);
 const FieldValueSchema = z.union([FieldValueBaseSchema, FieldValueBaseSchema.array()]);

@@ -208,7 +208,7 @@
 				>
 					<div class="flex gap-3 items-baseline">
 						@let optionLength =
-						groupCtrl.controls.data.controls.items.controls.length;
+						groupCtrl.controls.data.controls.items.controls.length || datasets.value().data[lineIndex].itemCount || 0;
 						<label class="block" hlmLabel
 							>{{ optionLength }} {{ 'settings.dataset.form.fields.items.title'
 							| translate }}{{ optionLength != 1 ? 's' : '' }}</label

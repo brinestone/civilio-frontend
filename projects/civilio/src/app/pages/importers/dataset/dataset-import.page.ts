@@ -1,10 +1,11 @@
 import { CdkListbox, CdkOption } from '@angular/cdk/listbox';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, output, resource, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, linkedSignal, output, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { applyWhenValue, disabled, form, FormField, hidden, submit, validate } from '@angular/forms/signals';
 import { CompactNumberPipe } from '@app/pipes';
-import { DatasetService } from '@app/services/dataset';
 import { debounceSignal } from '@app/util';
+import { DatasetsService } from '@civilio/sdk/services/datasets/datasets.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucideChevronRight, lucideListCheck, lucideSearch } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -17,6 +18,7 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmH4 } from "@spartan-ng/helm/typography";
+import { lastValueFrom, of } from 'rxjs';
 import { z } from 'zod';
 import { Importer, injectImportContext } from '..';
 
@@ -70,17 +72,18 @@ const FormModelSchema = z.object({
 export class DatasetImportPage implements Importer<string> {
 	readonly finished = output<string>();
 	private readonly ctx = injectImportContext<string>();
-	private readonly datasetService = inject(DatasetService);
+	private readonly datasetService = inject(DatasetsService);
 	protected readonly datasetFilter = signal('');
 	protected readonly datasetItemFilter = signal('')
 	private readonly debouncedDatasetFilter = debounceSignal(this.datasetFilter, debounceDuration);
 	private readonly debouncedDatasetItemFilter = debounceSignal(this.datasetItemFilter, debounceDuration)
-	protected readonly datasetRefs = resource({
+	protected readonly datasetRefs = rxResource({
+		defaultValue: { totalRecords: 0, data: [] },
 		params: () => ({
 			filter: this.debouncedDatasetFilter()
 		}),
-		loader: async ({ params }) => {
-			return await this.datasetService.lookupDatasets(params.filter || undefined, pagination.page, pagination.size);
+		stream: ({ params }) => {
+			return this.datasetService.lookupDatasets({ filter: params.filter || undefined, ...pagination }, { transferCache: true });
 		}
 	});
 	protected readonly formData = linkedSignal(() => {
@@ -89,14 +92,18 @@ export class DatasetImportPage implements Importer<string> {
 	protected readonly selectedDataset = computed(() => {
 		return this.formData().dataset[0];
 	})
-	protected readonly datasetItems = resource({
+	protected readonly datasetItems = rxResource({
+		defaultValue: { totalRecords: 0, data: [] },
 		params: () => ({
 			dataset: this.selectedDataset(),
 			filter: this.debouncedDatasetItemFilter()
 		}),
-		loader: async ({ params, previous }) => {
-			if (!params.dataset) return undefined;
-			return await this.datasetService.getDatasetItems(params.dataset, params.filter || undefined, pagination.page, pagination.size);
+		stream: ({ params }) => {
+			if (!params.dataset) return of({ totalRecords: 0, data: [] });
+			return this.datasetService.lookupDatasetItems(params.dataset, {
+				filter: params.filter,
+				...pagination
+			});
 		}
 	});
 
@@ -135,12 +142,12 @@ export class DatasetImportPage implements Importer<string> {
 	async onFinishButtonClicked() {
 		await submit(this.formModel, async (t) => {
 			const { dataset, followDatasetUpdates, selectAll, selectedItems } = t().value();
-			const ref = await this.datasetService.createDatasetRef({
+			const { ref } = await lastValueFrom(this.datasetService.createDatasetReference({
 				dataset: dataset[0],
 				followDatasetUpdates,
 				selectAll,
 				selectedItems
-			});
+			}));
 			t().reset({
 				dataset: [],
 				followDatasetUpdates: false,

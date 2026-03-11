@@ -1,176 +1,224 @@
 <div hlmFieldGroup>
-	<div hlmField orientation="horizontal" class="items-center">
-		<hlm-switch
-			class="cursor-pointer"
-			id="{{ itemIndex() }}__enable_relevance"
-			[formField]="relevance().enabled"
-		/>
-		<label
-			class="cursor-pointer"
-			for="{{ itemIndex() }}__enable_relevance"
-			hlmFieldLabel
-			>Enable Relevance</label
+	@if (relevance()().disabledReasons().length > 0) {
+		<div
+			hlmAlert
+			class="max-w-md border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"
 		>
-	</div>
-	<p hlmFieldDescription>
-		@if (relevance().enabled().value()) {
-			This field will become relevant <strong>ONLY</strong> when the defined
-			conditions are satisfied.
-		} @else {
-			This field will always be relevant.
-		}
-	</p>
-</div>
-<hlm-field-separator />
-<div hlmFieldGroup>
-	<legend hlmFieldLegend>Conditions</legend>
-	<p hlmFieldDescription>A condition is a set of true/false expressions</p>
-	<div
-		hlmButtonGroup
-		class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-l-none [&>hlm-select>div>hlm-select-trigger>button]:border-l-0"
-	>
-		<button
-			(click)="onAddConditionButtonClicked()"
-			[disabled]="relevance().logic().disabled()"
-			type="button"
-			hlmBtn
-			variant="outline"
-		>
-			<ng-icon name="lucidePlus" />
-			<span>Add Condition</span>
-		</button>
-		<hlm-select [formField]="relevance().operator">
-			<hlm-select-trigger>
-				<hlm-select-value />
-			</hlm-select-trigger>
-			<hlm-select-content class="w-full">
-				<hlm-option value="and">AND</hlm-option>
-				<hlm-option value="or">OR</hlm-option>
-			</hlm-select-content>
-		</hlm-select>
-	</div>
-	<div class="space-y-2">
-		@for (
-			condition of relevance().logic;
-			track condition;
-			let conditionIndex = $index
-		) {
+			<ng-icon hlmAlertIcon name="lucideAlertOctagon" />
+			<h4 hlmAlertTitle>Relevance is disabled</h4>
+			<div class="space-y-1" hlmAlertDescription>
+				@for (reason of relevance()().disabledReasons(); track $index) {
+					<p>{{ reason.message }}</p>
+				}
+			</div>
+		</div>
+	} @else {
+		<div hlmFieldGroup>
+			<div hlmField orientation="horizontal" class="items-center">
+				<hlm-switch
+					class="cursor-pointer"
+					id="{{ index() }}__enable_relevance"
+					[formField]="relevance().enabled"
+				/>
+				<label
+					class="cursor-pointer"
+					[class.opacity-50]="relevance()().disabled()"
+					for="{{ index() }}__enable_relevance"
+					hlmFieldLabel
+					>Enable Relevance</label
+				>
+			</div>
+			<p hlmFieldDescription [class.opacity-50!]="relevance()().disabled()">
+				@if (relevance().enabled().value()) {
+					This field will become relevant <strong>ONLY</strong> when the defined
+					conditions are satisfied.
+				} @else {
+					This field will always be relevant.
+				}
+			</p>
+		</div>
+		<hlm-field-separator />
+		<div hlmFieldGroup>
+			<legend [class.opacity-50!]="relevance()().disabled()" hlmFieldLegend>
+				Conditions
+			</legend>
+			<p hlmFieldDescription [class.opacity-50!]="relevance()().disabled()">
+				A condition is a set of true/false expressions
+			</p>
 			<div
-				id="{{ itemIndex() }}__{{ $index }}__logic"
-				class="grid grid-cols-[auto_1fr] items-start gap-x-3"
+				hlmButtonGroup
+				class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-l-none [&>hlm-select>div>hlm-select-trigger>button]:border-l-0"
 			>
-				<div>
+				<button
+					(click)="onAddConditionButtonClicked()"
+					[disabled]="relevance().logic().disabled()"
+					type="button"
+					hlmBtn
+					variant="outline"
+				>
+					<ng-icon name="lucidePlus" />
+					<span>Add Condition</span>
+				</button>
+				@if (!relevance().operator().hidden()) {
+					<hlm-select [formField]="relevance().operator">
+						<hlm-select-trigger>
+							<hlm-select-value />
+						</hlm-select-trigger>
+						<hlm-select-content class="w-full">
+							<hlm-option value="and">AND</hlm-option>
+							<hlm-option value="or">OR</hlm-option>
+						</hlm-select-content>
+					</hlm-select>
+				}
+			</div>
+			<div class="space-y-2">
+				@for (
+					condition of relevance().logic;
+					track condition;
+					let conditionIndex = $index
+				) {
 					<div
-						hlmButtonGroup
-						class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none"
+						id="{{ index() }}__{{ $index }}__logic"
+						class="grid grid-cols-[auto_1fr] items-start gap-x-3"
 					>
-						<hlm-select [formField]="condition.operator">
-							<hlm-select-trigger>
-								<hlm-select-value class="uppercase" />
-							</hlm-select-trigger>
-							<hlm-select-content>
-								<hlm-option value="or">OR</hlm-option>
-								<hlm-option value="and">AND</hlm-option>
-							</hlm-select-content>
-						</hlm-select>
-						<button
-							type="button"
-							[disabled]="condition().disabled()"
-							hlmBtn
-							variant="outline"
-							[hlmDropdownMenuTrigger]="conditionActionsMenu"
-							[hlmDropdownMenuTriggerData]="{
-								$implicit: $index,
-							}"
-						>
-							<ng-icon name="lucideEllipsis" />
-						</button>
-					</div>
-				</div>
-				<div class="grid grid-cols-[1fr_1fr_1fr_auto] gap-2">
-					@for (expression of condition.expressions; track expression) {
-						<hlm-select
-							[formField]="expression.field"
-							placeholer="Select Question"
-						>
-							<hlm-select-trigger class="w-full">
-								<hlm-select-value />
-							</hlm-select-trigger>
-							<hlm-select-content class="w-full">
-								@for (field of otherFieldsList(); track field) {
-									<hlm-option [value]="field.path().value()">{{
-										field.title().value()
-									}}</hlm-option>
-								}
-							</hlm-select-content>
-						</hlm-select>
 						<div>
-							<ng-container>
-								@let refField = fieldMap()[expression.field().value()];
-							</ng-container>
-							@if (refField != null) {
-								<ng-container>
-									@let operators =
-										fieldTypeExpressionOperatorsMap[
-											refField.meta.type().value()
-										];
-								</ng-container>
-								@if (operators != null) {
-									<hlm-select
-										[formField]="expression.operator"
-										placeholder="Select Operator"
-									>
-										<hlm-select-trigger class="w-full">
-											<hlm-select-value />
+							<div
+								hlmButtonGroup
+								class="[&>hlm-select>div>hlm-select-trigger>button]:rounded-l-none"
+							>
+								<button
+									type="button"
+									[disabled]="condition().disabled()"
+									hlmBtn
+									variant="outline"
+									[hlmDropdownMenuTrigger]="conditionActionsMenu"
+									[hlmDropdownMenuTriggerData]="{
+										$implicit: $index,
+									}"
+								>
+									<ng-icon name="lucideEllipsis" />
+								</button>
+								@if (!condition.operator().hidden()) {
+									<hlm-select [formField]="condition.operator">
+										<hlm-select-trigger>
+											<hlm-select-value class="uppercase" />
 										</hlm-select-trigger>
-										<hlm-select-content class="w-full">
-											@for (operator of operators; track $index) {
-												<hlm-option [value]="operator">{{
-													operatorsMap[operator].label
-												}}</hlm-option>
-											}
+										<hlm-select-content>
+											<hlm-option value="or">OR</hlm-option>
+											<hlm-option value="and">AND</hlm-option>
 										</hlm-select-content>
 									</hlm-select>
 								}
+							</div>
+						</div>
+						<div class="grid grid-cols-[1fr_1fr_1fr_1fr_auto] gap-2">
+							@for (expression of condition.expressions; track expression) {
+								<hlm-select
+									[formField]="expression.field"
+									placeholer="Select Question"
+								>
+									<hlm-select-trigger class="w-full">
+										<hlm-select-value />
+									</hlm-select-trigger>
+									<hlm-select-content class="w-full">
+										@for (field of otherFieldsList(); track field) {
+											<hlm-option [value]="field.path().value()">{{
+												field.config.title().value()
+											}}</hlm-option>
+										}
+									</hlm-select-content>
+								</hlm-select>
+								<div>
+									<ng-container>
+										@let refField = fieldMap()[expression.field().value()];
+									</ng-container>
+									@if (refField != null) {
+										<ng-container>
+											@let operators =
+												fieldTypeExpressionOperatorsMap[
+													refField.config.type().value()
+												];
+										</ng-container>
+										@if (operators != null) {
+											<hlm-select
+												[formField]="expression.operator"
+												placeholder="Select Operator"
+											>
+												<hlm-select-trigger class="w-full">
+													<hlm-select-value />
+												</hlm-select-trigger>
+												<hlm-select-content class="w-full">
+													@for (operator of operators; track $index) {
+														<hlm-option [value]="operator">{{
+															operatorsMap[operator].label
+														}}</hlm-option>
+													}
+												</hlm-select-content>
+											</hlm-select>
+										}
+									}
+								</div>
+								<div>
+									<ng-container>
+										@let operatorMeta =
+											operatorsMap[expression.operator().value()];
+									</ng-container>
+									@if (
+										operatorMeta != null &&
+										operatorMeta.operandCount > 0 &&
+										refField != null
+									) {
+										<ng-container>
+											@let template =
+												expressionValueTemplates[
+													refField.config.type().value()
+												];
+										</ng-container>
+										@if (template != null) {
+											<ng-container
+												[ngTemplateOutlet]="template()"
+												[ngTemplateOutletContext]="{
+													$implicit: expression.value,
+													operator: expression.operator().value(),
+												}"
+											/>
+										}
+									}
+								</div>
+								<div class="flex items-center">
+									<div hlmField orientation="horizontal" class="items-center!">
+										<hlm-switch
+											class="cursor-pointer"
+											[formField]="expression.negated"
+											id="{{ $index }}__expression__negated"
+										/>
+										<label
+											class="cursor-pointer"
+											for="{{ $index }}__expression__negated"
+											hlmFieldLabel
+										>
+											Negated
+										</label>
+									</div>
+								</div>
+								<button
+									hlmBtn
+									variant="ghost"
+									type="button"
+									[disabled]="expression().disabled()"
+									(click)="
+										onRemoveExpressionButtonClicked(conditionIndex, $index)
+									"
+								>
+									<ng-icon name="lucideX" hlm size="sm" />
+								</button>
 							}
 						</div>
-						<div>
-							<ng-container>
-								@let operatorMeta = operatorsMap[expression.operator().value()];
-							</ng-container>
-							@if (
-								operatorMeta != null &&
-								operatorMeta.operandCount > 0 &&
-								refField != null
-							) {
-								<ng-container>
-									@let template =
-										expressionValueTemplates[refField.meta.type().value()];
-								</ng-container>
-								@if (template != null) {
-									<ng-container
-										[ngTemplateOutlet]="template()"
-										[ngTemplateOutletContext]="{
-											$implicit: expression.value,
-											operator: expression.operator().value(),
-										}"
-									/>
-								}
-							}
-						</div>
-						<button
-							hlmBtn
-							variant="ghost"
-							type="button"
-							(click)="onRemoveExpressionButtonClicked(conditionIndex, $index)"
-						>
-							<ng-icon name="lucideX" hlm size="sm" />
-						</button>
-					}
-				</div>
+					</div>
+				}
 			</div>
-		}
-	</div>
+		</div>
+	}
 </div>
 
 <ng-template #booleanExpressionValueTemplate> </ng-template>

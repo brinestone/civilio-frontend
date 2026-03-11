@@ -28,37 +28,18 @@
 				>Default Value</label
 			>
 		} @else {
-			<div
-				hlmButtonGroup
-				[ngClass]="{
-					'[&>hlm-select>div>hlm-select-trigger>button]:rounded-r-none w-full':
-						!!meta().defaultValue().value(),
-				}"
+			<label hlmFieldLabel for="{{ idExp }}" class="cursor-pointer"
+				>Default Value</label
 			>
-				<hlm-select
-					[formField]="meta().defaultValue"
-					[id]="idExp"
-					class="w-full"
-				>
-					<hlm-select-trigger class="w-full"
-						><hlm-select-value
-					/></hlm-select-trigger>
-					<hlm-select-content class="w-full">
-						<hlm-option [value]="true">Yes</hlm-option>
-						<hlm-option [value]="false">No</hlm-option>
-					</hlm-select-content>
-				</hlm-select>
-				@if (!!meta().defaultValue().value()) {
-					<button
-						(click)="onClearDefaultValueButtonClicked()"
-						type="button"
-						hlmBtn
-						variant="outline"
-					>
-						<ng-icon name="lucideX" />
-					</button>
-				}
-			</div>
+			<hlm-select [formField]="meta().defaultValue" [id]="idExp" class="w-full">
+				<hlm-select-trigger class="w-full"
+					><hlm-select-value
+				/></hlm-select-trigger>
+				<hlm-select-content class="w-full">
+					<hlm-option [value]="true">Yes</hlm-option>
+					<hlm-option [value]="false">No</hlm-option>
+				</hlm-select-content>
+			</hlm-select>
 		}
 	</ng-container>
 	<ng-container

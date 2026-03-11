@@ -2,14 +2,14 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { DatePicker, MultiDatePicker } from '@app/components';
 import { FieldError } from '@app/components/form';
-import { MultiDateFieldMeta } from '@civilio/sdk/models';
+import { MultiDateFieldConfig } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideX } from '@ng-icons/lucide';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-multi-date-meta',
@@ -37,6 +37,6 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './multi-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiDateMetaComponent extends BaseMetaConfigComponent<MultiDateFieldMeta> {
+export class MultiDateMetaComponent extends BaseFieldConfig<MultiDateFieldConfig> {
 
 }

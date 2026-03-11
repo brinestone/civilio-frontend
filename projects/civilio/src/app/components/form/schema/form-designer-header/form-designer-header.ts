@@ -13,8 +13,8 @@ import { HlmSpinner } from "@spartan-ng/helm/spinner";
 
 const FORM_ITEM_TYPES = {
 	field: { icon: 'lucideFormInput', label: 'Question' },
-	note: { icon: 'lucideStickyNote', label: 'Note' },
-	image: { icon: 'lucideImage', label: 'Image' },
+	// note: { icon: 'lucideStickyNote', label: 'Note' },
+	// image: { icon: 'lucideImage', label: 'Image' },
 } as Record<FormItemType, { label: string, icon: string }>;
 
 type FormItemType = Strict<FormItemDefinition>['type'];
@@ -50,7 +50,9 @@ export class FormDesignerHeader {
 	readonly editable = input<boolean, BooleanInput>(true, { transform: booleanAttribute });
 	readonly previewing = model<boolean>(true);
 	readonly formState = input.required<FieldState<unknown>>();
+	// readonly partialSelection = input<boolean>(false);
 
+	// readonly selectAll = output<boolean>();
 	readonly itemAdd = output<FormItemType>();
 	readonly onSubmit = output();
 	readonly onDiscard = output();

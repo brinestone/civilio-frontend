@@ -2,18 +2,19 @@ import { BooleanInput } from '@angular/cdk/coercion';
 import {
 	booleanAttribute,
 	Component,
+	computed,
+	effect,
 	inject,
 	input,
 	linkedSignal,
 	output,
-	resource,
 	signal
 } from '@angular/core';
 import { FormSchema } from '@app/model/form';
 import { MaskPipe } from '@app/pipes';
-import { FORM_SERVICE } from '@app/services/form';
 import { facilityName } from '@app/store/selectors';
-import { FormType } from '@civilio/shared';
+import { IndexRange } from '@civilio/sdk/models';
+import { SubmissionsService } from '@civilio/sdk/services/submissions/submissions.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideChevronLeft,
@@ -34,7 +35,6 @@ import { HlmH4 } from '@spartan-ng/helm/typography';
 import { toast } from 'ngx-sonner';
 import { derivedFrom } from 'ngxtension/derived-from';
 import { debounceTime, map, pipe } from 'rxjs';
-import z from 'zod';
 
 @Component({
 	selector: 'cv-form-header',
@@ -66,7 +66,7 @@ export class FormHeaderComponent {
 		transform: booleanAttribute,
 		alias: 'isNew'
 	})
-	readonly formType = input<FormType>();
+	readonly form = input<string>();
 	readonly formSchema = input<FormSchema>();
 	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
 	readonly canGoNextPage = input<boolean>();
@@ -80,8 +80,9 @@ export class FormHeaderComponent {
 	readonly undo = output();
 	readonly redo = output();
 
-	private readonly formService = inject(FORM_SERVICE);
+	private readonly submissionService = inject(SubmissionsService);
 	private readonly ts = inject(TranslateService);
+	private readonly rangeGenerator = new IndexGenerator();
 
 	protected readonly facilityName = select(facilityName);
 	protected readonly mapperSheetState = signal<BrnDialogState>('closed');
@@ -94,18 +95,22 @@ export class FormHeaderComponent {
 		map(([v]) => v),
 		debounceTime(500)
 	), { initialValue: '' });
-	protected readonly refSuggestions = resource({
-		defaultValue: [],
-		params: () => ({
-			form: this.formType(),
-			filter: this.debouncedIndexFilter()
-		}),
-		loader: async ({ params: { filter, form } }) => {
-			if (!form) return [];
-			if (!filter || !z.string().regex(/^\d+$/).safeParse(filter).success) return [];
-			return this.formService.findIndexSuggestions({ form, query: filter });
-		}
-	});
+	protected readonly refSuggestions = computed(() => {
+		const filter = this.debouncedIndexFilter();
+		return this.rangeGenerator.search(filter, 5);
+	})
+	constructor() {
+		effect(() => {
+			const form = this.form();
+			if (!form) this.rangeGenerator.ranges = [];
+			else
+				this.submissionService.findSparseIndexRanges(form, { limit: 99999 }).subscribe({
+					next: ranges => {
+						this.rangeGenerator.ranges = ranges;
+					}
+				})
+		})
+	}
 
 	protected onAutoCompleteIndexValueChanged(index: number | null) {
 		if (index === null) return;
@@ -115,5 +120,112 @@ export class FormHeaderComponent {
 	protected async onCopyVersionButtonClicked() {
 		await navigator.clipboard.writeText(this.version() as string);
 		toast.info(this.ts.instant('msg.clipboard_copied_text', { value: 'Version' }));
+	}
+}
+
+class IndexGenerator {
+	#ranges: IndexRange[] = [];
+	private currentRangeIndex = 0;
+	private currentIndexInRange = 0;
+	private totalGenerated = 0;
+
+	set ranges(ranges: IndexRange[]) {
+		this.#ranges = ranges;
+		this.reset();
+	}
+
+	next(): null | number {
+		if (this.currentRangeIndex >= this.#ranges.length) {
+			return null;
+		}
+
+		const currentRange = this.#ranges[this.currentRangeIndex];
+		const nextIndex = currentRange.start + this.currentIndexInRange;
+
+		if (nextIndex <= currentRange.end) {
+			this.currentIndexInRange++;
+			this.totalGenerated++;
+			return nextIndex;
+		}
+
+		this.currentRangeIndex++;
+		this.currentIndexInRange = 0;
+
+		return this.next()
+	}
+
+	peek(count: number): number[] {
+		const indices = Array<number>();
+		let rangeIdx = this.currentRangeIndex;
+		let offset = this.currentIndexInRange;
+
+		while (indices.length < count && rangeIdx < this.ranges.length) {
+			const range = this.#ranges[rangeIdx];
+			const availableInRange = range.end - range.start + 1 - offset;
+			const toTake = Math.min(count - indices.length, availableInRange);
+
+			for (let i = 0; i < toTake; i++) {
+				indices.push(range.start + offset + i);
+			}
+
+			offset += toTake;
+			if (offset >= range.end - range.start + 1) {
+				rangeIdx++;
+				offset = 0;
+			}
+		}
+		return indices;
+	}
+
+	search(pattern: string, limit: number = 10): number[] {
+		const results = Array<number>();
+
+		if (/^\d+$/.test(pattern)) {
+			const num = parseInt(pattern, 10);
+			for (const range of this.#ranges) {
+				if (num >= range.start && num <= range.end) {
+					results.push(num);
+					break;
+				}
+			}
+		} else if (/^\d+-\d*$/.test(pattern)) {
+			const [start] = pattern.split('-').map(n => parseInt(n, 10));
+			for (const range of this.#ranges) {
+				if (range.end >= start) {
+					const rangeStart = Math.max(range.start, start);
+					for (let i = 0; i < limit - results.length; i++) {
+						if (rangeStart + i <= range.end)
+							results.push(rangeStart + i);
+					}
+				}
+				if (results.length >= limit) break;
+			}
+		} else if (/^\d+-\d+$/.test(pattern)) {
+			const [start, end] = pattern.split('-').map(n => parseInt(n, 10));
+			for (const range of this.#ranges) {
+				const overlapStart = Math.max(range.start, start);
+				const overlapEnd = Math.min(range.end, end);
+				if (overlapStart <= overlapEnd) {
+					for (let i = overlapStart; i <= overlapEnd && results.length < limit; i++) {
+						results.push(i);
+					}
+				}
+			}
+		}
+		return results;
+	}
+
+	reset() {
+		this.currentRangeIndex = 0;
+		this.currentIndexInRange = 0;
+		this.totalGenerated = 0;
+	}
+
+	getProgress() {
+		return {
+			currentRange: this.currentRangeIndex + 1,
+			totalRanges: this.ranges.length,
+			generated: this.totalGenerated
+		};
 	}
 }

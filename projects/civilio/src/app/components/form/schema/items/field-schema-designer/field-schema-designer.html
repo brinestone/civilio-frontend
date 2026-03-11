@@ -5,6 +5,7 @@
 >
 	<ng-icon name="lucideGrip" />
 	<span>Question</span>
+	<!--<hlm-checkbox [(checked)]="_selected" class="cursor-pointer" /> -->
 </div>
 <div class="absolute top-0 left-[calc(100%+5px)]">
 	<cv-form-item-actions
@@ -49,18 +50,18 @@
 	<div hlmFieldGroup>
 		<div hlmField>
 			<label hlmFieldLabel>Question Title</label>
-			<input hlmInput [formField]="field.title" />
+			<input hlmInput [formField]="field.config.title" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: field.title}"
+				[ngTemplateOutletContext]="{$implicit: field.config.title}"
 			/>
 		</div>
 		<div hlmField>
 			<label hlmFieldLabel>Question Hint</label>
-			<input hlmInput [formField]="field.description" />
+			<input hlmInput [formField]="field.config.description" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
-				[ngTemplateOutletContext]="{$implicit: field.description}"
+				[ngTemplateOutletContext]="{$implicit: field.config.description}"
 			/>
 		</div>
 	</div>
@@ -68,32 +69,18 @@
 @if(expanded()){
 <cv-form-item-settings
 	[tabs]="configTabs"
-	[(tab)]="currentConfigTab"
+	[(currentTab)]="currentConfigTab"
 	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
 	(close)="expanded.set(false)"
 >
-	@if(currentConfigTab() == 'meta') {
 	<ng-container>
-		@defer (when true) {
-		<cv-form-item-meta-config [meta]="field.meta" [index]="index()" />
-		}
+		@let component = tabContentComponents[currentConfigTab()] | async;
 	</ng-container>
-	} @if(currentConfigTab() == 'validation') {
-	<ng-container>
-		@defer (when true) {
-		<cv-form-item-validation-config />
-		}
-	</ng-container>
-	} @if(currentConfigTab() == 'relevance') {
-	<ng-container>
-		@defer (when true) {
-		<cv-form-item-relevance-config
-			[item]="field"
-			[index]="index()"
-			[relevance]="field.relevance"
-		/>
-		}
-	</ng-container>
+	@if(component) {
+	<ng-container
+		[ngComponentOutlet]="component"
+		[ngComponentOutletInjector]="sectionInjector"
+	/>
 	}
 </cv-form-item-settings>
 }

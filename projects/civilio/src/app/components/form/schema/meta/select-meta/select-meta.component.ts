@@ -1,11 +1,12 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AsyncPipe, NgClass, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, resource, signal, Type, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, Type, untracked } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormField } from '@angular/forms/signals';
-import { SelectFieldItemMetaSchema } from '@app/model/form';
+import { SelectFieldItemConfigSchema } from '@app/model/form';
 import { createImporterInjector } from '@app/pages/importers';
-import { DatasetService } from '@app/services/dataset';
-import { SelectFieldMeta } from '@civilio/sdk/models';
+import { DatasetItem, SelectFieldConfig } from '@civilio/sdk/models';
+import { DatasetsService } from '@civilio/sdk/services/datasets/datasets.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDatabase, lucideFile, lucideGrip, lucideLink, lucidePlus, lucideUnlink, lucideX } from '@ng-icons/lucide';
 import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
@@ -20,7 +21,8 @@ import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { produce } from 'immer';
-import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.component';
+import { EMPTY, of } from 'rxjs';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
 	selector: 'cv-select-meta',
@@ -65,8 +67,8 @@ import { BaseMetaConfigComponent } from '../base-meta-config/base-meta-config.co
 	styleUrl: './select-meta.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectMetaComponent extends BaseMetaConfigComponent<SelectFieldMeta> {
-	private readonly datasetService = inject(DatasetService);
+export class SelectMetaComponent extends BaseFieldConfig<SelectFieldConfig> {
+	private readonly datasetService = inject(DatasetsService);
 	protected readonly activeImportTab = signal<string>('dataset');
 	protected readonly importDialogState = signal<BrnDialogState>('closed');
 	protected readonly importSources = [
@@ -76,8 +78,9 @@ export class SelectMetaComponent extends BaseMetaConfigComponent<SelectFieldMeta
 	protected readonly importerInjector = createImporterInjector((result: string) => {
 		this.meta()().value.update(v => produce(v, draft => {
 			draft.itemSourceRef = result;
-			setTimeout(() => this.importDialogState.set('closed'));
+			// setTimeout(() => this.importDialogState.set('closed'));
 		}));
+		this.importDialogState.set('closed');
 	});
 	protected readonly importPageComponents = {
 		dataset: import('@app/pages/importers/dataset/dataset-import.page').then(m => m.DatasetImportPage),
@@ -86,15 +89,14 @@ export class SelectMetaComponent extends BaseMetaConfigComponent<SelectFieldMeta
 	protected readonly sourceLinked = computed(() => {
 		return !!untracked(this.meta).itemSourceRef().value();
 	});
-	protected readonly linkedItems = resource({
+	protected readonly linkedItems = rxResource({
 		defaultValue: [],
 		params: () => ({ ref: untracked(this.meta).itemSourceRef().value() }),
-		loader: async ({ params }) => {
-			if (!params.ref) return [];
-			return await this.datasetService.getDatasetRefItems(params.ref) ?? [];
+		stream: ({ params }) => {
+			if (!params.ref) return of(Array<DatasetItem>());
+			return this.datasetService.findDatasetRefItems(params.ref);
 		}
-	})
-
+	});
 
 	protected onHardItemsReordered(event: CdkDragDrop<any>) {
 		this.meta().hardItems().value.update(v => produce(v, draft => {
@@ -102,7 +104,7 @@ export class SelectMetaComponent extends BaseMetaConfigComponent<SelectFieldMeta
 		}))
 	}
 	protected onAddHardItemButtonClicked() {
-		const newItem = SelectFieldItemMetaSchema.shape.hardItems.unwrap().unwrap().parse({});
+		const newItem = SelectFieldItemConfigSchema.shape.hardItems.unwrap().unwrap().parse({});
 		this.meta().hardItems().value.update(v => produce(v, draft => {
 			draft.unshift(newItem as any);
 		}))
