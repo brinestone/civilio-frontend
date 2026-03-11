@@ -11,7 +11,7 @@ import { HlmLabel } from "@spartan-ng/helm/label";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { produce } from "immer";
 import z from "zod";
-import { injectFormItemSchemaContext } from "../items";
+import { injectFormItemDesignerContext } from "../items";
 import { Tag } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { HlmIcon } from "@spartan-ng/helm/icon";
@@ -43,7 +43,7 @@ import { FieldError } from "../../field-error/field-error.component";
 	styleUrl: "./form-item-meta-config.scss",
 })
 export class FormItemMetaConfig {
-	private ctx = injectFormItemSchemaContext();
+	private ctx = injectFormItemDesignerContext();
 	protected readonly item = this.ctx.fieldTree;
 	protected readonly index = this.ctx.index;
 	protected readonly tags = computed(() => {

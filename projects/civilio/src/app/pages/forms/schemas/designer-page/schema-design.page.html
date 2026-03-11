@@ -21,16 +21,19 @@
 				<ng-container>
 					@let component = formItemComponents[item.type().value()];
 				</ng-container>
-				@if (component != null) {
-				<ng-container
-					[ngComponentOutlet]="component | async"
-					[ngComponentOutletInputs]="{
+				<ng-container>
+					@if (component != null) {
+					<ng-container
+						[ngComponentOutlet]="component | async"
+						[ngComponentOutletInputs]="{
 						node: item,
 						index: $index
 					}"
-					[ngComponentOutletInjector]="itemComponentInjector"
-				/>
-				} }
+						[ngComponentOutletInjector]="itemComponentInjector"
+					/>
+					}
+				</ng-container>
+				}
 			</div>
 		</div>
 	</form>
@@ -44,7 +47,6 @@
 				(onDiscard)="onFormDiscard()"
 				(itemAdd)="addFormItem(formModel, $event)"
 				[(previewing)]="renderForm"
-
 			/>
 		</div>
 	</div>

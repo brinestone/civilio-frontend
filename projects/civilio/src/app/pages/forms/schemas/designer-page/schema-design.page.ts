@@ -14,7 +14,8 @@ import {
 	input,
 	linkedSignal,
 	signal,
-	Type
+	Type,
+	viewChildren
 } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { FieldTree, form, submit } from '@angular/forms/signals';
@@ -23,6 +24,7 @@ import { FormDesignerHeader } from '@app/components/form/schema';
 import {
 	createFormSchemaContextInjector
 } from '@app/components/form/schema/items';
+import { BaseFormItemSchemaDesigner } from '@app/components/form/schema/items/base-item/base-form-item-schema-designer';
 import { HasPendingChanges, isGroupItem } from '@app/model/form';
 import {
 	FormItemDefinition,
@@ -80,6 +82,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 export class SchemaDesignPage implements HasPendingChanges {
 	readonly slug = input.required<string>();
 	readonly formVersion = input.required<string>({ alias: 'version' });
+	private readonly itemDesigners = viewChildren(BaseFormItemSchemaDesigner);
 	protected readonly formItemComponents = {
 		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
 	} as Record<string, Promise<Type<any>>>;
@@ -112,12 +115,31 @@ export class SchemaDesignPage implements HasPendingChanges {
 		}
 		return reg;
 	});
+	// protected readonly allSelected = signal(false);
+	// private readonly selectedItems = signal<Record<string, boolean>>({});
+	// protected readonly someItemsSelected = computed(() => {
+	// 	return values(this.selectedItems()).reduce((a, b) => a || b, false);
+	// })
 	protected readonly itemComponentInjector = createFormSchemaContextInjector({
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
-		allFields: this.fieldItems
+		allFields: this.fieldItems,
+	// 	// allItemsSelected: this.allSelected.asReadonly(),
+	// 	// selectionToggledHandler: this.onItemSelectionToggled.bind(this)
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
 	protected pendingChangesActionCallback?: (action: 'save' | 'stay' | 'discard') => void;
+
+	// private onItemSelectionToggled(path: string, state: boolean) {
+	// 	this.selectedItems.update(v => produce(v, draft => {
+	// 		draft[path] = state;
+	// 	}));
+	// 	if (values(this.selectedItems()).every(identity)) {
+	// 		this.allSelected.set(true);
+	// 	} else {
+
+	// 	}
+	// 	console.log(this.selectedItems());
+	// }
 
 	private walkFormItemTree(item: Strict<FormItemDefinition>, cb: (item: Strict<FormItemDefinition>) => void) {
 		cb(item);
@@ -276,5 +298,12 @@ export class SchemaDesignPage implements HasPendingChanges {
 				})
 			}
 		});
+		effect(() => {
+			console.log(this.itemDesigners());
+		})
 	}
+
+	// protected onselectAll(value: boolean) {
+	// 	this.allSelected.set(value);
+	// }
 }

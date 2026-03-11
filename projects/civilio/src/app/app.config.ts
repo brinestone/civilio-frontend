@@ -1,3 +1,4 @@
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
 	ApplicationConfig,
 	isDevMode,
@@ -19,15 +20,16 @@ import {
 } from './adapters/ngx-translate/ngx-translate';
 import { TranslateTitleStrategy } from './adapters/ngx-translate/title.strategy';
 import { routes } from './app.routes';
+import { provideHttpClientErrorHandler } from './http/error-handler';
+import { apiUrlInterceptor } from './interceptors/api-url-interceptor';
 import { provideDomainConfig } from './services/config';
 import { provideNotifications } from './services/notification';
 import { ConfigState } from './store/config';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { apiUrlInterceptor } from './interceptors/api-url-interceptor';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideHttpClient(withInterceptors([apiUrlInterceptor])),
+		provideHttpClientErrorHandler(),
 		provideBrowserGlobalErrorListeners(),
 		provideZonelessChangeDetection(),
 		provideRouter(routes, withComponentInputBinding()),

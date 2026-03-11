@@ -1,5 +1,5 @@
-import { FormItem, FormItemSchemaContext } from "./items";
+import { FormItem, FormItemDesignerContext } from "./items";
 
 export interface FormItemSettingsSection<T extends FormItem> {
-	ctx: FormItemSchemaContext<T>;
+	ctx: FormItemDesignerContext<T>;
 }

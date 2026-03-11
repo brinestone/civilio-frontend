@@ -18,7 +18,7 @@ import { HlmSwitch } from '@spartan-ng/helm/switch';
 import { produce } from 'immer';
 import { values } from 'lodash';
 import { FieldError } from '../../field-error/field-error.component';
-import { injectFormItemSchemaContext, injectFormSchemaContext } from '../items';
+import { injectFormItemDesignerContext, injectFormSchemaContext } from '../items';
 
 @Component({
 	selector: 'cv-form-item-relevance-config',
@@ -52,7 +52,7 @@ import { injectFormItemSchemaContext, injectFormSchemaContext } from '../items';
 })
 export class FormItemRelevanceConfig {
 	private readonly formContext = injectFormSchemaContext();
-	private readonly ctx = injectFormItemSchemaContext();
+	private readonly ctx = injectFormItemDesignerContext();
 	protected readonly relevance = computed(() => this.ctx.fieldTree().relevance);
 	protected readonly path = computed(() => this.ctx.fieldTree().path().value());
 	protected readonly index = this.ctx.index;

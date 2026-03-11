@@ -39,6 +39,17 @@
 			</button>
 			}
 		</div>
+		<!-- <ng-container>
+			@if(!previewing()) {
+			<label hlmLabel class="flex items-center gap-x-2 cursor-pointer">
+				<hlm-checkbox
+					(checkedChange)="selectAll.emit($event)"
+					[indeterminate]="partialSelection()"
+				/>
+				<span>Select All</span>
+			</label>
+			}
+		</ng-container> -->
 		}
 	</div>
 	<div class="flex items-center gap-2">
