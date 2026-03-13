@@ -1,6 +1,6 @@
 import { Component, computed } from "@angular/core";
 import { FormField } from "@angular/forms/signals";
-import { StandardFacilityTagsSchema } from "@app/pages/forms/schemas/form-schemas";
+import { StandardFacilityTagsSchema } from "@app/pages/forms/schemas/form-designer-config";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePlus, lucideX } from "@ng-icons/lucide";
 import { BrnSelectImports } from "@spartan-ng/brain/select";

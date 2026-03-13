@@ -1,0 +1,21 @@
+@reference "tailwindcss";
+
+:host {
+	@apply border block bg-(--card) rounded rounded-tl-none focus-within:border-(--primary);
+}
+
+dl {
+	dt {
+		@apply font-medium text-xs text-(--muted-foreground);
+		& + dd:not(:only-child):not(:last-child) {
+			@apply border-b border-(--muted);
+		}
+	}
+	dd {
+		@apply text-sm;
+	}
+}
+
+pre {
+	@apply text-xs;
+}

@@ -42,7 +42,7 @@ export type FormItemAction = {
 	styleUrl: './form-item-actions.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormItemActionsComponent {
+export class FormItemActions {
 	toggleSettings = output<boolean>();
 	togglePreview = output<boolean>();
 	duplicate = output();

@@ -1,14 +1,16 @@
-import { isDevMode } from "@angular/core";
 import {
 	apply,
 	applyEach,
 	applyWhen,
 	applyWhenValue,
+	createMetadataKey,
 	debounce,
 	disabled,
+	FieldTree,
 	hidden,
 	max,
 	maxLength,
+	metadata,
 	min,
 	minLength,
 	pattern,
@@ -18,11 +20,12 @@ import {
 	validate
 } from "@angular/forms/signals";
 import { RelevanceLogicExpressionInputSchema } from "@app/model/form/schemas";
-import { BooleanFieldConfig, FieldItemConfig, FormItemDefinition, FormItemField, FormItemImage, FormVersionDefinition, GeoPointFieldConfig, ImageItemConfig, MultiDateFieldConfig, NewFormItemDefinition, NoteItemConfig, NumberFieldConfig, RangeDateFieldConfig, RelevanceCondition, SelectFieldConfig, SeparatorItemConfig, SimpleDateFieldConfig, TextFieldConfig } from "@civilio/sdk/models";
+import { BooleanFieldConfig, FieldItemConfig, FormItemDefinition, FormItemField, FormItemGroup, FormItemImage, FormVersionDefinition, GeoPointFieldConfig, GroupItemConfig, ImageItemConfig, MultiDateFieldConfig, NewFormItemDefinition, NewFormItemField, NewFormItemGroup, NoteItemConfig, NumberFieldConfig, RangeDateFieldConfig, RelevanceCondition, SelectFieldConfig, SeparatorItemConfig, SimpleDateFieldConfig, TextFieldConfig } from "@civilio/sdk/models";
 
 import { Strict } from "@civilio/shared";
 import z from "zod";
 
+export type FormItem = FormItemDefinition | NewFormItemDefinition;
 export type FormModel = Strict<FormVersionDefinition>;
 export type FormItemType = FormModel['items'][number]['type'];
 export const pathSeparator = '.';
@@ -34,6 +37,8 @@ export const StandardFacilityTagsSchema = z.enum({
 });
 
 const debounceDuration = 200;
+export const PLACEHOLDER = createMetadataKey<string>();
+export const HINT = createMetadataKey<string>();
 
 function defineTextFieldConfigFormSchema(paths: SchemaPathTree<Strict<TextFieldConfig>>) {
 	debounce(paths.pattern, debounceDuration);
@@ -219,40 +224,65 @@ function defineBooleanFieldConfigFormSchema(_: SchemaPathTree<Strict<BooleanFiel
 
 }
 
-function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemDefinition>>) {
-	// const isField = (v: Strict<FormItemDefinition>): v is Strict<FormItemField> => v.type == ;
-	applyWhen(paths, ({ value }) => value().type == 'field', paths => {
-		const fp = paths as unknown as SchemaPathTree<Strict<FormItemField>>;
-		hidden(fp.id, () => true);
-		hidden(fp.path, () => true);
-		hidden(fp.type, () => true);
+export const isFieldTree = (v: FieldTree<Strict<FormItemDefinition | NewFormItemDefinition>>): v is FieldTree<Strict<FormItemField | NewFormItemField>> => v.type().value() == 'field';
+export const isField = (v: Strict<FormItemDefinition | NewFormItemDefinition>): v is Strict<FormItemField | NewFormItemField> => v.type == 'field';
+export const isGroup = (v: Strict<FormItemDefinition | NewFormItemDefinition>): v is Strict<FormItemGroup | NewFormItemGroup> => v.type == 'group';
+export function isExistingFormItem(v: Strict<FormItemDefinition | NewFormItemDefinition>): v is Strict<FormItemDefinition> { return 'id' in v; }
+function defineFieldItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemField | NewFormItemField>>) {
+	apply(paths.config, config => {
+		required(config.type, { message: 'A field type must be specified' });
+		hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
 
-		apply(fp.config, config => {
-			required(config.type, { message: 'A field type must be specified' });
-			hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
+		const isText = (v: FormItemField['config']): v is Strict<TextFieldConfig> => v?.type == 'text' || v?.type == 'multiline';
+		const isBoolean = (v: FormItemField['config']): v is Strict<BooleanFieldConfig> => v?.type === 'boolean';
+		const isGeo = (v: FormItemField['config']): v is Strict<GeoPointFieldConfig> => v?.type === 'geo-point';
+		const isDate = (v: FormItemField['config']): v is Strict<SimpleDateFieldConfig> => v?.type === 'date' || v?.type === 'date-time';
+		const isNumber = (v: FormItemField['config']): v is Strict<NumberFieldConfig> => v?.type == 'float' || v?.type === 'integer';
+		const isSelection = (v: FormItemField['config']): v is Strict<SelectFieldConfig> => v?.type == 'single-select' || v?.type == 'multi-select';
+		const isDateRange = (v: FormItemField['config']): v is Strict<RangeDateFieldConfig> => v?.type == 'date-range';
+		const isMultiDate = (v: FormItemField['config']): v is Strict<MultiDateFieldConfig> => v?.type == 'multi-date';
+		applyWhenValue(config, isText, defineTextFieldConfigFormSchema);
+		applyWhenValue(config, isBoolean, defineBooleanFieldConfigFormSchema);
+		applyWhenValue(config, isGeo, defineGeopointFieldConfigFormSchema);
+		applyWhenValue(config, isDate, defineDateFieldConfigFormSchema);
+		applyWhenValue(config, isNumber, defineNumberFieldConfigFormSchema);
+		applyWhenValue(config, isSelection, defineSelectionFieldConfigFormSchema);
+		applyWhenValue(config, isDateRange, defineRangeDateFieldConfigFormSchema);
+		applyWhenValue(config, isMultiDate, defineMultiDateFieldConfigFormSchema);
 
-			const isText = (v: FormItemField['config']): v is Strict<TextFieldConfig> => v?.type == 'text' || v?.type == 'multiline';
-			const isBoolean = (v: FormItemField['config']): v is Strict<BooleanFieldConfig> => v?.type === 'boolean';
-			const isGeo = (v: FormItemField['config']): v is Strict<GeoPointFieldConfig> => v?.type === 'geo-point';
-			const isDate = (v: FormItemField['config']): v is Strict<SimpleDateFieldConfig> => v?.type === 'date' || v?.type === 'date-time';
-			const isNumber = (v: FormItemField['config']): v is Strict<NumberFieldConfig> => v?.type == 'float' || v?.type === 'integer';
-			const isSelection = (v: FormItemField['config']): v is Strict<SelectFieldConfig> => v?.type == 'single-select' || v?.type == 'multi-select';
-			const isDateRange = (v: FormItemField['config']): v is Strict<RangeDateFieldConfig> => v?.type == 'date-range';
-			const isMultiDate = (v: FormItemField['config']): v is Strict<MultiDateFieldConfig> => v?.type == 'multi-date';
-			applyWhenValue(config, isText, defineTextFieldConfigFormSchema);
-			applyWhenValue(config, isBoolean, defineBooleanFieldConfigFormSchema);
-			applyWhenValue(config, isGeo, defineGeopointFieldConfigFormSchema);
-			applyWhenValue(config, isDate, defineDateFieldConfigFormSchema);
-			applyWhenValue(config, isNumber, defineNumberFieldConfigFormSchema);
-			applyWhenValue(config, isSelection, defineSelectionFieldConfigFormSchema);
-			applyWhenValue(config, isDateRange, defineRangeDateFieldConfigFormSchema);
-			applyWhenValue(config, isMultiDate, defineMultiDateFieldConfigFormSchema);
-
-			debounce(config.title, debounceDuration);
-			debounce(config.description, debounceDuration);
-			required(config.title, { message: 'A title is required' });
-		});
+		debounce(config.title, debounceDuration);
+		debounce(config.description, debounceDuration);
+		required(config.title, { message: 'A title is required' });
 	});
+}
+
+function defineGroupItemDefinitoinFormSchema(paths: SchemaPathTree<Strict<FormItemGroup | NewFormItemGroup>>) {
+	apply(paths.config, config => {
+		required(config.title, { message: 'A field group must have a title' });
+		metadata(config.title, PLACEHOLDER, () => 'Group Title');
+		metadata(config.title, HINT, () => 'A user facing title for this group of fields');
+		metadata(config.description, PLACEHOLDER, () => 'Subtitle or description');
+		min(config.divisionCount, 0);
+		required(config.orientation, { message: 'An orientation must be specified' });
+		metadata(config.repeatable, HINT, () => 'Whether or not this group can have multiple rows of data')
+
+		applyEach(config.fields, defineFieldItemDefinitionFormSchema);
+	})
+}
+
+function defineFormItemDefinitionFormSchema(paths: SchemaPathTree<Strict<FormItemDefinition | NewFormItemDefinition>>) {
+
+	applyWhenValue(paths, isExistingFormItem, paths => {
+		hidden(paths.id, () => true);
+		hidden(paths.addedAt, () => true);
+		hidden(paths.updatedAt, () => true);
+		hidden(paths.itemId, () => true);
+	});
+	hidden(paths.path, () => true);
+	hidden(paths.type, () => true);
+
+	applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema);
+	applyWhenValue(paths, isGroup, defineGroupItemDefinitoinFormSchema);
 
 	applyWhen(paths, ({ value }) => value().type == 'image', paths => {
 		const ip = paths as unknown as SchemaPathTree<Strict<FormItemImage>>;
@@ -275,7 +305,7 @@ export function defineFormDefinitionFormSchema() {
 			hidden(itemPaths.relevance, ({ valueOf }) => !['field', 'note', 'image'].includes(valueOf(itemPaths.type)));
 			disabled(itemPaths.relevance.logic, ({ valueOf }) => valueOf(itemPaths.relevance.enabled) !== true);
 			disabled(itemPaths.relevance.operator, ({ valueOf }) => valueOf(itemPaths.relevance.enabled) !== true);
-			disabled(itemPaths.relevance, ({ valueOf }) => valueOf(paths.items).filter(i => i.type == 'field').length <= 1 ? 'There must be at least 1 other question in the form' : false, );
+			disabled(itemPaths.relevance, ({ valueOf }) => valueOf(paths.items).filter(i => i.type == 'field').length <= 1 ? 'There must be at least 1 other question in the form' : false,);
 			hidden(itemPaths.relevance.operator, ({ valueOf }) => valueOf(itemPaths.relevance.logic).length < 2);
 
 			applyEach(itemPaths.relevance.logic, conditionPaths => {
@@ -292,7 +322,7 @@ export function defineFormDefinitionFormSchema() {
 }
 
 export function domainToStrictFormDefinition(value: FormVersionDefinition) {
-	return value as FormModel;
+	return FormVersionDefinition.parse(value) as Strict<typeof value>;;
 }
 
 export function defaultFormItemDefinitionSchemaValue(path: string, type: FormItemType) {
@@ -322,6 +352,8 @@ export function formItemDefaultConfig(type: FormItemType) {
 	switch (type) {
 		case 'field':
 			return FieldItemConfig.parse({ type: 'text' });
+		case 'group':
+			return GroupItemConfig.parse({});
 		case 'note':
 			return NoteItemConfig.parse({ fontSize: 13 });
 		case 'separator':

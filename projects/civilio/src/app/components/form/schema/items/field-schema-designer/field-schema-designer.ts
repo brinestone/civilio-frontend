@@ -1,19 +1,18 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { AsyncPipe, JsonPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, forwardRef, signal, Type, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, signal, Type, untracked } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
-import { DebugHeaderComponent, DebugPanelComponent } from '@app/components/debug';
+import { DebugHeader, DebugPanel } from '@app/components/debug';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideEye, lucideGrip, lucideSliders, lucideTags } from '@ng-icons/lucide';
-import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import z from 'zod';
-import { FormItemActionsComponent } from '../../form-item-actions/form-item-actions.component';
+import { FormItemActions } from '../../form-item-actions/form-item-actions.component';
 import { ConfigTab, FormItemSettingsDesigner } from '../../form-item-settings/form-item-settings';
-import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-designer';
+import { BaseFormItemSchemaDesigner } from '../base-item-schema-designer/base-form-item-schema-designer';
 
 
 const slugifier = z.string().trim().slugify().nullish().default('');
@@ -24,9 +23,7 @@ const slugifier = z.string().trim().slugify().nullish().default('');
 			lucideSliders,
 			lucideTags,
 			lucideEye,
-			// lucideCheck
 		}),
-		{ provide: BaseFormItemSchemaDesigner, useExisting: forwardRef(() => FieldSchemaDesigner) }
 	],
 	viewProviders: [
 		provideIcons({
@@ -44,10 +41,9 @@ const slugifier = z.string().trim().slugify().nullish().default('');
 		AsyncPipe,
 		NgTemplateOutlet,
 		NgComponentOutlet,
-		DebugPanelComponent,
-		FormItemActionsComponent,
-		DebugHeaderComponent,
-		HlmCheckbox,
+		DebugPanel,
+		FormItemActions,
+		DebugHeader,
 		JsonPipe
 	],
 	host: {
@@ -73,10 +69,6 @@ export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemFiel
 		},
 		{ label: 'Meta', value: 'tags', icon: 'lucideTags' }
 	] as ConfigTab[];
-
-	protected asGenericControl(node: any) {
-		return node as FieldTree<unknown>;
-	}
 	constructor() {
 		super();
 		effect(() => {

@@ -8,6 +8,6 @@ import { Component } from '@angular/core';
 	`,
 	styleUrl: './debug-header.component.scss',
 })
-export class DebugHeaderComponent {
+export class DebugHeader {
 
 }

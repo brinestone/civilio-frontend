@@ -1,4 +1,4 @@
-import { CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { CdkDropList } from '@angular/cdk/drag-drop';
 import {
 	AsyncPipe,
 	NgComponentOutlet,
@@ -22,9 +22,9 @@ import { FieldTree, form, submit } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { FormDesignerHeader } from '@app/components/form/schema';
 import {
-	createFormSchemaContextInjector
+	createFormSchemaContextInjector,
 } from '@app/components/form/schema/items';
-import { BaseFormItemSchemaDesigner } from '@app/components/form/schema/items/base-item/base-form-item-schema-designer';
+import { BaseFormItemSchemaDesigner } from '@app/components/form/schema/items/base-item-schema-designer/base-form-item-schema-designer';
 import { HasPendingChanges, isGroupItem } from '@app/model/form';
 import {
 	FormItemDefinition,
@@ -41,7 +41,7 @@ import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { current, produce } from 'immer';
-import { differenceWith, get, intersectionWith, remove } from 'lodash';
+import { differenceBy, differenceWith, get, intersectionBy, intersectionWith, isEqual, omit, remove } from 'lodash';
 import { toast } from 'ngx-sonner';
 import { Observable, of } from 'rxjs';
 import {
@@ -49,11 +49,14 @@ import {
 	defaultFormItemDefinitionSchemaValue,
 	defineFormDefinitionFormSchema,
 	domainToStrictFormDefinition,
+	FormItem,
 	FormItemType,
 	FormModel,
+	isExistingFormItem,
+	isField,
+	isFieldTree,
 	pathSeparator
-} from '../form-schemas';
-const isFieldTree = (v: FieldTree<Strict<FormItemDefinition>>): v is FieldTree<Strict<FormItemField>> => v.type().value() === 'field';
+} from '../form-designer-config';
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 
 @Component({
@@ -63,7 +66,6 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 		HlmAlertDialogImports,
 		NgTemplateOutlet,
 		CdkDropList,
-		CdkDropListGroup,
 		HlmSpinner,
 		FormDesignerHeader,
 		AsyncPipe,
@@ -84,7 +86,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 	readonly formVersion = input.required<string>({ alias: 'version' });
 	private readonly itemDesigners = viewChildren(BaseFormItemSchemaDesigner);
 	protected readonly formItemComponents = {
-		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner)
+		'field': import('../../../../components/form/schema/items/field-schema-designer/field-schema-designer').then(m => m.FieldSchemaDesigner),
+		'group': import('../../../../components/form/schema/items/group-schema-designer/group-schema-designer').then(m => m.GroupSchemaDesigner),
 	} as Record<string, Promise<Type<any>>>;
 	private readonly formService = inject(FormsService);
 	private readonly formDefinition = rxResource({
@@ -104,7 +107,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 	protected readonly formModel = form(this.formData, defineFormDefinitionFormSchema());
 	protected readonly fieldItems = computed(() => {
 		const { items } = this.formData();
-		const reg = {} as Record<string, FieldTree<Strict<FormItemField>>>;
+		const reg = {} as Record<string, FieldTree<Strict<FormItemField | NewFormItemField>>>;
 		for (const i of items) {
 			this.walkFormItemTree(i, item => {
 				const tree = get(this.formModel.items, item.path.split(pathSeparator)) as FieldTree<Strict<FormItemDefinition>>;
@@ -123,8 +126,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 	protected readonly itemComponentInjector = createFormSchemaContextInjector({
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
 		allFields: this.fieldItems,
-	// 	// allItemsSelected: this.allSelected.asReadonly(),
-	// 	// selectionToggledHandler: this.onItemSelectionToggled.bind(this)
+		// 	// allItemsSelected: this.allSelected.asReadonly(),
+		// 	// selectionToggledHandler: this.onItemSelectionToggled.bind(this)
 	});
 	protected readonly pendingChangesDialogState = signal<BrnDialogState>('closed');
 	protected pendingChangesActionCallback?: (action: 'save' | 'stay' | 'discard') => void;
@@ -148,6 +151,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 				this.walkFormItemTree(child as any, cb);
 			}
 		}
+		// if(isGroupItem(item) && item.config.)
 	}
 
 	protected addFormItem(target: FormItemAddTarget, type: FormItemType) {
@@ -221,24 +225,21 @@ export class SchemaDesignPage implements HasPendingChanges {
 		event?.preventDefault();
 		if (!this.formModel().valid()) {
 			toast.warning('Invalid form state', { description: 'The current state of the form designer is invalid. Pleace update the form\'s state and try again' });
+			return;
 		}
+		this.computeItemPaths();
 		await submit(this.formModel, async tree => {
 			const value = tree().value();
 			const pristine = this.formDefinition.value();
-			const comparator = (a: FormItemDefinition, b: FormItemDefinition) => {
-				const [aSymbolProp] = Object.getOwnPropertySymbols(a);
-				const [bSymbolProp] = Object.getOwnPropertySymbols(b);
-
-				const symbolA = (a as any)[aSymbolProp]
-				const symbolB = (b as any)[bSymbolProp];
-				return symbolA == symbolB;
-			}
-			const removedItems = differenceWith(pristine!.items!, value.items, comparator).map(i => i.id!);
-			const addedItems = differenceWith(value.items, pristine!.items!, comparator);
-			const updatedItems = intersectionWith(value.items, pristine!.items!, comparator);
-			const changedItems = updatedItems.filter((item, index) => {
-				const pristineItem = pristine!.items![pristine!.items!.indexOf(updatedItems[index])];
-				return JSON.stringify(item) !== JSON.stringify(pristineItem);
+			const removedItems = differenceBy(pristine!.items!, value.items, 'id').map(i => i.id!);
+			const addedItems = differenceBy(value.items, pristine!.items!, 'id');
+			const updatedItems = intersectionBy(value.items, pristine!.items!, 'id');
+			const changedItems = updatedItems.filter((item) => {
+				const pristineItem = pristine!.items!.find(i => {
+					return i.id === item.id
+				});
+				const clone = omit(item, Object.getOwnPropertySymbols(item));
+				return !isEqual(pristineItem, clone);
 			});
 			this.formService.updateFormVersionDefinition(this.slug(), this.formVersion(), {
 				addedItems, removedItems, updatedItems: changedItems
@@ -298,9 +299,6 @@ export class SchemaDesignPage implements HasPendingChanges {
 				})
 			}
 		});
-		effect(() => {
-			console.log(this.itemDesigners());
-		})
 	}
 
 	// protected onselectAll(value: boolean) {

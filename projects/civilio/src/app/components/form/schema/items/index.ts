@@ -1,15 +1,15 @@
-import { assertInInjectionContext, inject, InjectionToken, Injector, ModelSignal, Signal, WritableSignal } from '@angular/core';
+import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from '@angular/core';
 import { FieldTree } from '@angular/forms/signals';
-import { FormItemDefinition, FormItemField, NewFormItemDefinition } from '@civilio/sdk/models';
+import { FormItem } from '@app/pages/forms/schemas/form-designer-config';
+import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 
 export * from './field-schema-designer/field-schema-designer';
 
-export type FormItem = FormItemDefinition | NewFormItemDefinition;
 export type FormSchemaContext = {
 	itemDeleteHandler: (path: string, index: number) => void;
 	// selectionToggledHandler: (path: string, state: boolean) => void;
-	allFields: Signal<Record<string, FieldTree<Strict<FormItemField>>>>;
+	allFields: Signal<Record<string, FieldTree<Strict<FormItemField | NewFormItemField>>>>;
 	// allItemsSelected: Signal<boolean>;
 };
 export type FormItemDesignerContext<T extends FormItem> = {

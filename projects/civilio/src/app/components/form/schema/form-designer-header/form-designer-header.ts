@@ -5,7 +5,7 @@ import { FieldState } from "@angular/forms/signals";
 import { FormItemDefinition } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideChevronDown, lucideEye, lucideFormInput, lucideImage, lucideRuler, lucideSave, lucideStickyNote, lucideTrash2 } from "@ng-icons/lucide";
+import { lucideChevronDown, lucideEye, lucideFormInput, lucideGroup, lucideImage, lucideRuler, lucideSave, lucideStickyNote, lucideTrash2 } from "@ng-icons/lucide";
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmButtonGroup, HlmButtonGroupImports } from "@spartan-ng/helm/button-group";
 import { HlmDropdownMenuImports } from "@spartan-ng/helm/dropdown-menu";
@@ -13,6 +13,7 @@ import { HlmSpinner } from "@spartan-ng/helm/spinner";
 
 const FORM_ITEM_TYPES = {
 	field: { icon: 'lucideFormInput', label: 'Question' },
+	group: { icon: 'lucideGroup', label: 'Group' },
 	// note: { icon: 'lucideStickyNote', label: 'Note' },
 	// image: { icon: 'lucideImage', label: 'Image' },
 } as Record<FormItemType, { label: string, icon: string }>;
@@ -36,6 +37,7 @@ type FormItemType = Strict<FormItemDefinition>['type'];
 	viewProviders: [
 		provideIcons({
 			lucideFormInput,
+			lucideGroup,
 			lucideStickyNote,
 			lucideRuler,
 			lucideImage,
@@ -64,5 +66,10 @@ export class FormDesignerHeader {
 
 	protected onTogglePreviewButtonClicked() {
 		this.previewing.update((previewing) => !previewing);
+	}
+	constructor() {
+		this.itemAdd.subscribe(v => {
+			this.lastAddedItemType.set(v);
+		})
 	}
 }

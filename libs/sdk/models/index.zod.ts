@@ -5,12 +5,14 @@
  * OpenAPI spec version: 1.0
  */
 
-export * from './added-form-item.zod';
+export * from './archived-form-version-definition.zod';
 export * from './availability-response.zod';
 export * from './base-date-field-props.zod';
 export * from './base-field-props.zod';
 export * from './base-form-item-definition-with-id.zod';
 export * from './base-form-item-definition-without-id.zod';
+export * from './base-form-item-group.zod';
+export * from './base-group-item-config.zod';
 export * from './boolean-field-config.zod';
 export * from './create-dataset-reference-body.zod';
 export * from './create-dataset-reference201.zod';
@@ -41,6 +43,8 @@ export * from './geo-point.zod';
 export * from './get-facility-info-params.zod';
 export * from './get-facility-info200.zod';
 export * from './get-submission-data-params.zod';
+export * from './group-item-config.zod';
+export * from './group-item-entry.zod';
 export * from './image-item-config.zod';
 export * from './index-range.zod';
 export * from './is-dataset-key-available-params.zod';
@@ -61,6 +65,7 @@ export * from './new-form-item-group.zod';
 export * from './new-form-item-image.zod';
 export * from './new-form-item-note.zod';
 export * from './new-form-item-separator.zod';
+export * from './new-group-item-config.zod';
 export * from './note-item-config.zod';
 export * from './number-field-config.zod';
 export * from './number-range.zod';

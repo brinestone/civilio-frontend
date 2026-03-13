@@ -1,5 +1,6 @@
-import { FormItem, FormItemDesignerContext } from "./items";
+import { FormItemDefinition, NewFormItemDefinition } from "@civilio/sdk/models";
+import { FormItemDesignerContext } from "./items";
 
-export interface FormItemSettingsSection<T extends FormItem> {
+export interface FormItemSettingsSection<T extends FormItemDefinition | NewFormItemDefinition> {
 	ctx: FormItemDesignerContext<T>;
 }

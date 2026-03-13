@@ -26,13 +26,14 @@ import {
 
 import {
   AvailabilityResponse,
-  CreateNewForm201,
-  FormVersionDefinition
+  CreateNewForm201
 } from '../../../../../../libs/sdk/models/index.zod';
 import type {
+  ArchivedFormVersionDefinition,
   CreateNewFormBody,
   FindFormDefinitionByVersionParams,
   FormLookup,
+  FormVersionDefinition,
   FormVersionLookup,
   IsFormTitleAvailableParams,
   IsSlugAvailableParams,
@@ -150,13 +151,13 @@ export class FormsService {
  * Get a form's definition by version
  * @summary Get form version definition
  */
- findFormDefinitionByVersion<TData = FormVersionDefinition>(form: string,
+ findFormDefinitionByVersion<TData = FormVersionDefinition | ArchivedFormVersionDefinition>(form: string,
     params?: FindFormDefinitionByVersionParams, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- findFormDefinitionByVersion<TData = FormVersionDefinition>(form: string,
+ findFormDefinitionByVersion<TData = FormVersionDefinition | ArchivedFormVersionDefinition>(form: string,
     params?: FindFormDefinitionByVersionParams, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- findFormDefinitionByVersion<TData = FormVersionDefinition>(form: string,
+ findFormDefinitionByVersion<TData = FormVersionDefinition | ArchivedFormVersionDefinition>(form: string,
     params?: FindFormDefinitionByVersionParams, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
-  findFormDefinitionByVersion<TData = FormVersionDefinition>(
+  findFormDefinitionByVersion<TData = FormVersionDefinition | ArchivedFormVersionDefinition>(
     form: string,
     params?: FindFormDefinitionByVersionParams, options?: HttpClientOptions & { observe?: 'body' | 'events' | 'response' }): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     const filteredParams = filterParams({...params, ...options?.params}, new Set<string>([]));
@@ -184,7 +185,7 @@ export class FormsService {
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}
-    ).pipe(map(data => FormVersionDefinition.parse(data) as TData));
+    );
   }
 /**
  * @summary Toggle a form's archived status

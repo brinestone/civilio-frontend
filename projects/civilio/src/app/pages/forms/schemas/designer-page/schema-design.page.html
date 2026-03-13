@@ -16,7 +16,7 @@
 		novalidate
 	>
 		<div class="container mx-auto py-9">
-			<div hlmFieldGroup cdkDropListGroup cdkDropList class="space-y-10">
+			<div hlmFieldGroup cdkDropList class="space-y-10">
 				@for (item of formModel.items; track item) {
 				<ng-container>
 					@let component = formItemComponents[item.type().value()];
@@ -27,7 +27,8 @@
 						[ngComponentOutlet]="component | async"
 						[ngComponentOutletInputs]="{
 						node: item,
-						index: $index
+						index: $index,
+						cdkDragLockAxis: 'y',
 					}"
 						[ngComponentOutletInjector]="itemComponentInjector"
 					/>
