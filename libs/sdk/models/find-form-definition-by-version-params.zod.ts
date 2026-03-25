@@ -6,7 +6,9 @@
  */
 import { z as zod } from 'zod';
 
+export const findFormDefinitionByVersionParamsArchivedDefault = false;
 export const FindFormDefinitionByVersionParams = zod.object({
+  "archived": zod.boolean().default(findFormDefinitionByVersionParamsArchivedDefault),
   "version": zod.uuid().optional()
 })
 

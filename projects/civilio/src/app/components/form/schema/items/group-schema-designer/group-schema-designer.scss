@@ -19,3 +19,7 @@ dl {
 pre {
 	@apply text-xs;
 }
+
+input.group-input {
+	@apply selection:bg-(--primary) selection:text-(--primary-foreground);
+}

@@ -2,6 +2,8 @@ import { isDevMode } from "@angular/core";
 import {
 	FormItemDefinition,
 	FormItemGroup,
+	NewFormItemDefinition,
+	NewFormItemGroup,
 	RelevanceLogicExpression, RelevanceLogicExpressionOperator
 } from "@civilio/sdk/models";
 import {
@@ -62,9 +64,6 @@ export const RelevanceLogicExpressionInputSchema = RelevanceLogicExpression.exte
 	value: RelevanceLogicExpression.shape.value.default(null)
 })
 export type RelevanceLogicExpressionInput = z.input<typeof RelevanceLogicExpressionInputSchema>;
-export function isGroupItem(v: FormItemDefinition): v is FormItemGroup {
-	return v?.type === 'group';
-}
 export const FieldTypeSchema = z.enum(['text', 'multiline', 'single-select', 'multi-select', 'boolean', 'float', 'integer', 'date', 'date-time', 'date-range', 'multi-date', 'geo-point']);
 export const DateFieldTypesSchema = FieldTypeSchema.extract(['date', 'multi-date', 'date-range', 'date-time']);
 export const BaseFieldItemConfigSchema = z.object({

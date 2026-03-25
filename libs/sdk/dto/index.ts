@@ -11,6 +11,7 @@ export * from './create-dataset-reference-body';
 export * from './create-new-form-body';
 export * from './file-upload-response';
 export * from './find-form-definition-by-version-params';
+export * from './find-sparse-index-ranges-params';
 export * from './get-facility-info-params';
 export * from './get-submission-data-params';
 export * from './is-dataset-key-available-params';

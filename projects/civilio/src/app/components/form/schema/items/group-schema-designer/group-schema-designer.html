@@ -1,0 +1,131 @@
+@let group = node();
+<div
+	cdkDragHandle
+	class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
+>
+	<ng-icon name="lucideGrip" />
+	<span>Group</span>
+</div>
+<div class="absolute top-0 left-[calc(100%+5px)]">
+	<cv-form-item-actions
+		orientation="vertical"
+		(delete)="context.itemDeleteHandler(group.path().value(), index())"
+		(togglePreview)="editing.set(!$event)"
+		(toggleSettings)="expanded.set($event)"
+	/>
+</div>
+@if(showDebug()) {
+<div class="absolute top-0 right-[calc(100%+10px)]">
+	<cv-debug-panel class="block max-h-100 min-w-65">
+		<cv-debug-header>Item State</cv-debug-header>
+		<div class="px-2 py-1">
+			<dl>
+				<dt>Validity</dt>
+				<dd>{{ group().valid() ? 'Valid' : 'Invalid' }}</dd>
+				@if (group().errorSummary().length > 0) {
+				<dt>Errors</dt>
+				<dd>
+					<ul>
+						@for (err of group().errorSummary(); track $index) {
+						<li>
+							{{ err.fieldTree().keyInParent() }}: {{ err.message || err.kind }}
+						</li>
+						}
+					</ul>
+				</dd>
+				}
+				<dt>Value</dt>
+				<dd>
+					<pre>{{ group().value() | json }}</pre>
+				</dd>
+			</dl>
+		</div>
+	</cv-debug-panel>
+</div>
+}
+<div class="p-3 spacey-y-2">
+	<div hlmField>
+		<input
+			[formField]="group.config.title"
+			class="group-input text-xl font-extrabold px-3 py-2 placeholder:opacity-20 focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
+			[placeholder]="titlePlaceholder() ?? ''"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: group.config.title}"
+		/>
+		<p hlmFieldDescription>{{ titleHint() ?? '' }}</p>
+	</div>
+	<div hlmField>
+		<input
+			[formField]="group.config.description"
+			class="group-input text-lg font-normal px-3 py-1 placeholder:opacity-20 placeholder:italic focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
+			[placeholder]="descriptionPlaceholder() ?? ''"
+		/>
+		<ng-container
+			[ngTemplateOutlet]="errorsTemplate"
+			[ngTemplateOutletContext]="{$implicit: group.config.description}"
+		/>
+	</div>
+</div>
+<hlm-separator />
+<div class="p-3 flex items-center gap-x-3">
+	<p hlmFieldTitle>{{group.config.fields.length}} Question{{ group.config.fields.length == 1 ? '' : 's' }}</p>
+	<button
+		(click)="onAddFieldButtonClicked()"
+		type="button"
+		variant="outline"
+		size="sm"
+		hlmBtn
+	>
+		<ng-icon name="lucidePlus" />
+		<span>Add Question</span>
+	</button>
+</div>
+<div cdkDropList>
+	@for(field of group.config.fields; track field) {
+	<cv-form-field-designer
+		[node]="field"
+		[index]="$index"
+		[showDebug]="false"
+		cdkDragLockAxis="y"
+		[expanded]="false"
+		noWrapper
+		class="not-only:not-last:border-b not-only:border-border first:border-y"
+	/>
+	}
+</div>
+@if(expanded()) {
+<cv-form-item-settings
+	[tabs]="configTabs"
+	[(currentTab)]="currentTab"
+	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
+	(close)="expanded.set(false)"
+>
+	<ng-container>
+		@let component = tabContentComponents[currentTab()] | async;
+	</ng-container>
+	@if(component) {
+	<ng-container
+		[ngComponentOutlet]="component"
+		[ngComponentOutletInjector]="sectionInjector"
+	/>
+	}
+</cv-form-item-settings>
+}
+
+<ng-template #errorsTemplate let-ctrl>
+	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
+	@if (control().pending()) {
+	<div class="inline-flex gap-2 items-center text-sm">
+		<hlm-spinner />
+		<span>Checking...</span>
+	</div>
+	} @else if (control().invalid() && control().dirty()) {
+	<div class="space-y-1">
+		@for (error of control().errors(); track error) {
+		<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+		}
+	</div>
+	}
+</ng-template>

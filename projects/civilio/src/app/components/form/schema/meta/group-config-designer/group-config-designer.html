@@ -1,0 +1,43 @@
+<div hlmFieldGroup>
+	<div hlmFieldGroup>
+		<div hlmField orientation="horizontal">
+			<hlm-switch
+				[formField]="config().repeatable"
+				id="{{item().path().value()}}__repeatable"
+			/>
+			<label
+				class="cursor-pointer"
+				hlmFieldLabel
+				for="{{item().path().value()}}__repeatable"
+				>Repeatable</label
+			>
+		</div>
+		<p hlmFieldDescription>{{ repeatableHint() }}</p>
+		<cv-field-error [field]="config().repeatable" />
+	</div>
+	<div hlmField orientation="horizontal">
+		<div hlmField>
+			<label hlmFieldLabel for="{{item().path().value()}}__orientation">
+				Orientation
+			</label>
+			<hlm-select [formField]="config().orientation">
+				<hlm-select-trigger class="capitalize w-full"
+					><hlm-select-value
+				/></hlm-select-trigger>
+				<hlm-select-content class="w-full">
+					<hlm-option value="vertical">Vertical</hlm-option>
+					<hlm-option value="horizontal">Horizontal</hlm-option>
+				</hlm-select-content>
+			</hlm-select>
+			<cv-field-error [field]="config().orientation" />
+		</div>
+		<div hlmField>
+			<label hlmFieldLabel for="{{item().path().value()}}__division_count"
+				>{{ config().orientation().value() == 'vertical' ? 'Rows' : 'Columns'
+				}}</label
+			>
+			<input hlmInput [formField]="config().divisionCount" type="number" />
+			<cv-field-error [field]="config().divisionCount" />
+		</div>
+	</div>
+</div>

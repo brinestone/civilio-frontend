@@ -1,6 +1,6 @@
 import { BooleanInput } from "@angular/cdk/coercion";
 import { CdkDrag, CdkDragPlaceholder } from "@angular/cdk/drag-drop";
-import { booleanAttribute, ChangeDetectionStrategy, Component, input, isDevMode, model } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, isDevMode, model } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { FormItemDefinition, NewFormItemDefinition } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
@@ -33,13 +33,15 @@ export class BaseFormItemSchemaDesigner<T extends FormItemDefinition | NewFormIt
 	readonly expanded = model<boolean>(isDevMode())
 	readonly editing = model<boolean>(true);
 	readonly showDebug = input<boolean, BooleanInput>(isDevMode(), { transform: booleanAttribute });
+	protected readonly isNew = computed(() => !('id' in (this.node()().value() as any)));
 	protected readonly context = injectFormSchemaContext();
 	protected readonly sectionInjector = createFormItemDesignerContextInjector<T>({
 		fieldTree: this.node,
 		index: this.index,
-		// selected: this.selected
 	});
-
+	protected asGenericControl(node: any) {
+		return node as FieldTree<unknown>;
+	}
 	// protected readonly _selected = linkedSignal(() => {
 	// 	return this.context.allItemsSelected();
 	// });

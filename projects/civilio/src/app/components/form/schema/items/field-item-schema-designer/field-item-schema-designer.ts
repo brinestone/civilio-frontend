@@ -1,19 +1,19 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { AsyncPipe, JsonPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, forwardRef, signal, Type, untracked } from '@angular/core';
+import { AsyncPipe, JsonPipe, NgClass, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
+import { booleanAttribute, ChangeDetectionStrategy, Component, effect, input, signal, Type, untracked } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
-import { DebugHeaderComponent, DebugPanelComponent } from '@app/components/debug';
+import { DebugHeader, DebugPanel } from '@app/components/debug';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideEye, lucideGrip, lucideSliders, lucideTags } from '@ng-icons/lucide';
-import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import z from 'zod';
-import { FormItemActionsComponent } from '../../form-item-actions/form-item-actions.component';
+import { FormItemActions } from '../../form-item-actions/form-item-actions.component';
 import { ConfigTab, FormItemSettingsDesigner } from '../../form-item-settings/form-item-settings';
-import { BaseFormItemSchemaDesigner } from '../base-item/base-form-item-schema-designer';
+import { BaseFormItemSchemaDesigner } from '../base-item-schema-designer/base-form-item-schema-designer';
+import { BooleanInput } from '@angular/cdk/coercion';
 
 
 const slugifier = z.string().trim().slugify().nullish().default('');
@@ -24,9 +24,7 @@ const slugifier = z.string().trim().slugify().nullish().default('');
 			lucideSliders,
 			lucideTags,
 			lucideEye,
-			// lucideCheck
 		}),
-		{ provide: BaseFormItemSchemaDesigner, useExisting: forwardRef(() => FieldSchemaDesigner) }
 	],
 	viewProviders: [
 		provideIcons({
@@ -44,20 +42,26 @@ const slugifier = z.string().trim().slugify().nullish().default('');
 		AsyncPipe,
 		NgTemplateOutlet,
 		NgComponentOutlet,
-		DebugPanelComponent,
-		FormItemActionsComponent,
-		DebugHeaderComponent,
-		HlmCheckbox,
+		NgClass,
+		DebugPanel,
+		FormItemActions,
+		DebugHeader,
 		JsonPipe
-	],
+	],// block bg-(--card) rounded rounded-tl-none focus-within:border-(--primary)'
 	host: {
-		'[class.border-border]': 'editing()'
+		'[class.border-border]': 'editing() && !noWrapper()',
+		'[class.border]': '!noWrapper()',
+		'[class.bg-card]': '!noWrapper()',
+		'[class.rounded]': '!noWrapper()',
+		'[class.rounded-tl-none]': '!noWrapper()',
+		'[class.focus-within:border-primary]': '!noWrapper()',
 	},
-	templateUrl: './field-schema-designer.html',
-	styleUrl: './field-schema-designer.scss',
+	templateUrl: './field-item-schema-designer.html',
+	styleUrl: './field-item-schema-designer.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField | NewFormItemField> {
+export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField | NewFormItemField> {
+	readonly noWrapper = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	protected readonly currentConfigTab = signal('meta');
 	protected tabContentComponents: Record<string, Promise<Type<any>>> = {
 		meta: import('../../meta/form-field-config/form-field-config').then(m => m.FormFieldConfig),
@@ -73,10 +77,6 @@ export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemFiel
 		},
 		{ label: 'Meta', value: 'tags', icon: 'lucideTags' }
 	] as ConfigTab[];
-
-	protected asGenericControl(node: any) {
-		return node as FieldTree<unknown>;
-	}
 	constructor() {
 		super();
 		effect(() => {

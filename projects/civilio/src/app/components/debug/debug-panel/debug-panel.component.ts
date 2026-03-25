@@ -24,7 +24,7 @@ import { HlmSeparator } from '@spartan-ng/helm/separator';
 		DevOnly
 	],
 })
-export class DebugPanelComponent {
+export class DebugPanel {
 	protected expanded = signal(true);
 	protected toggleExpanded() {
 		this.expanded.update(v => !v);
