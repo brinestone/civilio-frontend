@@ -1,6 +1,6 @@
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { AsyncPipe, JsonPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, signal, Type, untracked } from '@angular/core';
+import { AsyncPipe, JsonPipe, NgClass, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
+import { booleanAttribute, ChangeDetectionStrategy, Component, effect, input, signal, Type, untracked } from '@angular/core';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import { DebugHeader, DebugPanel } from '@app/components/debug';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
@@ -13,6 +13,7 @@ import z from 'zod';
 import { FormItemActions } from '../../form-item-actions/form-item-actions.component';
 import { ConfigTab, FormItemSettingsDesigner } from '../../form-item-settings/form-item-settings';
 import { BaseFormItemSchemaDesigner } from '../base-item-schema-designer/base-form-item-schema-designer';
+import { BooleanInput } from '@angular/cdk/coercion';
 
 
 const slugifier = z.string().trim().slugify().nullish().default('');
@@ -41,19 +42,26 @@ const slugifier = z.string().trim().slugify().nullish().default('');
 		AsyncPipe,
 		NgTemplateOutlet,
 		NgComponentOutlet,
+		NgClass,
 		DebugPanel,
 		FormItemActions,
 		DebugHeader,
 		JsonPipe
-	],
+	],// block bg-(--card) rounded rounded-tl-none focus-within:border-(--primary)'
 	host: {
-		'[class.border-border]': 'editing()'
+		'[class.border-border]': 'editing() && !noWrapper()',
+		'[class.border]': '!noWrapper()',
+		'[class.bg-card]': '!noWrapper()',
+		'[class.rounded]': '!noWrapper()',
+		'[class.rounded-tl-none]': '!noWrapper()',
+		'[class.focus-within:border-primary]': '!noWrapper()',
 	},
-	templateUrl: './field-schema-designer.html',
-	styleUrl: './field-schema-designer.scss',
+	templateUrl: './field-item-schema-designer.html',
+	styleUrl: './field-item-schema-designer.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FieldSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField | NewFormItemField> {
+export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemField | NewFormItemField> {
+	readonly noWrapper = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	protected readonly currentConfigTab = signal('meta');
 	protected tabContentComponents: Record<string, Promise<Type<any>>> = {
 		meta: import('../../meta/form-field-config/form-field-config').then(m => m.FormFieldConfig),

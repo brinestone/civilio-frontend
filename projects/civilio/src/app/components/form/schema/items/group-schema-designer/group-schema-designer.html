@@ -16,7 +16,7 @@
 </div>
 @if(showDebug()) {
 <div class="absolute top-0 right-[calc(100%+10px)]">
-	<cv-debug-panel class="block max-h100 min-w-65">
+	<cv-debug-panel class="block max-h-100 min-w-65">
 		<cv-debug-header>Item State</cv-debug-header>
 		<div class="px-2 py-1">
 			<dl>
@@ -47,7 +47,7 @@
 	<div hlmField>
 		<input
 			[formField]="group.config.title"
-			class="text-xl font-extrabold px-3 py-2 placeholder:opacity-20 focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
+			class="group-input text-xl font-extrabold px-3 py-2 placeholder:opacity-20 focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
 			[placeholder]="titlePlaceholder() ?? ''"
 		/>
 		<ng-container
@@ -59,7 +59,7 @@
 	<div hlmField>
 		<input
 			[formField]="group.config.description"
-			class="text-lg font-normal px-3 py-1 placeholder:opacity-20 placeholder:italic focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
+			class="group-input text-lg font-normal px-3 py-1 placeholder:opacity-20 placeholder:italic focus:outline-none border-border focus:border-primary focus:border-b-2 transition-[border-width] border-b [&.ng-invalid]:border-destructive [&.ng-invalid]:focus:border-destructive [&.ng-invalid]:bg-destructive/20"
 			[placeholder]="descriptionPlaceholder() ?? ''"
 		/>
 		<ng-container
@@ -67,6 +67,33 @@
 			[ngTemplateOutletContext]="{$implicit: group.config.description}"
 		/>
 	</div>
+</div>
+<hlm-separator />
+<div class="p-3 flex items-center gap-x-3">
+	<p hlmFieldTitle>{{group.config.fields.length}} Question{{ group.config.fields.length == 1 ? '' : 's' }}</p>
+	<button
+		(click)="onAddFieldButtonClicked()"
+		type="button"
+		variant="outline"
+		size="sm"
+		hlmBtn
+	>
+		<ng-icon name="lucidePlus" />
+		<span>Add Question</span>
+	</button>
+</div>
+<div cdkDropList>
+	@for(field of group.config.fields; track field) {
+	<cv-form-field-designer
+		[node]="field"
+		[index]="$index"
+		[showDebug]="false"
+		cdkDragLockAxis="y"
+		[expanded]="false"
+		noWrapper
+		class="not-only:not-last:border-b not-only:border-border first:border-y"
+	/>
+	}
 </div>
 @if(expanded()) {
 <cv-form-item-settings

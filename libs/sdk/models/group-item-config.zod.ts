@@ -8,7 +8,7 @@ import { z as zod } from 'zod';
 
 export const groupItemConfigOneTitleDefault = null;
 export const groupItemConfigOneDescriptionDefault = null;
-export const groupItemConfigOneRepeatableDefault = true;
+export const groupItemConfigOneRepeatableDefault = false;
 export const groupItemConfigOneDivisionCountDefault = 1;
 
 export const groupItemConfigOneOrientationDefault = `vertical`;
@@ -23,168 +23,88 @@ export const groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItem
 export const groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueLatMax = 90;
+export const groupItemConfigTwoFieldsItemTwoOnePathDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneTagsItemKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneTagsItemValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneTagsDefault = [];
+export const groupItemConfigTwoFieldsItemTwoOneMetaTagDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceEnabledDefault = true;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceOperatorDefault = `and`;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
+export const groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoParentIdDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueLatMax = 90;
 
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueLongMax = 180;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueLongMax = 180;
 
-export const groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeTwoDefaultValueDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigThreeTwoRenderAsDefault = `checkbox`;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourTwoPatternDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourTwoMinlengthDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourTwoMaxlengthDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFourTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoItemSourceRefDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsItemLabelDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsDefault = [];
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixTwoMinSelectionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixTwoMaxSelectionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSixTwoDefaultValueDefault = [];
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigSevenTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemOneTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
-export const groupItemConfigTwoFieldsItemTwoOneOnePathDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneTagsItemKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneTagsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneTagsDefault = [];
-export const groupItemConfigTwoFieldsItemTwoOneOneMetaTagDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceEnabledDefault = true;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceOperatorDefault = `and`;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemFieldDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
-export const groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOnePathDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneTagsItemKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneTagsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneTagsDefault = [];
-export const groupItemConfigTwoFieldsItemTwoTwoOneMetaTagDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceEnabledDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceOperatorDefault = `and`;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueLatMax = 90;
-
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueLongMax = 180;
-
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeTwoDefaultValueDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeTwoRenderAsDefault = `checkbox`;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoPatternDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoMinlengthDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoMaxlengthDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoItemSourceRefDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsItemLabelDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsItemValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsDefault = [];
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoMinSelectionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoMaxSelectionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoDefaultValueDefault = [];
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenTwoDefaultValueDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneRequiredDefault = true;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneReadonlyDefault = false;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneTitleDefault = ``;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneDescriptionDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneDataKeyDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneTwoMinDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneTwoMaxDefault = null;
-export const groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
+export const groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoMinDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoMaxDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoDefaultValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeTwoDefaultValueDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigThreeTwoRenderAsDefault = `checkbox`;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoPatternDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoMinlengthDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoMaxlengthDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoDefaultValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoItemSourceRefDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoDefaultValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsItemLabelDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsItemValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsDefault = [];
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneTwoMinDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixOneTwoMaxDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoMinSelectionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoMaxSelectionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoDefaultValueDefault = [];
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneTwoMinDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneTwoMaxDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigSevenTwoDefaultValueDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneRequiredDefault = true;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneReadonlyDefault = false;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneTitleDefault = ``;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneDescriptionDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneDataKeyDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneTwoMinDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightOneTwoMaxDefault = null;
+export const groupItemConfigTwoFieldsItemTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const groupItemConfigTwoFieldsDefault = [];
 export const GroupItemConfig = zod.object({
   "title": zod.string().nullable().default(groupItemConfigOneTitleDefault),
@@ -193,7 +113,7 @@ export const GroupItemConfig = zod.object({
   "divisionCount": zod.number().min(1).default(groupItemConfigOneDivisionCountDefault),
   "orientation": zod.enum(['horizonal', 'vertical']).default(groupItemConfigOneOrientationDefault)
 }).and(zod.object({
-  "fields": zod.array(zod.union([zod.object({
+  "fields": zod.array(zod.object({
   "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(groupItemConfigTwoFieldsItemOneOnePathDefault),
   "tags": zod.array(zod.object({
@@ -215,289 +135,148 @@ export const GroupItemConfig = zod.object({
 }))
 })
 }).and(zod.object({
-  "type": zod.enum(['field']),
-  "config": zod.union([zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigOneOneDataKeyDefault)
-}).and(zod.object({
-  "type": zod.enum(['geo-point']),
-  "defaultValue": zod.object({
-  "lat": zod.number().max(groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueLatMax),
-  "long": zod.number().max(groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueLongMax)
-}).nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigOneTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['geo-point'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoOneDataKeyDefault)
-}).and(zod.object({
-  "type": zod.enum(['integer', 'float']),
-  "min": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoMinDefault),
-  "max": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoMaxDefault),
-  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigTwoTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['integer', 'float'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeOneDataKeyDefault)
-}).and(zod.object({
-  "type": zod.enum(['boolean']),
-  "defaultValue": zod.boolean().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeTwoDefaultValueDefault),
-  "renderAs": zod.enum(['select', 'checkbox']).nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigThreeTwoRenderAsDefault)
-})).and(zod.object({
-  "type": zod.enum(['boolean'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigFourOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigFourOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigFourOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourOneDataKeyDefault)
-}).and(zod.object({
-  "type": zod.enum(['text', 'multiline']),
-  "pattern": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourTwoPatternDefault),
-  "minlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourTwoMinlengthDefault),
-  "maxlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourTwoMaxlengthDefault),
-  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFourTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['text', 'multiline'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveOneDataKeyDefault)
-}).and(zod.object({
-  "type": zod.enum(['single-select', 'multi-select']),
-  "itemSourceRef": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoItemSourceRefDefault),
-  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoDefaultValueDefault),
-  "hardItems": zod.array(zod.object({
-  "label": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsItemLabelDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsItemValueDefault)
-})).default(groupItemConfigTwoFieldsItemOneTwoConfigFiveTwoHardItemsDefault)
-})).and(zod.object({
-  "type": zod.enum(['single-select', 'multi-select'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneOneDataKeyDefault)
-}).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSixOneTwoMaxDefault)
-})).and(zod.object({
-  "type": zod.enum(['multi-date']),
-  "minSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSixTwoMinSelectionDefault),
-  "maxSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSixTwoMaxSelectionDefault),
-  "defaultValue": zod.array(zod.number()).nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSixTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['multi-date'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneOneDataKeyDefault)
-}).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenOneTwoMaxDefault)
-})).and(zod.object({
-  "type": zod.enum(['date', 'date-time']),
-  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigSevenTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['date', 'date-time'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneOneDataKeyDefault)
-}).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemOneTwoConfigEightOneTwoMaxDefault)
-})).and(zod.object({
-  "type": zod.enum(['date-range']),
-  "defaultValue": zod.object({
-  "start": zod.number().nullish(),
-  "end": zod.number().nullish()
-}).default(groupItemConfigTwoFieldsItemOneTwoConfigEightTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['date-range'])
-}))])
-})).and(zod.object({
-  "type": zod.enum(['field'])
-})),zod.object({
-  "itemId": zod.uuid().nullish(),
-  "path": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneOnePathDefault),
-  "tags": zod.array(zod.object({
-  "key": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneOneTagsItemKeyDefault),
-  "value": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneOneTagsItemValueDefault)
-})).default(groupItemConfigTwoFieldsItemTwoOneOneTagsDefault),
-  "metaTag": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoOneOneMetaTagDefault),
-  "relevance": zod.object({
-  "enabled": zod.boolean().default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceEnabledDefault),
-  "operator": zod.enum(['and', 'or']).default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceOperatorDefault),
-  "logic": zod.array(zod.object({
-  "operator": zod.enum(['and', 'or']),
-  "expressions": zod.array(zod.object({
-  "field": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemFieldDefault),
-  "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
-  "negated": zod.boolean().default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoOneOneRelevanceLogicItemExpressionsItemValueDefault)
-}))
-}))
-})
-}).and(zod.object({
   "id": zod.uuid(),
   "addedAt": zod.string(),
   "updatedAt": zod.string(),
   "itemId": zod.uuid()
 })).and(zod.object({
   "itemId": zod.uuid().nullish(),
-  "path": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoTwoOnePathDefault),
+  "path": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOnePathDefault),
   "tags": zod.array(zod.object({
-  "key": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoTwoOneTagsItemKeyDefault),
-  "value": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoTwoOneTagsItemValueDefault)
-})).default(groupItemConfigTwoFieldsItemTwoTwoOneTagsDefault),
-  "metaTag": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoOneMetaTagDefault),
+  "key": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneTagsItemKeyDefault),
+  "value": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneTagsItemValueDefault)
+})).default(groupItemConfigTwoFieldsItemTwoOneTagsDefault),
+  "metaTag": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoOneMetaTagDefault),
   "relevance": zod.object({
-  "enabled": zod.boolean().default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceEnabledDefault),
-  "operator": zod.enum(['and', 'or']).default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceOperatorDefault),
+  "enabled": zod.boolean().default(groupItemConfigTwoFieldsItemTwoOneRelevanceEnabledDefault),
+  "operator": zod.enum(['and', 'or']).default(groupItemConfigTwoFieldsItemTwoOneRelevanceOperatorDefault),
   "logic": zod.array(zod.object({
   "operator": zod.enum(['and', 'or']),
   "expressions": zod.array(zod.object({
-  "field": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
-  "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
-  "negated": zod.boolean().default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "field": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
+  "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
+  "negated": zod.boolean().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
+  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(groupItemConfigTwoFieldsItemTwoTwoParentIdDefault),
   "config": zod.union([zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneOneDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['geo-point']),
   "defaultValue": zod.object({
-  "lat": zod.number().max(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueLatMax),
-  "long": zod.number().max(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueLongMax)
-}).nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigOneTwoDefaultValueDefault)
+  "lat": zod.number().max(groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueLatMax),
+  "long": zod.number().max(groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueLongMax)
+}).nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigOneTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['geo-point'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoOneDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['integer', 'float']),
-  "min": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoMinDefault),
-  "max": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoMaxDefault),
-  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigTwoTwoDefaultValueDefault)
+  "min": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoMinDefault),
+  "max": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoMaxDefault),
+  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigTwoTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['integer', 'float'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeOneDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['boolean']),
-  "defaultValue": zod.boolean().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeTwoDefaultValueDefault),
-  "renderAs": zod.enum(['select', 'checkbox']).nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigThreeTwoRenderAsDefault)
+  "defaultValue": zod.boolean().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeTwoDefaultValueDefault),
+  "renderAs": zod.enum(['select', 'checkbox']).nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigThreeTwoRenderAsDefault)
 })).and(zod.object({
   "type": zod.enum(['boolean'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourOneDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['text', 'multiline']),
-  "pattern": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoPatternDefault),
-  "minlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoMinlengthDefault),
-  "maxlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoMaxlengthDefault),
-  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFourTwoDefaultValueDefault)
+  "pattern": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoPatternDefault),
+  "minlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoMinlengthDefault),
+  "maxlength": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoMaxlengthDefault),
+  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFourTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['text', 'multiline'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveOneDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['single-select', 'multi-select']),
-  "itemSourceRef": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoItemSourceRefDefault),
-  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoDefaultValueDefault),
+  "itemSourceRef": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoItemSourceRefDefault),
+  "defaultValue": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoDefaultValueDefault),
   "hardItems": zod.array(zod.object({
-  "label": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsItemLabelDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsItemValueDefault)
-})).default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigFiveTwoHardItemsDefault)
+  "label": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsItemLabelDefault),
+  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsItemValueDefault)
+})).default(groupItemConfigTwoFieldsItemTwoTwoConfigFiveTwoHardItemsDefault)
 })).and(zod.object({
   "type": zod.enum(['single-select', 'multi-select'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneOneDataKeyDefault)
 }).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixOneTwoMaxDefault)
+  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneTwoMinDefault),
+  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixOneTwoMaxDefault)
 })).and(zod.object({
   "type": zod.enum(['multi-date']),
-  "minSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoMinSelectionDefault),
-  "maxSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoMaxSelectionDefault),
-  "defaultValue": zod.array(zod.number()).nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSixTwoDefaultValueDefault)
+  "minSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoMinSelectionDefault),
+  "maxSelection": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoMaxSelectionDefault),
+  "defaultValue": zod.array(zod.number()).nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSixTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['multi-date'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneOneDataKeyDefault)
 }).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenOneTwoMaxDefault)
+  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneTwoMinDefault),
+  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenOneTwoMaxDefault)
 })).and(zod.object({
   "type": zod.enum(['date', 'date-time']),
-  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigSevenTwoDefaultValueDefault)
+  "defaultValue": zod.number().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigSevenTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['date', 'date-time'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneReadonlyDefault),
-  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneTitleDefault),
-  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneOneDataKeyDefault)
+  "required": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneReadonlyDefault),
+  "title": zod.string().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneTitleDefault),
+  "description": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneOneDataKeyDefault)
 }).and(zod.object({
-  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneTwoMinDefault),
-  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightOneTwoMaxDefault)
+  "min": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneTwoMinDefault),
+  "max": zod.number().nullable().default(groupItemConfigTwoFieldsItemTwoTwoConfigEightOneTwoMaxDefault)
 })).and(zod.object({
   "type": zod.enum(['date-range']),
   "defaultValue": zod.object({
   "start": zod.number().nullish(),
   "end": zod.number().nullish()
-}).default(groupItemConfigTwoFieldsItemTwoTwoTwoConfigEightTwoDefaultValueDefault)
+}).default(groupItemConfigTwoFieldsItemTwoTwoConfigEightTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['date-range'])
 }))])
@@ -505,7 +284,7 @@ export const GroupItemConfig = zod.object({
   "type": zod.enum(['field'])
 }))).and(zod.object({
   "type": zod.enum(['field'])
-}))])).default(groupItemConfigTwoFieldsDefault)
+}))).default(groupItemConfigTwoFieldsDefault)
 }))
 
 export type GroupItemConfig = zod.input<typeof GroupItemConfig>;

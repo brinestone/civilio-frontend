@@ -8,7 +8,7 @@ import { z as zod } from 'zod';
 
 export const baseGroupItemConfigTitleDefault = null;
 export const baseGroupItemConfigDescriptionDefault = null;
-export const baseGroupItemConfigRepeatableDefault = true;
+export const baseGroupItemConfigRepeatableDefault = false;
 export const baseGroupItemConfigDivisionCountDefault = 1;
 
 export const baseGroupItemConfigOrientationDefault = `vertical`;

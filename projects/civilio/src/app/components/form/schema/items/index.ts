@@ -4,7 +4,7 @@ import { FormItem } from '@app/pages/forms/schemas/form-designer-config';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 
-export * from './field-schema-designer/field-schema-designer';
+export * from './field-item-schema-designer/field-item-schema-designer';
 
 export type FormSchemaContext = {
 	itemDeleteHandler: (path: string, index: number) => void;

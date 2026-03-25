@@ -19,7 +19,7 @@ export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemNega
 export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const newFormItemDefinitionOneTwoConfigOneTitleDefault = null;
 export const newFormItemDefinitionOneTwoConfigOneDescriptionDefault = null;
-export const newFormItemDefinitionOneTwoConfigOneRepeatableDefault = true;
+export const newFormItemDefinitionOneTwoConfigOneRepeatableDefault = false;
 export const newFormItemDefinitionOneTwoConfigOneDivisionCountDefault = 1;
 
 export const newFormItemDefinitionOneTwoConfigOneOrientationDefault = `vertical`;
@@ -34,6 +34,7 @@ export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItem
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoParentIdDefault = null;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneRequiredDefault = true;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneReadonlyDefault = false;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneTitleDefault = ``;
@@ -128,6 +129,7 @@ export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemField
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionThreeTwoParentIdDefault = null;
 export const newFormItemDefinitionThreeTwoConfigOneOneRequiredDefault = true;
 export const newFormItemDefinitionThreeTwoConfigOneOneReadonlyDefault = false;
 export const newFormItemDefinitionThreeTwoConfigOneOneTitleDefault = ``;
@@ -282,6 +284,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneReadonlyDefault),
@@ -456,6 +459,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(newFormItemDefinitionThreeTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(newFormItemDefinitionThreeTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(newFormItemDefinitionThreeTwoConfigOneOneReadonlyDefault),

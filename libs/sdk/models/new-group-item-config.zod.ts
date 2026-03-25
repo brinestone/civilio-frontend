@@ -8,7 +8,7 @@ import { z as zod } from 'zod';
 
 export const newGroupItemConfigOneTitleDefault = null;
 export const newGroupItemConfigOneDescriptionDefault = null;
-export const newGroupItemConfigOneRepeatableDefault = true;
+export const newGroupItemConfigOneRepeatableDefault = false;
 export const newGroupItemConfigOneDivisionCountDefault = 1;
 
 export const newGroupItemConfigOneOrientationDefault = `vertical`;
@@ -23,6 +23,7 @@ export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItem
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newGroupItemConfigTwoFieldsItemTwoParentIdDefault = null;
 export const newGroupItemConfigTwoFieldsItemTwoConfigOneOneRequiredDefault = true;
 export const newGroupItemConfigTwoFieldsItemTwoConfigOneOneReadonlyDefault = false;
 export const newGroupItemConfigTwoFieldsItemTwoConfigOneOneTitleDefault = ``;
@@ -124,6 +125,7 @@ export const NewGroupItemConfig = zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(newGroupItemConfigTwoFieldsItemTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(newGroupItemConfigTwoFieldsItemTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(newGroupItemConfigTwoFieldsItemTwoConfigOneOneReadonlyDefault),

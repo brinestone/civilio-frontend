@@ -5,95 +5,95 @@
 }
 
 <ng-template #previewTemplate>
-	<ng-container [ngTemplateOutlet]="header" />
+  <ng-container [ngTemplateOutlet]="header" />
 </ng-template>
 <ng-template #formTemplate>
-	<ng-container [ngTemplateOutlet]="header" />
-	<form
-		class="h-full block"
-		(reset)="onFormDiscard($event)"
-		(submit)="onFormSubmit($event)"
-		novalidate
-	>
-		<div class="container mx-auto py-9">
-			<div hlmFieldGroup cdkDropList class="space-y-10">
-				@for (item of formModel.items; track item) {
-				<ng-container>
-					@let component = formItemComponents[item.type().value()];
-				</ng-container>
-				<ng-container>
-					@if (component != null) {
-					<ng-container
-						[ngComponentOutlet]="component | async"
-						[ngComponentOutletInputs]="{
+  <ng-container [ngTemplateOutlet]="header" />
+  <form
+    class="h-full block"
+    (reset)="onFormDiscard($event)"
+    (submit)="onFormSubmit($event)"
+    novalidate
+  >
+    <div class="container mx-auto py-9">
+      <div hlmFieldGroup cdkDropList class="space-y-10">
+        @for (item of formModel.items; track item) {
+        <ng-container>
+          @let component = formItemComponents[item.type().value()];
+        </ng-container>
+        <ng-container>
+          @if (component != null) {
+          <ng-container
+            [ngComponentOutlet]="component | async"
+            [ngComponentOutletInputs]="{
 						node: item,
 						index: $index,
 						cdkDragLockAxis: 'y',
 					}"
-						[ngComponentOutletInjector]="itemComponentInjector"
-					/>
-					}
-				</ng-container>
-				}
-			</div>
-		</div>
-	</form>
+            [ngComponentOutletInjector]="itemComponentInjector"
+          />
+          }
+        </ng-container>
+        }
+      </div>
+    </div>
+  </form>
 </ng-template>
 <ng-template #header>
-	<div class="sticky top-0 backdrop-blur z-99 border-b border-muted">
-		<div class="container mx-auto p-2">
-			<cv-form-designer-header
-				[formState]="formModel()"
-				(onSubmit)="onFormSubmit()"
-				(onDiscard)="onFormDiscard()"
-				(itemAdd)="addFormItem(formModel, $event)"
-				[(previewing)]="renderForm"
-			/>
-		</div>
-	</div>
+  <div class="sticky top-0 backdrop-blur z-99 border-b border-muted">
+    <div class="container mx-auto p-2">
+      <cv-form-designer-header
+        [formState]="formModel()"
+        (onSubmit)="onFormSubmit()"
+        (onDiscard)="onFormDiscard()"
+        (itemAdd)="addFormItem(formModel, $event)"
+        [(previewing)]="renderForm"
+      />
+    </div>
+  </div>
 </ng-template>
 <hlm-alert-dialog
-	#pendingChanges
-	[state]="pendingChangesDialogState()"
-	(stateChanged)="pendingChangesDialogState.set($event)"
+  #pendingChanges
+  [state]="pendingChangesDialogState()"
+  (stateChanged)="pendingChangesDialogState.set($event)"
 >
-	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
-		<hlm-alert-dialog-header>
-			<h2 hlmAlertDialogTitle>You have unsaved changes</h2>
-			<p hlmAlertDialogDescription>
-				Leaving will discard the pending changes you've made. Are you sure you
-				want to proceed?
-			</p>
-		</hlm-alert-dialog-header>
-		<hlm-alert-dialog-footer>
-			<button
-				[disabled]="formModel().submitting()"
-				(click)="pendingChangesActionCallback?.('save')"
-				class="cursor-pointer"
-				hlmAlertDialogAction
-			>
-				@if (formModel().submitting()) {
-				<hlm-spinner />
-				}
-				<span>Save and leave</span>
-			</button>
-			<button
-				[disabled]="formModel().submitting()"
-				(click)="pendingChangesActionCallback?.('discard')"
-				class="cursor-pointer"
-				hlmAlertDialogCancel
-				variant="destructive"
-			>
-				Discard and leave
-			</button>
-			<button
-				[disabled]="formModel().submitting()"
-				(click)="pendingChangesActionCallback?.('stay')"
-				class="cursor-pointer"
-				hlmAlertDialogCancel
-			>
-				Stay here
-			</button>
-		</hlm-alert-dialog-footer>
-	</hlm-alert-dialog-content>
+  <hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
+    <hlm-alert-dialog-header>
+      <h2 hlmAlertDialogTitle>You have unsaved changes</h2>
+      <p hlmAlertDialogDescription>
+        Leaving will discard the pending changes you've made. Are you sure you
+        want to proceed?
+      </p>
+    </hlm-alert-dialog-header>
+    <hlm-alert-dialog-footer>
+      <button
+        [disabled]="formModel().submitting()"
+        (click)="pendingChangesActionCallback?.('save')"
+        class="cursor-pointer"
+        hlmAlertDialogAction
+      >
+        @if (formModel().submitting()) {
+        <hlm-spinner />
+        }
+        <span>Save and leave</span>
+      </button>
+      <button
+        [disabled]="formModel().submitting()"
+        (click)="pendingChangesActionCallback?.('discard')"
+        class="cursor-pointer"
+        hlmAlertDialogCancel
+        variant="destructive"
+      >
+        Discard and leave
+      </button>
+      <button
+        [disabled]="formModel().submitting()"
+        (click)="pendingChangesActionCallback?.('stay')"
+        class="cursor-pointer"
+        hlmAlertDialogCancel
+      >
+        Stay here
+      </button>
+    </hlm-alert-dialog-footer>
+  </hlm-alert-dialog-content>
 </hlm-alert-dialog>

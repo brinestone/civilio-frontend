@@ -17,6 +17,7 @@ export const newFormItemFieldOneRelevanceLogicItemExpressionsItemFieldDefault = 
 export const newFormItemFieldOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemFieldOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemFieldOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemFieldTwoParentIdDefault = null;
 export const newFormItemFieldTwoConfigOneOneRequiredDefault = true;
 export const newFormItemFieldTwoConfigOneOneReadonlyDefault = false;
 export const newFormItemFieldTwoConfigOneOneTitleDefault = ``;
@@ -110,6 +111,7 @@ export const NewFormItemField = zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(newFormItemFieldTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(newFormItemFieldTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(newFormItemFieldTwoConfigOneOneReadonlyDefault),

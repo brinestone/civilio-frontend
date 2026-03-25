@@ -1,67 +1,69 @@
 <div hlmFieldGroup>
-	<div hlmField>
-		<label hlmFieldLabel for="{{index()}}__facility_meta">Mark as</label>
-		<hlm-select id="{{index()}}__facility_meta" [formField]="metaTag()">
-			<hlm-select-trigger class="w-80">
-				<hlm-select-value />
-			</hlm-select-trigger>
-			<hlm-select-content class="w-80">
-				<hlm-option [value]="null">None</hlm-option>
-				@for(metaTag of standardTags; track $index) {
-				<hlm-option [value]="metaTag">{{tagsMap[metaTag].label}}</hlm-option>
-				}
-			</hlm-select-content>
-		</hlm-select>
-	</div>
-	<div hlmFieldGroup>
-		<p hlmFieldDescription>Tags</p>
-		<div>
-			<button
-				type="button"
-				(click)="onAddTagButtonPressed()"
-				hlmBtn
-				variant="outline"
-				size="sm"
-			>
-				<ng-icon name="lucidePlus" />
-				<span>Add tag</span>
-			</button>
-		</div>
-		@for(tag of tags(); track tag) {
-		<ng-container> </ng-container>
-		<div class="grid grid-cols-[1fr_1fr_auto] gap-x-2 items-center">
-			<div hlmField>
-				<label hlmFieldLabel for="{{index()}}__{{$index}}__tag_key">Key</label>
-				<input
-					hlmInput
-					id="{{index()}}__{{$index}}__tag_key"
-					[formField]="tag.key"
-				/>
-				<cv-field-error [field]="tag.key" eager />
-			</div>
-			<div hlmField>
-				<label hlmFieldLabel for="{{index()}}__{{$index}}__tag_value"
-					>Value</label
-				>
-				<input
-					hlmInput
-					id="{{index()}}__{{$index}}__tag_value"
-					[formField]="tag.value"
-				/>
-				<cv-field-error eager [field]="tag.value" />
-			</div>
-			<!-- <div class="flex items-end justify-center"> -->
-			<button
-				type="button"
-				(click)="onRemoveTagButtonClicked($index)"
-				hlmBtn
-				variant="ghost"
-				size="icon"
-			>
-				<ng-icon hlm size="sm" name="lucideX" />
-			</button>
-			<!-- </div> -->
-		</div>
-		}
-	</div>
+  @if (!metaTag()().hidden()) {
+  <div hlmField>
+    <label hlmFieldLabel for="{{index()}}__facility_meta">Mark as</label>
+    <hlm-select id="{{index()}}__facility_meta" [formField]="metaTag()">
+      <hlm-select-trigger class="w-80">
+        <hlm-select-value />
+      </hlm-select-trigger>
+      <hlm-select-content class="w-80">
+        <hlm-option [value]="null">None</hlm-option>
+        @for(metaTag of standardTags; track $index) {
+        <hlm-option [value]="metaTag">{{tagsMap[metaTag].label}}</hlm-option>
+        }
+      </hlm-select-content>
+    </hlm-select>
+  </div>
+  }
+  <div hlmFieldGroup>
+    <p hlmFieldDescription>Tags</p>
+    <div>
+      <button
+        type="button"
+        (click)="onAddTagButtonPressed()"
+        hlmBtn
+        variant="outline"
+        size="sm"
+      >
+        <ng-icon name="lucidePlus" />
+        <span>Add tag</span>
+      </button>
+    </div>
+    @for(tag of tags(); track tag) {
+    <ng-container> </ng-container>
+    <div class="grid grid-cols-[1fr_1fr_auto] gap-x-2 items-center">
+      <div hlmField>
+        <label hlmFieldLabel for="{{index()}}__{{$index}}__tag_key">Key</label>
+        <input
+          hlmInput
+          id="{{index()}}__{{$index}}__tag_key"
+          [formField]="tag.key"
+        />
+        <cv-field-error [field]="tag.key" eager />
+      </div>
+      <div hlmField>
+        <label hlmFieldLabel for="{{index()}}__{{$index}}__tag_value"
+          >Value</label
+        >
+        <input
+          hlmInput
+          id="{{index()}}__{{$index}}__tag_value"
+          [formField]="tag.value"
+        />
+        <cv-field-error eager [field]="tag.value" />
+      </div>
+      <!-- <div class="flex items-end justify-center"> -->
+      <button
+        type="button"
+        (click)="onRemoveTagButtonClicked($index)"
+        hlmBtn
+        variant="ghost"
+        size="icon"
+      >
+        <ng-icon hlm size="sm" name="lucideX" />
+      </button>
+      <!-- </div> -->
+    </div>
+    }
+  </div>
 </div>

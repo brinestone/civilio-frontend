@@ -17,6 +17,7 @@ export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemFieldDefault =
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemEntryOneTwoParentIdDefault = null;
 export const groupItemEntryOneTwoConfigOneOneRequiredDefault = true;
 export const groupItemEntryOneTwoConfigOneOneReadonlyDefault = false;
 export const groupItemEntryOneTwoConfigOneOneTitleDefault = ``;
@@ -109,6 +110,7 @@ export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefaul
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemEntryTwoTwoTwoParentIdDefault = null;
 export const groupItemEntryTwoTwoTwoConfigOneOneRequiredDefault = true;
 export const groupItemEntryTwoTwoTwoConfigOneOneReadonlyDefault = false;
 export const groupItemEntryTwoTwoTwoConfigOneOneTitleDefault = ``;
@@ -202,6 +204,7 @@ export const GroupItemEntry = zod.union([zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(groupItemEntryOneTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(groupItemEntryOneTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(groupItemEntryOneTwoConfigOneOneReadonlyDefault),
@@ -370,6 +373,7 @@ export const GroupItemEntry = zod.union([zod.object({
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
+  "parentId": zod.uuid().nullish().default(groupItemEntryTwoTwoTwoParentIdDefault),
   "config": zod.union([zod.object({
   "required": zod.boolean().nullable().default(groupItemEntryTwoTwoTwoConfigOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(groupItemEntryTwoTwoTwoConfigOneOneReadonlyDefault),

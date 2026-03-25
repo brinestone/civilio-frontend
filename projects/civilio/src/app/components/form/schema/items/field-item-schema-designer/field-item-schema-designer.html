@@ -1,4 +1,5 @@
 @let field = node();
+@if(!noWrapper()) {
 <div
 	cdkDragHandle
 	class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
@@ -7,6 +8,7 @@
 	<span>Question</span>
 	<!--<hlm-checkbox [(checked)]="_selected" class="cursor-pointer" /> -->
 </div>
+}
 <div class="absolute top-0 left-[calc(100%+5px)]">
 	<cv-form-item-actions
 		orientation="vertical"
