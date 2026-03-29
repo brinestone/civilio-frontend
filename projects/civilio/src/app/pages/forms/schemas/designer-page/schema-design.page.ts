@@ -41,7 +41,7 @@ import { current, produce } from "immer";
 import get from "lodash/get";
 import isEqual from "lodash/isEqual";
 import omit from "lodash/omit";
-import difference from 'lodash/difference';
+import difference from "lodash/difference";
 import remove from "lodash/remove";
 import { toast } from "ngx-sonner";
 import { lastValueFrom, Observable, of } from "rxjs";
@@ -60,6 +60,7 @@ import {
   walkFormItemTree,
 } from "../form-designer-config";
 import { stripSymbols } from "@app/util";
+import { FormRenderer } from "@app/components/form/renderer";
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 
 @Component({
@@ -73,6 +74,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
     FormDesignerHeader,
     AsyncPipe,
     NgComponentOutlet,
+    FormRenderer,
   ],
   templateUrl: "./schema-design.page.html",
   styleUrl: "./schema-design.page.scss",
@@ -270,8 +272,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 
   private findNewItems() {
     const newItems = Array<string>();
-    for (const i of (this.formData()
-      ?.items as Strict<FormItem>[]) ?? Array<Strict<FormItem>>()) {
+    for (const i of (this.formData()?.items as Strict<FormItem>[]) ??
+      Array<Strict<FormItem>>()) {
       walkFormItemTree(i, (item) => {
         if (!isExistingFormItem(item)) {
           newItems.push(item.path);

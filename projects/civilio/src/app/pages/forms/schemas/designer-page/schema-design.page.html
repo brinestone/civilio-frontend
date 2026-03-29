@@ -6,6 +6,7 @@
 
 <ng-template #previewTemplate>
   <ng-container [ngTemplateOutlet]="header" />
+  <cv-form-renderer [formDefinition]="formModel().value()" />
 </ng-template>
 <ng-template #formTemplate>
   <ng-container [ngTemplateOutlet]="header" />
