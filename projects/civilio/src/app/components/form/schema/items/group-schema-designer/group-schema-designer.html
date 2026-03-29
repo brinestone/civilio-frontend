@@ -1,11 +1,4 @@
 @let group = node();
-<div
-	cdkDragHandle
-	class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
->
-	<ng-icon name="lucideGrip" />
-	<span>Group</span>
-</div>
 <div class="absolute top-0 left-[calc(100%+5px)]">
 	<cv-form-item-actions
 		orientation="vertical"
@@ -70,7 +63,10 @@
 </div>
 <hlm-separator />
 <div class="p-3 flex items-center gap-x-3">
-	<p hlmFieldTitle>{{group.config.fields.length}} Question{{ group.config.fields.length == 1 ? '' : 's' }}</p>
+	<p hlmFieldTitle>
+		{{group.config.fields.length}} Question{{ group.config.fields.length == 1 ?
+		'' : 's' }}
+	</p>
 	<button
 		(click)="onAddFieldButtonClicked()"
 		type="button"
@@ -88,7 +84,6 @@
 		[node]="field"
 		[index]="$index"
 		[showDebug]="false"
-		cdkDragLockAxis="y"
 		[expanded]="false"
 		noWrapper
 		class="not-only:not-last:border-b not-only:border-border first:border-y"
@@ -99,7 +94,7 @@
 <cv-form-item-settings
 	[tabs]="configTabs"
 	[(currentTab)]="currentTab"
-	class="bg-secondary/10 dark:bg-background border-t border-border rounded-b"
+	class="bg-secondary/10 dark:bg-background border-border rounded-b"
 	(close)="expanded.set(false)"
 >
 	<ng-container>

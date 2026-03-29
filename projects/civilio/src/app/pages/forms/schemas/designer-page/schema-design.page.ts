@@ -1,75 +1,96 @@
-import { flatten } from "flat";
-import { CdkDropList } from "@angular/cdk/drag-drop";
 import {
-  AsyncPipe,
-  NgComponentOutlet,
-  NgTemplateOutlet,
+	CdkDrag,
+	CdkDragDrop,
+	CdkDragHandle,
+	CdkDragPlaceholder,
+	CdkDragPreview,
+	CdkDropList,
+	moveItemInArray,
+} from "@angular/cdk/drag-drop";
+import {
+	AsyncPipe,
+	NgComponentOutlet,
+	NgTemplateOutlet,
 } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  linkedSignal,
-  signal,
-  Type,
+	ChangeDetectionStrategy,
+	Component,
+	computed,
+	effect,
+	inject,
+	input,
+	linkedSignal,
+	signal,
+	Type
 } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
 import { FieldTree, form, submit } from "@angular/forms/signals";
 import { Router } from "@angular/router";
+import { FormRenderer } from "@app/components/form/renderer";
 import { FormDesignerHeader } from "@app/components/form/schema";
 import { createFormSchemaContextInjector } from "@app/components/form/schema/items";
 import { HasPendingChanges } from "@app/model/form";
+import { stripSymbols } from "@app/util";
 import {
-  FormItemDefinition,
-  FormItemField,
-  FormItemGroup,
-  NewFormItemDefinition,
-  NewFormItemField,
-  NewFormItemGroup,
+	FormItemDefinition,
+	FormItemField,
+	FormItemGroup,
+	NewFormItemDefinition,
+	NewFormItemField,
+	NewFormItemGroup,
+	RelevanceLogicExpression,
 } from "@civilio/sdk/models";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { Strict } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideGrip } from "@ng-icons/lucide";
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
 import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
+import { flatten } from "flat";
 import { current, produce } from "immer";
+import difference from "lodash/difference";
 import get from "lodash/get";
 import isEqual from "lodash/isEqual";
 import omit from "lodash/omit";
-import difference from "lodash/difference";
 import remove from "lodash/remove";
 import { toast } from "ngx-sonner";
 import { lastValueFrom, Observable, of } from "rxjs";
 import {
-  defaultFormDefinitionSchemaValue,
-  defaultFormItemDefinitionSchemaValue,
-  defineFormDefinitionFormSchema,
-  domainToStrictFormDefinition,
-  FormItem,
-  formItemPathSeparator,
-  FormItemType,
-  FormModel,
-  isExistingFormItem,
-  isFieldTree,
-  isGroup,
-  walkFormItemTree,
+	defaultFormDefinitionSchemaValue,
+	defaultFormItemDefinitionSchemaValue,
+	defineFormDefinitionFormSchema,
+	domainToStrictFormDefinition,
+	FormItem,
+	formItemPathSeparator,
+	FormItemType,
+	FormModel,
+	isExistingFormItem,
+	isFieldTree,
+	isGroup,
+	walkFormItemTree,
 } from "../form-designer-config";
-import { stripSymbols } from "@app/util";
-import { FormRenderer } from "@app/components/form/renderer";
 type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 
 @Component({
   selector: "cv-forms",
+  viewProviders: [
+    provideIcons({
+      lucideGrip,
+    }),
+  ],
   imports: [
     HlmFieldGroup,
     HlmAlertDialogImports,
     NgTemplateOutlet,
     CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPlaceholder,
+    CdkDragPreview,
+    NgIcon,
     HlmSpinner,
     FormDesignerHeader,
     AsyncPipe,
@@ -90,6 +111,13 @@ export class SchemaDesignPage implements HasPendingChanges {
   readonly slug = input.required<string>();
   readonly formVersion = input.required<string>({ alias: "version" });
   // private readonly itemDesigners = viewChildren(BaseFormItemSchemaDesigner);
+  protected readonly itemTypeNames = {
+    field: "Question",
+    separator: "Separator",
+    group: "Group",
+    image: "Image",
+    note: "Note",
+  } as Record<FormItemType, string>;
   protected readonly formItemComponents = {
     field:
       import("../../../../components/form/schema/items/field-item-schema-designer/field-item-schema-designer").then(
@@ -140,22 +168,29 @@ export class SchemaDesignPage implements HasPendingChanges {
     }
     return reg;
   });
-  // protected readonly allSelected = signal(false);
-  // private readonly selectedItems = signal<Record<string, boolean>>({});
-  // protected readonly someItemsSelected = computed(() => {
-  // 	return values(this.selectedItems()).reduce((a, b) => a || b, false);
-  // })
   protected readonly itemComponentInjector = createFormSchemaContextInjector({
     itemDeleteHandler: this.onRemoveFormItem.bind(this),
     allFields: this.fieldItems,
-    // 	// allItemsSelected: this.allSelected.asReadonly(),
-    // 	// selectionToggledHandler: this.onItemSelectionToggled.bind(this)
   });
   protected readonly pendingChangesDialogState =
     signal<BrnDialogState>("closed");
   protected pendingChangesActionCallback?: (
     action: "save" | "stay" | "discard",
   ) => void;
+
+  protected onFormItemsReordered({
+    container,
+    previousContainer,
+    currentIndex,
+    previousIndex,
+  }: CdkDragDrop<FieldTree<Strict<FormItem>[]>>) {
+    this.formData.update((v) =>
+      produce(v, (draft) => {
+        moveItemInArray(draft.items, previousIndex, currentIndex);
+      }),
+    );
+    this.computeItemPaths();
+  }
 
   protected addFormItem(target: FormItemAddTarget, type: FormItemType) {
     const isGroup = (
@@ -216,26 +251,87 @@ export class SchemaDesignPage implements HasPendingChanges {
   }
 
   private computeItemPaths() {
+    let changed = false;
     for (let i = 0; i < this.formModel.items.length; i++) {
       const item = this.formModel.items[i];
       const newPath = String(i);
+      const oldPath = item.path().value();
+      const pathsEquals = newPath === oldPath;
+      changed ||= !pathsEquals;
       if (item.type().value() == "group") {
         const config = item.config as unknown as FieldTree<
           Strict<FormItemGroup | NewFormItemGroup>["config"]
         >;
         for (let j = 0; j < config.fields.length; j++) {
           const field = config.fields[j];
-          field
-            .path()
-            .value.set(
-              [newPath, "config", "fields", String(j)].join(
-                formItemPathSeparator,
-              ),
+          const newChildPath = [newPath, "config", "fields", String(j)].join(
+            formItemPathSeparator,
+          );
+          const oldChildPath = field.path().value();
+          const pathsEquals = newChildPath === oldChildPath;
+          if (!pathsEquals) {
+            this.updateRelevanceExpressionFieldPathsFor(
+              oldChildPath,
+              newChildPath,
             );
+          }
+          changed ||= !pathsEquals;
+          field.path().value.set(newChildPath);
         }
+      } else if (!pathsEquals) {
+        this.updateRelevanceExpressionFieldPathsFor(oldPath, newPath);
       }
       item.path().value.set(newPath);
     }
+    if (changed) {
+      this.formModel().markAsDirty();
+    }
+  }
+
+  private updateRelevanceExpressionFieldPathsFor(
+    oldPath: string,
+    newPath: string,
+  ) {
+    debugger;
+    const dependentRelevanceExpressionPaths =
+      this.findDependentRelevanceExpressionPathsFor(oldPath);
+    for (const expPath of dependentRelevanceExpressionPaths) {
+      const expTree = get(
+        this.formModel.items,
+        expPath,
+      ) as unknown as FieldTree<Strict<RelevanceLogicExpression>>;
+      expTree.field().value.set(newPath);
+    }
+  }
+
+  private findDependentRelevanceExpressionPathsFor(path: string) {
+    const relevancePaths = new Set<string>();
+    for (const item of this.formModel.items().value()) {
+      walkFormItemTree(item, (i) => {
+        if (i.path == path) return;
+        i.relevance.logic
+          .map((c, i) => [c, i] as const)
+          .filter(([c]) => c.expressions.some((e) => e.field == path))
+          .map(([c, conditionIndex]) => {
+            let cnt = 0;
+            for (const expression of c.expressions) {
+              if (expression.field != path)
+                relevancePaths.add(
+                  [
+                    i.path,
+                    "relevance",
+                    "logic",
+                    conditionIndex,
+                    "expressions",
+                    cnt,
+                  ].join(formItemPathSeparator),
+                );
+              cnt++;
+            }
+          });
+      });
+    }
+    return [...relevancePaths];
   }
 
   private removeDependentRelevanceExpressionsFor(path: string) {

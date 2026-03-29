@@ -1,23 +1,17 @@
 @let field = node();
-@if(!noWrapper()) {
-<div
-	cdkDragHandle
-	class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
->
-	<ng-icon name="lucideGrip" />
-	<span>Question</span>
-	<!--<hlm-checkbox [(checked)]="_selected" class="cursor-pointer" /> -->
-</div>
-}
-<div class="absolute top-0 left-[calc(100%+5px)]">
-	<cv-form-item-actions
-		orientation="vertical"
-		(delete)="context.itemDeleteHandler(field.path().value(), index())"
-		(togglePreview)="editing.set(!$event)"
-		(toggleSettings)="expanded.set($event)"
-	/>
-</div>
-@if(showDebug()){
+<ng-container>
+	@if(!previewing()) {
+	<div class="absolute top-0 left-[calc(100%+5px)]">
+		<cv-form-item-actions
+			orientation="vertical"
+			(delete)="context.itemDeleteHandler(field.path().value(), index())"
+			(togglePreview)="editing.set(!$event)"
+			(toggleSettings)="expanded.set($event)"
+		/>
+	</div>
+	}
+</ng-container>
+@if(showDebug() && !previewing()){
 <div class="absolute top-0 right-[calc(100%+5px)]">
 	<cv-debug-panel
 		class="absolute top-0 right-[calc(100%+5px)] max-h-100 min-w-65"
@@ -68,7 +62,7 @@
 		</div>
 	</div>
 </div>
-@if(expanded()){
+@if(expanded() && !previewing()){
 <cv-form-item-settings
 	[tabs]="configTabs"
 	[(currentTab)]="currentConfigTab"
@@ -89,16 +83,20 @@
 
 <ng-template #errorsTemplate let-ctrl>
 	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
-	@if (control().pending()) {
-	<div class="inline-flex gap-2 items-center text-sm">
-		<hlm-spinner />
-		<span>Checking...</span>
-	</div>
-	} @else if (control().invalid() && control().dirty()) {
-	<div class="space-y-1">
-		@for (error of control().errors(); track error) {
-		<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+	@if(!previewing()) {
+	<ng-container>
+		@if (control().pending()) {
+		<div class="inline-flex gap-2 items-center text-sm">
+			<hlm-spinner />
+			<span>Checking...</span>
+		</div>
+		} @else if (control().invalid() && control().dirty()) {
+		<div class="space-y-1">
+			@for (error of control().errors(); track error) {
+			<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+			}
+		</div>
 		}
-	</div>
+	</ng-container>
 	}
 </ng-template>
