@@ -1,0 +1,49 @@
+<form class="h-full block space-y-10" novalidate hlmFieldGroup cdkDropList>
+	@for(item of formModel.items; track item) {
+	<ng-container>
+		@let designer = formItemComponents[item.type().value()];
+	</ng-container>
+	<ng-container>
+		@if(designer != null){
+		<div
+			cdkDrag
+			cdkDragLockAxis="y"
+			class="relative group/form-item border block bg-card rounded rounded-tl-none focus-within:border-primary"
+		>
+			<div
+				cdkDragHandle
+				class="group-focus-within/form-item:border-primary! py-1 px-2 cursor-grab active:cursor-grabbing -translate-y-full z-21 text-xs absolute top-0 -left-px rounded-t flex items-center gap-2 bg-secondary border-x border-t"
+			>
+				<ng-icon name="lucideGrip" />
+				<span class="capitalize">
+					{{ itemTypeNames[item.type().value()]}}
+				</span>
+			</div>
+			<div
+				*cdkDragPlaceholder
+				class="flex items-center justify-center bg-secondary border border-border border-dashed opacity-50 dark:opacity-80 h-75 w-full rounded p-3"
+			>
+				<p>Place here</p>
+			</div>
+			<div *cdkDragPreview>
+				<div
+					class="rounded-md p-3 bg-primary text-primary-foreground border border-border capitalize justify-center gap-3"
+				>
+					<ng-icon name="lucideGrip" />
+					<p>{{ itemTypeNames[item.type().value()]}}</p>
+				</div>
+			</div>
+			<ng-container
+				[ngComponentOutlet]="designer | async"
+				[ngComponentOutletInputs]="{
+				node: item,
+				index: $index,
+				showDebug: true
+			}"
+				[ngComponentOutletInjector]="itemComponentInjector"
+			/>
+		</div>
+		}
+	</ng-container>
+	}
+</form>

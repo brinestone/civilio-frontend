@@ -11,6 +11,8 @@ export const textFieldConfigOneReadonlyDefault = false;
 export const textFieldConfigOneTitleDefault = ``;
 export const textFieldConfigOneDescriptionDefault = null;
 export const textFieldConfigOneDataKeyDefault = null;
+export const textFieldConfigOneAutoDataKeyDefault = true;
+export const textFieldConfigTwoPlaceholderDefault = null;
 export const textFieldConfigTwoPatternDefault = null;
 export const textFieldConfigTwoMinlengthDefault = null;
 export const textFieldConfigTwoMaxlengthDefault = null;
@@ -20,9 +22,11 @@ export const TextFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(textFieldConfigOneReadonlyDefault),
   "title": zod.string().default(textFieldConfigOneTitleDefault),
   "description": zod.string().nullish().default(textFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(textFieldConfigOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(textFieldConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(textFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['text', 'multiline']),
+  "placeholder": zod.string().nullish().default(textFieldConfigTwoPlaceholderDefault),
   "pattern": zod.string().nullish().default(textFieldConfigTwoPatternDefault),
   "minlength": zod.number().nullish().default(textFieldConfigTwoMinlengthDefault),
   "maxlength": zod.number().nullish().default(textFieldConfigTwoMaxlengthDefault),

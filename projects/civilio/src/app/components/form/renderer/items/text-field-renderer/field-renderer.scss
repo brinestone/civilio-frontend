@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block;
+}
+
+textarea {
+  @apply resize-none field-sizing-content min-h-[3lh];
+}

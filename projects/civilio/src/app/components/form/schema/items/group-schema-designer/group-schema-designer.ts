@@ -13,7 +13,7 @@ import {
   formItemPathSeparator,
   HINT,
   PLACEHOLDER,
-} from "@app/pages/forms/schemas/form-designer-config";
+} from "@app/util/form-designer-config";
 import { FormItemGroup, NewFormItemField } from "@civilio/sdk/models";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {

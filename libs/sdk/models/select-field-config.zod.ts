@@ -11,6 +11,7 @@ export const selectFieldConfigOneReadonlyDefault = false;
 export const selectFieldConfigOneTitleDefault = ``;
 export const selectFieldConfigOneDescriptionDefault = null;
 export const selectFieldConfigOneDataKeyDefault = null;
+export const selectFieldConfigOneAutoDataKeyDefault = true;
 export const selectFieldConfigTwoItemSourceRefDefault = null;
 export const selectFieldConfigTwoDefaultValueDefault = null;
 export const selectFieldConfigTwoHardItemsItemLabelDefault = null;
@@ -21,7 +22,8 @@ export const SelectFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(selectFieldConfigOneReadonlyDefault),
   "title": zod.string().default(selectFieldConfigOneTitleDefault),
   "description": zod.string().nullish().default(selectFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(selectFieldConfigOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(selectFieldConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(selectFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['single-select', 'multi-select']),
   "itemSourceRef": zod.string().nullish().default(selectFieldConfigTwoItemSourceRefDefault),

@@ -11,12 +11,14 @@ export const baseFieldPropsReadonlyDefault = false;
 export const baseFieldPropsTitleDefault = ``;
 export const baseFieldPropsDescriptionDefault = null;
 export const baseFieldPropsDataKeyDefault = null;
+export const baseFieldPropsAutoDataKeyDefault = true;
 export const BaseFieldProps = zod.object({
   "required": zod.boolean().nullable().default(baseFieldPropsRequiredDefault),
   "readonly": zod.boolean().nullable().default(baseFieldPropsReadonlyDefault),
   "title": zod.string().default(baseFieldPropsTitleDefault),
   "description": zod.string().nullish().default(baseFieldPropsDescriptionDefault),
-  "dataKey": zod.string().nullish().default(baseFieldPropsDataKeyDefault)
+  "dataKey": zod.string().nullish().default(baseFieldPropsDataKeyDefault),
+  "autoDataKey": zod.boolean().default(baseFieldPropsAutoDataKeyDefault)
 })
 
 export type BaseFieldProps = zod.input<typeof BaseFieldProps>;

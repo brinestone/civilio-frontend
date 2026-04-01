@@ -19,7 +19,7 @@ export const routes: Routes = [
 		children: [
 			{
 				path: 'assets',
-				loadComponent: () => import('./pages/forms/schemas/library/library.page').then(m => m.LibraryPage),
+				loadComponent: () => import('./pages/forms/designer/library/library.page').then(m => m.LibraryPage),
 				outlet: 'library'
 			}
 		],
@@ -30,11 +30,11 @@ export const routes: Routes = [
 			provideDatasetSdk()
 		],
 		canDeactivate: [hasChangesGuard],
-		loadComponent: () => import('./pages/forms/schemas/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
+		loadComponent: () => import('./pages/forms/designer/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
 	},
 	{
 		path: 'schemas',
-		loadComponent: () => import('./pages/forms/schemas/list/form-schemas-list.page').then(m => m.FormSchemasPage),
+		loadComponent: () => import('./pages/forms/designer/list/form-schemas-list.page').then(m => m.FormSchemasPage),
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [provideFormStore(withFormsSdk())],
 	},

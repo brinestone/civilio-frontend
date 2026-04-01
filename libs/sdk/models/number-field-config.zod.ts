@@ -11,6 +11,7 @@ export const numberFieldConfigOneReadonlyDefault = false;
 export const numberFieldConfigOneTitleDefault = ``;
 export const numberFieldConfigOneDescriptionDefault = null;
 export const numberFieldConfigOneDataKeyDefault = null;
+export const numberFieldConfigOneAutoDataKeyDefault = true;
 export const numberFieldConfigTwoMinDefault = null;
 export const numberFieldConfigTwoMaxDefault = null;
 export const numberFieldConfigTwoDefaultValueDefault = null;
@@ -19,7 +20,8 @@ export const NumberFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(numberFieldConfigOneReadonlyDefault),
   "title": zod.string().default(numberFieldConfigOneTitleDefault),
   "description": zod.string().nullish().default(numberFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(numberFieldConfigOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(numberFieldConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(numberFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['integer', 'float']),
   "min": zod.number().nullish().default(numberFieldConfigTwoMinDefault),

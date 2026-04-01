@@ -11,6 +11,7 @@ export const rangeDateFieldConfigOneOneReadonlyDefault = false;
 export const rangeDateFieldConfigOneOneTitleDefault = ``;
 export const rangeDateFieldConfigOneOneDescriptionDefault = null;
 export const rangeDateFieldConfigOneOneDataKeyDefault = null;
+export const rangeDateFieldConfigOneOneAutoDataKeyDefault = true;
 export const rangeDateFieldConfigOneTwoMinDefault = null;
 export const rangeDateFieldConfigOneTwoMaxDefault = null;
 export const rangeDateFieldConfigTwoDefaultValueDefault = { start: null, end: null };
@@ -19,7 +20,8 @@ export const RangeDateFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(rangeDateFieldConfigOneOneReadonlyDefault),
   "title": zod.string().default(rangeDateFieldConfigOneOneTitleDefault),
   "description": zod.string().nullish().default(rangeDateFieldConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(rangeDateFieldConfigOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(rangeDateFieldConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(rangeDateFieldConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(rangeDateFieldConfigOneTwoMinDefault),
   "max": zod.number().nullable().default(rangeDateFieldConfigOneTwoMaxDefault)

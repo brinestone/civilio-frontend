@@ -106,6 +106,7 @@ export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<
     effect(() => {
       const path = untracked(this.node).path;
       const meta = untracked(this.node).config;
+      if (!meta.autoDataKey().value()) return;
       const title = meta.title().value();
       const slug = title ? slugifier.parse(path().value() + " " + title)! : "";
       meta.dataKey().value.set(slug.slice(0, 20) || (null as any));

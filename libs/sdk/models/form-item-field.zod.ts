@@ -34,6 +34,7 @@ export const formItemFieldTwoTwoConfigOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigOneOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigOneOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigOneOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigOneTwoDefaultValueLatMax = 90;
 
 export const formItemFieldTwoTwoConfigOneTwoDefaultValueLongMax = 180;
@@ -44,6 +45,7 @@ export const formItemFieldTwoTwoConfigTwoOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigTwoOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigTwoOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigTwoOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigTwoOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigTwoTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigTwoTwoMaxDefault = null;
 export const formItemFieldTwoTwoConfigTwoTwoDefaultValueDefault = null;
@@ -52,6 +54,7 @@ export const formItemFieldTwoTwoConfigThreeOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigThreeOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigThreeOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigThreeOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigThreeOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigThreeTwoDefaultValueDefault = false;
 export const formItemFieldTwoTwoConfigThreeTwoRenderAsDefault = `checkbox`;
 export const formItemFieldTwoTwoConfigFourOneRequiredDefault = true;
@@ -59,6 +62,8 @@ export const formItemFieldTwoTwoConfigFourOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigFourOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigFourOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigFourOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigFourOneAutoDataKeyDefault = true;
+export const formItemFieldTwoTwoConfigFourTwoPlaceholderDefault = null;
 export const formItemFieldTwoTwoConfigFourTwoPatternDefault = null;
 export const formItemFieldTwoTwoConfigFourTwoMinlengthDefault = null;
 export const formItemFieldTwoTwoConfigFourTwoMaxlengthDefault = null;
@@ -68,6 +73,7 @@ export const formItemFieldTwoTwoConfigFiveOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigFiveOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigFiveOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigFiveOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigFiveOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigFiveTwoItemSourceRefDefault = null;
 export const formItemFieldTwoTwoConfigFiveTwoDefaultValueDefault = null;
 export const formItemFieldTwoTwoConfigFiveTwoHardItemsItemLabelDefault = null;
@@ -78,6 +84,7 @@ export const formItemFieldTwoTwoConfigSixOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigSixOneOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigSixOneOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigSixOneOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigSixOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigSixOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigSixOneTwoMaxDefault = null;
 export const formItemFieldTwoTwoConfigSixTwoMinSelectionDefault = null;
@@ -88,6 +95,7 @@ export const formItemFieldTwoTwoConfigSevenOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigSevenOneOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigSevenOneOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigSevenOneOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigSevenOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigSevenOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigSevenOneTwoMaxDefault = null;
 export const formItemFieldTwoTwoConfigSevenTwoDefaultValueDefault = null;
@@ -96,6 +104,7 @@ export const formItemFieldTwoTwoConfigEightOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigEightOneOneTitleDefault = ``;
 export const formItemFieldTwoTwoConfigEightOneOneDescriptionDefault = null;
 export const formItemFieldTwoTwoConfigEightOneOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigEightOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigEightOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigEightOneTwoMaxDefault = null;
 export const formItemFieldTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
@@ -154,7 +163,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigOneOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigOneOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['geo-point']),
   "defaultValue": zod.object({
@@ -168,7 +178,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigTwoOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigTwoOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigTwoOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigTwoOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigTwoOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigTwoOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['integer', 'float']),
   "min": zod.number().nullish().default(formItemFieldTwoTwoConfigTwoTwoMinDefault),
@@ -181,7 +192,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigThreeOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigThreeOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigThreeOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigThreeOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigThreeOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigThreeOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['boolean']),
   "defaultValue": zod.boolean().default(formItemFieldTwoTwoConfigThreeTwoDefaultValueDefault),
@@ -193,9 +205,11 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigFourOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigFourOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigFourOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigFourOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigFourOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigFourOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['text', 'multiline']),
+  "placeholder": zod.string().nullish().default(formItemFieldTwoTwoConfigFourTwoPlaceholderDefault),
   "pattern": zod.string().nullish().default(formItemFieldTwoTwoConfigFourTwoPatternDefault),
   "minlength": zod.number().nullish().default(formItemFieldTwoTwoConfigFourTwoMinlengthDefault),
   "maxlength": zod.number().nullish().default(formItemFieldTwoTwoConfigFourTwoMaxlengthDefault),
@@ -207,7 +221,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigFiveOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigFiveOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigFiveOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['single-select', 'multi-select']),
   "itemSourceRef": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveTwoItemSourceRefDefault),
@@ -223,7 +238,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSixOneOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigSixOneOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigSixOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(formItemFieldTwoTwoConfigSixOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemFieldTwoTwoConfigSixOneTwoMaxDefault)
@@ -239,7 +255,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSevenOneOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigSevenOneOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigSevenOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSevenOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSevenOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigSevenOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(formItemFieldTwoTwoConfigSevenOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemFieldTwoTwoConfigSevenOneTwoMaxDefault)
@@ -253,7 +270,8 @@ export const FormItemField = zod.object({
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigEightOneOneReadonlyDefault),
   "title": zod.string().default(formItemFieldTwoTwoConfigEightOneOneTitleDefault),
   "description": zod.string().nullish().default(formItemFieldTwoTwoConfigEightOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigEightOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigEightOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigEightOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(formItemFieldTwoTwoConfigEightOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemFieldTwoTwoConfigEightOneTwoMaxDefault)

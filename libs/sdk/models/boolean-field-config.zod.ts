@@ -11,6 +11,7 @@ export const booleanFieldConfigOneReadonlyDefault = false;
 export const booleanFieldConfigOneTitleDefault = ``;
 export const booleanFieldConfigOneDescriptionDefault = null;
 export const booleanFieldConfigOneDataKeyDefault = null;
+export const booleanFieldConfigOneAutoDataKeyDefault = true;
 export const booleanFieldConfigTwoDefaultValueDefault = false;
 export const booleanFieldConfigTwoRenderAsDefault = `checkbox`;
 export const BooleanFieldConfig = zod.object({
@@ -18,7 +19,8 @@ export const BooleanFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(booleanFieldConfigOneReadonlyDefault),
   "title": zod.string().default(booleanFieldConfigOneTitleDefault),
   "description": zod.string().nullish().default(booleanFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(booleanFieldConfigOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(booleanFieldConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(booleanFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['boolean']),
   "defaultValue": zod.boolean().default(booleanFieldConfigTwoDefaultValueDefault),

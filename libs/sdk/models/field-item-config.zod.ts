@@ -11,6 +11,7 @@ export const fieldItemConfigOneOneReadonlyDefault = false;
 export const fieldItemConfigOneOneTitleDefault = ``;
 export const fieldItemConfigOneOneDescriptionDefault = null;
 export const fieldItemConfigOneOneDataKeyDefault = null;
+export const fieldItemConfigOneOneAutoDataKeyDefault = true;
 export const fieldItemConfigOneTwoDefaultValueLatMax = 90;
 
 export const fieldItemConfigOneTwoDefaultValueLongMax = 180;
@@ -21,6 +22,7 @@ export const fieldItemConfigTwoOneReadonlyDefault = false;
 export const fieldItemConfigTwoOneTitleDefault = ``;
 export const fieldItemConfigTwoOneDescriptionDefault = null;
 export const fieldItemConfigTwoOneDataKeyDefault = null;
+export const fieldItemConfigTwoOneAutoDataKeyDefault = true;
 export const fieldItemConfigTwoTwoMinDefault = null;
 export const fieldItemConfigTwoTwoMaxDefault = null;
 export const fieldItemConfigTwoTwoDefaultValueDefault = null;
@@ -29,6 +31,7 @@ export const fieldItemConfigThreeOneReadonlyDefault = false;
 export const fieldItemConfigThreeOneTitleDefault = ``;
 export const fieldItemConfigThreeOneDescriptionDefault = null;
 export const fieldItemConfigThreeOneDataKeyDefault = null;
+export const fieldItemConfigThreeOneAutoDataKeyDefault = true;
 export const fieldItemConfigThreeTwoDefaultValueDefault = false;
 export const fieldItemConfigThreeTwoRenderAsDefault = `checkbox`;
 export const fieldItemConfigFourOneRequiredDefault = true;
@@ -36,6 +39,8 @@ export const fieldItemConfigFourOneReadonlyDefault = false;
 export const fieldItemConfigFourOneTitleDefault = ``;
 export const fieldItemConfigFourOneDescriptionDefault = null;
 export const fieldItemConfigFourOneDataKeyDefault = null;
+export const fieldItemConfigFourOneAutoDataKeyDefault = true;
+export const fieldItemConfigFourTwoPlaceholderDefault = null;
 export const fieldItemConfigFourTwoPatternDefault = null;
 export const fieldItemConfigFourTwoMinlengthDefault = null;
 export const fieldItemConfigFourTwoMaxlengthDefault = null;
@@ -45,6 +50,7 @@ export const fieldItemConfigFiveOneReadonlyDefault = false;
 export const fieldItemConfigFiveOneTitleDefault = ``;
 export const fieldItemConfigFiveOneDescriptionDefault = null;
 export const fieldItemConfigFiveOneDataKeyDefault = null;
+export const fieldItemConfigFiveOneAutoDataKeyDefault = true;
 export const fieldItemConfigFiveTwoItemSourceRefDefault = null;
 export const fieldItemConfigFiveTwoDefaultValueDefault = null;
 export const fieldItemConfigFiveTwoHardItemsItemLabelDefault = null;
@@ -55,6 +61,7 @@ export const fieldItemConfigSixOneOneReadonlyDefault = false;
 export const fieldItemConfigSixOneOneTitleDefault = ``;
 export const fieldItemConfigSixOneOneDescriptionDefault = null;
 export const fieldItemConfigSixOneOneDataKeyDefault = null;
+export const fieldItemConfigSixOneOneAutoDataKeyDefault = true;
 export const fieldItemConfigSixOneTwoMinDefault = null;
 export const fieldItemConfigSixOneTwoMaxDefault = null;
 export const fieldItemConfigSixTwoMinSelectionDefault = null;
@@ -65,6 +72,7 @@ export const fieldItemConfigSevenOneOneReadonlyDefault = false;
 export const fieldItemConfigSevenOneOneTitleDefault = ``;
 export const fieldItemConfigSevenOneOneDescriptionDefault = null;
 export const fieldItemConfigSevenOneOneDataKeyDefault = null;
+export const fieldItemConfigSevenOneOneAutoDataKeyDefault = true;
 export const fieldItemConfigSevenOneTwoMinDefault = null;
 export const fieldItemConfigSevenOneTwoMaxDefault = null;
 export const fieldItemConfigSevenTwoDefaultValueDefault = null;
@@ -73,6 +81,7 @@ export const fieldItemConfigEightOneOneReadonlyDefault = false;
 export const fieldItemConfigEightOneOneTitleDefault = ``;
 export const fieldItemConfigEightOneOneDescriptionDefault = null;
 export const fieldItemConfigEightOneOneDataKeyDefault = null;
+export const fieldItemConfigEightOneOneAutoDataKeyDefault = true;
 export const fieldItemConfigEightOneTwoMinDefault = null;
 export const fieldItemConfigEightOneTwoMaxDefault = null;
 export const fieldItemConfigEightTwoDefaultValueDefault = { start: null, end: null };
@@ -81,7 +90,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigOneOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigOneOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['geo-point']),
   "defaultValue": zod.object({
@@ -95,7 +105,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigTwoOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigTwoOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigTwoOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigTwoOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigTwoOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigTwoOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['integer', 'float']),
   "min": zod.number().nullish().default(fieldItemConfigTwoTwoMinDefault),
@@ -108,7 +119,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigThreeOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigThreeOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigThreeOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigThreeOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigThreeOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigThreeOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['boolean']),
   "defaultValue": zod.boolean().default(fieldItemConfigThreeTwoDefaultValueDefault),
@@ -120,9 +132,11 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigFourOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigFourOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigFourOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigFourOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigFourOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigFourOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['text', 'multiline']),
+  "placeholder": zod.string().nullish().default(fieldItemConfigFourTwoPlaceholderDefault),
   "pattern": zod.string().nullish().default(fieldItemConfigFourTwoPatternDefault),
   "minlength": zod.number().nullish().default(fieldItemConfigFourTwoMinlengthDefault),
   "maxlength": zod.number().nullish().default(fieldItemConfigFourTwoMaxlengthDefault),
@@ -134,7 +148,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigFiveOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigFiveOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigFiveOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigFiveOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigFiveOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigFiveOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['single-select', 'multi-select']),
   "itemSourceRef": zod.string().nullish().default(fieldItemConfigFiveTwoItemSourceRefDefault),
@@ -150,7 +165,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigSixOneOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigSixOneOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigSixOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigSixOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigSixOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigSixOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(fieldItemConfigSixOneTwoMinDefault),
   "max": zod.number().nullable().default(fieldItemConfigSixOneTwoMaxDefault)
@@ -166,7 +182,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigSevenOneOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigSevenOneOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigSevenOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigSevenOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigSevenOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigSevenOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(fieldItemConfigSevenOneTwoMinDefault),
   "max": zod.number().nullable().default(fieldItemConfigSevenOneTwoMaxDefault)
@@ -180,7 +197,8 @@ export const FieldItemConfig = zod.union([zod.object({
   "readonly": zod.boolean().nullable().default(fieldItemConfigEightOneOneReadonlyDefault),
   "title": zod.string().default(fieldItemConfigEightOneOneTitleDefault),
   "description": zod.string().nullish().default(fieldItemConfigEightOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(fieldItemConfigEightOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(fieldItemConfigEightOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(fieldItemConfigEightOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(fieldItemConfigEightOneTwoMinDefault),
   "max": zod.number().nullable().default(fieldItemConfigEightOneTwoMaxDefault)

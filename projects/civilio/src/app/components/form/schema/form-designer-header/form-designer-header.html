@@ -2,7 +2,7 @@
   <div class="flex items-center gap-2">
     <button
       (click)="onTogglePreviewButtonClicked()"
-      [disabled]="formState().submitting()"
+      [disabled]="submitting()"
       class="cursor-pointer"
       type="button"
       hlmBtn
@@ -20,7 +20,7 @@
         [title]="'Add' + lastAddedItemLabel()"
         hlmBtn
         class="capitalize"
-        [disabled]="formState().submitting()"
+        [disabled]="submitting()"
         size="sm"
         variant="outline"
         (click)="itemAdd.emit(lastAddedItemType())"
@@ -33,7 +33,7 @@
         [hlmDropdownMenuTrigger]="itemTypesMenu"
         type="button"
         size="sm"
-        [disabled]="formState().submitting()"
+        [disabled]="submitting()"
         variant="outline"
         aria-label="Select item Type"
       >
@@ -55,27 +55,27 @@
     }
   </div>
   <div class="flex items-center gap-2">
-    @if(formState().dirty() && !previewing()) {
+    @if(dirty() && !previewing()) {
     <button
       hlmBtn
       size="sm"
       (click)="onSubmit.emit()"
       type="button"
-      [disabled]="formState().invalid() || formState().submitting()"
+      [disabled]="invalid() || submitting()"
       variant="default"
     >
-      @if(formState().submitting()) {
+      @if(submitting()) {
       <hlm-spinner />
       } @else {
       <ng-icon name="lucideSave" />
       }
-      <span>{{formState().submitting() ? 'Saving' : 'Save'}} changes</span>
+      <span>{{submitting() ? 'Saving' : 'Save'}} changes</span>
     </button>
     <button
       (click)="onDiscard.emit()"
       hlmBtn
       size="sm"
-      [disabled]="formState().submitting()"
+      [disabled]="submitting()"
       type="button"
       variant="destructive"
     >

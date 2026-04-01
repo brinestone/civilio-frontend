@@ -11,6 +11,7 @@ export const baseDateFieldPropsOneReadonlyDefault = false;
 export const baseDateFieldPropsOneTitleDefault = ``;
 export const baseDateFieldPropsOneDescriptionDefault = null;
 export const baseDateFieldPropsOneDataKeyDefault = null;
+export const baseDateFieldPropsOneAutoDataKeyDefault = true;
 export const baseDateFieldPropsTwoMinDefault = null;
 export const baseDateFieldPropsTwoMaxDefault = null;
 export const BaseDateFieldProps = zod.object({
@@ -18,7 +19,8 @@ export const BaseDateFieldProps = zod.object({
   "readonly": zod.boolean().nullable().default(baseDateFieldPropsOneReadonlyDefault),
   "title": zod.string().default(baseDateFieldPropsOneTitleDefault),
   "description": zod.string().nullish().default(baseDateFieldPropsOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(baseDateFieldPropsOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(baseDateFieldPropsOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(baseDateFieldPropsOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(baseDateFieldPropsTwoMinDefault),
   "max": zod.number().nullable().default(baseDateFieldPropsTwoMaxDefault)

@@ -11,6 +11,7 @@ export const geoPointFieldConfigOneReadonlyDefault = false;
 export const geoPointFieldConfigOneTitleDefault = ``;
 export const geoPointFieldConfigOneDescriptionDefault = null;
 export const geoPointFieldConfigOneDataKeyDefault = null;
+export const geoPointFieldConfigOneAutoDataKeyDefault = true;
 export const geoPointFieldConfigTwoDefaultValueLatMax = 90;
 
 export const geoPointFieldConfigTwoDefaultValueLongMax = 180;
@@ -21,7 +22,8 @@ export const GeoPointFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(geoPointFieldConfigOneReadonlyDefault),
   "title": zod.string().default(geoPointFieldConfigOneTitleDefault),
   "description": zod.string().nullish().default(geoPointFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(geoPointFieldConfigOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(geoPointFieldConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(geoPointFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
   "type": zod.enum(['geo-point']),
   "defaultValue": zod.object({

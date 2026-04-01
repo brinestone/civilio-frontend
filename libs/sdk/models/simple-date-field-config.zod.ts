@@ -11,6 +11,7 @@ export const simpleDateFieldConfigOneOneReadonlyDefault = false;
 export const simpleDateFieldConfigOneOneTitleDefault = ``;
 export const simpleDateFieldConfigOneOneDescriptionDefault = null;
 export const simpleDateFieldConfigOneOneDataKeyDefault = null;
+export const simpleDateFieldConfigOneOneAutoDataKeyDefault = true;
 export const simpleDateFieldConfigOneTwoMinDefault = null;
 export const simpleDateFieldConfigOneTwoMaxDefault = null;
 export const simpleDateFieldConfigTwoDefaultValueDefault = null;
@@ -19,7 +20,8 @@ export const SimpleDateFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(simpleDateFieldConfigOneOneReadonlyDefault),
   "title": zod.string().default(simpleDateFieldConfigOneOneTitleDefault),
   "description": zod.string().nullish().default(simpleDateFieldConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(simpleDateFieldConfigOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(simpleDateFieldConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(simpleDateFieldConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(simpleDateFieldConfigOneTwoMinDefault),
   "max": zod.number().nullable().default(simpleDateFieldConfigOneTwoMaxDefault)

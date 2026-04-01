@@ -51,8 +51,9 @@ type FormItemType = Strict<FormItemDefinition>['type'];
 export class FormDesignerHeader {
 	readonly editable = input<boolean, BooleanInput>(true, { transform: booleanAttribute });
 	readonly previewing = model<boolean>(true);
-	readonly formState = input.required<FieldState<unknown>>();
-	// readonly partialSelection = input<boolean>(false);
+	readonly dirty = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	readonly submitting = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	readonly invalid = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 
 	// readonly selectAll = output<boolean>();
 	readonly itemAdd = output<FormItemType>();

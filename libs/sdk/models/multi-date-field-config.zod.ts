@@ -11,6 +11,7 @@ export const multiDateFieldConfigOneOneReadonlyDefault = false;
 export const multiDateFieldConfigOneOneTitleDefault = ``;
 export const multiDateFieldConfigOneOneDescriptionDefault = null;
 export const multiDateFieldConfigOneOneDataKeyDefault = null;
+export const multiDateFieldConfigOneOneAutoDataKeyDefault = true;
 export const multiDateFieldConfigOneTwoMinDefault = null;
 export const multiDateFieldConfigOneTwoMaxDefault = null;
 export const multiDateFieldConfigTwoMinSelectionDefault = null;
@@ -21,7 +22,8 @@ export const MultiDateFieldConfig = zod.object({
   "readonly": zod.boolean().nullable().default(multiDateFieldConfigOneOneReadonlyDefault),
   "title": zod.string().default(multiDateFieldConfigOneOneTitleDefault),
   "description": zod.string().nullish().default(multiDateFieldConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(multiDateFieldConfigOneOneDataKeyDefault)
+  "dataKey": zod.string().nullish().default(multiDateFieldConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(multiDateFieldConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
   "min": zod.number().nullable().default(multiDateFieldConfigOneTwoMinDefault),
   "max": zod.number().nullable().default(multiDateFieldConfigOneTwoMaxDefault)
