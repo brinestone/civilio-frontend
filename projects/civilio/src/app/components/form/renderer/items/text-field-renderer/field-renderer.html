@@ -12,10 +12,11 @@
       >}</label
     >
     @if(fieldType() == 'text') {
-    <input hlmInput type="text" id="{{fieldId}}" name="{{dataKey()}}" />
+    <input [formField]="field()" hlmInput type="text" id="{{fieldId}}" />
     } @else {
     <textarea hlmTextArea></textarea>
     }
     <p hlmFieldDescription>{{description()}}</p>
+    <cv-field-error [field]="field()" />
   </div>
 </ng-template>

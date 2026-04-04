@@ -8,10 +8,10 @@ import {
 	moveItemInArray,
 } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgComponentOutlet } from "@angular/common";
-import { Component, computed, input, linkedSignal, Type } from "@angular/core";
+import { Component, computed, model, Type } from "@angular/core";
 import { FieldTree, form } from "@angular/forms/signals";
 import { stripSymbols } from "@app/util";
-import { defaultFormItemDefinitionSchemaValue, defineFormDesignerFormSchema, domainToStrictFormDefinition, FormItem, formItemPathSeparator, FormItemType, FormModel, isExistingFormItem, isFieldTree, isGroup, walkFormItemTree } from "@app/util/form-designer-config";
+import { defaultFormItemDefinitionSchemaValue, defineFormDesignerFormSchema, FormItem, formItemPathSeparator, FormItemType, FormModel, isExistingFormItem, isFieldTree, isGroup, walkFormItemTree } from "@app/components/form/schema/form-designer-config";
 import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition, NewFormItemDefinition, NewFormItemField, NewFormItemGroup, RelevanceLogicExpression } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -45,9 +45,7 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 	],
 })
 export class FormDesigner {
-	readonly formDefinition = input.required<FormVersionDefinition>();
-
-	protected readonly formData = linkedSignal(() => domainToStrictFormDefinition(this.formDefinition()));
+	readonly formData = model.required<Strict<FormVersionDefinition>>({alias: 'formDefinition'});
 	protected readonly formModel = form(this.formData, defineFormDesignerFormSchema());
 
 	protected readonly itemTypeNames = {
@@ -304,7 +302,7 @@ export class FormDesigner {
 			walkFormItemTree(i, (item) => {
 				if (isExistingFormItem(item)) {
 					const pristineItem = get(
-						this.formDefinition()?.items ?? [],
+						this.formData()?.items ?? [],
 						item.path,
 					) as Strict<FormItemDefinition>;
 					if (!pristineItem) return;
@@ -337,7 +335,7 @@ export class FormDesigner {
 				existingItems.add(item.id);
 			});
 		}
-		for (const i of (this.formDefinition()
+		for (const i of (this.formData()
 			?.items as Strict<FormItemDefinition>[]) ?? []) {
 			walkFormItemTree(i, (item) => {
 				if (!isExistingFormItem(item)) return;

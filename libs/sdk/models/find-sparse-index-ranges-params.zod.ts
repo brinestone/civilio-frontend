@@ -11,6 +11,7 @@ export const findSparseIndexRangesParamsIncludeArchivedDefault = false;
 export const FindSparseIndexRangesParams = zod.object({
   "limit": zod.number().min(1).optional(),
   "after": zod.string().optional(),
+  "form": zod.string(),
   "includeArchived": zod.boolean().default(findSparseIndexRangesParamsIncludeArchivedDefault)
 })
 

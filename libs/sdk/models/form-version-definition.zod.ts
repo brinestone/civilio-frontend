@@ -334,7 +334,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -360,7 +363,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -391,7 +397,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -417,7 +426,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemOneThreeConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -575,7 +587,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemTwoOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemTwoOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemTwoOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemTwoOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemTwoOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -601,7 +616,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -631,7 +649,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -657,7 +678,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -811,7 +835,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -837,7 +864,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -872,7 +902,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -898,7 +931,10 @@ export const FormVersionDefinition = zod.object({
   "field": zod.string().nullable().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

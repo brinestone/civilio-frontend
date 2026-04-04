@@ -41,7 +41,10 @@ export const NewFormItemImage = zod.object({
   "field": zod.string().nullable().default(newFormItemImageOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemImageOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemImageOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemImageOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemImageOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

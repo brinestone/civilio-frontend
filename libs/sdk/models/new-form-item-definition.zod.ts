@@ -265,7 +265,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -296,7 +299,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -452,7 +458,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -480,7 +489,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -632,7 +644,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -665,7 +680,10 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "field": zod.string().nullable().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

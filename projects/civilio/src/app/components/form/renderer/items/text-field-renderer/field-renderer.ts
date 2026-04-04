@@ -12,8 +12,8 @@ import { FieldError } from "@app/components/form/field-error/field-error.compone
 import { NewFormItemField } from "@civilio/sdk/models";
 import { HlmFieldGroup, HlmFieldImports } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
-import { BaseItemRenderer } from "../base-item-renderer";
 import { HlmTextarea } from "@spartan-ng/helm/textarea";
+import { BaseItemRenderer } from "../base-item-renderer";
 
 @Component({
   selector: "cv-field-renderer",
@@ -30,9 +30,10 @@ import { HlmTextarea } from "@spartan-ng/helm/textarea";
   hostDirectives: [HlmFieldGroup],
 })
 export class FieldRenderer extends BaseItemRenderer<
-  NewFormItemField | NewFormItemField
+  NewFormItemField | NewFormItemField,
+  string
 > {
-  protected readonly config = computed(() => this.item().config);
+  protected readonly config = computed(() => this.itemDefinition().config);
   protected readonly title = computed(() => this.config()?.title);
   protected readonly dataKey = computed(() => this.config()?.dataKey);
   protected readonly description = computed(() => this.config()?.description);

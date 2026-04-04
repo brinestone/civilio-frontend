@@ -125,7 +125,10 @@ export const FormItemFieldUpdate = zod.object({
   "field": zod.string().nullable().default(formItemFieldUpdateOneOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemFieldUpdateOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemFieldUpdateOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemFieldUpdateOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemFieldUpdateOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -151,7 +154,10 @@ export const FormItemFieldUpdate = zod.object({
   "field": zod.string().nullable().default(formItemFieldUpdateOneTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemFieldUpdateOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemFieldUpdateOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemFieldUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemFieldUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

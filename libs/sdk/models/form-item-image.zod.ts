@@ -52,7 +52,10 @@ export const FormItemImage = zod.object({
   "field": zod.string().nullable().default(formItemImageOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemImageOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemImageOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemImageOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemImageOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -78,7 +81,10 @@ export const FormItemImage = zod.object({
   "field": zod.string().nullable().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

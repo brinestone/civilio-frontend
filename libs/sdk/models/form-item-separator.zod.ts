@@ -46,7 +46,10 @@ export const FormItemSeparator = zod.object({
   "field": zod.string().nullable().default(formItemSeparatorOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemSeparatorOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemSeparatorOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemSeparatorOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemSeparatorOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -72,7 +75,10 @@ export const FormItemSeparator = zod.object({
   "field": zod.string().nullable().default(formItemSeparatorTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(formItemSeparatorTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(formItemSeparatorTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(formItemSeparatorTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(formItemSeparatorTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

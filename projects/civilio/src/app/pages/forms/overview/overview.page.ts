@@ -90,7 +90,7 @@ import {
 	takeUntil,
 	tap
 } from 'rxjs';
-import { StandardFacilityTagsSchema } from '../../../util/form-designer-config';
+import { StandardFacilityTagsSchema } from '../../../components/form/schema/form-designer-config';
 
 const ch = createColumnHelper<SubmissionVersionLookup>();
 

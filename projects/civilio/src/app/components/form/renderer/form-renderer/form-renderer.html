@@ -1,14 +1,16 @@
-@for(item of formDefinition().items; track item) {
-<ng-container> @let renderer = renderers[item.type] | async; </ng-container>
-<ng-container>
-	@if(renderer) {
-	<ng-container
-		[ngComponentOutlet]="renderer"
-		[ngComponentOutletInputs]="{
+<form hlmFieldGroup>
+  @for(item of formDefinition().items; track item) {
+  <ng-container> @let renderer = renderers[item.type] | async; </ng-container>
+  <ng-container>
+    @if(renderer) {
+    <ng-container
+      [ngComponentOutlet]="renderer"
+      [ngComponentOutletInputs]="{
 		item,
 		index: $index
 	}"
-	/>
-	}
-</ng-container>
-}
+    />
+    }
+  </ng-container>
+  }
+</form>

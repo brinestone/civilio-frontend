@@ -27,7 +27,8 @@ import {
 import {
   GetFacilityInfo200,
   LookupFormSubmissions200,
-  PerformSubmissionDeletion202
+  PerformSubmissionDeletion202,
+  SubmissionData
 } from '../../../../../../libs/sdk/models/index.zod';
 import type {
   FindSparseIndexRangesParams,
@@ -37,7 +38,6 @@ import type {
   LookupFormSubmissionsParams,
   LookupSubmissionVersionsParams,
   PerformSubmissionDeletionParams,
-  SubmissionResponse,
   SubmissionVersionLookup,
   ToggleSubmissionApprovalStatusParams
 } from '../../../../../../libs/sdk/models/index.zod';
@@ -105,46 +105,6 @@ function filterParams(
 export class SubmissionsService {
   private readonly http = inject(HttpClient);
 /**
- * Find sparse submission index ranges
- * @summary Find index ranges
- */
- findSparseIndexRanges<TData = IndexRange[]>(form: string,
-    params?: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- findSparseIndexRanges<TData = IndexRange[]>(form: string,
-    params?: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- findSparseIndexRanges<TData = IndexRange[]>(form: string,
-    params?: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
-  findSparseIndexRanges<TData = IndexRange[]>(
-    form: string,
-    params?: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe?: 'body' | 'events' | 'response' }): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
-    const filteredParams = filterParams({...params, ...options?.params}, new Set<string>([]));
-
-    if (options?.observe === 'events') {
-      return this.http.get<TData>(
-      `/api/submissions/${form}/index-ranges`,{
-    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
-        observe: 'events',
-        params: filteredParams,}
-    );
-    }
-
-    if (options?.observe === 'response') {
-      return this.http.get<TData>(
-      `/api/submissions/${form}/index-ranges`,{
-    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
-        observe: 'response',
-        params: filteredParams,}
-    );
-    }
-
-    return this.http.get<TData>(
-      `/api/submissions/${form}/index-ranges`,{
-    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
-        observe: 'body',
-        params: filteredParams,}
-    );
-  }
-/**
  * Retrieve the facility information, via standard tags or custom tags
  * @summary Get facility info
  */
@@ -165,7 +125,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'events') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/facility-info`,{
+      `/api/submissions/${submission}/forms/${form}/facility-info`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'events',
         params: filteredParams,}
@@ -174,7 +134,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'response') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/facility-info`,{
+      `/api/submissions/${submission}/forms/${form}/facility-info`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'response',
         params: filteredParams,}
@@ -182,7 +142,7 @@ export class SubmissionsService {
     }
 
     return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/facility-info`,{
+      `/api/submissions/${submission}/forms/${form}/facility-info`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}
@@ -192,16 +152,16 @@ export class SubmissionsService {
  * Fetch the responses for a particular submission
  * @summary Get submission data
  */
- getSubmissionData<TData = SubmissionResponse[]>(submission: number,
+ getSubmissionData<TData = SubmissionData>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- getSubmissionData<TData = SubmissionResponse[]>(submission: number,
+ getSubmissionData<TData = SubmissionData>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- getSubmissionData<TData = SubmissionResponse[]>(submission: number,
+ getSubmissionData<TData = SubmissionData>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
-  getSubmissionData<TData = SubmissionResponse[]>(
+  getSubmissionData<TData = SubmissionData>(
     submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientOptions & { observe?: 'body' | 'events' | 'response' }): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
@@ -209,7 +169,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'events') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}`,{
+      `/api/submissions/${submission}/forms/${form}`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'events',
         params: filteredParams,}
@@ -218,7 +178,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'response') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}`,{
+      `/api/submissions/${submission}/forms/${form}`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'response',
         params: filteredParams,}
@@ -226,11 +186,11 @@ export class SubmissionsService {
     }
 
     return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}`,{
+      `/api/submissions/${submission}/forms/${form}`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}
-    );
+    ).pipe(map(data => SubmissionData.parse(data) as TData));
   }
 /**
  * Lookup the versions for a submission
@@ -253,7 +213,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'events') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/lookup-current`,{
+      `/api/submissions/${submission}/forms/${form}/lookup-current`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'events',
         params: filteredParams,}
@@ -262,7 +222,7 @@ export class SubmissionsService {
 
     if (options?.observe === 'response') {
       return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/lookup-current`,{
+      `/api/submissions/${submission}/forms/${form}/lookup-current`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'response',
         params: filteredParams,}
@@ -270,7 +230,7 @@ export class SubmissionsService {
     }
 
     return this.http.get<TData>(
-      `/api/submissions/${submission}/${form}/lookup-current`,{
+      `/api/submissions/${submission}/forms/${form}/lookup-current`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}
@@ -351,6 +311,42 @@ export class SubmissionsService {
 
     return this.http.patch<TData>(
       `/api/submissions/${submission}/toggle-approval`,undefined,{
+    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'body',
+        params: filteredParams,}
+    );
+  }
+/**
+ * Find sparse submission index ranges
+ * @summary Find index ranges
+ */
+ findSparseIndexRanges<TData = IndexRange[]>(params: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ findSparseIndexRanges<TData = IndexRange[]>(params: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ findSparseIndexRanges<TData = IndexRange[]>(params: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  findSparseIndexRanges<TData = IndexRange[]>(
+    params: FindSparseIndexRangesParams, options?: HttpClientOptions & { observe?: 'body' | 'events' | 'response' }): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    const filteredParams = filterParams({...params, ...options?.params}, new Set<string>([]));
+
+    if (options?.observe === 'events') {
+      return this.http.get<TData>(
+      `/api/submissions/index-ranges`,{
+    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
+        params: filteredParams,}
+    );
+    }
+
+    if (options?.observe === 'response') {
+      return this.http.get<TData>(
+      `/api/submissions/index-ranges`,{
+    ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+        params: filteredParams,}
+    );
+    }
+
+    return this.http.get<TData>(
+      `/api/submissions/index-ranges`,{
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}

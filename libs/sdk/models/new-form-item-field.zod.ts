@@ -114,7 +114,10 @@ export const NewFormItemField = zod.object({
   "field": zod.string().nullable().default(newFormItemFieldOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(newFormItemFieldOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(newFormItemFieldOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(newFormItemFieldOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(newFormItemFieldOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

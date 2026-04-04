@@ -139,7 +139,10 @@ export const GroupItemConfig = zod.object({
   "field": zod.string().nullable().default(groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(groupItemConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })
@@ -165,7 +168,10 @@ export const GroupItemConfig = zod.object({
   "field": zod.string().nullable().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(groupItemConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
 }))
 })

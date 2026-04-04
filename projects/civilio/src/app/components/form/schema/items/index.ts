@@ -1,6 +1,6 @@
 import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from '@angular/core';
 import { FieldTree } from '@angular/forms/signals';
-import { FormItem } from '@app/util/form-designer-config';
+import { FormItem } from '@app/components/form/schema/form-designer-config';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 

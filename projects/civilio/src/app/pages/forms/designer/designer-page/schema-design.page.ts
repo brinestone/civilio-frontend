@@ -1,6 +1,3 @@
-import {
-	NgTemplateOutlet
-} from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
 	ChangeDetectionStrategy,
@@ -13,19 +10,16 @@ import {
 	viewChild
 } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
-import { FieldTree, form, submit } from "@angular/forms/signals";
 import { Router } from "@angular/router";
 import { FormRenderer } from "@app/components/form/renderer";
 import { FormDesigner, FormDesignerHeader } from "@app/components/form/schema";
 import { HasPendingChanges } from "@app/model/form";
-import { defaultFormDefinitionSchemaValue, defineFormDesignerFormSchema, domainToStrictFormDefinition, FormItemType } from '@app/util/form-designer-config';
+import { defaultFormDefinitionSchemaValue, domainToStrictFormDefinition, FormItemType } from '@app/components/form/schema/form-designer-config';
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
 import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
-import { HlmSpinner } from "@spartan-ng/helm/spinner";
-import get from "lodash/get";
 import { toast } from "ngx-sonner";
-import { lastValueFrom, Observable, of } from "rxjs";
+import { Observable, of } from "rxjs";
 
 @Component({
 	selector: "cv-forms",
@@ -62,11 +56,11 @@ export class SchemaDesignPage implements HasPendingChanges {
 				});
 		},
 	});
-	// private readonly formData = linkedSignal(() => {
-	//   const v = this.formDefinition.value();
-	//   if (v) return domainToStrictFormDefinition(v);
-	//   return defaultFormDefinitionSchemaValue();
-	// });
+	protected readonly formData = linkedSignal(() => {
+	  const v = this.formDefinition.value();
+	  if (v) return domainToStrictFormDefinition(v);
+	  return defaultFormDefinitionSchemaValue();
+	});
 	protected readonly renderForm = linkedSignal(() => !!this.slug());
 	// protected readonly formModel = form(
 	//   this.formData,
@@ -160,6 +154,10 @@ export class SchemaDesignPage implements HasPendingChanges {
 	}
 
 	constructor(router: Router) {
+		effect(() => {
+			const formData = this.formData();
+			console.log('form-data' , formData);
+		})
 		effect(() => {
 			const error = this.formDefinition.error();
 			const loadingFinished = !this.formDefinition.isLoading();

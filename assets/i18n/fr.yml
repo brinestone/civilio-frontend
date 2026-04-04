@@ -1419,7 +1419,7 @@ chefferie:
                 title: Le chef ou le dignitaire a-t-il prêté serment ?
               is_chief_officer:
                 title: Le chef exerce-t-il la fonction d’état civil ?
-                description: La fonction d'état civil est-elle exercée par le chef ou un notable
+                description: La fonction d’état civil est-elle exercée par le chef ou un notable
                   de la chefferie ?
               reception_location:
                 description: Aire d'accueil des usagers dans la chefferie
@@ -1571,7 +1571,7 @@ chefferie:
           second: Non
       cs_actor_is_chief:
         title: Le chef exerce-t-il la fonction d’état civil ?
-        description: La fonction d'état civil est-elle exercée par le chef ou un notable
+        description: La fonction d’état civil est-elle exercée par le chef ou un notable
           de la chefferie ?
       reception_location:
         description: Aire d'accueil des usagers dans la chefferie

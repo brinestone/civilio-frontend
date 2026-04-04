@@ -16,7 +16,10 @@ export const RelevanceCondition = zod.object({
   "field": zod.string().nullable().default(relevanceConditionExpressionsItemFieldDefault),
   "operator": zod.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullable().default(relevanceConditionExpressionsItemOperatorDefault),
   "negated": zod.boolean().default(relevanceConditionExpressionsItemNegatedDefault),
-  "value": zod.string().nullish().default(relevanceConditionExpressionsItemValueDefault)
+  "value": zod.union([zod.union([zod.string(),zod.number(),zod.boolean()]),zod.array(zod.union([zod.string(),zod.number(),zod.boolean()])),zod.object({
+  "start": zod.number().nullish(),
+  "end": zod.number().nullish()
+})]).nullish().default(relevanceConditionExpressionsItemValueDefault)
 }))
 })
 
