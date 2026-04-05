@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { HeaderContext, injectFlexRenderContext } from '@tanstack/angular-table';
-import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {
+	HeaderContext,
+	injectFlexRenderContext,
+} from "@tanstack/angular-table";
+import { HlmCheckbox } from "@spartan-ng/helm/checkbox";
 
 @Component({
 	template: `
@@ -12,12 +15,10 @@ import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 	`,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
-		class: 'px-1 block',
+		class: "px-1 block",
 	},
-	imports: [
-		HlmCheckbox
-	]
+	imports: [HlmCheckbox],
 })
 export class TableHeadSelectionComponent<T> {
-	context = injectFlexRenderContext<HeaderContext<T, unknown>>()
+	context = injectFlexRenderContext<HeaderContext<T, unknown>>();
 }

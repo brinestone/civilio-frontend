@@ -2,24 +2,14 @@ import {
 	DecimalPipe,
 	NgClass,
 	NgTemplateOutlet,
-	SlicePipe
+	SlicePipe,
 } from "@angular/common";
-import {
-	Component,
-	OnDestroy,
-	OnInit
-} from "@angular/core";
-import { FormsModule } from '@angular/forms';
-import {
-	RouterLink,
-	RouterLinkActive,
-	RouterOutlet
-} from "@angular/router";
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 import { FormFooterComponent, FormHeaderComponent } from "@app/components/form";
-import {
-	HasPendingChanges
-} from "@app/model/form";
-import { AgoDatePipe, MaskPipe } from '@app/pipes';
+import { HasPendingChanges } from "@app/model/form";
+import { AgoDatePipe, MaskPipe } from "@app/pipes";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideChevronLeft,
@@ -30,26 +20,24 @@ import {
 	lucidePanelBottomOpen,
 	lucideSave,
 	lucideTrash2,
-	lucideX
+	lucideX,
 } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
-import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { HlmAlertImports } from '@spartan-ng/helm/alert';
-import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
+import { BrnAlertDialogImports } from "@spartan-ng/brain/alert-dialog";
+
+import { HlmAlertImports } from "@spartan-ng/helm/alert";
+import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
 import { HlmBadge } from "@spartan-ng/helm/badge";
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
-import { HlmSkeletonImports } from '@spartan-ng/helm/skeleton';
-import { HlmTextarea } from '@spartan-ng/helm/textarea';
+import { HlmButton } from "@spartan-ng/helm/button";
+import { HlmSelectImports } from "@spartan-ng/helm/select";
+import { HlmSeparatorImports } from "@spartan-ng/helm/separator";
+import { HlmSkeletonImports } from "@spartan-ng/helm/skeleton";
+import { HlmTextarea } from "@spartan-ng/helm/textarea";
 import { HlmToggleImports } from "@spartan-ng/helm/toggle";
-import {
-	Observable
-} from "rxjs";
+import { Observable } from "rxjs";
 
 const miscConfigKeys = {
-	bottomPanelOpenState: 'form-prefs.page.bottom-panel-open'
+	bottomPanelOpenState: "form-prefs.page.bottom-panel-open",
 } as const;
 
 @Component({
@@ -64,7 +52,7 @@ const miscConfigKeys = {
 			lucideTrash2,
 			lucideHistory,
 			lucideChevronLeft,
-			lucideX
+			lucideX,
 		}),
 	],
 	imports: [
@@ -80,7 +68,7 @@ const miscConfigKeys = {
 		NgTemplateOutlet,
 		HlmBadge,
 		HlmSelectImports,
-		BrnSelectImports,
+
 		MaskPipe,
 		FormsModule,
 		HlmSeparatorImports,
@@ -92,15 +80,13 @@ const miscConfigKeys = {
 		BrnAlertDialogImports,
 		DecimalPipe,
 		HlmTextarea,
-		HlmAlertImports
+		HlmAlertImports,
 	],
 	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./form.page.html",
 	styleUrl: "./form.page.scss",
 })
-export class FormPage
-	implements HasPendingChanges, OnInit, OnDestroy {
-
+export class FormPage implements HasPendingChanges, OnInit, OnDestroy {
 	// protected pendingChangesActionCallback?: (options: {
 	// 	type: 'close' | 'save' | 'discard',
 	// 	close: () => void
@@ -359,32 +345,31 @@ export class FormPage
 	// 	});
 	// }
 
-
 	ngOnDestroy(): void {
 		// this.deactivate(this.formType());
 	}
 
 	ngOnInit() {
-	// 	this.activate(this.formModel())
-	// 		.pipe(
-	// 			concatMap(() => this.loadOptions(this.formType())),
-	// 			map(() => this.selectedVersion.value()),
-	// 			// filter((version) => !!version && !this.isNewSubmission()),
-	// 			concatMap((version) => {
-	// 				if (!untracked(this.isNewSubmission))
-	// 					return this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined);
-	// 				return this.updateRelevance(untracked(this.formType));
-	// 			}
-	// 			),
-	// 		)
-	// 		.subscribe({
-	// 			error: () => {
-	// 				this.initialized = true;
-	// 			},
-	// 			complete: () => {
-	// 				this.initialized = true;
-	// 			}
-	// 		});
+		// 	this.activate(this.formModel())
+		// 		.pipe(
+		// 			concatMap(() => this.loadOptions(this.formType())),
+		// 			map(() => this.selectedVersion.value()),
+		// 			// filter((version) => !!version && !this.isNewSubmission()),
+		// 			concatMap((version) => {
+		// 				if (!untracked(this.isNewSubmission))
+		// 					return this.loadData(this.formType(), this.submissionIndex()!, version ?? undefined);
+		// 				return this.updateRelevance(untracked(this.formType));
+		// 			}
+		// 			),
+		// 		)
+		// 		.subscribe({
+		// 			error: () => {
+		// 				this.initialized = true;
+		// 			},
+		// 			complete: () => {
+		// 				this.initialized = true;
+		// 			}
+		// 		});
 	}
 
 	// private reloadDataAndOptions() {

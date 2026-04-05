@@ -1,25 +1,28 @@
 import {
 	AfterViewInit,
-	Component, computed, effect,
+	Component,
+	computed,
+	effect,
 	ElementRef,
 	inject,
-	input, resource, untracked
-} from '@angular/core';
-import { GeoPoint, GeoPointInputSchema } from '@civilio/shared';
-import { control, icon, map, Map, marker, Marker, tileLayer } from 'leaflet';
-import { injectNetwork } from 'ngxtension/inject-network';
-import { sendRpcMessageAsync } from '@app/util';
-
+	input,
+	resource,
+	untracked,
+} from "@angular/core";
+import { GeoPoint, GeoPointInputSchema } from "@civilio/shared";
+import { control, icon, map, Map, marker, Marker, tileLayer } from "leaflet";
+import { injectNetwork } from "ngxtension/inject-network";
+import { sendRpcMessageAsync } from "@app/util";
 
 @Component({
-	selector: 'cv-map',
+	selector: "cv-map",
 	imports: [],
-	template: '',
-	styleUrl: './map.component.scss',
+	template: "",
+	styleUrl: "./map.component.scss",
 })
 export class MapComponent {
 	readonly coords = input<GeoPoint, string | null>({} as any, {
-		transform: s => GeoPointInputSchema.parse(s ?? {})
+		transform: (s) => GeoPointInputSchema.parse(s ?? {}),
 	});
 
 	private ref = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -30,13 +33,16 @@ export class MapComponent {
 	protected readonly network = injectNetwork();
 	protected readonly markerIconUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/marker-icon.png');
-		}
+			return await sendRpcMessageAsync("resource:read", "img/marker-icon.png");
+		},
 	});
 	protected readonly markerShadowIconUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/marker-shadow.png');
-		}
+			return await sendRpcMessageAsync(
+				"resource:read",
+				"img/marker-shadow.png",
+			);
+		},
 	});
 
 	constructor() {
@@ -50,23 +56,30 @@ export class MapComponent {
 		effect(() => {
 			const markerIconUrlStatus = this.markerIconUrl.status();
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
-			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved' || this.initialized) return;
+			if (
+				markerIconUrlStatus != "resolved" ||
+				markerShadowIconUrlStatus != "resolved" ||
+				this.initialized
+			)
+				return;
 			const { lat, long } = untracked(this.coords);
 			const coords = { lat, lng: long };
 			this.map = map(this.ref.nativeElement, { center: coords, zoom: 15 });
-			const anchor = document.querySelector<HTMLAnchorElement>('a[href="https://leafletjs.com"]');
+			const anchor = document.querySelector<HTMLAnchorElement>(
+				'a[href="https://leafletjs.com"]',
+			);
 			if (anchor) {
-				anchor.target = '_blank';
+				anchor.target = "_blank";
 			}
 			this.initTileLayer(this.map);
 			this.initMarker(this.map);
 			this.initialized = true;
-		})
+		});
 	}
 
 	private initTileLayer(map: Map) {
-		tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 20
+		tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			maxZoom: 20,
 		}).addTo(map);
 	}
 
@@ -80,7 +93,7 @@ export class MapComponent {
 				iconAnchor: [12, 41],
 				popupAnchor: [12, 41],
 				tooltipAnchor: [12, 44],
-				shadowAnchor: [13, 41]
+				shadowAnchor: [13, 41],
 			}),
 		}).addTo(map);
 	}

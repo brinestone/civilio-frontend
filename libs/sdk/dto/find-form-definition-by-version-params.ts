@@ -6,6 +6,6 @@
  */
 
 export type FindFormDefinitionByVersionParams = {
-archived?: boolean;
-version?: string;
+	archived?: boolean;
+	version?: string;
 };

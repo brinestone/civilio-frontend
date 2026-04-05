@@ -86,7 +86,7 @@ function defineTextFieldItemSchema(
 
 export function defineFormRendererFormSchema(
 	def: Signal<Strict<FormVersionDefinition>>,
-	relevanceEvaluator: (data: SubmissionData, logic: any) => boolean
+	relevanceEvaluator: (data: SubmissionData, logic: object) => boolean
 ) {
 	const fieldDefs = new Map<
 		string,
@@ -122,16 +122,24 @@ export function defineFormRendererFormSchema(
 }
 
 function relevanceToJsonLogic(relevance: Strict<RelevanceDefinition>) {
-	const rules = {} as Record<string, unknown>;
+
 }
 
-function conditionToJsonLogic(condition: Strict<RelevanceCondition>) { }
+function conditionToJsonLogic(condition: Strict<RelevanceCondition>) {
+	const expressionLogics = condition.expressions.map(e => {
+		const logic = expressionToJsonLogic(e);
+		if (e.negated) {
+			return { not: logic };
+		} return logic;
+	});
+	if (expressionLogics.length == 1) return expressionLogics[0];
+	return { [condition.operator]: expressionLogics };
+}
 
 function expressionToJsonLogic({
 	operator,
 	field,
 	value,
-	negated
 }: Strict<RelevanceLogicExpression>) {
 	const selector = { var: field };
 	switch (operator) {

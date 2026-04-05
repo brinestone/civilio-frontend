@@ -23,8 +23,8 @@ const sectionRoutes: Routes = [
 				(m) => m.SectionPage,
 			),
 		title: (snapshot) => {
-			return snapshot.params['id'] + '.title';
-		}
+			return snapshot.params["id"] + ".title";
+		},
 	},
 	{
 		path: "",
@@ -37,30 +37,36 @@ const sectionRoutes: Routes = [
 
 export const formRoutes: Routes = [
 	{
-		path: ':formType/:submissionIndex/overview',
-		loadComponent: () => import('./pages/forms/overview/overview.page').then(m => m.OverviewPage),
-		title: 'overview.page_title'
+		path: ":formType/:submissionIndex/overview",
+		loadComponent: () =>
+			import("./pages/forms/overview/overview.page").then(
+				(m) => m.OverviewPage,
+			),
+		title: "overview.page_title",
 	},
 	{
-		path: 'fosa/new',
+		path: "fosa/new",
 		children: sectionRoutes,
-		data: { form: 'fosa', model: FosaFormDefinition },
-		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `fosa.form.page_title`
+		data: { form: "fosa", model: FosaFormDefinition },
+		loadComponent: () =>
+			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
+		title: `fosa.form.page_title`,
 	},
 	{
-		path: 'csc/new',
+		path: "csc/new",
 		children: sectionRoutes,
-		data: { form: 'csc', model: CscFormDefinition },
-		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `csc.form.page_title`
+		data: { form: "csc", model: CscFormDefinition },
+		loadComponent: () =>
+			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
+		title: `csc.form.page_title`,
 	},
 	{
-		path: 'chefferie/new',
+		path: "chefferie/new",
 		children: sectionRoutes,
-		data: { form: 'chefferie', model: ChefferieFormDefinition },
-		loadComponent: () => import('./pages/forms/form-page/form.page').then(m => m.FormPage),
-		title: `chefferie.form.page_title`
+		data: { form: "chefferie", model: ChefferieFormDefinition },
+		loadComponent: () =>
+			import("./pages/forms/form-page/form.page").then((m) => m.FormPage),
+		title: `chefferie.form.page_title`,
 	},
 	{
 		children: sectionRoutes,

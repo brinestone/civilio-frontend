@@ -102,8 +102,7 @@
 				}
 			</div>
 			@let selectedItemCount = formData().selectAll ?
-			(datasetItems.value().totalRecords) :
-			formData().selectedItems.length;
+			(datasetItems.value().totalRecords) : formData().selectedItems.length;
 			<span class="text-muted-foreground text-xs">
 				{{selectedItemCount | compact}} item{{selectedItemCount != 1 ? 's': ''}}
 				selected
@@ -155,7 +154,7 @@
 			type="button"
 		>
 			@if(formModel().submitting()) {
-				<hlm-spinner />
+			<hlm-spinner />
 			}
 			<span>Finish</span>
 		</button>

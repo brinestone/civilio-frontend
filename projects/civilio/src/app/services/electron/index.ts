@@ -1,2 +1,2 @@
-export * from './config.service';
-export * from './notification.service';
+export * from "./config.service";
+export * from "./notification.service";

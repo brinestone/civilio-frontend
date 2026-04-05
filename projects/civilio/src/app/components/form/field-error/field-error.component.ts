@@ -5,27 +5,26 @@ import { HlmFieldError } from "@spartan-ng/helm/field";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 
 @Component({
-	selector: 'cv-field-error',
+	selector: "cv-field-error",
 	template: `
-	@if(field()().pending()) {
-		<div class="inline-flex gap-2 items-center text-sm">
-			<hlm-spinner/>
-			<span>Validating...</span>
-	</div>
-	} @else if (field()().invalid() && (eager() || field()().touched())) {
-		<div class="space-y-1">
-@for(error of field()().errors(); track error) {
-	<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
-}
-	</div>
-	}
+		@if (field()().pending()) {
+			<div class="inline-flex gap-2 items-center text-sm">
+				<hlm-spinner />
+				<span>Validating...</span>
+			</div>
+		} @else if (field()().invalid() && (eager() || field()().touched())) {
+			<div class="space-y-1">
+				@for (error of field()().errors(); track error) {
+					<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
+				}
+			</div>
+		}
 	`,
-	imports: [
-		HlmFieldError,
-		HlmSpinner
-	]
+	imports: [HlmFieldError, HlmSpinner],
 })
 export class FieldError<T> {
 	readonly field = input.required<FieldTree<T>>();
-	readonly eager = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	readonly eager = input<boolean, BooleanInput>(false, {
+		transform: booleanAttribute,
+	});
 }

@@ -1,110 +1,129 @@
-import { ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
-import { GeoPoint, GeoPointSchema, Option, Unwrap } from '@civilio/shared';
-import { formatISO, isAfter, isBefore, toDate } from 'date-fns';
-import { isEmpty, isObjectLike } from 'lodash';
-import z from 'zod';
+import { ValidationErrors, ValidatorFn, Validators } from "@angular/forms";
+import { GeoPoint, GeoPointSchema, Option, Unwrap } from "@civilio/shared";
+import { formatISO, isAfter, isBefore, toDate } from "date-fns";
+import { isEmpty, isObjectLike } from "lodash";
+import z from "zod";
 import {
 	ColumnDefinition,
 	DefinitionLike,
 	FieldSchema,
 	FormSchema,
-	SectionSchema
-} from '../schemas';
+	SectionSchema,
+} from "../schemas";
 
-export * from './chiefdom';
-export * from './csc';
-export * from './fosa';
+export * from "./chiefdom";
+export * from "./csc";
+export * from "./fosa";
 
-export function extractFieldKey(key: (FieldSchema | ColumnDefinition)['key']) {
-	return typeof key == 'string' ? key : key.value;
+export function extractFieldKey(key: (FieldSchema | ColumnDefinition)["key"]) {
+	return typeof key == "string" ? key : key.value;
 }
 
 export function extractRawValidators(schema: FieldSchema | ColumnDefinition) {
 	const truthinessSchema = z.coerce.boolean();
 	const validators: ((v: unknown) => ValidationErrors | null)[] = [];
 
-	if ('required' in schema && !schema.relevance) {
+	if ("required" in schema && !schema.relevance) {
 		validators.push((v) => {
-			const err = { required: 'validation.msg.field_required' };
+			const err = { required: "validation.msg.field_required" };
 			if (v === null || v === undefined) return err;
-			else if (typeof v == 'string' && isEmpty(v.trim())) return err;
-			else if (typeof v != 'number' && isEmpty(v)) return err;
+			else if (typeof v == "string" && isEmpty(v.trim())) return err;
+			else if (typeof v != "number" && isEmpty(v)) return err;
 			else if (isObjectLike(v) && isEmpty(v)) return err;
 
 			return null;
 		});
 	}
 
-	if (schema.type == 'text') {
-		if ('validValues' in schema && schema.validValues) {
-			validators.push(v => {
+	if (schema.type == "text") {
+		if ("validValues" in schema && schema.validValues) {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
-				return schema.validValues?.includes(String(v).trim()) ? null : { invalidValue: 'validation.msg.value_unsupported', validValues: schema.validValues };
-			})
+				return schema.validValues?.includes(String(v).trim())
+					? null
+					: {
+							invalidValue: "validation.msg.value_unsupported",
+							validValues: schema.validValues,
+						};
+			});
 		}
 
-		if ('pattern' in schema && schema.pattern) {
+		if ("pattern" in schema && schema.pattern) {
 			const regexSchema = z.string().regex(new RegExp(schema.pattern));
-			validators.push(v => regexSchema.safeParse(v).success ? null : { pattern: 'validation.msg.pattern_mismatch' });
+			validators.push((v) =>
+				regexSchema.safeParse(v).success
+					? null
+					: { pattern: "validation.msg.pattern_mismatch" },
+			);
 		}
 	}
 
-	if (schema.type == 'date') {
+	if (schema.type == "date") {
 		const dateValidationSchema = z.union([z.iso.date(), z.date()]);
 		if (schema.max) {
-			validators.push(v => {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
 				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
-				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
+				if (!success) return { invalidDate: "validation.msg.invalid_date" };
 				const maxDate = toDate(schema.max as string | number);
-				return isBefore(toDate(rawDate), maxDate) ? null : {
-					msg: 'validation.msg.max_date',
-					maxDate
-				};
-			})
+				return isBefore(toDate(rawDate), maxDate)
+					? null
+					: {
+							msg: "validation.msg.max_date",
+							maxDate,
+						};
+			});
 		}
 
 		if (schema.min) {
-			validators.push(v => {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
 				const { success, data: rawDate } = dateValidationSchema.safeParse(v);
-				if (!success) return { invalidDate: 'validation.msg.invalid_date' };
+				if (!success) return { invalidDate: "validation.msg.invalid_date" };
 				const minDate = toDate(schema.max as string | number);
-				return isAfter(toDate(rawDate), minDate) ? null : {
-					msg: 'validation.msg.min_date',
-					maxDate: minDate
-				};
-			})
+				return isAfter(toDate(rawDate), minDate)
+					? null
+					: {
+							msg: "validation.msg.min_date",
+							maxDate: minDate,
+						};
+			});
 		}
 	}
-	if (schema.type == 'int' || schema.type == 'float') {
-		if (schema.type == 'int') {
-			validators.push(v => {
+	if (schema.type == "int" || schema.type == "float") {
+		if (schema.type == "int") {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
 				const stringValue = String(v).trim();
-				return z.coerce.number().int().safeParse(stringValue).success ? null : { int: 'validation.msg.int' };
-			})
+				return z.coerce.number().int().safeParse(stringValue).success
+					? null
+					: { int: "validation.msg.int" };
+			});
 		}
 
 		if (schema.min) {
 			const min = schema.min;
-			validators.push(v => {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
-				return z.number().safeParse(v).success && Number(v) >= min ? null : {
-					msg: 'validation.msg.min',
-					min
-				};
-			})
+				return z.number().safeParse(v).success && Number(v) >= min
+					? null
+					: {
+							msg: "validation.msg.min",
+							min,
+						};
+			});
 		}
 
 		if (schema.max) {
 			const max = schema.max;
-			validators.push(v => {
+			validators.push((v) => {
 				if (!truthinessSchema.parse(v)) return null;
-				return z.number().safeParse(v).success && Number(v) <= max ? null : {
-					msg: 'validation.msg.max',
-					max
-				};
+				return z.number().safeParse(v).success && Number(v) <= max
+					? null
+					: {
+							msg: "validation.msg.max",
+							max,
+						};
 			});
 		}
 	}
@@ -117,13 +136,13 @@ export function extractRawValidators(schema: FieldSchema | ColumnDefinition) {
 	// 	validators.push(...values(schema.columns).flatMap(col => extractRawValidators(col)));
 	// }
 
-	if ('validate' in schema && schema.validate) {
+	if ("validate" in schema && schema.validate) {
 		const fn = schema.validate;
-		validators.push(v => {
+		validators.push((v) => {
 			const stringValue = z.coerce.string().nullable().optional().parse(v);
 			const msg = fn(stringValue);
 			return msg === null ? null : { msg };
-		})
+		});
 	}
 
 	return validators;
@@ -132,21 +151,23 @@ export function extractRawValidators(schema: FieldSchema | ColumnDefinition) {
 export function extractValidators(schema: FieldSchema) {
 	const validators: ValidatorFn[] = [];
 
-	if ('required' in schema && !schema.relevance) {
+	if ("required" in schema && !schema.relevance) {
 		validators.push(Validators.required);
 	}
 
-	if (schema.type == 'text') {
+	if (schema.type == "text") {
 		if (schema.validValues) {
-			validators.push(c => {
+			validators.push((c) => {
 				const value = c.value;
 				if (!value) return null;
 
-				return schema.validValues?.includes(String(value).trim()) ? null : {
-					invalidValue: {
-						validValues: schema.validValues,
-					}
-				};
+				return schema.validValues?.includes(String(value).trim())
+					? null
+					: {
+							invalidValue: {
+								validValues: schema.validValues,
+							},
+						};
 			});
 		}
 
@@ -156,51 +177,51 @@ export function extractValidators(schema: FieldSchema) {
 		}
 	}
 
-	if (schema.type == 'date') {
+	if (schema.type == "date") {
 		const dateValidationSchema = z.union([z.iso.date(), z.date()]);
 		if (schema.max) {
-			validators.push(c => {
+			validators.push((c) => {
 				if (!c.value) return null;
-				const {
-					success,
-					data: rawDate
-				} = dateValidationSchema.safeParse(c.value);
+				const { success, data: rawDate } = dateValidationSchema.safeParse(
+					c.value,
+				);
 				if (!success) {
-					return { invalidDate: 'Invalid date value' };
+					return { invalidDate: "Invalid date value" };
 				}
 
 				const maxDate = toDate(schema.max as string | number);
 				return isAfter(toDate(rawDate), maxDate) ? { maxDate } : null;
-			})
+			});
 		}
 
 		if (schema.min) {
-			validators.push(c => {
+			validators.push((c) => {
 				if (!c.value) return null;
 
-				const {
-					success,
-					data: rawDate
-				} = dateValidationSchema.safeParse(c.value);
+				const { success, data: rawDate } = dateValidationSchema.safeParse(
+					c.value,
+				);
 				if (!success) {
-					return { date: 'Invalid date value' };
+					return { date: "Invalid date value" };
 				}
 
 				const minDate = toDate(schema.min as string | number);
 				return isBefore(toDate(rawDate), minDate) ? { minDate } : null;
-			})
+			});
 		}
 	}
 
-	if (schema.type == 'int' || schema.type == 'float') {
-		if (schema.type == 'int') {
-			validators.push(control => {
+	if (schema.type == "int" || schema.type == "float") {
+		if (schema.type == "int") {
+			validators.push((control) => {
 				if (!control.value) return null;
-				const stringValue = String(control.value ?? '').trim();
+				const stringValue = String(control.value ?? "").trim();
 
 				if (!stringValue) return null;
-				return z.coerce.number().int().safeParse(stringValue).success ? null : { int: true };
-			})
+				return z.coerce.number().int().safeParse(stringValue).success
+					? null
+					: { int: true };
+			});
 		}
 		if (schema.min) {
 			validators.push(Validators.min(schema.min));
@@ -211,7 +232,7 @@ export function extractValidators(schema: FieldSchema) {
 		}
 	}
 	if (schema.validate) {
-		validators.push(c => {
+		validators.push((c) => {
 			const stringValue = z.string().nullable().optional().parse(c.value);
 			if (!stringValue) {
 				return null;
@@ -226,14 +247,14 @@ export function extractValidators(schema: FieldSchema) {
 }
 
 export function flattenSections(schema: FormSchema) {
-	return schema.sections.flatMap(s => {
+	return schema.sections.flatMap((s) => {
 		return [s, ...(s.children ?? [])];
-	})
+	});
 }
 
 export function lookupFieldSchema(key: string, model: FormSchema) {
 	const allFields = extractAllFields(model);
-	return allFields.find(f => extractFieldKey(f.key) == key);
+	return allFields.find((f) => extractFieldKey(f.key) == key);
 }
 
 export function extractAllFields(schema: FormSchema) {
@@ -247,20 +268,22 @@ export function extractAllFields(schema: FormSchema) {
 }
 
 export function extractFieldsAsMap(formSchema: FormSchema) {
-	return extractAllFields(formSchema)
-		.reduce((acc, schema) => {
+	return extractAllFields(formSchema).reduce(
+		(acc, schema) => {
 			const k = extractFieldKey(schema.key);
 			acc[k] = schema;
 			return acc;
-		}, {} as Record<string, FieldSchema>);
+		},
+		{} as Record<string, FieldSchema>,
+	);
 }
 
 export function extractFields(section: SectionSchema) {
-	const result = Array<Unwrap<SectionSchema['fields']>>();
+	const result = Array<Unwrap<SectionSchema["fields"]>>();
 
 	for (const field of section.fields) {
 		result.push(field);
-		if (field.type == 'group') {
+		if (field.type == "group") {
 			for (const childField of field.fields) {
 				result.push(childField);
 			}
@@ -274,21 +297,21 @@ export function extractFields(section: SectionSchema) {
 	return result;
 }
 
-export function defaultValueForType(type: DefinitionLike['type']) {
+export function defaultValueForType(type: DefinitionLike["type"]) {
 	switch (type) {
-		case 'boolean':
+		case "boolean":
 			return false;
-		case 'date':
+		case "date":
 			return new Date();
-		case 'float':
-		case 'int':
+		case "float":
+		case "int":
 			return 0;
-		case 'multi-selection':
-			return Array<Option>()
-		case 'point':
-			return GeoPointSchema.parse({})
-		case 'text':
-			return '';
+		case "multi-selection":
+			return Array<Option>();
+		case "point":
+			return GeoPointSchema.parse({});
+		case "text":
+			return "";
 		default:
 			return null;
 	}
@@ -299,69 +322,83 @@ export type RawValue = (string | null)[] | string;
 
 export function serializeValue(definition: DefinitionLike, value: any): any {
 	if (value == null) return null;
-	if (Array.isArray(value) && definition.type == 'table') {
+	if (Array.isArray(value) && definition.type == "table") {
 		return value.map(serializeValue);
 	}
 	switch (definition.type) {
-		case 'boolean':
-			return value === true ? '1' : '2';
-		case 'multi-selection':
-			return value.join(' ');
-		case 'date': {
+		case "boolean":
+			return value === true ? "1" : "2";
+		case "multi-selection":
+			return value.join(" ");
+		case "date": {
 			if (value instanceof Date) {
-				return formatISO(value, { representation: 'date' });
+				return formatISO(value, { representation: "date" });
 			}
 			return z.iso.date().nullable().parse(value);
 		}
-		case 'point':
+		case "point":
 			return `${value.lat} ${value.long}`;
 		default:
 			return String(value);
 	}
 }
 
-export function parseValue(definition: DefinitionLike, raw: RawValue | null): ParsedValue | ParsedValue[] {
-	if (Array.isArray(raw)) return raw.flatMap(v => parseValue(definition, v));
+export function parseValue(
+	definition: DefinitionLike,
+	raw: RawValue | null,
+): ParsedValue | ParsedValue[] {
+	if (Array.isArray(raw)) return raw.flatMap((v) => parseValue(definition, v));
 	switch (definition.type) {
-		case 'boolean': {
+		case "boolean": {
 			try {
-				return z.union(
-					[
+				return z
+					.union([
 						z.boolean(),
-						z.literal('1').transform(() => true),
-						z.literal('2').transform(() => false),
-						z.null().transform(() => false)
-					]).parse(raw);
+						z.literal("1").transform(() => true),
+						z.literal("2").transform(() => false),
+						z.null().transform(() => false),
+					])
+					.parse(raw);
 			} catch (e) {
 				return false;
 			}
 		}
-		case 'date':
-			return z.union([
-				z.iso.date().pipe(z.coerce.date()),
-				z.date().nullable().default(new Date())
-			]).parse(raw);
-		case 'float':
-		case 'number':
-		case 'int': {
+		case "date":
+			return z
+				.union([
+					z.iso.date().pipe(z.coerce.date()),
+					z.date().nullable().default(new Date()),
+				])
+				.parse(raw);
+		case "float":
+		case "number":
+		case "int": {
 			try {
-				return z.coerce.number().nullable().parse(raw ?? definition.default);
+				return z.coerce
+					.number()
+					.nullable()
+					.parse(raw ?? definition.default);
 			} catch (e) {
-				return 'min' in definition ? Math.max(definition.min as number, defaultValueForType(definition.type) as number) : defaultValueForType(definition.type) as number;
+				return "min" in definition
+					? Math.max(
+							definition.min as number,
+							defaultValueForType(definition.type) as number,
+						)
+					: (defaultValueForType(definition.type) as number);
 			}
 		}
-		case 'multi-selection':
-			return raw?.split(' ') ?? []
+		case "multi-selection":
+			return raw?.split(" ") ?? [];
 		case "point": {
 			if (!raw) return GeoPointSchema.parse({});
-			const [lat, long] = raw?.split(' ', 2) ?? [];
+			const [lat, long] = raw?.split(" ", 2) ?? [];
 			return GeoPointSchema.parse({ lat, long });
 		}
-		case 'text': {
-			if (!raw) return defaultValueForType('text') as string;
+		case "text": {
+			if (!raw) return defaultValueForType("text") as string;
 			return String(raw);
 		}
-		case 'single-selection':
+		case "single-selection":
 			return String(raw);
 		default:
 			return null;

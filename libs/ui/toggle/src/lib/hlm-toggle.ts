@@ -1,7 +1,7 @@
-import { Directive, input } from '@angular/core';
-import { BrnToggle } from '@spartan-ng/brain/toggle';
-import { classes } from '@spartan-ng/helm/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
+import { Directive, input } from "@angular/core";
+import { BrnToggle } from "@spartan-ng/brain/toggle";
+import { classes } from "@spartan-ng/helm/utils";
+import { cva, type VariantProps } from "class-variance-authority";
 
 // TODO invalid styles uses aria-invalid
 // aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive
@@ -10,39 +10,40 @@ export const toggleVariants = cva(
 	{
 		variants: {
 			variant: {
-				default: 'bg-transparent',
-				outline: 'border-input hover:bg-accent hover:text-accent-foreground border bg-transparent shadow-xs',
+				default: "bg-transparent",
+				outline:
+					"border-input hover:bg-accent hover:text-accent-foreground border bg-transparent shadow-xs",
 			},
 			size: {
-				default: 'h-9 min-w-9 px-2',
-				sm: 'h-8 min-w-8 px-1.5',
-				lg: 'h-10 min-w-10 px-2.5',
+				default: "h-9 min-w-9 px-2",
+				sm: "h-8 min-w-8 px-1.5",
+				lg: "h-10 min-w-10 px-2.5",
 			},
 		},
 		defaultVariants: {
-			variant: 'default',
-			size: 'default',
+			variant: "default",
+			size: "default",
 		},
 	},
 );
 export type ToggleVariants = VariantProps<typeof toggleVariants>;
 
 @Directive({
-	selector: 'button[hlmToggle]',
+	selector: "button[hlmToggle]",
 	hostDirectives: [
 		{
 			directive: BrnToggle,
-			inputs: ['id', 'value', 'disabled', 'state', 'aria-label', 'type'],
-			outputs: ['stateChange'],
+			inputs: ["id", "value", "disabled", "state", "aria-label", "type"],
+			outputs: ["stateChange"],
 		},
 	],
 	host: {
-		'data-slot': 'toggle',
+		"data-slot": "toggle",
 	},
 })
 export class HlmToggle {
-	public readonly variant = input<ToggleVariants['variant']>('default');
-	public readonly size = input<ToggleVariants['size']>('default');
+	public readonly variant = input<ToggleVariants["variant"]>("default");
+	public readonly size = input<ToggleVariants["size"]>("default");
 	constructor() {
 		classes(() =>
 			toggleVariants({

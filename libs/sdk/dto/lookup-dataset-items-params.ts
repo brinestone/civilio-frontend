@@ -6,13 +6,13 @@
  */
 
 export type LookupDatasetItemsParams = {
-/**
- * @minimum 0
- */
-page?: number;
-/**
- * @minimum 1
- */
-size?: number;
-filter?: string;
+	/**
+	 * @minimum 0
+	 */
+	page?: number;
+	/**
+	 * @minimum 1
+	 */
+	size?: number;
+	filter?: string;
 };

@@ -107,38 +107,10 @@
 				class="w-full"
 				id="{{ index() }}__default_value"
 				[formField]="meta().defaultValue"
-				scrollable="true"
-				[multiple]="meta().type().value() == 'multi-select'"
 			>
-				<hlm-select-trigger class="w-full">
-					<hlm-select-value />
-				</hlm-select-trigger>
-				<hlm-select-content class="w-full">
-					<hlm-select-scroll-up />
-					<ng-container>
-						@if (linkedItems.value().length > 0) {
-							<hlm-select-group>
-								<hlm-select-label>Linked items</hlm-select-label>
-								@for (item of linkedItems.value(); track $index) {
-									<hlm-option [value]="item.value">{{ item.label }}</hlm-option>
-								}
-							</hlm-select-group>
-						}
-					</ng-container>
-					<ng-container>
-						@if (meta().hardItems.length > 0) {
-							<hlm-select-group>
-								<hlm-select-label>Fixed items</hlm-select-label>
-								@for (item of meta().hardItems; track item) {
-									<hlm-option [value]="item.value().value()">{{
-										item.label().value()
-									}}</hlm-option>
-								}
-							</hlm-select-group>
-						}
-					</ng-container>
-				</hlm-select-content>
+				<ng-container [ngTemplateOutlet]="selectInternalsTemplate" />
 			</hlm-select>
+
 			@if (!!meta().defaultValue().value()) {
 				<button
 					(click)="onClearDefaultValueButtonClicked()"
@@ -159,6 +131,38 @@
 		/>
 	</div>
 }
+<ng-template #selectInternalsTemplate>
+	<hlm-select-trigger class="w-full">
+		<hlm-select-value />
+	</hlm-select-trigger>
+	<hlm-select-content class="w-full">
+		<hlm-select-scroll-up />
+		<ng-container>
+			@if (linkedItems.value().length > 0) {
+				<hlm-select-group>
+					<hlm-select-label>Linked items</hlm-select-label>
+					@for (item of linkedItems.value(); track $index) {
+						<hlm-select-item [value]="item.value">{{
+							item.label
+						}}</hlm-select-item>
+					}
+				</hlm-select-group>
+			}
+		</ng-container>
+		<ng-container>
+			@if (meta().hardItems.length > 0) {
+				<hlm-select-group>
+					<hlm-select-label>Fixed items</hlm-select-label>
+					@for (item of meta().hardItems; track item) {
+						<hlm-select-item [value]="item.value().value()">{{
+							item.label().value()
+						}}</hlm-select-item>
+					}
+				</hlm-select-group>
+			}
+		</ng-container>
+	</hlm-select-content>
+</ng-template>
 <ng-template #errorsTemplate let-ctrl let-eager="eager">
 	<ng-container> @let control = asGenericControl(ctrl); </ng-container>
 	@if (control().pending()) {

@@ -8,13 +8,13 @@ import {
 	Locale,
 	TestDbConnectionRequest,
 	TestDbConnectionResponse,
-	ThemeMode
+	ThemeMode,
 } from "@civilio/shared";
 import { ConfigService } from "../config";
 import { Injectable } from "@angular/core";
 
 @Injectable({
-	providedIn: null
+	providedIn: null,
 })
 export class WebConfigService implements ConfigService {
 	setServerUrl(url: string): Promise<AppConfigResponse> {
@@ -75,5 +75,4 @@ export class WebConfigService implements ConfigService {
 	loadConfig(): Promise<AppConfigResponse> {
 		throw new Error("Method not implemented.");
 	}
-
 }

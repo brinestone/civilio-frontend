@@ -16,24 +16,20 @@ import { DatasetsService } from "../services/datasets/datasets.service";
  * ```
  */
 export function withFormsSdk(): EnvironmentProviders {
-	return makeEnvironmentProviders([
-		{ provide: FormsService, multi: false }
-	])
+	return makeEnvironmentProviders([{ provide: FormsService, multi: false }]);
 }
 export const provideFormsSdk = withFormsSdk;
 
 export function withSubmissionsSdk(): EnvironmentProviders {
 	return makeEnvironmentProviders([
-		{ provide: SubmissionsService, multi: false }
+		{ provide: SubmissionsService, multi: false },
 	]);
 }
 
 export const provideSubmissionsSdk = withSubmissionsSdk;
 
 export function withDatasetSdk(): EnvironmentProviders {
-	return makeEnvironmentProviders([
-		{ provide: DatasetsService, multi: false }
-	])
+	return makeEnvironmentProviders([{ provide: DatasetsService, multi: false }]);
 }
 
 export const provideDatasetSdk = withDatasetSdk;

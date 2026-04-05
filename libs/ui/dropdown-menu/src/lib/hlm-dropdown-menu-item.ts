@@ -1,31 +1,39 @@
-import { type BooleanInput } from '@angular/cdk/coercion';
-import { CdkMenuItem } from '@angular/cdk/menu';
-import { booleanAttribute, Directive, HOST_TAG_NAME, inject, input } from '@angular/core';
-import { classes } from '@spartan-ng/helm/utils';
+import { type BooleanInput } from "@angular/cdk/coercion";
+import { CdkMenuItem } from "@angular/cdk/menu";
+import {
+	booleanAttribute,
+	Directive,
+	HOST_TAG_NAME,
+	inject,
+	input,
+} from "@angular/core";
+import { classes } from "@spartan-ng/helm/utils";
 
 @Directive({
-	selector: '[hlmDropdownMenuItem]',
+	selector: "[hlmDropdownMenuItem]",
 	hostDirectives: [
 		{
 			directive: CdkMenuItem,
-			inputs: ['cdkMenuItemDisabled: disabled'],
-			outputs: ['cdkMenuItemTriggered: triggered'],
+			inputs: ["cdkMenuItemDisabled: disabled"],
+			outputs: ["cdkMenuItemTriggered: triggered"],
 		},
 	],
 	host: {
-		'data-slot': 'dropdown-menu-item',
-		'[attr.disabled]': '_isButton && disabled() ? "" : null',
-		'[attr.data-disabled]': 'disabled() ? "" : null',
-		'[attr.data-variant]': 'variant()',
-		'[attr.data-inset]': 'inset() ? "" : null',
+		"data-slot": "dropdown-menu-item",
+		"[attr.disabled]": '_isButton && disabled() ? "" : null',
+		"[attr.data-disabled]": 'disabled() ? "" : null',
+		"[attr.data-variant]": "variant()",
+		"[attr.data-inset]": 'inset() ? "" : null',
 	},
 })
 export class HlmDropdownMenuItem {
-	protected readonly _isButton = inject(HOST_TAG_NAME) === 'button';
+	protected readonly _isButton = inject(HOST_TAG_NAME) === "button";
 
-	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	public readonly disabled = input<boolean, BooleanInput>(false, {
+		transform: booleanAttribute,
+	});
 
-	public readonly variant = input<'default' | 'destructive'>('default');
+	public readonly variant = input<"default" | "destructive">("default");
 
 	public readonly inset = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,

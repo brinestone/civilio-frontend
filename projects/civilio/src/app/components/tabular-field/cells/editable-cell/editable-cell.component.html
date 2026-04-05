@@ -1,112 +1,154 @@
 @let value = context.cell.getValue();
 @if (editing() && schema().editable != false) {
 	@switch (schema().type) {
-		@case ('boolean') {
-			<hlm-checkbox (blur)="blur.emit()" (checkedChange)="onChange($any($event))" (click)="blur.emit()"
-										[checked]="$any(value)"/>
+		@case ("boolean") {
+			<hlm-checkbox
+				(blur)="blur.emit()"
+				(checkedChange)="onChange($any($event))"
+				(click)="blur.emit()"
+				[checked]="$any(value)"
+			/>
 		}
-		@case ('single-selection') {
-			<brn-select (valueChange)="onChange($any($event))" [placeholder]="'tmpl.dropdown.placeholder' | translate"
-									[value]="value">
-				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
-					<hlm-select-value/>
+		@case ("single-selection") {
+			<hlm-select
+				(valueChange)="onChange($any($event))"
+
+				[value]="value"
+			>
+				<hlm-select-trigger
+					(blur)="blur.emit()"
+					class="max-w-[{{ context.column.columnDef.maxSize }}px]"
+				>
+					<hlm-select-value [placeholder]="'tmpl.dropdown.placeholder' | translate"/>
 				</hlm-select-trigger>
-				<hlm-select-content class="max-w-[{{context.column.columnDef.maxSize}}px]">
-					@for (o of options()?.[$any(schema()).optionGroupKey]; track $index) {
-						<hlm-option [value]="o.value">
-							@if (o.i18nKey) {
-								{{ o.i18nKey | translate }}
-							} @else {
-								{{ o.label }}
-							}
-						</hlm-option>
-					}
+				<hlm-select-content
+					*hlmSelectPortal
+					showScroll
+					class="max-w-[{{ context.column.columnDef.maxSize }}px]"
+				>
+					<hlm-select-group>
+						@for (
+							o of options()?.[$any(schema()).optionGroupKey];
+							track $index
+						) {
+							<hlm-select-item [value]="o.value">
+								@if (o.i18nKey) {
+									{{ o.i18nKey | translate }}
+								} @else {
+									{{ o.label }}
+								}
+							</hlm-select-item>
+						}
+					</hlm-select-group>
 				</hlm-select-content>
-			</brn-select>
+			</hlm-select>
 		}
-		@case ('multi-selection') {
-			<brn-select (valueChange)="onChange($any($event))" [multiple]="true"
-									[placeholder]="'tmpl.dropdown.placeholder' | translate"
-									[value]="value">
-				<hlm-select-trigger (blur)="blur.emit()" class="max-w-[{{context.column.columnDef.maxSize}}px]">
-					<hlm-select-value/>
+		@case ("multi-selection") {
+			<hlm-select-multiple
+				(valueChange)="onChange($any($event))"
+				[value]="$any(value)"
+			>
+				<hlm-select-trigger
+					(blur)="blur.emit()"
+					class="max-w-[{{ context.column.columnDef.maxSize }}px]"
+				>
+					<hlm-select-value [placeholder]="'tmpl.dropdown.placeholder' | translate"/>
 				</hlm-select-trigger>
-				<hlm-select-content class="max-h-40 max-w-[{{context.column.columnDef.maxSize}}px]">
-					@for (o of options()?.[$any(schema()).optionGroupKey]; track $index) {
-						<hlm-option [value]="o.value">
-							@if (o.i18nKey) {
-								{{ o.i18nKey | translate }}
-							} @else {
-								{{ o.label }}
-							}
-						</hlm-option>
-					}
+				<hlm-select-content
+					*hlmSelectPortal
+					class="max-h-40 max-w-[{{ context.column.columnDef.maxSize }}px]"
+				>
+					<hlm-select-group>
+						@for (
+							o of options()?.[$any(schema()).optionGroupKey];
+							track $index
+						) {
+							<hlm-select-item [value]="o.value">
+								@if (o.i18nKey) {
+									{{ o.i18nKey | translate }}
+								} @else {
+									{{ o.label }}
+								}
+							</hlm-select-item>
+						}
+					</hlm-select-group>
 				</hlm-select-content>
-			</brn-select>
+			</hlm-select-multiple>
 		}
-		@case ('text') {
-			<input (blur)="blur.emit()"
-						 (input)="onChange($any($event.target)?.value)"
-						 [placeholder]="schema().key + '.description' | translate"
-						 [value]="value ?? ''"
-						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
-						 hlmInput type="text">
+		@case ("text") {
+			<input
+				(blur)="blur.emit()"
+				(input)="onChange($any($event.target)?.value)"
+				[placeholder]="schema().key + '.description' | translate"
+				[value]="value ?? ''"
+				class="max-w-[{{ context.column.columnDef.maxSize }}px] block"
+				hlmInput
+				type="text"
+			/>
 		}
-		@case ('number') {
-			<input (blur)="blur.emit()"
-						 (input)="onChange($any($event.target)?.valueAsNumber)"
-						 [max]="$any(schema()).max"
-						 [min]="$any(schema()).min"
-						 [placeholder]="schema().key + '.description' | translate"
-						 [value]="value ?? ''"
-						 class="max-w-[{{context.column.columnDef.maxSize}}px] block"
-						 hlmInput
-						 type="number">
+		@case ("number") {
+			<input
+				(blur)="blur.emit()"
+				(input)="onChange($any($event.target)?.valueAsNumber)"
+				[max]="$any(schema()).max"
+				[min]="$any(schema()).min"
+				[placeholder]="schema().key + '.description' | translate"
+				[value]="value ?? ''"
+				class="max-w-[{{ context.column.columnDef.maxSize }}px] block"
+				hlmInput
+				type="number"
+			/>
 		}
-		@case ('date') {
-			<hlm-date-picker (blur)="blur.emit()"
-											 (dateChange)="onChange($any($event))"
-											 [date]="$any(value)"
-											 [max]="$any(schema()).max"
-											 [min]="$any(schema()).min"/>
+		@case ("date") {
+			<hlm-date-picker
+				(blur)="blur.emit()"
+				(dateChange)="onChange($any($event))"
+				[date]="$any(value)"
+				[max]="$any(schema()).max"
+				[min]="$any(schema()).min"
+			/>
 		}
 	}
 } @else {
-	<span class="block max-w-[{{context.column.columnDef.maxSize}}px] text-ellipsis line-clamp-1">
-	@switch (schema().type) {
-		@case ('single-selection') {
-			@let so = selectedOptions();
-			@if (so) {
-				@for (o of so; track $index) {
-					@if (o.i18nKey) {
-						{{ o.i18nKey | translate }}
-					} @else {
-						{{ o.label }}
+	<span
+		class="block max-w-[{{
+			context.column.columnDef.maxSize
+		}}px] text-ellipsis line-clamp-1"
+	>
+		@switch (schema().type) {
+			@case ("single-selection") {
+				@let so = selectedOptions();
+				@if (so) {
+					@for (o of so; track $index) {
+						@if (o.i18nKey) {
+							{{ o.i18nKey | translate }}
+						} @else {
+							{{ o.label }}
+						}
 					}
 				}
 			}
-		}
-		@case ('multi-selection') {
-			@let so = selectedOptions();
-			@if (so) {
-				@for (o of so; track $index) {
-					@if (o.i18nKey) {
-						{{ o.i18nKey | translate }}
-					} @else {
-						{{ o.label }}
+			@case ("multi-selection") {
+				@let so = selectedOptions();
+				@if (so) {
+					@for (o of so; track $index) {
+						@if (o.i18nKey) {
+							{{ o.i18nKey | translate }}
+						} @else {
+							{{ o.label }}
+						}
 					}
 				}
 			}
+			@case ("number") {
+				{{ $any(value) | number: "1.0-4" }}
+			}
+			@case ("date") {
+				{{ $any(value) | ago_date: locale() }}
+			}
+			@default {
+				{{ value }}
+			}
 		}
-		@case ('number') {
-			{{ $any(value) | number:'1.0-4' }}
-		}
-		@case ('date') {
-			{{ $any(value) | ago_date:locale() }}
-		}
-		@default {
-			{{ value }}
-		}
-	}
-		</span>
+	</span>
 }

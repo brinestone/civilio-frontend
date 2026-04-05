@@ -65,8 +65,8 @@
 							<hlm-select-value />
 						</hlm-select-trigger>
 						<hlm-select-content class="w-full">
-							<hlm-option value="and">AND</hlm-option>
-							<hlm-option value="or">OR</hlm-option>
+							<hlm-select-item value="and">AND</hlm-select-item>
+							<hlm-select-item value="or">OR</hlm-select-item>
 						</hlm-select-content>
 					</hlm-select>
 				}
@@ -104,8 +104,8 @@
 											<hlm-select-value class="uppercase" />
 										</hlm-select-trigger>
 										<hlm-select-content>
-											<hlm-option value="or">OR</hlm-option>
-											<hlm-option value="and">AND</hlm-option>
+											<hlm-select-item value="or">OR</hlm-select-item>
+											<hlm-select-item value="and">AND</hlm-select-item>
 										</hlm-select-content>
 									</hlm-select>
 								}
@@ -122,9 +122,9 @@
 									</hlm-select-trigger>
 									<hlm-select-content class="w-full">
 										@for (field of otherFieldsList(); track field) {
-											<hlm-option [value]="field.path().value()">{{
+											<hlm-select-item [value]="field.path().value()">{{
 												field.config.title().value()
-											}}</hlm-option>
+											}}</hlm-select-item>
 										}
 									</hlm-select-content>
 								</hlm-select>
@@ -149,9 +149,9 @@
 												</hlm-select-trigger>
 												<hlm-select-content class="w-full">
 													@for (operator of operators; track $index) {
-														<hlm-option [value]="operator">{{
+														<hlm-select-item [value]="operator">{{
 															operatorsMap[operator].label
-														}}</hlm-option>
+														}}</hlm-select-item>
 													}
 												</hlm-select-content>
 											</hlm-select>
@@ -228,7 +228,7 @@
 <ng-template #selectionExpressionValueTemplate> </ng-template>
 <ng-template #numberExpressionValueTemplate let-control>
 	<div hlmField>
-		<input [formField]="control" hlmInput type="number">
+		<input [formField]="control" hlmInput type="number" />
 	</div>
 </ng-template>
 <ng-template #textExpressionValueTemplate let-control let-operator="operator">

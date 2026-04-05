@@ -23,7 +23,7 @@ import { JsonLogic } from "@app/adapters/json-logic";
 	templateUrl: "./form-renderer.html",
 	styleUrl: "./form-renderer.scss",
 	imports: [HlmFieldImports, NgComponentOutlet, AsyncPipe],
-	providers: [JsonLogic]
+	providers: [JsonLogic],
 })
 export class FormRenderer {
 	private readonly logic = inject(JsonLogic);
@@ -37,7 +37,10 @@ export class FormRenderer {
 	protected readonly formData = linkedSignal(() => this.submissionData());
 	protected readonly formModel = form(
 		this.formData,
-		defineFormRendererFormSchema(this.formDefinition, this.evaluateRelevance.bind(this)),
+		defineFormRendererFormSchema(
+			this.formDefinition,
+			this.evaluateRelevance.bind(this),
+		),
 	);
 	protected readonly renderers = {
 		field: import("../items/text-field-renderer/field-renderer").then(

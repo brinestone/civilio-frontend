@@ -14,7 +14,7 @@ import {
 	TestDbConnectionRequest,
 	TestDbConnectionResponse,
 	ThemeMode,
-	UseConnectionRequest
+	UseConnectionRequest,
 } from "@civilio/shared";
 
 export interface ConfigService {
@@ -48,27 +48,29 @@ export interface ConfigService {
 	loadConfig(): Promise<AppConfigResponse>;
 }
 
-export const CONFIG_SERVICE = new InjectionToken<ConfigService>('CONFIG_SERVICE');
+export const CONFIG_SERVICE = new InjectionToken<ConfigService>(
+	"CONFIG_SERVICE",
+);
 
 export function provideDomainConfig() {
 	const providers: any = [
 		{
 			provide: CONFIG_SERVICE,
-			useExisting: isDesktop() ? ElectronConfigService : WebConfigService
-		}
+			useExisting: isDesktop() ? ElectronConfigService : WebConfigService,
+		},
 	];
 	if (isDesktop()) {
 		providers.push({
 			provide: ElectronConfigService,
 			useClass: ElectronConfigService,
-			multi: false
-		})
+			multi: false,
+		});
 	} else {
 		providers.push({
 			provide: WebConfigService,
 			useClass: WebConfigService,
-			multi: false
-		})
+			multi: false,
+		});
 	}
 	return makeEnvironmentProviders(providers);
 }

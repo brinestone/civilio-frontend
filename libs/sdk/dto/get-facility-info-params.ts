@@ -6,16 +6,16 @@
  */
 
 export type GetFacilityInfoParams = {
-/**
- * The submission's version. Leave empty to use the latest version
- */
-sv?: string;
-/**
- * The form version. Leave empty, to use the current form version
- */
-fv?: string;
-/**
- * A list of additional tags to include alongside the standard facility tags
- */
-tags?: string[];
+	/**
+	 * The submission's version. Leave empty to use the latest version
+	 */
+	sv?: string;
+	/**
+	 * The form version. Leave empty, to use the current form version
+	 */
+	fv?: string;
+	/**
+	 * A list of additional tags to include alongside the standard facility tags
+	 */
+	tags?: string[];
 };

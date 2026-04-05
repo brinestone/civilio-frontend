@@ -160,17 +160,17 @@
 										</hlm-select-value>
 									</hlm-select-trigger>
 									<hlm-select-content>
-										<hlm-option [value]="null"
+										<hlm-select-item [value]="null"
 											>{{ 'misc.none' | translate }}
-										</hlm-option>
+										</hlm-select-item>
 										@for (g of availableParents()[lineIndex]; track g.data!.id)
 										{
 										<ng-container>
-											<hlm-option [value]="g.data!.id" class="cursor-pointer">
+											<hlm-select-item [value]="g.data!.id" class="cursor-pointer">
 												<span class="line-clamp-1 text-ellipsis">
 													{{ g.data!.title }}
 												</span>
-											</hlm-option>
+											</hlm-select-item>
 										</ng-container>
 										}
 									</hlm-select-content>
@@ -208,7 +208,8 @@
 				>
 					<div class="flex gap-3 items-baseline">
 						@let optionLength =
-						groupCtrl.controls.data.controls.items.controls.length || datasets.value().data[lineIndex].itemCount || 0;
+						groupCtrl.controls.data.controls.items.controls.length ||
+						datasets.value().data[lineIndex].itemCount || 0;
 						<label class="block" hlmLabel
 							>{{ optionLength }} {{ 'settings.dataset.form.fields.items.title'
 							| translate }}{{ optionLength != 1 ? 's' : '' }}</label
@@ -548,11 +549,11 @@
 						<hlm-select-value />
 					</hlm-select-trigger>
 					<hlm-select-content class="w-full">
-						<hlm-option [value]="null"
-							>{{ 'misc.none' | translate }}</hlm-option
+						<hlm-select-item [value]="null"
+							>{{ 'misc.none' | translate }}</hlm-select-item
 						>
 						@for (option of parent.data!.items; track option.id) {
-						<hlm-option [value]="option.value">{{ option.label }}</hlm-option>
+						<hlm-select-item [value]="option.value">{{ option.label }}</hlm-select-item>
 						}
 					</hlm-select-content>
 				</hlm-select>

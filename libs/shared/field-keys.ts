@@ -170,115 +170,112 @@ export namespace Fosa {
 }
 export namespace Chiefdom {
 	export const SectionKeysSchema = z.enum([
-		'chefferie.form.sections.respondent',
-		'chefferie.form.sections.identification',
-		'chefferie.form.sections.services',
-		'chefferie.form.sections.services.sections.general',
-		'chefferie.form.sections.services.sections.equipment',
-		'chefferie.form.sections.infra',
-		'chefferie.form.sections.personnel_status',
-		'chefferie.form.sections.personnel_status.general',
-		'chefferie.form.sections.personnel_status.employees',
-		'chefferie.form.sections.comments'
+		"chefferie.form.sections.respondent",
+		"chefferie.form.sections.identification",
+		"chefferie.form.sections.services",
+		"chefferie.form.sections.services.sections.general",
+		"chefferie.form.sections.services.sections.equipment",
+		"chefferie.form.sections.infra",
+		"chefferie.form.sections.personnel_status",
+		"chefferie.form.sections.personnel_status.general",
+		"chefferie.form.sections.personnel_status.employees",
+		"chefferie.form.sections.comments",
 	]);
 	export const CommentsKeysSchema = z.templateLiteral([
-		SectionKeysSchema.extract(['chefferie.form.sections.comments']),
-		'.fields.',
-		z.enum([
-			'relevant_info',
-			'validation_code'
-		])
+		SectionKeysSchema.extract(["chefferie.form.sections.comments"]),
+		".fields.",
+		z.enum(["relevant_info", "validation_code"]),
 	]);
 	export const PersonnelStatusKeysSchema = z.union([
 		z.templateLiteral([
-			SectionKeysSchema.extract(['chefferie.form.sections.personnel_status.general']),
-			'.fields.',
-			z.enum([
-				'employee_count'
-			])
+			SectionKeysSchema.extract([
+				"chefferie.form.sections.personnel_status.general",
+			]),
+			".fields.",
+			z.enum(["employee_count"]),
 		]),
 		z.templateLiteral([
-			SectionKeysSchema.extract(['chefferie.form.sections.personnel_status.employees']),
-			'.fields.',
+			SectionKeysSchema.extract([
+				"chefferie.form.sections.personnel_status.employees",
+			]),
+			".fields.",
 			z.enum([
-				'index',
-				'name',
-				'position',
-				'gender',
-				'phone',
-				'age',
-				'has_cs_training',
-				'ed_level',
-				'computer_level',
-				'list'
-			])
-		])
-	])
+				"index",
+				"name",
+				"position",
+				"gender",
+				"phone",
+				"age",
+				"has_cs_training",
+				"ed_level",
+				"computer_level",
+				"list",
+			]),
+		]),
+	]);
 	export const InfrastructureKeysSchema = z.templateLiteral([
-		SectionKeysSchema.extract(['chefferie.form.sections.infra']),
-		'.fields.',
+		SectionKeysSchema.extract(["chefferie.form.sections.infra"]),
+		".fields.",
 		z.enum([
-			'is_residence',
-			'has_internet',
-			'conn_type',
-			'other_conn_type',
-			'has_power',
-			'power_source',
-			'has_water_source',
-			'water_sources',
-			'other_water_source',
-			'has_fire_extinguisher'
-		])
-	])
+			"is_residence",
+			"has_internet",
+			"conn_type",
+			"other_conn_type",
+			"has_power",
+			"power_source",
+			"has_water_source",
+			"water_sources",
+			"other_water_source",
+			"has_fire_extinguisher",
+		]),
+	]);
 	export const ServicesKeysSchema = z.union([
 		z.templateLiteral([
-			SectionKeysSchema.extract(['chefferie.form.sections.services.sections.general']),
-			'.fields.',
+			SectionKeysSchema.extract([
+				"chefferie.form.sections.services.sections.general",
+			]),
+			".fields.",
 			z.enum([
-				'is_chief_officer',
-				'is_oath_taken',
-				'records_location',
-				'other_records_location',
-				'officer_trained_cs',
-				'has_waiting_room',
-				'toilets_accessible',
-			])
+				"is_chief_officer",
+				"is_oath_taken",
+				"records_location",
+				"other_records_location",
+				"officer_trained_cs",
+				"has_waiting_room",
+				"toilets_accessible",
+			]),
 		]),
 		z.templateLiteral([
-			SectionKeysSchema.extract(['chefferie.form.sections.services.sections.equipment']),
-			'.fields.',
+			SectionKeysSchema.extract([
+				"chefferie.form.sections.services.sections.equipment",
+			]),
+			".fields.",
 			z.enum([
-				'pc_count',
-				'printer_count',
-				'tablet_count',
-				'car_count',
-				'bike_count',
-			])
-		])
-	])
+				"pc_count",
+				"printer_count",
+				"tablet_count",
+				"car_count",
+				"bike_count",
+			]),
+		]),
+	]);
 	export const IdentificationFieldKeys = z.templateLiteral([
-		SectionKeysSchema.extract(['chefferie.form.sections.identification']),
-		'.fields.',
+		SectionKeysSchema.extract(["chefferie.form.sections.identification"]),
+		".fields.",
 		z.enum([
-			'division',
-			'municipality',
-			'quarter',
-			'facility_name',
-			'degree',
-			'cs_proximity',
-			'gps_coords'
-		])
-	])
+			"division",
+			"municipality",
+			"quarter",
+			"facility_name",
+			"degree",
+			"cs_proximity",
+			"gps_coords",
+		]),
+	]);
 	export const RespondentFieldKeys = z.templateLiteral([
-		SectionKeysSchema.extract(['chefferie.form.sections.respondent']),
-		'.fields.',
-		z.enum([
-			'name',
-			'position',
-			'phone',
-			'email',
-			'creation_date'
-		])
+		SectionKeysSchema.extract(["chefferie.form.sections.respondent"]),
+		".fields.",
+		z.enum(["name", "position", "phone", "email", "creation_date"]),
 	]);
 }
 
@@ -321,8 +318,8 @@ export namespace CSC {
 			]),
 			".fields.",
 			z.enum([
-				'index',
-				'list',
+				"index",
+				"list",
 				"name",
 				"position",
 				"other_position",
@@ -364,8 +361,8 @@ export namespace CSC {
 		".fields.",
 		z.enum([
 			"year",
-			'list',
-			'index',
+			"list",
+			"index",
 			"birth_certs_drawn",
 			"birth_certs_not_withdrawn",
 			"marriage_certs_drawn",
@@ -661,13 +658,17 @@ export const ChefferieKeySchema = z.union([
 	Chiefdom.CommentsKeysSchema,
 	Chiefdom.PersonnelStatusKeysSchema,
 	Chiefdom.InfrastructureKeysSchema,
-])
+]);
 
-export const FieldKeySchema = z.union([FosaFieldKeySchema, CSCFieldKeySchema, ChefferieKeySchema]);
+export const FieldKeySchema = z.union([
+	FosaFieldKeySchema,
+	CSCFieldKeySchema,
+	ChefferieKeySchema,
+]);
 export const AllSectionKeysSchema = z.union([
 	Fosa.SectionKeysSchema,
 	CSC.SectionKeysSchema,
-	Chiefdom.SectionKeysSchema
+	Chiefdom.SectionKeysSchema,
 ]);
 export type FieldKey = z.output<typeof FieldKeySchema>;
 // export type FormSectionKey = z.output<typeof AllSectionKeysSchema>;

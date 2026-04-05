@@ -1,5 +1,5 @@
-import { InjectionToken, type ValueProvider, inject } from '@angular/core';
-import { type MenuAlign, type MenuSide } from '@spartan-ng/brain/core';
+import { InjectionToken, type ValueProvider, inject } from "@angular/core";
+import { type MenuAlign, type MenuSide } from "@spartan-ng/brain/core";
 
 export interface HlmDropdownMenuConfig {
 	align: MenuAlign;
@@ -7,16 +7,25 @@ export interface HlmDropdownMenuConfig {
 }
 
 const defaultConfig: HlmDropdownMenuConfig = {
-	align: 'start',
-	side: 'bottom',
+	align: "start",
+	side: "bottom",
 };
 
-const HlmDropdownMenuConfigToken = new InjectionToken<HlmDropdownMenuConfig>('HlmDropdownMenuConfig');
+const HlmDropdownMenuConfigToken = new InjectionToken<HlmDropdownMenuConfig>(
+	"HlmDropdownMenuConfig",
+);
 
-export function provideHlmDropdownMenuConfig(config: Partial<HlmDropdownMenuConfig>): ValueProvider {
-	return { provide: HlmDropdownMenuConfigToken, useValue: { ...defaultConfig, ...config } };
+export function provideHlmDropdownMenuConfig(
+	config: Partial<HlmDropdownMenuConfig>,
+): ValueProvider {
+	return {
+		provide: HlmDropdownMenuConfigToken,
+		useValue: { ...defaultConfig, ...config },
+	};
 }
 
 export function injectHlmDropdownMenuConfig(): HlmDropdownMenuConfig {
-	return inject(HlmDropdownMenuConfigToken, { optional: true }) ?? defaultConfig;
+	return (
+		inject(HlmDropdownMenuConfigToken, { optional: true }) ?? defaultConfig
+	);
 }

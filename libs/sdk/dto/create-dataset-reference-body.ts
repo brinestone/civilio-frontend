@@ -6,12 +6,12 @@
  */
 
 export type CreateDatasetReferenceBody = {
-  /** The dataset ID */
-  dataset: string;
-  /** The item IDs under the referenced dataset */
-  selectedItems?: string[];
-  /** Whether all items in the dataset should be used */
-  selectAll?: boolean;
-  /** Whether to update this reference if the dataset items updates. This is only relevant if the selectAll option is enabled */
-  followDatasetUpdates: boolean;
+	/** The dataset ID */
+	dataset: string;
+	/** The item IDs under the referenced dataset */
+	selectedItems?: string[];
+	/** Whether all items in the dataset should be used */
+	selectAll?: boolean;
+	/** Whether to update this reference if the dataset items updates. This is only relevant if the selectAll option is enabled */
+	followDatasetUpdates: boolean;
 };

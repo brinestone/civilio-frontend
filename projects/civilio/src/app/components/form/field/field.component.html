@@ -68,38 +68,73 @@
 
 <ng-template #selectTemplate let-multi="multiple">
 	<ng-container [ngTemplateOutlet]="labelTemplate" />
-	@let hasParent = $any(schema()).parent != null && parentValue() != null;
-	<hlm-select
-		scrollable="true"
-		[id]="fieldKey"
-		[class]="userClass()"
-		[value]="_value()"
-		(valueChange)="onInput($event)"
-		[placeholder]="'tmpl.dropdown.placeholder' | translate"
-		[multiple]="multi"
-	>
-		<hlm-select-trigger class="w-full">
-			<hlm-select-value />
-		</hlm-select-trigger>
-		<hlm-select-content class="w-full max-h-96">
-			<hlm-select-scroll-up />
-			@let groupKey = $any(schema()).optionsGroupKey;
-			@for (option of options()?.[groupKey] ?? []; track $index) {
-				@if (!hasParent || (hasParent && option.parent == parentValue())) {
-					<hlm-option [value]="option.value">
-						@if (option.i18nKey) {
-							<ng-container>
-								{{ option.i18nKey | translate }}
-							</ng-container>
-						} @else {
-							{{ option.label || option.value }}
-						}
-					</hlm-option>
+	<ng-container>
+		@let hasParent = $any(schema()).parent != null && parentValue() != null;
+	</ng-container>
+	@if (!multi) {
+		<hlm-select
+			scrollable="true"
+			[id]="fieldKey"
+			[class]="userClass()"
+			[value]="_value()"
+			(valueChange)="onInput($event)"
+		>
+			<hlm-select-trigger class="w-full">
+				<hlm-select-value
+					[placeholder]="'tmpl.dropdown.placeholder' | translate"
+				/>
+			</hlm-select-trigger>
+			<hlm-select-content *hlmSelectPortal showScroll class="w-full max-h-96">
+				<hlm-select-scroll-up />
+				@let groupKey = $any(schema()).optionsGroupKey;
+				@for (option of options()?.[groupKey] ?? []; track $index) {
+					@if (!hasParent || (hasParent && option.parent == parentValue())) {
+						<hlm-select-item [value]="option.value">
+							@if (option.i18nKey) {
+								<ng-container>
+									{{ option.i18nKey | translate }}
+								</ng-container>
+							} @else {
+								{{ option.label || option.value }}
+							}
+						</hlm-select-item>
+					}
 				}
-			}
-			<hlm-select-scroll-down />
-		</hlm-select-content>
-	</hlm-select>
+				<hlm-select-scroll-down />
+			</hlm-select-content>
+		</hlm-select>
+	} @else {
+		<hlm-select-multiple
+			[id]="fieldKey"
+			[class]="userClass()"
+			[value]="_value()"
+			(valueChange)="onInput($event)"
+		>
+			<hlm-select-trigger class="w-full">
+				<hlm-select-value
+					[placeholder]="'tmpl.dropdown.placeholder' | translate"
+				/>
+			</hlm-select-trigger>
+			<hlm-select-content *hlmSelectPortal showScroll class="w-full max-h-96">
+				<hlm-select-scroll-up />
+				@let groupKey = $any(schema()).optionsGroupKey;
+				@for (option of options()?.[groupKey] ?? []; track $index) {
+					@if (!hasParent || (hasParent && option.parent == parentValue())) {
+						<hlm-select-item [value]="option.value">
+							@if (option.i18nKey) {
+								<ng-container>
+									{{ option.i18nKey | translate }}
+								</ng-container>
+							} @else {
+								{{ option.label || option.value }}
+							}
+						</hlm-select-item>
+					}
+				}
+				<hlm-select-scroll-down />
+			</hlm-select-content>
+		</hlm-select-multiple>
+	}
 </ng-template>
 
 <ng-template #datePickerTemplate let-default="default">

@@ -4,5 +4,5 @@ export function deleteByKey<T extends object, K extends keyof T>(key: K) {
 
 		const { [key]: valueToDelete, ...rest } = v;
 		return rest as T;
-	}
+	};
 }

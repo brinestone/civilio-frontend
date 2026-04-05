@@ -1,14 +1,14 @@
-import { Directive } from '@angular/core';
-import { classes } from '@spartan-ng/helm/utils';
+import { Directive } from "@angular/core";
+import { classes } from "@spartan-ng/helm/utils";
 
 @Directive({
-	selector: '[hlmSkeleton],hlm-skeleton',
+	selector: "[hlmSkeleton],hlm-skeleton",
 	host: {
-		'data-slot': 'skeleton',
+		"data-slot": "skeleton",
 	},
 })
 export class HlmSkeleton {
 	constructor() {
-		classes(() => 'bg-accent block rounded-md motion-safe:animate-pulse');
+		classes(() => "bg-accent block rounded-md motion-safe:animate-pulse");
 	}
 }

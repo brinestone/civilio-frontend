@@ -1,8 +1,8 @@
-import { Directive } from '@angular/core';
-import { classes } from '@spartan-ng/helm/utils';
+import { Directive } from "@angular/core";
+import { classes } from "@spartan-ng/helm/utils";
 
 @Directive({
-	selector: 'span[hlmInputGroupText]',
+	selector: "span[hlmInputGroupText]",
 })
 export class HlmInputGroupText {
 	constructor() {

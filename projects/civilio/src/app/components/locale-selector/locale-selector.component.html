@@ -1,12 +1,14 @@
-<brn-select
+<hlm-select
 	[(value)]="selectedLocale"
 	(valueChange)="setLocale($any($event))"
 	class="inline-block"
-	[placeholder]="'tmpl.dropdown.placeholder' | translate"
 >
 	<hlm-select-trigger>
-		<hlm-select-value>
-			<div class="flex items-center gap-2" *brnSelectValue="let value">
+		<hlm-select-placeholder>{{
+			"tmpl.dropdown.placeholder" | translate
+		}}</hlm-select-placeholder>
+		<ng-template hlmSelectValueTemplate let-value>
+			<div class="flex items-center gap-2">
 				<ng-icon [name]="value.substring(0, 2)" />
 				@if (_size() == "default") {
 					<span>{{
@@ -20,16 +22,18 @@
 					}}</span>
 				}
 			</div>
-		</hlm-select-value>
+		</ng-template>
 	</hlm-select-trigger>
-	<hlm-select-content class="w-56">
-		<hlm-option value="en-CM" class="flex items-center gap-2">
-			<ng-icon name="en" />
-			<span>{{ "settings.language.en" | translate }}</span>
-		</hlm-option>
-		<hlm-option value="fr-CM" class="flex items-center gap-2">
-			<ng-icon name="fr" />
-			<span>{{ "settings.language.fr" | translate }}</span>
-		</hlm-option>
+	<hlm-select-content *hlmSelectPortal class="w-56">
+		<hlm-select-group>
+			<hlm-select-item value="en-CM" class="flex items-center gap-2">
+				<ng-icon name="en" />
+				<span>{{ "settings.language.en" | translate }}</span>
+			</hlm-select-item>
+			<hlm-select-item value="fr-CM" class="flex items-center gap-2">
+				<ng-icon name="fr" />
+				<span>{{ "settings.language.fr" | translate }}</span>
+			</hlm-select-item>
+		</hlm-select-group>
 	</hlm-select-content>
-</brn-select>
+</hlm-select>

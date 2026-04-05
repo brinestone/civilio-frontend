@@ -1,58 +1,51 @@
-import { Component, resource } from '@angular/core';
-import { sendRpcMessageAsync } from '@app/util';
-import { TranslatePipe } from '@ngx-translate/core';
-import { HlmSeparator } from '@spartan-ng/helm/separator';
+import { Component, resource } from "@angular/core";
+import { sendRpcMessageAsync } from "@app/util";
+import { TranslatePipe } from "@ngx-translate/core";
+import { HlmSeparator } from "@spartan-ng/helm/separator";
 import {
 	lucideExternalLink,
 	lucideGlobe2,
 	lucideMail,
-	lucidePhoneCall
-} from '@ng-icons/lucide';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { HlmH4 } from '@spartan-ng/helm/typography';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { DatePipe } from '@angular/common';
+	lucidePhoneCall,
+} from "@ng-icons/lucide";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { HlmH4 } from "@spartan-ng/helm/typography";
+import { HlmButton } from "@spartan-ng/helm/button";
+import { DatePipe } from "@angular/common";
 
 @Component({
-	selector: 'cv-about',
+	selector: "cv-about",
 	viewProviders: [
 		provideIcons({
 			lucideGlobe2,
 			lucideExternalLink,
 			lucideMail,
-			lucidePhoneCall
-		})
+			lucidePhoneCall,
+		}),
 	],
-	imports: [
-		TranslatePipe,
-		DatePipe,
-		HlmSeparator,
-		NgIcon,
-		HlmH4,
-		HlmButton
-	],
-	templateUrl: './about.page.html',
-	styleUrl: './about.page.scss',
+	imports: [TranslatePipe, DatePipe, HlmSeparator, NgIcon, HlmH4, HlmButton],
+	templateUrl: "./about.page.html",
+	styleUrl: "./about.page.scss",
 })
 export class AboutPage {
 	protected readonly buildInfo = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('build:read');
-		}
+			return await sendRpcMessageAsync("build:read");
+		},
 	});
 	protected readonly licenses = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('licences:read');
-		}
-	})
+			return await sendRpcMessageAsync("licences:read");
+		},
+	});
 	protected readonly wideLogoUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/LogoWide.png');
-		}
+			return await sendRpcMessageAsync("resource:read", "img/LogoWide.png");
+		},
 	});
 	protected readonly sponsorUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/Civipol.png');
-		}
+			return await sendRpcMessageAsync("resource:read", "img/Civipol.png");
+		},
 	});
 }

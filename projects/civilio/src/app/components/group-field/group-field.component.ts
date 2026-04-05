@@ -1,4 +1,4 @@
-import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
+import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
 	Component,
 	computed,
@@ -8,9 +8,9 @@ import {
 	OnInit,
 	output,
 	signal,
-	untracked
-} from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+	untracked,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
 	AbstractControl,
 	ControlValueAccessor,
@@ -19,55 +19,55 @@ import {
 	FormRecord,
 	NG_VALUE_ACCESSOR,
 	ReactiveFormsModule,
-	UntypedFormControl
-} from '@angular/forms';
+	UntypedFormControl,
+} from "@angular/forms";
 import {
 	extractFieldKey,
 	extractValidators,
-	GroupFieldSchema
-} from '@app/model/form';
-import { DeltaChangeEvent } from '@app/model/form/events';
-import { IsStringPipe, JoinArrayPipe } from '@app/pipes';
-import { Option } from '@civilio/shared';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucidePencil, lucidePlus, lucideTrash2 } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+	GroupFieldSchema,
+} from "@app/model/form";
+import { DeltaChangeEvent } from "@app/model/form/events";
+import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
+import { Option } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucidePencil, lucidePlus, lucideTrash2 } from "@ng-icons/lucide";
+import { TranslatePipe } from "@ngx-translate/core";
 import {
 	ErrorStateMatcher,
-	ShowOnDirtyErrorStateMatcher
-} from '@spartan-ng/brain/forms';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { BrnSheetImports } from '@spartan-ng/brain/sheet';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
-import { HlmFieldError, HlmFieldImports } from '@spartan-ng/helm/field';
-import { HlmInput } from '@spartan-ng/helm/input';
-import { HlmLabel } from '@spartan-ng/helm/label';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { HlmSheetImports } from '@spartan-ng/helm/sheet';
-import { debounce, isEqual } from 'lodash';
-import { pairwise, startWith } from 'rxjs';
+	ShowOnDirtyErrorStateMatcher,
+} from "@spartan-ng/brain/forms";
+
+import { BrnSheetImports } from "@spartan-ng/brain/sheet";
+import { HlmButton } from "@spartan-ng/helm/button";
+import { HlmCheckbox } from "@spartan-ng/helm/checkbox";
+import { HlmFieldError, HlmFieldImports } from "@spartan-ng/helm/field";
+import { HlmInput } from "@spartan-ng/helm/input";
+import { HlmLabel } from "@spartan-ng/helm/label";
+import { HlmSelectImports } from "@spartan-ng/helm/select";
+import { HlmSheetImports } from "@spartan-ng/helm/sheet";
+import { debounce, isEqual } from "lodash";
+import { pairwise, startWith } from "rxjs";
 
 type RowForm = FormGroup<{
 	key: FormControl<string>;
 	data: FormRecord<UntypedFormControl>;
-}>
+}>;
 
 const cva = {
 	provide: NG_VALUE_ACCESSOR,
 	useExisting: forwardRef(() => GroupFieldComponent),
-	multi: true
-}
+	multi: true,
+};
 
 @Component({
-	selector: 'cv-group-field',
+	selector: "cv-group-field",
 	viewProviders: [
 		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
 		provideIcons({
 			lucidePlus,
 			lucideTrash2,
-			lucidePencil
-		})
+			lucidePencil,
+		}),
 	],
 	imports: [
 		ReactiveFormsModule,
@@ -75,7 +75,7 @@ const cva = {
 		TranslatePipe,
 		HlmCheckbox,
 		HlmSelectImports,
-		BrnSelectImports,
+
 		DecimalPipe,
 		HlmButton,
 		NgIcon,
@@ -86,16 +86,14 @@ const cva = {
 		HlmLabel,
 		HlmInput,
 		JoinArrayPipe,
-		HlmFieldError
+		HlmFieldError,
 	],
-	providers: [
-		cva
-	],
+	providers: [cva],
 	host: {
-		class: 'group'
+		class: "group",
 	},
-	templateUrl: './group-field.component.html',
-	styleUrl: './group-field.component.scss',
+	templateUrl: "./group-field.component.html",
+	styleUrl: "./group-field.component.scss",
 })
 export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 	readonly enableMutation = input<boolean>();
@@ -112,34 +110,42 @@ export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 	protected readonly form = new FormRecord<UntypedFormControl>({});
 	protected readonly data = signal<Record<string, unknown>>({});
 	protected readonly relevanceRegistry = signal<Record<string, boolean>>({});
-	protected addCachedDeltaChange = debounce(this.addCachedDeltaChangeHandler, 400)
+	protected addCachedDeltaChange = debounce(
+		this.addCachedDeltaChangeHandler,
+		400,
+	);
 	private changedCallback?: (value: any) => void;
-	private schemaFieldKeys = computed(() => this.schema().fields.flatMap(f => extractFieldKey(f.key)));
+	private schemaFieldKeys = computed(() =>
+		this.schema().fields.flatMap((f) => extractFieldKey(f.key)),
+	);
 	private initialized = false;
 	private eventCache = Array<DeltaChangeEvent<any>>();
-	private readonly valueChanges = toSignal(this.form.valueChanges.pipe(
-		takeUntilDestroyed(),
-		startWith(this.form.value),
-		pairwise()
-	));
+	private readonly valueChanges = toSignal(
+		this.form.valueChanges.pipe(
+			takeUntilDestroyed(),
+			startWith(this.form.value),
+			pairwise(),
+		),
+	);
 
 	constructor() {
-		this.form.valueChanges.pipe(
-			takeUntilDestroyed()
-		).subscribe(v => {
+		this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe((v) => {
 			for (const field of this.schema().fields) {
 				const key = extractFieldKey(field.key);
 				if (!field.relevance) {
-					this.relevanceRegistry.update(old => ({ ...old, [key]: true }));
+					this.relevanceRegistry.update((old) => ({ ...old, [key]: true }));
 					continue;
 				}
 				const { dependencies, predicate } = field.relevance;
-				const deps = dependencies.reduce((acc, curr) => {
-					acc[curr] = v[curr];
-					return acc;
-				}, {} as Record<string, unknown>);
+				const deps = dependencies.reduce(
+					(acc, curr) => {
+						acc[curr] = v[curr];
+						return acc;
+					},
+					{} as Record<string, unknown>,
+				);
 				const isRelevant = predicate(deps as any);
-				this.relevanceRegistry.update(old => ({ ...old, [key]: isRelevant }));
+				this.relevanceRegistry.update((old) => ({ ...old, [key]: isRelevant }));
 			}
 		});
 		effect(() => {
@@ -151,7 +157,7 @@ export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 			const data = this.data();
 			this.form.patchValue(data, { emitEvent: false, onlySelf: true });
 			this.resetForm(this.form);
-		})
+		});
 	}
 
 	ngOnInit() {
@@ -175,15 +181,14 @@ export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 		this._disabled.set(isDisabled);
 	}
 
-	protected onAddButtonClicked() {
-	}
+	protected onAddButtonClicked() {}
 
 	protected onDeleteButtonClicked() {
 		this.delete.emit();
 	}
 
 	protected findOption(group: string, value: string) {
-		return this.optionSource()?.[group].find(o => o.value == value);
+		return this.optionSource()?.[group].find((o) => o.value == value);
 	}
 
 	protected onFormSheetClosed() {
@@ -210,7 +215,9 @@ export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 				continue;
 			}
 			const validators = extractValidators(field);
-			this.form.addControl(key, new UntypedFormControl(data[key], validators), { emitEvent: false });
+			this.form.addControl(key, new UntypedFormControl(data[key], validators), {
+				emitEvent: false,
+			});
 		}
 	}
 
@@ -223,7 +230,7 @@ export class GroupFieldComponent implements OnInit, ControlValueAccessor {
 	private addCachedDeltaChangeHandler(key: string, value: any) {
 		this.eventCache.push({
 			path: [key],
-			changeType: 'update',
+			changeType: "update",
 			newValue: value,
 			oldValue: untracked(this.data)[key],
 		});

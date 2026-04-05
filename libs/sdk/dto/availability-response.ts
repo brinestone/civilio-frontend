@@ -6,5 +6,5 @@
  */
 
 export interface AvailabilityResponse {
-  available: boolean;
+	available: boolean;
 }

@@ -1,47 +1,47 @@
 <div class="flex justify-between items-center flex-wrap gap-3 sticky top-2">
-  <div class="flex items-center gap-2">
-    <button
-      (click)="onTogglePreviewButtonClicked()"
-      [disabled]="submitting()"
-      class="cursor-pointer"
-      type="button"
-      hlmBtn
-      variant="outline"
-      size="sm"
-    >
-      <ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
-      <span> @if(previewing()) { Design } @else { Preview } </span>
-    </button>
-    @if(editable()) {
-    <div hlmButtonGroup>
-      @if(!previewing()) {
-      <button
-        type="button"
-        [title]="'Add' + lastAddedItemLabel()"
-        hlmBtn
-        class="capitalize"
-        [disabled]="submitting()"
-        size="sm"
-        variant="outline"
-        (click)="itemAdd.emit(lastAddedItemType())"
-      >
-        <ng-icon [name]="lastAddedItemIcon()" />
-        <span>Add {{ lastAddedItemLabel() }}</span>
-      </button>
-      <button
-        hlmBtn
-        [hlmDropdownMenuTrigger]="itemTypesMenu"
-        type="button"
-        size="sm"
-        [disabled]="submitting()"
-        variant="outline"
-        aria-label="Select item Type"
-      >
-        <ng-icon name="lucideChevronDown" />
-      </button>
-      }
-    </div>
-    <!-- <ng-container>
+	<div class="flex items-center gap-2">
+		<button
+			(click)="onTogglePreviewButtonClicked()"
+			[disabled]="submitting()"
+			class="cursor-pointer"
+			type="button"
+			hlmBtn
+			variant="outline"
+			size="sm"
+		>
+			<ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
+			<span> @if(previewing()) { Design } @else { Preview } </span>
+		</button>
+		@if(editable()) {
+		<div hlmButtonGroup>
+			@if(!previewing()) {
+			<button
+				type="button"
+				[title]="'Add' + lastAddedItemLabel()"
+				hlmBtn
+				class="capitalize"
+				[disabled]="submitting()"
+				size="sm"
+				variant="outline"
+				(click)="itemAdd.emit(lastAddedItemType())"
+			>
+				<ng-icon [name]="lastAddedItemIcon()" />
+				<span>Add {{ lastAddedItemLabel() }}</span>
+			</button>
+			<button
+				hlmBtn
+				[hlmDropdownMenuTrigger]="itemTypesMenu"
+				type="button"
+				size="sm"
+				[disabled]="submitting()"
+				variant="outline"
+				aria-label="Select item Type"
+			>
+				<ng-icon name="lucideChevronDown" />
+			</button>
+			}
+		</div>
+		<!-- <ng-container>
 			@if(!previewing()) {
 			<label hlmLabel class="flex items-center gap-x-2 cursor-pointer">
 				<hlm-checkbox
@@ -52,54 +52,54 @@
 			</label>
 			}
 		</ng-container> -->
-    }
-  </div>
-  <div class="flex items-center gap-2">
-    @if(dirty() && !previewing()) {
-    <button
-      hlmBtn
-      size="sm"
-      (click)="onSubmit.emit()"
-      type="button"
-      [disabled]="invalid() || submitting()"
-      variant="default"
-    >
-      @if(submitting()) {
-      <hlm-spinner />
-      } @else {
-      <ng-icon name="lucideSave" />
-      }
-      <span>{{submitting() ? 'Saving' : 'Save'}} changes</span>
-    </button>
-    <button
-      (click)="onDiscard.emit()"
-      hlmBtn
-      size="sm"
-      [disabled]="submitting()"
-      type="button"
-      variant="destructive"
-    >
-      <ng-icon name="lucideTrash2" />
-      <span>Discard changes</span>
-    </button>
-    }
-  </div>
+		}
+	</div>
+	<div class="flex items-center gap-2">
+		@if(dirty() && !previewing()) {
+		<button
+			hlmBtn
+			size="sm"
+			(click)="onSubmit.emit()"
+			type="button"
+			[disabled]="invalid() || submitting()"
+			variant="default"
+		>
+			@if(submitting()) {
+			<hlm-spinner />
+			} @else {
+			<ng-icon name="lucideSave" />
+			}
+			<span>{{submitting() ? 'Saving' : 'Save'}} changes</span>
+		</button>
+		<button
+			(click)="onDiscard.emit()"
+			hlmBtn
+			size="sm"
+			[disabled]="submitting()"
+			type="button"
+			variant="destructive"
+		>
+			<ng-icon name="lucideTrash2" />
+			<span>Discard changes</span>
+		</button>
+		}
+	</div>
 </div>
 <ng-template #itemTypesMenu>
-  <hlm-dropdown-menu>
-    <hlm-dropdown-menu-label>Item Types</hlm-dropdown-menu-label>
-    <hlm-dropdown-menu-group>
-      @for (entry of itemTypes | keyvalue; track $index) {
-      <button
-        (click)="itemAdd.emit($any(entry.key))"
-        type="button"
-        class="cursor-pointer"
-        hlmDropdownMenuItem
-      >
-        <ng-icon [name]="entry.value.icon" />
-        <span>{{ entry.value.label }}</span>
-      </button>
-      }
-    </hlm-dropdown-menu-group>
-  </hlm-dropdown-menu>
+	<hlm-dropdown-menu>
+		<hlm-dropdown-menu-label>Item Types</hlm-dropdown-menu-label>
+		<hlm-dropdown-menu-group>
+			@for (entry of itemTypes | keyvalue; track $index) {
+			<button
+				(click)="itemAdd.emit($any(entry.key))"
+				type="button"
+				class="cursor-pointer"
+				hlmDropdownMenuItem
+			>
+				<ng-icon [name]="entry.value.icon" />
+				<span>{{ entry.value.label }}</span>
+			</button>
+			}
+		</hlm-dropdown-menu-group>
+	</hlm-dropdown-menu>
 </ng-template>

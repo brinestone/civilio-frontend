@@ -1,5 +1,5 @@
-import { BooleanInput } from '@angular/cdk/coercion';
-import { DecimalPipe } from '@angular/common';
+import { BooleanInput } from "@angular/cdk/coercion";
+import { DecimalPipe } from "@angular/common";
 import {
 	booleanAttribute,
 	Component,
@@ -12,13 +12,13 @@ import {
 	output,
 	resource,
 	untracked,
-	viewChild
-} from '@angular/core';
-import { sendRpcMessageAsync } from '@app/util';
-import { GeoPoint, GeoPointSchema } from '@civilio/shared';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideCircleAlert } from '@ng-icons/lucide';
-import { TranslatePipe } from '@ngx-translate/core';
+	viewChild,
+} from "@angular/core";
+import { sendRpcMessageAsync } from "@app/util";
+import { GeoPoint, GeoPointSchema } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideCircleAlert } from "@ng-icons/lucide";
+import { TranslatePipe } from "@ngx-translate/core";
 import {
 	control,
 	icon,
@@ -29,35 +29,33 @@ import {
 	Map,
 	marker,
 	Marker,
-	tileLayer
-} from 'leaflet';
-import { createNotifier } from 'ngxtension/create-notifier';
-import { injectNetwork } from 'ngxtension/inject-network';
+	tileLayer,
+} from "leaflet";
+import { createNotifier } from "ngxtension/create-notifier";
+import { injectNetwork } from "ngxtension/inject-network";
 
 /**
  * @deprecated
  *
  */
 @Component({
-	selector: 'cv-geo-point',
+	selector: "cv-geo-point",
 	viewProviders: [
 		provideIcons({
-			lucideCircleAlert
-		})
+			lucideCircleAlert,
+		}),
 	],
-	imports: [
-		DecimalPipe,
-		TranslatePipe,
-		NgIcon
-	],
-	templateUrl: './geo-point.component.html',
-	styleUrl: './geo-point.component.scss'
+	imports: [DecimalPipe, TranslatePipe, NgIcon],
+	templateUrl: "./geo-point.component.html",
+	styleUrl: "./geo-point.component.scss",
 })
 export class GeoPointComponent {
 	public readonly value = model<GeoPoint>();
 	public readonly touched = output();
 	public readonly changed = output<GeoPoint>();
-	public readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	public readonly disabled = input<boolean, BooleanInput>(false, {
+		transform: booleanAttribute,
+	});
 
 	private map?: Map;
 	private initialized = false;
@@ -65,24 +63,30 @@ export class GeoPointComponent {
 	private eventTriggeredChange = false;
 	private onlineNotifier = createNotifier();
 
-	protected readonly network = injectNetwork()
-	protected mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
-	protected readonly _value = computed(() => GeoPointSchema.parse(this.value() ?? {}));
-	protected readonly resolvedCoords = linkedSignal(() => latLng(this._value().lat, this._value().long));
+	protected readonly network = injectNetwork();
+	protected mapContainer =
+		viewChild.required<ElementRef<HTMLDivElement>>("mapContainer");
+	protected readonly _value = computed(() =>
+		GeoPointSchema.parse(this.value() ?? {}),
+	);
+	protected readonly resolvedCoords = linkedSignal(() =>
+		latLng(this._value().lat, this._value().long),
+	);
 	protected readonly markerIconUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/marker-icon.png');
-		}
+			return await sendRpcMessageAsync("resource:read", "img/marker-icon.png");
+		},
 	});
 	protected readonly markerShadowIconUrl = resource({
 		loader: async () => {
-			return await sendRpcMessageAsync('resource:read', 'img/marker-shadow.png');
-		}
+			return await sendRpcMessageAsync(
+				"resource:read",
+				"img/marker-shadow.png",
+			);
+		},
 	});
 
-	private onMapClicked({
-		latlng
-	}: LeafletMouseEvent) {
+	private onMapClicked({ latlng }: LeafletMouseEvent) {
 		this.eventTriggeredChange = true;
 		this.moveMarker(latlng);
 		this.eventTriggeredChange = false;
@@ -99,22 +103,28 @@ export class GeoPointComponent {
 			const coords = untracked(this.resolvedCoords);
 			this.moveMarker(coords);
 			this.map?.setView(coords);
-		})
+		});
 
 		effect(() => {
 			const markerIconUrlStatus = this.markerIconUrl.status();
 			const markerShadowIconUrlStatus = this.markerShadowIconUrl.status();
 			this.onlineNotifier.listen();
 
-			if (markerIconUrlStatus != 'resolved' || markerShadowIconUrlStatus != 'resolved' || this.initialized) return;
-			this.map = map(this.mapContainer().nativeElement,
-				{
-					center: untracked(this.resolvedCoords),
-					zoom: 16
-				}).on('click', this.onMapClicked.bind(this));
-			const anchor = document.querySelector<HTMLAnchorElement>('a[href="https://leafletjs.com"]');
+			if (
+				markerIconUrlStatus != "resolved" ||
+				markerShadowIconUrlStatus != "resolved" ||
+				this.initialized
+			)
+				return;
+			this.map = map(this.mapContainer().nativeElement, {
+				center: untracked(this.resolvedCoords),
+				zoom: 16,
+			}).on("click", this.onMapClicked.bind(this));
+			const anchor = document.querySelector<HTMLAnchorElement>(
+				'a[href="https://leafletjs.com"]',
+			);
 			if (anchor) {
-				anchor.target = '_blank';
+				anchor.target = "_blank";
 			}
 			this.initTileLayer();
 			this.initScale();
@@ -134,17 +144,17 @@ export class GeoPointComponent {
 				this.map?.keyboard,
 			];
 			if (disabled || !online) {
-				components.forEach(c => c?.disable());
+				components.forEach((c) => c?.disable());
 			} else {
-				components.forEach(c => c?.enable());
+				components.forEach((c) => c?.enable());
 			}
 
 			if (disabled) {
-				components.forEach(c => c?.disable());
+				components.forEach((c) => c?.disable());
 			} else {
-				components.forEach(c => c?.enable());
+				components.forEach((c) => c?.enable());
 			}
-		})
+		});
 	}
 
 	private initScale() {
@@ -155,8 +165,8 @@ export class GeoPointComponent {
 	private initTileLayer() {
 		if (!this.map) return;
 
-		tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 20
+		tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			maxZoom: 20,
 		}).addTo(this.map);
 	}
 
@@ -170,13 +180,14 @@ export class GeoPointComponent {
 				iconAnchor: [12, 41],
 				popupAnchor: [12, 41],
 				tooltipAnchor: [12, 44],
-				shadowAnchor: [13, 41]
+				shadowAnchor: [13, 41],
 			}),
-		}).addTo(this.map)
-			.on('move', ({ latlng: { lat, lng } }: any) => {
+		})
+			.addTo(this.map)
+			.on("move", ({ latlng: { lat, lng } }: any) => {
 				if (!this.eventTriggeredChange) return;
 				this.changed.emit({ lat, long: lng });
-				this.value.set({ lat, long: lng })
+				this.value.set({ lat, long: lng });
 			});
 		this.map.setView(untracked(this.resolvedCoords));
 	}

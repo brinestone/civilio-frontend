@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-	name: 'valuetype'
+	name: "valuetype",
 })
 export class ValueTypePipe implements PipeTransform {
 	transform(value: any) {

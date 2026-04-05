@@ -1,9 +1,17 @@
-// src/app/directives/hlm-table-directives.ts
-import { computed, Directive, inject, InjectionToken, input, type ValueProvider } from '@angular/core';
-import { classes } from '@spartan-ng/helm/utils';
+import {
+	computed,
+	Directive,
+	inject,
+	InjectionToken,
+	input,
+	type ValueProvider,
+} from "@angular/core";
+import { classes } from "@spartan-ng/helm/utils";
 
 // Configuration Interface and InjectionToken
-export const HlmTableConfigToken = new InjectionToken<HlmTableVariant>('HlmTableConfig');
+export const HlmTableConfigToken = new InjectionToken<HlmTableVariant>(
+	"HlmTableConfig",
+);
 export interface HlmTableVariant {
 	tableContainer: string;
 	table: string;
@@ -17,18 +25,20 @@ export interface HlmTableVariant {
 }
 
 export const HlmTableVariantDefault: HlmTableVariant = {
-	tableContainer: 'relative w-full overflow-x-auto',
-	table: 'w-full caption-bottom text-sm',
-	thead: '[&_tr]:border-b',
-	tbody: '[&_tr:last-child]:border-0',
-	tfoot: 'bg-muted/50 border-t font-medium [&>tr]:last:border-b-0',
-	tr: 'hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors',
-	th: 'text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pe-0',
-	td: 'p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0',
-	caption: 'text-muted-foreground mt-4 text-sm',
+	tableContainer: "relative w-full overflow-x-auto",
+	table: "w-full caption-bottom text-sm",
+	thead: "[&_tr]:border-b",
+	tbody: "[&_tr:last-child]:border-0",
+	tfoot: "bg-muted/50 border-t font-medium [&>tr]:last:border-b-0",
+	tr: "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+	th: "text-foreground h-10 px-2 text-start align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pe-0",
+	td: "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pe-0",
+	caption: "text-muted-foreground mt-4 text-sm",
 };
 
-export function provideHlmTableConfig(config: Partial<HlmTableVariant>): ValueProvider {
+export function provideHlmTableConfig(
+	config: Partial<HlmTableVariant>,
+): ValueProvider {
 	return {
 		provide: HlmTableConfigToken,
 		useValue: { ...HlmTableVariantDefault, ...config },
@@ -36,18 +46,24 @@ export function provideHlmTableConfig(config: Partial<HlmTableVariant>): ValuePr
 }
 
 export function injectHlmTableConfig(): HlmTableVariant {
-	return inject(HlmTableConfigToken, { optional: true }) ?? HlmTableVariantDefault;
+	return (
+		inject(HlmTableConfigToken, { optional: true }) ?? HlmTableVariantDefault
+	);
 }
 
 @Directive({
-	selector: 'div[hlmTableContainer]',
-	host: { 'data-slot': 'table-container' },
+	selector: "div[hlmTableContainer]",
+	host: { "data-slot": "table-container" },
 })
 export class HlmTableContainer {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.tableContainer.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig
+				? this._globalOrDefaultConfig.tableContainer.trim()
+				: "",
+		);
 	}
 }
 
@@ -58,12 +74,15 @@ export class HlmTableContainer {
  * The other table elements will check if a parent table has the `hlmTable` attribute and will be styled accordingly.
  */
 @Directive({
-	selector: 'table[hlmTable]',
-	host: { 'data-slot': 'table' },
+	selector: "table[hlmTable]",
+	host: { "data-slot": "table" },
 })
 export class HlmTable {
 	/** Input to configure the variant of the table, this input has the highest priority. */
-	public readonly userVariant = input<Partial<HlmTableVariant> | string>({}, { alias: 'hlmTable' });
+	public readonly userVariant = input<Partial<HlmTableVariant> | string>(
+		{},
+		{ alias: "hlmTable" },
+	);
 
 	/** Global or default configuration provided by injectHlmTableConfig() */
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
@@ -74,7 +93,11 @@ export class HlmTable {
 		const localInputConfig = this.userVariant();
 
 		// Priority 1: Local input object
-		if (typeof localInputConfig === 'object' && localInputConfig !== null && Object.keys(localInputConfig).length > 0) {
+		if (
+			typeof localInputConfig === "object" &&
+			localInputConfig !== null &&
+			Object.keys(localInputConfig).length > 0
+		) {
 			// Merge local input with the baseline provided by injectHlmTableConfig()
 			// This ensures that properties not in localInputConfig still fall back to global/default values.
 			return { ...globalOrDefaultConfig, ...localInputConfig };
@@ -96,14 +119,18 @@ export class HlmTable {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'thead[hlmTHead]',
-	host: { 'data-slot': 'table-header' },
+	selector: "thead[hlmTHead]",
+	host: { "data-slot": "table-header" },
 })
 export class HlmTHead {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.thead.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig
+				? this._globalOrDefaultConfig.thead.trim()
+				: "",
+		);
 	}
 }
 
@@ -112,13 +139,17 @@ export class HlmTHead {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'tbody[hlmTBody]',
-	host: { 'data-slot': 'table-body' },
+	selector: "tbody[hlmTBody]",
+	host: { "data-slot": "table-body" },
 })
 export class HlmTBody {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.tbody.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig
+				? this._globalOrDefaultConfig.tbody.trim()
+				: "",
+		);
 	}
 }
 
@@ -127,13 +158,17 @@ export class HlmTBody {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'tfoot[hlmTFoot]',
-	host: { 'data-slot': 'table-footer' },
+	selector: "tfoot[hlmTFoot]",
+	host: { "data-slot": "table-footer" },
 })
 export class HlmTFoot {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.tfoot.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig
+				? this._globalOrDefaultConfig.tfoot.trim()
+				: "",
+		);
 	}
 }
 
@@ -142,13 +177,15 @@ export class HlmTFoot {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'tr[hlmTr]',
-	host: { 'data-slot': 'table-row' },
+	selector: "tr[hlmTr]",
+	host: { "data-slot": "table-row" },
 })
 export class HlmTr {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.tr.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig ? this._globalOrDefaultConfig.tr.trim() : "",
+		);
 	}
 }
 
@@ -157,13 +194,15 @@ export class HlmTr {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'th[hlmTh]',
-	host: { 'data-slot': 'table-head' },
+	selector: "th[hlmTh]",
+	host: { "data-slot": "table-head" },
 })
 export class HlmTh {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.th.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig ? this._globalOrDefaultConfig.th.trim() : "",
+		);
 	}
 }
 
@@ -172,13 +211,15 @@ export class HlmTh {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'td[hlmTd]',
-	host: { 'data-slot': 'table-cell' },
+	selector: "td[hlmTd]",
+	host: { "data-slot": "table-cell" },
 })
 export class HlmTd {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.td.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig ? this._globalOrDefaultConfig.td.trim() : "",
+		);
 	}
 }
 
@@ -187,12 +228,16 @@ export class HlmTd {
  * within an HlmTableDirective context.
  */
 @Directive({
-	selector: 'caption[hlmCaption]',
-	host: { 'data-slot': 'table-caption' },
+	selector: "caption[hlmCaption]",
+	host: { "data-slot": "table-caption" },
 })
 export class HlmCaption {
 	private readonly _globalOrDefaultConfig = injectHlmTableConfig();
 	constructor() {
-		classes(() => (this._globalOrDefaultConfig ? this._globalOrDefaultConfig.caption.trim() : ''));
+		classes(() =>
+			this._globalOrDefaultConfig
+				? this._globalOrDefaultConfig.caption.trim()
+				: "",
+		);
 	}
 }

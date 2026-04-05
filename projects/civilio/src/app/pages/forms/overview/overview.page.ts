@@ -1,11 +1,11 @@
-import { NumberInput } from '@angular/cdk/coercion';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { NumberInput } from "@angular/cdk/coercion";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
 import {
 	DatePipe,
 	DecimalPipe,
 	KeyValuePipe,
-	NgTemplateOutlet
-} from '@angular/common';
+	NgTemplateOutlet,
+} from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -20,28 +20,27 @@ import {
 	OnDestroy,
 	Signal,
 	signal,
-	untracked
-} from '@angular/core';
-import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+	untracked,
+} from "@angular/core";
+import {
+	rxResource,
+	takeUntilDestroyed,
+	toSignal,
+} from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterLink } from "@angular/router";
 import {
 	BadgeCell,
 	DateCell,
 	MapComponent,
-	VersionCell
-} from '@app/components';
-import { ActionCell } from '@app/components/tabular-field/cells';
-import { ValueTypePipe } from '@app/pipes/value-type-pipe';
-import {
-	DeleteSubmission,
-	ToggleApprovalStatus
-} from '@app/store/form';
-import { SubmissionVersionLookup } from '@civilio/sdk/models';
-import { SubmissionsService } from '@civilio/sdk/services/submissions/submissions.service';
-import {
-	SubmissionVersionInfo
-} from '@civilio/shared';
-import { NgIcon, provideIcons } from '@ng-icons/core';
+	VersionCell,
+} from "@app/components";
+import { ActionCell } from "@app/components/tabular-field/cells";
+import { ValueTypePipe } from "@app/pipes/value-type-pipe";
+import { DeleteSubmission, ToggleApprovalStatus } from "@app/store/form";
+import { SubmissionVersionLookup } from "@civilio/sdk/models";
+import { SubmissionsService } from "@civilio/sdk/services/submissions/submissions.service";
+import { SubmissionVersionInfo } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideArrowLeft,
 	lucideArrowRight,
@@ -54,30 +53,30 @@ import {
 	lucideMapPin,
 	lucidePencil,
 	lucideTrash2,
-	lucideX
-} from '@ng-icons/lucide';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { Navigate } from '@ngxs/router-plugin';
-import { dispatch } from '@ngxs/store';
-import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
-import { BrnDialogState } from '@spartan-ng/brain/dialog';
-import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmButton } from '@spartan-ng/helm/button';
-import { HlmLabel } from '@spartan-ng/helm/label';
-import { HlmPaginationImports } from '@spartan-ng/helm/pagination';
-import { HlmSeparator } from '@spartan-ng/helm/separator';
-import { HlmSwitch } from '@spartan-ng/helm/switch';
-import { HlmTableImports } from '@spartan-ng/helm/table';
-import { HlmH3, HlmH4 } from '@spartan-ng/helm/typography';
+	lucideX,
+} from "@ng-icons/lucide";
+import { TranslatePipe, TranslateService } from "@ngx-translate/core";
+import { Navigate } from "@ngxs/router-plugin";
+import { dispatch } from "@ngxs/store";
+import { BrnAlertDialogImports } from "@spartan-ng/brain/alert-dialog";
+import { BrnDialogState } from "@spartan-ng/brain/dialog";
+import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
+import { HlmButton } from "@spartan-ng/helm/button";
+import { HlmLabel } from "@spartan-ng/helm/label";
+import { HlmPaginationImports } from "@spartan-ng/helm/pagination";
+import { HlmSeparator } from "@spartan-ng/helm/separator";
+import { HlmSwitch } from "@spartan-ng/helm/switch";
+import { HlmTableImports } from "@spartan-ng/helm/table";
+import { HlmH3, HlmH4 } from "@spartan-ng/helm/typography";
 import {
 	createAngularTable,
 	createColumnHelper,
 	FlexRender,
 	flexRenderComponent,
 	getCoreRowModel,
-	getPaginationRowModel
-} from '@tanstack/angular-table';
-import { injectQueryParams } from 'ngxtension/inject-query-params';
+	getPaginationRowModel,
+} from "@tanstack/angular-table";
+import { injectQueryParams } from "ngxtension/inject-query-params";
 import {
 	EMPTY,
 	filter,
@@ -88,14 +87,14 @@ import {
 	Subject,
 	take,
 	takeUntil,
-	tap
-} from 'rxjs';
-import { StandardFacilityTagsSchema } from '../../../components/form/schema/form-designer-config';
+	tap,
+} from "rxjs";
+import { StandardFacilityTagsSchema } from "../../../components/form/schema/form-designer-config";
 
 const ch = createColumnHelper<SubmissionVersionLookup>();
 
 @Component({
-	selector: 'cv-overview',
+	selector: "cv-overview",
 	viewProviders: [
 		provideIcons({
 			lucideTrash2,
@@ -110,7 +109,7 @@ const ch = createColumnHelper<SubmissionVersionLookup>();
 			lucideCopy,
 			lucidePencil,
 			lucideCheckCircle,
-		})
+		}),
 	],
 	imports: [
 		HlmH3,
@@ -132,14 +131,16 @@ const ch = createColumnHelper<SubmissionVersionLookup>();
 		HlmTableImports,
 		RouterLink,
 		FlexRender,
-		MapComponent
+		MapComponent,
 	],
-	templateUrl: './overview.page.html',
-	styleUrl: './overview.page.scss',
-	changeDetection: ChangeDetectionStrategy.OnPush
+	templateUrl: "./overview.page.html",
+	styleUrl: "./overview.page.scss",
+	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OverviewPage implements OnDestroy {
-	readonly submissionIndex = input<number, NumberInput>(0, { transform: numberAttribute });
+	readonly submissionIndex = input<number, NumberInput>(0, {
+		transform: numberAttribute,
+	});
 	readonly form = input<string>();
 
 	private readonly cdr = inject(ChangeDetectorRef);
@@ -147,20 +148,22 @@ export class OverviewPage implements OnDestroy {
 	private readonly ts = inject(TranslateService);
 
 	protected readonly standardTags = StandardFacilityTagsSchema.enum;
-	protected readonly formVersion = injectQueryParams('fv');
+	protected readonly formVersion = injectQueryParams("fv");
 	protected readonly deleting = signal(false);
 	protected readonly togglingApprovalStatus = signal(false);
-	protected readonly deleteDialogState = signal<BrnDialogState>('closed');
-	protected readonly isSmallScreen = toSignal(this.io.observe([
-		Breakpoints.Tablet,
-		Breakpoints.TabletLandscape,
-		Breakpoints.TabletPortrait,
-		Breakpoints.Handset,
-		Breakpoints.HandsetPortrait,
-		Breakpoints.HandsetLandscape,
-	]).pipe(
-		map(s => s.matches)
-	))
+	protected readonly deleteDialogState = signal<BrnDialogState>("closed");
+	protected readonly isSmallScreen = toSignal(
+		this.io
+			.observe([
+				Breakpoints.Tablet,
+				Breakpoints.TabletLandscape,
+				Breakpoints.TabletPortrait,
+				Breakpoints.Handset,
+				Breakpoints.HandsetPortrait,
+				Breakpoints.HandsetLandscape,
+			])
+			.pipe(map((s) => s.matches)),
+	);
 	protected readonly page = signal(0);
 	protected readonly route = inject(ActivatedRoute);
 	protected readonly toggleApprovalStatus = dispatch(ToggleApprovalStatus);
@@ -170,21 +173,21 @@ export class OverviewPage implements OnDestroy {
 			form: this.form(),
 			index: this.submissionIndex(),
 			fv: this.formVersion() ?? undefined,
-			sv: this.selectedVersion()?.tag
+			sv: this.selectedVersion()?.tag,
 		}),
 		stream: ({ params: { index, form, fv, sv } }) => {
 			if (form === undefined || index === undefined) return EMPTY;
 			return this.submissionService.getFacilityInfo(index, form, {
 				fv,
-				sv
+				sv,
 			});
-		}
+		},
 	});
 	protected readonly approved = linkedSignal(() => {
 		return this.facilityInfo.value()?.approved ?? false;
-	})
+	});
 	protected selectedVersion = linkedSignal(() => {
-		return (this.versions.value() ?? []).find(v => v.isCurrent);
+		return (this.versions.value() ?? []).find((v) => v.isCurrent);
 	});
 	private navigate = dispatch(Navigate);
 	private injector = inject(Injector);
@@ -194,12 +197,12 @@ export class OverviewPage implements OnDestroy {
 		defaultValue: [],
 		params: () => ({
 			index: this.submissionIndex(),
-			form: this.form()!
+			form: this.form()!,
 		}),
 		stream: ({ params: { form, index } }) => {
 			if (index == null) return of([]);
 			return this.submissionService.lookupSubmissionVersions(index, form, {
-				fv: this.formVersion() ?? undefined
+				fv: this.formVersion() ?? undefined,
 			});
 		},
 	});
@@ -218,62 +221,69 @@ export class OverviewPage implements OnDestroy {
 			state: {
 				pagination: {
 					pageSize: 5,
-					pageIndex: 0
-				}
+					pageIndex: 0,
+				},
 			},
 			data: this.versions.value(),
 			columns: [
-				ch.accessor('tag', {
-					header: 'misc.version',
-					cell: ({ row }) => flexRenderComponent(VersionCell, {
-						inputs: {
-							version: row.original.tag,
-							allowCopy: false
-						}
-					})
+				ch.accessor("tag", {
+					header: "misc.version",
+					cell: ({ row }) =>
+						flexRenderComponent(VersionCell, {
+							inputs: {
+								version: row.original.tag,
+								allowCopy: false,
+							},
+						}),
 				}),
-				ch.accessor('recordedAt', {
-					header: 'misc.changed_at',
-					cell: () => flexRenderComponent(DateCell)
+				ch.accessor("recordedAt", {
+					header: "misc.changed_at",
+					cell: () => flexRenderComponent(DateCell),
 				}),
-				ch.accessor('changeNotes', {
-					header: 'misc.notes',
+				ch.accessor("changeNotes", {
+					header: "misc.notes",
 				}),
 				ch.display({
-					id: 'status',
-					header: 'misc.status',
+					id: "status",
+					header: "misc.status",
 					cell: ({ row }) => {
 						return flexRenderComponent(BadgeCell, {
 							inputs: {
 								shouldTranslateText: true,
-								text: row.original.tag === this.selectedVersion()?.tag ? 'overview.versions.columns.status.badges.active' : undefined,
-								variant: 'outline'
-							}
-						})
-					}
+								text:
+									row.original.tag === this.selectedVersion()?.tag
+										? "overview.versions.columns.status.badges.active"
+										: undefined,
+								variant: "outline",
+							},
+						});
+					},
 				}),
 				ch.display({
-					id: 'actions',
-					cell: ({ row }) => flexRenderComponent(ActionCell<SubmissionVersionInfo>, {
-						inputs: {
-							actions: [
-								{ identifier: 'edit', icon: 'lucidePencil' }
-							],
-						},
-						outputs: {
-							actionTriggered: ({ identifier }) => {
-								if (identifier == 'edit') {
-									this.navigate(['..'], { version: row.original.tag }, {
-										relativeTo: this.route,
-										queryParamsHandling: 'merge'
-									})
-								}
-							}
-						}
-					})
-				})
-			]
-		}
+					id: "actions",
+					cell: ({ row }) =>
+						flexRenderComponent(ActionCell<SubmissionVersionInfo>, {
+							inputs: {
+								actions: [{ identifier: "edit", icon: "lucidePencil" }],
+							},
+							outputs: {
+								actionTriggered: ({ identifier }) => {
+									if (identifier == "edit") {
+										this.navigate(
+											[".."],
+											{ version: row.original.tag },
+											{
+												relativeTo: this.route,
+												queryParamsHandling: "merge",
+											},
+										);
+									}
+								},
+							},
+						}),
+				}),
+			],
+		};
 	});
 
 	private deleteRelease = new Subject<void>();
@@ -304,35 +314,37 @@ export class OverviewPage implements OnDestroy {
 			takeUntilDestroyed(this.dr),
 			takeUntil(this.deleteRelease),
 			take(6),
-			map(n => 5 - n),
-			share()
+			map((n) => 5 - n),
+			share(),
 		);
-		this.deleteTimer = toSignal(src$.pipe(
-			tap(() => this.cdr.markForCheck()),
-		), { injector: this.injector });
+		this.deleteTimer = toSignal(src$.pipe(tap(() => this.cdr.markForCheck())), {
+			injector: this.injector,
+		});
 
-		src$.pipe(
-			filter(n => n <= 0),
-			take(1)
-		).subscribe({
-			next: () => {
-				this.deleteButtonReleased();
+		src$
+			.pipe(
+				filter((n) => n <= 0),
+				take(1),
+			)
+			.subscribe({
+				next: () => {
+					this.deleteButtonReleased();
 
-				this.deleting.set(true);
-				const index = untracked(this.submissionIndex);
-				// this.deleteSubmission(index, this.formType()!).subscribe({
-				// 	error: (e: Error) => {
-				// 		this.deleting.set(false);
-				// 		toast.error(this.ts.instant('overview.submission_info.alerts.delete_confirmation.msg.failed'), { description: e.message });
-				// 	},
-				// 	complete: () => {
-				// 		this.deleting.set(true);
-				// 		toast.success(this.ts.instant('overview.submission_info.alerts.delete_confirmation.msg.success'))
-				// 		this.navigate(['/submissions']);
-				// 	}
-				// });
-			}
-		})
+					this.deleting.set(true);
+					const index = untracked(this.submissionIndex);
+					// this.deleteSubmission(index, this.formType()!).subscribe({
+					// 	error: (e: Error) => {
+					// 		this.deleting.set(false);
+					// 		toast.error(this.ts.instant('overview.submission_info.alerts.delete_confirmation.msg.failed'), { description: e.message });
+					// 	},
+					// 	complete: () => {
+					// 		this.deleting.set(true);
+					// 		toast.success(this.ts.instant('overview.submission_info.alerts.delete_confirmation.msg.success'))
+					// 		this.navigate(['/submissions']);
+					// 	}
+					// });
+				},
+			});
 		this.cdr.markForCheck();
 	}
 

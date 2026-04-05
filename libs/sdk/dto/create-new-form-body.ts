@@ -6,6 +6,6 @@
  */
 
 export type CreateNewFormBody = {
-  title: string;
-  description?: string | null;
+	title: string;
+	description?: string | null;
 };

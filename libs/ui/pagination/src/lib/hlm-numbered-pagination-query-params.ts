@@ -1,4 +1,4 @@
-import type { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import type { BooleanInput, NumberInput } from "@angular/cdk/coercion";
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -8,21 +8,23 @@ import {
 	model,
 	numberAttribute,
 	untracked,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { createPageArray, outOfBoundCorrection } from './hlm-numbered-pagination';
-import { HlmPagination } from './hlm-pagination';
-import { HlmPaginationContent } from './hlm-pagination-content';
-import { HlmPaginationEllipsis } from './hlm-pagination-ellipsis';
-import { HlmPaginationItem } from './hlm-pagination-item';
-import { HlmPaginationLink } from './hlm-pagination-link';
-import { HlmPaginationNext } from './hlm-pagination-next';
-import { HlmPaginationPrevious } from './hlm-pagination-previous';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { HlmSelectImports } from "@spartan-ng/helm/select";
+import {
+	createPageArray,
+	outOfBoundCorrection,
+} from "./hlm-numbered-pagination";
+import { HlmPagination } from "./hlm-pagination";
+import { HlmPaginationContent } from "./hlm-pagination-content";
+import { HlmPaginationEllipsis } from "./hlm-pagination-ellipsis";
+import { HlmPaginationItem } from "./hlm-pagination-item";
+import { HlmPaginationLink } from "./hlm-pagination-link";
+import { HlmPaginationNext } from "./hlm-pagination-next";
+import { HlmPaginationPrevious } from "./hlm-pagination-previous";
 
 @Component({
-	selector: 'hlm-numbered-pagination-query-params',
+	selector: "hlm-numbered-pagination-query-params",
 	imports: [
 		FormsModule,
 		HlmPagination,
@@ -32,8 +34,6 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 		HlmPaginationNext,
 		HlmPaginationLink,
 		HlmPaginationEllipsis,
-
-		BrnSelectImports,
 		HlmSelectImports,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,7 +60,7 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 
 					@for (page of _pages(); track page) {
 						<li hlmPaginationItem>
-							@if (page === '...') {
+							@if (page === "...") {
 								<hlm-pagination-ellipsis />
 							} @else {
 								<a
@@ -89,16 +89,20 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 			</nav>
 
 			<!-- Show Page Size selector -->
-			<brn-select [(ngModel)]="itemsPerPage" class="ml-auto" placeholder="Page size">
+			<hlm-select [(ngModel)]="itemsPerPage" class="ml-auto">
 				<hlm-select-trigger class="w-fit">
 					<hlm-select-value />
 				</hlm-select-trigger>
-				<hlm-select-content>
-					@for (pageSize of _pageSizesWithCurrent(); track pageSize) {
-						<hlm-option [value]="pageSize">{{ pageSize }} / page</hlm-option>
-					}
+				<hlm-select-content *hlmSelectPortal>
+					<hlm-select-group>
+						@for (pageSize of _pageSizesWithCurrent(); track pageSize) {
+							<hlm-select-item [value]="pageSize">{{
+								pageSize
+							}}</hlm-select-item>
+						}
+					</hlm-select-group>
 				</hlm-select-content>
-			</brn-select>
+			</hlm-select>
 		</div>
 	`,
 })
@@ -126,7 +130,7 @@ export class HlmNumberedPaginationQueryParams {
 	 * The URL path to use for the pagination links.
 	 * Defaults to '.' (current path).
 	 */
-	public readonly link = input<string>('.');
+	public readonly link = input<string>(".");
 
 	/**
 	 * The number of page links to show.
@@ -155,8 +159,12 @@ export class HlmNumberedPaginationQueryParams {
 			: [...pageSizes, this.itemsPerPage()].sort((a, b) => a - b); // otherwise, add current page size and sort the array
 	});
 
-	protected readonly _isFirstPageActive = computed(() => this.currentPage() === 1);
-	protected readonly _isLastPageActive = computed(() => this.currentPage() === this._lastPageNumber());
+	protected readonly _isFirstPageActive = computed(
+		() => this.currentPage() === 1,
+	);
+	protected readonly _isLastPageActive = computed(
+		() => this.currentPage() === this._lastPageNumber(),
+	);
 
 	protected readonly _lastPageNumber = computed(() => {
 		if (this.totalItems() < 1) {
@@ -168,13 +176,22 @@ export class HlmNumberedPaginationQueryParams {
 	});
 
 	protected readonly _pages = computed(() => {
-		const correctedCurrentPage = outOfBoundCorrection(this.totalItems(), this.itemsPerPage(), this.currentPage());
+		const correctedCurrentPage = outOfBoundCorrection(
+			this.totalItems(),
+			this.itemsPerPage(),
+			this.currentPage(),
+		);
 
 		if (correctedCurrentPage !== this.currentPage()) {
 			// update the current page
 			untracked(() => this.currentPage.set(correctedCurrentPage));
 		}
 
-		return createPageArray(correctedCurrentPage, this.itemsPerPage(), this.totalItems(), this.maxSize());
+		return createPageArray(
+			correctedCurrentPage,
+			this.itemsPerPage(),
+			this.totalItems(),
+			this.maxSize(),
+		);
 	});
 }

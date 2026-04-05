@@ -5,7 +5,7 @@
 		<div>
 			<hlm-sheet (closed)="onFormSheetClosed()" side="right">
 				<button hlmSheetTrigger hlmBtn size="sm" variant="ghost">
-					<ng-icon name="lucidePencil"/>
+					<ng-icon name="lucidePencil" />
 				</button>
 				<hlm-sheet-content *hlmSheetPortal="let ctx">
 					<hlm-sheet-header>
@@ -15,20 +15,20 @@
 						<p hlmSheetDescription>
 							{{
 								editFormDescription() ??
-								("tmpl.group.form.description" | translate)
+									("tmpl.group.form.description" | translate)
 							}}
 						</p>
 					</hlm-sheet-header>
 					<div
 						class="py-5 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
 					>
-						<ng-container [ngTemplateOutlet]="formTemplate"/>
+						<ng-container [ngTemplateOutlet]="formTemplate" />
 					</div>
 				</hlm-sheet-content>
 			</hlm-sheet>
 		</div>
 		<button (click)="onDeleteButtonClicked()" hlmBtn size="sm" variant="ghost">
-			<ng-icon name="lucideTrash2"/>
+			<ng-icon name="lucideTrash2" />
 		</button>
 	}
 </div>
@@ -107,7 +107,9 @@
 						: ($any(fieldSchema.key).value + ".title"
 							| translate: $any(fieldSchema.key).titleArgs);
 				@let fieldId = fieldKey + "_" + data()[schema().identifierKey];
-				@if (fieldSchema.visible === undefined && relevanceRegistry()[fieldKey]) {
+				@if (
+					fieldSchema.visible === undefined && relevanceRegistry()[fieldKey]
+				) {
 					<div
 						[attr.data-invalid]="
 							form.controls[fieldKey].invalid && form.controls[fieldKey].dirty
@@ -117,32 +119,39 @@
 						<label [for]="fieldId" hlmLabel>{{ label }}</label>
 						@switch (fieldSchema.type) {
 							@case ("single-selection") {
-								<brn-select
+								<hlm-select
 									(openChange)="touchedCallback?.()"
 									(valueChange)="addCachedDeltaChange(fieldKey, $event)"
 									[formControlName]="fieldKey"
 									[id]="fieldId"
 									class="w-full"
-									placeholder="{{ 'tmpl.dropdown.placeholder' | translate }}"
 								>
 									<hlm-select-trigger class="w-full">
-										<hlm-select-value/>
+										<hlm-select-value
+											placeholder="{{
+												'tmpl.dropdown.placeholder' | translate
+											}}"
+										/>
 									</hlm-select-trigger>
-									<hlm-select-content class="w-full">
-										@for (option of optionSource()?.[
-											$any(fieldSchema).optionsGroupKey
-											] ?? [];
-											track $index) {
-											<hlm-option [value]="option.value">
-												@if (option.i18nKey) {
-													{{ option.i18nKey | translate }}
-												} @else {
-													{{ option.label }}
-												}
-											</hlm-option>
-										}
+									<hlm-select-content *hlmSelectPortal class="w-full">
+										<hlm-select-group>
+											@for (
+												option of optionSource()?.[
+													$any(fieldSchema).optionsGroupKey
+												] ?? [];
+												track $index
+											) {
+												<hlm-select-item [value]="option.value">
+													@if (option.i18nKey) {
+														{{ option.i18nKey | translate }}
+													} @else {
+														{{ option.label }}
+													}
+												</hlm-select-item>
+											}
+										</hlm-select-group>
 									</hlm-select-content>
-								</brn-select>
+								</hlm-select>
 							}
 							@case ("int") {
 								<input
@@ -180,7 +189,9 @@
 								/>
 							}
 						}
-						@if (form.controls[fieldKey].invalid && form.controls[fieldKey].dirty) {
+						@if (
+							form.controls[fieldKey].invalid && form.controls[fieldKey].dirty
+						) {
 							@let control = form.controls[fieldKey];
 							<hlm-field-error>
 								@if (control.hasError("required")) {
@@ -192,14 +203,16 @@
 										{{
 											"validation.msg.value_unsupported"
 												| translate
-												: {
-													validValues:
-														control.getError("invalidValue").validValues
-															| join,
-												}
+													: {
+															validValues:
+																control.getError("invalidValue").validValues
+																| join,
+													  }
 										}}
 									</ng-container>
-								} @else if (control.hasError("pattern") || control.hasError("int")) {
+								} @else if (
+									control.hasError("pattern") || control.hasError("int")
+								) {
 									<ng-container>
 										{{ "validation.msg.pattern_mismatch" | translate }}
 									</ng-container>
@@ -208,9 +221,9 @@
 										{{
 											"validation.msg.min_date"
 												| translate
-												: {
-													minDate: control.getError("minDate"),
-												}
+													: {
+															minDate: control.getError("minDate"),
+													  }
 										}}
 									</ng-container>
 								} @else if (control.hasError("maxDate")) {
@@ -218,9 +231,9 @@
 										{{
 											"validation.msg.max_date"
 												| translate
-												: {
-													maxDate: control.getError("maxDate"),
-												}
+													: {
+															maxDate: control.getError("maxDate"),
+													  }
 										}}
 									</ng-container>
 								} @else if (control.hasError("invalidDate")) {
@@ -237,8 +250,7 @@
 									</ng-container>
 									<ng-container>
 										{{ "validation.msg.min" | translate: meta }}
-									</ng-container
-									>
+									</ng-container>
 								} @else if (control.hasError("max")) {
 									<ng-container>
 										@let meta =
@@ -249,8 +261,7 @@
 									</ng-container>
 									<ng-container>
 										{{ "validation.msg.max" | translate: meta }}
-									</ng-container
-									>
+									</ng-container>
 								}
 							</hlm-field-error>
 						}
@@ -273,10 +284,10 @@
 				{{
 					"validation.msg.value_unsupported"
 						| translate
-						: {
-							validValues:
-								control.getError("invalidValue").validValues | join,
-						}
+							: {
+									validValues:
+										control.getError("invalidValue").validValues | join,
+							  }
 				}}
 			</ng-container>
 		} @else if (control.hasError("pattern") || control.hasError("int")) {
@@ -288,9 +299,9 @@
 				{{
 					"validation.msg.min_date"
 						| translate
-						: {
-							minDate: control.getError("minDate"),
-						}
+							: {
+									minDate: control.getError("minDate"),
+							  }
 				}}
 			</ng-container>
 		} @else if (control.hasError("maxDate")) {
@@ -298,9 +309,9 @@
 				{{
 					"validation.msg.max_date"
 						| translate
-						: {
-							maxDate: control.getError("maxDate"),
-						}
+							: {
+									maxDate: control.getError("maxDate"),
+							  }
 				}}
 			</ng-container>
 		} @else if (control.hasError("invalidDate")) {

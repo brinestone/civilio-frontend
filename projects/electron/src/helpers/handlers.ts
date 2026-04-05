@@ -29,7 +29,7 @@ import {
 	updateLocale,
 	updateTheme,
 	versionExists,
-	watchAssets
+	watchAssets,
 } from "@civilio/handlers";
 import { AppConfigPaths, FindSubmissionDataRequest } from "@civilio/shared";
 import {
@@ -41,127 +41,131 @@ import {
 	runMigrations,
 	saveConnectionParameters,
 	testConnection,
-	useConnection
+	useConnection,
 } from "./db";
 import { storeValue } from "./store";
 
 export function registerDevelopmentIpcHandlers() {
-	createPushHandler('i18n:update', watchAssets);
+	createPushHandler("i18n:update", watchAssets);
 }
 
 export function registerProductionIpcHandlers() {
-	createInvokeChannelHandler('discovery:init', async () => {
+	createInvokeChannelHandler("discovery:init", async () => {
 		return await discoverServer();
-	})
-	createInvokeChannelHandler('options-raw:read', async (req) => {
-		return await findAllFormOptions(req)
-	})
-	createInvokeChannelHandler('submission-version:exists', async req => {
+	});
+	createInvokeChannelHandler("options-raw:read", async (req) => {
+		return await findAllFormOptions(req);
+	});
+	createInvokeChannelHandler("submission-version:exists", async (req) => {
 		return await versionExists(req);
-	})
-	createInvokeChannelHandler('submission:delete', async req => {
+	});
+	createInvokeChannelHandler("submission:delete", async (req) => {
 		return await deleteSubmission(req);
-	})
-	createInvokeChannelHandler('approval:toggle', async req => {
+	});
+	createInvokeChannelHandler("approval:toggle", async (req) => {
 		return await toggleApprovalStatus(req);
-	})
-	createInvokeChannelHandler('facility-info:read', async (req) => {
+	});
+	createInvokeChannelHandler("facility-info:read", async (req) => {
 		return await getSubmissionInfo(req);
-	})
-	createInvokeChannelHandler('build:read', () => {
+	});
+	createInvokeChannelHandler("build:read", () => {
 		return getBuildInfo();
-	})
-	createInvokeChannelHandler('licences:read', () => {
+	});
+	createInvokeChannelHandler("licences:read", () => {
 		return getLicences();
-	})
-	createInvokeChannelHandler('db-conn:use', (req) => {
+	});
+	createInvokeChannelHandler("db-conn:use", (req) => {
 		return useConnection(req);
-	})
-	createInvokeChannelHandler('db-conn:clear', () => {
+	});
+	createInvokeChannelHandler("db-conn:clear", () => {
 		return clearConnections();
-	})
-	createInvokeChannelHandler('db-conn:delete', req => {
+	});
+	createInvokeChannelHandler("db-conn:delete", (req) => {
 		return removeConnection(req);
-	})
-	createInvokeChannelHandler('db-conn:add', (req) => {
+	});
+	createInvokeChannelHandler("db-conn:add", (req) => {
 		return saveConnectionParameters(req);
 	});
-	createInvokeChannelHandler('db-conns:read', () => {
+	createInvokeChannelHandler("db-conns:read", () => {
 		return findConnectionHistory();
 	});
-	createInvokeChannelHandler('migrations:apply', async () => {
+	createInvokeChannelHandler("migrations:apply", async () => {
 		return await runMigrations();
 	});
-	createInvokeChannelHandler('migrations:check', async () => {
+	createInvokeChannelHandler("migrations:check", async () => {
 		return await checkMigration();
 	});
-	createInvokeChannelHandler('submission:revert', async arg => {
+	createInvokeChannelHandler("submission:revert", async (arg) => {
 		return await revertSubmissionVersion(arg);
 	});
-	createInvokeChannelHandler('submission-version:init', async arg => {
+	createInvokeChannelHandler("submission-version:init", async (arg) => {
 		return await initializeSubmissionVersioning(arg);
 	});
-	createInvokeChannelHandler('submission-version:read', async arg => {
+	createInvokeChannelHandler("submission-version:read", async (arg) => {
 		return await findCurrentSubmissionVersion(arg);
 	});
-	createInvokeChannelHandler('submission-versions:read', async arg => {
+	createInvokeChannelHandler("submission-versions:read", async (arg) => {
 		return await findSubmissionVersions(arg);
 	});
-	createInvokeChannelHandler('field-mapping:clear', async arg => {
+	createInvokeChannelHandler("field-mapping:clear", async (arg) => {
 		return await removeFieldMapping(arg);
 	});
-	createInvokeChannelHandler('submission-data:update', async arg => {
+	createInvokeChannelHandler("submission-data:update", async (arg) => {
 		return await processSubmissionDataUpdate(arg);
-	})
-	createInvokeChannelHandler('resource:read', (name) => {
+	});
+	createInvokeChannelHandler("resource:read", (name) => {
 		return getResourceUrl(name);
-	})
-	createInvokeChannelHandler('locale:update', ({ locale }) => {
+	});
+	createInvokeChannelHandler("locale:update", ({ locale }) => {
 		return updateLocale(locale);
-	})
-	createInvokeChannelHandler('theme:update', ({ theme }) => {
+	});
+	createInvokeChannelHandler("theme:update", ({ theme }) => {
 		return updateTheme(theme);
-	})
-	createInvokeChannelHandler('index-suggestions:read', async (args) => {
+	});
+	createInvokeChannelHandler("index-suggestions:read", async (args) => {
 		return await findIndexSuggestions(args);
 	});
-	createInvokeChannelHandler('submission-ref:read', async (args) => {
+	createInvokeChannelHandler("submission-ref:read", async (args) => {
 		return await findSubmissionRef(args);
 	});
-	createInvokeChannelHandler('suggestions:read', async (dto) => {
+	createInvokeChannelHandler("suggestions:read", async (dto) => {
 		return await findAutocompleteSuggestions(dto);
-	})
-	createInvokeChannelHandler('submission-data:read', async (req: FindSubmissionDataRequest) => {
-		return await findFormData(req);
 	});
-	createInvokeChannelHandler('field-mappings:update', async ({ form, updates }) => {
-		return await updateFieldMappings(form, updates);
-	});
-	createInvokeChannelHandler('columns:read', async ({ form }) => {
+	createInvokeChannelHandler(
+		"submission-data:read",
+		async (req: FindSubmissionDataRequest) => {
+			return await findFormData(req);
+		},
+	);
+	createInvokeChannelHandler(
+		"field-mappings:update",
+		async ({ form, updates }) => {
+			return await updateFieldMappings(form, updates);
+		},
+	);
+	createInvokeChannelHandler("columns:read", async ({ form }) => {
 		return await findDbColumns(form);
 	});
-	createInvokeChannelHandler('options:read', async ({ form }) => {
+	createInvokeChannelHandler("options:read", async ({ form }) => {
 		return await findFormOptions(form);
 	});
-	createInvokeChannelHandler('translations:read', async ({ locale }) => {
+	createInvokeChannelHandler("translations:read", async ({ locale }) => {
 		return findTranslationsFor(locale);
 	});
-	createInvokeChannelHandler('config:read', () => {
+	createInvokeChannelHandler("config:read", () => {
 		return getAppConfig();
 	});
-	createInvokeChannelHandler('submissions:read', async ({
-																										form,
-																										page,
-																										size,
-																										filter
-																									}) => {
-		return await findFormSubmissions(form, page, size, filter);
-	});
-	createInvokeChannelHandler('config:update', ({ path, value }) => {
+	createInvokeChannelHandler(
+		"submissions:read",
+		async ({ form, page, size, filter }) => {
+			return await findFormSubmissions(form, page, size, filter);
+		},
+	);
+	createInvokeChannelHandler("config:update", ({ path, value }) => {
 		storeValue(path as AppConfigPaths, value);
 		return getAppConfig();
 	});
-	createInvokeChannelHandler('db:test', async (arg) => {
+	createInvokeChannelHandler("db:test", async (arg) => {
 		const result = await testConnection(arg);
 		saveConnectionParameters({
 			database: arg.database,
@@ -169,14 +173,14 @@ export function registerProductionIpcHandlers() {
 			password: arg.password,
 			port: Number(arg.port),
 			ssl: Boolean(arg.ssl),
-			username: arg.username
+			username: arg.username,
 		});
 		if (result) {
 			resetPool();
 		}
-		return result
+		return result;
 	});
-	createInvokeChannelHandler('field-mappings:read', async ({ form }) => {
+	createInvokeChannelHandler("field-mappings:read", async ({ form }) => {
 		return await findFieldMappings(form);
-	})
+	});
 }

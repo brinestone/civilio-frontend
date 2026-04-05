@@ -16,7 +16,7 @@ import {
 	RawValue,
 	RelevanceDefinition,
 	serializeValue,
-	TabularFieldSchema
+	TabularFieldSchema,
 } from "@app/model/form";
 import { DeltaChangeEvent } from "@app/model/form/events";
 import {
@@ -30,7 +30,7 @@ import {
 	SubmissionChangeDeltaInput,
 	SubmissionChangeDeltaSchema,
 	toRowMajor,
-	Unwrap
+	Unwrap,
 } from "@civilio/shared";
 import {
 	Action,
@@ -52,17 +52,9 @@ import {
 	omit,
 	reduce,
 	set,
-	values
+	values,
 } from "lodash";
-import {
-	concat,
-	EMPTY,
-	filter,
-	from,
-	switchMap,
-	tap,
-	throwError
-} from "rxjs";
+import { concat, EMPTY, filter, from, switchMap, tap, throwError } from "rxjs";
 import { deleteByKey } from "../operators";
 import {
 	ActivateForm,
@@ -88,7 +80,7 @@ import {
 	UpdateMappings,
 	UpdateRelevance,
 	UpdateSection,
-	UpdateValidity
+	UpdateValidity,
 } from "./actions";
 
 export type SectionForm = {
@@ -99,10 +91,10 @@ export type SectionForm = {
 };
 
 type DeltaChange = {
-	path: string,
-	oldValue: any,
-	newValue: any,
-	op: 'update' | 'delete' | 'add'
+	path: string;
+	oldValue: any;
+	newValue: any;
+	op: "update" | "delete" | "add";
 };
 type FormStateModel = {
 	mappings?: Record<FormType, Record<string, FieldMapping>>;
@@ -163,7 +155,7 @@ function computeForSectionFlatKey(k: FormSectionKey) {
 }
 
 function makeChangePath(segments: (string | number)[]) {
-	return segments.join('/');
+	return segments.join("/");
 }
 
 function splitChangePath(path: string) {
@@ -179,17 +171,15 @@ function splitChangePath(path: string) {
 		schemas: {},
 		relevanceRegistry: {},
 		undoStack: [],
-		redoStack: []
+		redoStack: [],
 	},
 })
 class FormDataState {
-
 	@Action(ToggleApprovalStatus)
-	onToggleApprovalStatus(_: Context, {
-		form,
-		index,
-		status
-	}: ToggleApprovalStatus) {
+	onToggleApprovalStatus(
+		_: Context,
+		{ form, index, status }: ToggleApprovalStatus,
+	) {
 		// return from(this.formService.toggleApprovalStatus({
 		// 	form,
 		// 	index,
@@ -203,12 +193,10 @@ class FormDataState {
 	}
 
 	@Action(RevertToVersion)
-	onRevert(ctx: Context, {
-		changeNotes,
-		form,
-		index,
-		customVersion
-	}: RevertToVersion) {
+	onRevert(
+		ctx: Context,
+		{ changeNotes, form, index, customVersion }: RevertToVersion,
+	) {
 		const targetVersion = ctx.getState().workingVersion;
 		// if (!targetVersion) return throwError(() => new Error('Please specify a version to revert to'));
 		// return from(this.formService.revertSubmissionVersion({
@@ -221,12 +209,10 @@ class FormDataState {
 	}
 
 	@Action(SaveChanges)
-	onSaveChanges(ctx: Context, {
-		form,
-		changeNotes,
-		index,
-		customVersion
-	}: SaveChanges) {
+	onSaveChanges(
+		ctx: Context,
+		{ form, changeNotes, index, customVersion }: SaveChanges,
+	) {
 		const deltas = this.extractDeltas(ctx, ctx.getState().schemas[form], index);
 		const { activeSections } = ctx.getState();
 		// return from(this.formService.updateFormSubmission({
@@ -252,22 +238,25 @@ class FormDataState {
 	}
 
 	@Action(RecordDeltaChange, { cancelUncompleted: true })
-	onRecordDeltaChange(ctx: Context, {
-		events
-	}: RecordDeltaChange) {
-		const map: Record<string, Omit<DeltaChangeEvent<any>, 'path'>> = {};
+	onRecordDeltaChange(ctx: Context, { events }: RecordDeltaChange) {
+		const map: Record<string, Omit<DeltaChangeEvent<any>, "path">> = {};
 		for (const event of events) {
-			map[makeChangePath(event.path)] = omit(event, 'path');
+			map[makeChangePath(event.path)] = omit(event, "path");
 		}
 		for (const [k, e] of entries(map)) {
-			ctx.setState(patch({
-				undoStack: insertItem({
-					path: k,
-					newValue: e.newValue,
-					oldValue: e.oldValue,
-					op: e.changeType
-				}, 0)
-			}));
+			ctx.setState(
+				patch({
+					undoStack: insertItem(
+						{
+							path: k,
+							newValue: e.newValue,
+							oldValue: e.oldValue,
+							op: e.changeType,
+						},
+						0,
+					),
+				}),
+			);
 		}
 	}
 
@@ -277,30 +266,38 @@ class FormDataState {
 		return concat(
 			from(entries(activeSections)).pipe(
 				filter(([_, { dirty }]) => dirty),
-				tap(([sectionKey]) => ctx.setState(patch({
-					undoStack: [],
-					redoStack: [],
-					activeSections: patch({
-						[sectionKey]: patch({
-							dirty: false
-						})
-					})
-				}))),
-				switchMap(([sectionKey, section]) => from(entries(section.model)).pipe(
-					tap(([k]) => {
-						ctx.setState(patch({
+				tap(([sectionKey]) =>
+					ctx.setState(
+						patch({
+							undoStack: [],
+							redoStack: [],
 							activeSections: patch({
 								[sectionKey]: patch({
-									model: patch({
-										[k]: rawData?.[k]
-									})
-								})
-							})
-						}))
-					}),
-				))
+									dirty: false,
+								}),
+							}),
+						}),
+					),
+				),
+				switchMap(([sectionKey, section]) =>
+					from(entries(section.model)).pipe(
+						tap(([k]) => {
+							ctx.setState(
+								patch({
+									activeSections: patch({
+										[sectionKey]: patch({
+											model: patch({
+												[k]: rawData?.[k],
+											}),
+										}),
+									}),
+								}),
+							);
+						}),
+					),
+				),
 			),
-			ctx.dispatch(new UpdateRelevance(form))
+			ctx.dispatch(new UpdateRelevance(form)),
 		);
 	}
 
@@ -319,12 +316,12 @@ class FormDataState {
 		// CRITICAL: Clone activeSections to maintain state immutability
 		let activeSectionsClone = cloneDeep(state.activeSections);
 
-		const actualPath = [section, 'model', ...path];
+		const actualPath = [section, "model", ...path];
 
-		if (lastChange.op == 'update') {
+		if (lastChange.op == "update") {
 			// Redo update: apply the newValue
 			set(activeSectionsClone, actualPath, lastChange.newValue);
-		} else if (lastChange.op == 'delete') {
+		} else if (lastChange.op == "delete") {
 			// Redo delete: remove the item at the specific index
 			const parentPath = actualPath.slice(0, -1);
 			const index = Number(last(actualPath));
@@ -332,7 +329,8 @@ class FormDataState {
 			// Immutable array deletion using filter
 			const updatedArr = arr.filter((_, i) => i !== index);
 			set(activeSectionsClone, parentPath, updatedArr);
-		} else { // op == 'add'
+		} else {
+			// op == 'add'
 			// Redo add: insert the item (newValue) back at the specific index
 			const index = Number(last(actualPath));
 			const parentPath = actualPath.slice(0, -1);
@@ -342,11 +340,13 @@ class FormDataState {
 			set(activeSectionsClone, parentPath, arr);
 		}
 
-		ctx.setState(patch({
-			activeSections: activeSectionsClone, // Use the updated clone
-			redoStack: newRedoStack,
-			undoStack: insertItem(lastChange, 0)
-		}));
+		ctx.setState(
+			patch({
+				activeSections: activeSectionsClone, // Use the updated clone
+				redoStack: newRedoStack,
+				undoStack: insertItem(lastChange, 0),
+			}),
+		);
 		ctx.dispatch(new UpdateRelevance(form));
 	}
 
@@ -363,12 +363,12 @@ class FormDataState {
 		// CRITICAL: Clone activeSections to maintain state immutability
 		let activeSectionsClone = cloneDeep(state.activeSections);
 
-		const actualPath = [section, 'model', ...path];
+		const actualPath = [section, "model", ...path];
 
-		if (lastChange.op == 'update') {
+		if (lastChange.op == "update") {
 			// Undo update: restore the oldValue
 			set(activeSectionsClone, actualPath, lastChange.oldValue);
-		} else if (lastChange.op == 'delete') {
+		} else if (lastChange.op == "delete") {
 			// Undo delete: restore the deleted item (oldValue) back at the specific index
 			const index = Number(last(actualPath));
 			const parentPath = actualPath.slice(0, -1);
@@ -384,11 +384,13 @@ class FormDataState {
 			set(activeSectionsClone, parentPath, updatedArr);
 		}
 
-		ctx.setState(patch({
-			activeSections: activeSectionsClone, // Use the updated clone
-			undoStack: newUndoStack,
-			redoStack: insertItem(lastChange, 0)
-		}));
+		ctx.setState(
+			patch({
+				activeSections: activeSectionsClone, // Use the updated clone
+				undoStack: newUndoStack,
+				redoStack: insertItem(lastChange, 0),
+			}),
+		);
 		ctx.dispatch(new UpdateRelevance(form));
 	}
 
@@ -435,7 +437,6 @@ class FormDataState {
 				}),
 			);
 		}
-
 
 		for (const section of sections) {
 			const isRelevant = computeRelevance(
@@ -487,16 +488,13 @@ class FormDataState {
 				rawData: {},
 				currentSection: undefined,
 				undoStack: [],
-				redoStack: []
+				redoStack: [],
 			}),
 		);
 	}
 
 	@Action(UpdateFormDirty)
-	onUpdateSectionStatus(
-		ctx: Context,
-		{ dirty, section }: UpdateFormDirty,
-	) {
+	onUpdateSectionStatus(ctx: Context, { dirty, section }: UpdateFormDirty) {
 		ctx.setState(
 			patch({
 				activeSections: patch({
@@ -572,11 +570,10 @@ class FormDataState {
 	}
 
 	@Action(LoadSubmissionData, { cancelUncompleted: true })
-	onLoadSubmissionData(ctx: Context, {
-		form,
-		index,
-		version
-	}: LoadSubmissionData) {
+	onLoadSubmissionData(
+		ctx: Context,
+		{ form, index, version }: LoadSubmissionData,
+	) {
 		const schema = ctx.getState().schemas[form];
 		// return from(this.formService.findSubmissionData({
 		// 	form, index: Number(index), version
@@ -764,77 +761,115 @@ class FormDataState {
 		// );
 	}
 
-	private extractDeltas(ctx: Context, formSchema: FormSchema, submissionIndex?: number | string) {
+	private extractDeltas(
+		ctx: Context,
+		formSchema: FormSchema,
+		submissionIndex?: number | string,
+	) {
 		const deltas: SubmissionChangeDeltaInput[] = [];
 		const { activeSections, rawData } = ctx.getState();
 		const fields = extractFieldsAsMap(formSchema);
 		if (submissionIndex == undefined) {
-			for (const [fieldKey, value] of values(activeSections).flatMap(e => entries(e.model))) {
+			for (const [fieldKey, value] of values(activeSections).flatMap((e) =>
+				entries(e.model),
+			)) {
 				const schema = fields[fieldKey];
-				if (schema.type != 'table' && schema.type != 'group') {
+				if (schema.type != "table" && schema.type != "group") {
 					deltas.push({
 						field: fieldKey,
-						op: 'add',
-						value: serializeValue(schema, value)
-					})
-				} else if (schema.type == 'group') {
-					const subFieldSchemaMap = schema.fields.reduce((acc, curr) => {
-						acc[extractFieldKey(curr.key)] = curr;
-						return acc;
-					}, {} as Record<string, Unwrap<GroupFieldSchema['fields']>>);
-					for (const row of (value as Record<string, any>[])) {
+						op: "add",
+						value: serializeValue(schema, value),
+					});
+				} else if (schema.type == "group") {
+					const subFieldSchemaMap = schema.fields.reduce(
+						(acc, curr) => {
+							acc[extractFieldKey(curr.key)] = curr;
+							return acc;
+						},
+						{} as Record<string, Unwrap<GroupFieldSchema["fields"]>>,
+					);
+					for (const row of value as Record<string, any>[]) {
 						deltas.push({
-							op: 'add',
+							op: "add",
 							identifierKey: schema.identifierKey,
-							value: mapValues(omit(row, schema.identifierKey), (v, k) => serializeValue(subFieldSchemaMap[k], v))
+							value: mapValues(omit(row, schema.identifierKey), (v, k) =>
+								serializeValue(subFieldSchemaMap[k], v),
+							),
 						});
 					}
 				} else {
-					const columnDefinitionSchemaMap = values(schema.columns).reduce((acc, curr) => {
-						acc[extractFieldKey(curr.key)] = curr;
-						return acc;
-					}, {} as Record<string, ColumnDefinition>);
-					for (const row of (value as Record<string, any>[])) {
+					const columnDefinitionSchemaMap = values(schema.columns).reduce(
+						(acc, curr) => {
+							acc[extractFieldKey(curr.key)] = curr;
+							return acc;
+						},
+						{} as Record<string, ColumnDefinition>,
+					);
+					for (const row of value as Record<string, any>[]) {
 						deltas.push({
-							op: 'add',
+							op: "add",
 							identifierKey: schema.identifierColumn,
-							value: mapValues(omit(row, schema.identifierColumn), (v, d) => serializeValue(columnDefinitionSchemaMap[d], v))
+							value: mapValues(omit(row, schema.identifierColumn), (v, d) =>
+								serializeValue(columnDefinitionSchemaMap[d], v),
+							),
 						});
 					}
 				}
 			}
 		} else {
-			for (const [fieldKey, value] of values(activeSections).filter(s => s.dirty).flatMap(e => entries(e.model))) {
+			for (const [fieldKey, value] of values(activeSections)
+				.filter((s) => s.dirty)
+				.flatMap((e) => entries(e.model))) {
 				const schema = fields[fieldKey];
-				if (schema.type != 'table' && schema.type != 'group') {
+				if (schema.type != "table" && schema.type != "group") {
 					if (value === rawData?.[fieldKey]) continue;
 					deltas.push({
 						field: fieldKey,
-						op: 'update',
+						op: "update",
 						value: serializeValue(schema, value),
 						index: submissionIndex,
 					});
-				} else if (schema.type == 'group') {
-					const subFieldSchemaMap = schema.fields.reduce((acc, curr) => {
-						acc[extractFieldKey(curr.key)] = curr;
-						return acc;
-					}, {} as Record<string, Unwrap<GroupFieldSchema['fields']>>);
+				} else if (schema.type == "group") {
+					const subFieldSchemaMap = schema.fields.reduce(
+						(acc, curr) => {
+							acc[extractFieldKey(curr.key)] = curr;
+							return acc;
+						},
+						{} as Record<string, Unwrap<GroupFieldSchema["fields"]>>,
+					);
 					const collection = value as Record<string, any>[];
-					const deletedDeltas = differenceBy(rawData?.[fieldKey] as typeof collection, collection, schema.identifierKey);
-					const addedDeltas = differenceBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierKey);
-					const updatedDeltas = intersectionBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierKey);
+					const deletedDeltas = differenceBy(
+						rawData?.[fieldKey] as typeof collection,
+						collection,
+						schema.identifierKey,
+					);
+					const addedDeltas = differenceBy(
+						collection,
+						rawData?.[fieldKey] as typeof collection,
+						schema.identifierKey,
+					);
+					const updatedDeltas = intersectionBy(
+						collection,
+						rawData?.[fieldKey] as typeof collection,
+						schema.identifierKey,
+					);
 
 					for (let i = 0; i < updatedDeltas.length; i++) {
 						const row = updatedDeltas[i];
-						const rawRow = (rawData?.[fieldKey] as Record<string, any>[]).find(r => r[schema.identifierKey] == row[schema.identifierKey])!;
+						const rawRow = (rawData?.[fieldKey] as Record<string, any>[]).find(
+							(r) => r[schema.identifierKey] == row[schema.identifierKey],
+						)!;
 						for (const [subFieldKey, subFieldValue] of entries(row)) {
 							if (subFieldKey == schema.identifierKey) continue;
 							if (rawRow[subFieldKey] == subFieldValue) continue;
 							deltas.push({
 								index: row[schema.identifierKey],
-								op: 'update',
+								op: "update",
 								field: subFieldKey,
-								value: serializeValue(subFieldSchemaMap[subFieldKey], subFieldValue)
+								value: serializeValue(
+									subFieldSchemaMap[subFieldKey],
+									subFieldValue,
+								),
 							});
 						}
 					}
@@ -842,31 +877,50 @@ class FormDataState {
 					for (const row of deletedDeltas) {
 						deltas.push({
 							index: row[schema.identifierKey],
-							op: 'delete',
-							field: schema.identifierKey
-						})
+							op: "delete",
+							field: schema.identifierKey,
+						});
 					}
 
 					for (const row of addedDeltas) {
 						deltas.push({
-							op: 'add',
+							op: "add",
 							identifierKey: schema.identifierKey,
-							value: mapValues(omit(row, schema.identifierKey), (v, k) => serializeValue(subFieldSchemaMap[k], v))
-						})
+							value: mapValues(omit(row, schema.identifierKey), (v, k) =>
+								serializeValue(subFieldSchemaMap[k], v),
+							),
+						});
 					}
 				} else {
-					const columnDefinitionSchemaMap = values(schema.columns).reduce((acc, curr) => {
-						acc[extractFieldKey(curr.key)] = curr;
-						return acc;
-					}, {} as Record<string, ColumnDefinition>);
+					const columnDefinitionSchemaMap = values(schema.columns).reduce(
+						(acc, curr) => {
+							acc[extractFieldKey(curr.key)] = curr;
+							return acc;
+						},
+						{} as Record<string, ColumnDefinition>,
+					);
 					const collection = value as Record<string, any>[];
-					const deletedDeltas = differenceBy(rawData?.[fieldKey] as typeof collection, collection, schema.identifierColumn);
-					const addedDeltas = differenceBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierColumn);
-					const updatedDeltas = intersectionBy(collection, rawData?.[fieldKey] as typeof collection, schema.identifierColumn);
+					const deletedDeltas = differenceBy(
+						rawData?.[fieldKey] as typeof collection,
+						collection,
+						schema.identifierColumn,
+					);
+					const addedDeltas = differenceBy(
+						collection,
+						rawData?.[fieldKey] as typeof collection,
+						schema.identifierColumn,
+					);
+					const updatedDeltas = intersectionBy(
+						collection,
+						rawData?.[fieldKey] as typeof collection,
+						schema.identifierColumn,
+					);
 
 					for (let i = 0; i < updatedDeltas.length; i++) {
 						const row = updatedDeltas[i];
-						const rawRow = (rawData?.[fieldKey] as Record<string, any>[]).find(r => r[schema.identifierColumn] == row[schema.identifierColumn])!;
+						const rawRow = (rawData?.[fieldKey] as Record<string, any>[]).find(
+							(r) => r[schema.identifierColumn] == row[schema.identifierColumn],
+						)!;
 						for (const [colKey, colValue] of entries(row)) {
 							if (colKey == schema.identifierColumn) continue;
 							if (rawRow[colKey] == colValue) continue;
@@ -874,24 +928,29 @@ class FormDataState {
 								index: row[schema.identifierColumn],
 								op: "update",
 								field: colKey,
-								value: serializeValue(columnDefinitionSchemaMap[colKey], colValue),
-							})
+								value: serializeValue(
+									columnDefinitionSchemaMap[colKey],
+									colValue,
+								),
+							});
 						}
 					}
 
 					for (const row of deletedDeltas) {
 						deltas.push({
 							index: row[schema.identifierColumn],
-							op: 'delete',
-							field: schema.identifierColumn
+							op: "delete",
+							field: schema.identifierColumn,
 						});
 					}
 
 					for (const row of addedDeltas) {
 						deltas.push({
-							op: 'add',
+							op: "add",
 							identifierKey: schema.identifierColumn,
-							value: mapValues(omit(row, schema.identifierColumn), (v, k) => serializeValue(columnDefinitionSchemaMap[k], v))
+							value: mapValues(omit(row, schema.identifierColumn), (v, k) =>
+								serializeValue(columnDefinitionSchemaMap[k], v),
+							),
 						});
 					}
 				}
@@ -900,14 +959,20 @@ class FormDataState {
 		return SubmissionChangeDeltaSchema.array().parse(deltas);
 	}
 
-	private extractGroupSubFormData(schema: GroupFieldSchema,
-																	rawData: Record<string, string | (string | null)[] | null> | null,) {
+	private extractGroupSubFormData(
+		schema: GroupFieldSchema,
+		rawData: Record<string, string | (string | null)[] | null> | null,
+	) {
 		if (!rawData) return [];
-		const fieldSchemaMap = reduce(schema.fields, (acc, curr) => {
-			const key = extractFieldKey(curr.key);
-			acc[key] = curr;
-			return acc;
-		}, {} as Record<string, DefinitionLike>);
+		const fieldSchemaMap = reduce(
+			schema.fields,
+			(acc, curr) => {
+				const key = extractFieldKey(curr.key);
+				acc[key] = curr;
+				return acc;
+			},
+			{} as Record<string, DefinitionLike>,
+		);
 
 		const transformFn = (k: string, value: unknown) => {
 			const fieldSchema = fieldSchemaMap[k];
@@ -931,11 +996,13 @@ class FormDataState {
 	) {
 		if (!rawData) return [];
 
-		const columns = entries(schema.columns)
-			.reduce((acc, [_, { key, ...rest }]) => {
+		const columns = entries(schema.columns).reduce(
+			(acc, [_, { key, ...rest }]) => {
 				acc[key] = { key, ...rest };
 				return acc;
-			}, {} as Record<string, ColumnDefinition>);
+			},
+			{} as Record<string, ColumnDefinition>,
+		);
 		const columnKeys = keys(columns);
 		const transformFn = (k: string, value: unknown) => {
 			const columnDefinition = columns[k];
@@ -966,14 +1033,14 @@ class FormDataState {
 		for (const field of fields) {
 			const fieldKey = extractFieldKey(field.key);
 			switch (field.type) {
-				case 'group':
+				case "group":
 					result[fieldKey] = this.extractGroupSubFormData(field, data);
 					break;
-				case 'table':
+				case "table":
 					result[fieldKey] = this.extractTableSubFormData(field, data);
 					break;
 				default:
-					result[fieldKey] = parseValue(field, data?.[fieldKey] ?? null)
+					result[fieldKey] = parseValue(field, data?.[fieldKey] ?? null);
 					break;
 			}
 		}

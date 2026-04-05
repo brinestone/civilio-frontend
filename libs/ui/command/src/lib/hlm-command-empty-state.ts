@@ -1,8 +1,8 @@
-import { Directive } from '@angular/core';
-import { BrnCommandEmpty } from '@spartan-ng/brain/command';
+import { Directive } from "@angular/core";
+import { BrnCommandEmpty } from "@spartan-ng/brain/command";
 
 @Directive({
-	selector: '[hlmCommandEmptyState]',
+	selector: "[hlmCommandEmptyState]",
 	hostDirectives: [BrnCommandEmpty],
 })
 export class HlmCommandEmptyState {}

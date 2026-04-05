@@ -1,12 +1,15 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
-	name: 'clamp',
-	standalone: true
+	name: "clamp",
+	standalone: true,
 })
 export class ClampPipe implements PipeTransform {
-
-	transform(value: string | number, min?: string | number, max?: string | number): number {
+	transform(
+		value: string | number,
+		min?: string | number,
+		max?: string | number,
+	): number {
 		const val = Number(value);
 		const low = min !== undefined ? Number(min) : -Infinity;
 		const high = max !== undefined ? Number(max) : Infinity;

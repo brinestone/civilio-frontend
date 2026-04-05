@@ -1,17 +1,31 @@
 import { CdkListboxModule } from "@angular/cdk/listbox";
-import { DecimalPipe, JsonPipe, KeyValuePipe, NgClass, NgTemplateOutlet } from "@angular/common";
+import {
+	DecimalPipe,
+	JsonPipe,
+	KeyValuePipe,
+	NgClass,
+	NgTemplateOutlet,
+} from "@angular/common";
 import { Component, computed, effect } from "@angular/core";
 import { JoinArrayPipe } from "@app/pipes";
 import { UpdateMiscConfig } from "@app/store/config";
-import { allSectionErrors, currentSectionErrors, miscConfig } from "@app/store/selectors";
+import {
+	allSectionErrors,
+	currentSectionErrors,
+	miscConfig,
+} from "@app/store/selectors";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideHistory, lucideInfo, lucideTriangleAlert } from "@ng-icons/lucide";
+import {
+	lucideHistory,
+	lucideInfo,
+	lucideTriangleAlert,
+} from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { dispatch, select } from "@ngxs/store";
 import { isEmpty, size } from "lodash";
 
 const miscKeys = {
-	currentTab: 'form-prefs.footer.current-tab'
+	currentTab: "form-prefs.footer.current-tab",
 } as const;
 
 @Component({
@@ -31,7 +45,7 @@ const miscKeys = {
 		NgClass,
 		KeyValuePipe,
 		NgTemplateOutlet,
-		JoinArrayPipe
+		JoinArrayPipe,
 	],
 	templateUrl: "./form-footer.component.html",
 	styleUrl: "./form-footer.component.scss",
@@ -64,7 +78,9 @@ export class FormFooterComponent {
 		// 	icon: 'lucideHistory'
 		// },
 	];
-	protected readonly currentTab = select(miscConfig<string>(miscKeys.currentTab));
+	protected readonly currentTab = select(
+		miscConfig<string>(miscKeys.currentTab),
+	);
 
 	protected get errorTab() {
 		return this.tabs[1];
@@ -83,7 +99,7 @@ export class FormFooterComponent {
 			const errors = this.currentSectionErrors();
 			if (isEmpty(errors)) return;
 			this.updateStoreTab(this.errorTab.key);
-		})
+		});
 	}
 
 	protected onTabChange(tab?: string) {
@@ -94,7 +110,7 @@ export class FormFooterComponent {
 		if (this.changingTab) return;
 		this.changingTab = true;
 		this.updateMisc(miscKeys.currentTab, key).subscribe({
-			complete: () => this.changingTab = false
+			complete: () => (this.changingTab = false),
 		});
 	}
 }

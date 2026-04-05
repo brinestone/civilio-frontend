@@ -7,29 +7,32 @@ import {
 	input,
 	linkedSignal,
 	signal,
-	viewChild
+	viewChild,
 } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { FormRenderer } from "@app/components/form/renderer";
 import { FormDesigner, FormDesignerHeader } from "@app/components/form/schema";
 import { HasPendingChanges } from "@app/model/form";
-import { defaultFormDefinitionSchemaValue, domainToStrictFormDefinition, FormItemType } from '@app/components/form/schema/form-designer-config';
+import {
+	defaultFormDefinitionSchemaValue,
+	domainToStrictFormDefinition,
+	FormItemType,
+} from "@app/components/form/schema/form-designer-config";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
 import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
-import { toast } from "ngx-sonner";
+import { toast } from "@spartan-ng/brain/sonner";
 import { Observable, of } from "rxjs";
 
 @Component({
 	selector: "cv-forms",
-	viewProviders: [
-	],
+	viewProviders: [],
 	imports: [
 		HlmAlertDialogImports,
 		FormDesignerHeader,
 		FormRenderer,
-		FormDesigner
+		FormDesigner,
 	],
 	templateUrl: "./schema-design.page.html",
 	styleUrl: "./schema-design.page.scss",
@@ -52,14 +55,14 @@ export class SchemaDesignPage implements HasPendingChanges {
 			return !params.slug
 				? of(undefined)
 				: this.formService.findFormDefinitionByVersion(params.slug, {
-					version: params.version,
-				});
+						version: params.version,
+					});
 		},
 	});
 	protected readonly formData = linkedSignal(() => {
-	  const v = this.formDefinition.value();
-	  if (v) return domainToStrictFormDefinition(v);
-	  return defaultFormDefinitionSchemaValue();
+		const v = this.formDefinition.value();
+		if (v) return domainToStrictFormDefinition(v);
+		return defaultFormDefinitionSchemaValue();
 	});
 	protected readonly renderForm = linkedSignal(() => !!this.slug());
 	// protected readonly formModel = form(
@@ -71,7 +74,6 @@ export class SchemaDesignPage implements HasPendingChanges {
 	protected pendingChangesActionCallback?: (
 		action: "save" | "stay" | "discard",
 	) => void;
-
 
 	protected async onFormSubmit(event?: SubmitEvent) {
 		// event?.preventDefault();
@@ -156,8 +158,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 	constructor(router: Router) {
 		effect(() => {
 			const formData = this.formData();
-			console.log('form-data' , formData);
-		})
+			console.log("form-data", formData);
+		});
 		effect(() => {
 			const error = this.formDefinition.error();
 			const loadingFinished = !this.formDefinition.isLoading();

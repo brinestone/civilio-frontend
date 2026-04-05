@@ -25,7 +25,7 @@ export const SelectFieldConfig = zod.object({
   "dataKey": zod.string().nullish().default(selectFieldConfigOneDataKeyDefault),
   "autoDataKey": zod.boolean().default(selectFieldConfigOneAutoDataKeyDefault)
 }).and(zod.object({
-  "type": zod.enum(['single-select', 'multi-select']),
+  "type": zod.enum(['single-select']),
   "itemSourceRef": zod.string().nullish().default(selectFieldConfigTwoItemSourceRefDefault),
   "defaultValue": zod.string().nullish().default(selectFieldConfigTwoDefaultValueDefault),
   "hardItems": zod.array(zod.object({
@@ -33,7 +33,7 @@ export const SelectFieldConfig = zod.object({
   "value": zod.string().nullish().default(selectFieldConfigTwoHardItemsItemValueDefault)
 })).default(selectFieldConfigTwoHardItemsDefault)
 })).and(zod.object({
-  "type": zod.enum(['single-select', 'multi-select'])
+  "type": zod.enum(['single-select'])
 }))
 
 export type SelectFieldConfig = zod.input<typeof SelectFieldConfig>;

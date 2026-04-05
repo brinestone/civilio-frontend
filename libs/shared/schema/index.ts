@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const ApiServerInfoSchema = z.object({
 	baseUrl: z.url(),
-	nodeName: z.string()
+	nodeName: z.string(),
 });
 
 export const OptionItemSchema = z.object({
@@ -11,7 +11,7 @@ export const OptionItemSchema = z.object({
 	value: z.string(),
 	parentValue: z.string().nullish(),
 	i18nKey: z.string().nullable(),
-	ordinal: z.int()
+	ordinal: z.int(),
 });
 
 // export const DatasetItemSchema = z.object({
@@ -40,19 +40,24 @@ export const OptionGroupSchema = z.object({
 	id: z.uuid().nullable(),
 	parentId: z.uuid().nullable(),
 	options: OptionItemSchema.array(),
-	parent: z.object({
-		key: z.string(),
-		title: z.string(),
-		description: z.string().nullable()
-	}).nullable()
+	parent: z
+		.object({
+			key: z.string(),
+			title: z.string(),
+			description: z.string().nullable(),
+		})
+		.nullable(),
 });
 
-export const RelevanceChainOperatorSchema = z.enum([
-	'and', 'or'
-])
+export const RelevanceChainOperatorSchema = z.enum(["and", "or"]);
 
 export const RelevanceOperatorSchema = z.enum([
-	'==', '>=', '<=', '>', '<', 'selected'
+	"==",
+	">=",
+	"<=",
+	">",
+	"<",
+	"selected",
 ]);
 
 export const SubmissionInfoSchema = z.object({
@@ -61,8 +66,8 @@ export const SubmissionInfoSchema = z.object({
 	coords: z.string().nullable().optional(),
 	extraInfo: z.record(z.string(), z.unknown()).optional(),
 	approved: z.boolean().optional(),
-	createdAt: z.coerce.date().nullable()
-})
+	createdAt: z.coerce.date().nullable(),
+});
 export const BuildInfoSchema = z.object({
 	author: z.object({
 		name: z.string(),
@@ -70,17 +75,20 @@ export const BuildInfoSchema = z.object({
 		email: z.string().optional(),
 	}),
 	date: z.coerce.date(),
-	contributors: z.object({
-		name: z.string(),
-		email: z.email().optional(),
-		url: z.url().optional(),
-		role: z.string().optional()
-	}).array().default([]),
+	contributors: z
+		.object({
+			name: z.string(),
+			email: z.email().optional(),
+			url: z.url().optional(),
+			role: z.string().optional(),
+		})
+		.array()
+		.default([]),
 	description: z.string().optional(),
 	displayName: z.string().optional(),
 	license: z.string().optional(),
 	version: z.string().optional(),
-})
+});
 
 export const ThirdPartyLicenceSchema = z.object({
 	package: z.string(),
@@ -99,43 +107,43 @@ export const DbConnectionRefSchema = z.object({
 	updatedAt: z.coerce.date(),
 	migrated: z.coerce.boolean(),
 	password: z.string().optional(),
-	id: z.number()
+	id: z.number(),
 });
 export const DbConnectionRefInputSchema = DbConnectionRefSchema.omit({
 	id: true,
 	inUse: true,
 	migrated: true,
 	addedAt: true,
-	updatedAt: true
+	updatedAt: true,
 }).extend({
-	password: z.string()
-})
+	password: z.string(),
+});
 
 export const MigrationFileSchema = z.object({
 	name: z.string(),
 	timestamp: z.number(),
-	hash: z.string()
+	hash: z.string(),
 });
 
 export const MigrationsCheckReportSchema = z.object({
 	needsMigration: z.boolean(),
 	pending: MigrationFileSchema.array().default([]),
 	applied: z.number(),
-	lastApplied: z.string().nullable()
+	lastApplied: z.string().nullable(),
 });
 
 export const SubmissionChangeDeltaSchema = z.object({
-	op: z.enum(['add', 'update', 'delete']),
+	op: z.enum(["add", "update", "delete"]),
 	field: z.string().optional(),
 	index: z.union([z.string(), z.number()]).optional(),
 	value: z.any().optional(),
 	identifierKey: z.string().optional(),
-})
+});
 const VersionChangeOpSchema = z.union([
 	z.literal("INSERT"),
 	z.literal("UPDATE"),
 	z.literal("DELETE"),
-	z.string() // Fallback if the enum has more values
+	z.string(), // Fallback if the enum has more values
 ]);
 export const SubmissionVersionInfoSchema = z.object({
 	changed_at: z.coerce.date(),
@@ -144,28 +152,28 @@ export const SubmissionVersionInfoSchema = z.object({
 	parent_version: z.string().nullable(),
 	changed_by: z.string().nullable(),
 	is_current: z.boolean(),
-	change_notes: z.string().nullable().optional()
+	change_notes: z.string().nullable().optional(),
 });
-export const ThemeSchema = z.enum(['light', 'system', 'dark']);
-export const LocaleSchema = z.enum(['en-CM', 'fr-CM']);
-export const FormTypeSchema = z.enum(['csc', 'fosa', 'chefferie']);
+export const ThemeSchema = z.enum(["light", "system", "dark"]);
+export const LocaleSchema = z.enum(["en-CM", "fr-CM"]);
+export const FormTypeSchema = z.enum(["csc", "fosa", "chefferie"]);
 export const DbColumnSpecSchema = z.object({
 	name: z.string(),
 	dataType: z.string(),
-	tableName: z.string()
+	tableName: z.string(),
 });
 export const OptionSchema = z.object({
 	label: z.string().nullish(),
 	value: z.string().nullish(),
 	parent: z.string().nullish(),
-	i18nKey: z.string().nullish()
+	i18nKey: z.string().nullish(),
 });
 
 export function createPaginatedResultSchema<T extends z.ZodTypeAny>(schema: T) {
 	return z.object({
 		data: schema.array().default([]),
-		totalRecords: z.number().default(0)
-	})
+		totalRecords: z.number().default(0),
+	});
 }
 
 export const FieldMappingSchema = z.object({
@@ -174,10 +182,14 @@ export const FieldMappingSchema = z.object({
 	dbColumn: z.string(),
 	dbTable: z.string(),
 	form: FormTypeSchema,
-	dbColumnType: z.string()
+	dbColumnType: z.string(),
 });
 
-export const validationStatuses = z.enum(['validation_status_approved', 'validation_status_on_hold', 'validation_status_not_approved']);
+export const validationStatuses = z.enum([
+	"validation_status_approved",
+	"validation_status_on_hold",
+	"validation_status_not_approved",
+]);
 export const FormSubmissionSchema = z.object({
 	id: z.number(),
 	index: z.number(),
@@ -194,8 +206,7 @@ export const FormSubmissionSchema = z.object({
 export const AppPrefsSchema = z.object({
 	theme: ThemeSchema,
 	locale: LocaleSchema,
-	fontSize: z.number()
-		.default(15)
+	fontSize: z.number().default(15),
 });
 export const DbConfigSchema = z.object({
 	username: z.string(),
@@ -203,22 +214,26 @@ export const DbConfigSchema = z.object({
 	ssl: z.boolean().default(false),
 	host: z.string(),
 	port: z.number().default(5432),
-	database: z.string()
+	database: z.string(),
 });
-export const AppConfigSchema = z.object({
-	prefs: AppPrefsSchema.partial().optional(),
-	misc: z.record(z.string(), z.unknown()).optional(),
-	apiServer: ApiServerInfoSchema.optional()
-}).default({});
+export const AppConfigSchema = z
+	.object({
+		prefs: AppPrefsSchema.partial().optional(),
+		misc: z.record(z.string(), z.unknown()).optional(),
+		apiServer: ApiServerInfoSchema.optional(),
+	})
+	.default({});
 
 export const GeoPointSchema = z.object({
 	lat: z.coerce.number().min(-90).max(90).default(5.483401),
-	long: z.coerce.number().max(180).min(-180).default(47.88104)
+	long: z.coerce.number().max(180).min(-180).default(47.88104),
 });
-export const GeoPointInputSchema = z.string().nullable()
-	.transform(s => {
+export const GeoPointInputSchema = z
+	.string()
+	.nullable()
+	.transform((s) => {
 		if (!s) return GeoPointSchema.parse({});
-		const [lat, long] = s.split(' ', 3).slice(0, 2);
+		const [lat, long] = s.split(" ", 3).slice(0, 2);
 		return GeoPointSchema.parse({ lat, long });
 	});
 
@@ -234,38 +249,43 @@ export type ThemeMode = z.infer<typeof ThemeSchema>;
 export type Locale = z.infer<typeof LocaleSchema>;
 export type DbConfig = z.infer<typeof DbConfigSchema>;
 export type DbColumnSpec = z.infer<typeof DbColumnSpecSchema>;
-type FixArr<T> = T extends readonly any[] ? Omit<T, Exclude<keyof any[], number>> : T;
+type FixArr<T> = T extends readonly any[]
+	? Omit<T, Exclude<keyof any[], number>>
+	: T;
 type DropInitDot<T> = T extends `.${infer U}` ? U : T;
-type _DeepKeys<T> = T extends object ? (
-	{
-		[K in (string | number) & keyof T]:
-		`${(
-			`.${K}` | (`${K}` extends `${number}` ? `[${K}]` : never)
-		)}${"" | _DeepKeys<FixArr<T[K]>>}`
-	}[
-	(string | number) & keyof T]
-) : never;
+type _DeepKeys<T> = T extends object
+	? {
+			[K in (string | number) & keyof T]: `${
+				| `.${K}`
+				| (`${K}` extends `${number}`
+						? `[${K}]`
+						: never)}${"" | _DeepKeys<FixArr<T[K]>>}`;
+		}[(string | number) & keyof T]
+	: never;
 type DeepKeys<T> = DropInitDot<_DeepKeys<FixArr<T>>>;
 export type AppConfigPaths = DeepKeys<AppConfig>;
 export type Paginated<T> = {
 	totalRecords: number;
 	data: T extends z.ZodType ? z.output<T>[] : T[];
-}
+};
 
-
-export type SubmissionChangeDeltaInput = z.input<typeof SubmissionChangeDeltaSchema>;
+export type SubmissionChangeDeltaInput = z.input<
+	typeof SubmissionChangeDeltaSchema
+>;
 export type DbConnectionRef = z.output<typeof DbConnectionRefSchema>;
 export type DbConnectionRefInput = z.input<typeof DbConnectionRefInputSchema>;
 export type ThirdPartyLicence = z.output<typeof ThirdPartyLicenceSchema>;
 export type BuildInfo = z.output<typeof BuildInfoSchema>;
-export type SubmissionVersionInfo = z.output<typeof SubmissionVersionInfoSchema>;
+export type SubmissionVersionInfo = z.output<
+	typeof SubmissionVersionInfoSchema
+>;
 // export type DatasetItem = z.infer<typeof DatasetItemSchema>;
 // export type DatasetGroup = z.infer<typeof DatasetGroupSchema>;
 export type ApiServerInfo = z.infer<typeof ApiServerInfoSchema>;
 export type Strict<T> = {
 	[P in keyof T]-?: T[P] extends (infer U)[]
-	? Strict<U>[]
-	: T[P] extends object | null | undefined
-	? Strict<NonNullable<T[P]>>
-	: NonNullable<T[P]>;
+		? Strict<U>[]
+		: T[P] extends object | null | undefined
+			? Strict<NonNullable<T[P]>>
+			: NonNullable<T[P]>;
 };

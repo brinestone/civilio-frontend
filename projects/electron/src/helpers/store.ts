@@ -1,6 +1,6 @@
-import { AppConfig, AppConfigPaths, AppPrefs } from '@civilio/shared';
-import Store from 'electron-store';
-const KEY = '83zoSRF8PhEsUbJFw0MPesKbTweu1qgJqDAvbAgkfjlhqu5xEZtBtdFfZEK1z6BF';
+import { AppConfig, AppConfigPaths, AppPrefs } from "@civilio/shared";
+import Store from "electron-store";
+const KEY = "83zoSRF8PhEsUbJFw0MPesKbTweu1qgJqDAvbAgkfjlhqu5xEZtBtdFfZEK1z6BF";
 
 let store: Store<AppConfig>;
 
@@ -13,8 +13,8 @@ function createStore() {
 	return new Store<AppConfig>({
 		encryptionKey: KEY,
 		defaults: {
-			prefs: { locale: 'en-CM', theme: 'system' } as AppPrefs
-		}
+			prefs: { locale: "en-CM", theme: "system" } as AppPrefs,
+		},
 	});
 }
 

@@ -1,7 +1,7 @@
 import {
 	DbConnectionRefInput,
 	DbConnectionRefInputSchema,
-	DbConnectionRefSchema
+	DbConnectionRefSchema,
 } from "@civilio/shared";
 import { DatabaseSync, StatementSync } from "node:sqlite";
 import { provideLogger } from "./logging";
@@ -10,10 +10,8 @@ import { dirname } from "node:path";
 
 export class ConnectionManager {
 	private readonly conn: DatabaseSync;
-	private readonly logger = provideLogger('ConnectionManager');
-	constructor(
-		dbPath: string
-	) {
+	private readonly logger = provideLogger("ConnectionManager");
+	constructor(dbPath: string) {
 		this.logger.verbose(`Initializing at ${dbPath}`);
 		const parent = dirname(dbPath);
 		if (!existsSync(parent)) {
@@ -39,12 +37,13 @@ export class ConnectionManager {
 				`);
 				query.run({ id });
 			}
-		})
+		});
 	}
 
 	useConnection(id: number) {
 		this.runInTransaction(() => {
-			if (!this.connectionExistsById(id)) throw new Error('Connection does not exist with id: ' + id);
+			if (!this.connectionExistsById(id))
+				throw new Error("Connection does not exist with id: " + id);
 			let query = this.conn.prepare(`
 				UPDATE connections
 				SET inUse = 1
@@ -105,7 +104,7 @@ export class ConnectionManager {
 		}
 		const result = query.get();
 		const schema = DbConnectionRefSchema.nullable();
-		return schema.parse(result ?? null)
+		return schema.parse(result ?? null);
 	}
 
 	clearConnections() {
@@ -128,8 +127,8 @@ export class ConnectionManager {
 			if (current) return;
 			this.conn.exec(`UPDATE connections
 											SET inUse = 1
-											WHERE updatedAt = MAX(updatedAt);`)
-		})
+											WHERE updatedAt = MAX(updatedAt);`);
+		});
 	}
 
 	getHistory() {
@@ -151,16 +150,10 @@ export class ConnectionManager {
 	}
 
 	addConnection(ref: DbConnectionRefInput) {
-		this.logger.log('Adding new connection', ref);
+		this.logger.log("Adding new connection", ref);
 		this.runInTransaction(() => {
-			const {
-				database,
-				host,
-				password,
-				port,
-				ssl,
-				username
-			} = DbConnectionRefInputSchema.parse(ref);
+			const { database, host, password, port, ssl, username } =
+				DbConnectionRefInputSchema.parse(ref);
 			let query = this.conn.prepare(`
 				INSERT INTO connections(username, database, host, port, ssl, password)
 				VALUES (:username, :database, :host, :port, :ssl, :password)
@@ -176,7 +169,7 @@ export class ConnectionManager {
 				host,
 				port,
 				ssl: ssl ? 1 : 0,
-				password
+				password,
 			}) as { id: number };
 			query = this.conn.prepare(`
 				UPDATE connections
@@ -184,7 +177,7 @@ export class ConnectionManager {
 				WHERE id <> ?
 			`);
 			query.run(id);
-		})
+		});
 	}
 
 	public initialize() {
@@ -207,7 +200,7 @@ export class ConnectionManager {
 				);
 				CREATE UNIQUE INDEX IF NOT EXISTS connections_username_database_host_idx_uq ON connections (username, database, host);
 			`);
-		})
+		});
 	}
 
 	private runInTransaction<T>(fn: () => T) {
@@ -217,7 +210,7 @@ export class ConnectionManager {
 			this.conn.exec(`COMMIT;`);
 			return result;
 		} catch (e) {
-			this.conn.exec('ROLLBACK;');
+			this.conn.exec("ROLLBACK;");
 			throw e;
 		}
 	}

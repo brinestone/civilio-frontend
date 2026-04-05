@@ -1,27 +1,33 @@
-import type { BooleanInput } from '@angular/cdk/coercion';
+import type { BooleanInput } from "@angular/cdk/coercion";
 import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
 	computed,
 	forwardRef,
+	inject,
 	input,
 	linkedSignal,
 	output,
 	signal,
 	untracked,
-} from '@angular/core';
-import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { provideIcons } from '@ng-icons/core';
-import { lucideChevronDown } from '@ng-icons/lucide';
-import type { BrnDialogState } from '@spartan-ng/brain/dialog';
-import type { ChangeFn, TouchFn } from '@spartan-ng/brain/forms';
-import { HlmCalendarRange } from '@spartan-ng/helm/calendar';
-import { HlmIconImports } from '@spartan-ng/helm/icon';
-import { HlmPopoverImports } from '@spartan-ng/helm/popover';
-import { hlm } from '@spartan-ng/helm/utils';
-import type { ClassValue } from 'clsx';
-import { injectHlmDateRangePickerConfig } from './hlm-date-range-picker.token';
+} from "@angular/core";
+import { type ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { provideIcons } from "@ng-icons/core";
+import { lucideChevronDown } from "@ng-icons/lucide";
+import type { BrnDialogState } from "@spartan-ng/brain/dialog";
+import {
+	BrnFieldControl,
+	BrnFieldControlDescribedBy,
+	provideBrnLabelable,
+} from "@spartan-ng/brain/field";
+import type { ChangeFn, TouchFn } from "@spartan-ng/brain/forms";
+import { HlmCalendarRange } from "@spartan-ng/helm/calendar";
+import { HlmIconImports } from "@spartan-ng/helm/icon";
+import { HlmPopoverImports } from "@spartan-ng/helm/popover";
+import { hlm } from "@spartan-ng/helm/utils";
+import type { ClassValue } from "clsx";
+import { injectHlmDateRangePickerConfig } from "./hlm-date-range-picker.token";
 
 export const HLM_DATE_RANGE_PICKER_VALUE_ACCESSOR = {
 	provide: NG_VALUE_ACCESSOR,
@@ -32,26 +38,44 @@ export const HLM_DATE_RANGE_PICKER_VALUE_ACCESSOR = {
 let nextId = 0;
 
 @Component({
-	selector: 'hlm-date-range-picker',
-	imports: [HlmIconImports, HlmPopoverImports, HlmCalendarRange],
-	providers: [HLM_DATE_RANGE_PICKER_VALUE_ACCESSOR, provideIcons({ lucideChevronDown })],
+	selector: "hlm-date-range-picker",
+	imports: [
+		HlmIconImports,
+		HlmPopoverImports,
+		HlmCalendarRange,
+		BrnFieldControlDescribedBy,
+	],
+	providers: [
+		HLM_DATE_RANGE_PICKER_VALUE_ACCESSOR,
+		provideIcons({ lucideChevronDown }),
+		provideBrnLabelable(HlmDateRangePicker),
+	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	hostDirectives: [BrnFieldControl],
 	host: {
-		class: 'block',
+		class: "block",
 	},
 	template: `
 		<hlm-popover
 			sideOffset="5"
 			[state]="_popoverState()"
 			(stateChanged)="_popoverState.set($event)"
-			(closed)="_onClose()"
+			(closed)="_onClose(); _onTouched?.()"
 		>
 			<button
 				[id]="buttonId()"
 				type="button"
 				[class]="_computedClass()"
 				[disabled]="_mutableDisabled()"
+				[attr.aria-invalid]="_ariaInvalid()"
+				[attr.data-invalid]="_ariaInvalid()"
+				[attr.data-touched]="_touched?.() ? 'true' : null"
+				[attr.data-dirty]="_dirty?.() ? 'true' : null"
+				[attr.data-matches-spartan-invalid]="
+					_spartanInvalid?.() ? 'true' : null
+				"
 				hlmPopoverTrigger
+				brnFieldControlDescribedBy
 			>
 				<span class="truncate">
 					@if (_formattedDate(); as formattedDate) {
@@ -82,14 +106,30 @@ let nextId = 0;
 })
 export class HlmDateRangePicker<T> implements ControlValueAccessor {
 	private readonly _config = injectHlmDateRangePickerConfig<T>();
+	private readonly _fieldControl = inject(BrnFieldControl, { optional: true });
 
-	public readonly userClass = input<ClassValue>('', { alias: 'class' });
+	protected readonly _spartanInvalid = this._fieldControl?.spartanInvalid;
+	protected readonly _touched = this._fieldControl?.touched;
+	protected readonly _dirty = this._fieldControl?.dirty;
+	protected readonly _invalid = this._fieldControl?.invalid;
+
+	protected readonly _errorStateClass = computed(() =>
+		this._spartanInvalid?.()
+			? "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40"
+			: "",
+	);
+	protected readonly _ariaInvalid = computed(() =>
+		this._invalid?.() ? "true" : null,
+	);
+
+	public readonly userClass = input<ClassValue>("", { alias: "class" });
 	protected readonly _computedClass = computed(() =>
 		hlm(
-			'ring-offset-background border-input bg-background hover:bg-accent dark:bg-input/30 dark:hover:bg-input/50 hover:text-accent-foreground inline-flex h-9 w-[280px] cursor-default items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50',
-			'focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
-			'disabled:pointer-events-none disabled:opacity-50',
-			'[&_ng-icon]:pointer-events-none [&_ng-icon]:shrink-0',
+			"ring-offset-background border-input bg-background hover:bg-accent dark:bg-input/30 dark:hover:bg-input/50 inline-flex h-9 w-[280px] cursor-default items-center justify-between gap-2 rounded-md border px-3 py-2 text-left text-sm font-normal whitespace-nowrap transition-all disabled:pointer-events-none disabled:opacity-50",
+			"focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+			"disabled:pointer-events-none disabled:opacity-50",
+			"[&_ng-icon]:pointer-events-none [&_ng-icon]:shrink-0",
+			this._errorStateClass(),
 			this.userClass(),
 		),
 	);
@@ -98,7 +138,9 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 	public readonly buttonId = input<string>(`hlm-date-picker-range-${++nextId}`);
 
 	/** Show dropdowns to navigate between months or years. */
-	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
+	public readonly captionLayout = input<
+		"dropdown" | "label" | "dropdown-months" | "dropdown-years"
+	>("label");
 
 	/** The minimum date that can be selected.*/
 	public readonly min = input<T>();
@@ -120,15 +162,22 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 	protected readonly _end = linkedSignal(() => this._mutableDate()?.[1]);
 
 	/** If true, the date picker will close when the end date is selected */
-	public readonly autoCloseOnEndSelection = input<boolean, BooleanInput>(this._config.autoCloseOnEndSelection, {
-		transform: booleanAttribute,
-	});
+	public readonly autoCloseOnEndSelection = input<boolean, BooleanInput>(
+		this._config.autoCloseOnEndSelection,
+		{
+			transform: booleanAttribute,
+		},
+	);
 
 	/** Defines how the date should be displayed in the UI.  */
-	public readonly formatDates = input<(dates: [T | undefined, T | undefined]) => string>(this._config.formatDates);
+	public readonly formatDates = input<
+		(dates: [T | undefined, T | undefined]) => string
+	>(this._config.formatDates);
 
 	/** Defines how the date should be transformed before saving to model/form. */
-	public readonly transformDates = input<(date: [T, T]) => [T, T]>(this._config.transformDates);
+	public readonly transformDates = input<(date: [T, T]) => [T, T]>(
+		this._config.transformDates,
+	);
 
 	protected readonly _popoverState = signal<BrnDialogState | null>(null);
 
@@ -141,6 +190,8 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 	});
 
 	public readonly dateChange = output<[T, T] | null>();
+
+	public readonly labelableId = this.buttonId;
 
 	protected _onChange?: ChangeFn<[T, T] | null>;
 	protected _onTouched?: TouchFn;
@@ -161,7 +212,7 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 			this._onChange?.(transformedDates);
 
 			if (this.autoCloseOnEndSelection()) {
-				this._popoverState.set('closed');
+				this._popoverState.set("closed");
 			}
 		}
 	}
@@ -190,11 +241,11 @@ export class HlmDateRangePicker<T> implements ControlValueAccessor {
 	}
 
 	public open() {
-		this._popoverState.set('open');
+		this._popoverState.set("open");
 	}
 
 	public close() {
-		this._popoverState.set('closed');
+		this._popoverState.set("closed");
 	}
 
 	protected _onClose(): void {

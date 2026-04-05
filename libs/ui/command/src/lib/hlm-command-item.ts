@@ -1,18 +1,18 @@
-import { Directive } from '@angular/core';
-import { BrnCommandItem } from '@spartan-ng/brain/command';
-import { classes } from '@spartan-ng/helm/utils';
+import { Directive } from "@angular/core";
+import { BrnCommandItem } from "@spartan-ng/brain/command";
+import { classes } from "@spartan-ng/helm/utils";
 
 @Directive({
-	selector: 'button[hlmCommandItem],button[hlm-command-item]',
+	selector: "button[hlmCommandItem],button[hlm-command-item]",
 	hostDirectives: [
 		{
 			directive: BrnCommandItem,
-			inputs: ['value', 'disabled', 'id'],
-			outputs: ['selected'],
+			inputs: ["value", "disabled", "id"],
+			outputs: ["selected"],
 		},
 	],
 	host: {
-		'data-slot': 'command-item',
+		"data-slot": "command-item",
 	},
 })
 export class HlmCommandItem {

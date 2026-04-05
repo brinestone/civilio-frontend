@@ -6,10 +6,10 @@
  */
 
 export type FindSparseIndexRangesParams = {
-/**
- * @minimum 1
- */
-limit?: number;
-after?: string;
-includeArchived?: boolean;
+	/**
+	 * @minimum 1
+	 */
+	limit?: number;
+	after?: string;
+	includeArchived?: boolean;
 };

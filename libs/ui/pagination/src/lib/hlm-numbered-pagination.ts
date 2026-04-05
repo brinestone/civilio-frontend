@@ -1,4 +1,4 @@
-import type { BooleanInput, NumberInput } from '@angular/cdk/coercion';
+import type { BooleanInput, NumberInput } from "@angular/cdk/coercion";
 import {
 	ChangeDetectionStrategy,
 	Component,
@@ -8,20 +8,19 @@ import {
 	model,
 	numberAttribute,
 	untracked,
-} from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { HlmPagination } from './hlm-pagination';
-import { HlmPaginationContent } from './hlm-pagination-content';
-import { HlmPaginationEllipsis } from './hlm-pagination-ellipsis';
-import { HlmPaginationItem } from './hlm-pagination-item';
-import { HlmPaginationLink } from './hlm-pagination-link';
-import { HlmPaginationNext } from './hlm-pagination-next';
-import { HlmPaginationPrevious } from './hlm-pagination-previous';
+} from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { HlmSelectImports } from "@spartan-ng/helm/select";
+import { HlmPagination } from "./hlm-pagination";
+import { HlmPaginationContent } from "./hlm-pagination-content";
+import { HlmPaginationEllipsis } from "./hlm-pagination-ellipsis";
+import { HlmPaginationItem } from "./hlm-pagination-item";
+import { HlmPaginationLink } from "./hlm-pagination-link";
+import { HlmPaginationNext } from "./hlm-pagination-next";
+import { HlmPaginationPrevious } from "./hlm-pagination-previous";
 
 @Component({
-	selector: 'hlm-numbered-pagination',
+	selector: "hlm-numbered-pagination",
 	imports: [
 		FormsModule,
 		HlmPagination,
@@ -31,7 +30,6 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 		HlmPaginationNext,
 		HlmPaginationLink,
 		HlmPaginationEllipsis,
-		BrnSelectImports,
 		HlmSelectImports,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,10 +52,14 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 
 					@for (page of _pages(); track page) {
 						<li hlmPaginationItem>
-							@if (page === '...') {
+							@if (page === "...") {
 								<hlm-pagination-ellipsis />
 							} @else {
-								<a hlmPaginationLink [isActive]="currentPage() === page" (click)="currentPage.set(page)">
+								<a
+									hlmPaginationLink
+									[isActive]="currentPage() === page"
+									(click)="currentPage.set(page)"
+								>
 									{{ page }}
 								</a>
 							}
@@ -73,16 +75,20 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 			</nav>
 
 			<!-- Show Page Size selector -->
-			<brn-select [(ngModel)]="itemsPerPage" class="ml-auto" placeholder="Page size">
+			<hlm-select [(ngModel)]="itemsPerPage" class="ml-auto">
 				<hlm-select-trigger class="w-fit">
 					<hlm-select-value />
 				</hlm-select-trigger>
-				<hlm-select-content>
-					@for (pageSize of _pageSizesWithCurrent(); track pageSize) {
-						<hlm-option [value]="pageSize">{{ pageSize }} / page</hlm-option>
-					}
+				<hlm-select-content *hlmSelectPortal>
+					<hlm-select-group>
+						@for (pageSize of _pageSizesWithCurrent(); track pageSize) {
+							<hlm-select-item [value]="pageSize">{{
+								pageSize
+							}}</hlm-select-item>
+						}
+					</hlm-select-group>
 				</hlm-select-content>
-			</brn-select>
+			</hlm-select>
 		</div>
 	`,
 })
@@ -133,8 +139,12 @@ export class HlmNumberedPagination {
 			: [...pageSizes, this.itemsPerPage()].sort((a, b) => a - b); // otherwise, add current page size and sort the array
 	});
 
-	protected readonly _isFirstPageActive = computed(() => this.currentPage() === 1);
-	protected readonly _isLastPageActive = computed(() => this.currentPage() === this._lastPageNumber());
+	protected readonly _isFirstPageActive = computed(
+		() => this.currentPage() === 1,
+	);
+	protected readonly _isLastPageActive = computed(
+		() => this.currentPage() === this._lastPageNumber(),
+	);
 
 	protected readonly _lastPageNumber = computed(() => {
 		if (this.totalItems() < 1) {
@@ -146,14 +156,23 @@ export class HlmNumberedPagination {
 	});
 
 	protected readonly _pages = computed(() => {
-		const correctedCurrentPage = outOfBoundCorrection(this.totalItems(), this.itemsPerPage(), this.currentPage());
+		const correctedCurrentPage = outOfBoundCorrection(
+			this.totalItems(),
+			this.itemsPerPage(),
+			this.currentPage(),
+		);
 
 		if (correctedCurrentPage !== this.currentPage()) {
 			// update the current page
 			untracked(() => this.currentPage.set(correctedCurrentPage));
 		}
 
-		return createPageArray(correctedCurrentPage, this.itemsPerPage(), this.totalItems(), this.maxSize());
+		return createPageArray(
+			correctedCurrentPage,
+			this.itemsPerPage(),
+			this.totalItems(),
+			this.maxSize(),
+		);
 	});
 
 	protected goToPrevious(): void {
@@ -173,7 +192,7 @@ export class HlmNumberedPagination {
 	}
 }
 
-type Page = number | '...';
+type Page = number | "...";
 
 /**
  * Checks that the instance.currentPage property is within bounds for the current page range.
@@ -181,7 +200,11 @@ type Page = number | '...';
  *
  * Copied from 'ngx-pagination' package
  */
-export function outOfBoundCorrection(totalItems: number, itemsPerPage: number, currentPage: number): number {
+export function outOfBoundCorrection(
+	totalItems: number,
+	itemsPerPage: number,
+	currentPage: number,
+): number {
 	const totalPages = Math.ceil(totalItems / itemsPerPage);
 	if (totalPages < currentPage && 0 < totalPages) {
 		return totalPages;
@@ -222,12 +245,18 @@ export function createPageArray(
 	let i = 1;
 
 	while (i <= totalPages && i <= paginationRange) {
-		let label: number | '...';
-		const pageNumber = calculatePageNumber(i, currentPage, paginationRange, totalPages);
+		let label: number | "...";
+		const pageNumber = calculatePageNumber(
+			i,
+			currentPage,
+			paginationRange,
+			totalPages,
+		);
 		const openingEllipsesNeeded = i === 2 && (isMiddle || isEnd);
-		const closingEllipsesNeeded = i === paginationRange - 1 && (isMiddle || isStart);
+		const closingEllipsesNeeded =
+			i === paginationRange - 1 && (isMiddle || isStart);
 		if (ellipsesNeeded && (openingEllipsesNeeded || closingEllipsesNeeded)) {
-			label = '...';
+			label = "...";
 		} else {
 			label = pageNumber;
 		}
@@ -244,7 +273,12 @@ export function createPageArray(
  *
  * Copied from 'ngx-pagination' package
  */
-function calculatePageNumber(i: number, currentPage: number, paginationRange: number, totalPages: number) {
+function calculatePageNumber(
+	i: number,
+	currentPage: number,
+	paginationRange: number,
+	totalPages: number,
+) {
 	const halfWay = Math.ceil(paginationRange / 2);
 	if (i === paginationRange) {
 		return totalPages;

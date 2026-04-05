@@ -11,13 +11,33 @@ import { AsyncPipe, NgComponentOutlet } from "@angular/common";
 import { Component, computed, model, Type } from "@angular/core";
 import { FieldTree, form } from "@angular/forms/signals";
 import { stripSymbols } from "@app/util";
-import { defaultFormItemDefinitionSchemaValue, defineFormDesignerFormSchema, FormItem, formItemPathSeparator, FormItemType, FormModel, isExistingFormItem, isFieldTree, isGroup, walkFormItemTree } from "@app/components/form/schema/form-designer-config";
-import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition, NewFormItemDefinition, NewFormItemField, NewFormItemGroup, RelevanceLogicExpression } from "@civilio/sdk/models";
+import {
+	defaultFormItemDefinitionSchemaValue,
+	defineFormDesignerFormSchema,
+	FormItem,
+	formItemPathSeparator,
+	FormItemType,
+	FormModel,
+	isExistingFormItem,
+	isFieldTree,
+	isGroup,
+	walkFormItemTree,
+} from "@app/components/form/schema/form-designer-config";
+import {
+	FormItemDefinition,
+	FormItemField,
+	FormItemGroup,
+	FormVersionDefinition,
+	NewFormItemDefinition,
+	NewFormItemField,
+	NewFormItemGroup,
+	RelevanceLogicExpression,
+} from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
-import { flatten } from 'flat';
+import { flatten } from "flat";
 import { current, produce } from "immer";
 import { difference, get, isEqual, omit, remove } from "lodash";
 import { createFormSchemaContextInjector } from "../items";
@@ -29,8 +49,8 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 	templateUrl: "./form-designer.html",
 	viewProviders: [
 		provideIcons({
-			lucideGrip
-		})
+			lucideGrip,
+		}),
 	],
 	imports: [
 		HlmFieldImports,
@@ -45,8 +65,13 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 	],
 })
 export class FormDesigner {
-	readonly formData = model.required<Strict<FormVersionDefinition>>({alias: 'formDefinition'});
-	protected readonly formModel = form(this.formData, defineFormDesignerFormSchema());
+	readonly formData = model.required<Strict<FormVersionDefinition>>({
+		alias: "formDefinition",
+	});
+	protected readonly formModel = form(
+		this.formData,
+		defineFormDesignerFormSchema(),
+	);
 
 	protected readonly itemTypeNames = {
 		field: "Question",
@@ -89,7 +114,6 @@ export class FormDesigner {
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
 		allFields: this.fieldItems,
 	});
-
 
 	protected onFormItemsReordered({
 		container,
@@ -335,8 +359,8 @@ export class FormDesigner {
 				existingItems.add(item.id);
 			});
 		}
-		for (const i of (this.formData()
-			?.items as Strict<FormItemDefinition>[]) ?? []) {
+		for (const i of (this.formData()?.items as Strict<FormItemDefinition>[]) ??
+			[]) {
 			walkFormItemTree(i, (item) => {
 				if (!isExistingFormItem(item)) return;
 				originalItems.add(item.id);

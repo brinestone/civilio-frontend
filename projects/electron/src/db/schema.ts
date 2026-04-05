@@ -10,7 +10,7 @@ import {
 	text,
 	timestamp,
 	uniqueIndex,
-	uuid
+	uuid,
 } from "drizzle-orm/pg-core";
 
 export const civilio = pgSchema("civilio");
@@ -178,7 +178,7 @@ export const vwFormSubmissions = civilio
 		next: integer(),
 		prev: integer(),
 		isValid: boolean("is_valid"),
-		currentVersion: text('current_version'),
+		currentVersion: text("current_version"),
 		lastModifiedAt: timestamp("last_modified_at", { withTimezone: true }),
 		lastModifiedBy: text("last_modified_by"),
 	})
@@ -283,56 +283,73 @@ export const vwDbColumns = civilio
 				WHERE ${inArray(sql`c.table_schema`, formTypes.enumValues)}`,
 	);
 
-export const changeOp = revision.enum('change_op', ['INSERT', 'DELETE', 'UPDATE', 'REVERT']);
-export const versionSyncStatus = revision.enum('sync_status', ['pending', 'synced', 'failed']);
-export const deltaChanges = revision.table("deltas", {
-	hash: text().notNull(),
-	submissionIndex: integer("submission_index").notNull(),
-	index: integer("index").notNull(),
-	form: formTypes().notNull(),
-	table: text('table_name').notNull(),
-	changedAt: timestamp("changed_at", {
-		mode: "date",
-		withTimezone: true
-	}).defaultNow().notNull(),
-	deltaData: jsonb("delta_data").notNull(),
-	changedBy: text("changed_by"),
-	op: changeOp().notNull(),
-	parent: text('parent'),
-	syncStatus: versionSyncStatus('sync_status').default('pending'),
-}, t => [
-	primaryKey({
-		columns: [t.hash, t.submissionIndex, t.index, t.form, t.table]
-	}),
-	index().on(t.hash),
-	index().on(t.submissionIndex),
-	index().on(t.index),
-	index().on(t.form),
-	index().on(t.changedAt),
-	index().on(t.parent).where(isNotNull(t.parent)),
-	index().on(t.parent, t.hash),
-	index().on(t.submissionIndex, t.form, t.changedAt),
+export const changeOp = revision.enum("change_op", [
+	"INSERT",
+	"DELETE",
+	"UPDATE",
+	"REVERT",
 ]);
+export const versionSyncStatus = revision.enum("sync_status", [
+	"pending",
+	"synced",
+	"failed",
+]);
+export const deltaChanges = revision.table(
+	"deltas",
+	{
+		hash: text().notNull(),
+		submissionIndex: integer("submission_index").notNull(),
+		index: integer("index").notNull(),
+		form: formTypes().notNull(),
+		table: text("table_name").notNull(),
+		changedAt: timestamp("changed_at", {
+			mode: "date",
+			withTimezone: true,
+		})
+			.defaultNow()
+			.notNull(),
+		deltaData: jsonb("delta_data").notNull(),
+		changedBy: text("changed_by"),
+		op: changeOp().notNull(),
+		parent: text("parent"),
+		syncStatus: versionSyncStatus("sync_status").default("pending"),
+	},
+	(t) => [
+		primaryKey({
+			columns: [t.hash, t.submissionIndex, t.index, t.form, t.table],
+		}),
+		index().on(t.hash),
+		index().on(t.submissionIndex),
+		index().on(t.index),
+		index().on(t.form),
+		index().on(t.changedAt),
+		index().on(t.parent).where(isNotNull(t.parent)),
+		index().on(t.parent, t.hash),
+		index().on(t.submissionIndex, t.form, t.changedAt),
+	],
+);
 
-export const changeLedger = revision.table('ledger', {
-	hash: text().notNull(),
-	form: formTypes().notNull(),
-	timestamp: timestamp({ withTimezone: true }).notNull(),
-	submissionIndex: integer('submission_index').notNull(),
-	notes: text()
-}, t => [
-	uniqueIndex().on(t.hash, t.form, t.submissionIndex)
-]);
+export const changeLedger = revision.table(
+	"ledger",
+	{
+		hash: text().notNull(),
+		form: formTypes().notNull(),
+		timestamp: timestamp({ withTimezone: true }).notNull(),
+		submissionIndex: integer("submission_index").notNull(),
+		notes: text(),
+	},
+	(t) => [uniqueIndex().on(t.hash, t.form, t.submissionIndex)],
+);
 
 export const vwFacilities = civilio.view("vw_facilities", {
 	facilityName: text("facility_name"),
-	index: integer('index'),
-	type: formTypes('form'),
-	location: text('location'),
-	coords: text('gps_coordinates'),
-	extraInfo: jsonb('extra_info'),
-	approved: boolean('approved'),
-	createdAt: date('created_at', { mode: 'date' })
+	index: integer("index"),
+	type: formTypes("form"),
+	location: text("location"),
+	coords: text("gps_coordinates"),
+	extraInfo: jsonb("extra_info"),
+	approved: boolean("approved"),
+	createdAt: date("created_at", { mode: "date" }),
 }).as(sql`
 	SELECT UPPER(info.facility_name) AS facility_name,
 				 info.index,
@@ -541,8 +558,8 @@ export const vwFacilities = civilio.view("vw_facilities", {
 														mu_ch.parent = c.q1_02_division::TEXT) AS info
 `);
 
-export const forms = civilio.table('forms', {
+export const forms = civilio.table("forms", {
 	id: uuid().defaultRandom().primaryKey(),
 	description: text(),
-	createdAt: timestamp({ mode: 'date' })
-})
+	createdAt: timestamp({ mode: "date" }),
+});

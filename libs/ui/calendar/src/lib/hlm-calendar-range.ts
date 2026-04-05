@@ -1,5 +1,5 @@
-import type { BooleanInput, NumberInput } from '@angular/cdk/coercion';
-import { NgTemplateOutlet } from '@angular/common';
+import type { BooleanInput, NumberInput } from "@angular/cdk/coercion";
+import { NgTemplateOutlet } from "@angular/common";
 import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
@@ -9,21 +9,31 @@ import {
 	model,
 	numberAttribute,
 	viewChild,
-} from '@angular/core';
-import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideChevronLeft, lucideChevronRight } from '@ng-icons/lucide';
-import { BrnCalendarImports, BrnCalendarRange, injectBrnCalendarI18n, type Weekday } from '@spartan-ng/brain/calendar';
-import { injectDateAdapter } from '@spartan-ng/brain/date-time';
-import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { buttonVariants } from '@spartan-ng/helm/button';
-import { HlmIcon } from '@spartan-ng/helm/icon';
-import { HlmSelectImports } from '@spartan-ng/helm/select';
-import { hlm } from '@spartan-ng/helm/utils';
-import type { ClassValue } from 'clsx';
+} from "@angular/core";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import { lucideChevronLeft, lucideChevronRight } from "@ng-icons/lucide";
+import {
+	BrnCalendarImports,
+	BrnCalendarRange,
+	injectBrnCalendarI18n,
+	type Weekday,
+} from "@spartan-ng/brain/calendar";
+import { injectDateAdapter } from "@spartan-ng/brain/date-time";
+import { buttonVariants } from "@spartan-ng/helm/button";
+import { HlmIcon } from "@spartan-ng/helm/icon";
+import { HlmSelectImports } from "@spartan-ng/helm/select";
+import { hlm } from "@spartan-ng/helm/utils";
+import type { ClassValue } from "clsx";
 
 @Component({
-	selector: 'hlm-calendar-range',
-	imports: [BrnCalendarImports, NgIcon, HlmIcon, HlmSelectImports, BrnSelectImports, NgTemplateOutlet],
+	selector: "hlm-calendar-range",
+	imports: [
+		BrnCalendarImports,
+		NgIcon,
+		HlmIcon,
+		HlmSelectImports,
+		NgTemplateOutlet,
+	],
 	viewProviders: [provideIcons({ lucideChevronLeft, lucideChevronRight })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
@@ -45,45 +55,59 @@ import type { ClassValue } from 'clsx';
 					<div class="relative flex items-center justify-center pt-1">
 						<div class="flex w-full items-center justify-center gap-1.5">
 							<ng-template #month>
-								<brn-select brnCalendarMonthSelect>
+								<hlm-select brnCalendarMonthSelect>
 									<hlm-select-trigger size="sm" [class]="_selectClass">
-										<brn-select-value />
+										<hlm-select-value />
 									</hlm-select-trigger>
-									<hlm-select-content class="max-h-80">
-										@for (month of _i18n.config().months(); track month) {
-											<hlm-option [value]="month">{{ month }}</hlm-option>
-										}
+									<hlm-select-content *hlmSelectPortal class="max-h-80">
+										<hlm-select-group>
+											@for (month of _i18n.config().months(); track month) {
+												<hlm-select-item [value]="month">{{
+													month
+												}}</hlm-select-item>
+											}
+										</hlm-select-group>
 									</hlm-select-content>
-								</brn-select>
+								</hlm-select>
 							</ng-template>
 							<ng-template #year>
-								<brn-select brnCalendarYearSelect>
+								<hlm-select brnCalendarYearSelect>
 									<hlm-select-trigger size="sm" [class]="_selectClass">
-										<brn-select-value />
+										<hlm-select-value />
 									</hlm-select-trigger>
-									<hlm-select-content class="max-h-80">
-										@for (year of _i18n.config().years(); track year) {
-											<hlm-option [value]="year">{{ year }}</hlm-option>
-										}
+									<hlm-select-content *hlmSelectPortal class="max-h-80">
+										<hlm-select-group>
+											@for (year of _i18n.config().years(); track year) {
+												<hlm-select-item [value]="year">{{
+													year
+												}}</hlm-select-item>
+											}
+										</hlm-select-group>
 									</hlm-select-content>
-								</brn-select>
+								</hlm-select>
 							</ng-template>
 							@let heading = _heading();
 							@switch (captionLayout()) {
-								@case ('dropdown') {
+								@case ("dropdown") {
 									<ng-container [ngTemplateOutlet]="month" />
 									<ng-container [ngTemplateOutlet]="year" />
 								}
-								@case ('dropdown-months') {
+								@case ("dropdown-months") {
 									<ng-container [ngTemplateOutlet]="month" />
-									<div brnCalendarHeader class="text-sm font-medium">{{ heading.year }}</div>
+									<div brnCalendarHeader class="text-sm font-medium">
+										{{ heading.year }}
+									</div>
 								}
-								@case ('dropdown-years') {
-									<div brnCalendarHeader class="text-sm font-medium">{{ heading.month }}</div>
+								@case ("dropdown-years") {
+									<div brnCalendarHeader class="text-sm font-medium">
+										{{ heading.month }}
+									</div>
 									<ng-container [ngTemplateOutlet]="year" />
 								}
-								@case ('label') {
-									<div brnCalendarHeader class="text-sm font-medium">{{ heading.header }}</div>
+								@case ("label") {
+									<div brnCalendarHeader class="text-sm font-medium">
+										{{ heading.header }}
+									</div>
 								}
 							}
 						</div>
@@ -127,7 +151,11 @@ import type { ClassValue } from 'clsx';
 									brnCalendarCell
 									class="data-[selected]:data-[outside]:bg-accent/50 data-[selected]:bg-accent relative h-8 w-8 p-0 text-center text-sm focus-within:relative focus-within:z-20 first:data-[selected]:rounded-l-md last:data-[selected]:rounded-r-md [&:has([aria-selected].day-range-end)]:rounded-r-md"
 								>
-									<button brnCalendarCellButton [date]="date" [class]="_btnClass">
+									<button
+										brnCalendarCellButton
+										[date]="date"
+										[class]="_btnClass"
+									>
 										{{ _dateAdapter.getDate(date) }}
 									</button>
 								</td>
@@ -140,9 +168,11 @@ import type { ClassValue } from 'clsx';
 	`,
 })
 export class HlmCalendarRange<T> {
-	public readonly calendarClass = input<ClassValue>('');
+	public readonly calendarClass = input<ClassValue>("");
 
-	protected readonly _computedCalenderClass = computed(() => hlm('rounded-md border p-3', this.calendarClass()));
+	protected readonly _computedCalenderClass = computed(() =>
+		hlm("rounded-md border p-3", this.calendarClass()),
+	);
 
 	/** Access the calendar i18n */
 	protected readonly _i18n = injectBrnCalendarI18n();
@@ -157,7 +187,9 @@ export class HlmCalendarRange<T> {
 	public readonly max = input<T>();
 
 	/** Show dropdowns to navigate between months or years. */
-	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
+	public readonly captionLayout = input<
+		"dropdown" | "label" | "dropdown-months" | "dropdown-years"
+	>("label");
 
 	/** Determine if the date picker is disabled. */
 	public readonly disabled = input<boolean, BooleanInput>(false, {
@@ -190,24 +222,27 @@ export class HlmCalendarRange<T> {
 		const date = this._calendar().focusedDate();
 
 		return {
-			header: config.formatHeader(this._dateAdapter.getMonth(date), this._dateAdapter.getYear(date)),
+			header: config.formatHeader(
+				this._dateAdapter.getMonth(date),
+				this._dateAdapter.getYear(date),
+			),
 			month: config.formatMonth(this._dateAdapter.getMonth(date)),
 			year: config.formatYear(this._dateAdapter.getYear(date)),
 		};
 	});
 
 	protected readonly _btnClass = hlm(
-		buttonVariants({ variant: 'ghost' }),
-		'size-8 p-0 font-normal aria-selected:opacity-100',
-		'data-[outside]:text-muted-foreground data-[outside]:aria-selected:text-muted-foreground',
-		'data-[today]:bg-accent data-[today]:text-accent-foreground',
-		'data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:focus:bg-primary data-[selected]:focus:text-primary-foreground',
-		'data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
-		'data-[range-start]:rounded-l-md',
-		'data-[range-end]:rounded-r-md',
-		'data-[range-between]:bg-accent data-[range-between]:text-accent-foreground data-[range-between]:rounded-none',
-		'dark:hover:text-accent-foreground',
+		buttonVariants({ variant: "ghost" }),
+		"size-8 p-0 font-normal aria-selected:opacity-100",
+		"data-[outside]:text-muted-foreground data-[outside]:aria-selected:text-muted-foreground",
+		"data-[today]:bg-accent data-[today]:text-accent-foreground",
+		"data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:focus:bg-primary data-[selected]:focus:text-primary-foreground",
+		"data-[disabled]:text-muted-foreground data-[disabled]:opacity-50",
+		"data-[range-start]:rounded-l-md",
+		"data-[range-end]:rounded-r-md",
+		"data-[range-between]:bg-accent data-[range-between]:text-accent-foreground data-[range-between]:rounded-none",
+		"dark:hover:text-accent-foreground",
 	);
 
-	protected readonly _selectClass = 'gap-0 px-1.5 py-2 [&>ng-icon]:ml-1';
+	protected readonly _selectClass = "gap-0 px-1.5 py-2 [&>ng-icon]:ml-1";
 }

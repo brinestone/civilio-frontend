@@ -6,30 +6,30 @@
  */
 
 export type LookupFormSubmissionsParams = {
-/**
- * Whether or not archived submissions should be included
- */
-includeArchived?: boolean;
-/**
- * A filter to filter the results
- */
-filter?: string;
-/**
- * Pagination page offset
- * @minimum 0
- */
-page?: number;
-/**
- * Pagination result size
- * @minimum 1
- */
-limit?: number;
-/**
- * A form identifier
- */
-form?: string;
-/**
- * A form version identifier
- */
-fv?: string;
+	/**
+	 * Whether or not archived submissions should be included
+	 */
+	includeArchived?: boolean;
+	/**
+	 * A filter to filter the results
+	 */
+	filter?: string;
+	/**
+	 * Pagination page offset
+	 * @minimum 0
+	 */
+	page?: number;
+	/**
+	 * Pagination result size
+	 * @minimum 1
+	 */
+	limit?: number;
+	/**
+	 * A form identifier
+	 */
+	form?: string;
+	/**
+	 * A form version identifier
+	 */
+	fv?: string;
 };

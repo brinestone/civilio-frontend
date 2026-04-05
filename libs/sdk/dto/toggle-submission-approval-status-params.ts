@@ -6,16 +6,16 @@
  */
 
 export type ToggleSubmissionApprovalStatusParams = {
-/**
- * The form identifier
- */
-form: string;
-/**
- * The form version to use, leave empty to use the latest or current version
- */
-fv?: string;
-/**
- * The submission version to use, leave empty to use the latest or current version
- */
-sv?: string;
+	/**
+	 * The form identifier
+	 */
+	form: string;
+	/**
+	 * The form version to use, leave empty to use the latest or current version
+	 */
+	fv?: string;
+	/**
+	 * The submission version to use, leave empty to use the latest or current version
+	 */
+	sv?: string;
 };

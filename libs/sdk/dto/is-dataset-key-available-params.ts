@@ -6,12 +6,12 @@
  */
 
 export type IsDatasetKeyAvailableParams = {
-/**
- * The key value to use to check
- */
-key: string;
-/**
- * A dataset reference ID to use in the check
- */
-ref?: string;
+	/**
+	 * The key value to use to check
+	 */
+	key: string;
+	/**
+	 * A dataset reference ID to use in the check
+	 */
+	ref?: string;
 };

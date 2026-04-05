@@ -1,14 +1,16 @@
-import { Directive } from '@angular/core';
-import { classes } from '@spartan-ng/helm/utils';
+import { Directive } from "@angular/core";
+import { classes } from "@spartan-ng/helm/utils";
 
 @Directive({
-	selector: '[hlmItemContent],hlm-item-content',
+	selector: "[hlmItemContent],hlm-item-content",
 	host: {
-		'data-slot': 'item-content',
+		"data-slot": "item-content",
 	},
 })
 export class HlmItemContent {
 	constructor() {
-		classes(() => 'flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none');
+		classes(
+			() => "flex flex-1 flex-col gap-1 [&+[data-slot=item-content]]:flex-none",
+		);
 	}
 }

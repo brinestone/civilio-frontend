@@ -6,12 +6,12 @@
  */
 
 export type LookupSubmissionVersionsParams = {
-/**
- * The form version. Leave empty to use the current form version
- */
-fv?: string;
-/**
- * Whether to include archived submissions/submission versions in the results
- */
-includeArchived?: boolean;
+	/**
+	 * The form version. Leave empty to use the current form version
+	 */
+	fv?: string;
+	/**
+	 * Whether to include archived submissions/submission versions in the results
+	 */
+	includeArchived?: boolean;
 };

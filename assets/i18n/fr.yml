@@ -435,7 +435,7 @@ csc:
           list:
             title: Actes dressés mais non retirés au cours des 5 dernières années
       respondent:
-        title: Informations sur le répondant
+        title: Respondent Info
         fields:
           names:
             title: Le nom du répondant
@@ -809,7 +809,7 @@ fosa:
     page_title: Soumission ::FOSA
     sections:
       respondent:
-        title: Informations sur le répondant
+        title: Respondent Info
         description: Informations sur le répondant
         fields:
           knows_creation_date:
@@ -939,7 +939,7 @@ fosa:
             title: Formation DHIS2
             description: Formation à l'utilisation du formulaire standardisé DHIS2
           birth_declaration_transmission_to_csc:
-            title: Les déclarations de naissance sont-elles transmises au SCC?
+            title: Les déclarations de naissance sont-elles transmises au SCC ?
             description: Transmission des déclarations de naissance à l'état civil
           csc_event_reg_type:
             title: Enregistrer les événements de l'état civil ?
@@ -1303,7 +1303,7 @@ mapper:
             infrastructure:
               title: Infrastructures et équipements du Centre
             respondent:
-              title: Informations sur le répondant
+              title: Respondent Info
             identification:
               title: Identification du centre
             accessibility:
@@ -1355,7 +1355,7 @@ chefferie:
     page_title: Soumission : CHEF DOM
     sections:
       respondent:
-        title: Informations sur le répondant
+        title: Respondent Info
         fields:
           name:
             title: Nom et prénom
@@ -1419,7 +1419,7 @@ chefferie:
                 title: Le chef ou le dignitaire a-t-il prêté serment ?
               is_chief_officer:
                 title: Le chef exerce-t-il la fonction d’état civil ?
-                description: La fonction d’état civil est-elle exercée par le chef ou un notable
+                description: La fonction d'état civil est-elle exercée par le chef ou un notable
                   de la chefferie ?
               reception_location:
                 description: Aire d'accueil des usagers dans la chefferie
@@ -1571,7 +1571,7 @@ chefferie:
           second: Non
       cs_actor_is_chief:
         title: Le chef exerce-t-il la fonction d’état civil ?
-        description: La fonction d’état civil est-elle exercée par le chef ou un notable
+        description: La fonction d'état civil est-elle exercée par le chef ou un notable
           de la chefferie ?
       reception_location:
         description: Aire d'accueil des usagers dans la chefferie

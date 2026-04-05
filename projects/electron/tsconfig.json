@@ -38,6 +38,7 @@
     "../../libs/*"
   ],
   "exclude": [
-    "../../libs/ui"
+    "../../libs/ui",
+		"../civilio"
   ]
 }

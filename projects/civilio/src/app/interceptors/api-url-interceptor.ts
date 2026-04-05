@@ -7,7 +7,7 @@ export const apiUrlInterceptor: HttpInterceptorFn = (req, next) => {
 	const store = inject(Store);
 	const origin = store.selectSnapshot(apiOrigin);
 	const fullReq = req.clone({
-		url: new URL(req.url, origin).toString()
+		url: new URL(req.url, origin).toString(),
 	});
 	return next(fullReq);
 };

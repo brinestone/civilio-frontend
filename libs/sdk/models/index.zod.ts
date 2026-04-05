@@ -64,6 +64,7 @@ export * from './lookup-form-submissions-params.zod';
 export * from './lookup-form-submissions200.zod';
 export * from './lookup-submission-versions-params.zod';
 export * from './multi-date-field-config.zod';
+export * from './multi-select-field-config.zod';
 export * from './new-dataset-item.zod';
 export * from './new-form-item-definition.zod';
 export * from './new-form-item-field.zod';
