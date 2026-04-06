@@ -1,10 +1,4 @@
-import {
-	assertInInjectionContext,
-	inject,
-	InjectionToken,
-	Injector,
-	OutputRef,
-} from "@angular/core";
+import { assertInInjectionContext, inject, InjectionToken, Injector, OutputRef } from "@angular/core";
 
 export interface Importer<T> {
 	finished: OutputRef<T>;
@@ -12,7 +6,7 @@ export interface Importer<T> {
 export interface ImportContext<T> {
 	onFinished: (result: T) => void;
 }
-const ImportContext = new InjectionToken<ImportContext<any>>("import.ctx");
+const ImportContext = new InjectionToken<ImportContext<any>>('import.ctx');
 export function injectImportContext<T>() {
 	assertInInjectionContext(injectImportContext);
 	return inject<ImportContext<T>>(ImportContext, { optional: true });
@@ -25,8 +19,8 @@ export function createImporterInjector<T>(onFinished: (result: T) => void) {
 		providers: [
 			{
 				provide: ImportContext,
-				useValue: { onFinished },
-			},
-		],
-	});
+				useValue: { onFinished }
+			}
+		]
+	})
 }

@@ -6,10 +6,10 @@ export interface NotificationService {
 	listen(event: PushEvent): void;
 }
 
-export const NOTIFICATION_SERVICE = new InjectionToken("notification service");
+export const NOTIFICATION_SERVICE = new InjectionToken('notification service');
 
 export function provideNotifications() {
 	return makeEnvironmentProviders([
-		{ provide: NOTIFICATION_SERVICE, useClass: ElectronNotificationService },
-	]);
+		{ provide: NOTIFICATION_SERVICE, useClass: ElectronNotificationService }
+	])
 }

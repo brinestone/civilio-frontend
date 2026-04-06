@@ -1,8 +1,8 @@
-import { Pipe, PipeTransform } from "@angular/core";
-import { isString } from "lodash";
+import { Pipe, PipeTransform } from '@angular/core';
+import { isString } from 'lodash'
 
 @Pipe({
-	name: "isString",
+	name: 'isString'
 })
 export class IsStringPipe implements PipeTransform {
 	transform(value: any): boolean {

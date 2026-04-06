@@ -1,11 +1,12 @@
 import { Locale, ThemeMode } from "@civilio/shared";
 
-const prefix = "[config]";
+const prefix = '[config]';
 
 export class SetServerUrl {
 	static type = `${prefix} set server url`;
 
-	constructor(readonly url: string) {}
+	constructor(readonly url: string) {
+	}
 }
 
 export class DiscoverServer {
@@ -15,32 +16,33 @@ export class DiscoverServer {
 export class UpdateMiscConfig {
 	static type = `${prefix} update misc config`;
 
-	constructor(
-		readonly path: string,
-		readonly value: unknown,
-	) {}
+	constructor(readonly path: string, readonly value: unknown) {
+	};
 }
 
 export class SetFontSize {
 	static type = `${prefix} set font size`;
 
-	constructor(readonly size: number) {}
+	constructor(readonly size: number) {
+	}
 }
 
 export class LoadConfig {
-	static type = `${prefix} load configs`;
+	static type = `${prefix} load configs`
 }
 
 export class SetTheme {
 	static type = `${prefix} set theme`;
 
-	constructor(readonly value: ThemeMode) {}
+	constructor(readonly value: ThemeMode) {
+	}
 }
 
 export class SetLocale {
 	static type = `${prefix} set locale`;
 
-	constructor(readonly locale: Locale) {}
+	constructor(readonly locale: Locale) {
+	}
 }
 
 export class TestDb {
@@ -52,8 +54,9 @@ export class TestDb {
 		readonly database: string,
 		readonly username: string,
 		readonly password: string,
-		readonly ssl: boolean = false,
-	) {}
+		readonly ssl: boolean = false
+	) {
+	}
 }
 
 export class IntrospectDb {
@@ -75,13 +78,15 @@ export class LoadKnownConnections {
 export class UseConnection {
 	static type = `${prefix} use connection`;
 
-	constructor(readonly id: number) {}
+	constructor(readonly id: number) {
+	}
 }
 
 export class RemoveConnection {
 	static type = `${prefix} remove connection`;
 
-	constructor(readonly id: number) {}
+	constructor(readonly id: number) {
+	}
 }
 
 export class ClearConnections {

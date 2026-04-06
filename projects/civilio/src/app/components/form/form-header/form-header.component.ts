@@ -1,4 +1,4 @@
-import { BooleanInput } from "@angular/cdk/coercion";
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
 	booleanAttribute,
 	Component,
@@ -8,43 +8,47 @@ import {
 	input,
 	linkedSignal,
 	output,
-	signal,
-} from "@angular/core";
-import { FormSchema } from "@app/model/form";
-import { MaskPipe } from "@app/pipes";
-import { facilityName } from "@app/store/selectors";
-import { IndexRange } from "@civilio/sdk/models";
-import { SubmissionsService } from "@civilio/sdk/services/submissions/submissions.service";
-import { NgIcon, provideIcons } from "@ng-icons/core";
+	signal
+} from '@angular/core';
+import { FormSchema } from '@app/model/form';
+import { MaskPipe } from '@app/pipes';
+import { facilityName } from '@app/store/selectors';
+import { IndexRange } from '@civilio/sdk/models';
+import { SubmissionsService } from '@civilio/sdk/services/submissions/submissions.service';
+import { NgIcon, provideIcons } from '@ng-icons/core';
 import {
 	lucideChevronLeft,
 	lucideChevronRight,
 	lucideCopy,
 	lucideRedo2,
-	lucideUndo2
-} from "@ng-icons/lucide";
-import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { select } from "@ngxs/store";
-import { BrnDialogState } from "@spartan-ng/brain/dialog";
-import { toast } from "@spartan-ng/brain/sonner";
-import { HlmAutocompleteImports } from "@spartan-ng/helm/autocomplete";
-import { HlmButton } from "@spartan-ng/helm/button";
-import { HlmH4 } from "@spartan-ng/helm/typography";
-import { derivedFrom } from "ngxtension/derived-from";
-import { debounceTime, map, pipe } from "rxjs";
+	lucideSave,
+	lucideTrash2,
+	lucideUndo2,
+	lucideUnlink2
+} from '@ng-icons/lucide';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { select } from '@ngxs/store';
+import { BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmH4 } from '@spartan-ng/helm/typography';
+import { toast } from 'ngx-sonner';
+import { derivedFrom } from 'ngxtension/derived-from';
+import { debounceTime, map, pipe } from 'rxjs';
 
 @Component({
-	selector: "cv-form-header",
+	selector: 'cv-form-header',
 	viewProviders: [
 		provideIcons({
 			lucideChevronRight,
 			lucideChevronLeft,
 			lucideCopy,
-			// lucideSave,
-			// lucideTrash2,
+			lucideUnlink2,
+			lucideSave,
+			lucideTrash2,
 			lucideUndo2,
 			lucideRedo2,
-		}),
+		})
 	],
 	imports: [
 		HlmAutocompleteImports,
@@ -54,19 +58,17 @@ import { debounceTime, map, pipe } from "rxjs";
 		MaskPipe,
 		HlmH4,
 	],
-	templateUrl: "./form-header.component.html",
-	styleUrl: "./form-header.component.scss",
+	templateUrl: './form-header.component.html',
+	styleUrl: './form-header.component.scss'
 })
 export class FormHeaderComponent {
 	readonly isNewSubmission = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
-		alias: "isNew",
-	});
+		alias: 'isNew'
+	})
 	readonly form = input<string>();
 	readonly formSchema = input<FormSchema>();
-	readonly index = input<number | string>(undefined, {
-		alias: "submissionIndex",
-	});
+	readonly index = input<number | string>(undefined, { alias: 'submissionIndex' });
 	readonly canGoNextPage = input<boolean>();
 	readonly canGoPrevPage = input<boolean>();
 	readonly canUndo = input<boolean>();
@@ -83,39 +85,31 @@ export class FormHeaderComponent {
 	private readonly rangeGenerator = new IndexGenerator();
 
 	protected readonly facilityName = select(facilityName);
-	protected readonly mapperSheetState = signal<BrnDialogState>("closed");
+	protected readonly mapperSheetState = signal<BrnDialogState>('closed');
 	protected readonly submissionIndex = linkedSignal(() => {
 		const index = this.index();
 		return index === null ? null : Number(index);
-	});
-	protected readonly indexInputFilter = linkedSignal(() =>
-		String(this.index() ?? ""),
-	);
-	protected readonly debouncedIndexFilter = derivedFrom(
-		[this.indexInputFilter],
-		pipe(
-			map(([v]) => v),
-			debounceTime(500),
-		),
-		{ initialValue: "" },
-	);
+	})
+	protected readonly indexInputFilter = linkedSignal(() => String(this.index() ?? ''))
+	protected readonly debouncedIndexFilter = derivedFrom([this.indexInputFilter], pipe(
+		map(([v]) => v),
+		debounceTime(500)
+	), { initialValue: '' });
 	protected readonly refSuggestions = computed(() => {
 		const filter = this.debouncedIndexFilter();
 		return this.rangeGenerator.search(filter, 5);
-	});
+	})
 	constructor() {
 		effect(() => {
 			const form = this.form();
 			if (!form) this.rangeGenerator.ranges = [];
 			else
-				this.submissionService
-					.findSparseIndexRanges({ form, limit: 99999 })
-					.subscribe({
-						next: (ranges) => {
-							this.rangeGenerator.ranges = ranges;
-						},
-					});
-		});
+				this.submissionService.findSparseIndexRanges(form, { limit: 99999 }).subscribe({
+					next: ranges => {
+						this.rangeGenerator.ranges = ranges;
+					}
+				})
+		})
 	}
 
 	protected onAutoCompleteIndexValueChanged(index: number | null) {
@@ -125,9 +119,7 @@ export class FormHeaderComponent {
 
 	protected async onCopyVersionButtonClicked() {
 		await navigator.clipboard.writeText(this.version() as string);
-		toast.info(
-			this.ts.instant("msg.clipboard_copied_text", { value: "Version" }),
-		);
+		toast.info(this.ts.instant('msg.clipboard_copied_text', { value: 'Version' }));
 	}
 }
 
@@ -159,7 +151,7 @@ class IndexGenerator {
 		this.currentRangeIndex++;
 		this.currentIndexInRange = 0;
 
-		return this.next();
+		return this.next()
 	}
 
 	peek(count: number): number[] {
@@ -197,27 +189,24 @@ class IndexGenerator {
 				}
 			}
 		} else if (/^\d+-\d*$/.test(pattern)) {
-			const [start] = pattern.split("-").map((n) => parseInt(n, 10));
+			const [start] = pattern.split('-').map(n => parseInt(n, 10));
 			for (const range of this.#ranges) {
 				if (range.end >= start) {
 					const rangeStart = Math.max(range.start, start);
 					for (let i = 0; i < limit - results.length; i++) {
-						if (rangeStart + i <= range.end) results.push(rangeStart + i);
+						if (rangeStart + i <= range.end)
+							results.push(rangeStart + i);
 					}
 				}
 				if (results.length >= limit) break;
 			}
 		} else if (/^\d+-\d+$/.test(pattern)) {
-			const [start, end] = pattern.split("-").map((n) => parseInt(n, 10));
+			const [start, end] = pattern.split('-').map(n => parseInt(n, 10));
 			for (const range of this.#ranges) {
 				const overlapStart = Math.max(range.start, start);
 				const overlapEnd = Math.min(range.end, end);
 				if (overlapStart <= overlapEnd) {
-					for (
-						let i = overlapStart;
-						i <= overlapEnd && results.length < limit;
-						i++
-					) {
+					for (let i = overlapStart; i <= overlapEnd && results.length < limit; i++) {
 						results.push(i);
 					}
 				}
@@ -236,7 +225,7 @@ class IndexGenerator {
 		return {
 			currentRange: this.currentRangeIndex + 1,
 			totalRanges: this.ranges.length,
-			generated: this.totalGenerated,
+			generated: this.totalGenerated
 		};
 	}
 }

@@ -1,22 +1,22 @@
 <ng-container
-	>@let fieldId =`${path()}}__${dataKey()}}__${fieldType()}}`; </ng-container
+  >@let fieldId =`${path()}}__${dataKey()}}__${fieldType()}}`; </ng-container
 >@if(template()) {
 <ng-container [ngTemplateOutlet]="template()" />
 }
 <ng-template #textItemTemplate>
-	<div hlmField>
-		<label hlmFieldLabel for="{{fieldId}}"
-			><span>{{ title() }}</span> @if(config().required){<small
-				class="text-destructive"
-				>*</small
-			>}</label
-		>
-		@if(fieldType() == 'text') {
-		<input [formField]="field()" hlmInput type="text" id="{{fieldId}}" />
-		} @else {
-		<textarea hlmTextArea></textarea>
-		}
-		<p hlmFieldDescription>{{description()}}</p>
-		<cv-field-error [field]="field()" />
-	</div>
+  <div hlmField>
+    <label hlmFieldLabel for="{{fieldId}}"
+      ><span>{{ title() }}</span> @if(config().required){<small
+        class="text-destructive"
+        >*</small
+      >}</label
+    >
+    @if(fieldType() == 'text') {
+    <input [formField]="field()" hlmInput type="text" id="{{fieldId}}" />
+    } @else {
+    <textarea hlmTextArea></textarea>
+    }
+    <p hlmFieldDescription>{{description()}}</p>
+    <cv-field-error [field]="field()" />
+  </div>
 </ng-template>

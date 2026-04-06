@@ -1,21 +1,11 @@
-import {
-	Directive,
-	ElementRef,
-	isDevMode,
-	Optional,
-	TemplateRef,
-	ViewContainerRef,
-} from "@angular/core";
+import { Directive, ElementRef, isDevMode, Optional, TemplateRef, ViewContainerRef } from '@angular/core';
 
 @Directive({
-	selector: "[cvDevOnly]",
+	selector: '[cvDevOnly]',
 })
 export class DevOnly {
-	constructor(
-		viewContainer: ViewContainerRef,
-		@Optional() elr?: ElementRef<HTMLElement>,
-		@Optional() templateRef?: TemplateRef<any>,
-	) {
+
+	constructor(viewContainer: ViewContainerRef, @Optional() elr?: ElementRef<HTMLElement>, @Optional() templateRef?: TemplateRef<any>) {
 		if (!elr && !templateRef) return;
 
 		if (isDevMode()) {
@@ -27,4 +17,5 @@ export class DevOnly {
 			viewContainer?.clear();
 		}
 	}
+
 }

@@ -1,10 +1,7 @@
 <!--<form [formGroup]="form">-->
 <div hlmTableContainer>
 	<table class="caption-top" hlmTable>
-		<caption
-			class="py-1 h-[35px] m-0 px-2 sticky top-0 backdrop-blur-md"
-			hlmCaption
-		>
+		<caption class="py-1 h-[35px] m-0 px-2 sticky top-0 backdrop-blur-md" hlmCaption>
 			<div class="flex items-center m-0 justify-between">
 				<p class="text-lg font-semibold">
 					{{ title() | translate }}
@@ -15,56 +12,35 @@
 							<button
 								type="button"
 								[disabled]="
-									maxRows() === undefined
-										? false
-										: $any(maxRows()) <= data().length
-								"
+							maxRows() === undefined ? false : $any(maxRows()) <= data().length
+						"
 								size="icon"
 								variant="outline"
 								(click)="addRow()"
 								hlmBtn
 								[title]="'tmpl.table.actions.add_new.description' | translate"
 							>
-								<ng-icon name="lucidePlus" />
+								<ng-icon name="lucidePlus"/>
 								<!--								<span>{{  }}</span>-->
 							</button>
 							@if (changesTracked()) {
-								<button
-									[disabled]="!changesTracked()"
-									[title]="'forms.header.actions.discard' | translate"
-									hlmBtn
-									size="icon"
-									type="button"
-									variant="destructive"
-								>
-									<ng-icon name="lucideTrash2" />
+								<button [disabled]="!changesTracked()" [title]="'forms.header.actions.discard' | translate"
+												hlmBtn size="icon" type="button" variant="destructive">
+									<ng-icon name="lucideTrash2"/>
 									<!--									<span>{{  }}</span>-->
 								</button>
 							} @else {
-								<button
-									(click)="editing.set(false)"
-									[title]="'tmpl.table.actions.cancel' | translate"
-									hlmBtn
-									size="icon"
-									type="button"
-									variant="outline"
-								>
-									<ng-icon name="lucideX" />
+								<button (click)="editing.set(false)" [title]="'tmpl.table.actions.cancel' | translate" hlmBtn
+												size="icon"
+												type="button" variant="outline">
+									<ng-icon name="lucideX"/>
 									<!--									<span>{{  }}</span>-->
 								</button>
 							}
 						} @else {
-							<button
-								(click)="editing.set(true)"
-								hlmBtn
-								size="sm"
-								type="button"
-								variant="outline"
-							>
-								<ng-icon name="lucidePencil" />
-								<span>{{
-									"tmpl.table.actions.enable_mutation.title" | translate
-								}}</span>
+							<button (click)="editing.set(true)" hlmBtn size="sm" type="button" variant="outline">
+								<ng-icon name="lucidePencil"/>
+								<span>{{ 'tmpl.table.actions.enable_mutation.title' | translate }}</span>
 							</button>
 						}
 					</div>
@@ -78,12 +54,7 @@
 						<th [attr.colspan]="header.colSpan" hlmTh>
 							@if (!header.isPlaceholder) {
 								<ng-container
-									*flexRender="
-										header.column.columnDef.header;
-										props: header.getContext();
-										let headerText
-									"
-								>
+									*flexRender="header.column.columnDef.header; props: header.getContext(); let headerText">
 									<span>{{ headerText | translate }}</span>
 								</ng-container>
 							}
@@ -95,21 +66,11 @@
 		<tbody hlmTBody>
 			@for (row of tableDefinition().getRowModel().rows; track row.id) {
 				<!--suppress HtmlUnknownAttribute -->
-				<tr
-					[attr.data-state]="row.getIsSelected() && 'selected'"
-					[attr.key]="row.id"
-					hlmTr
-				>
+				<tr [attr.data-state]="row.getIsSelected() && 'selected'" [attr.key]="row.id" hlmTr>
 					@for (cell of row.getVisibleCells(); track $index) {
 						<td class="overflow-x-hidden" hlmTd>
-							<div
-								*flexRender="
-									cell.column.columnDef.cell;
-									props: cell.getContext();
-									let cell
-								"
-								class="max-w-full [{{ cell.column.columnDef.maxSize }}px]"
-							>
+							<div *flexRender="cell.column.columnDef.cell; props: cell.getContext(); let cell"
+									 class="max-w-full [{{cell.column.columnDef.maxSize}}px]">
 								{{ cell }}
 							</div>
 						</td>

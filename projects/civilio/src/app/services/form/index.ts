@@ -37,13 +37,11 @@ import {
 	VersionExistsRequest,
 	VersionExistsResponse,
 	VersionRevertRequest,
-	VersionRevertResponse,
+	VersionRevertResponse
 } from "@civilio/shared";
 
 export interface FormService {
-	deleteOptionGroupItemById(
-		req: DeleteOptionGroupOptionByIdRequest,
-	): Promise<void>;
+	deleteOptionGroupItemById(req: DeleteOptionGroupOptionByIdRequest): Promise<void>;
 
 	deleteOptionGroupById(req: DeleteOptionGroupByIdRequest): Promise<void>;
 
@@ -59,69 +57,35 @@ export interface FormService {
 
 	toggleApprovalStatus(req: ToggleApprovalStatusRequest): Promise<void>;
 
-	getFacilityInfo(
-		req: GetFacilityInfoRequest,
-	): Promise<GetFacilityInfoResponse>;
+	getFacilityInfo(req: GetFacilityInfoRequest): Promise<GetFacilityInfoResponse>;
 
-	revertSubmissionVersion(
-		req: VersionRevertRequest,
-	): Promise<VersionRevertResponse>;
+	revertSubmissionVersion(req: VersionRevertRequest): Promise<VersionRevertResponse>;
 
-	updateFormSubmission(
-		req: UpdateSubmissionRequest,
-	): Promise<UpdateSubmissionResponse>;
+	updateFormSubmission(req: UpdateSubmissionRequest): Promise<UpdateSubmissionResponse>;
 
-	initializeSubmissionVersion(
-		req: InitializeSubmissionVersionRequest,
-	): Promise<InitializeSubmissionVersionResponse>;
+	initializeSubmissionVersion(req: InitializeSubmissionVersionRequest): Promise<InitializeSubmissionVersionResponse>;
 
-	findCurrentSubmissionVersion(
-		req: FindSubmissionCurrentVersionRequest,
-	): Promise<FindSubmissionCurrentVersionResponse>;
+	findCurrentSubmissionVersion(req: FindSubmissionCurrentVersionRequest): Promise<FindSubmissionCurrentVersionResponse>;
 
-	findSubmissionVersions(
-		req: FindSubmissionVersionsRequest,
-	): Promise<FindSubmissionVersionsResponse>;
+	findSubmissionVersions(req: FindSubmissionVersionsRequest): Promise<FindSubmissionVersionsResponse>;
 
-	removeMapping(
-		req: RemoveFieldMappingRequest,
-	): Promise<RemoveFieldMappingResponse>;
+	removeMapping(req: RemoveFieldMappingRequest): Promise<RemoveFieldMappingResponse>;
 
-	findSubmissionData(
-		req: FindSubmissionDataRequest,
-	): Promise<FindSubmissionDataResponse>;
+	findSubmissionData(req: FindSubmissionDataRequest): Promise<FindSubmissionDataResponse>;
 
-	updateFieldMappings(
-		form: FormType,
-		...mappings: FieldUpdateSpec[]
-	): Promise<FindFieldMappingsResponse>;
+	updateFieldMappings(form: FormType, ...mappings: FieldUpdateSpec[]): Promise<FindFieldMappingsResponse>;
 
 	loadDbColumnSpecsFor(form: FormType): Promise<FindDbColumnsResponse>;
 
 	loadFormOptionsFor(form: FormType): Promise<FindFormOptionsResponse>;
 
-	findFieldMappings(
-		arg: FindFieldMappingsRequest,
-	): Promise<FindFieldMappingsResponse>;
+	findFieldMappings(arg: FindFieldMappingsRequest): Promise<FindFieldMappingsResponse>;
 
-	findFormSubmissions(
-		form: string,
-		page: number,
-		size: number,
-		filter?: string,
-	): Promise<Paginated<FormSubmission>>;
+	findFormSubmissions(form: string, page: number, size: number, filter?: string): Promise<Paginated<FormSubmission>>;
 
-	findAutocompleteSuggestions(
-		form: FormType,
-		field: FieldKey,
-		query: string,
-	): Promise<GetAutoCompletionSuggestionsResponse>;
+	findAutocompleteSuggestions(form: FormType, field: FieldKey, query: string): Promise<GetAutoCompletionSuggestionsResponse>;
 
-	findSurroundingSubmissionRefs(
-		req: FindSubmissionRefRequest,
-	): Promise<FindSubmissionRefResponse>;
+	findSurroundingSubmissionRefs(req: FindSubmissionRefRequest): Promise<FindSubmissionRefResponse>;
 
-	findIndexSuggestions(
-		req: FindIndexSuggestionsRequest,
-	): Promise<FindIndexSuggestionsResponse>;
+	findIndexSuggestions(req: FindIndexSuggestionsRequest): Promise<FindIndexSuggestionsResponse>;
 }

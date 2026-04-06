@@ -4,9 +4,9 @@
  * CivilIO API
  * OpenAPI spec version: 1.0
  */
-import type { FileUploadResponseBody } from "./file-upload-response-body";
+import type { FileUploadResponseBody } from './file-upload-response-body';
 
 export interface FileUploadResponse {
-	statusCode?: number;
-	body?: FileUploadResponseBody;
+  statusCode?: number;
+  body?: FileUploadResponseBody;
 }

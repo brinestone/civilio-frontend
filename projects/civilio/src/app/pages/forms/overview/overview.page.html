@@ -17,17 +17,14 @@
 							@if (f?.extraInfo?.[standardTags.FacilityLocation] ) {
 							<div class="flex gap-0.5 items-center">
 								<ng-icon name="lucideMapPin" />
-								<p class="text-muted-foreground text-sm">
-									{{ f?.extraInfo?.[standardTags.FacilityLocation] }}
-								</p>
+								<p class="text-muted-foreground text-sm">{{ f?.extraInfo?.[standardTags.FacilityLocation] }}</p>
 							</div>
 							} @if (f?.extraInfo?.[standardTags.CreationDate]) {
 							<ng-icon name="lucideDot" />
 							<div class="flex gap-0.5 items-center">
 								<ng-icon name="lucideCalendar" />
 								<p class="text-muted-foreground text-sm">
-									{{ $any(f?.extraInfo?.[standardTags.CreationDate]) |
-									date:'dd/MM/yyyy' }}
+									{{ $any(f?.extraInfo?.[standardTags.CreationDate]) | date:'dd/MM/yyyy' }}
 								</p>
 							</div>
 							}
@@ -55,8 +52,7 @@
 							} }
 						</div>
 					</div>
-					@if (f?.extraInfo?.[standardTags.FacilityCoords] && !isSmallScreen())
-					{
+					@if (f?.extraInfo?.[standardTags.FacilityCoords] && !isSmallScreen()) {
 					<div>
 						<h4 hlmH4>{{ 'overview.map.title' | translate }}</h4>
 						<cv-map

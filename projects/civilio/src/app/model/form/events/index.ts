@@ -1,1 +1,1 @@
-export * from "./delta-change-event";
+export * from './delta-change-event'

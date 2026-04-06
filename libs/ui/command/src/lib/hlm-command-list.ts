@@ -1,24 +1,21 @@
-import { Directive } from "@angular/core";
-import { BrnCommandList } from "@spartan-ng/brain/command";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { BrnCommandList } from '@spartan-ng/brain/command';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmCommandList],hlm-command-list",
+	selector: '[hlmCommandList],hlm-command-list',
 	hostDirectives: [
 		{
 			directive: BrnCommandList,
-			inputs: ["id"],
+			inputs: ['id'],
 		},
 	],
 	host: {
-		"data-slot": "command-list",
+		'data-slot': 'command-list',
 	},
 })
 export class HlmCommandList {
 	constructor() {
-		classes(
-			() =>
-				"no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
-		);
+		classes(() => 'no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none');
 	}
 }

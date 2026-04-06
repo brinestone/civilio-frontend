@@ -5,8 +5,8 @@
 			<hlm-select-value />
 		</hlm-select-trigger>
 		<hlm-select-content class="w-full">
-			<hlm-select-item value="checkbox">Checkbox</hlm-select-item>
-			<hlm-select-item value="select">Dropdown</hlm-select-item>
+			<hlm-option value="checkbox">Checkbox</hlm-option>
+			<hlm-option value="select">Dropdown</hlm-option>
 		</hlm-select-content>
 	</hlm-select>
 </div>
@@ -36,8 +36,8 @@
 					><hlm-select-value
 				/></hlm-select-trigger>
 				<hlm-select-content class="w-full">
-					<hlm-select-item [value]="true">Yes</hlm-select-item>
-					<hlm-select-item [value]="false">No</hlm-select-item>
+					<hlm-option [value]="true">Yes</hlm-option>
+					<hlm-option [value]="false">No</hlm-option>
 				</hlm-select-content>
 			</hlm-select>
 		}

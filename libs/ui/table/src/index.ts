@@ -8,9 +8,9 @@ import {
 	HlmTh,
 	HlmTHead,
 	HlmTr,
-} from "./lib/hlm-table";
+} from './lib/hlm-table';
 
-export * from "./lib/hlm-table";
+export * from './lib/hlm-table';
 
 export const HlmTableImports = [
 	HlmCaption,

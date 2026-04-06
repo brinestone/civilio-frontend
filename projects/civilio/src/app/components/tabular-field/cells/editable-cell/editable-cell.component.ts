@@ -1,29 +1,21 @@
-import { Component, computed, input, output } from "@angular/core";
-import { ColumnDefinition } from "@app/model/form";
-import { CellContext, injectFlexRenderContext } from "@tanstack/angular-table";
-import { Option } from "@civilio/shared";
-import { TranslatePipe } from "@ngx-translate/core";
-import { DecimalPipe } from "@angular/common";
-import { AgoDatePipe } from "@app/pipes";
-
-import { HlmSelectImports } from "@spartan-ng/helm/select";
-import { HlmCheckbox } from "@spartan-ng/helm/checkbox";
-import { HlmInput } from "@spartan-ng/helm/input";
-import { HlmDatePicker } from "@spartan-ng/helm/date-picker";
-import { debounce } from "lodash";
+import { Component, computed, input, output } from '@angular/core';
+import { ColumnDefinition } from '@app/model/form';
+import { CellContext, injectFlexRenderContext } from '@tanstack/angular-table';
+import { Option } from '@civilio/shared';
+import { TranslatePipe } from '@ngx-translate/core';
+import { DecimalPipe } from '@angular/common';
+import { AgoDatePipe } from '@app/pipes';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { HlmDatePicker } from '@spartan-ng/helm/date-picker';
+import { debounce } from 'lodash';
 
 @Component({
-	selector: "cv-editable-cell",
-	templateUrl: "./editable-cell.component.html",
-	imports: [
-		TranslatePipe,
-		HlmSelectImports,
-		DecimalPipe,
-		AgoDatePipe,
-		HlmCheckbox,
-		HlmInput,
-		HlmDatePicker,
-	],
+	selector: 'cv-editable-cell',
+	templateUrl: './editable-cell.component.html',
+	imports: [TranslatePipe, HlmSelectImports, DecimalPipe, AgoDatePipe, BrnSelectImports, HlmCheckbox, HlmInput, HlmDatePicker]
 })
 export class EditableCellComponent<T> {
 	readonly editing = input<boolean>();
@@ -34,23 +26,19 @@ export class EditableCellComponent<T> {
 	readonly change = output<T>();
 	protected readonly selectionDefinition = computed(() => {
 		const schema = this.schema();
-		if (schema.type == "single-selection" || schema.type == "multi-selection") {
+		if (schema.type == 'single-selection' || schema.type == 'multi-selection') {
 			return schema;
 		}
 		return undefined;
-	});
-	protected readonly context =
-		injectFlexRenderContext<CellContext<unknown, T>>();
+	})
+	protected readonly context = injectFlexRenderContext<CellContext<unknown, T>>();
 	protected readonly selectedOptions = computed(() => {
 		const schema = this.selectionDefinition();
 		const options = this.options();
 		const value = this.context.cell.getValue();
 		if (!options || !value || !schema) return undefined;
-		if (Array.isArray(value))
-			return options[schema.optionGroupKey]?.filter((o) =>
-				value.includes(o.value),
-			);
-		return options[schema.optionGroupKey]?.filter((o) => o.value === value);
+		if (Array.isArray(value)) return options[schema.optionGroupKey]?.filter(o => value.includes(o.value));
+		return options[schema.optionGroupKey]?.filter(o => o.value === value);
 	});
 	protected readonly onChange = debounce(this.changeHandler.bind(this), 300);
 

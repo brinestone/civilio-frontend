@@ -8,32 +8,26 @@ import {
 	TestDbConnectionRequest,
 	TestDbConnectionRequestSchema,
 	UseConnectionRequest,
-	UseConnectionRequestSchema,
-} from "@civilio/shared";
-import { getTableName, is, Table } from "drizzle-orm";
-import { Cache, MutationOption } from "drizzle-orm/cache/core";
-import { CacheConfig } from "drizzle-orm/cache/core/types";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { app } from "electron";
-import { LRUCache } from "lru-cache";
-import { join, resolve } from "path";
-import { Client, Pool } from "pg";
-import z from "zod";
-import { ConnectionManager } from "./conn";
-import { MigrationRunner } from "./migrator";
-import { provideLogger } from "./logging";
+	UseConnectionRequestSchema
+} from '@civilio/shared';
+import { getTableName, is, Table } from 'drizzle-orm';
+import { Cache, MutationOption } from 'drizzle-orm/cache/core';
+import { CacheConfig } from 'drizzle-orm/cache/core/types';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { app } from 'electron';
+import { LRUCache } from 'lru-cache';
+import { join, resolve } from 'path';
+import { Client, Pool } from 'pg';
+import z from 'zod';
+import { ConnectionManager } from './conn';
+import { MigrationRunner } from './migrator';
+import { provideLogger } from './logging';
 
 let pool: Pool | null = null;
-const logger = provideLogger("db");
-const queryLogger = provideLogger("query", false);
-const migrator = new MigrationRunner(
-	app.isPackaged
-		? join(app.getPath("assets"), "resources", "assets")
-		: resolve(join(__dirname, "..", "assets")),
-);
-const connectionManager = new ConnectionManager(
-	join(app.getPath("userData"), "c.db"),
-);
+const logger = provideLogger('db');
+const queryLogger = provideLogger('query', false);
+const migrator = new MigrationRunner(app.isPackaged ? join(app.getPath('assets'), 'resources', 'assets') : resolve(join(__dirname, '..', 'assets')));
+const connectionManager = new ConnectionManager(join(app.getPath('userData'), 'c.db'));
 
 export function useConnection(req: UseConnectionRequest) {
 	connectionManager.useConnection(UseConnectionRequestSchema.parse(req));
@@ -45,7 +39,7 @@ export function clearConnections() {
 }
 
 export function removeConnection(params: DeleteDbConnectionRequest) {
-	connectionManager.removeConnection(z.number().parse(params));
+	connectionManager.removeConnection(z.number().parse(params))
 	resetPool();
 }
 
@@ -55,9 +49,7 @@ export function saveConnectionParameters(params: DbConnectionRefInput) {
 }
 
 export function findConnectionHistory(): FindConnectionHistoryResponse {
-	return FindConnectionHistoryResponseSchema.parse(
-		connectionManager.getHistory(),
-	);
+	return FindConnectionHistoryResponseSchema.parse(connectionManager.getHistory());
 }
 
 export async function runMigrations() {
@@ -68,14 +60,18 @@ export async function runMigrations() {
 
 export async function checkMigration() {
 	const db = provideDatabase({});
-	return CheckMigrationsResponseSchema.parse(
-		await migrator.checkMigrations(db),
-	);
+	return CheckMigrationsResponseSchema.parse(await migrator.checkMigrations(db));
 }
 
 export async function testConnection(req: TestDbConnectionRequest) {
-	const { database, host, password, port, ssl, username } =
-		TestDbConnectionRequestSchema.parse(req);
+	const {
+		database,
+		host,
+		password,
+		port,
+		ssl,
+		username
+	} = TestDbConnectionRequestSchema.parse(req);
 	const client = new Client({
 		user: username,
 		host,
@@ -85,16 +81,13 @@ export async function testConnection(req: TestDbConnectionRequest) {
 		database,
 	});
 
-	const url = new URL(
-		`/${database}`,
-		`postgresql://${username}:${password}@${host}:${port}`,
-	);
-	if (ssl) url.searchParams.set("sslmode", "required");
+	const url = new URL(`/${database}`, `postgresql://${username}:${password}@${host}:${port}`);
+	if (ssl) url.searchParams.set('sslmode', 'required');
 
 	logger.log(`Testing database on host: ${host} using ${url.toString()}...`);
 	try {
 		await client.connect();
-		const res = await client.query("SELECT NOW()");
+		const res = await client.query('SELECT NOW()');
 		logger.log(`Database time is ${res.rows[0].now}`);
 		return true;
 	} catch (ex) {
@@ -109,36 +102,30 @@ export async function testConnection(req: TestDbConnectionRequest) {
 export function resetPool() {
 	const conn = connectionManager.getCurrentConnection(true);
 	if (conn == null) {
-		throw new MalConfigurationError("db");
+		throw new MalConfigurationError('db');
 	}
 	const { host, password, port, ssl, username, database } = conn;
-	const url = new URL(
-		`${database}`,
-		`postgresql://${username}:${password}@${host}:${port}`,
-	);
+	const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 	if (ssl) {
-		url.searchParams.set("sslmode", "require");
+		url.searchParams.set('sslmode', 'require');
 	}
 	pool = new Pool({
-		connectionString: url.toString(),
+		connectionString: url.toString()
 	});
 }
 
 function calculateSize(value: any): number {
-	if (typeof value === "string") {
+	if (typeof value === 'string') {
 		return Buffer.from(value).byteLength;
-	} else if (typeof value === "number") {
+	} else if (typeof value === 'number') {
 		return 8;
-	} else if (typeof value === "boolean") {
+	} else if (typeof value === 'boolean') {
 		return 4;
-	} else if (typeof value === "object" && value !== null) {
+	} else if (typeof value === 'object' && value !== null) {
 		if (Array.isArray(value)) {
 			return value.reduce((sum, item) => sum + calculateSize(item), 0);
 		} else {
-			return Object.entries(value).reduce(
-				(sum, [k, v]) => calculateSize(k) + calculateSize(v),
-				0,
-			);
+			return Object.entries(value).reduce((sum, [k, v]) => calculateSize(k) + calculateSize(v), 0);
 		}
 	} else if (value === null || value === undefined) {
 		return 0;
@@ -153,33 +140,22 @@ class LRUDrizzleCache extends Cache {
 		max: 500,
 		sizeCalculation: (value, key) => {
 			const size = calculateSize(value);
-			logger.debug(`value at ${key} calculated to ${size} size`);
+			logger.debug(`value at ${key} calculated to ${size} size`)
 			return size;
-		},
+		}
 	});
 	private readonly ttl = 36000;
 
-	strategy(): "explicit" | "all" {
-		return "explicit";
+	strategy(): 'explicit' | 'all' {
+		return 'explicit';
 	}
 
-	async get(
-		key: string,
-		tables: string[],
-		isTag: boolean,
-		isAutoInvalidate?: boolean,
-	): Promise<any[] | undefined> {
+	async get(key: string, tables: string[], isTag: boolean, isAutoInvalidate?: boolean): Promise<any[] | undefined> {
 		logger.debug(`Getting ${key} from cache`);
 		return this._cache.get(key);
 	}
 
-	async put(
-		key: string,
-		response: any,
-		tables: string[],
-		isTag: boolean,
-		config?: CacheConfig,
-	): Promise<void> {
+	async put(key: string, response: any, tables: string[], isTag: boolean, config?: CacheConfig): Promise<void> {
 		logger.debug(`Updating ${key} from cache`);
 		const ttl = config?.px ?? (config?.ex ? config.ex * 1000 : this.ttl);
 		this._cache.set(key, response, { ttl });
@@ -194,21 +170,15 @@ class LRUDrizzleCache extends Cache {
 	}
 
 	async onMutate({ tables, tags }: MutationOption): Promise<void> {
-		const assertedTags = tags ? (Array.isArray(tags) ? tags : [tags]) : [];
-		const assertedTables = tables
-			? Array.isArray(tables)
-				? tables
-				: [tables]
-			: [];
+		const assertedTags = tags ? Array.isArray(tags) ? tags : [tags] : [];
+		const assertedTables = tables ? Array.isArray(tables) ? tables : [tables] : [];
 
 		const keysToDelete = new Set<string>();
 
 		for (const table of assertedTables) {
-			const tableName = is(table, Table)
-				? getTableName(table)
-				: (table as string);
+			const tableName = is(table, Table) ? getTableName(table) : (table as string);
 			const keys = this.usedTablesPerKey[tableName] ?? [];
-			keys.forEach((key) => keysToDelete.add(key));
+			keys.forEach(key => keysToDelete.add(key));
 		}
 
 		if (keysToDelete.size > 0 || assertedTags.length > 0) {
@@ -219,9 +189,7 @@ class LRUDrizzleCache extends Cache {
 			for (const key of keysToDelete) {
 				this._cache.delete(key);
 				for (const table of assertedTables) {
-					const tableName = is(table, Table)
-						? getTableName(table)
-						: (table as string);
+					const tableName = is(table, Table) ? getTableName(table) : (table as string);
 					this.usedTablesPerKey[tableName] = [];
 				}
 			}
@@ -234,28 +202,25 @@ const singletonCache = new LRUDrizzleCache();
 export function provideDatabase(schema: Record<string, unknown>) {
 	const conn = connectionManager.getCurrentConnection(true);
 	if (conn == null) {
-		throw new MalConfigurationError("db");
+		throw new MalConfigurationError('db');
 	}
 	if (pool == null) {
 		const { host, password, port, ssl, username, database } = conn;
-		const url = new URL(
-			`${database}`,
-			`postgresql://${username}:${password}@${host}:${port}`,
-		);
+		const url = new URL(`${database}`, `postgresql://${username}:${password}@${host}:${port}`);
 		if (ssl) {
-			url.searchParams.set("sslmode", "require");
+			url.searchParams.set('sslmode', 'require');
 		}
 		pool = new Pool({
-			connectionString: url.toString(),
+			connectionString: url.toString()
 		});
 	}
 	return drizzle(pool, {
 		schema,
 		logger: {
 			logQuery(query, params) {
-				queryLogger.silly("query", query, "params", params);
+				queryLogger.silly('query', query, 'params', params);
 			},
 		},
-		cache: singletonCache,
+		cache: singletonCache
 	});
 }

@@ -6,16 +6,16 @@
  */
 
 export type PerformSubmissionDeletionParams = {
-	/**
-	 * The form slug to identify the form
-	 */
-	form: string;
-	/**
-	 * The form version to use, leave empty to use the current version
-	 */
-	fv?: string;
-	/**
-	 * The submission version to use, leave empty to delete all versions, use "current" to delete the current version
-	 */
-	sv?: string;
+/**
+ * The form slug to identify the form
+ */
+form: string;
+/**
+ * The form version to use, leave empty to use the current version
+ */
+fv?: string;
+/**
+ * The submission version to use, leave empty to delete all versions, use "current" to delete the current version
+ */
+sv?: string;
 };

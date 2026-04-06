@@ -79,17 +79,17 @@ export const formItemFieldTwoTwoConfigFiveTwoDefaultValueDefault = null;
 export const formItemFieldTwoTwoConfigFiveTwoHardItemsItemLabelDefault = null;
 export const formItemFieldTwoTwoConfigFiveTwoHardItemsItemValueDefault = null;
 export const formItemFieldTwoTwoConfigFiveTwoHardItemsDefault = [];
-export const formItemFieldTwoTwoConfigSixOneRequiredDefault = true;
-export const formItemFieldTwoTwoConfigSixOneReadonlyDefault = false;
-export const formItemFieldTwoTwoConfigSixOneTitleDefault = ``;
-export const formItemFieldTwoTwoConfigSixOneDescriptionDefault = null;
-export const formItemFieldTwoTwoConfigSixOneDataKeyDefault = null;
-export const formItemFieldTwoTwoConfigSixOneAutoDataKeyDefault = true;
-export const formItemFieldTwoTwoConfigSixTwoItemSourceRefDefault = null;
+export const formItemFieldTwoTwoConfigSixOneOneRequiredDefault = true;
+export const formItemFieldTwoTwoConfigSixOneOneReadonlyDefault = false;
+export const formItemFieldTwoTwoConfigSixOneOneTitleDefault = ``;
+export const formItemFieldTwoTwoConfigSixOneOneDescriptionDefault = null;
+export const formItemFieldTwoTwoConfigSixOneOneDataKeyDefault = null;
+export const formItemFieldTwoTwoConfigSixOneOneAutoDataKeyDefault = true;
+export const formItemFieldTwoTwoConfigSixOneTwoMinDefault = null;
+export const formItemFieldTwoTwoConfigSixOneTwoMaxDefault = null;
+export const formItemFieldTwoTwoConfigSixTwoMinSelectionDefault = null;
+export const formItemFieldTwoTwoConfigSixTwoMaxSelectionDefault = null;
 export const formItemFieldTwoTwoConfigSixTwoDefaultValueDefault = [];
-export const formItemFieldTwoTwoConfigSixTwoHardItemsItemLabelDefault = null;
-export const formItemFieldTwoTwoConfigSixTwoHardItemsItemValueDefault = null;
-export const formItemFieldTwoTwoConfigSixTwoHardItemsDefault = [];
 export const formItemFieldTwoTwoConfigSevenOneOneRequiredDefault = true;
 export const formItemFieldTwoTwoConfigSevenOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigSevenOneOneTitleDefault = ``;
@@ -98,9 +98,7 @@ export const formItemFieldTwoTwoConfigSevenOneOneDataKeyDefault = null;
 export const formItemFieldTwoTwoConfigSevenOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigSevenOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigSevenOneTwoMaxDefault = null;
-export const formItemFieldTwoTwoConfigSevenTwoMinSelectionDefault = null;
-export const formItemFieldTwoTwoConfigSevenTwoMaxSelectionDefault = null;
-export const formItemFieldTwoTwoConfigSevenTwoDefaultValueDefault = [];
+export const formItemFieldTwoTwoConfigSevenTwoDefaultValueDefault = null;
 export const formItemFieldTwoTwoConfigEightOneOneRequiredDefault = true;
 export const formItemFieldTwoTwoConfigEightOneOneReadonlyDefault = false;
 export const formItemFieldTwoTwoConfigEightOneOneTitleDefault = ``;
@@ -109,16 +107,7 @@ export const formItemFieldTwoTwoConfigEightOneOneDataKeyDefault = null;
 export const formItemFieldTwoTwoConfigEightOneOneAutoDataKeyDefault = true;
 export const formItemFieldTwoTwoConfigEightOneTwoMinDefault = null;
 export const formItemFieldTwoTwoConfigEightOneTwoMaxDefault = null;
-export const formItemFieldTwoTwoConfigEightTwoDefaultValueDefault = null;
-export const formItemFieldTwoTwoConfigNineOneOneRequiredDefault = true;
-export const formItemFieldTwoTwoConfigNineOneOneReadonlyDefault = false;
-export const formItemFieldTwoTwoConfigNineOneOneTitleDefault = ``;
-export const formItemFieldTwoTwoConfigNineOneOneDescriptionDefault = null;
-export const formItemFieldTwoTwoConfigNineOneOneDataKeyDefault = null;
-export const formItemFieldTwoTwoConfigNineOneOneAutoDataKeyDefault = true;
-export const formItemFieldTwoTwoConfigNineOneTwoMinDefault = null;
-export const formItemFieldTwoTwoConfigNineOneTwoMaxDefault = null;
-export const formItemFieldTwoTwoConfigNineTwoDefaultValueDefault = { start: null, end: null };
+export const formItemFieldTwoTwoConfigEightTwoDefaultValueDefault = { start: null, end: null };
 export const FormItemField = zod.object({
   "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemFieldOneOnePathDefault),
@@ -241,7 +230,7 @@ export const FormItemField = zod.object({
   "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveOneDataKeyDefault),
   "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigFiveOneAutoDataKeyDefault)
 }).and(zod.object({
-  "type": zod.enum(['single-select']),
+  "type": zod.enum(['single-select', 'multi-select']),
   "itemSourceRef": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveTwoItemSourceRefDefault),
   "defaultValue": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveTwoDefaultValueDefault),
   "hardItems": zod.array(zod.object({
@@ -249,24 +238,24 @@ export const FormItemField = zod.object({
   "value": zod.string().nullish().default(formItemFieldTwoTwoConfigFiveTwoHardItemsItemValueDefault)
 })).default(formItemFieldTwoTwoConfigFiveTwoHardItemsDefault)
 })).and(zod.object({
-  "type": zod.enum(['single-select'])
+  "type": zod.enum(['single-select', 'multi-select'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSixOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSixOneReadonlyDefault),
-  "title": zod.string().default(formItemFieldTwoTwoConfigSixOneTitleDefault),
-  "description": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigSixOneAutoDataKeyDefault)
+  "required": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSixOneOneRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSixOneOneReadonlyDefault),
+  "title": zod.string().default(formItemFieldTwoTwoConfigSixOneOneTitleDefault),
+  "description": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneOneDescriptionDefault),
+  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigSixOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigSixOneOneAutoDataKeyDefault)
 }).and(zod.object({
-  "type": zod.enum(['multi-select']),
-  "itemSourceRef": zod.string().nullish().default(formItemFieldTwoTwoConfigSixTwoItemSourceRefDefault),
-  "defaultValue": zod.array(zod.string()).nullish().default(formItemFieldTwoTwoConfigSixTwoDefaultValueDefault),
-  "hardItems": zod.array(zod.object({
-  "label": zod.string().nullish().default(formItemFieldTwoTwoConfigSixTwoHardItemsItemLabelDefault),
-  "value": zod.string().nullish().default(formItemFieldTwoTwoConfigSixTwoHardItemsItemValueDefault)
-})).default(formItemFieldTwoTwoConfigSixTwoHardItemsDefault)
+  "min": zod.number().nullable().default(formItemFieldTwoTwoConfigSixOneTwoMinDefault),
+  "max": zod.number().nullable().default(formItemFieldTwoTwoConfigSixOneTwoMaxDefault)
 })).and(zod.object({
-  "type": zod.enum(['multi-select'])
+  "type": zod.enum(['multi-date']),
+  "minSelection": zod.number().nullish().default(formItemFieldTwoTwoConfigSixTwoMinSelectionDefault),
+  "maxSelection": zod.number().nullish().default(formItemFieldTwoTwoConfigSixTwoMaxSelectionDefault),
+  "defaultValue": zod.array(zod.number()).nullish().default(formItemFieldTwoTwoConfigSixTwoDefaultValueDefault)
+})).and(zod.object({
+  "type": zod.enum(['multi-date'])
 })),zod.object({
   "required": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSevenOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigSevenOneOneReadonlyDefault),
@@ -278,12 +267,10 @@ export const FormItemField = zod.object({
   "min": zod.number().nullable().default(formItemFieldTwoTwoConfigSevenOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemFieldTwoTwoConfigSevenOneTwoMaxDefault)
 })).and(zod.object({
-  "type": zod.enum(['multi-date']),
-  "minSelection": zod.number().nullish().default(formItemFieldTwoTwoConfigSevenTwoMinSelectionDefault),
-  "maxSelection": zod.number().nullish().default(formItemFieldTwoTwoConfigSevenTwoMaxSelectionDefault),
-  "defaultValue": zod.array(zod.number()).nullish().default(formItemFieldTwoTwoConfigSevenTwoDefaultValueDefault)
+  "type": zod.enum(['date', 'date-time']),
+  "defaultValue": zod.number().nullish().default(formItemFieldTwoTwoConfigSevenTwoDefaultValueDefault)
 })).and(zod.object({
-  "type": zod.enum(['multi-date'])
+  "type": zod.enum(['date', 'date-time'])
 })),zod.object({
   "required": zod.boolean().nullable().default(formItemFieldTwoTwoConfigEightOneOneRequiredDefault),
   "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigEightOneOneReadonlyDefault),
@@ -295,26 +282,11 @@ export const FormItemField = zod.object({
   "min": zod.number().nullable().default(formItemFieldTwoTwoConfigEightOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemFieldTwoTwoConfigEightOneTwoMaxDefault)
 })).and(zod.object({
-  "type": zod.enum(['date', 'date-time']),
-  "defaultValue": zod.number().nullish().default(formItemFieldTwoTwoConfigEightTwoDefaultValueDefault)
-})).and(zod.object({
-  "type": zod.enum(['date', 'date-time'])
-})),zod.object({
-  "required": zod.boolean().nullable().default(formItemFieldTwoTwoConfigNineOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemFieldTwoTwoConfigNineOneOneReadonlyDefault),
-  "title": zod.string().default(formItemFieldTwoTwoConfigNineOneOneTitleDefault),
-  "description": zod.string().nullish().default(formItemFieldTwoTwoConfigNineOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemFieldTwoTwoConfigNineOneOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemFieldTwoTwoConfigNineOneOneAutoDataKeyDefault)
-}).and(zod.object({
-  "min": zod.number().nullable().default(formItemFieldTwoTwoConfigNineOneTwoMinDefault),
-  "max": zod.number().nullable().default(formItemFieldTwoTwoConfigNineOneTwoMaxDefault)
-})).and(zod.object({
   "type": zod.enum(['date-range']),
   "defaultValue": zod.object({
   "start": zod.number().nullish(),
   "end": zod.number().nullish()
-}).default(formItemFieldTwoTwoConfigNineTwoDefaultValueDefault)
+}).default(formItemFieldTwoTwoConfigEightTwoDefaultValueDefault)
 })).and(zod.object({
   "type": zod.enum(['date-range'])
 }))])

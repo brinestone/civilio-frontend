@@ -1,17 +1,11 @@
-import { Directive } from "@angular/core";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmAlertTitle]",
-	host: {
-		"data-slot": "alert-title",
-	},
+	selector: '[hlmAlertTitle]',
 })
 export class HlmAlertTitle {
 	constructor() {
-		classes(
-			() =>
-				"font-medium group-has-[>ng-icon]/alert:col-start-2 [&_a]:hover:text-foreground [&_a]:underline [&_a]:underline-offset-3",
-		);
+		classes(() => 'col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight');
 	}
 }

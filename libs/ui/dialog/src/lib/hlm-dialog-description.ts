@@ -1,16 +1,16 @@
-import { Directive } from "@angular/core";
-import { BrnDialogDescription } from "@spartan-ng/brain/dialog";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { BrnDialogDescription } from '@spartan-ng/brain/dialog';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmDialogDescription]",
+	selector: '[hlmDialogDescription]',
 	hostDirectives: [BrnDialogDescription],
 	host: {
-		"data-slot": "dialog-description",
+		'data-slot': 'dialog-description',
 	},
 })
 export class HlmDialogDescription {
 	constructor() {
-		classes(() => "text-muted-foreground text-sm");
+		classes(() => 'text-muted-foreground text-sm');
 	}
 }

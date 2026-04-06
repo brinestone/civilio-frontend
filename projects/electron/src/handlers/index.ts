@@ -1,6 +1,6 @@
-import { reportError } from "@civilio/helpers/error";
-import { logRequest, logResponse } from "@civilio/helpers/logger";
-import { provideLogger } from "@civilio/helpers/logging";
+import { reportError } from '@civilio/helpers/error';
+import { logRequest, logResponse } from '@civilio/helpers/logger';
+import { provideLogger } from '@civilio/helpers/logging';
 import {
 	AppErrorBase,
 	Channel,
@@ -11,55 +11,44 @@ import {
 	ExecutionError,
 	PushEvent,
 	RpcBaseSchema,
-	RpcInputHeaders,
-} from "@civilio/shared";
-import { randomBytes } from "crypto";
-import { ipcMain, ipcRenderer } from "electron";
-import { isPromise } from "util/types";
-import z from "zod";
+	RpcInputHeaders
+} from '@civilio/shared';
+import { randomBytes } from 'crypto';
+import { ipcMain, ipcRenderer } from 'electron';
+import { isPromise } from 'util/types';
+import z from 'zod';
 
-export * from "./config";
-export * from "./form";
-export * from "./i18n";
-export * from "./resource";
+export * from './config';
+export * from './form';
+export * from './i18n';
+export * from './resource';
 
-const logger = provideLogger("handler-registrar");
+const logger = provideLogger('handler-registrar');
 
 function generateMessageId() {
-	return randomBytes(5).toString("hex");
+	return randomBytes(5).toString('hex');
 }
 
-export async function createPushHandler<TEvent extends PushEvent>(
-	ev: TEvent,
-	eventSourceProvider: () => Promise<AsyncIterable<any>>,
-) {
+export async function createPushHandler<TEvent extends PushEvent>(ev: TEvent, eventSourceProvider: () => Promise<AsyncIterable<any>>) {
 	const eventSource = await eventSourceProvider();
 	for await (const event of eventSource) {
 		const rpc = {
 			headers: {
 				messageId: generateMessageId(),
-				srcChannel: "push-notifications",
-				ts: new Date(),
+				srcChannel: 'push-notifications',
+				ts: new Date()
 			} as RpcInputHeaders,
 			body: {
-				event: ev,
-				data: event,
-			},
+				event: ev, data: event
+			}
 		};
 
-		ipcRenderer.send("push-notifications", rpc);
+		ipcRenderer.send('push-notifications', rpc);
 	}
 }
 
-export function createInvokeChannelHandler<TChannel extends Channel>(
-	channel: TChannel,
-	handler: ChannelArg<TChannel> extends void | never
-		? () => unknown
-		: (
-				arg: ChannelArg<TChannel>,
-			) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>,
-) {
-	logger.debug("Registering IPC invoke handler", "channel", channel);
+export function createInvokeChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
+	logger.debug('Registering IPC invoke handler', 'channel', channel);
 	ipcMain.handle(channel, async (event, eventData) => {
 		logRequest(channel);
 		const bodySchema = channelArgs[channel];
@@ -77,19 +66,12 @@ export function createInvokeChannelHandler<TChannel extends Channel>(
 			// reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))
 			// console.timeEnd(channel);
 		}
-	});
+	})
 }
 
-export function createChannelHandler<TChannel extends Channel>(
-	channel: TChannel,
-	handler: ChannelArg<TChannel> extends void | never
-		? () => unknown
-		: (
-				arg: ChannelArg<TChannel>,
-			) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>,
-) {
+export function createChannelHandler<TChannel extends Channel>(channel: TChannel, handler: ChannelArg<TChannel> extends void | never ? () => unknown : (arg: ChannelArg<TChannel>) => ChannelResponse<TChannel> | Promise<ChannelResponse<TChannel>>) {
 	// console.time(channel);
-	logger.debug("Registering IPC handler", "channel", channel);
+	logger.debug('Registering IPC handler', 'channel', channel);
 	const replyChannel = computeReplyChannel(channel);
 	ipcMain.on(channel, async (event, eventData) => {
 		logRequest(channel);
@@ -100,10 +82,8 @@ export function createChannelHandler<TChannel extends Channel>(
 		try {
 			const rpc = RpcBaseSchema.parse(eventData);
 			headers = rpc.headers;
-			if (bodySchema instanceof z.ZodType && "body" in eventData) {
-				body = bodySchema.parse(eventData.body) as
-					| ChannelArg<TChannel>
-					| undefined;
+			if (bodySchema instanceof z.ZodType && 'body' in eventData) {
+				body = bodySchema.parse(eventData.body) as ChannelArg<TChannel> | undefined;
 			}
 			messageId = headers.messageId;
 			let result = handler(body);
@@ -116,20 +96,14 @@ export function createChannelHandler<TChannel extends Channel>(
 					srcChannel: channel,
 					ts: Date.now(),
 				} as RpcInputHeaders,
-				body: result ?? null,
+				body: result ?? null
 			};
 			event.sender.send(replyChannel, replyRpc);
 			logResponse(channel);
 		} catch (e) {
 			logger.error(e);
-			reportError(
-				logger,
-				event,
-				e instanceof AppErrorBase
-					? e
-					: new ExecutionError(e.message, e, channel, messageId, e),
-			);
+			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))
 			// console.timeEnd(channel);
 		}
-	});
+	})
 }

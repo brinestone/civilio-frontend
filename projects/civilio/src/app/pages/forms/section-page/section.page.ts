@@ -5,7 +5,7 @@ import {
 	Component,
 	computed,
 	inject,
-	untracked,
+	untracked
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
@@ -14,12 +14,14 @@ import {
 	FormRecord,
 	ReactiveFormsModule,
 	UntypedFormArray,
-	UntypedFormControl,
+	UntypedFormControl
 } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { TabularFieldComponent } from "@app/components";
+import { TabularFieldComponent } from '@app/components';
 import { FieldComponent } from "@app/components/form";
-import { GroupFieldComponent } from "@app/components/group-field/group-field.component";
+import {
+	GroupFieldComponent
+} from "@app/components/group-field/group-field.component";
 import {
 	defaultValueForType,
 	extractFieldKey,
@@ -27,9 +29,9 @@ import {
 	FieldSchema,
 	flattenSections,
 	FormSchema,
-	GroupFieldSchema,
+	GroupFieldSchema
 } from "@app/model/form";
-import { DeltaChangeEvent } from "@app/model/form/events";
+import { DeltaChangeEvent } from '@app/model/form/events';
 import { IsStringPipe, JoinArrayPipe } from "@app/pipes";
 import {
 	ActivateSection,
@@ -41,12 +43,12 @@ import {
 	Undo,
 	UpdateFormDirty,
 	UpdateRelevance,
-	UpdateSection,
+	UpdateSection
 } from "@app/store/form";
 import {
 	activeSections,
 	optionsSelector,
-	relevanceRegistry,
+	relevanceRegistry
 } from "@app/store/selectors";
 import { FieldKey, FormSectionKey, FormType } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -58,14 +60,14 @@ import {
 	ofActionDispatched,
 	ofActionSuccessful,
 	select,
-	Store,
+	Store
 } from "@ngxs/store";
 import {
 	ErrorStateMatcher,
 	ShowOnDirtyErrorStateMatcher,
 } from "@spartan-ng/brain/forms";
 import { HlmButton } from "@spartan-ng/helm/button";
-import { HlmFieldImports } from "@spartan-ng/helm/field";
+import { HlmFieldImports } from '@spartan-ng/helm/field';
 import { debounce, entries, isEqual } from "lodash";
 import { injectParams } from "ngxtension/inject-params";
 import { injectRouteData } from "ngxtension/inject-route-data";
@@ -77,8 +79,8 @@ const debounceDuration = 150;
 	selector: "cv-section-page",
 	viewProviders: [
 		provideIcons({
-			lucidePlus,
-		}),
+			lucidePlus
+		})
 	],
 	providers: [
 		{ provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
@@ -95,14 +97,14 @@ const debounceDuration = 150;
 		TabularFieldComponent,
 		GroupFieldComponent,
 		HlmButton,
-		NgIcon,
+		NgIcon
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./section.page.html",
 	styleUrl: "./section.page.scss",
 })
 export class SectionPage {
-	public readonly sectionKey = injectParams<FormSectionKey>("id");
+	public readonly sectionKey = injectParams<FormSectionKey>('id');
 
 	// #region Flags
 
@@ -113,137 +115,102 @@ export class SectionPage {
 
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly store = inject(Store);
-	private readonly routeData = injectRouteData<Record<string, any>>("target");
-	private readonly formType = computed(
-		() => this.routeData()?.["form"] as FormType,
-	);
-	private readonly formSchema = computed(
-		() => this.routeData()?.["model"] as FormSchema,
-	);
+	private readonly routeData = injectRouteData<Record<string, any>>('target');
+	private readonly formType = computed(() => this.routeData()?.['form'] as FormType)
+	private readonly formSchema = computed(() => this.routeData()?.['model'] as FormSchema);
 	private readonly formData = select(activeSections);
 	protected readonly relevanceRegistry = select(relevanceRegistry);
 
-	protected readonly sectionSchema = computed(
-		() =>
-			flattenSections(this.formSchema()).find(
-				(s) => s.id == this.sectionKey()!,
-			)!,
-	);
+	protected readonly sectionSchema = computed(() => flattenSections(this.formSchema()).find(s => s.id == this.sectionKey()!)!);
 	protected readonly options = select(optionsSelector(this.formType()));
-	protected readonly sectionData = computed(
-		() => this.formData()[this.sectionKey()!].model,
-	);
-	protected readonly form = new FormRecord<
-		UntypedFormControl | UntypedFormArray
-	>({});
+	protected readonly sectionData = computed(() => this.formData()[this.sectionKey()!].model);
+	protected readonly form = new FormRecord<UntypedFormControl | UntypedFormArray>({});
 
-	protected readonly onFieldValueChanged = debounce(
-		this.fieldChangeHandler.bind(this),
-		debounceDuration,
-	);
+	protected readonly onFieldValueChanged = debounce(this.fieldChangeHandler.bind(this), debounceDuration);
 
 	constructor(actions$: Actions, route: ActivatedRoute) {
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionSuccessful(DiscardChanges),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshFieldValues(true);
-			});
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(DiscardChanges),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues(true);
+		});
 
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionSuccessful(Undo, Redo),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshFieldValues(true);
-			});
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionSuccessful(SubmissionIndexChanged),
-				tap(() => (this.indexChanged = true)),
-				switchMap(() =>
-					actions$.pipe(
-						ofActionSuccessful(UpdateRelevance),
-						debounceTime(10),
-						take(1),
-					),
-				),
-				// d(() => !this.refreshingControls)
-			)
-			.subscribe(() => {
-				this.refreshFieldValues();
-				this.indexChanged = false;
-			});
-
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionSuccessful(ActivateSection),
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(Undo, Redo),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues(true);
+		})
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(SubmissionIndexChanged),
+			tap(() => this.indexChanged = true),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
 				debounceTime(10),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshControls(true);
-			});
+				take(1),
+			)),
+			// d(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues();
+			this.indexChanged = false;
+		});
 
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionDispatched(UpdateSection),
-				switchMap(() =>
-					actions$.pipe(ofActionSuccessful(UpdateRelevance), take(1)),
-				),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshControls();
-			});
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(ActivateSection),
+			debounceTime(10),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshControls(true);
+		});
 
-		route.params
-			.pipe(
-				takeUntilDestroyed(),
-				debounceTime(0),
-				map(({ id }) => id as FormSectionKey),
-			)
-			.subscribe((id) => {
-				this.activate(id, this.formType());
-				this.cdr.markForCheck();
-			});
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionDispatched(UpdateSection),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
+				take(1),
+			)),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshControls();
+		})
 
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionSuccessful(LoadSubmissionData),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshControls(true);
-			});
+		route.params.pipe(
+			takeUntilDestroyed(),
+			debounceTime(0),
+			map(({ id }) => id as FormSectionKey)
+		).subscribe((id) => {
+			this.activate(id, this.formType());
+			this.cdr.markForCheck();
+		});
 
-		actions$
-			.pipe(
-				takeUntilDestroyed(),
-				ofActionDispatched(LoadSubmissionData),
-				switchMap(() =>
-					actions$.pipe(ofActionSuccessful(UpdateRelevance), take(1)),
-				),
-				filter(() => !this.refreshingControls),
-			)
-			.subscribe(() => {
-				this.refreshFieldValues();
-			});
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionSuccessful(LoadSubmissionData),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshControls(true);
+		});
+
+		actions$.pipe(
+			takeUntilDestroyed(),
+			ofActionDispatched(LoadSubmissionData),
+			switchMap(() => actions$.pipe(
+				ofActionSuccessful(UpdateRelevance),
+				take(1)
+			)),
+			filter(() => !this.refreshingControls)
+		).subscribe(() => {
+			this.refreshFieldValues();
+		});
 	}
 
-	protected readonly onDeltaChange = debounce(
-		this.deltaChangeHandler.bind(this),
-		debounceDuration,
-	);
+	protected readonly onDeltaChange = debounce(this.deltaChangeHandler.bind(this), debounceDuration);
 
 	private markControlAsPristine(control: AbstractControl) {
 		control.markAsUntouched();
@@ -251,42 +218,32 @@ export class SectionPage {
 		control.updateValueAndValidity();
 	}
 
-	protected groupDeltaChangeHandler(
-		groupFieldKey: string,
-		index: number,
-		events: DeltaChangeEvent<any>[],
-	) {
-		this.store.dispatch(
-			new RecordDeltaChange(
-				...events.map((ev) => ({
-					...ev,
-					path: [this.sectionKey()!, groupFieldKey, index, ...ev.path],
-				})),
-			),
-		);
+	protected groupDeltaChangeHandler(groupFieldKey: string, index: number, events: DeltaChangeEvent<any>[]) {
+		this.store.dispatch(new RecordDeltaChange(
+			...events.map((ev) => ({
+				...ev,
+				path: [this.sectionKey()!, groupFieldKey, index, ...ev.path]
+			}))
+		))
 	}
 
 	protected onGroupItemDeleted(index: number, groupFieldKey: string) {
 		const oldValue = this.form.value[groupFieldKey][index];
 		(this.form.controls[groupFieldKey] as FormArray).removeAt(index);
-		this.fieldChangeHandler(
-			groupFieldKey as any,
-			this.form.value[groupFieldKey],
-		);
+		this.fieldChangeHandler(groupFieldKey as any, this.form.value[groupFieldKey]);
 		this.store.dispatch([
 			new UpdateFormDirty(this.sectionKey()!, true),
 			new RecordDeltaChange({
 				path: [this.sectionKey()!, groupFieldKey, index],
-				changeType: "delete",
-				oldValue,
-			}),
-		]);
+				changeType: 'delete',
+				oldValue
+			})]);
 		this.cdr.markForCheck();
 	}
 
 	private refreshControls(markPristine = false) {
 		this.refreshingControls = true;
-		console.log("refreshing controls");
+		console.log('refreshing controls');
 		this.removeNonRelevantControls();
 		this.addRelevantControls();
 		this.refreshingControls = false;
@@ -300,12 +257,12 @@ export class SectionPage {
 
 		for (const [key] of entries(this.form.controls)) {
 			const isRelevant = rr[key];
-			const isFieldInSection = fields.some((f) => f.key == key);
+			const isFieldInSection = fields.some(f => f.key == key);
 			const shouldRemove = !isRelevant || !isFieldInSection;
 
 			if (!shouldRemove) continue;
 			this.form.removeControl(key);
-			console.log(`Removed non-relevant field: ${key}`);
+			console.log(`Removed non-relevant field: ${ key }`);
 		}
 	}
 
@@ -320,49 +277,34 @@ export class SectionPage {
 
 			if (!shouldAdd) continue;
 			this.addFieldControl({ key, ...rest });
-			console.log(`Added relevant field: ${key}`);
+			console.log(`Added relevant field: ${ key }`);
 		}
 	}
 
 	private deltaChangeHandler(event: DeltaChangeEvent<any>) {
-		this.store.dispatch(
-			new RecordDeltaChange({
-				...event,
-				path: [this.sectionKey()!, ...event.path],
-			}),
-		);
+		this.store.dispatch(new RecordDeltaChange({
+			...event,
+			path: [this.sectionKey()!, ...event.path]
+		}));
 	}
 
 	private fieldChangeHandler(field: FieldKey, update: any) {
-		this.store
-			.dispatch([
-				new UpdateSection(this.sectionKey()!, this.formType(), field, update),
-				new UpdateFormDirty(this.sectionKey()!, this.form.dirty),
-			])
-			.subscribe(() => this.cdr.markForCheck());
+		this.store.dispatch([
+			new UpdateSection(this.sectionKey()!, this.formType(), field, update),
+			new UpdateFormDirty(this.sectionKey()!, this.form.dirty)
+		]).subscribe(() => this.cdr.markForCheck());
 	}
 
-	protected onAddGroupItemButtonClicked(
-		groupFieldKey: string,
-		schema: GroupFieldSchema,
-	) {
-		(this.form.controls[groupFieldKey] as UntypedFormArray).push(
-			new UntypedFormControl({
-				...schema.fields.reduce(
-					(acc, curr) => {
-						const key = extractFieldKey(curr.key);
-						acc[key] = defaultValueForType(curr.type);
-						return acc;
-					},
-					{} as Record<string, unknown>,
-				),
-				[schema.identifierKey]: `new_${Date.now()}`,
-			}),
-		);
-		this.fieldChangeHandler(
-			groupFieldKey as any,
-			this.form.value[groupFieldKey],
-		);
+	protected onAddGroupItemButtonClicked(groupFieldKey: string, schema: GroupFieldSchema) {
+		(this.form.controls[groupFieldKey] as UntypedFormArray).push(new UntypedFormControl({
+			...schema.fields.reduce((acc, curr) => {
+				const key = extractFieldKey(curr.key);
+				acc[key] = defaultValueForType(curr.type);
+				return acc;
+			}, {} as Record<string, unknown>),
+			[schema.identifierKey]: `new_${ Date.now() }`
+		}));
+		this.fieldChangeHandler(groupFieldKey as any, this.form.value[groupFieldKey]);
 		// this.store.dispatch(new RecordDeltaChange({
 		// }));
 		this.cdr.markForCheck();
@@ -370,15 +312,10 @@ export class SectionPage {
 
 	private addFieldControl(schema: FieldSchema) {
 		const validators = extractValidators(schema);
-		const initialValue = untracked(this.sectionData)[
-			extractFieldKey(schema.key)
-		];
+		const initialValue = untracked(this.sectionData)[extractFieldKey(schema.key)];
 
-		if (schema.type == "group") {
-			const controls =
-				(initialValue as Record<string, unknown>[])?.map(
-					(v) => new UntypedFormControl(v),
-				) ?? [];
+		if (schema.type == 'group') {
+			const controls = (initialValue as Record<string, unknown>[])?.map(v => new UntypedFormControl(v)) ?? [];
 			const control = new FormArray<UntypedFormControl>(controls, validators);
 			this.form.addControl(extractFieldKey(schema.key), control);
 		} else {
@@ -388,34 +325,27 @@ export class SectionPage {
 	}
 
 	private refreshFieldValues(ignoreDirtyState = false) {
-		console.log("refreshing field values");
+		console.log('refreshing field values');
 		for (const [key, control] of entries(this.form.controls)) {
 			const existingValue = control.value;
 			const storeValue = untracked(this.sectionData)[key];
 			const isControlDirty = control.dirty;
-			const shouldUpdateControlValue =
-				(!isEqual(existingValue, storeValue) && !isControlDirty) ||
-				this.indexChanged ||
-				ignoreDirtyState;
+			const shouldUpdateControlValue = (!isEqual(existingValue, storeValue) && !isControlDirty) || this.indexChanged || ignoreDirtyState;
 			if (!shouldUpdateControlValue) {
 				if (isControlDirty) {
-					console.log("Ignoring value update for dirty field: ", key);
+					console.log('Ignoring value update for dirty field: ', key);
 				}
-				continue;
+				continue
 			}
 
 			if (control instanceof FormArray) {
 				control.clear({ emitEvent: false });
-				(storeValue as unknown[]).forEach((v) =>
-					control.push(new UntypedFormControl(v), { emitEvent: false }),
-				);
+				(storeValue as unknown[]).forEach(v => control.push(new UntypedFormControl(v), { emitEvent: false }));
 			} else {
 				control.setValue(storeValue);
 			}
 			this.markControlAsPristine(control);
-			console.log(
-				`Refreshed value for field: ${key} from ${JSON.stringify(existingValue)} to ${JSON.stringify(storeValue)}`,
-			);
+			console.log(`Refreshed value for field: ${ key } from ${ JSON.stringify(existingValue) } to ${ JSON.stringify(storeValue) }`);
 		}
 		this.cdr.markForCheck();
 	}

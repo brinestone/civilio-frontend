@@ -11,25 +11,20 @@
 </section>
 <section class="page-section">
 	<h2 class="section-title">{{ 'settings.font-size.title' | translate }}</h2>
-	<hlm-select
+	<brn-select
 		class="inline-block"
 		[value]="fontSize()"
 		scrollable="true"
 		(valueChange)="onFontSizeChanged($any($event))"
+		[placeholder]="'settings.font-size.placeholder' | translate"
 	>
 		<hlm-select-trigger class="w-40">
-			<hlm-select-value [placeholder]="'settings.font-size.placeholder' | translate"/>
+			<hlm-select-value />
 		</hlm-select-trigger>
-		<hlm-select-content
-			*hlmSelectPortal
-			showScroll
-
-		>
-			<hlm-select-group>
-				@for(size of fontSizes; track $index) {
-				<hlm-select-item [value]="size">{{ size }}</hlm-select-item>
-				}
-			</hlm-select-group>
+		<hlm-select-content>
+			@for(size of fontSizes; track $index) {
+			<hlm-option [value]="size">{{ size }}</hlm-option>
+			}
 		</hlm-select-content>
-	</hlm-select>
+	</brn-select>
 </section>

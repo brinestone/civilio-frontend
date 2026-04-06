@@ -1,14 +1,12 @@
-import { CanActivateFn, Router } from "@angular/router";
-import { Store } from "@ngxs/store";
-import { inject } from "@angular/core";
-import { CONFIG_SERVICE } from "@app/services/config";
-import { TranslateService } from "@ngx-translate/core";
-import { CONFIG_STATE } from "@app/store/config";
-import { toast } from "@spartan-ng/brain/sonner";
+import { CanActivateFn, Router } from '@angular/router';
+import { Store } from '@ngxs/store';
+import { inject } from '@angular/core';
+import { CONFIG_SERVICE } from '@app/services/config';
+import { TranslateService } from '@ngx-translate/core';
+import { CONFIG_STATE } from '@app/store/config';
+import { toast } from 'ngx-sonner';
 
-export const apiConfiguredGuard: (redirect: string) => CanActivateFn = (
-	redirect: string,
-) => {
+export const apiConfiguredGuard: (redirect: string) => CanActivateFn = (redirect: string) => {
 	return async (_, state) => {
 		const store = inject(Store);
 		const router = inject(Router);
@@ -16,9 +14,9 @@ export const apiConfiguredGuard: (redirect: string) => CanActivateFn = (
 		const ts = inject(TranslateService);
 		const tree = router.createUrlTree([redirect], {
 			queryParams: {
-				continue: encodeURIComponent(state.url),
+				'continue': encodeURIComponent(state.url)
 			},
-			queryParamsHandling: "merge",
+			queryParamsHandling: 'merge'
 		});
 		const { serverOnline } = store.selectSnapshot(CONFIG_STATE);
 		if (!serverOnline) {
@@ -26,7 +24,7 @@ export const apiConfiguredGuard: (redirect: string) => CanActivateFn = (
 				await cs.discoverServer();
 				return true;
 			} catch (e) {
-				toast.warning(ts.instant("misc.config_required.api"));
+				toast.warning(ts.instant('misc.config_required.api'));
 				return tree;
 			}
 		}

@@ -16,7 +16,7 @@
 				{ {{ "refresh.txt" | translate }} }
 			</span>
 		</button>
-		<!-- <hlm-select
+		<!-- <brn-select
 			[disabled]="submissions.isLoading()"
 			[value]="formType()"
 			(valueChange)="onFormTypeChanged($any($event))"
@@ -28,14 +28,12 @@
 					class="uppercase cursor-pointer placeholder:capitalize"
 				/>
 			</hlm-select-trigger>
-			<hlm-select-content *hlmSelectPortal class="w-56">
-<hlm-select-group>
+			<hlm-select-content class="w-56">
 				@for (option of formTypeOptions; track $index) {
-					<hlm-select-item [value]="option" class="uppercase">{{ option }}</hlm-select-item>
+					<hlm-option [value]="option" class="uppercase">{{ option }}</hlm-option>
 				}
-			</hlm-select-group>
-</hlm-select-content>
-		</hlm-select> -->
+			</hlm-select-content>
+		</brn-select> -->
 	</div>
 	<button
 		hlmBtn

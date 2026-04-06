@@ -1,14 +1,14 @@
-import { Directive } from "@angular/core";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmItemFooter],hlm-item-footer",
+	selector: '[hlmItemFooter],hlm-item-footer',
 	host: {
-		"data-slot": "item-footer",
+		'data-slot': 'item-footer',
 	},
 })
 export class HlmItemFooter {
 	constructor() {
-		classes(() => "flex basis-full items-center justify-between gap-2");
+		classes(() => 'flex basis-full items-center justify-between gap-2');
 	}
 }

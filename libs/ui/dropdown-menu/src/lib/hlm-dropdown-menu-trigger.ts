@@ -1,30 +1,20 @@
-import { CdkMenuTrigger } from "@angular/cdk/menu";
-import { computed, Directive, effect, inject, input } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-	createMenuPosition,
-	type MenuAlign,
-	type MenuSide,
-} from "@spartan-ng/brain/core";
-import { injectHlmDropdownMenuConfig } from "./hlm-dropdown-menu-token";
+import { CdkMenuTrigger } from '@angular/cdk/menu';
+import { computed, Directive, effect, inject, input } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { createMenuPosition, type MenuAlign, type MenuSide } from '@spartan-ng/brain/core';
+import { injectHlmDropdownMenuConfig } from './hlm-dropdown-menu-token';
 
 @Directive({
-	selector: "[hlmDropdownMenuTrigger]",
+	selector: '[hlmDropdownMenuTrigger]',
 	hostDirectives: [
 		{
 			directive: CdkMenuTrigger,
-			inputs: [
-				"cdkMenuTriggerFor: hlmDropdownMenuTrigger",
-				"cdkMenuTriggerData: hlmDropdownMenuTriggerData",
-			],
-			outputs: [
-				"cdkMenuOpened: hlmDropdownMenuOpened",
-				"cdkMenuClosed: hlmDropdownMenuClosed",
-			],
+			inputs: ['cdkMenuTriggerFor: hlmDropdownMenuTrigger', 'cdkMenuTriggerData: hlmDropdownMenuTriggerData'],
+			outputs: ['cdkMenuOpened: hlmDropdownMenuOpened', 'cdkMenuClosed: hlmDropdownMenuClosed'],
 		},
 	],
 	host: {
-		"data-slot": "dropdown-menu-trigger",
+		'data-slot': 'dropdown-menu-trigger',
 	},
 })
 export class HlmDropdownMenuTrigger {
@@ -34,9 +24,7 @@ export class HlmDropdownMenuTrigger {
 	public readonly align = input<MenuAlign>(this._config.align);
 	public readonly side = input<MenuSide>(this._config.side);
 
-	private readonly _menuPosition = computed(() =>
-		createMenuPosition(this.align(), this.side()),
-	);
+	private readonly _menuPosition = computed(() => createMenuPosition(this.align(), this.side()));
 
 	constructor() {
 		// once the trigger opens we wait until the next tick and then grab the last position
@@ -47,9 +35,7 @@ export class HlmDropdownMenuTrigger {
 				() =>
 					// eslint-disable-next-line
 					((this._cdkTrigger as any)._spartanLastPosition = // eslint-disable-next-line
-						(
-							this._cdkTrigger as any
-						).overlayRef._positionStrategy._lastPosition),
+						(this._cdkTrigger as any).overlayRef._positionStrategy._lastPosition),
 			),
 		);
 

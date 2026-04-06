@@ -1,16 +1,16 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
-import { provideIcons } from "@ng-icons/core";
-import { lucideEllipsis } from "@ng-icons/lucide";
-import { HlmIconImports } from "@spartan-ng/helm/icon";
-import { classes } from "@spartan-ng/helm/utils";
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { provideIcons } from '@ng-icons/core';
+import { lucideEllipsis } from '@ng-icons/lucide';
+import { HlmIconImports } from '@spartan-ng/helm/icon';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Component({
-	selector: "hlm-pagination-ellipsis",
+	selector: 'hlm-pagination-ellipsis',
 	imports: [HlmIconImports],
 	providers: [provideIcons({ lucideEllipsis })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
-		"data-slot": "pagination-ellipsis",
+		'data-slot': 'pagination-ellipsis',
 	},
 	template: `
 		<span aria-hidden="true">
@@ -21,9 +21,9 @@ import { classes } from "@spartan-ng/helm/utils";
 })
 export class HlmPaginationEllipsis {
 	constructor() {
-		classes(() => "flex size-9 items-center justify-center");
+		classes(() => 'flex size-9 items-center justify-center');
 	}
 
 	/** Screen reader only text for the ellipsis */
-	public readonly srOnlyText = input<string>("More pages");
+	public readonly srOnlyText = input<string>('More pages');
 }

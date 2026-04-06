@@ -6,5 +6,5 @@
  */
 
 export type IsSlugAvailableParams = {
-	slug: string;
+slug: string;
 };

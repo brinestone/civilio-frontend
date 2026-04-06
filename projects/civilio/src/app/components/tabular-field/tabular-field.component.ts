@@ -8,12 +8,12 @@ import {
 	model,
 	output,
 	signal,
-	untracked,
+	untracked
 } from "@angular/core";
 import {
 	ControlValueAccessor,
 	NG_VALUE_ACCESSOR,
-	ReactiveFormsModule,
+	ReactiveFormsModule
 } from "@angular/forms";
 import { FieldKey, Option } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
@@ -25,15 +25,15 @@ import {
 	lucideTrash2,
 	lucideX,
 } from "@ng-icons/lucide";
-import { TranslatePipe } from "@ngx-translate/core";
+import { TranslatePipe } from '@ngx-translate/core';
 import { HlmButton } from "@spartan-ng/helm/button";
-import { HlmTableContainer, HlmTableImports } from "@spartan-ng/helm/table";
+import { HlmTableContainer, HlmTableImports } from '@spartan-ng/helm/table';
 import {
 	extractFieldKey,
 	ParsedValue,
-	TabularFieldSchema,
-} from "@app/model/form";
-import { entries, isEmpty, values } from "lodash";
+	TabularFieldSchema
+} from '@app/model/form';
+import { entries, isEmpty, values } from 'lodash';
 import {
 	CellContext,
 	createAngularTable,
@@ -43,19 +43,19 @@ import {
 	getCoreRowModel,
 	RowData,
 	RowSelectionState,
-	VisibilityState,
-} from "@tanstack/angular-table";
-import { TableHeadSelectionComponent } from "./table-head-selection.component";
-import { TableRowSelectionComponent } from "./table-row-selection.component";
+	VisibilityState
+} from '@tanstack/angular-table';
+import { TableHeadSelectionComponent } from './table-head-selection.component';
+import { TableRowSelectionComponent } from './table-row-selection.component';
 import {
 	ActionCell,
 	ActionTriggeredEvent,
 	EditableCellComponent,
-	RowAction,
-} from "@app/components/tabular-field/cells";
-import { DeltaChangeEvent } from "@app/model/form/events/delta-change-event";
+	RowAction
+} from '@app/components/tabular-field/cells';
+import { DeltaChangeEvent } from '@app/model/form/events/delta-change-event';
 
-declare module "@tanstack/angular-table" {
+declare module '@tanstack/angular-table' {
 	interface TableMeta<TData extends RowData> {
 		updateData: (rowIndex: number, columnId: string, value: unknown) => void;
 		deleteRow: (rowIndex: number) => void;
@@ -64,13 +64,13 @@ declare module "@tanstack/angular-table" {
 
 type TrackedChanges = Record<string, any[]>;
 
-const separator = "#";
+const separator = '#';
 
 function flattenKey(k: FieldKey, sep = separator) {
-	return k.replaceAll(".", sep);
+	return k.replaceAll('.', sep);
 }
 
-const deleteIdentifier = Symbol("delete");
+const deleteIdentifier = Symbol('delete');
 
 @Component({
 	selector: "cv-tabular-field",
@@ -81,7 +81,7 @@ const deleteIdentifier = Symbol("delete");
 		HlmButton,
 		ReactiveFormsModule,
 		HlmTableContainer,
-		FlexRenderDirective,
+		FlexRenderDirective
 	],
 	templateUrl: "./tabular-field.component.html",
 	styleUrl: "./tabular-field.component.scss",
@@ -104,11 +104,9 @@ const deleteIdentifier = Symbol("delete");
 			multi: true,
 		},
 	],
-	hostDirectives: [],
+	hostDirectives: []
 })
-export class TabularFieldComponent<
-	T extends Record<string, ParsedValue | ParsedValue[]>,
-> implements ControlValueAccessor {
+export class TabularFieldComponent<T extends Record<string, ParsedValue | ParsedValue[]>> implements ControlValueAccessor {
 	public readonly loadingData = input<boolean>();
 	public readonly optionSource = input.required<Record<string, Option[]>>();
 	public readonly schema = input.required<TabularFieldSchema>();
@@ -121,29 +119,25 @@ export class TabularFieldComponent<
 	public readonly actionTriggered = output<ActionTriggeredEvent<T>>();
 
 	protected readonly editing = signal<boolean>(false);
-	protected readonly title = computed(
-		() => `${extractFieldKey(this.schema().key)}.title`,
-	);
+	protected readonly title = computed(() => `${ extractFieldKey(this.schema().key) }.title`)
 	protected readonly shouldShowActionsCol = computed(() => {
 		const mutationEnabled = this.enableMutation();
 		const customActions = this.actions();
 		return mutationEnabled || (customActions && customActions.length > 0);
-	});
+	})
 	protected readonly trackedChanges = signal<TrackedChanges>({});
-	protected readonly changesTracked = computed(
-		() => !isEmpty(this.trackedChanges()),
-	);
+	protected readonly changesTracked = computed(() => !isEmpty(this.trackedChanges()))
 	protected readonly data = model<T[]>([]);
 	protected readonly rowSelection = signal<RowSelectionState>({});
 	private readonly columnVisibility = linkedSignal<VisibilityState>(() => {
 		const schema = this.schema();
 		const v = {
 			selection: this.enableSelection() ?? false,
-			actions: this.shouldShowActionsCol(),
+			actions: this.shouldShowActionsCol()
 		} as VisibilityState;
 		values(schema.columns)
-			.filter((c) => c.visible === false)
-			.forEach((c) => (v[c.key] = false));
+			.filter(c => c.visible === false)
+			.forEach(c => v[c.key] = false);
 		return v;
 	});
 	protected readonly disabled = signal<boolean>(false);
@@ -154,48 +148,48 @@ export class TabularFieldComponent<
 
 		if (this.enableMutation()) {
 			actions.push({
-				icon: "lucideTrash2",
+				icon: 'lucideTrash2',
 				identifier: deleteIdentifier,
 			});
 		}
 		return [
 			this.cols.display({
-				id: "selection",
+				id: 'selection',
 				header: () => flexRenderComponent(TableHeadSelectionComponent),
 				cell: () => flexRenderComponent(TableRowSelectionComponent),
-				enableHiding: true,
+				enableHiding: true
 			}),
-			...defs.map((def) => {
+			...defs.map(def => {
 				// noinspection JSUnusedGlobalSymbols
 				return {
 					id: def.key,
-					header: `${def.key}.title`,
+					header: `${ def.key }.title`,
 					accessorKey: flattenKey(def.key),
 					enableHiding: def.visible === false,
-					cell: ({ table, column, row }: CellContext<T, unknown>) =>
+					cell: ({ table, column, row, }: CellContext<T, unknown>) =>
 						flexRenderComponent(EditableCellComponent, {
 							inputs: {
 								editing: untracked(this.editing),
 								schema: def,
-								options: untracked(this.optionSource),
+								options: untracked(this.optionSource)
 							},
 							outputs: {
 								blur: () => this.touchCallback?.(),
 								change: (v) => {
 									this.touchCallback?.();
 									table.options.meta?.updateData(row.index, column.id, v);
-								},
-							},
+								}
+							}
 						}),
 				};
 			}),
 			this.cols.display({
 				enableHiding: true,
-				id: "actions",
+				id: 'actions',
 				cell: ({ table }) => {
 					return flexRenderComponent(ActionCell<T>, {
 						inputs: {
-							actions,
+							actions
 						},
 						outputs: {
 							actionTriggered: ({ index, identifier, ...rest }) => {
@@ -205,11 +199,11 @@ export class TabularFieldComponent<
 								} else {
 									this.actionTriggered.emit({ index, identifier, ...rest });
 								}
-							},
-						},
-					});
-				},
-			}),
+							}
+						}
+					})
+				}
+			})
 		];
 	});
 	private cols = createColumnHelper<T>();
@@ -222,74 +216,64 @@ export class TabularFieldComponent<
 			columns: cols,
 			state: {
 				rowSelection: this.rowSelection(),
-				columnVisibility: this.columnVisibility(),
+				columnVisibility: this.columnVisibility()
 			},
 			enableRowSelection: this.enableSelection(),
-			onRowSelectionChange: (updaterOrValue) => {
-				this.rowSelection.set(
-					typeof updaterOrValue === "function"
-						? updaterOrValue(this.rowSelection())
-						: updaterOrValue,
-				);
+			onRowSelectionChange: updaterOrValue => {
+				this.rowSelection.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.rowSelection()) : updaterOrValue);
 			},
-			onColumnVisibilityChange: (updaterOrValue) => {
-				this.columnVisibility.set(
-					typeof updaterOrValue === "function"
-						? updaterOrValue(this.columnVisibility())
-						: updaterOrValue,
-				);
+			onColumnVisibilityChange: updaterOrValue => {
+				this.columnVisibility.set(typeof updaterOrValue === 'function' ? updaterOrValue(this.columnVisibility()) : updaterOrValue)
 			},
 			getRowId: (row) => {
 				const k = flattenKey(schema.identifierColumn);
-				return `${k}${separator}${(row as any)[k]}`;
+				return `${ k }${ separator }${ (row as any)[k] }`;
 			},
 			defaultColumn: {
 				maxSize: 250,
 			},
 			meta: {
-				addRow: () => {},
+				addRow: () => {
+
+				},
 				deleteRow: (index) => {
-					const old = this.transformKeys(this.data()[index], separator, ".");
-					this.data.update((old) => old.filter((_, i) => i != index));
-					const exportingValue = this.data().map(
-						(d) => this.transformKeys(d, separator, ".") as any,
-					);
+					const old = this.transformKeys(this.data()[index], separator, '.');
+					this.data.update(old => old.filter((_, i) => i != index));
+					const exportingValue = this.data().map(d => this.transformKeys(d, separator, '.') as any);
 					this.changed.emit(exportingValue);
 					this.changeCallback?.(exportingValue);
 					this.deltaChange.emit({
-						changeType: "delete",
+						changeType: 'delete',
 						path: [schema.key as string, index],
 						oldValue: old as any,
 					});
 				},
 				updateData: (rowIndex, columnId, value) => {
 					const old = (this.data()[rowIndex] as any)[columnId];
-					this.data.update((old) =>
+					this.data.update(old =>
 						old.map((row, index) => {
 							if (index === rowIndex) {
 								return {
 									...old[rowIndex],
 									[columnId]: value,
-								};
+								}
 							}
-							return row;
-						}),
+							return row
+						})
 					);
-					const exportingValue = this.data().map(
-						(d) => this.transformKeys(d, separator, ".") as any,
-					);
+					const exportingValue = this.data().map(d => this.transformKeys(d, separator, '.') as any);
 					this.changeCallback?.(exportingValue);
 					this.changed.emit(exportingValue);
 					this.deltaChange.emit({
-						changeType: "update",
+						changeType: 'update',
 						path: [schema.key as string, rowIndex, columnId],
 						newValue: value as any,
-						oldValue: old,
+						oldValue: old
 					});
-				},
-			},
-		}));
-	});
+				}
+			}
+		}))
+	})
 	private touchCallback?: () => void;
 	private changeCallback?: (v: T[]) => void;
 	private newCounter = signal(0);
@@ -300,21 +284,16 @@ export class TabularFieldComponent<
 			if (!mutationEnabled) {
 				untracked(() => {
 					this.editing.set(false);
-				});
+				})
 			}
-		});
+		})
 	}
 
 	writeValue(obj: any): void {
-		const transformedValue = (obj ?? []).map((row: any) =>
-			entries(row).reduce(
-				(acc, [k, v]) => {
-					acc[flattenKey(k as FieldKey)] = v as ParsedValue | ParsedValue[];
-					return acc;
-				},
-				{} as Record<string, ParsedValue | ParsedValue[]>,
-			),
-		);
+		const transformedValue = (obj ?? []).map((row: any) => entries(row).reduce((acc, [k, v]) => {
+			acc[flattenKey(k as FieldKey)] = v as ParsedValue | ParsedValue[];
+			return acc;
+		}, {} as Record<string, ParsedValue | ParsedValue[]>));
 		this.data.set(transformedValue);
 		this.editing.set(false);
 	}
@@ -322,14 +301,12 @@ export class TabularFieldComponent<
 	protected addRow() {
 		this.touchCallback?.();
 		const row = this.createRowObj();
-		this.data.update((old) => [...old, this.transformKeys(row, ".") as any]);
-		this.changeCallback?.(
-			this.data().map((v) => this.transformKeys(v, separator, ".") as any),
-		);
+		this.data.update(old => [...old, this.transformKeys(row, '.') as any]);
+		this.changeCallback?.(this.data().map(v => this.transformKeys(v, separator, '.') as any));
 		this.deltaChange.emit({
-			changeType: "add",
+			changeType: 'add',
 			newValue: row,
-			path: [extractFieldKey(this.schema().key), this.data().length - 1],
+			path: [extractFieldKey(this.schema().key), this.data().length - 1]
 		});
 	}
 
@@ -338,8 +315,8 @@ export class TabularFieldComponent<
 			(acc as any)[extractFieldKey(col.key)] = null;
 			return acc;
 		}, {} as T);
-		this.newCounter.update((v) => v + 1);
-		(obj as any)[this.schema().identifierColumn] = `new-${this.newCounter()}`;
+		this.newCounter.update(v => v + 1);
+		(obj as any)[this.schema().identifierColumn] = `new-${ this.newCounter() }`;
 		return obj;
 	}
 
@@ -355,19 +332,10 @@ export class TabularFieldComponent<
 		this.disabled.set(isDisabled);
 	}
 
-	private transformKeys(
-		data: T,
-		target: string,
-		replacement: string = separator,
-	) {
-		return entries(data as any).reduce(
-			(acc, [k, v]) => {
-				acc[k.replaceAll(target, replacement)] = v as
-					| ParsedValue
-					| ParsedValue[];
-				return acc;
-			},
-			{} as Record<string, ParsedValue | ParsedValue[]>,
-		);
+	private transformKeys(data: T, target: string, replacement: string = separator) {
+		return entries(data as any).reduce((acc, [k, v]) => {
+			acc[k.replaceAll(target, replacement)] = v as ParsedValue | ParsedValue[];
+			return acc;
+		}, {} as Record<string, ParsedValue | ParsedValue[]>);
 	}
 }

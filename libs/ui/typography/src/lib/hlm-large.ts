@@ -1,10 +1,10 @@
-import { Directive } from "@angular/core";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
-export const hlmLarge = "text-lg font-semibold";
+export const hlmLarge = 'text-lg font-semibold';
 
 @Directive({
-	selector: "[hlmLarge]",
+	selector: '[hlmLarge]',
 })
 export class HlmLarge {
 	constructor() {

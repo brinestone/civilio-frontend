@@ -6,5 +6,5 @@
  */
 
 export type IsFormTitleAvailableParams = {
-	title: string;
+title: string;
 };

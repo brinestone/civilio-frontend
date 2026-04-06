@@ -1,4 +1,4 @@
-import { BooleanInput } from "@angular/cdk/coercion";
+import { BooleanInput } from '@angular/cdk/coercion';
 import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
@@ -7,14 +7,14 @@ import {
 	input,
 	linkedSignal,
 	output,
-} from "@angular/core";
-import { BrnDialogContent, BrnDialogState } from "@spartan-ng/brain/dialog";
-import { HlmDialogImports } from "@spartan-ng/helm/dialog";
-import { hlm } from "@spartan-ng/helm/utils";
-import { ClassValue } from "clsx";
+} from '@angular/core';
+import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
+import { HlmDialogImports } from '@spartan-ng/helm/dialog';
+import { hlm } from '@spartan-ng/helm/utils';
+import { ClassValue } from 'clsx';
 
 @Component({
-	selector: "hlm-command-dialog",
+	selector: 'hlm-command-dialog',
 	imports: [HlmDialogImports, BrnDialogContent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
@@ -34,20 +34,16 @@ import { ClassValue } from "clsx";
 	`,
 })
 export class HlmCommandDialog {
-	public readonly title = input<string>("Command Palette");
-	public readonly description = input<string>("Search for a command to run...");
+	public readonly title = input<string>('Command Palette');
+	public readonly description = input<string>('Search for a command to run...');
 
-	public readonly state = input<BrnDialogState>("closed");
+	public readonly state = input<BrnDialogState>('closed');
 	protected readonly _state = linkedSignal(this.state);
 
-	public readonly showCloseButton = input<boolean, BooleanInput>(false, {
-		transform: booleanAttribute,
-	});
+	public readonly showCloseButton = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 
-	public readonly dialogContentClass = input<ClassValue>("");
-	protected readonly _computedDialogContentClass = computed(() =>
-		hlm("w-96 p-0", this.dialogContentClass()),
-	);
+	public readonly dialogContentClass = input<ClassValue>('');
+	protected readonly _computedDialogContentClass = computed(() => hlm('w-96 p-0', this.dialogContentClass()));
 
 	public readonly stateChange = output<BrnDialogState>();
 

@@ -9,18 +9,18 @@
  * A single submission response
  */
 export interface SubmissionResponse {
-	/** The index of the submission */
-	submissionIndex: number;
-	/** UUID of the form field */
-	fieldId: string;
-	/** UUID of the form version */
-	formVersion: string;
-	submissionTag: string;
-	/** The form identifier/slug */
-	form: string;
-	/**
-	 * The response value for the field
-	 * @nullable
-	 */
-	value?: string | null;
+  /** The index of the submission */
+  submissionIndex: number;
+  /** UUID of the form field */
+  fieldId: string;
+  /** UUID of the form version */
+  formVersion: string;
+  submissionTag: string;
+  /** The form identifier/slug */
+  form: string;
+  /**
+   * The response value for the field
+   * @nullable
+   */
+  value?: string | null;
 }

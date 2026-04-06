@@ -1,8 +1,8 @@
-import { Directive } from "@angular/core";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmButtonGroupText],hlm-button-group-text",
+	selector: '[hlmButtonGroupText],hlm-button-group-text',
 })
 export class HlmButtonGroupText {
 	constructor() {

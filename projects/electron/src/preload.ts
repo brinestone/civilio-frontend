@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld("electron", {
+contextBridge.exposeInMainWorld('electron', {
 	// send: (channel: string, data: any) => {
 	// 	ipcRenderer.send(channel, data);
 	// },
@@ -14,9 +14,7 @@ contextBridge.exposeInMainWorld("electron", {
 	// off: (channel: string, func: (...args: any[]) => void) => {
 	// 	ipcRenderer.removeListener(channel, func);
 	// },
-	invoke: <T>(channel: string, ...args: any[]) =>
-		ipcRenderer.invoke(channel, ...args) as Promise<T>,
+	invoke: <T>(channel: string, ...args: any[]) => ipcRenderer.invoke(channel, ...args) as Promise<T>,
 	platform: process.platform,
-	uploadFile: (options: { multiple?: true; filters: string[] }) =>
-		ipcRenderer.invoke("upload-file", options),
+	uploadFile: (options: { multiple?: true, filters: string[] }) => ipcRenderer.invoke('upload-file', options)
 });

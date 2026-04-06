@@ -6,6 +6,6 @@
  */
 
 export type GetSubmissionDataParams = {
-	fv?: string;
-	sv?: string;
+fv?: string;
+sv?: string;
 };

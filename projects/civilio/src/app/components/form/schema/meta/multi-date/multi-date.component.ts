@@ -1,22 +1,22 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { FormField } from "@angular/forms/signals";
-import { DatePicker, MultiDatePicker } from "@app/components";
-import { FieldError } from "@app/components/form";
-import { MultiDateFieldConfig } from "@civilio/sdk/models";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideX } from "@ng-icons/lucide";
-import { HlmButton } from "@spartan-ng/helm/button";
-import { HlmButtonGroup } from "@spartan-ng/helm/button-group";
-import { HlmField, HlmFieldGroup, HlmFieldLabel } from "@spartan-ng/helm/field";
-import { HlmInput } from "@spartan-ng/helm/input";
-import { BaseFieldConfig } from "../base-meta-config/base-meta-config.component";
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormField } from '@angular/forms/signals';
+import { DatePicker, MultiDatePicker } from '@app/components';
+import { FieldError } from '@app/components/form';
+import { MultiDateFieldConfig } from '@civilio/sdk/models';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideX } from '@ng-icons/lucide';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmButtonGroup } from '@spartan-ng/helm/button-group';
+import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
+import { HlmInput } from '@spartan-ng/helm/input';
+import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
 @Component({
-	selector: "cv-multi-date-meta",
+	selector: 'cv-multi-date-meta',
 	viewProviders: [
 		provideIcons({
-			lucideX,
-		}),
+			lucideX
+		})
 	],
 	imports: [
 		HlmButtonGroup,
@@ -28,11 +28,15 @@ import { BaseFieldConfig } from "../base-meta-config/base-meta-config.component"
 		HlmButton,
 		NgIcon,
 		FormField,
-		MultiDatePicker,
+		MultiDatePicker
 	],
-	hostDirectives: [HlmFieldGroup],
-	templateUrl: "./multi-date.component.html",
-	styleUrl: "./multi-date.component.scss",
+	hostDirectives: [
+		HlmFieldGroup
+	],
+	templateUrl: './multi-date.component.html',
+	styleUrl: './multi-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiDateMetaComponent extends BaseFieldConfig<MultiDateFieldConfig> {}
+export class MultiDateMetaComponent extends BaseFieldConfig<MultiDateFieldConfig> {
+
+}

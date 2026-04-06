@@ -1,30 +1,28 @@
-import { Component, inject } from "@angular/core";
-import {
-	LocaleSelectorComponent,
-	ThemeSelectorComponent,
-} from "@app/components";
-import { SetFontSize } from "@app/store/config";
-import { fontSize } from "@app/store/selectors";
-import { TranslatePipe, TranslateService } from "@ngx-translate/core";
-import { dispatch, select } from "@ngxs/store";
-
-import { HlmSelectImports } from "@spartan-ng/helm/select";
-import { range } from "lodash";
-import { toast } from "@spartan-ng/brain/sonner";
+import { Component, inject } from '@angular/core';
+import { LocaleSelectorComponent, ThemeSelectorComponent } from '@app/components';
+import { SetFontSize } from '@app/store/config';
+import { fontSize } from '@app/store/selectors';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { dispatch, select } from '@ngxs/store';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { range } from 'lodash';
+import { toast } from 'ngx-sonner';
 
 @Component({
-	selector: "cv-general-settings",
+	selector: 'cv-general-settings',
 	imports: [
 		ThemeSelectorComponent,
 		LocaleSelectorComponent,
 		TranslatePipe,
 		HlmSelectImports,
+		BrnSelectImports
 	],
 	host: {
-		class: "page",
+		'class': 'page'
 	},
-	templateUrl: "./general-settings.page.html",
-	styleUrl: "./general-settings.page.scss",
+	templateUrl: './general-settings.page.html',
+	styleUrl: './general-settings.page.scss'
 })
 export class GeneralSettingsPage {
 	private readonly setFontSize = dispatch(SetFontSize);
@@ -35,10 +33,8 @@ export class GeneralSettingsPage {
 	protected onFontSizeChanged(size: number) {
 		this.setFontSize(size).subscribe({
 			error: (e: Error) => {
-				toast.error(this.ts.instant("msg.error.title"), {
-					description: e.message,
-				});
+				toast.error(this.ts.instant('msg.error.title'), { description: e.message });
 			},
-		});
+		})
 	}
 }

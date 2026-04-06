@@ -1,22 +1,12 @@
-import { NumberInput } from "@angular/cdk/coercion";
-import { NgStyle, PercentPipe } from "@angular/common";
-import {
-	booleanAttribute,
-	Component,
-	computed,
-	HostListener,
-	input,
-	model,
-	numberAttribute,
-	output,
-	signal,
-} from "@angular/core";
-import { FormValueControl } from "@angular/forms/signals";
-import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideFilePlus, lucideUpload, lucideX } from "@ng-icons/lucide";
-import { HlmButton } from "@spartan-ng/helm/button";
-import { random } from "lodash";
-import { hostBinding } from "ngxtension/host-binding";
+import { NumberInput } from '@angular/cdk/coercion';
+import { NgStyle, PercentPipe } from '@angular/common';
+import { booleanAttribute, Component, computed, HostListener, input, model, numberAttribute, output, signal } from '@angular/core';
+import { FormValueControl } from '@angular/forms/signals';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideFilePlus, lucideUpload, lucideX } from '@ng-icons/lucide';
+import { HlmButton } from '@spartan-ng/helm/button';
+import { random } from 'lodash';
+import { hostBinding } from 'ngxtension/host-binding';
 
 const placeholderLogosLight = [
 	`<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +31,7 @@ const placeholderLogosLight = [
 <path d="M37.7884 40L27.4542 31.1711C26.8407 30.647 26.4871 29.8778 26.4871 29.0677V22.4138L36.8212 31.2427C37.4347 31.7668 37.7884 32.536 37.7884 33.3461V40Z" fill="#7B19D8"></path>
 <path d="M50.1172 9.31034L39.9236 17.9705C39.4294 18.3904 38.8035 18.6207 38.1569 18.6207H29.9361L40.1047 9.96253C40.5992 9.54141 41.226 9.31034 41.8737 9.31034H50.1172Z" fill="#7B19D8"></path>
 <path d="M50.1172 30.6897L39.9863 22.0345C39.4912 21.6115 38.863 21.3793 38.2137 21.3793H29.9117L40.1052 30.0394C40.5995 30.4593 41.2253 30.6897 41.872 30.6897H50.1172Z" fill="#7B19D8"></path>
-</svg>`,
+</svg>`
 ];
 const placeholderLogosDark = [
 	`<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -66,83 +56,75 @@ const placeholderLogosDark = [
 <path d="M38.0462 40L27.712 31.1711C27.0985 30.647 26.7449 29.8778 26.7449 29.0677V22.4138L37.079 31.2427C37.6926 31.7668 38.0462 32.536 38.0462 33.3461V40Z" fill="white"></path>
 <path d="M50.375 9.31034L40.1814 17.9705C39.6872 18.3904 39.0613 18.6207 38.4147 18.6207H30.194L40.3625 9.96253C40.8571 9.54141 41.4838 9.31034 42.1315 9.31034H50.375Z" fill="white"></path>
 <path d="M50.375 30.6897L40.2441 22.0345C39.749 21.6115 39.1208 21.3793 38.4716 21.3793H30.1695L40.3631 30.0394C40.8573 30.4593 41.4831 30.6897 42.1298 30.6897H50.375Z" fill="white"></path>
-</svg>`,
+</svg>`
 ];
 
 @Component({
-	selector: "cv-form-img",
+	selector: 'cv-form-img',
 	viewProviders: [
 		provideIcons({
 			lucideFilePlus,
 			lucideX,
-			lucideUpload,
-		}),
+			lucideUpload
+		})
 	],
 	host: {
-		"[style.width]": "widthStyle()",
-		"[style.height]": "heightStyle()",
-		"[class.group/img-item]": "true",
+		'[style.width]': 'widthStyle()',
+		'[style.height]': 'heightStyle()',
+		'[class.group/img-item]': 'true',
 	},
-	imports: [NgIcon, HlmButton, PercentPipe, NgStyle],
-	templateUrl: "./image-form-item.component.html",
-	styleUrl: "./image-form-item.component.scss",
+	imports: [
+		NgIcon,
+		HlmButton,
+		PercentPipe,
+		NgStyle,
+	],
+	templateUrl: './image-form-item.component.html',
+	styleUrl: './image-form-item.component.scss',
 })
-export class ImageFormItem implements FormValueControl<
-	string | null | undefined
-> {
+export class ImageFormItem implements FormValueControl<string | null | undefined> {
 	readonly value = model<string | null | undefined>();
-	readonly progress = input<number | undefined, NumberInput>(undefined, {
-		transform: numberAttribute,
-	});
+	readonly progress = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
 	readonly imagePicked = output<FileList>();
-	readonly resize = output<{ width: number; height: number }>();
+	readonly resize = output<{ width: number, height: number }>();
 	readonly filter = input<string>();
-	readonly disabled = input<boolean, unknown>(false, {
-		transform: booleanAttribute,
-	});
+	readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 	readonly readonly = input<boolean, unknown>(false, {
 		transform: booleanAttribute,
 	});
-	readonly width = input<number | undefined, NumberInput>(undefined, {
-		transform: numberAttribute,
-	});
-	readonly height = input<number | undefined, NumberInput>(undefined, {
-		transform: numberAttribute,
-	});
+	readonly width = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
+	readonly height = input<number | undefined, NumberInput>(undefined, { transform: numberAttribute });
 	readonly caption = input<string>();
 
-	protected readonly placeholderLogo = signal("");
-	protected readonly droppingFile = hostBinding(
-		"class.hovering-file",
-		signal(false),
-	);
+	protected readonly placeholderLogo = signal('');
+	protected readonly droppingFile = hostBinding('class.hovering-file', signal(false));
 	protected readonly widthStyle = computed(() => `${this.width()}px`);
 	protected readonly heightStyle = computed(() => `${this.height()}px`);
 	protected readonly resizing = signal(false);
 	protected resizeBurst?: number;
 
-	@HostListener("window:drop", ["$event"])
+	@HostListener('window:drop', ['$event'])
 	protected onWindowDrop(event: DragEvent) {
 		if (this.readonly()) {
 			event.preventDefault();
 			return;
 		}
 		if (!event.dataTransfer) return;
-		if ([...event.dataTransfer.items].some((i) => i.kind == "file")) {
+		if ([...event.dataTransfer.items].some(i => i.kind == 'file')) {
 			event.preventDefault();
 		}
 	}
 
-	@HostListener("drop", ["$event"])
+	@HostListener('drop', ['$event'])
 	protected onDrop(event: DragEvent) {
 		if (this.readonly()) {
 			event.preventDefault();
 			return;
 		}
-		console.log("file dropped");
+		console.log('file dropped');
 	}
 
-	@HostListener("dragover", ["$event"])
+	@HostListener('dragover', ['$event'])
 	protected onDragOver(event: DragEvent) {
 		if (this.readonly()) {
 			event.preventDefault();
@@ -151,7 +133,7 @@ export class ImageFormItem implements FormValueControl<
 		console.log(event);
 	}
 
-	@HostListener("dragleave")
+	@HostListener('dragleave')
 	protected onDragLeave() {
 		if (this.readonly()) {
 			return;
@@ -160,23 +142,17 @@ export class ImageFormItem implements FormValueControl<
 	}
 
 	constructor() {
-		const watcher = matchMedia("(prefers-color-scheme: dark)");
+		const watcher = matchMedia('(prefers-color-scheme: dark)');
 		const index = random(0, placeholderLogosLight.length - 1);
-		watcher.addEventListener("change", (list) => {
-			this.placeholderLogo.set(
-				this.getRandomSvgPlaceholder(list.matches, index),
-			);
+		watcher.addEventListener('change', list => {
+			this.placeholderLogo.set(this.getRandomSvgPlaceholder(list.matches, index));
 		});
-		this.placeholderLogo.set(
-			this.getRandomSvgPlaceholder(watcher.matches, index),
-		);
+		this.placeholderLogo.set(this.getRandomSvgPlaceholder(watcher.matches, index));
 	}
 
 	private getRandomSvgPlaceholder(useDark: boolean, index: number) {
-		const svgString = useDark
-			? placeholderLogosDark[index]
-			: placeholderLogosLight[index];
-		const blob = new Blob([svgString as string], { type: "image/svg+xml" });
+		const svgString = useDark ? placeholderLogosDark[index] : placeholderLogosLight[index];
+		const blob = new Blob([svgString as string], { type: 'image/svg+xml' });
 		return URL.createObjectURL(blob);
 	}
 
@@ -184,4 +160,5 @@ export class ImageFormItem implements FormValueControl<
 		if (files == null || files.length == 0) return;
 		this.imagePicked.emit(files);
 	}
+
 }

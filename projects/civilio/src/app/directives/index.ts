@@ -1,2 +1,2 @@
-export * from "./dev-only";
-export * from "./resizable.directive";
+export * from './dev-only';
+export * from './resizable.directive';

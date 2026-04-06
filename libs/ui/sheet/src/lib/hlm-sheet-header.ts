@@ -1,14 +1,14 @@
-import { Directive } from "@angular/core";
-import { classes } from "@spartan-ng/helm/utils";
+import { Directive } from '@angular/core';
+import { classes } from '@spartan-ng/helm/utils';
 
 @Directive({
-	selector: "[hlmSheetHeader],hlm-sheet-header",
+	selector: '[hlmSheetHeader],hlm-sheet-header',
 	host: {
-		"data-slot": "sheet-header",
+		'data-slot': 'sheet-header',
 	},
 })
 export class HlmSheetHeader {
 	constructor() {
-		classes(() => "flex flex-col gap-1.5 p-4");
+		classes(() => 'flex flex-col gap-1.5 p-4');
 	}
 }

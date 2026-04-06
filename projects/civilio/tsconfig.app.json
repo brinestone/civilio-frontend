@@ -5,7 +5,6 @@
   "compilerOptions": {
     "skipLibCheck": true,
     "outDir": "../../out-tsc/app",
-    "rootDir": "../../",
     "types": []
   },
   "include": [

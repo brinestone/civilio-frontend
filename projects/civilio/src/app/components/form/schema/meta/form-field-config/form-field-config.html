@@ -23,7 +23,7 @@
 				>Use auto-computed data key</label
 			>
 		</div>
-		<cv-field-error [field]="meta().dataKey" eager />
+		<cv-field-error [field]="meta().dataKey" eager/>
 	</div>
 	<div hlmField>
 		<label hlmFieldLabel for="{{index()}}__field_type">Question type</label>
@@ -42,12 +42,12 @@
 			</hlm-select-trigger>
 			<hlm-select-content class="w-full">
 				@for(type of fieldItemTypes; track $index) {
-				<hlm-select-item [value]="type">
+				<hlm-option [value]="type">
 					<div class="flex items-center gap-2">
 						<ng-icon [name]="fieldItemTypesMap[type].icon" />
 						<span>{{ fieldItemTypesMap[type].label }}</span>
 					</div>
-				</hlm-select-item>
+				</hlm-option>
 				}
 			</hlm-select-content>
 		</hlm-select>
