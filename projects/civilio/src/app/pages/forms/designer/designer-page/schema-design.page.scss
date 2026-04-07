@@ -2,7 +2,7 @@
 
 :host {
 	@apply block relative w-full h-full overflow-y-auto;
-	&.editing {
+	/* &.editing { */
 		background-color: var(--background);
 		opacity: 0.8;
 		background-image:
@@ -16,7 +16,7 @@
 				var(--background) 1px
 			);
 		background-size: 20px 20px;
-	}
+	/* } */
 }
 
 textarea {

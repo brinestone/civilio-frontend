@@ -5,5 +5,6 @@
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
 	"[sql]": {
 		"editor.defaultFormatter": "ms-ossdata.vscode-pgsql"
-	}
+	},
+	"js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }

@@ -1,19 +1,15 @@
 <div class="sticky top-0 backdrop-blur z-99 border-b border-muted">
 	<div class="container mx-auto p-2">
 		<cv-form-designer-header
+			[formState]="formModel()"
 			(onSubmit)="onFormSubmit()"
 			(onDiscard)="onFormDiscard()"
 			(itemAdd)="onItemAdd($event)"
-			[(previewing)]="renderForm"
 		/>
 	</div>
 </div>
 <div class="container mx-auto py-10">
-	@if (!renderForm()) {
-	<cv-form-designer [(formDefinition)]="formData" />
-	} @else {
-	<cv-form-renderer [formDefinition]="formData()" />
-	}
+	<cv-form-designer [formModel]="formModel" />
 </div>
 
 <!-- <hlm-alert-dialog

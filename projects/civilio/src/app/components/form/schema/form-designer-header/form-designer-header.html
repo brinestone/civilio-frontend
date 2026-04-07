@@ -1,6 +1,6 @@
 <div class="flex justify-between items-center flex-wrap gap-3 sticky top-2">
   <div class="flex items-center gap-2">
-    <button
+    <!-- <button
       (click)="onTogglePreviewButtonClicked()"
       [disabled]="submitting()"
       class="cursor-pointer"
@@ -11,16 +11,16 @@
     >
       <ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
       <span> @if(previewing()) { Design } @else { Preview } </span>
-    </button>
+    </button> -->
     @if(editable()) {
     <div hlmButtonGroup>
-      @if(!previewing()) {
+      <!-- @if(!previewing()) { -->
       <button
         type="button"
-        [title]="'Add' + lastAddedItemLabel()"
+        [title]="'Add ' + lastAddedItemLabel()"
         hlmBtn
         class="capitalize"
-        [disabled]="submitting()"
+        [disabled]="formState().submitting()"
         size="sm"
         variant="outline"
         (click)="itemAdd.emit(lastAddedItemType())"
@@ -33,13 +33,13 @@
         [hlmDropdownMenuTrigger]="itemTypesMenu"
         type="button"
         size="sm"
-        [disabled]="submitting()"
+        [disabled]="formState().submitting()"
         variant="outline"
         aria-label="Select item Type"
       >
         <ng-icon name="lucideChevronDown" />
       </button>
-      }
+      <!-- } -->
     </div>
     <!-- <ng-container>
 			@if(!previewing()) {
@@ -55,27 +55,27 @@
     }
   </div>
   <div class="flex items-center gap-2">
-    @if(dirty() && !previewing()) {
+    @if(formState().dirty() ) {
     <button
       hlmBtn
       size="sm"
       (click)="onSubmit.emit()"
       type="button"
-      [disabled]="invalid() || submitting()"
+      [disabled]="formState().invalid() || formState().submitting()"
       variant="default"
     >
-      @if(submitting()) {
+      @if(formState().submitting()) {
       <hlm-spinner />
       } @else {
       <ng-icon name="lucideSave" />
       }
-      <span>{{submitting() ? 'Saving' : 'Save'}} changes</span>
+      <span>{{formState().submitting() ? 'Saving' : 'Save'}} changes</span>
     </button>
     <button
       (click)="onDiscard.emit()"
       hlmBtn
       size="sm"
-      [disabled]="submitting()"
+      [disabled]="formState().submitting()"
       type="button"
       variant="destructive"
     >
