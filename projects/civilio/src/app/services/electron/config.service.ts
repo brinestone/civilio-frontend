@@ -25,6 +25,9 @@ export class ElectronConfigService implements ConfigService {
 			value: url
 		})
 	}
+	async getMachineId(): Promise<string> {
+		return await sendRpcMessageAsync('machine-id:read');
+	}
 	async discoverServer(): Promise<DiscoverServerResponse> {
 		return await sendRpcMessageAsync('discovery:init');
 	}
@@ -55,7 +58,7 @@ export class ElectronConfigService implements ConfigService {
 
 	async updateMisc(path: string, value: unknown): Promise<AppConfigResponse> {
 		return await sendRpcMessageAsync('config:update', {
-			path: `${ 'misc' as AppConfigPaths }.${ path }`,
+			path: `${'misc' as AppConfigPaths}.${path}`,
 			value
 		})
 	}

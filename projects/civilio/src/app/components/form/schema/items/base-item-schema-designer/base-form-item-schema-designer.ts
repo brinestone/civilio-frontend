@@ -1,9 +1,14 @@
 import { BooleanInput } from "@angular/cdk/coercion";
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, isDevMode, model } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, isDevMode, model, output } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { FormItemDefinition, NewFormItemDefinition } from "@civilio/sdk/models";
+import { FormItemDefinition, HasLibraryStatus, NewFormItemDefinition } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { createFormItemDesignerContextInjector, injectFormSchemaContext } from "..";
+
+
+function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Strict<HasLibraryStatus>> {
+	return 'inLibrary' in item;
+}
 
 @Component({
 	selector: 'base-form-item',
@@ -24,7 +29,9 @@ export class BaseFormItemSchemaDesigner<T extends FormItemDefinition | NewFormIt
 	readonly expanded = model<boolean>(false);
 	readonly editing = model<boolean>(true);
 	readonly showDebug = input<boolean, BooleanInput>(isDevMode(), { transform: booleanAttribute });
+	readonly addToLibrary = output();
 	protected readonly isNew = computed(() => !('id' in (this.node()().value() as any)));
+	protected readonly isInLibrary = computed(() => hasLibraryStatus(this.node() as any));
 	protected readonly context = injectFormSchemaContext();
 	protected readonly sectionInjector = createFormItemDesignerContextInjector<T>({
 		fieldTree: this.node,

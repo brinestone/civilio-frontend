@@ -92,3 +92,7 @@ export class RemoveConnection {
 export class ClearConnections {
 	static type = `${prefix} clear connections`;
 }
+
+export class GetMachineId {
+	static type = `${prefix} get machine id`;
+}

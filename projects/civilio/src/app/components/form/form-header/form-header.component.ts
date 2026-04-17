@@ -104,7 +104,7 @@ export class FormHeaderComponent {
 			const form = this.form();
 			if (!form) this.rangeGenerator.ranges = [];
 			else
-				this.submissionService.findSparseIndexRanges(form, { limit: 99999 }).subscribe({
+				this.submissionService.findSparseIndexRanges({ form, limit: 99999 }).subscribe({
 					next: ranges => {
 						this.rangeGenerator.ranges = ranges;
 					}

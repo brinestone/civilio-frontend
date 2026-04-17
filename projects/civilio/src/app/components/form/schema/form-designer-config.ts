@@ -474,6 +474,21 @@ function defineFieldItemDefinitionFormSchema(
     debounce(config.title, debounceDuration);
     debounce(config.description, debounceDuration);
     required(config.title, { message: "A title is required" });
+    disabled(config.dataKey, ({ valueOf }) => valueOf(config.autoDataKey));
+    applyWhen(
+      config.dataKey,
+      ({ valueOf }) => valueOf(config.autoDataKey) !== true,
+      (p) => {
+        pattern(p, /^[a-zA-Z0-9_-]+$/, {
+          message:
+            "Data key must contain only letters, numbers, underscores or hyphens",
+        });
+        required(p, {
+          message:
+            "Data key is required when auto-generate data key is disabled",
+        });
+      },
+    );
   });
 }
 
@@ -540,9 +555,9 @@ function defineFormItemDefinitionFormSchema(
   applyWhenValue(paths, isImage, defineImageItemDefinitionFormSchema);
 }
 
-export function defineFormDefinitionFormSchema() {
+export function defineFormDesignerFormSchema() {
   return (
-    paths: SchemaPathTree<ReturnType<typeof defaultFormDefinitionSchemaValue>>,
+    paths: SchemaPathTree<Strict<FormVersionDefinition>>,
   ) => {
     hidden(paths.id, () => true);
     hidden(paths.parentId, () => true);
@@ -601,7 +616,7 @@ export function defineFormDefinitionFormSchema() {
 }
 
 export function domainToStrictFormDefinition(value: FormVersionDefinition) {
-  return cloneDeep(value) as unknown as Strict<typeof value>;
+  return FormVersionDefinition.parse(value) as unknown as Strict<typeof value>;
 }
 
 export function defaultFormItemDefinitionSchemaValue(

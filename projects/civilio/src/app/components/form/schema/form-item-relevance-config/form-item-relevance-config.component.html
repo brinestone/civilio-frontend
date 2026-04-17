@@ -226,7 +226,11 @@
 <ng-template #multiDateExpressionValueTemplate> </ng-template>
 <ng-template #rangeDateExpressionValueTemplate> </ng-template>
 <ng-template #selectionExpressionValueTemplate> </ng-template>
-<ng-template #numberExpressionValueTemplate> </ng-template>
+<ng-template #numberExpressionValueTemplate let-control>
+	<div hlmField>
+		<input [formField]="control" hlmInput type="number">
+	</div>
+</ng-template>
 <ng-template #textExpressionValueTemplate let-control let-operator="operator">
 	<div hlmField>
 		@if (operator == "match") {

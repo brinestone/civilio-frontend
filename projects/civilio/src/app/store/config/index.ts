@@ -28,6 +28,7 @@ import {
 	ApplyPendingMigrations,
 	ClearConnections,
 	DiscoverServer,
+	GetMachineId,
 	InitChecks,
 	IntrospectDb,
 	LoadConfig,
@@ -51,6 +52,7 @@ type ConfigStateModel = {
 	preInit: boolean;
 	connectionsLoaded: boolean;
 	serverOnline: boolean;
+	machineId?: string;
 }
 type Context = StateContext<ConfigStateModel>;
 export const CONFIG_STATE = new StateToken<ConfigStateModel>('config');
@@ -151,7 +153,15 @@ export class ConfigState implements NgxsOnInit {
 
 	@Action(InitChecks)
 	onInitChecks(ctx: Context) {
-		ctx.dispatch([LoadConfig, DiscoverServer, IntrospectDb, LoadKnownConnections]);
+		ctx.dispatch([LoadConfig, DiscoverServer, IntrospectDb, LoadKnownConnections, GetMachineId]);
+	}
+
+	@Action(GetMachineId)
+	async onGetMachineId(ctx: Context) {
+		const machineId = await this.configService.getMachineId();
+		ctx.setState(patch({
+			machineId
+		}))
 	}
 
 	@Action(IntrospectDb)

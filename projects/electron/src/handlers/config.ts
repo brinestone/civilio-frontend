@@ -13,6 +13,7 @@ import { join, resolve } from 'path';
 import { readFileSync } from 'fs';
 import { provideLogger } from '@civilio/helpers/logging';
 import { createSocket } from 'node:dgram';
+import { machineId } from 'node-machine-id';
 
 const logger = provideLogger('config');
 
@@ -25,7 +26,7 @@ export async function discoverServer() {
 		client.once('message', (msg, rinfo) => {
 			try {
 				const serverData = JSON.parse(msg.toString());
-				logger.info(`Found server at ${ serverData.baseUrl } via ${ rinfo.address }`);
+				logger.info(`Found server at ${serverData.baseUrl} via ${rinfo.address}`);
 				const response = DiscoverServerResponseSchema.parse(serverData);
 				resolve(response);
 				storeValue('apiServer', response)
@@ -36,7 +37,7 @@ export async function discoverServer() {
 		});
 		client.bind(() => {
 			client.setBroadcast(true);
-			const message = Buffer.from(JSON.stringify({ c: `DISCOVER=${ clientKey }` }));
+			const message = Buffer.from(JSON.stringify({ c: `DISCOVER=${clientKey}` }));
 
 			client.send(message, port, '255.255.255.255', err => {
 				if (err) {
@@ -48,6 +49,10 @@ export async function discoverServer() {
 			});
 		});
 	});
+}
+
+export async function getMachineId() {
+	return await machineId();
 }
 
 export function getBuildInfo() {

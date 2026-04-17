@@ -50,11 +50,12 @@ type FormItemType = Strict<FormItemDefinition>['type'];
 })
 export class FormDesignerHeader {
 	readonly editable = input<boolean, BooleanInput>(true, { transform: booleanAttribute });
-	readonly previewing = model<boolean>(true);
-	readonly formState = input.required<FieldState<unknown>>();
-	// readonly partialSelection = input<boolean>(false);
+	// readonly dirty = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	// readonly submitting = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	// readonly invalid = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
+	readonly formState = input.required<FieldState<any>>();
 
-	// readonly selectAll = output<boolean>();
+	readonly showPreview = output();
 	readonly itemAdd = output<FormItemType>();
 	readonly onSubmit = output();
 	readonly onDiscard = output();
@@ -65,7 +66,7 @@ export class FormDesignerHeader {
 	protected readonly lastAddedItemIcon = computed(() => FORM_ITEM_TYPES[this.lastAddedItemType()].icon);
 
 	protected onTogglePreviewButtonClicked() {
-		this.previewing.update((previewing) => !previewing);
+		// this.previewing.update((previewing) => !previewing);
 	}
 	constructor() {
 		this.itemAdd.subscribe(v => {

@@ -60,7 +60,10 @@
 			<div class="flex items-center justify-between group/row">
 				<div class="space-y-1 max-w-1/2">
 					<a
-						[routerLink]="[form.slug, 'edit', form.currentVersion?.id ?? 'current']"
+						[routerLink]="[form.slug]"
+						[queryParams]="{
+							version:  form.currentVersion?.id ?? 'current'
+						}"
 						class="font-semibold line-clamp-1 text-ellipsis text-primary"
 					>
 						{{ form.title }}
@@ -75,8 +78,10 @@
 					@for(action of formActions; track $index) {
 					<ng-container>
 						@if (action.route) {
+						<ng-container> @let routeDef = action.route(form); </ng-container>
 						<a
-							[routerLink]="action.route(form)"
+							[routerLink]="routeDef.path"
+							[queryParams]="routeDef.query"
 							hlmBtn
 							variant="outline"
 							size="icon-sm"

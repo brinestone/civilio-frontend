@@ -4,6 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { HlmSeparator } from '@spartan-ng/helm/separator';
 import {
 	lucideExternalLink,
+	lucideGithub,
 	lucideGlobe2,
 	lucideMail,
 	lucidePhoneCall
@@ -20,6 +21,7 @@ import { DatePipe } from '@angular/common';
 			lucideGlobe2,
 			lucideExternalLink,
 			lucideMail,
+			lucideGithub,
 			lucidePhoneCall
 		})
 	],

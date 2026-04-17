@@ -1,10 +1,36 @@
 <div hlmFieldGroup>
+	<div hlmFieldGroup>
+		<div hlmField>
+			<label hlmFieldLabel for="{{index()}}__{{path()}}__auto_data_key"
+				>Data key</label
+			>
+			<input
+				hlmInput
+				type="text"
+				id="{{index()}}__{{path()}}auto_data_key"
+				[formField]="meta().dataKey"
+			/>
+		</div>
+		<div hlmField orientation="horizontal">
+			<hlm-checkbox
+				id="{{index()}}__{{path()}}__use_auto_data_key"
+				[formField]="meta().autoDataKey"
+			/>
+			<label
+				for="{{index()}}__{{path()}}__use_auto_data_key"
+				class="cursor-pointer"
+				hlmFieldLabel
+				>Use auto-computed data key</label
+			>
+		</div>
+		<cv-field-error [field]="meta().dataKey" eager/>
+	</div>
 	<div hlmField>
 		<label hlmFieldLabel for="{{index()}}__field_type">Question type</label>
 		<hlm-select
 			(valueChange)="onFieldTypeChanged(meta(), $event)"
 			[formField]="meta().type"
-			id="{{index()}}__field_type"
+			id="{{index()}}__{{path()}}__field_type"
 		>
 			<hlm-select-trigger class="w-full">
 				<hlm-select-value>
@@ -31,12 +57,12 @@
 		<hlm-checkbox
 			class="cursor-pointer"
 			[formField]="meta().required"
-			id="{{index()}}__required_input"
+			id="{{index()}}__{{path()}}__required_input"
 		/>
 		<label
 			class="cursor-pointer"
 			hlmFieldLabel
-			for="{{index()}}__required_input"
+			for="{{index()}}__{{path()}}__required_input"
 			>Make this field mandatory</label
 		>
 	</div>
@@ -45,12 +71,12 @@
 		<hlm-checkbox
 			class="cursor-pointer"
 			[formField]="meta().readonly"
-			id="{{index()}}__readonly_input"
+			id="{{index()}}__{{path()}}__readonly_input"
 		/>
 		<label
 			class="cursor-pointer"
 			hlmFieldLabel
-			for="{{index()}}__readonly_input"
+			for="{{index()}}__{{path()}}__readonly_input"
 			>Make this field readonly</label
 		>
 	</div>

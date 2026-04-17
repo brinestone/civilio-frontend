@@ -61,22 +61,15 @@ import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 		HlmH3
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	templateUrl: './form-schemas-list.page.html',
-	styleUrl: './form-schemas-list.page.scss',
+	templateUrl: './all-forms.page.html',
+	styleUrl: './all-forms.page.scss',
 })
-export class FormSchemasPage implements HasPendingChanges {
+export class AllFormsPage implements HasPendingChanges {
 	private readonly navigate = dispatch(Navigate);
 	private readonly formService = inject(FormsService);
 	private readonly titleCheckCache = new Map<string, boolean>();
 	protected readonly newFormDialogState = signal<BrnDialogState>('closed');
 	protected readonly route = inject(ActivatedRoute);
-	// protected readonly forms = resource({
-	// 	loader: async () => {
-	// 		const result = await this.formService.lookupFormDefinitions();
-	// 		return result ?? [];
-	// 	},
-	// 	defaultValue: []
-	// });
 	protected readonly forms = rxResource({
 		defaultValue: [],
 		stream: () => this.formService.lookupForms()
@@ -112,7 +105,7 @@ export class FormSchemasPage implements HasPendingChanges {
 		});
 	})
 	protected readonly formActions = [
-		{ icon: 'lucidePencil', route: (form: FormLookup) => [form.slug, 'edit', form.currentVersion?.id] },
+		{ icon: 'lucidePencil', route: (form: FormLookup) => ({ query: { version: form.currentVersion ?? 'current' }, path: [form.slug, 'designer'] }) },
 		{ icon: 'lucideArchive', handler: this.onArchiveFormButtonClicked.bind(this) }
 	];
 	protected readonly formArchivingDialogState = signal<BrnDialogState>('closed');

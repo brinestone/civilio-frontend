@@ -4,7 +4,7 @@ import { FormItemGroup, NewFormItemGroup } from "@civilio/sdk/models";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { HlmSwitch } from "@spartan-ng/helm/switch";
 import { FormField } from "@angular/forms/signals";
-import { HINT } from "@app/pages/forms/schemas/form-designer-config";
+import { HINT } from "@app/components/form/schema/form-designer-config";
 import { FieldError } from "@app/components/form";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from '@spartan-ng/helm/select';

@@ -1,0 +1,133 @@
+@if(sidebarState() == 'open') {
+<div
+	animate.enter="slide-in"
+	animate.leave="slide-out"
+	class="sticky top-10 w-80 col-start-1 col-span-1 row-start-2 row-span-1 z-98"
+>
+	<div
+		class="bg-background space-y-3 border-r border-muted h-full grid grid-rows-[auto_1fr] overflow-hidden"
+	>
+		<div class="py-2 px-3 pt-3 space-y-2">
+			<h1 class="text-xl font-bold flex items-center gap-2">
+				<ng-icon name="lucideLibrary" />
+				<span
+					>{{ 'form.designer.sidebar.library.heading.title' | translate }}</span
+				>
+			</h1>
+			<input
+				type="search"
+				hlmInput
+				placeholder="{{'form.designer.sidebar.library.filter.placeholder' | translate}}"
+			/>
+		</div>
+		<div class="overflow-auto">
+			@defer(when sidebarState() == 'open') {
+			<router-outlet name="side-bar" />
+			}
+		</div>
+	</div>
+	<ng-container [ngTemplateOutlet]="sidebarActions" />
+</div>
+} @else {
+<div class="bg-background space-y-3 sticky top-10">
+	<ng-container [ngTemplateOutlet]="sidebarActions" />
+</div>
+}
+<div
+	class="sticky top-0 backdrop-blur z-99 border-b border-muted col-start-1 col-span-2 row-start-1 row-span-1"
+>
+	<div class="container mx-auto p-2">
+		<cv-form-designer-header
+			[formState]="formModel()"
+			(onSubmit)="onFormSubmit()"
+			(onDiscard)="onFormDiscard()"
+			(itemAdd)="onItemAdd($event)"
+		/>
+	</div>
+</div>
+<div
+	class="col-start-2 col-span-1 row-start-2 row-span-1 overflow-y-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+>
+	<div class="container mx-auto py-10">
+		@if(!formDefinition.isLoading()) {
+		<cv-form-designer [formModel]="formModel" />
+		} @else {
+		<div class="space-y-4">
+			@for(i of [1,2,3,4]; track $index) {
+			<div class="border border-border bg-background rounded-md p-2 space-y-2">
+				<hlm-skeleton class="h-3 w-full block rounded" />
+				<hlm-skeleton class="h-3 w-1/2 block rounded" />
+				<hlm-skeleton class="h-3 w-3/4 block rounded" />
+			</div>
+			}
+		</div>
+		}
+	</div>
+</div>
+
+<ng-template #sidebarActions>
+	<div
+		class="absolute left-full top-2 z-98 border border-muted border-l-0 rounded-md rounded-l-none p-1 bg-background hidden pointer-events-none"
+	>
+		<button
+			type="button"
+			hlmBtn
+			variant="ghost"
+			size="sm"
+			(click)="toggleSidebarState()"
+		>
+			<ng-icon
+				[name]="sidebarState() == 'open'? 'lucideChevronLeft' : 'lucideChevronRight'"
+			/>
+		</button>
+	</div>
+</ng-template>
+<hlm-alert-dialog
+	#pendingChanges
+	class="row-start-3"
+	[state]="pendingChangesDialogState()"
+	(stateChanged)="pendingChangesDialogState.set($event)"
+>
+	<hlm-alert-dialog-content *hlmAlertDialogPortal="let ctx">
+		<hlm-alert-dialog-header>
+			<h2 hlmAlertDialogTitle>
+				{{ 'form.designer.dialogs.pending.title.label' | translate }}
+			</h2>
+			<p hlmAlertDialogDescription>
+				{{'form.designer.dialogs.pending.description.label' | translate}}
+			</p>
+		</hlm-alert-dialog-header>
+		<hlm-alert-dialog-footer>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('save')"
+				class="cursor-pointer"
+				hlmAlertDialogAction
+			>
+				@if (formModel().submitting()) {
+				<hlm-spinner />
+				}
+				<span>
+					{{ 'form.designer.dialogs.pending.actions.save' | translate}}
+				</span>
+			</button>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('discard')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+				variant="destructive"
+			>
+				{{'form.designer.dialogs.pending.actions.discard' | translate}}
+			</button>
+			<button
+				[disabled]="formModel().submitting()"
+				(click)="pendingChangesActionCallback?.('stay')"
+				class="cursor-pointer"
+				hlmAlertDialogCancel
+			>
+				{{'form.designer.dialogs.pending.stay' | translate}}
+			</button>
+		</hlm-alert-dialog-footer>
+	</hlm-alert-dialog-content>
+</hlm-alert-dialog>

@@ -1,0 +1,67 @@
+@reference "tailwindcss";
+
+:host {
+	@apply grid grid-cols-[auto_1fr] grid-rows-[auto_1fr_auto] relative w-full h-full overflow-hidden;
+	/* &.editing { */
+	background-color: var(--background);
+	opacity: 0.8;
+	background-image:
+		linear-gradient(
+			color-mix(in srgb, var(--muted) 70%, transparent) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			to right,
+			color-mix(in srgb, var(--muted) 70%, transparent) 1px,
+			var(--background) 1px
+		);
+	background-size: 20px 20px;
+	/* } */
+}
+
+textarea {
+	@apply resize-none field-sizing-content min-h-[3lh];
+}
+
+dl {
+	dt {
+		@apply font-medium text-xs text-(--muted-foreground);
+		& + dd:not(:only-child):not(:last-child) {
+			@apply border-b border-(--muted);
+		}
+	}
+	dd {
+		@apply text-sm;
+	}
+}
+
+@keyframes slide-in-from-left {
+	from {
+		transform: translateX(-100%);
+		/* left: -100%; */
+		/* opacity: 0; */
+	}
+	to {
+		transform: translateX(0);
+		/* opacity: 100%; */
+	}
+}
+
+@keyframes slide-out-to-left {
+	to {
+		transform: translateX(-100%);
+		/* opacity: 0; */
+	}
+	from {
+		transform: translateX(0);
+		/* opacity: 100%; */
+	}
+}
+
+.slide-in {
+	animation: linear .25s forwards slide-in-from-left;
+}
+
+.slide-out {
+	animation: linear .25s forwards slide-out-to-left;
+}

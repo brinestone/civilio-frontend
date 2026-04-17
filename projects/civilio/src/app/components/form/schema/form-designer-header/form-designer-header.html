@@ -1,8 +1,8 @@
 <div class="flex justify-between items-center flex-wrap gap-3 sticky top-2">
   <div class="flex items-center gap-2">
-    <button
+    <!-- <button
       (click)="onTogglePreviewButtonClicked()"
-      [disabled]="formState().submitting()"
+      [disabled]="submitting()"
       class="cursor-pointer"
       type="button"
       hlmBtn
@@ -11,13 +11,13 @@
     >
       <ng-icon [name]="previewing() ? 'lucideRuler' : 'lucideEye'" />
       <span> @if(previewing()) { Design } @else { Preview } </span>
-    </button>
+    </button> -->
     @if(editable()) {
     <div hlmButtonGroup>
-      @if(!previewing()) {
+      <!-- @if(!previewing()) { -->
       <button
         type="button"
-        [title]="'Add' + lastAddedItemLabel()"
+        [title]="'Add ' + lastAddedItemLabel()"
         hlmBtn
         class="capitalize"
         [disabled]="formState().submitting()"
@@ -39,7 +39,7 @@
       >
         <ng-icon name="lucideChevronDown" />
       </button>
-      }
+      <!-- } -->
     </div>
     <!-- <ng-container>
 			@if(!previewing()) {
@@ -55,7 +55,7 @@
     }
   </div>
   <div class="flex items-center gap-2">
-    @if(formState().dirty() && !previewing()) {
+    @if(formState().dirty() ) {
     <button
       hlmBtn
       size="sm"

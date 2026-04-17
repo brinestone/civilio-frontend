@@ -1,0 +1,32 @@
+<div class="border-b border-muted sticky top-0 z-20 backdrop-blur-md">
+  <div class="flex justify-between items-center px-3">
+    <div class="flex items-center gap-2">
+      <a hlmBtn variant="outline" routerLink=".." size="sm">
+        <ng-icon name="lucideChevronLeft" />
+        <span>All Forms</span>
+      </a>
+    </div>
+    <ul class="flex items-center flex-wrap justify-around gap-3 py-3">
+      @for(item of toolbarItems; track $index) {
+      <li class="menu-link">
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active-route"
+          [routerLinkActiveOptions]="{exact: false}"
+          queryParamsHandling="preserve"
+          class="flex items-center gap-2 outline-none"
+        >
+          <ng-icon [name]="item.icon" />
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+      }
+    </ul>
+    <div></div>
+  </div>
+</div>
+<div
+  class="h-full scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-auto"
+>
+  <router-outlet />
+</div>
