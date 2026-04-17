@@ -5,7 +5,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormField } from '@angular/forms/signals';
 import { SelectFieldItemConfigSchema } from '@app/model/form';
 import { createImporterInjector } from '@app/pages/importers';
-import { DatasetItem, SelectFieldConfig } from '@civilio/sdk/models';
+import { DatasetItem, MultiSelectFieldConfig, SelectFieldConfig } from '@civilio/sdk/models';
 import { DatasetsService } from '@civilio/sdk/services/datasets/datasets.service';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDatabase, lucideFile, lucideGrip, lucideLink, lucidePlus, lucideUnlink, lucideX } from '@ng-icons/lucide';

@@ -12,3 +12,4 @@ onlyBuiltDependencies:
   - less
   - lmdb
   - msgpackr-extract
+  - native-machine-id

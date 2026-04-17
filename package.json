@@ -85,6 +85,7 @@
 		"mustargs": "^1.0.8",
 		"ngx-sonner": ">=3.0.0",
 		"ngxtension": "^6.0.0",
+		"node-machine-id": "^1.1.12",
 		"pg": "^8.16.3",
 		"preferences": "^2.0.2",
 		"rxjs": "~7.8.0",

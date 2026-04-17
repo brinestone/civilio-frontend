@@ -25,7 +25,7 @@ import { BaseItemRenderer } from "../base-item-renderer";
     HlmInput,
     FormField,
     NgTemplateOutlet,
-    HlmTextarea,
+    // HlmTextarea,
   ],
   hostDirectives: [HlmFieldGroup],
 })

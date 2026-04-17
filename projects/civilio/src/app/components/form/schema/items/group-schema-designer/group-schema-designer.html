@@ -1,6 +1,7 @@
 @let group = node();
 <div class="absolute top-0 left-[calc(100%+5px)]">
 	<cv-form-item-actions
+		[showLibAdd]="!isNew()"
 		orientation="vertical"
 		(delete)="context.itemDeleteHandler(group.path().value(), index())"
 		(togglePreview)="editing.set(!$event)"

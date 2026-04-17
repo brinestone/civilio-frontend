@@ -18,6 +18,7 @@ import {
 	getAppConfig,
 	getBuildInfo,
 	getLicences,
+	getMachineId,
 	getResourceUrl,
 	getSubmissionInfo,
 	initializeSubmissionVersioning,
@@ -50,6 +51,9 @@ export function registerDevelopmentIpcHandlers() {
 }
 
 export function registerProductionIpcHandlers() {
+	createInvokeChannelHandler('machine-id:read', async () => {
+		return await getMachineId();
+	})
 	createInvokeChannelHandler('discovery:init', async () => {
 		return await discoverServer();
 	})
@@ -150,11 +154,11 @@ export function registerProductionIpcHandlers() {
 		return getAppConfig();
 	});
 	createInvokeChannelHandler('submissions:read', async ({
-																										form,
-																										page,
-																										size,
-																										filter
-																									}) => {
+		form,
+		page,
+		size,
+		filter
+	}) => {
 		return await findFormSubmissions(form, page, size, filter);
 	});
 	createInvokeChannelHandler('config:update', ({ path, value }) => {

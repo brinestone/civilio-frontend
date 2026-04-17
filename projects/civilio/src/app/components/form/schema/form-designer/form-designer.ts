@@ -8,10 +8,10 @@ import {
 	moveItemInArray,
 } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgComponentOutlet } from "@angular/common";
-import { Component, computed, input, Type } from "@angular/core";
+import { Component, computed, input, output, Type } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { defaultFormItemDefinitionSchemaValue, FormItem, formItemPathSeparator, FormItemType, FormModel, isFieldTree, walkFormItemTree } from "@app/components/form/schema/form-designer-config";
-import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition, NewFormItemDefinition, NewFormItemField, NewFormItemGroup } from "@civilio/sdk/models";
+import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition, HasLibraryStatus, NewFormItemDefinition, NewFormItemField, NewFormItemGroup } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
@@ -20,8 +20,9 @@ import { current, produce } from "immer";
 import { get, remove } from "lodash";
 import { createFormSchemaContextInjector } from "../items";
 
-type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
-
+function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Strict<HasLibraryStatus>> {
+	return 'inLibrary' in item;
+}
 
 @Component({
 	selector: "cv-form-designer",
@@ -45,7 +46,8 @@ type FormItemAddTarget = FieldTree<FormModel> | FieldTree<FormItemGroup>;
 })
 export class FormDesigner {
 	readonly formModel = input.required<FieldTree<Strict<FormVersionDefinition>>>();
-	//
+	readonly libAdd = output<string>();
+	readonly libRemove = output<string>();
 
 	protected readonly itemTypeNames = {
 		field: "Question",
@@ -87,8 +89,12 @@ export class FormDesigner {
 	protected readonly itemComponentInjector = createFormSchemaContextInjector({
 		itemDeleteHandler: this.onRemoveFormItem.bind(this),
 		allFields: this.fieldItems,
+		libraryToggleHandler: this.toggleLibraryStatus.bind(this)
 	});
 
+	protected toggleLibraryStatus(itemId: string) {
+
+	}
 
 	protected onFormItemsReordered({
 		container,

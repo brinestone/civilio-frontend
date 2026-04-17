@@ -9,6 +9,7 @@ import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
+	computed,
 	effect,
 	input,
 	signal,

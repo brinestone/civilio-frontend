@@ -17,6 +17,9 @@ import { Injectable } from "@angular/core";
 	providedIn: null
 })
 export class WebConfigService implements ConfigService {
+	getMachineId(): Promise<string> {
+		throw new Error("Method not implemented.");
+	}
 	setServerUrl(url: string): Promise<AppConfigResponse> {
 		throw new Error("Method not implemented.");
 	}

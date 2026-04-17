@@ -4,7 +4,9 @@
 	<div class="absolute top-0 left-[calc(100%+5px)]">
 		<cv-form-item-actions
 			orientation="vertical"
+			[showLibAdd]="!isNew()"
 			(delete)="context.itemDeleteHandler(field.path().value(), index())"
+			(libToggle)="context.libraryToggleHandler($any(node()).id?.().value())"
 			(togglePreview)="editing.set(!$event)"
 			(toggleSettings)="expanded.set($event)"
 		/>

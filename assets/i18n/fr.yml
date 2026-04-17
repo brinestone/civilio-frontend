@@ -30,6 +30,8 @@ overview:
           success: Soumission supprimée avec succès
           approval_toggled: Modifications enregistrées avec succès
 misc:
+  form_overview: Aperçu du formulaire
+  form_data: Données du formulaire
   forms: Formulaires
   all_submissions: Soumissions
   changed_at: Enregistré à
@@ -1749,9 +1751,43 @@ form:
           user: Utilisateur
           revision: Révision
   header:
+    toolbar:
+      tabs:
+        overview:
+          title: Aperçu
+        data:
+          title: Données
+        designer:
+          title: Designer
     version_selector:
       placeholder: Sélectionnez la version
       no_versions: Nouvelle soumission
       revision: Révision
     version_revert:
       title: Revenir à cette version
+  designer:
+    dialogs:
+      pending:
+        title:
+          label: Vous avez des modifications non enregistrées
+        description:
+          label: Quitter annulera les modifications en attente que vous avez apportées.
+            Êtes-vous sûr de vouloir continuer ?
+        actions:
+          save: Enregistrer et partir
+          discard: Jeter et partir
+          stay: Reste ici
+    sidebar:
+      library:
+        heading:
+          title: Bibliothèque
+        filter:
+          placeholder: Recherche
+    items:
+      actions:
+        settings:
+          label: Basculer les paramètres
+        addLib:
+          label: Ajouter à la bibliothèque
+        delete:
+          label: Supprimer

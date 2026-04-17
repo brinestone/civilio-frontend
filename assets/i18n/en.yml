@@ -28,6 +28,8 @@ overview:
           success: Submission deleted successfully
           approval_toggled: Changes saved successfully
 misc:
+  form_overview: Form Overview
+  form_data: Form Data
   forms: Forms
   all_submissions: Submissions
   changed_at: Recorded at
@@ -92,7 +94,7 @@ misc:
       description3: Are you sure you want to proceed?
   toasts:
     item_deleted: "{{item}} was removed."
-    delete_failed: 'Could not remove {{domain}}'
+    delete_failed: "Could not remove {{domain}}"
   actions:
     stay_here: Stay here
     save_and_leave: Save and leave
@@ -1724,9 +1726,42 @@ form:
           user: User
           revision: Revision
   header:
+    toolbar:
+      tabs:
+        overview:
+          title: Overview
+        data:
+          title: Data
+        designer:
+          title: Designer
     version_selector:
       placeholder: Select version
       no_versions: New submission
       revision: Revision
     version_revert:
       title: Revert to this version
+  designer:
+    dialogs:
+      pending:
+        title:
+          label: You have unsaved changes
+        description:
+          label: Leaving will discard the pending changes you've made. Are you sure you want to proceed?
+        actions:
+            save: Save and leave
+            discard: Discard and leave
+            stay: Stay here
+    sidebar:
+      library:
+        heading:
+          title: Library
+        filter:
+          placeholder: Search
+    items:
+      actions:
+        settings:
+          label: Toggle Settings
+        addLib:
+          label: Add to Library
+        delete:
+          label: Delete

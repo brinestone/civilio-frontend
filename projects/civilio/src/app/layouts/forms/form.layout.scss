@@ -1,0 +1,14 @@
+@reference "tailwindcss";
+
+:host {
+  @apply h-full block relative grid grid-rows-[auto_1fr] overflow-hidden;
+}
+.menu-link {
+  @apply px-2 py-1 rounded-md transition-colors focus-within:ring-1 focus-within:ring-(--primary) flex items-center gap-2;
+  &:has(.active-route) {
+    @apply font-bold bg-(--primary) hover:bg-(--primary) text-(--primary-foreground);
+  }
+  &:not(:has(.active-route)) {
+    @apply hover:bg-(--muted);
+  }
+}

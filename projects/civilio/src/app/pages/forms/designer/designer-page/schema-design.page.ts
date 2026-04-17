@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 import {
 	ChangeDetectionStrategy,
@@ -5,41 +6,74 @@ import {
 	effect,
 	inject,
 	input,
+	isDevMode,
 	linkedSignal,
 	signal,
-	viewChild
+	viewChild,
 } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
 import { FieldTree, form, submit } from "@angular/forms/signals";
-import { Router } from "@angular/router";
+import { Router, RouterOutlet } from "@angular/router";
 import { FormDesigner, FormDesignerHeader } from "@app/components/form/schema";
-import { defaultFormDefinitionSchemaValue, defaultFormItemDefinitionSchemaValue, defineFormDesignerFormSchema, domainToStrictFormDefinition, FormItem, FormItemType, FormModel, isExistingFormItem, isGroup, walkFormItemTree } from '@app/components/form/schema/form-designer-config';
+import {
+	defaultFormDefinitionSchemaValue,
+	defineFormDesignerFormSchema,
+	domainToStrictFormDefinition,
+	FormItem,
+	FormItemType,
+	isExistingFormItem,
+	isGroup,
+	walkFormItemTree,
+} from "@app/components/form/schema/form-designer-config";
 import { HasPendingChanges } from "@app/model/form";
 import { stripSymbols } from "@app/util";
-import { FormItemDefinition, FormItemGroup, NewFormItemDefinition } from "@civilio/sdk/models";
+import { FormItemDefinition } from "@civilio/sdk/models";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { Strict } from "@civilio/shared";
+import { NgIcon, provideIcons } from "@ng-icons/core";
+import {
+	lucideChevronLeft,
+	lucideChevronRight,
+	lucideLibrary,
+} from "@ng-icons/lucide";
+import { TranslatePipe } from "@ngx-translate/core";
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
 import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
+import { HlmButton } from "@spartan-ng/helm/button";
+import { HlmInput } from "@spartan-ng/helm/input";
+import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
+import { HlmSpinner } from "@spartan-ng/helm/spinner";
+import { flatten } from "flat";
 import { difference, get, isEqual, omit } from "lodash";
 import { toast } from "ngx-sonner";
+import { injectQueryParams } from "ngxtension/inject-query-params";
 import { lastValueFrom, Observable, of } from "rxjs";
-import { flatten } from 'flat';
-import { current, produce } from "immer";
 
 @Component({
 	selector: "cv-forms",
 	viewProviders: [
+		provideIcons({
+			lucideLibrary,
+			lucideChevronLeft,
+			lucideChevronRight,
+		}),
 	],
 	imports: [
 		HlmAlertDialogImports,
+		HlmSpinner,
+		HlmButton,
+		HlmSkeleton,
+		TranslatePipe,
+		HlmInput,
 		FormDesignerHeader,
-		FormDesigner
+		FormDesigner,
+		RouterOutlet,
+		NgTemplateOutlet,
+		NgIcon,
 	],
 	templateUrl: "./schema-design.page.html",
 	styleUrl: "./schema-design.page.scss",
 	host: {
-		// "[class.editing]": "!renderForm()",
 		"[class.scrollbar-thin]": "true",
 		"[class.scrollbar-thumb-primary/50]": "true",
 		"[class.scrollbar-track-transparent]": "true",
@@ -48,11 +82,17 @@ import { current, produce } from "immer";
 })
 export class SchemaDesignPage implements HasPendingChanges {
 	readonly slug = input.required<string>();
-	readonly formVersion = input.required<string>({ alias: "version" });
+	private readonly formVersion = injectQueryParams("version", {
+		defaultValue: "current",
+	});
 	private readonly formService = inject(FormsService);
 	private readonly designer = viewChild(FormDesigner);
+	protected readonly sidebarState = signal<BrnDialogState>(isDevMode() ? 'closed' : 'closed');
 	protected readonly formDefinition = rxResource({
-		params: () => ({ slug: this.slug(), version: this.formVersion() }),
+		params: () => ({
+			slug: this.slug(),
+			version: this.formVersion() ?? "current",
+		}),
 		stream: ({ params }) => {
 			return !params.slug
 				? of(undefined)
@@ -72,7 +112,10 @@ export class SchemaDesignPage implements HasPendingChanges {
 	protected pendingChangesActionCallback?: (
 		action: "save" | "stay" | "discard",
 	) => void;
-	protected readonly formModel = form(this.formData, defineFormDesignerFormSchema());
+	protected readonly formModel = form(
+		this.formData,
+		defineFormDesignerFormSchema(),
+	);
 
 	private findNewItems() {
 		const newItems = Array<string>();
@@ -126,8 +169,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 				existingItems.add(item.id);
 			});
 		}
-		for (const i of (this.formData()
-			?.items as Strict<FormItemDefinition>[]) ?? []) {
+		for (const i of (this.formData()?.items as Strict<FormItemDefinition>[]) ??
+			[]) {
 			walkFormItemTree(i, (item) => {
 				if (!isExistingFormItem(item)) return;
 				originalItems.add(item.id);
@@ -160,7 +203,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 				await lastValueFrom(
 					this.formService.updateFormVersionDefinition(
 						this.slug(),
-						this.formVersion(),
+						this.formVersion() ?? "current",
 						{
 							addedItems,
 							updatedItems,
@@ -180,49 +223,52 @@ export class SchemaDesignPage implements HasPendingChanges {
 	}
 
 	protected onFormDiscard(event?: Event) {
-		// event?.preventDefault();
-		// const value = this.formDefinition.value();
-		// if (value) {
-		//   this.formModel().reset(domainToStrictFormDefinition(value));
-		// }
+		event?.preventDefault();
+		const value = this.formDefinition.value();
+		if (value) {
+			this.formModel().reset(domainToStrictFormDefinition(value));
+		}
 	}
 
 	hasPendingChanges(): boolean | Promise<boolean> | Observable<boolean> {
-		return false;
-		// if (!this.formModel().dirty()) return false;
-		// this.pendingChangesDialogState.set("open");
-		// return new Observable<boolean>((subscriber) => {
-		//   subscriber.add(() => {
-		//     this.pendingChangesActionCallback = undefined;
-		//     this.pendingChangesDialogState.set("closed");
-		//   });
-		//   this.pendingChangesActionCallback = async (action) => {
-		//     switch (action) {
-		//       case "discard":
-		//         subscriber.next(false);
-		//         break;
-		//       case "stay":
-		//         subscriber.next(true);
-		//         break;
-		//       case "save":
-		//         await this.onFormSubmit();
-		//         subscriber.next(this.formModel().dirty());
-		//         break;
-		//     }
-		//     subscriber.complete();
-		//   };
-		// });
+		if (!this.formModel().dirty()) return false;
+		this.pendingChangesDialogState.set("open");
+		return new Observable<boolean>((subscriber) => {
+			subscriber.add(() => {
+				this.pendingChangesActionCallback = undefined;
+				this.pendingChangesDialogState.set("closed");
+			});
+			this.pendingChangesActionCallback = async (action) => {
+				switch (action) {
+					case "discard":
+						subscriber.next(false);
+						break;
+					case "stay":
+						subscriber.next(true);
+						break;
+					case "save":
+						await this.onFormSubmit();
+						subscriber.next(this.formModel().dirty());
+						break;
+				}
+				subscriber.complete();
+			};
+		});
 	}
 
 	protected onItemAdd(type: FormItemType) {
 		this.designer()?.handleNewItemAdded(type);
 	}
 
+	protected toggleSidebarState() {
+		this.sidebarState.update(v => v == 'open' ? 'closed' : 'open');
+	}
+
 	constructor(router: Router) {
 		effect(() => {
 			const formData = this.formData();
-			console.log('form-data', formData);
-		})
+			console.log("form-data", formData);
+		});
 		effect(() => {
 			const error = this.formDefinition.error();
 			const loadingFinished = !this.formDefinition.isLoading();

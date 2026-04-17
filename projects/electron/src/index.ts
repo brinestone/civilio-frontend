@@ -1,8 +1,8 @@
 import { app, BrowserWindow, nativeTheme } from "electron";
 import { getAppConfig } from "./handlers";
 import { registerDevelopmentIpcHandlers, registerProductionIpcHandlers } from './helpers/handlers';
-import { showMainWindow } from "./helpers/windows";
 import { provideLogger } from "./helpers/logging";
+import { showMainWindow } from "./helpers/windows";
 
 const logger = provideLogger('main');
 

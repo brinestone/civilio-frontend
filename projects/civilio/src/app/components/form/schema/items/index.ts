@@ -3,10 +3,12 @@ import { FieldTree } from '@angular/forms/signals';
 import { FormItem } from '@app/components/form/schema/form-designer-config';
 import { FormItemField, NewFormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
+import { Observable } from 'rxjs';
 
 export * from './field-item-schema-designer/field-item-schema-designer';
 
 export type FormSchemaContext = {
+	libraryToggleHandler: (itemId: string) => void;
 	itemDeleteHandler: (path: string, index: number) => void;
 	// selectionToggledHandler: (path: string, state: boolean) => void;
 	allFields: Signal<Record<string, FieldTree<Strict<FormItemField | NewFormItemField>>>>;

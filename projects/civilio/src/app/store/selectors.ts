@@ -114,6 +114,7 @@ export const apiInfo = createSelector([configSlices.config], c => {
 export const apiUrl = createSelector([apiInfo], info => {
 	return info ? info.baseUrl : '';
 });
+export const machineId = createSelector([configSlices.machineId], id => id ?? '');
 export const apiOrigin = createSelector([apiUrl], url => {
 	if (url == '') return '';
 	return new URL(url).origin;

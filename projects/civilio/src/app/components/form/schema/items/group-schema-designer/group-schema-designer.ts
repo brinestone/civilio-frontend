@@ -64,7 +64,7 @@ import { FieldItemSchemaDesigner } from "../field-item-schema-designer/field-ite
     HlmButton,
     JsonPipe,
     HlmSpinner,
-    CdkDragHandle,
+    // CdkDragHandle,
     HlmSeparator,
     NgIcon,
     AsyncPipe,

@@ -113,7 +113,8 @@ export const channelArgs = {
 	'submission:delete': DeleteSubmissionRequestSchema,
 	'approval:toggle': ToggleApprovalStatusRequestSchema,
 	'submission-version:exists': VersionExistsRequestSchema,
-	'options-raw:read': LoadAllFormOptionsRequestSchema
+	'options-raw:read': LoadAllFormOptionsRequestSchema,
+	'machine-id:read': {}
 } as const;
 export const channelResponses = {
 	'config:read': AppConfigResponseSchema,
@@ -159,12 +160,14 @@ export const channelResponses = {
 	'approval:toggle': {},
 	'submission-version:exists': VersionExistsResponseSchema,
 	'discovery:init': DiscoverServerResponseSchema,
-	'options-raw:read': LoadAllFormOptionsResponseSchema
+	'options-raw:read': LoadAllFormOptionsResponseSchema,
+	'machine-id:read': z.string()
 } as const;
 
 export type PushEvent = z.output<typeof PushEventSchema>;
 export type Channel =
 	z.output<typeof ChannelSchema>
+	| 'machine-id:read'
 	| 'discovery:init'
 	| 'options-raw:read'
 	| 'submission-version:exists'
