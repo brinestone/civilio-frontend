@@ -1731,7 +1731,7 @@ form:
         overview:
           title: Overview
         data:
-          title: Data
+          title: Submissions
         designer:
           title: Designer
     version_selector:
@@ -1748,9 +1748,9 @@ form:
         description:
           label: Leaving will discard the pending changes you've made. Are you sure you want to proceed?
         actions:
-            save: Save and leave
-            discard: Discard and leave
-            stay: Stay here
+          save: Save and leave
+          discard: Discard and leave
+          stay: Stay here
     sidebar:
       library:
         heading:
@@ -1765,3 +1765,19 @@ form:
           label: Add to Library
         delete:
           label: Delete
+  submissions:
+    heading:
+      title: Submission Data
+    table:
+      columns:
+        index:
+          header: Index
+        lastModified:
+          header: Last modified
+        recorded:
+          header: Recorded at
+        versionCount:
+          header: Version count
+      empty:
+        title: No submissions
+        description: No submissions have been recorded for this form version

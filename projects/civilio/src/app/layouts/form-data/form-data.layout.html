@@ -1,0 +1,148 @@
+@if(!childActivated){
+<div>
+	<div
+		class="py-3 flex items-center justify-between flex-wrap row-start-1 container mx-auto row-span-1"
+	>
+		<h1 class="text-2xl font-extrabold">
+			{{ 'form.submissions.heading.title' | translate }}
+		</h1>
+		<div class="flex items-center gap-2">
+			<a
+				routerLink="new"
+				queryParamsHandling="preserve"
+				title="Add Submission"
+				role="button"
+				hlmBtn
+				variant="outline"
+			>
+				<ng-icon name="lucidePlus" />
+			</a>
+			<ng-container [ngTemplateOutlet]="formVersionSelectorTemplate" />
+		</div>
+	</div>
+</div>
+<div class="container mx-auto">
+	<ng-container [ngTemplateOutlet]="submissionTableTemplate" />
+</div>
+}
+
+<ng-template #submissionTableTemplate>
+	<div
+		class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent border border-border block w-full rounded-md max-h-[72vh] overflow-auto relative"
+	>
+		<table hlmTable class="w-full">
+			<thead
+				hlmTHead
+				class="sticky top-0 border-b border-border backdrop-blur-md"
+			>
+				@for(headerGroup of table.getHeaderGroups(); track headerGroup.id) {
+				<tr hlmTr>
+					@for(header of headerGroup.headers; track header.id) {
+					<th [attr.colspan]="header.colSpan" hlmTh>
+						@if(!header.isPlaceholder) {
+						<ng-container
+							*flexRender="header.column.columnDef.header; props: header.getContext(); let headerText"
+						>
+							<p>{{headerText | translate}}</p>
+						</ng-container>
+						}
+					</th>
+					}
+				</tr>
+				}
+			</thead>
+
+			<tbody>
+				@for (row of table.getRowModel().rows; track row.id) {
+				<tr>
+					@for (cell of row.getVisibleCells(); track cell.id) {
+					<td>
+						<ng-container
+							*flexRender="
+                    cell.column.columnDef.cell;
+                    props: cell.getContext();
+                    let cell
+                  "
+						>
+							<!-- if you want to render a simple string -->
+							{{ cell }}
+							<!-- if you want to render an html string -->
+							<!--<div [innerHTML]="cell"></div>-->
+						</ng-container>
+					</td>
+					}
+				</tr>
+				}@empty {
+				<tr hlmTr>
+					<td
+						[attr.colspan]="columnConfig.length"
+						class="h-24 text-center"
+						hlmTd
+					>
+						@if (submissionData.isLoading()) {
+						<div class="flex items-center gap-2 justify-center">
+							<hlm-spinner />{{ "loading.txt" | translate }}
+						</div>
+						} @else {
+						<div hlmEmpty>
+							<div hlmEmptyHeader>
+								<div hlmEmptyMedia variant="icon">
+									<ng-icon name="lucideInbox" />
+								</div>
+								<p hlmEmptyTitle>{{ "tmpl.table.no_data" | translate }}</p>
+								<p hlmEmptyDescription>
+									{{ 'tmpl.table.check_sources.title' | translate }}
+								</p>
+							</div>
+						</div>
+						}
+					</td>
+				</tr>
+				}
+			</tbody>
+			<tfoot hlmTfoot>
+				<tr hlmTr>
+					<td [attr.colspan]="columnConfig.length" hlmTd>
+						<div class="flex justify-center items-center">
+							<hlm-numbered-pagination
+								[(currentPage)]="pageIndex"
+								maxSize="3"
+								[(itemsPerPage)]="pageSize"
+								[totalItems]="submissionData.value().totalRecords"
+							/>
+						</div>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+	</div>
+</ng-template>
+
+<ng-template #formVersionSelectorTemplate>
+	@defer(when !formVersions.isLoading() && !formVersions.error()) {
+	<hlm-select [(value)]="selectVersionId" placeholder="Select form Version">
+		<hlm-select-trigger class="max-w-100 w-50">
+			<hlm-select-value>
+				<div class="flex items-center gap-2" *hlmSelectValue="let value">
+					<span>{{ selectFormVersion()?.label || 'N/A' }}</span>
+					@if(selectFormVersion()?.isCurrent) {
+					<span hlmBadge class="rounded-full text-sm">Current</span>
+					}
+				</div>
+			</hlm-select-value>
+		</hlm-select-trigger>
+		<hlm-select-content class="max-w-100 w-50">
+			@for(version of formVersions.value() ?? []; track version) {
+			<hlm-option [value]="version.id" class="flex items-center gap-3">
+				<span>{{version.label || 'N/A'}}</span>
+				@if(version.isCurrent) {
+				<span hlmBadge class="rounded-full text-sm">Current</span>
+				}
+			</hlm-option>
+			}
+		</hlm-select-content>
+	</hlm-select>
+	}@placeholder {
+	<hlm-skeleton class="w-32 h-9"></hlm-skeleton>
+	}
+</ng-template>

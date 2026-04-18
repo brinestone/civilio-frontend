@@ -39,16 +39,16 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 		<div class="flex items-center justify-between gap-2 px-4 py-2">
 			<div class="flex items-center gap-1 text-sm text-nowrap text-gray-600">
 				<b>{{ totalItems() }}</b>
-				total items |
+				total |
 				<b>{{ _lastPageNumber() }}</b>
-				pages
+				page{{_lastPageNumber() != 1 ? 's' : ''}}
 			</div>
 
 			<nav hlmPagination>
 				<ul hlmPaginationContent>
 					@if (showEdges() && !_isFirstPageActive()) {
 						<li hlmPaginationItem (click)="goToPrevious()">
-							<hlm-pagination-previous />
+							<hlm-pagination-previous iconOnly />
 						</li>
 					}
 
@@ -66,7 +66,7 @@ import { HlmPaginationPrevious } from './hlm-pagination-previous';
 
 					@if (showEdges() && !_isLastPageActive()) {
 						<li hlmPaginationItem (click)="goToNext()">
-							<hlm-pagination-next />
+							<hlm-pagination-next iconOnly/>
 						</li>
 					}
 				</ul>
