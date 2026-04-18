@@ -1,0 +1,8 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block h-full overflow-hidden grid-rows-[auto_1fr];
+  &.selection-active {
+    @apply grid grid-cols-[auto_1fr];
+  }
+}

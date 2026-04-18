@@ -7,6 +7,7 @@ import {
   FormSchema,
   FosaFormDefinition,
 } from "./model/form";
+import { provideSubmissionsSdk } from "@civilio/sdk/providers";
 
 const dataResolver: ResolveFn<{ form: FormType; model: FormSchema }> = (
   route,
@@ -69,12 +70,21 @@ export const formRoutes: Routes = [
           ),
       },
       {
-        title: "form.header.toolbar.tabs.data.title",
+        providers: [provideSubmissionsSdk()],
         path: "data",
         loadComponent: () =>
-          import("./pages/forms/data/form-data.page").then(
-            (m) => m.FormDataPage,
+          import("./layouts/form-data/form-data.layout").then(
+            (m) => m.FormDataLayout,
           ),
+        children: [
+          {
+            path: ":index",
+            loadComponent: () =>
+              import("./pages/forms/submission-data/submission-data.page").then(
+                (m) => m.SubmissionDataPage,
+              ),
+          },
+        ],
       },
       { path: "", pathMatch: "full", redirectTo: "overview" },
     ],

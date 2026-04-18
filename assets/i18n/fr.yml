@@ -1756,7 +1756,7 @@ form:
         overview:
           title: Aperçu
         data:
-          title: Données
+          title: Soumissions
         designer:
           title: Designer
     version_selector:
@@ -1791,3 +1791,19 @@ form:
           label: Ajouter à la bibliothèque
         delete:
           label: Supprimer
+  submissions:
+    heading:
+      title: Données de soumission
+    table:
+      columns:
+        index:
+          header: Indice
+        lastModified:
+          header: Dernière modification
+        recorded:
+          header: Enregistré à
+        versionCount:
+          header: Nombre de versions
+      empty:
+        title: Aucune soumission
+        description: Aucune soumission n'a été enregistrée pour cette version du formulaire
