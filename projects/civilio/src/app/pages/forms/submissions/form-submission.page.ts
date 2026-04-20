@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	computed,
 	HostBinding,
@@ -32,17 +33,18 @@ import {
 	createAngularTable,
 	createColumnHelper,
 	FlexRender,
-	getCoreRowModel,
-	PaginationState,
+	getCoreRowModel
 } from "@tanstack/angular-table";
 import { injectQueryParams } from "ngxtension/inject-query-params";
+import { dispatch } from "@ngxs/store";
+import { Navigate } from "@ngxs/router-plugin";
 
 const ch = createColumnHelper<SubmissionLookup>();
 
 @Component({
 	selector: "cv-form-data-layout",
-	templateUrl: "./form-data.layout.html",
-	styleUrl: "./form-data.layout.scss",
+	templateUrl: "./form-submission.page.html",
+	styleUrl: "./form-submission.page.scss",
 	imports: [
 		HlmTableImports,
 		HlmEmptyImports,
@@ -69,16 +71,13 @@ const ch = createColumnHelper<SubmissionLookup>();
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FormDataLayout {
+export class FormSubmissionsPage {
 	readonly slug = input.required<string>();
 
-	protected readonly route = inject(ActivatedRoute);
-
-	@HostBinding("class.selection-active")
-	protected readonly childActivated = !!this.route.firstChild;
-
+	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly submissionService = inject(SubmissionsService);
 	private readonly formService = inject(FormsService);
+	private readonly navigate = dispatch(Navigate);
 	private readonly versionSelectedArg = injectQueryParams("fv");
 	protected readonly formVersions = rxResource({
 		params: () => ({ slug: this.slug() }),

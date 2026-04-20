@@ -7,6 +7,7 @@ import {
   lucideLayoutDashboard,
   lucidePencilRuler,
 } from "@ng-icons/lucide";
+import { TranslatePipe } from "@ngx-translate/core";
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmTabsImports } from "@spartan-ng/helm/tabs";
 
@@ -31,14 +32,15 @@ import { HlmTabsImports } from "@spartan-ng/helm/tabs";
     RouterOutlet,
     HlmButton,
     NgIcon,
+		TranslatePipe,
     RouterLink,
     RouterLinkActive,
   ],
 })
 export class FormLayout {
   protected readonly toolbarItems = [
-    { label: "Overview", icon: "lucideLayoutDashboard", path: "overview" },
-    { label: "Designer", icon: "lucidePencilRuler", path: "designer" },
-    { label: "Data", icon: "lucideDatabase", path: "data" },
+    { label: "form.header.toolbar.tabs.overview.title", icon: "lucideLayoutDashboard", path: "overview" },
+    { label: "form.header.toolbar.tabs.designer.title", icon: "lucidePencilRuler", path: "designer" },
+    { label: "form.header.toolbar.tabs.data.title", icon: "lucideDatabase", path: "submissions" },
   ];
 }

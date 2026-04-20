@@ -25,20 +25,10 @@ const sections = [
 		path: 'general'
 	},
 	{
-		label: 'settings.field_mapper',
-		icon: 'lucideUnlink2',
-		path: 'field-mapping'
-	},
-	{
 		label: 'settings.dataset.page_title',
 		icon: 'lucideListCheck',
 		path: 'dataset-editor'
 	},
-	// {
-	// 	label: 'forms.page_title',
-	// 	icon: 'lucideFormInput',
-	// 	path: 'forms'
-	// },
 	{ label: 'settings.advanced.title', icon: 'lucideWrench', path: 'advanced' },
 	{ label: 'settings.about.title', icon: 'lucideInfo', path: 'about' },
 ] as const

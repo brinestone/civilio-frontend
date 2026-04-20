@@ -3,12 +3,6 @@ import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
 import { provideDatasetSdk } from "@civilio/sdk/providers";
 import { hasChangesGuard } from "./guards/has-changes-guard";
-import {
-	ChefferieFormDefinition,
-	CscFormDefinition,
-	FosaFormDefinition
-} from "./model/form";
-import { provideFormStore } from "./store/form/data";
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
@@ -25,36 +19,6 @@ export const settingsRoutes: Routes = [
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		canDeactivate: [hasChangesGuard],
 		loadComponent: () => import('./pages/settings/dataset-editor/dataset-editor.page').then(m => m.DatasetEditorPage),
-	},
-	{
-		providers: [
-			provideFormStore()
-		],
-		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		path: 'field-mapping',
-		title: 'settings.mapping.title',
-		loadComponent: () => import('./pages/settings/field-mapping-settings/field-mapping-settings.page').then(m => m.FieldMappingSettingsPage),
-		children: [
-			{
-				data: { form: 'fosa', model: FosaFormDefinition },
-				path: 'fosa',
-				title: 'settings.mapper.fosa.title',
-				loadComponent: () => import('./pages/settings/field-mapping-settings/mapping-page/mapping.page').then(m => m.MappingPage)
-			},
-			{
-				data: { form: 'chefferie', model: ChefferieFormDefinition },
-				path: 'chefferie',
-				title: 'settings.mapper.chiefdom.title',
-				loadComponent: () => import('./pages/settings/field-mapping-settings/mapping-page/mapping.page').then(m => m.MappingPage)
-			},
-			{
-				data: { form: 'csc', model: CscFormDefinition },
-				path: 'csc',
-				title: 'settings.mapper.csc.title',
-				loadComponent: () => import('./pages/settings/field-mapping-settings/mapping-page/mapping.page').then(m => m.MappingPage)
-			},
-			{ path: '', pathMatch: 'full', redirectTo: 'fosa' }
-		]
 	},
 	{
 		path: 'advanced',
