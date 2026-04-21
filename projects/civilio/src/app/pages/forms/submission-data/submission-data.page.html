@@ -1,2 +1,9 @@
-<div class="min-w-100 border-r border-muted"></div>
+<div
+	class="min-w-100"
+	[ngClass]="{
+	'border-r border-muted': !isNew()
+}"
+>
+	{{formSlug()}}
+</div>
 <div class=""></div>

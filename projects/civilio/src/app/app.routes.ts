@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
-import { provideFormStore } from '@app/store/form';
 import { provideDatasetSdk, provideFormsSdk, withFormsSdk, withSubmissionsSdk } from '@civilio/sdk/providers';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
@@ -9,7 +8,7 @@ const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
 	{
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		providers: [provideFormStore(withFormsSdk(), withSubmissionsSdk())],
+		providers: [withFormsSdk(), withSubmissionsSdk()],
 		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),

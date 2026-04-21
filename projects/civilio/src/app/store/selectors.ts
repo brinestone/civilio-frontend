@@ -2,10 +2,8 @@ import { Locale } from "@civilio/shared";
 import { createPropertySelectors, createSelector } from "@ngxs/store";
 import { get } from "lodash";
 import { CONFIG_STATE } from "./config";
-import { FORM_STATE } from "./form/data";
 
 const configSlices = createPropertySelectors(CONFIG_STATE);
-const formSlices = createPropertySelectors(FORM_STATE);
 
 export const currentTheme = createSelector([configSlices.config], (config) => {
 	return config?.prefs?.theme ?? "system";

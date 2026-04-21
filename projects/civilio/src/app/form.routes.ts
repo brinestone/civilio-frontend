@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
 import { provideSubmissionsSdk } from "@civilio/sdk/providers";
 import { hasChangesGuard } from "./guards/has-changes-guard";
+import { provideSubmissionsDatabase } from "./store/form/submissions";
 
 
 export const formRoutes: Routes = [
@@ -37,7 +38,7 @@ export const formRoutes: Routes = [
 					),
 			},
 			{
-				providers: [provideSubmissionsSdk()],
+				providers: [provideSubmissionsSdk(), provideSubmissionsDatabase()],
 				path: "submissions",
 				loadComponent: () =>
 					import("./pages/forms/submissions/form-submission.page").then(
@@ -45,8 +46,13 @@ export const formRoutes: Routes = [
 					),
 			},
 			{
-				providers: [provideSubmissionsSdk()],
+				providers: [provideSubmissionsSdk(), provideSubmissionsDatabase()],
 				path: 'submissions/new',
+				loadComponent: () => import('./pages/forms/submission-data/submission-data.page').then(m => m.SubmissionDataPage)
+			},
+			{
+				providers: [provideSubmissionsSdk(), provideSubmissionsDatabase()],
+				path: 'submissions/:index',
 				loadComponent: () => import('./pages/forms/submission-data/submission-data.page').then(m => m.SubmissionDataPage)
 			},
 			{ path: "", pathMatch: "full", redirectTo: "overview" },
