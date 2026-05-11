@@ -6,5 +6,8 @@
 	"[sql]": {
 		"editor.defaultFormatter": "ms-ossdata.vscode-pgsql"
 	},
-	"js/ts.tsdk.path": "node_modules\\typescript\\lib"
+	"js/ts.tsdk.path": "node_modules\\typescript\\lib",
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	}
 }

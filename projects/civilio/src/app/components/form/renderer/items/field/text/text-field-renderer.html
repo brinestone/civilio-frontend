@@ -1,0 +1,25 @@
+<div hlmField [formGroup]="formGroupDirective.control">
+	<label hlmFieldLabel [for]="fieldId()"> {{config().title}} </label>
+	<ng-container
+		[ngTemplateOutlet]="config().type == 'text' ? textTemplate : textareaTemplate"
+	/>
+</div>
+<!-- <cv-field-error [field]="field()" eager /> -->
+
+<ng-template #textTemplate>
+	<input
+		type="text"
+		[id]="fieldId()"
+		hlmInput
+		[formControlName]="config().dataKey!"
+		[placeholder]="placeholderText()"
+	/>
+</ng-template>
+
+<ng-template #textareaTemplate>
+	<textarea
+		hlmTextarea
+		[id]="fieldId()"
+		[formControlName]="config().dataKey!"
+	></textarea>
+</ng-template>

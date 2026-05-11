@@ -62,10 +62,7 @@
                     let cell
                   "
 						>
-							<!-- if you want to render a simple string -->
 							{{ cell }}
-							<!-- if you want to render an html string -->
-							<!--<div [innerHTML]="cell"></div>-->
 						</ng-container>
 					</td>
 					}
@@ -79,7 +76,8 @@
 					>
 						@if (submissionData.isLoading()) {
 						<div class="flex items-center gap-2 justify-center">
-							<hlm-spinner />{{ "loading.txt" | translate }}
+							<hlm-spinner />
+							<span>{{ "loading.txt" | translate }}</span>
 						</div>
 						} @else {
 						<div hlmEmpty>
@@ -102,12 +100,16 @@
 				<tr hlmTr>
 					<td [attr.colspan]="columnConfig.length" hlmTd>
 						<div class="flex justify-center items-center">
+							@defer(when !submissionData.isLoading()) {
 							<hlm-numbered-pagination
 								[(currentPage)]="pageIndex"
 								maxSize="3"
 								[(itemsPerPage)]="pageSize"
-								[totalItems]="submissionData.value().totalRecords"
+								[totalItems]="submissionData.data().length"
 							/>
+							} @placeholder {
+							<hlm-skeleton class="w-50 h-9" />
+							}
 						</div>
 					</td>
 				</tr>
@@ -117,7 +119,7 @@
 </ng-template>
 
 <ng-template #formVersionSelectorTemplate>
-	@defer(when !formVersions.isLoading() && !formVersions.error()) {
+	@defer(when !formVersions.isLoading() && !formVersions.isError()) {
 	<hlm-select [(value)]="selectVersionId" placeholder="Select form Version">
 		<hlm-select-trigger class="max-w-100 w-50">
 			<hlm-select-value>
@@ -130,7 +132,7 @@
 			</hlm-select-value>
 		</hlm-select-trigger>
 		<hlm-select-content class="max-w-100 w-50">
-			@for(version of formVersions.value() ?? []; track version) {
+			@for(version of formVersions.data(); track version) {
 			<hlm-option [value]="version.id" class="flex items-center gap-3">
 				<span>{{version.label || 'N/A'}}</span>
 				@if(version.isCurrent) {
@@ -141,6 +143,6 @@
 		</hlm-select-content>
 	</hlm-select>
 	}@placeholder {
-	<hlm-skeleton class="w-32 h-9"></hlm-skeleton>
+	<hlm-skeleton class="w-32 h-9" />
 	}
 </ng-template>

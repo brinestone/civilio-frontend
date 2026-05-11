@@ -1,124 +1,97 @@
-import { computed, Signal, untracked } from "@angular/core";
+import { Signal, untracked } from "@angular/core";
+import { AbstractControl, FormControl, ValidatorFn, Validators } from "@angular/forms";
 import {
+	apply,
 	applyWhenValue,
-	disabled,
-	hidden,
 	maxLength,
 	metadata,
 	minLength,
 	pattern,
+	readonly,
 	required,
-	SchemaPathTree,
+	schema,
+	SchemaPathTree
 } from "@angular/forms/signals";
 import {
 	FormItemField,
-	FormVersionDefinition,
-	NewFormItemField,
 	RelevanceCondition,
 	RelevanceDefinition,
 	RelevanceLogicExpression,
 	SubmissionData,
-	TextFieldConfig,
+	TextFieldConfig
 } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
-import { LogicEngine } from "json-logic-engine";
-import get from "lodash/get";
-import keys from "lodash/keys";
 import {
 	HINT,
-	isField,
-	PLACEHOLDER,
-	walkFormItemTree,
+	PLACEHOLDER
 } from "../schema/form-designer-config";
 
-function isTextFieldItem(
-	config: Strict<FormItemField | NewFormItemField>["config"],
+export function toFormControl(config: Strict<FormItemField>['config']) {
+	const control = new FormControl<typeof config.defaultValue>({ disabled: config.readonly, value: config.defaultValue ?? undefined })
+	const validators: ValidatorFn[] = [];
+
+	if (config.required)
+		validators.push(Validators.required);
+	if (isTextField(config)) {
+		validators.push(...textFieldControlValidators(config))
+	}
+
+	control.setValidators(validators);
+	return control;
+}
+
+
+
+function textFieldControlValidators(config: TextFieldConfig) {
+	const validators: ValidatorFn[] = [];
+	if (config.maxlength !== null && config.maxlength !== undefined) {
+		validators.push(Validators.maxLength(config.maxlength))
+	}
+	if (config.minlength !== null && config.minlength !== undefined) {
+		validators.push(Validators.minLength(config.minlength))
+	}
+	if (config.pattern) {
+		validators.push(Validators.pattern(config.pattern));
+	}
+	return validators
+}
+
+function isTextField(
+	config: Strict<FormItemField>["config"],
 ): config is Extract<typeof config, { type: "text" | "multiline" }> {
 	return config.type == "text" || config.type == "multiline";
 }
 
-function asTextFieldItem(
-	tree: Signal<Strict<FormItemField | NewFormItemField>>,
-) {
-	return tree as unknown as Signal<
-		Strict<(FormItemField | NewFormItemField) & { config: TextFieldConfig }>
-	>;
+export function textFieldSchema(config: Strict<TextFieldConfig>) {
+	return () => schema<string>(path => {
+		debugger;
+		required(path, { message: 'This field is required', when: () => config.required === true });
+		metadata(path, PLACEHOLDER, () => config.placeholder);
+		metadata(path, HINT, () => config.description);
+		minLength(path, () => config.minlength, { message: `No less than ${config.minlength} are allowed in this field` });
+		maxLength(path, () => config.maxlength, { message: `No more thant ${config.minlength} are allowed in this field` });
+		readonly(path, () => config.readonly);
+		pattern(path, () => config.pattern ? new RegExp(config.pattern) : undefined, { message: 'Invalid value format' });
+	});
 }
 
-function defineTextFieldItemSchema(
-	fieldDef: Signal<Strict<FormItemField | NewFormItemField>>,
-) {
-	return (data: SchemaPathTree<Strict<unknown>>) => {
-		const config = fieldDef().config;
-		if (isTextFieldItem(config)) {
-			const textData = data as unknown as SchemaPathTree<string>;
-			const textFieldSignal = asTextFieldItem(fieldDef);
-			required(data, {
-				message: "This field is required",
-				when: () => fieldDef().config.required,
-			});
-			metadata(
-				data,
-				PLACEHOLDER,
-				() => textFieldSignal().config.placeholder ?? undefined,
-			);
-			metadata(
-				data,
-				HINT,
-				() => textFieldSignal().config.description ?? undefined,
-			);
-			maxLength(
-				textData,
-				() => textFieldSignal().config.maxlength ?? undefined,
-			);
-			minLength(
-				textData,
-				() => textFieldSignal().config.minlength ?? undefined,
-			);
-			disabled(textData, () => textFieldSignal().config.readonly ?? false);
-			pattern(textData, () => {
-				const p = textFieldSignal().config.pattern;
-				return p ? new RegExp(p) : undefined;
-			});
-		}
-	};
-}
-
-export function defineFormRendererFormSchema(
-	def: Signal<Strict<FormVersionDefinition>>,
+export function defineFieldSchemas(
+	def: Signal<Strict<FormItemField>[]>,
 	relevanceEvaluator: (data: SubmissionData, logic: any) => boolean
 ) {
-	const fieldDefs = new Map<
-		string,
-		Signal<Strict<FormItemField | NewFormItemField>>
-	>();
-	for (const item of untracked(def).items) {
-		walkFormItemTree(item, (i) => {
-			if (i.type == "field") {
-				fieldDefs.set(
-					i.config.dataKey,
-					computed(() => get(def().items, i.path)),
-				);
+	return (paths: SchemaPathTree<SubmissionData>) => {
+		applyWhenValue(paths, value => {
+			return Object.keys(value).length > 0;
+		}, paths => {
+			const fields = untracked(def);
+			for (const field of fields) {
+				const config = field.config;
+				if (isTextField(config)) {
+					apply(paths[config.dataKey] as SchemaPathTree<string>, textFieldSchema(config));
+				}
 			}
 		});
 	}
-	return (data: SchemaPathTree<Strict<SubmissionData>>) => {
-		const dataKeys = keys(data);
-		for (const dataKey of dataKeys) {
-			const fieldDef = fieldDefs.get(dataKey);
-			if (!fieldDef) continue;
-			applyWhenValue(
-				data[dataKey] as any,
-				isField,
-				defineTextFieldItemSchema(fieldDef),
-			);
-			hidden(data[dataKey] as any, () => {
-				// const relevance = fieldDef().relevance;
-				// if (!relevance.enabled) return false;
-				return false;
-			});
-		}
-	};
 }
 
 function relevanceToJsonLogic(relevance: Strict<RelevanceDefinition>) {

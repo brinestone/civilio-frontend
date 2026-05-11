@@ -29,38 +29,42 @@ import { provideHttpClientErrorHandler } from "./http/error-handler";
 import { apiUrlInterceptor } from "./interceptors/api-url-interceptor";
 import { provideDomainConfig } from "./services/config";
 import { ConfigState } from "./store/config";
+import {
+	provideTanStackQuery,
+	QueryClient,
+} from '@tanstack/angular-query-experimental';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideHttpClient(withInterceptors([apiUrlInterceptor])),
-    provideHttpClientErrorHandler(),
-    provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
-    provideRouter(
-      routes,
-      withComponentInputBinding(),
-      withRouterConfig({ paramsInheritanceStrategy: "always" }),
-    ),
-    provideDomainConfig(),
-    // provideDomainForms(isDesktop() ? usingElectron() : usingWeb()),
-    provideStore(
-      [ConfigState],
-      withNgxsRouterPlugin(),
-      withNgxsLoggerPlugin({
-        disabled: !isDevMode(),
-        collapsed: false,
-      }),
-    ),
-    provideNgIconLoader(async (name) => {
-      return await fetch(`/${name}.svg`).then((r) => r.text());
-    }),
-    { provide: TitleStrategy, useClass: TranslateTitleStrategy },
-    provideTranslateService({
-      fallbackLang: "fr",
-      loader: provideTranslationLoader(),
-      missingTranslationHandler: provideMissingTranslationHandler(
-        MissingTranslationHandlerImpl,
-      ),
-    }),
-  ],
+	providers: [
+		provideHttpClient(withInterceptors([apiUrlInterceptor])),
+		provideHttpClientErrorHandler(),
+		provideBrowserGlobalErrorListeners(),
+		provideZonelessChangeDetection(),
+		provideRouter(
+			routes,
+			withComponentInputBinding(),
+			withRouterConfig({ paramsInheritanceStrategy: "always" }),
+		),
+		provideDomainConfig(),
+		provideTanStackQuery(new QueryClient()),
+		provideStore(
+			[ConfigState],
+			withNgxsRouterPlugin(),
+			withNgxsLoggerPlugin({
+				disabled: !isDevMode(),
+				collapsed: false,
+			}),
+		),
+		provideNgIconLoader(async (name) => {
+			return await fetch(`/${name}.svg`).then((r) => r.text());
+		}),
+		{ provide: TitleStrategy, useClass: TranslateTitleStrategy },
+		provideTranslateService({
+			fallbackLang: "fr",
+			loader: provideTranslationLoader(),
+			missingTranslationHandler: provideMissingTranslationHandler(
+				MissingTranslationHandlerImpl,
+			),
+		}),
+	],
 };

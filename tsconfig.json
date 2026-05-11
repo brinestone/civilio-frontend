@@ -25,7 +25,7 @@
         "./libs/sdk/api/*"
       ],
       "@civilio/sdk/models": [
-        "./libs/sdk/models/index.zod.ts"
+        "./libs/sdk/models/index.ts"
       ],
       "@civilio/sdk/*": [
         "./projects/civilio/src/sdk/*"

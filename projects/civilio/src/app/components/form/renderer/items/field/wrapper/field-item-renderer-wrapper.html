@@ -1,0 +1,9 @@
+<ng-container> @let renderer = rendererProvider(); </ng-container>
+@if(renderer) {
+<div hlmFieldGroup>
+	<ng-container
+		[ngComponentOutlet]="renderer | async"
+		[ngComponentOutletInjector]="fieldContextInjector"
+	/>
+</div>
+}
