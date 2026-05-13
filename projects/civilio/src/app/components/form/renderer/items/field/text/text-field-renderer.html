@@ -1,25 +1,25 @@
-<div hlmField [formGroup]="formGroupDirective.control">
-	<label hlmFieldLabel [for]="fieldId()"> {{config().title}} </label>
-	<ng-container
-		[ngTemplateOutlet]="config().type == 'text' ? textTemplate : textareaTemplate"
-	/>
-</div>
-<!-- <cv-field-error [field]="field()" eager /> -->
-
-<ng-template #textTemplate>
+<div hlmField>
+	<label hlmFieldLabel [for]="field.api.name">{{ config().title }}</label>
+	@if(config().type == 'text') {
 	<input
 		type="text"
-		[id]="fieldId()"
+		[id]="field.api.name"
+		[name]="field.api.name"
+		[value]="field.api.state.value"
+		(blur)="field.api.handleBlur()"
+		(input)="field.api.handleChange($event.target.value)"
 		hlmInput
-		[formControlName]="config().dataKey!"
-		[placeholder]="placeholderText()"
 	/>
-</ng-template>
-
-<ng-template #textareaTemplate>
-	<textarea
-		hlmTextarea
-		[id]="fieldId()"
-		[formControlName]="config().dataKey!"
-	></textarea>
-</ng-template>
+	} @else {
+	<textarea [id]="field.api.name" [id]="field.api.name" hlmTextarea></textarea>
+	}
+	<ng-container>
+		@if(field.api.state.meta.isTouched && !field.api.state.meta.isValid) {
+		<div>
+			@for(error of field.api.state.meta.errors; track $index) {
+			<hlm-field-error>{{ error }}</hlm-field-error>
+			}
+		</div>
+		}
+	</ng-container>
+</div>

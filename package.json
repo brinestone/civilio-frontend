@@ -57,6 +57,7 @@
 		"@spartan-ng/brain": "0.0.1-alpha.640",
 		"@spartan-ng/cli": "0.0.1-alpha.640",
 		"@tanstack/angular-db": "^0.1.65",
+		"@tanstack/angular-form": "^1.32.0",
 		"@tanstack/angular-query-experimental": "^5.99.2",
 		"@tanstack/angular-table": "^8.21.3",
 		"@tanstack/db": "^0.6.5",

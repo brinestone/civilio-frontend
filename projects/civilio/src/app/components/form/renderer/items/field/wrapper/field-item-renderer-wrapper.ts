@@ -3,6 +3,8 @@ import { Component, computed, OnDestroy, Type } from '@angular/core';
 import { FormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
+import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
+import { submissionDataFormOptions } from '../../../form-renderer-config';
 import { BaseItemRenderer } from '../../base-item-renderer';
 import { createRenderedFieldItemContextInjector } from '../../context';
 
@@ -13,13 +15,19 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 	imports: [
 		AsyncPipe,
 		NgComponentOutlet,
-		HlmFieldGroup
+		HlmFieldGroup,
+
 	],
 	hostDirectives: [
+		{
+			directive: TanStackWithForm,
+			inputs: ['form']
+		}
 	]
 })
 export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemField>, any> implements OnDestroy {
-	// readonly formGroupName = input<string>('');
+	protected readonly withForm = injectWithForm(submissionDataFormOptions);
+	protected readonly config = computed(() => this.itemDefinition().config)
 	protected readonly renderers = {
 		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer)
 	} as Record<string, () => Promise<Type<any>>>;
@@ -28,7 +36,7 @@ export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemFi
 	});
 	private fieldId = computed(() => `${this.path()}__${this.itemDefinition().parentId ? (this.index() + '__') : ''}${this.itemDefinition().config.dataKey}`)
 	protected readonly fieldContextInjector = createRenderedFieldItemContextInjector({
-		// formControlName: this.formGroupName,
+		// rootForm: this._form,
 		fieldId: this.fieldId
 	}, this.formItemContextInjector);
 

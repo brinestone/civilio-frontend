@@ -6,23 +6,24 @@
  */
 import { z as zod } from 'zod';
 
-export const numberFieldConfigOneRequiredDefault = true;
-export const numberFieldConfigOneReadonlyDefault = false;
-export const numberFieldConfigOneTitleDefault = ``;
-export const numberFieldConfigOneDescriptionDefault = null;
-export const numberFieldConfigOneDataKeyDefault = null;
-export const numberFieldConfigOneAutoDataKeyDefault = true;
+export const numberFieldConfigOneOneDataKeyDefault = null;
+export const numberFieldConfigOneOneAutoDataKeyDefault = true;
+export const numberFieldConfigOneTwoRequiredDefault = true;
+export const numberFieldConfigOneTwoReadonlyDefault = false;
+export const numberFieldConfigOneTwoTitleDefault = ``;
+export const numberFieldConfigOneTwoDescriptionDefault = null;
 export const numberFieldConfigTwoMinDefault = null;
 export const numberFieldConfigTwoMaxDefault = null;
 export const numberFieldConfigTwoDefaultValueDefault = null;
 export const NumberFieldConfig = zod.object({
-  "required": zod.boolean().nullable().default(numberFieldConfigOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(numberFieldConfigOneReadonlyDefault),
-  "title": zod.string().default(numberFieldConfigOneTitleDefault),
-  "description": zod.string().nullish().default(numberFieldConfigOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(numberFieldConfigOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(numberFieldConfigOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(numberFieldConfigOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(numberFieldConfigOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(numberFieldConfigOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(numberFieldConfigOneTwoReadonlyDefault),
+  "title": zod.string().default(numberFieldConfigOneTwoTitleDefault),
+  "description": zod.string().nullish().default(numberFieldConfigOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['integer', 'float']),
   "min": zod.number().nullish().default(numberFieldConfigTwoMinDefault),
   "max": zod.number().nullish().default(numberFieldConfigTwoMaxDefault),

@@ -4,6 +4,10 @@
 	<ng-container
 		[ngComponentOutlet]="renderer | async"
 		[ngComponentOutletInjector]="fieldContextInjector"
+		[ngComponentOutletInputs]="{
+			tanstackField: withForm.form,
+			name: config().dataKey
+		}"
 	/>
 </div>
 }

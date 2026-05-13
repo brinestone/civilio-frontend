@@ -1,9 +1,9 @@
-import { Component, computed, inject } from "@angular/core";
+import { Component, computed } from "@angular/core";
 import { FormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { HlmField } from "@spartan-ng/helm/field";
+import { injectField, TanStackAppField } from "@tanstack/angular-form";
 import { injectRenderedFieldContext, injectRenderedFormItemContext } from "../../context";
-import { FormGroupDirective } from "@angular/forms";
 
 export type FieldType = FormItemField['config']['type'];
 
@@ -11,18 +11,22 @@ export type FieldType = FormItemField['config']['type'];
 	selector: 'cv-base-field-renderer',
 	template: '',
 	hostDirectives: [
-		HlmField
+		HlmField,
+		{
+			directive: TanStackAppField,
+			inputs: ['name', 'tanstackField']
+		},
 	]
 })
 export abstract class BaseFieldRenderer<TFieldType extends Strict<FieldType>, TValue> {
 	private itemContext = injectRenderedFormItemContext<Strict<FormItemField>>();
 	private fieldContext = injectRenderedFieldContext<TValue>();
 
-	protected readonly formGroupDirective = inject(FormGroupDirective);
+	// protected readonly withForm = injectWithForm(submissionDataFormOptions );
+	protected readonly field = injectField<TValue>();
 	protected readonly definition = this.itemContext.definition;
 	protected readonly fieldId = this.fieldContext.fieldId;
-	// protected readonly field = this.fieldContext.formControlName;
 	protected readonly path = computed(() => this.definition().path);
-	protected readonly config = computed(() => this.definition().config as Extract<FormItemField['config'], { type: TFieldType }>);
-	// protected readonly field
+	protected readonly config = computed(() => this.definition().config as Extract<Strict<FormItemField>['config'], { type: TFieldType }>);
+	protected readonly dataKey = computed(() => this.config().dataKey);
 }

@@ -13,29 +13,6 @@ export const routes: Routes = [
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
-	// {
-	// 	children: [
-	// 		{
-	// 			path: 'assets',
-	// 			loadComponent: () => import('./pages/forms/designer/library/library.page').then(m => m.LibraryPage),
-	// 			outlet: 'library'
-	// 		}
-	// 	],
-	// 	title: 'Form Designer',
-	// 	path: 'schemas/:slug/edit/:version',
-	// 	providers: [
-	// 		provideFormsSdk(),
-	// 		provideDatasetSdk()
-	// 	],
-	// 	canDeactivate: [hasChangesGuard],
-	// 	loadComponent: () => import('./pages/forms/designer/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
-	// },
-	// {
-	// 	path: 'schemas',
-	// 	loadComponent: () => import('./pages/forms/designer/list/form-schemas-list.page').then(m => m.FormSchemasPage),
-	// 	canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-	// 	providers: [provideFormStore(withFormsSdk())],
-	// },
 	{
 		path: 'forms',
 		title: 'forms.page_title',
@@ -44,16 +21,8 @@ export const routes: Routes = [
 			provideFormsSdk(),
 			provideDatasetSdk()
 		],
-		// loadComponent: () => import('@app/layouts/forms/forms.layout').then(m => m.FormsLayout),
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},
-	// {
-	// 	path: 'forms',
-	// 	title: 'forms.page_title',
-	// 	canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-	// 	providers: [provideFormStore(withFormsSdk())],
-	// 	loadChildren: () => import('./form.routes').then(m => m.formRoutes)
-	// },
 	{
 		title: 'settings.title',
 		path: 'settings',

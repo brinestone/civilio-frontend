@@ -28,14 +28,14 @@ export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemFieldDefa
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
-export const formItemGroupUpdateThreeConfigDataKeyDefault = null;
-export const formItemGroupUpdateThreeConfigAutoDataKeyDefault = true;
-export const formItemGroupUpdateThreeConfigTitleDefault = null;
-export const formItemGroupUpdateThreeConfigDescriptionDefault = null;
-export const formItemGroupUpdateThreeConfigRepeatableDefault = false;
-export const formItemGroupUpdateThreeConfigDivisionCountDefault = 1;
+export const formItemGroupUpdateThreeConfigOneDataKeyDefault = null;
+export const formItemGroupUpdateThreeConfigOneAutoDataKeyDefault = true;
+export const formItemGroupUpdateThreeConfigTwoTitleDefault = null;
+export const formItemGroupUpdateThreeConfigTwoDescriptionDefault = null;
+export const formItemGroupUpdateThreeConfigTwoRepeatableDefault = false;
+export const formItemGroupUpdateThreeConfigTwoDivisionCountDefault = 1;
 
-export const formItemGroupUpdateThreeConfigOrientationDefault = `vertical`;
+export const formItemGroupUpdateThreeConfigTwoOrientationDefault = `vertical`;
 export const FormItemGroupUpdate = zod.object({
   "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(formItemGroupUpdateOneOnePathDefault),
@@ -93,14 +93,15 @@ export const FormItemGroupUpdate = zod.object({
   "type": zod.enum(['group'])
 }))).and(zod.object({
   "config": zod.object({
-  "dataKey": zod.string().nullish().default(formItemGroupUpdateThreeConfigDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemGroupUpdateThreeConfigAutoDataKeyDefault),
-  "title": zod.string().nullable().default(formItemGroupUpdateThreeConfigTitleDefault),
-  "description": zod.string().nullish().default(formItemGroupUpdateThreeConfigDescriptionDefault),
-  "repeatable": zod.boolean().default(formItemGroupUpdateThreeConfigRepeatableDefault),
-  "divisionCount": zod.number().min(1).default(formItemGroupUpdateThreeConfigDivisionCountDefault),
-  "orientation": zod.enum(['horizonal', 'vertical']).default(formItemGroupUpdateThreeConfigOrientationDefault)
-})
+  "dataKey": zod.string().nullable().default(formItemGroupUpdateThreeConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemGroupUpdateThreeConfigOneAutoDataKeyDefault)
+}).and(zod.object({
+  "title": zod.string().nullable().default(formItemGroupUpdateThreeConfigTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemGroupUpdateThreeConfigTwoDescriptionDefault),
+  "repeatable": zod.boolean().default(formItemGroupUpdateThreeConfigTwoRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(formItemGroupUpdateThreeConfigTwoDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).default(formItemGroupUpdateThreeConfigTwoOrientationDefault)
+}))
 })).and(zod.object({
   "type": zod.enum(['group'])
 }))

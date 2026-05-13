@@ -6,23 +6,24 @@
  */
 import { z as zod } from 'zod';
 
-export const baseGroupItemConfigDataKeyDefault = null;
-export const baseGroupItemConfigAutoDataKeyDefault = true;
-export const baseGroupItemConfigTitleDefault = null;
-export const baseGroupItemConfigDescriptionDefault = null;
-export const baseGroupItemConfigRepeatableDefault = false;
-export const baseGroupItemConfigDivisionCountDefault = 1;
+export const baseGroupItemConfigOneDataKeyDefault = null;
+export const baseGroupItemConfigOneAutoDataKeyDefault = true;
+export const baseGroupItemConfigTwoTitleDefault = null;
+export const baseGroupItemConfigTwoDescriptionDefault = null;
+export const baseGroupItemConfigTwoRepeatableDefault = false;
+export const baseGroupItemConfigTwoDivisionCountDefault = 1;
 
-export const baseGroupItemConfigOrientationDefault = `vertical`;
+export const baseGroupItemConfigTwoOrientationDefault = `vertical`;
 export const BaseGroupItemConfig = zod.object({
-  "dataKey": zod.string().nullish().default(baseGroupItemConfigDataKeyDefault),
-  "autoDataKey": zod.boolean().default(baseGroupItemConfigAutoDataKeyDefault),
-  "title": zod.string().nullable().default(baseGroupItemConfigTitleDefault),
-  "description": zod.string().nullish().default(baseGroupItemConfigDescriptionDefault),
-  "repeatable": zod.boolean().default(baseGroupItemConfigRepeatableDefault),
-  "divisionCount": zod.number().min(1).default(baseGroupItemConfigDivisionCountDefault),
-  "orientation": zod.enum(['horizonal', 'vertical']).default(baseGroupItemConfigOrientationDefault)
-})
+  "dataKey": zod.string().nullable().default(baseGroupItemConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(baseGroupItemConfigOneAutoDataKeyDefault)
+}).and(zod.object({
+  "title": zod.string().nullable().default(baseGroupItemConfigTwoTitleDefault),
+  "description": zod.string().nullish().default(baseGroupItemConfigTwoDescriptionDefault),
+  "repeatable": zod.boolean().default(baseGroupItemConfigTwoRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(baseGroupItemConfigTwoDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).default(baseGroupItemConfigTwoOrientationDefault)
+}))
 
 export type BaseGroupItemConfig = zod.input<typeof BaseGroupItemConfig>;
 export type BaseGroupItemConfigOutput = zod.output<typeof BaseGroupItemConfig>;

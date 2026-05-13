@@ -59,6 +59,9 @@ importers:
       '@tanstack/angular-db':
         specifier: ^0.1.65
         version: 0.1.65(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)
+      '@tanstack/angular-form':
+        specifier: ^1.32.0
+        version: 1.32.0(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))
       '@tanstack/angular-query-experimental':
         specifier: ^5.99.2
         version: 5.99.2(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))
@@ -3699,11 +3702,22 @@ packages:
       '@angular/core': '>=16.0.0'
       rxjs: '>=6.0.0'
 
+  '@tanstack/angular-form@1.32.0':
+    resolution: {integrity: sha512-Hc8PZxKxzOCvskzRev9d0E5CN7ynJ4WTL4DwJe+iIR3vcFSLUMLRK+O/am2FtucHj5aMtLqkgv6bkTQBbL9AMQ==}
+    peerDependencies:
+      '@angular/core': '>=19.0.0'
+
   '@tanstack/angular-query-experimental@5.99.2':
     resolution: {integrity: sha512-lZjcnLjU7qVBtjz8CjAZ+jjKZVIpVj6ckFfdJCLdyGgtXzX3a0j1iOCJb3KeXMijzIYpM8CUNchMVNL9HbjAoA==}
     peerDependencies:
       '@angular/common': '>=16.0.0'
       '@angular/core': '>=16.0.0'
+
+  '@tanstack/angular-store@0.9.3':
+    resolution: {integrity: sha512-8i6GreuOQ7UFIQpYWLpXUaFHEP4XcaMcN+F05Bo5LOPN8s90fiCzt00CQbV9rbRHqzXaIcY8bwcXKOTRMxNVNQ==}
+    peerDependencies:
+      '@angular/common': '>=19.0.0'
+      '@angular/core': '>=19.0.0'
 
   '@tanstack/angular-table@8.21.4':
     resolution: {integrity: sha512-djyuJFvIB/pBuBIqny8b7+5ozeXJSElaxYRZyyKLpYrXn4xQSysBT//X51eDT/mi3kS0spcjIHhoObjk3iCjcQ==}
@@ -3721,6 +3735,18 @@ packages:
     peerDependencies:
       typescript: '>=4.7'
 
+  '@tanstack/devtools-event-client@0.4.3':
+    resolution: {integrity: sha512-OZI6QyULw0FI0wjgmeYzCIfbgPsOEzwJtCpa69XrfLMtNXLGnz3d/dIabk7frg0TmHo+Ah49w5I4KC7Tufwsvw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  '@tanstack/form-core@1.32.0':
+    resolution: {integrity: sha512-Tn5VRDSjyqjmaet2tJMuEWDRFyrCaon03vxXPlSSaiSs6C/N7lCIwGCXJbZXEUq1kTj8jYN9qyXHbsz4LQHcow==}
+
+  '@tanstack/pacer-lite@0.1.1':
+    resolution: {integrity: sha512-y/xtNPNt/YeyoVxE/JCx+T7yjEzpezmbb+toK8DDD1P4m7Kzs5YR956+7OKexG3f8aXgC3rLZl7b1V+yNUSy5w==}
+    engines: {node: '>=18'}
+
   '@tanstack/pacer-lite@0.2.1':
     resolution: {integrity: sha512-3PouiFjR4B6x1c969/Pl4ZIJleof1M0n6fNX8NRiC9Sqv1g06CVDlEaXUR4212ycGFyfq4q+t8Gi37Xy+z34iQ==}
     engines: {node: '>=18'}
@@ -3736,6 +3762,9 @@ packages:
 
   '@tanstack/query-devtools@5.99.2':
     resolution: {integrity: sha512-TEF1d+RYO9l8oeCwgzmOHIgKwAzXQmw2s/ny2bW8qeg2OMkkLjALfVEivgCMR3OL/jVdMmeTPX56WrV+uvYJFg==}
+
+  '@tanstack/store@0.9.3':
+    resolution: {integrity: sha512-8reSzl/qGWGGVKhBoxXPMWzATSbZLZFWhwBAFO9NAyp0TxzfBP0mIrGb8CP8KrQTmvzXlR/vFPPUrHTLBGyFyw==}
 
   '@tanstack/table-core@8.21.3':
     resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
@@ -13800,6 +13829,15 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@tanstack/angular-form@1.32.0(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))':
+    dependencies:
+      '@angular/core': 21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2)
+      '@tanstack/angular-store': 0.9.3(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))
+      '@tanstack/form-core': 1.32.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - '@angular/common'
+
   '@tanstack/angular-query-experimental@5.99.2(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))':
     dependencies:
       '@angular/common': 21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2)
@@ -13807,6 +13845,13 @@ snapshots:
       '@tanstack/query-core': 5.99.2
     optionalDependencies:
       '@tanstack/query-devtools': 5.99.2
+
+  '@tanstack/angular-store@0.9.3(@angular/common@21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))':
+    dependencies:
+      '@angular/common': 21.2.9(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2)
+      '@tanstack/store': 0.9.3
+      tslib: 2.8.1
 
   '@tanstack/angular-table@8.21.4(@angular/core@21.2.9(@angular/compiler@21.2.9)(rxjs@7.8.2))':
     dependencies:
@@ -13827,6 +13872,16 @@ snapshots:
       '@tanstack/pacer-lite': 0.2.1
       typescript: 5.9.3
 
+  '@tanstack/devtools-event-client@0.4.3': {}
+
+  '@tanstack/form-core@1.32.0':
+    dependencies:
+      '@tanstack/devtools-event-client': 0.4.3
+      '@tanstack/pacer-lite': 0.1.1
+      '@tanstack/store': 0.9.3
+
+  '@tanstack/pacer-lite@0.1.1': {}
+
   '@tanstack/pacer-lite@0.2.1': {}
 
   '@tanstack/query-core@5.99.2': {}
@@ -13840,6 +13895,8 @@ snapshots:
 
   '@tanstack/query-devtools@5.99.2':
     optional: true
+
+  '@tanstack/store@0.9.3': {}
 
   '@tanstack/table-core@8.21.3': {}
 

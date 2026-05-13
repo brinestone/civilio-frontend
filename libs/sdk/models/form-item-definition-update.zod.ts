@@ -83,93 +83,93 @@ export const formItemDefinitionUpdateThreeOneTwoOneRelevanceLogicItemExpressions
 export const formItemDefinitionUpdateThreeOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemDefinitionUpdateThreeOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoParentIdDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneTwoDefaultValueLatMax = 90;
 
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneTwoDefaultValueLongMax = 180;
 
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigOneTwoDefaultValueDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoTwoMinDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoTwoMaxDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigTwoTwoDefaultValueDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeTwoDefaultValueDefault = false;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigThreeTwoRenderAsDefault = `checkbox`;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoPlaceholderDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoPatternDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoMinlengthDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoMaxlengthDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoDefaultValueDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoItemSourceRefDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoDefaultValueDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoHardItemsItemLabelDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoHardItemsItemValueDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoHardItemsDefault = [];
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoItemSourceRefDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoDefaultValueDefault = [];
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoHardItemsItemLabelDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoHardItemsItemValueDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoHardItemsDefault = [];
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneTwoMinDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneTwoMaxDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenTwoMinSelectionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenTwoMaxSelectionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigSevenTwoDefaultValueDefault = [];
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneTwoMinDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneTwoMaxDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigEightTwoDefaultValueDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneRequiredDefault = true;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneReadonlyDefault = false;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTitleDefault = ``;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneDescriptionDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneDataKeyDefault = null;
-export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneOneDataKeyDefault = null;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoRequiredDefault = true;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoReadonlyDefault = false;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoTitleDefault = ``;
+export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoDescriptionDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneTwoMinDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneTwoMaxDefault = null;
 export const formItemDefinitionUpdateThreeOneTwoTwoConfigNineTwoDefaultValueDefault = { start: null, end: null };
@@ -219,14 +219,14 @@ export const formItemDefinitionUpdateFiveTwoOneRelevanceLogicItemExpressionsItem
 export const formItemDefinitionUpdateFiveTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemDefinitionUpdateFiveTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemDefinitionUpdateFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
-export const formItemDefinitionUpdateFiveThreeConfigDataKeyDefault = null;
-export const formItemDefinitionUpdateFiveThreeConfigAutoDataKeyDefault = true;
-export const formItemDefinitionUpdateFiveThreeConfigTitleDefault = null;
-export const formItemDefinitionUpdateFiveThreeConfigDescriptionDefault = null;
-export const formItemDefinitionUpdateFiveThreeConfigRepeatableDefault = false;
-export const formItemDefinitionUpdateFiveThreeConfigDivisionCountDefault = 1;
+export const formItemDefinitionUpdateFiveThreeConfigOneDataKeyDefault = null;
+export const formItemDefinitionUpdateFiveThreeConfigOneAutoDataKeyDefault = true;
+export const formItemDefinitionUpdateFiveThreeConfigTwoTitleDefault = null;
+export const formItemDefinitionUpdateFiveThreeConfigTwoDescriptionDefault = null;
+export const formItemDefinitionUpdateFiveThreeConfigTwoRepeatableDefault = false;
+export const formItemDefinitionUpdateFiveThreeConfigTwoDivisionCountDefault = 1;
 
-export const formItemDefinitionUpdateFiveThreeConfigOrientationDefault = `vertical`;
+export const formItemDefinitionUpdateFiveThreeConfigTwoOrientationDefault = `vertical`;
 export const FormItemDefinitionUpdate = zod.union([zod.object({
   "inLibrary": zod.boolean().default(formItemDefinitionUpdateOneOneOneInLibraryDefault)
 }).and(zod.object({
@@ -421,13 +421,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
   "type": zod.enum(['field']),
   "parentId": zod.uuid().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoParentIdDefault),
   "config": zod.union([zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigOneOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['geo-point']),
   "defaultValue": zod.object({
   "lat": zod.number().max(formItemDefinitionUpdateThreeOneTwoTwoConfigOneTwoDefaultValueLatMax),
@@ -436,13 +437,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['geo-point'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['integer', 'float']),
   "min": zod.number().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoTwoMinDefault),
   "max": zod.number().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigTwoTwoMaxDefault),
@@ -450,26 +452,28 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['integer', 'float'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['boolean']),
   "defaultValue": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeTwoDefaultValueDefault),
   "renderAs": zod.enum(['select', 'checkbox']).nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigThreeTwoRenderAsDefault)
 })).and(zod.object({
   "type": zod.enum(['boolean'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['text', 'multiline']),
   "placeholder": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoPlaceholderDefault),
   "pattern": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFourTwoPatternDefault),
@@ -479,13 +483,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['text', 'multiline'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['single-select']),
   "itemSourceRef": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoItemSourceRefDefault),
   "defaultValue": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigFiveTwoDefaultValueDefault),
@@ -496,13 +501,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['single-select'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixOneTwoDescriptionDefault)
+})).and(zod.object({
   "type": zod.enum(['multi-select']),
   "itemSourceRef": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoItemSourceRefDefault),
   "defaultValue": zod.array(zod.string()).nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSixTwoDefaultValueDefault),
@@ -513,13 +519,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['multi-select'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneOneTwoDescriptionDefault)
+})).and(zod.object({
   "min": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigSevenOneTwoMaxDefault)
 })).and(zod.object({
@@ -530,13 +537,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['multi-date'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneOneTwoDescriptionDefault)
+})).and(zod.object({
   "min": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigEightOneTwoMaxDefault)
 })).and(zod.object({
@@ -545,13 +553,14 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
 })).and(zod.object({
   "type": zod.enum(['date', 'date-time'])
 })),zod.object({
-  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneReadonlyDefault),
-  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoReadonlyDefault),
+  "title": zod.string().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneOneTwoDescriptionDefault)
+})).and(zod.object({
   "min": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneTwoMinDefault),
   "max": zod.number().nullable().default(formItemDefinitionUpdateThreeOneTwoTwoConfigNineOneTwoMaxDefault)
 })).and(zod.object({
@@ -692,14 +701,15 @@ export const FormItemDefinitionUpdate = zod.union([zod.object({
   "type": zod.enum(['group'])
 }))).and(zod.object({
   "config": zod.object({
-  "dataKey": zod.string().nullish().default(formItemDefinitionUpdateFiveThreeConfigDataKeyDefault),
-  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateFiveThreeConfigAutoDataKeyDefault),
-  "title": zod.string().nullable().default(formItemDefinitionUpdateFiveThreeConfigTitleDefault),
-  "description": zod.string().nullish().default(formItemDefinitionUpdateFiveThreeConfigDescriptionDefault),
-  "repeatable": zod.boolean().default(formItemDefinitionUpdateFiveThreeConfigRepeatableDefault),
-  "divisionCount": zod.number().min(1).default(formItemDefinitionUpdateFiveThreeConfigDivisionCountDefault),
-  "orientation": zod.enum(['horizonal', 'vertical']).default(formItemDefinitionUpdateFiveThreeConfigOrientationDefault)
-})
+  "dataKey": zod.string().nullable().default(formItemDefinitionUpdateFiveThreeConfigOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(formItemDefinitionUpdateFiveThreeConfigOneAutoDataKeyDefault)
+}).and(zod.object({
+  "title": zod.string().nullable().default(formItemDefinitionUpdateFiveThreeConfigTwoTitleDefault),
+  "description": zod.string().nullish().default(formItemDefinitionUpdateFiveThreeConfigTwoDescriptionDefault),
+  "repeatable": zod.boolean().default(formItemDefinitionUpdateFiveThreeConfigTwoRepeatableDefault),
+  "divisionCount": zod.number().min(1).default(formItemDefinitionUpdateFiveThreeConfigTwoDivisionCountDefault),
+  "orientation": zod.enum(['horizonal', 'vertical']).default(formItemDefinitionUpdateFiveThreeConfigTwoOrientationDefault)
+}))
 })).and(zod.object({
   "type": zod.enum(['group'])
 }))])

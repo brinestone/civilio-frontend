@@ -1,10 +1,10 @@
-<form [formGroup]="dataForm" hlmFieldGroup>
+<form (submit)="handleSubmit($event)" hlmFieldGroup>
 	@for(item of formDefinition().items; track item) {
-	<ng-container> @let renderer = renderers[item.type] | async; </ng-container>
+	<ng-container> @let renderer = renderers[item.type]; </ng-container>
 	<div>
 		@if(renderer) { @if(item.type != 'field' && item.type != 'group') {
 		<ng-container
-			[ngComponentOutlet]="renderer"
+			[ngComponentOutlet]="renderer | async"
 			[ngComponentOutletInputs]="{
 		itemDefinition: item,
 		index: $index
@@ -12,12 +12,12 @@
 		/>
 		} @else if(item.type == 'field') {
 		<ng-container
-			[formControlName]="$any(item.config.dataKey)"
-			[ngComponentOutlet]="renderer"
+			[ngComponentOutlet]="renderer | async"
 			[ngComponentOutletInputs]="{
-		itemDefinition: item,
-		index: $index,
-	}"
+			form: form,
+			itemDefinition: item,
+			index: $index
+		}"
 		/>
 		} @else { } }
 	</div>

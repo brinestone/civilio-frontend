@@ -6,22 +6,23 @@
  */
 import { z as zod } from 'zod';
 
-export const baseDateFieldPropsOneRequiredDefault = true;
-export const baseDateFieldPropsOneReadonlyDefault = false;
-export const baseDateFieldPropsOneTitleDefault = ``;
-export const baseDateFieldPropsOneDescriptionDefault = null;
-export const baseDateFieldPropsOneDataKeyDefault = null;
-export const baseDateFieldPropsOneAutoDataKeyDefault = true;
+export const baseDateFieldPropsOneOneDataKeyDefault = null;
+export const baseDateFieldPropsOneOneAutoDataKeyDefault = true;
+export const baseDateFieldPropsOneTwoRequiredDefault = true;
+export const baseDateFieldPropsOneTwoReadonlyDefault = false;
+export const baseDateFieldPropsOneTwoTitleDefault = ``;
+export const baseDateFieldPropsOneTwoDescriptionDefault = null;
 export const baseDateFieldPropsTwoMinDefault = null;
 export const baseDateFieldPropsTwoMaxDefault = null;
 export const BaseDateFieldProps = zod.object({
-  "required": zod.boolean().nullable().default(baseDateFieldPropsOneRequiredDefault),
-  "readonly": zod.boolean().nullable().default(baseDateFieldPropsOneReadonlyDefault),
-  "title": zod.string().default(baseDateFieldPropsOneTitleDefault),
-  "description": zod.string().nullish().default(baseDateFieldPropsOneDescriptionDefault),
-  "dataKey": zod.string().nullish().default(baseDateFieldPropsOneDataKeyDefault),
-  "autoDataKey": zod.boolean().default(baseDateFieldPropsOneAutoDataKeyDefault)
+  "dataKey": zod.string().nullable().default(baseDateFieldPropsOneOneDataKeyDefault),
+  "autoDataKey": zod.boolean().default(baseDateFieldPropsOneOneAutoDataKeyDefault)
 }).and(zod.object({
+  "required": zod.boolean().nullable().default(baseDateFieldPropsOneTwoRequiredDefault),
+  "readonly": zod.boolean().nullable().default(baseDateFieldPropsOneTwoReadonlyDefault),
+  "title": zod.string().default(baseDateFieldPropsOneTwoTitleDefault),
+  "description": zod.string().nullish().default(baseDateFieldPropsOneTwoDescriptionDefault)
+})).and(zod.object({
   "min": zod.number().nullable().default(baseDateFieldPropsTwoMinDefault),
   "max": zod.number().nullable().default(baseDateFieldPropsTwoMaxDefault)
 }))

@@ -1,8 +1,9 @@
 import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from "@angular/core";
-import { FormItemDefinition } from "@civilio/sdk/models";
+import { FormItemDefinition, FormItemField } from "@civilio/sdk/models";
+import { Strict } from "@civilio/shared";
 
 export type RenderedFormItemContext<TDefinition extends FormItemDefinition> = {
-	definition: Signal<TDefinition>;
+	definition: Signal<Strict<TDefinition>>;
 	// itemId: Signal<string>;
 };
 
@@ -24,11 +25,12 @@ export function injectRenderedFormItemContext<TDefinition extends FormItemDefini
 }
 
 export type RenderedFieldContext = {
-	// formControlName: Signal<string>;
+	// rootForm: Signal<any>;
 	fieldId: Signal<string>;
 };
 
 const RenderedFieldContextToken = new InjectionToken<RenderedFieldContext>('rendered-field-item-context');
+const RenderedFieldDefinitionConfigToken = new InjectionToken<Strict<FormItemField['config']>>('form-item-field-config');
 export function createRenderedFieldItemContextInjector(ctx: RenderedFieldContext, parent?: Injector) {
 	assertInInjectionContext(createRenderedFieldItemContextInjector);
 	return Injector.create({
@@ -38,6 +40,11 @@ export function createRenderedFieldItemContextInjector(ctx: RenderedFieldContext
 		parent: parent ?? inject(Injector)
 	})
 }
+
+// export function injectFieldConfig<TFieldType extends FormItemField['config']['type']>() {
+// 	assertInInjectionContext(injectFieldConfig);
+// 	return inject(RenderedFieldDefinitionConfigToken);
+// }
 
 export function injectRenderedFieldContext<TValue>() {
 	assertInInjectionContext(injectRenderedFieldContext);

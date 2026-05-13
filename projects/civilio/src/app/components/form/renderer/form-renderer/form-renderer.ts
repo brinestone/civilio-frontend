@@ -9,24 +9,34 @@ import {
 	input,
 	Type
 } from "@angular/core";
-import { FormRecord, ReactiveFormsModule } from "@angular/forms";
 import { JsonLogic } from "@app/adapters/json-logic";
-import { FormItemField, FormVersionDefinition, SubmissionData } from "@civilio/sdk/models";
+import { FormVersionDefinition, SubmissionData } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
-import difference from 'lodash/difference';
-import keys from "lodash/keys";
-import { toFormControl } from "../form-renderer-config";
+import { injectForm, injectStore } from '@tanstack/angular-form';
+import { produce } from "immer";
+import { entries } from "lodash";
+import { submissionDataFormOptions } from "../form-renderer-config";
 
 @Component({
 	selector: "cv-form-renderer",
 	templateUrl: "./form-renderer.html",
 	styleUrl: "./form-renderer.scss",
-	imports: [HlmFieldGroup, NgComponentOutlet, AsyncPipe, ReactiveFormsModule],
+	imports: [HlmFieldGroup, NgComponentOutlet, AsyncPipe],
 	providers: [JsonLogic,]
 })
 export class FormRenderer {
 	private readonly logic = inject(JsonLogic);
+	#updateFormValueEffect = effect(() => {
+		const newValue = this.submissionData();
+
+		for (const [k, v] of entries(newValue)) {
+			debugger;
+			this.form.baseStore.setState(current => produce(current, draft => {
+				draft.values[k] = v;
+			}));
+		}
+	})
 
 	readonly formDefinition = input<Strict<FormVersionDefinition>>({ items: [], parentId: '', id: '' });
 	readonly submissionData = input<Strict<SubmissionData>>({});
@@ -34,13 +44,18 @@ export class FormRenderer {
 		transform: booleanAttribute,
 	});
 
-	protected readonly flatFields = computed(() => {
+	protected readonly dataKeyItems = computed(() => {
 		return this.formDefinition().items.filter(i => i.type == 'field' || i.type == 'group')
 			.flatMap(i => i.type == 'field' ? [i] : i.config.fields);
 	});
+	protected readonly form = injectForm({
+		...submissionDataFormOptions,
+		onSubmit: async ({ value }) => {
 
-	protected readonly dataForm = new FormRecord({});
-
+		}
+	});
+	protected readonly canSubmit = injectStore(this.form, state => state.canSubmit);
+	protected readonly formSubmitting = injectStore(this.form, state => state.isSubmitting);
 	protected readonly renderers = {
 		field: import("../items/field/wrapper/field-item-renderer-wrapper").then(
 			(m) => m.FieldItemRendererWrapper,
@@ -51,24 +66,9 @@ export class FormRenderer {
 		return this.logic.run(logic, data);
 	}
 
-	constructor() {
-		effect(() => {
-			const fields = this.flatFields();
-			this.updateFormControls(fields);
-		})
-	}
-
-	private updateFormControls(fields: Strict<FormItemField>[]) {
-		const dataKeys = new Set<string>(fields.map(f => f.config.dataKey))
-		const removedKeys = difference(keys(this.dataForm.controls), [...dataKeys]);
-		removedKeys.forEach(k => this.dataForm.removeControl(k));
-
-		for (const field of fields) {
-			const isExisting = this.dataForm.contains(field.config.dataKey);
-			if (isExisting) continue;
-			const control = toFormControl(field.config);
-			this.dataForm.addControl(field.config.dataKey, control);
-		}
-
+	protected handleSubmit(event: Event) {
+		event.preventDefault();
+		event.stopPropagation();
+		this.form.handleSubmit();
 	}
 }
