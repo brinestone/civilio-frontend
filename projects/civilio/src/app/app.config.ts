@@ -29,10 +29,6 @@ import { provideHttpClientErrorHandler } from "./http/error-handler";
 import { apiUrlInterceptor } from "./interceptors/api-url-interceptor";
 import { provideDomainConfig } from "./services/config";
 import { ConfigState } from "./store/config";
-import {
-	provideTanStackQuery,
-	QueryClient,
-} from '@tanstack/angular-query-experimental';
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -46,7 +42,7 @@ export const appConfig: ApplicationConfig = {
 			withRouterConfig({ paramsInheritanceStrategy: "always" }),
 		),
 		provideDomainConfig(),
-		provideTanStackQuery(new QueryClient()),
+		// provideRxDb(),
 		provideStore(
 			[ConfigState],
 			withNgxsRouterPlugin(),

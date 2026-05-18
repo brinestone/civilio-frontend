@@ -11,6 +11,7 @@ export const submissionLookupVersionCountMin = 0;
 
 
 export const SubmissionLookup = zod.object({
+  "id": zod.uuid().nullish(),
   "slug": zod.string().optional(),
   "form": zod.string(),
   "formVersion": zod.uuid(),

@@ -29,7 +29,7 @@ import {
   IndexRange,
   LookupFormSubmissions200,
   PerformSubmissionDeletion202,
-  SubmissionData,
+  SubmissionDataResponse,
   SubmissionVersionLookup
 } from '../../../../../../libs/sdk/models';
 import type {
@@ -42,7 +42,7 @@ import type {
   LookupSubmissionVersionsParams,
   PerformSubmissionDeletion202Output,
   PerformSubmissionDeletionParams,
-  SubmissionDataOutput,
+  SubmissionDataResponseOutput,
   ToggleSubmissionApprovalStatusParams
 } from '../../../../../../libs/sdk/models';
 
@@ -193,16 +193,16 @@ export class SubmissionsService {
  * Fetch the responses for a particular submission
  * @summary Get submission data
  */
- getSubmissionData<TData = SubmissionDataOutput>(submission: number,
+ getSubmissionData<TData = SubmissionDataResponseOutput>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientBodyOptions): Observable<TData>;
- getSubmissionData<TData = SubmissionDataOutput>(submission: number,
+ getSubmissionData<TData = SubmissionDataResponseOutput>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
- getSubmissionData<TData = SubmissionDataOutput>(submission: number,
+ getSubmissionData<TData = SubmissionDataResponseOutput>(submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
-  getSubmissionData<TData = SubmissionDataOutput>(
+  getSubmissionData<TData = SubmissionDataResponseOutput>(
     submission: number,
     form: string,
     params?: GetSubmissionDataParams, options?: HttpClientObserveOptions): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
@@ -214,7 +214,7 @@ export class SubmissionsService {
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'events',
         params: filteredParams,}
-    ).pipe(map(event => event instanceof AngularHttpResponse ? event.clone({ body: SubmissionData.parse(event.body) as TData }) : event));
+    ).pipe(map(event => event instanceof AngularHttpResponse ? event.clone({ body: SubmissionDataResponse.parse(event.body) as TData }) : event));
     }
 
     if (options?.observe === 'response') {
@@ -223,7 +223,7 @@ export class SubmissionsService {
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'response',
         params: filteredParams,}
-    ).pipe(map(response => response.clone({ body: SubmissionData.parse(response.body) as TData })));
+    ).pipe(map(response => response.clone({ body: SubmissionDataResponse.parse(response.body) as TData })));
     }
 
     return this.http.get<TData>(
@@ -231,7 +231,7 @@ export class SubmissionsService {
     ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
         params: filteredParams,}
-    ).pipe(map(data => SubmissionData.parse(data) as TData));
+    ).pipe(map(data => SubmissionDataResponse.parse(data) as TData));
   }
 /**
  * Lookup the versions for a submission

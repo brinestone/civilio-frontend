@@ -2,12 +2,12 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
 	Component,
 	computed,
-	effect,
 	input,
 	linkedSignal,
 	signal
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
+import { ActionCell } from "@app/components/tabular-field/cells";
 import { SubmissionLookup } from "@civilio/sdk/models";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
@@ -20,20 +20,13 @@ import {
 import { TranslatePipe } from "@ngx-translate/core";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmBadge } from "@spartan-ng/helm/badge";
+import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmEmptyImports } from "@spartan-ng/helm/empty";
 import { HlmNumberedPagination } from "@spartan-ng/helm/pagination";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
-
-import { ActionCell } from "@app/components/tabular-field/cells";
-import {
-	formVersionCollection,
-	submissionCollection,
-} from "@app/store/form/collections";
-import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { HlmTableImports } from "@spartan-ng/helm/table";
-import { and, eq, injectLiveQuery } from "@tanstack/angular-db";
 import {
 	ColumnDef,
 	createAngularTable,
@@ -89,40 +82,41 @@ export class FormSubmissionsPage {
 		pageIndex: Math.max(0, this.pageIndex() - 1),
 		pageSize: this.pageSize(),
 	}));
-	protected readonly formVersions = injectLiveQuery({
-		params: () => ({ slug: this.slug() }),
-		query: ({ q, params }) =>
-			q
-				.from({ fv: formVersionCollection })
-				.where(({ fv }) => eq(fv.form, params.slug)),
-	});
+	// protected readonly formVersions = injectLiveQuery({
+	// 	params: () => ({ slug: this.slug() }),
+	// 	query: ({ q, params }) =>
+	// 		q
+	// 			.from({ fv: formVersionCollection })
+	// 			.where(({ fv }) => eq(fv.form, params.slug)),
+	// });
 	protected readonly selectVersionId = linkedSignal(() => {
-		const fv = this.versionSelectedArg();
-		const current = this.formVersions.data()?.find((v) => v.isCurrent);
-		return fv ? fv : current?.id;
+		return ''
+		// const fv = this.versionSelectedArg();
+		// const current = this.formVersions.data()?.find((v) => v.isCurrent);
+		// return fv ? fv : current?.id;
 	});
 	protected readonly selectFormVersion = computed(() => {
-		return this.formVersions
+		return '' /* this.formVersions
 			.data()
-			?.find((v) => v.id === this.selectVersionId());
+			?.find((v) => v.id === this.selectVersionId()); */
 	});
-	protected readonly submissionData = injectLiveQuery({
-		params: () => ({
-			pagination: this.pagination(),
-			slug: this.slug(),
-			version: this.selectVersionId(),
-		}),
-		query: ({ q, params }) =>
-			q.from({ s: submissionCollection }).where(({ s }) => {
-				const clauses = [];
-				if (params.version) {
-					clauses.push(eq(s.formVersion, params.version));
-				}
-				return params.version
-					? and(eq(s.form, params.slug), eq(s.formVersion, params.version))
-					: eq(s.form, params.slug);
-			}),
-	});
+	// protected readonly submissionData = injectLiveQuery({
+	// 	params: () => ({
+	// 		pagination: this.pagination(),
+	// 		slug: this.slug(),
+	// 		version: this.selectVersionId(),
+	// 	}),
+	// 	query: ({ q, params }) =>
+	// 		q.from({ s: submissionCollection }).where(({ s }) => {
+	// 			const clauses = [];
+	// 			if (params.version) {
+	// 				clauses.push(eq(s.formVersion, params.version));
+	// 			}
+	// 			return params.version
+	// 				? and(eq(s.form, params.slug), eq(s.formVersion, params.version))
+	// 				: eq(s.form, params.slug);
+	// 		}),
+	// });
 	protected readonly columnConfig: ColumnDef<SubmissionLookup, any>[] = [
 		ch.accessor("index", {
 			header: "form.submissions.table.columns.index.header",
@@ -149,19 +143,9 @@ export class FormSubmissionsPage {
 		}),
 	];
 	protected readonly table = createAngularTable(() => ({
-		data: this.submissionData.data(),
+		data: [],
 		getCoreRowModel: getCoreRowModel(),
 		columns: this.columnConfig,
 		autoResetPageIndex: true,
 	}));
-
-	constructor() {
-		effect(() => {
-			const formVersions = this.formVersions.data();
-			const submissions = this.submissionData.data();
-
-			console.log('fv', formVersions);
-			console.log('submissions', submissions);
-		})
-	}
 }

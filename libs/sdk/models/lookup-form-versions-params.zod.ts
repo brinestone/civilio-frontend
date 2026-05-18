@@ -7,11 +7,10 @@
 import { z as zod } from 'zod';
 
 export const lookupFormVersionsParamsLimitDefault = 10;
-export const lookupFormVersionsParamsOffsetDefault = 0;
 export const LookupFormVersionsParams = zod.object({
   "form": zod.string().optional(),
   "limit": zod.number().default(lookupFormVersionsParamsLimitDefault),
-  "offset": zod.number().default(lookupFormVersionsParamsOffsetDefault)
+  "offset": zod.number().optional()
 })
 
 export type LookupFormVersionsParams = zod.input<typeof LookupFormVersionsParams>;

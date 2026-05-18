@@ -10,14 +10,10 @@ import {
 	signal
 } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
-import { FormRoot } from "@angular/forms/signals";
 import { RouterLink } from "@angular/router";
 import { FormRenderer } from '@app/components/form/renderer';
 import { domainToStrictFormDefinition } from "@app/components/form/schema/form-designer-config";
-import {
-	formVersionCollection,
-	submissionCollection,
-} from "@app/store/form/collections";
+import { formsCollection, submissionsCollection } from "@app/store/form";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmEmptyImports } from "@spartan-ng/helm/empty";
@@ -76,7 +72,7 @@ export class SubmissionDataPage {
 		params: () => ({ slug: this.formSlug(), pagination: this.pagination() }),
 		query: ({ q, params }) =>
 			q
-				.from({ fv: formVersionCollection })
+				.from({ fv: formsCollection })
 				.where(({ fv }) => eq(fv.form, params.slug))
 				.limit(params.pagination.pageSize)
 				.orderBy(({ fv }) => fv.createdAt, "desc")
@@ -86,7 +82,7 @@ export class SubmissionDataPage {
 		params: () => ({ slug: this.formSlug(), index: this.index(), fv: this.formVersion() }),
 		query: ({ q, params }) =>
 			q
-				.from({ submissions: submissionCollection })
+				.from({ submissions: submissionsCollection })
 				.where(
 					({ submissions }) => and(
 						eq(submissions.form, params.slug),

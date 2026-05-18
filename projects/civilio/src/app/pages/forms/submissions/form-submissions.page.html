@@ -74,7 +74,7 @@
 						class="h-24 text-center"
 						hlmTd
 					>
-						@if (submissionData.isLoading()) {
+						<!-- @if (submissionData.isLoading()) {
 						<div class="flex items-center gap-2 justify-center">
 							<hlm-spinner />
 							<span>{{ "loading.txt" | translate }}</span>
@@ -91,7 +91,7 @@
 								</p>
 							</div>
 						</div>
-						}
+						} -->
 					</td>
 				</tr>
 				}
@@ -100,7 +100,7 @@
 				<tr hlmTr>
 					<td [attr.colspan]="columnConfig.length" hlmTd>
 						<div class="flex justify-center items-center">
-							@defer(when !submissionData.isLoading()) {
+							<!-- @defer(when !submissionData.isLoading()) {
 							<hlm-numbered-pagination
 								[(currentPage)]="pageIndex"
 								maxSize="3"
@@ -109,7 +109,7 @@
 							/>
 							} @placeholder {
 							<hlm-skeleton class="w-50 h-9" />
-							}
+							} -->
 						</div>
 					</td>
 				</tr>
@@ -119,7 +119,7 @@
 </ng-template>
 
 <ng-template #formVersionSelectorTemplate>
-	@defer(when !formVersions.isLoading() && !formVersions.isError()) {
+	<!-- @defer(when !formVersions.isLoading() && !formVersions.isError()) {
 	<hlm-select [(value)]="selectVersionId" placeholder="Select form Version">
 		<hlm-select-trigger class="max-w-100 w-50">
 			<hlm-select-value>
@@ -144,5 +144,5 @@
 	</hlm-select>
 	}@placeholder {
 	<hlm-skeleton class="w-32 h-9" />
-	}
+	} -->
 </ng-template>
