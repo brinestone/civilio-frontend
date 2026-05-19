@@ -25,11 +25,13 @@ import {
 } from 'rxjs';
 
 import {
+  ChangedDocumentItem,
   PullDocumentChanges200
 } from '../../../../../../libs/sdk/models';
 import type {
   PullDocumentChanges200Output,
-  PullDocumentChangesParams
+  PullDocumentChangesParams,
+  PushDocumentChange
 } from '../../../../../../libs/sdk/models';
 
 import {
@@ -133,7 +135,7 @@ export class DocumentsService {
   private readonly http = inject(HttpClient);
 /**
  * Pull changes from after a checkpoint
- * @summary Pull changes
+ * @summary Pull document changes
  */
  pullDocumentChanges<TData = PullDocumentChanges200Output>(collection: string,
     params?: PullDocumentChangesParams, options?: HttpClientBodyOptions): Observable<TData>;
@@ -170,6 +172,42 @@ export class DocumentsService {
         observe: 'body',
         params: filteredParams,}
     ).pipe(map(data => PullDocumentChanges200.parse(data) as TData));
+  }
+/**
+ * @summary Push document changes
+ */
+ pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientBodyOptions): Observable<TData>;
+ pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+ pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  pushDocumentChanges<TData = ChangedDocumentItem[]>(
+    pushDocumentChange: PushDocumentChange[], options?: HttpClientObserveOptions): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.post<TData>(
+      `/api/docs/push`,
+      pushDocumentChange,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
+      }
+    );
+    }
+
+    if (options?.observe === 'response') {
+      return this.http.post<TData>(
+      `/api/docs/push`,
+      pushDocumentChange,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      }
+    );
+    }
+
+    return this.http.post<TData>(
+      `/api/docs/push`,
+      pushDocumentChange,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'body',
+      }
+    );
   }
 };
 

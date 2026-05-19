@@ -13,8 +13,8 @@ import { rxResource } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { FormRenderer } from '@app/components/form/renderer';
 import { domainToStrictFormDefinition } from "@app/components/form/schema/form-designer-config";
-import { formsCollection, submissionsCollection } from "@app/store/form";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
+import { formVersionsCollection, submissionsCollection } from "@db/collections";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmEmptyImports } from "@spartan-ng/helm/empty";
 import { HlmField, HlmFieldLabel } from "@spartan-ng/helm/field";
@@ -72,7 +72,7 @@ export class SubmissionDataPage {
 		params: () => ({ slug: this.formSlug(), pagination: this.pagination() }),
 		query: ({ q, params }) =>
 			q
-				.from({ fv: formsCollection })
+				.from({ fv: formVersionsCollection })
 				.where(({ fv }) => eq(fv.form, params.slug))
 				.limit(params.pagination.pageSize)
 				.orderBy(({ fv }) => fv.createdAt, "desc")

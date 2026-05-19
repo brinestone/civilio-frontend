@@ -1,4 +1,6 @@
 import { assertInInjectionContext, inject, InjectionToken, makeEnvironmentProviders } from "@angular/core";
+import { SubmissionLookup } from "@civilio/sdk/models";
+import { FormSchema, FormVersionSchema } from "@db/schemas";
 import pick from "lodash/pick";
 import { CompositePrimaryKey, createRxDatabase, PrimaryKey, RxCollectionCreator, RxDatabase, TopLevelProperty } from 'rxdb';
 import {
@@ -10,7 +12,19 @@ import z from "zod";
 const storage = getRxStorageDexie();
 export const db = await createRxDatabase({
 	name: 'civilio-db', storage: wrappedValidateAjvStorage({ storage }),
+	localDocuments: true,
+	multiInstance: false,
 });
+export const rxCollections = await db.addCollections({
+	forms: toRxSchema(FormSchema, 'slug'),
+	formVersions: toRxSchema(FormVersionSchema, 'id'),
+	submissions: toRxSchema(SubmissionLookup, {
+		fields: ['index', 'form', 'formVerison'],
+		separator: '|',
+		key: 'id'
+	})
+});
+
 
 export type ProvideRxReplicationOptions = {
 	replicationId: string;

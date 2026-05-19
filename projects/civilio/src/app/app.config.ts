@@ -11,6 +11,7 @@ import {
 	withComponentInputBinding,
 	withRouterConfig,
 } from "@angular/router";
+import { provideCollectionHooks } from "@db/collections";
 import { provideNgIconLoader } from "@ng-icons/core";
 import {
 	provideMissingTranslationHandler,
@@ -42,7 +43,8 @@ export const appConfig: ApplicationConfig = {
 			withRouterConfig({ paramsInheritanceStrategy: "always" }),
 		),
 		provideDomainConfig(),
-		// provideRxDb(),
+		provideCollectionHooks(),
+		// provideReplicationHandlers(),
 		provideStore(
 			[ConfigState],
 			withNgxsRouterPlugin(),

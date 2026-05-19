@@ -9,8 +9,7 @@ import { z as zod } from 'zod';
 export const PullDocumentChanges200 = zod.object({
   "checkpoint": zod.iso.datetime({"offset":true}),
   "documents": zod.array(zod.object({
-  "isDeleted": zod.boolean(),
-  "data": zod.record(zod.string(), zod.unknown())
+  "isDeleted": zod.boolean()
 }))
 })
 

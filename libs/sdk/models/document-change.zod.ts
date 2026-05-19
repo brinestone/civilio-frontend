@@ -7,8 +7,7 @@
 import { z as zod } from 'zod';
 
 export const DocumentChange = zod.object({
-  "isDeleted": zod.boolean(),
-  "data": zod.record(zod.string(), zod.unknown())
+  "isDeleted": zod.boolean()
 })
 
 export type DocumentChange = zod.input<typeof DocumentChange>;
