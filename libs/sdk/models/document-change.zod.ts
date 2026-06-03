@@ -7,7 +7,12 @@
 import { z as zod } from 'zod';
 
 export const DocumentChange = zod.object({
-  "isDeleted": zod.boolean()
+  "id": zod.uuid(),
+  "entityKey": zod.string(),
+  "collection": zod.string(),
+  "data": zod.record(zod.string(), zod.unknown()),
+  "operation": zod.enum(['insert', 'update', 'delete']),
+  "recordedAt": zod.iso.datetime({"offset":true})
 })
 
 export type DocumentChange = zod.input<typeof DocumentChange>;

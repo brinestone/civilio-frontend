@@ -6,21 +6,21 @@ import {
 	DOCUMENT,
 	effect,
 	inject,
+	OnDestroy,
 	PLATFORM_ID,
 	signal
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterOutlet } from '@angular/router';
 import { BaseLayout } from '@app/layouts/base/base.layout';
-import { LoadConfig } from '@app/store/config';
-import { dispatch, select } from '@ngxs/store';
+import { select } from '@ngxs/store';
 import { HlmToaster } from '@spartan-ng/helm/sonner';
+import { Subscription } from 'rxjs';
 import { ThemeService } from './services/theme.service';
 import { fontSize } from './store/selectors';
 
 registerLocaleData(localeFr);
 registerLocaleData(localeEn);
-
 
 @Component({
 	selector: 'cv-root',
@@ -28,12 +28,12 @@ registerLocaleData(localeEn);
 	templateUrl: './app.html',
 	styleUrl: './app.scss'
 })
-export class App {
+export class App implements OnDestroy {
+	private backgroundJobSub?: Subscription;
 	protected readonly platformId = inject(PLATFORM_ID);
 	protected readonly document = inject(DOCUMENT);
 	protected readonly title = signal('civilio');
 	protected readonly fontSize = select(fontSize);
-	private loadConfig = dispatch(LoadConfig);
 	private themeService = inject(ThemeService);
 	protected themeSignal = toSignal(this.themeService.theme$, { initialValue: 'system' });
 
@@ -42,14 +42,12 @@ export class App {
 			effect(() => {
 				const fs = this.fontSize();
 				if (fs === undefined) return;
-				this.document.documentElement.style.fontSize = `${ fs }px`;
+				this.document.documentElement.style.fontSize = `${fs}px`;
 			});
 		}
 	}
 
-	// ngOnInit(): void {
-	// 	if (isDesktop()) {
-	// 		this.loadConfig();
-	// 	}
-	// }
+	ngOnDestroy() {
+		this.backgroundJobSub?.unsubscribe();
+	}
 }

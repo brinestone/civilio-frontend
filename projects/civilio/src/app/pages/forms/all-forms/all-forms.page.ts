@@ -1,4 +1,4 @@
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debounce, form, FormField, hidden, required, submit, validate, validateAsync } from '@angular/forms/signals';
@@ -26,7 +26,7 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmH3 } from "@spartan-ng/helm/typography";
-import { createTransaction, eq, injectLiveQuery } from '@tanstack/angular-db';
+import { eq, injectLiveQuery } from '@tanstack/angular-db';
 import { produce } from 'immer';
 import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 
@@ -54,7 +54,6 @@ import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 		HlmTextarea,
 		HlmSkeleton,
 		HlmButton,
-		DatePipe,
 		HlmSeparator,
 		HlmButton,
 		HlmSpinner,
@@ -76,7 +75,11 @@ export class AllFormsPage implements HasPendingChanges {
 	protected readonly forms = injectLiveQuery({
 		query: q => q.from({ forms: formsCollection })
 			.leftJoin({ fv: formVersionsCollection }, ({ forms, fv }) => eq(forms.slug, fv.form))
-			.select(({ forms, fv }) => ({ title: forms.title, lastUpdated: forms.lastUpdated, slug: forms.slug, currentVersion: { id: fv.id } }))
+			.select(({ forms, fv }) => ({
+				title: forms.title,
+				slug: forms.slug,
+				currentVersion: { id: fv.id }
+			}))
 	});
 	protected readonly formsAvailable = computed(() => this.forms.data().length > 0 && this.forms.status() == 'ready');
 	private readonly formData = signal<NewFormData>(defaultFormData());

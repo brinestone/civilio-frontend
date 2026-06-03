@@ -6,11 +6,17 @@
  */
 import { z as zod } from 'zod';
 
+export const pullDocumentChanges200ChangesDefault = [];
 export const PullDocumentChanges200 = zod.object({
-  "checkpoint": zod.iso.datetime({"offset":true}),
-  "documents": zod.array(zod.object({
-  "isDeleted": zod.boolean()
-}))
+  "checkpoint": zod.number().optional(),
+  "changes": zod.array(zod.object({
+  "id": zod.uuid(),
+  "entityKey": zod.string(),
+  "collection": zod.string(),
+  "data": zod.record(zod.string(), zod.unknown()),
+  "operation": zod.enum(['insert', 'update', 'delete']),
+  "recordedAt": zod.iso.datetime({"offset":true})
+})).default(pullDocumentChanges200ChangesDefault)
 })
 
 export type PullDocumentChanges200 = zod.input<typeof PullDocumentChanges200>;

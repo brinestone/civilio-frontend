@@ -11,7 +11,7 @@ import {
 	withComponentInputBinding,
 	withRouterConfig,
 } from "@angular/router";
-import { provideCollectionHooks } from "@db/collections";
+import { provideCollectionIndexing } from "@db/collections";
 import { provideNgIconLoader } from "@ng-icons/core";
 import {
 	provideMissingTranslationHandler,
@@ -19,6 +19,7 @@ import {
 } from "@ngx-translate/core";
 import { withNgxsLoggerPlugin } from "@ngxs/logger-plugin";
 import { withNgxsRouterPlugin } from "@ngxs/router-plugin";
+import { StorageOption, withNgxsStoragePlugin } from '@ngxs/storage-plugin';
 import { provideStore } from "@ngxs/store";
 import {
 	MissingTranslationHandlerImpl,
@@ -29,11 +30,15 @@ import { routes } from "./app.routes";
 import { provideHttpClientErrorHandler } from "./http/error-handler";
 import { apiUrlInterceptor } from "./interceptors/api-url-interceptor";
 import { provideDomainConfig } from "./services/config";
+import { provideSseClient } from "./services/sse.service";
 import { ConfigState } from "./store/config";
+import { DocsState, SYNC_STATE } from "./store/docs";
+import { withDocumentsSdk } from "@civilio/sdk/providers";
 
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideHttpClient(withInterceptors([apiUrlInterceptor])),
+		provideCollectionIndexing(),
 		provideHttpClientErrorHandler(),
 		provideBrowserGlobalErrorListeners(),
 		provideZonelessChangeDetection(),
@@ -43,10 +48,13 @@ export const appConfig: ApplicationConfig = {
 			withRouterConfig({ paramsInheritanceStrategy: "always" }),
 		),
 		provideDomainConfig(),
-		provideCollectionHooks(),
-		// provideReplicationHandlers(),
 		provideStore(
-			[ConfigState],
+			[ConfigState, DocsState],
+			withDocumentsSdk(),
+			withNgxsStoragePlugin({
+				keys: [SYNC_STATE],
+				storage: StorageOption.LocalStorage
+			}),
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
 				disabled: !isDevMode(),

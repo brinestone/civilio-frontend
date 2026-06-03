@@ -1,19 +1,23 @@
 import z from "zod";
 
-export const FormVersionSchema = z.object({
+export const BaseSchema = z.object({
+	createdAt: z.string().nullish().default(new Date().toISOString()),
+	updatedAt: z.string().nullish().default(new Date().toISOString()),
+});
+export const Archivable = z.object({
+	archivedAt: z.string().nullish().default(null)
+})
+
+export const FormVersionSchema = BaseSchema.extend({
 	id: z.uuid(),
 	form: z.string(),
-	createdAt: z.iso.date().nullish(),
-	updatedAt: z.iso.date().nullish(),
 	parentId: z.uuid().nullish().default(null),
 	isCurrent: z.boolean().default(true),
-	archivedAt: z.iso.date().nullish()
-});
+}).and(Archivable);
 
-export const FormSchema = z.object({
+export const FormSchema = BaseSchema.extend({
 	slug: z.string(),
 	description: z.string().nullish().default(null),
 	title: z.string(),
-	lastUpdated: z.iso.date().nullish(),
-	createdAt: z.iso.date().nullish()
-})
+	archivedAt: z.string().nullish().default(null),
+}).and(Archivable);

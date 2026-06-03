@@ -8,7 +8,7 @@ import { z as zod } from 'zod';
 
 export const ChangedDocumentItem = zod.object({
   "collection": zod.string(),
-  "data": zod.record(zod.string(), zod.unknown()).optional()
+  "data": zod.record(zod.string(), zod.unknown())
 })
 
 export type ChangedDocumentItem = zod.input<typeof ChangedDocumentItem>;

@@ -8,6 +8,7 @@ import { z as zod } from 'zod';
 
 export const lookupFormSubmissions200TotalRecordsMin = 0;
 
+export const lookupFormSubmissions200DataItemIdDefault = ``;
 export const lookupFormSubmissions200DataItemVersionCountDefault = 0;
 export const lookupFormSubmissions200DataItemVersionCountMin = 0;
 
@@ -15,7 +16,7 @@ export const lookupFormSubmissions200DataItemVersionCountMin = 0;
 export const LookupFormSubmissions200 = zod.object({
   "totalRecords": zod.number().min(lookupFormSubmissions200TotalRecordsMin),
   "data": zod.array(zod.object({
-  "id": zod.uuid().nullish(),
+  "id": zod.uuid().default(lookupFormSubmissions200DataItemIdDefault),
   "slug": zod.string().optional(),
   "form": zod.string(),
   "formVersion": zod.uuid(),

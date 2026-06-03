@@ -47,7 +47,7 @@ import { flatten } from "flat";
 import { difference, get, isEqual, omit } from "lodash";
 import { toast } from "ngx-sonner";
 import { injectQueryParams } from "ngxtension/inject-query-params";
-import { lastValueFrom, Observable, of } from "rxjs";
+import { catchError, lastValueFrom, Observable, of, throwError } from "rxjs";
 
 @Component({
 	selector: "cv-forms",
@@ -88,17 +88,26 @@ export class SchemaDesignPage implements HasPendingChanges {
 	private readonly formService = inject(FormsService);
 	private readonly designer = viewChild(FormDesigner);
 	protected readonly sidebarState = signal<BrnDialogState>(isDevMode() ? 'closed' : 'closed');
+
 	protected readonly formDefinition = rxResource({
+		defaultValue: null,
 		params: () => ({
 			slug: this.slug(),
 			version: this.formVersion() ?? "current",
 		}),
 		stream: ({ params }) => {
 			return !params.slug
-				? of(undefined)
+				? of(null)
 				: this.formService.findFormDefinitionByVersion(params.slug, {
 					version: params.version,
-				});
+				}).pipe(
+					catchError((e: HttpErrorResponse) => {
+						if (e.status === 404) {
+							return of(null);
+						}
+						return throwError(() => e);
+					})
+				);
 		},
 	});
 	protected readonly formData = linkedSignal(() => {

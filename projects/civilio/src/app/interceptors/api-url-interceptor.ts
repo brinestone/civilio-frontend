@@ -7,6 +7,7 @@ export const apiUrlInterceptor: HttpInterceptorFn = (req, next) => {
 	const store = inject(Store);
 	const origin = store.selectSnapshot(apiOrigin);
 	const mid = store.selectSnapshot(machineId);
+	if (!origin) return next(req);
 	const fullReq = req.clone({
 		url: new URL(req.url, origin).toString(),
 		setHeaders: {

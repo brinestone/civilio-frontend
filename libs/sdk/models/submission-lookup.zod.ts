@@ -6,12 +6,13 @@
  */
 import { z as zod } from 'zod';
 
+export const submissionLookupIdDefault = ``;
 export const submissionLookupVersionCountDefault = 0;
 export const submissionLookupVersionCountMin = 0;
 
 
 export const SubmissionLookup = zod.object({
-  "id": zod.uuid().nullish(),
+  "id": zod.uuid().default(submissionLookupIdDefault),
   "slug": zod.string().optional(),
   "form": zod.string(),
   "formVersion": zod.uuid(),
