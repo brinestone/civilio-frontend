@@ -1,10 +1,22 @@
 import { provideAppInitializer } from "@angular/core";
 import { SubmissionLookup } from "@civilio/sdk/models";
-import { BasicIndex, createCollection } from "@tanstack/db";
+import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import { FormSchema, FormVersionSchema } from "./schemas";
+import { FormItem, FormSchema, FormVersionSchema } from "./schemas";
 
 const dbName = 'civilio-db';
+
+export const formItemsCollection = createCollection(dexieCollectionOptions({
+	id: 'form-items',
+	schema: FormItem,
+	dbName,
+	getKey: fi => fi.id,
+	startSync: true,
+	syncMode: 'on-demand',
+	rowUpdateMode: 'partial',
+	tableName: 'form-items',
+}));
+
 export const formsCollection = createCollection(dexieCollectionOptions({
 	id: 'forms',
 	schema: FormSchema,
@@ -35,6 +47,7 @@ export const submissionsCollection = createCollection(dexieCollectionOptions({
 export const allCollections = {
 	forms: formsCollection,
 	'form-versions': formVersionsCollection,
+	'form-items': formItemsCollection,
 	submissions: submissionsCollection
 };
 
@@ -42,5 +55,8 @@ export function provideCollectionIndexing() {
 	return provideAppInitializer(async () => {
 		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
 		submissionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
 	})
 }
+
+export type Entity<T extends object> = WithVirtualProps<T, string>;

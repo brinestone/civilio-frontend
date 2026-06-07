@@ -94,6 +94,7 @@ export * from './pull-document-changes200.zod';
 export * from './push-document-change-data.zod';
 export * from './push-document-change.zod';
 export * from './push-document-changes-body.zod';
+export * from './push-document-changes200.zod';
 export * from './range-date-field-config.zod';
 export * from './relevance-condition.zod';
 export * from './relevance-definition.zod';

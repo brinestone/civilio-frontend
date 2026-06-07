@@ -25,13 +25,14 @@ import {
 } from 'rxjs';
 
 import {
-  ChangedDocumentItem,
-  PullDocumentChanges200
+  PullDocumentChanges200,
+  PushDocumentChanges200
 } from '../../../../../../libs/sdk/models';
 import type {
   PullDocumentChanges200Output,
   PullDocumentChangesParams,
-  PushDocumentChange
+  PushDocumentChange,
+  PushDocumentChanges200Output
 } from '../../../../../../libs/sdk/models';
 
 import {
@@ -176,10 +177,10 @@ export class DocumentsService {
 /**
  * @summary Push document changes
  */
- pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientBodyOptions): Observable<TData>;
- pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
- pushDocumentChanges<TData = ChangedDocumentItem[]>(pushDocumentChange: PushDocumentChange[], options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
-  pushDocumentChanges<TData = ChangedDocumentItem[]>(
+ pushDocumentChanges<TData = PushDocumentChanges200Output>(pushDocumentChange: PushDocumentChange[], options?: HttpClientBodyOptions): Observable<TData>;
+ pushDocumentChanges<TData = PushDocumentChanges200Output>(pushDocumentChange: PushDocumentChange[], options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+ pushDocumentChanges<TData = PushDocumentChanges200Output>(pushDocumentChange: PushDocumentChange[], options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  pushDocumentChanges<TData = PushDocumentChanges200Output>(
     pushDocumentChange: PushDocumentChange[], options?: HttpClientObserveOptions): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
     if (options?.observe === 'events') {
       return this.http.post<TData>(
@@ -188,7 +189,7 @@ export class DocumentsService {
         ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'events',
       }
-    );
+    ).pipe(map(event => event instanceof AngularHttpResponse ? event.clone({ body: PushDocumentChanges200.parse(event.body) as TData }) : event));
     }
 
     if (options?.observe === 'response') {
@@ -198,7 +199,7 @@ export class DocumentsService {
         ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'response',
       }
-    );
+    ).pipe(map(response => response.clone({ body: PushDocumentChanges200.parse(response.body) as TData })));
     }
 
     return this.http.post<TData>(
@@ -207,7 +208,7 @@ export class DocumentsService {
         ...(options as Omit<NonNullable<typeof options>, 'observe'>),
         observe: 'body',
       }
-    );
+    ).pipe(map(data => PushDocumentChanges200.parse(data) as TData));
   }
 };
 

@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ApiConfigFormComponent } from '@app/components';
-import { AgoDatePipe } from '@app/pipes';
+import { RelativeDatePipe } from '@app/pipes';
 import {
 	ApplyPendingMigrations,
 	ClearConnections,
@@ -81,7 +81,7 @@ import { map, merge, startWith } from 'rxjs';
 		HlmItemImports,
 		HlmH4,
 		HlmH3,
-		AgoDatePipe,
+		RelativeDatePipe,
 		HlmSeparator,
 		HlmBadge,
 		ApiConfigFormComponent

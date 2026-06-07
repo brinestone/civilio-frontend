@@ -127,7 +127,7 @@
 							{{ conn.username }}&#64;{{ conn.host }}:{{ conn.port }}/{{
 							conn.database }}
 						</h5>
-						<p hlmItemDescription>{{ conn.updatedAt | ago_date }}</p>
+						<p hlmItemDescription>{{ conn.updatedAt | relativeDate }}</p>
 					</div>
 					<div class="flex gap-2 flex-col" hlmItemActions>
 						@if (conn.inUse) {

@@ -6,9 +6,9 @@
  */
 import { z as zod } from 'zod';
 
-export const pullDocumentChanges200ChangesDefault = [];
-export const PullDocumentChanges200 = zod.object({
-  "checkpoint": zod.string().optional(),
+export const pushDocumentChanges200ChangesDefault = [];
+export const PushDocumentChanges200 = zod.object({
+  "checkpoint": zod.string(),
   "changes": zod.array(zod.object({
   "id": zod.uuid(),
   "entityKey": zod.string(),
@@ -16,8 +16,8 @@ export const PullDocumentChanges200 = zod.object({
   "data": zod.record(zod.string(), zod.unknown()),
   "operation": zod.enum(['insert', 'update', 'delete']),
   "recordedAt": zod.iso.datetime({"offset":true})
-})).default(pullDocumentChanges200ChangesDefault)
+})).default(pushDocumentChanges200ChangesDefault)
 })
 
-export type PullDocumentChanges200 = zod.input<typeof PullDocumentChanges200>;
-export type PullDocumentChanges200Output = zod.output<typeof PullDocumentChanges200>;
+export type PushDocumentChanges200 = zod.input<typeof PushDocumentChanges200>;
+export type PushDocumentChanges200Output = zod.output<typeof PushDocumentChanges200>;

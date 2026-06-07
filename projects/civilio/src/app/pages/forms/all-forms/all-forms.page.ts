@@ -1,10 +1,11 @@
-import { DatePipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debounce, form, FormField, hidden, required, submit, validate, validateAsync } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldError } from '@app/components/form';
 import { HasPendingChanges } from '@app/model/form';
+import { RelativeDatePipe } from '@app/pipes';
 import { randomString } from '@app/util';
 import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
@@ -52,6 +53,7 @@ import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 		NgIcon,
 		FormField,
 		HlmTextarea,
+		RelativeDatePipe,
 		HlmSkeleton,
 		HlmButton,
 		HlmSeparator,
@@ -78,8 +80,10 @@ export class AllFormsPage implements HasPendingChanges {
 			.select(({ forms, fv }) => ({
 				title: forms.title,
 				slug: forms.slug,
-				currentVersion: { id: fv.id }
+				currentVersion: { id: fv.id, lastUpdated: fv.updatedAt },
+				lastUpdated: forms.updatedAt
 			}))
+			.orderBy(({ $selected }) => $selected.lastUpdated, { direction: 'desc' })
 	});
 	protected readonly formsAvailable = computed(() => this.forms.data().length > 0 && this.forms.status() == 'ready');
 	private readonly formData = signal<NewFormData>(defaultFormData());

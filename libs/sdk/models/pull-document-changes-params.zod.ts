@@ -10,7 +10,7 @@ export const pullDocumentChangesParamsBatchSizeDefault = 1;
 
 
 export const PullDocumentChangesParams = zod.object({
-  "lastCheckpoint": zod.number().optional(),
+  "lastCheckpoint": zod.string().optional(),
   "batchSize": zod.number().min(1).default(pullDocumentChangesParamsBatchSizeDefault)
 })
 

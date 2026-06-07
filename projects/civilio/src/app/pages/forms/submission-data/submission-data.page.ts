@@ -75,7 +75,7 @@ export class SubmissionDataPage {
 				.from({ fv: formVersionsCollection })
 				.where(({ fv }) => eq(fv.form, params.slug))
 				.limit(params.pagination.pageSize)
-				.orderBy(({ fv }) => fv.createdAt, "desc")
+				.orderBy(({ fv }) => fv.updatedAt, "desc")
 				.offset(params.pagination.pageIndex * params.pagination.pageSize),
 	});
 	protected readonly submissions = injectLiveQuery({
