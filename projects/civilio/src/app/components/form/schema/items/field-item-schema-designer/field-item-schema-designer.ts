@@ -9,16 +9,14 @@ import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
-	computed,
 	effect,
 	input,
 	signal,
 	Type,
-	untracked,
+	untracked
 } from "@angular/core";
 import { FormField } from "@angular/forms/signals";
 import { DebugHeader, DebugPanel } from "@app/components/debug";
-import { FormItemField, NewFormItemField } from "@civilio/sdk/models";
 import { provideIcons } from "@ng-icons/core";
 import {
 	lucideEye,
@@ -30,13 +28,13 @@ import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import z from "zod";
+import { FormItemEntity, formItemPathSeparator } from "../../form-designer-config";
 import { FormItemActions } from "../../form-item-actions/form-item-actions.component";
 import {
 	ConfigTab,
 	FormItemSettingsDesigner,
 } from "../../form-item-settings/form-item-settings";
 import { BaseFormItemSchemaDesigner } from "../base-item-schema-designer/base-form-item-schema-designer";
-import { formItemPathSeparator } from "../../form-designer-config";
 
 const slugifier = z.string().trim().slugify().nullish().default("").transform(v => v?.replace(/[-]/g, '_') ?? null);
 @Component({
@@ -71,9 +69,7 @@ const slugifier = z.string().trim().slugify().nullish().default("").transform(v 
 	styleUrl: "./field-item-schema-designer.scss",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<
-	FormItemField | NewFormItemField
-> {
+export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemEntity> {
 	readonly noWrapper = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});

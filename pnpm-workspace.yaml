@@ -3,6 +3,7 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - '@bitdisaster/exe-icon-extractor'
+  - '@journeyapps/wa-sqlite'
   - '@parcel/watcher'
   - '@tailwindcss/oxide'
   - better-sqlite3

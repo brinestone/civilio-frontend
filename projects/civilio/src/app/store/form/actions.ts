@@ -10,201 +10,201 @@ import { DeltaChangeEvent } from '@app/model/form/events';
 
 const prefix = "[form]";
 
-export class ChangesSaved {
-	static type = `${ prefix } changes saved`;
+// export class ChangesSaved {
+// 	static type = `${ prefix } changes saved`;
 
-	constructor(readonly index: number, readonly isNew: boolean) {
-	}
-}
+// 	constructor(readonly index: number, readonly isNew: boolean) {
+// 	}
+// }
 
-export class ToggleApprovalStatus {
-	static type = `${ prefix } toggle approval status`;
+// export class ToggleApprovalStatus {
+// 	static type = `${ prefix } toggle approval status`;
 
-	constructor(readonly index: number, readonly form: FormType, readonly status: boolean) {
-	}
-}
+// 	constructor(readonly index: number, readonly form: FormType, readonly status: boolean) {
+// 	}
+// }
 
-export class DeleteSubmission {
-	static type = `${ prefix } delete submission`;
+// export class DeleteSubmission {
+// 	static type = `${ prefix } delete submission`;
 
-	constructor(readonly index: number, readonly form: FormType) {
-	}
-}
+// 	constructor(readonly index: number, readonly form: FormType) {
+// 	}
+// }
 
-export class RevertToVersion {
-	static type = `${ prefix } revert to version`;
+// export class RevertToVersion {
+// 	static type = `${ prefix } revert to version`;
 
-	constructor(readonly form: FormType,
-							readonly changeNotes: string,
-							readonly index?: number | string,
-							readonly customVersion?: string) {
-	}
-}
+// 	constructor(readonly form: FormType,
+// 							readonly changeNotes: string,
+// 							readonly index?: number | string,
+// 							readonly customVersion?: string) {
+// 	}
+// }
 
-export class SaveChanges {
-	static type = `${ prefix } save  changes`;
+// export class SaveChanges {
+// 	static type = `${ prefix } save  changes`;
 
-	constructor(readonly form: FormType, readonly changeNotes: string, readonly index?: number | string, readonly customVersion?: string) {
-	}
-}
+// 	constructor(readonly form: FormType, readonly changeNotes: string, readonly index?: number | string, readonly customVersion?: string) {
+// 	}
+// }
 
-export class DiscardChanges {
-	static type = `${ prefix } discard changes`;
+// export class DiscardChanges {
+// 	static type = `${ prefix } discard changes`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class Undo {
-	static type = `${ prefix } undo`;
+// export class Undo {
+// 	static type = `${ prefix } undo`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class Redo {
-	static type = `${ prefix } redo`;
+// export class Redo {
+// 	static type = `${ prefix } redo`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class RecordDeltaChange {
-	static type = `${ prefix } record delta change`
-	readonly events: DeltaChangeEvent<any>[];
+// export class RecordDeltaChange {
+// 	static type = `${ prefix } record delta change`
+// 	readonly events: DeltaChangeEvent<any>[];
 
-	constructor(...events: DeltaChangeEvent<any>[]) {
-		this.events = events;
-	}
-}
+// 	constructor(...events: DeltaChangeEvent<any>[]) {
+// 		this.events = events;
+// 	}
+// }
 
-export class InitVersioning implements InitializeSubmissionVersionRequest {
-	static type = `${ prefix } Init versioning`;
+// export class InitVersioning implements InitializeSubmissionVersionRequest {
+// 	static type = `${ prefix } Init versioning`;
 
-	constructor(readonly index: unknown, readonly form: FormType) {
-	}
-}
+// 	constructor(readonly index: unknown, readonly form: FormType) {
+// 	}
+// }
 
-export class SubmissionIndexChanged {
-	static type = `${ prefix } Index changed`;
+// export class SubmissionIndexChanged {
+// 	static type = `${ prefix } Index changed`;
 
-	constructor(readonly index: number) {
-	}
-}
+// 	constructor(readonly index: number) {
+// 	}
+// }
 
-export class DeactivateForm {
-	static type = `${ prefix } Deactivate form`;
+// export class DeactivateForm {
+// 	static type = `${ prefix } Deactivate form`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class UpdateFormDirty {
-	static type = `${ prefix } Update Form Status`;
+// export class UpdateFormDirty {
+// 	static type = `${ prefix } Update Form Status`;
 
-	constructor(
-		readonly section: FormSectionKey,
-		readonly dirty: boolean,
-	) {
-	}
-}
+// 	constructor(
+// 		readonly section: FormSectionKey,
+// 		readonly dirty: boolean,
+// 	) {
+// 	}
+// }
 
-export class ActivateForm {
-	static type = `${ prefix } Activate form`;
+// export class ActivateForm {
+// 	static type = `${ prefix } Activate form`;
 
-	constructor(readonly schema: FormSchema) {
-	}
-}
+// 	constructor(readonly schema: FormSchema) {
+// 	}
+// }
 
-export class LoadSubmissionData {
-	static type = `${ prefix } Load submission data`;
+// export class LoadSubmissionData {
+// 	static type = `${ prefix } Load submission data`;
 
-	constructor(readonly form: FormType, readonly index: number | string, readonly version?: string) {
-	}
-}
+// 	constructor(readonly form: FormType, readonly index: number | string, readonly version?: string) {
+// 	}
+// }
 
-export class UpdateValidity {
-	static type = `${ prefix } Update validity`;
+// export class UpdateValidity {
+// 	static type = `${ prefix } Update validity`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class UpdateRelevance {
-	static type = `${ prefix } Update relevance`;
+// export class UpdateRelevance {
+// 	static type = `${ prefix } Update relevance`;
 
-	constructor(
-		readonly form: FormType,
-		readonly section?: FormSectionKey,
-		readonly field?: FieldKey,
-	) {
-	}
-}
+// 	constructor(
+// 		readonly form: FormType,
+// 		readonly section?: FormSectionKey,
+// 		readonly field?: FieldKey,
+// 	) {
+// 	}
+// }
 
-export class UpdateSection {
-	static type = `${ prefix } Update section`;
+// export class UpdateSection {
+// 	static type = `${ prefix } Update section`;
 
-	constructor(
-		readonly section: FormSectionKey,
-		readonly form: FormType,
-		readonly field: FieldKey,
-		readonly value?: ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[]
-	) {
-	}
-}
+// 	constructor(
+// 		readonly section: FormSectionKey,
+// 		readonly form: FormType,
+// 		readonly field: FieldKey,
+// 		readonly value?: ParsedValue | ParsedValue[] | Record<string, ParsedValue | ParsedValue[]>[]
+// 	) {
+// 	}
+// }
 
-export class ActivateSection {
-	static type = `${ prefix } Activate section`;
+// export class ActivateSection {
+// 	static type = `${ prefix } Activate section`;
 
-	constructor(
-		readonly section: FormSectionKey,
-		readonly form: FormType
-	) {
-	}
-}
+// 	constructor(
+// 		readonly section: FormSectionKey,
+// 		readonly form: FormType
+// 	) {
+// 	}
+// }
 
-export class LoadMappings {
-	static type = `${ prefix } load mappings`;
+// export class LoadMappings {
+// 	static type = `${ prefix } load mappings`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class LoadOptions {
-	static type = `${ prefix } load options`;
+// export class LoadOptions {
+// 	static type = `${ prefix } load options`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class LoadDbColumns {
-	static type = `${ prefix } load columns`;
+// export class LoadDbColumns {
+// 	static type = `${ prefix } load columns`;
 
-	constructor(readonly form: FormType) {
-	}
-}
+// 	constructor(readonly form: FormType) {
+// 	}
+// }
 
-export class RemoveMapping {
-	static type = `${ prefix } remove mapping`;
+// export class RemoveMapping {
+// 	static type = `${ prefix } remove mapping`;
 
-	constructor(
-		readonly form: FormType,
-		readonly field: FieldKey,
-	) {
-	}
-}
+// 	constructor(
+// 		readonly form: FormType,
+// 		readonly field: FieldKey,
+// 	) {
+// 	}
+// }
 
-export class UpdateMappings {
-	static type = `${ prefix } update mappings`;
-	readonly mappings: FieldUpdateSpec[];
+// export class UpdateMappings {
+// 	static type = `${ prefix } update mappings`;
+// 	readonly mappings: FieldUpdateSpec[];
 
-	constructor(
-		readonly form: FormType,
-		...mappings: FieldUpdateSpec[]
-	) {
-		this.mappings = mappings;
-	}
-}
+// 	constructor(
+// 		readonly form: FormType,
+// 		...mappings: FieldUpdateSpec[]
+// 	) {
+// 		this.mappings = mappings;
+// 	}
+// }
 
 export class SetFormType {
 	static type = `${ prefix } set form type`;

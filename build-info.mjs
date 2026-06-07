@@ -1,15 +1,17 @@
-import fs from 'fs';
-import cp from 'child_process';
-import {join} from "path";
+import fs from "fs";
+import cp from "child_process";
+import { join } from "path";
 
-const p = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+const p = JSON.parse(fs.readFileSync("./package.json", "utf8"));
 
-const {version, description, license, displayName, author, contributors} = p;
+const { version, description, license, displayName, author, contributors } = p;
 
-const out = String(cp.spawnSync('git', ['log', `--grep=${version}`]).stdout).toString();
-const dateLine = out.split('\n').find(line => line.includes('Date:'));
+const out = String(
+	cp.spawnSync("git", ["log", `--grep=${version}`]).stdout,
+).toString();
+const dateLine = out.split("\n").find((line) => line.includes("Date:"));
 
-const date = new Date(dateLine.split('Date:')[1].trim())
+const date = new Date(dateLine.split("Date:")[1].trim());
 
 const content = JSON.stringify({
 	author,
@@ -18,10 +20,10 @@ const content = JSON.stringify({
 	description,
 	displayName,
 	license,
-	version
+	version,
 });
-const dir = join(import.meta.dirname, 'dist/assets');
+const dir = join(import.meta.dirname, "dist/assets");
 if (!fs.existsSync(dir)) {
-	fs.mkdirSync(dir, {recursive: true});
+	fs.mkdirSync(dir, { recursive: true });
 }
-fs.writeFileSync(join(dir, 'build.json'), content);
+fs.writeFileSync(join(dir, "build.json"), content);

@@ -1,0 +1,80 @@
+<div
+	class="min-w-100 grid overflow-hidden grid-rows-[1fr_auto]"
+	[ngClass]="{
+	'border-r border-muted': !isNew()
+}"
+>
+	<!-- <div class="relative overflow-auto">
+		<div class="px-3 py-2 border-b border-muted backdrop-blur min-h-20">
+			@defer(when !formVersions.isLoading()) {
+			<div hlmField>
+				<label hlmFieldLabel for="fv">Form version</label>
+				<hlm-select
+					id="fv"
+					[(value)]="formVersion"
+					placeholder="Select Form Version"
+				>
+					<hlm-select-trigger class="w-full">
+						<hlm-select-value />
+					</hlm-select-trigger>
+					<hlm-select-content class="w-full">
+						<hlm-select-group>
+							<hlm-select-scroll-up />
+							@for(version of formVersions.data(); track version.id) {
+							<hlm-option [value]="version.id"
+								>{{ version.label || 'N/A' }}</hlm-option
+							>
+							}
+						</hlm-select-group>
+					</hlm-select-content>
+				</hlm-select>
+			</div>
+			} @placeholder {
+			<div class="space-y-2">
+				<hlm-skeleton class="h-6 rounded w-full" />
+				<hlm-skeleton class="h-6 rounded w-full" />
+			</div>
+			}
+		</div>
+		@for(submission of submissions.data(); track $index) {
+		<a [routerLink]="['..', submission.index]" class="p-3 space-y-2">
+			<span class="block font-semibold"> Index = {{submission.index}}</span>
+			<span class="block text-muted-foreground text-sm"
+				>{{ submission.recordedAt | date }}</span
+			>
+		</a>
+		} @empty { @if(!submissions.isLoading()) {
+		<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
+		} @else if (!submissions.isReady()) {
+		<ng-container [ngTemplateOutlet]="loadingTemplate" />
+		} }
+	</div> -->
+	<div class="border-t border-muted"></div>
+</div>
+<div class="relative overflow-auto">
+	@let definition = formDefinition.value();
+	<ng-container>
+		@if(definition) {
+		<div class="py-5 px-4">
+			<cv-form-renderer [formDefinition]="definition" />
+		</div>
+		}
+	</ng-container>
+</div>
+
+<ng-template #loadingTemplate>
+	<div class="space-y-3 p-3">
+		@for(_ of [1,2,3,4,5]; track $index) {
+		<div class="space-y-2">
+			<hlm-skeleton class="w-full block h-4 rounded" />
+			<hlm-skeleton class="w-3/4 block h-3 rounded" />
+		</div>
+		}
+	</div>
+</ng-template>
+<ng-template #emptySubmissionsListTemplate>
+	<div hlmEmpty>
+		<p hlmEmptyTitle>No Submissions</p>
+		<p hlmEmptyDescription>No submissions have been recorded yet.</p>
+	</div>
+</ng-template>

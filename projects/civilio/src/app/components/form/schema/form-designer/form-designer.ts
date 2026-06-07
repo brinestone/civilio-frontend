@@ -10,19 +10,15 @@ import {
 import { AsyncPipe, NgComponentOutlet } from "@angular/common";
 import { Component, computed, input, output, Type } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { defaultFormItemDefinitionSchemaValue, FormItem, formItemPathSeparator, FormItemType, FormModel, isFieldTree, walkFormItemTree } from "@app/components/form/schema/form-designer-config";
-import { FormItemDefinition, FormItemField, FormItemGroup, FormVersionDefinition, HasLibraryStatus, NewFormItemDefinition, NewFormItemField, NewFormItemGroup } from "@civilio/sdk/models";
+import { defaultFormItemDefinitionSchemaValue, FormItemEntity, formItemPathSeparator, FormItemType } from "@app/components/form/schema/form-designer-config";
+import { FormItemDefinition, FormItemField, NewFormItemDefinition, NewFormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { current, produce } from "immer";
-import { get, remove } from "lodash";
+import { get } from "lodash";
 import { createFormSchemaContextInjector } from "../items";
-
-function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Strict<HasLibraryStatus>> {
-	return 'inLibrary' in item;
-}
 
 @Component({
 	selector: "cv-form-designer",
@@ -45,45 +41,41 @@ function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Stric
 	],
 })
 export class FormDesigner {
-	readonly formModel = input.required<FieldTree<Strict<FormVersionDefinition>>>();
+	readonly formItems = input.required<FieldTree<Strict<FormItemEntity>[]>>();
 	readonly libAdd = output<string>();
 	readonly libRemove = output<string>();
 
 	protected readonly itemTypeNames = {
-		field: "Question",
-		separator: "Separator",
-		group: "Group",
-		image: "Image",
-		note: "Note",
+		question: "Question",
+		// separator: "Separator",
+		// group: "Group",
+		// image: "Image",
+		// note: "Note",
 	} as Record<FormItemType, string>;
 	protected readonly formItemComponents = {
-		field:
+		question:
 			import("../../../../components/form/schema/items/field-item-schema-designer/field-item-schema-designer").then(
 				(m) => m.FieldItemSchemaDesigner,
-			),
-		group:
-			import("../../../../components/form/schema/items/group-schema-designer/group-schema-designer").then(
-				(m) => m.GroupSchemaDesigner,
 			),
 	} as Record<string, Promise<Type<any>>>;
 
 	protected readonly fieldItems = computed(() => {
-		const { items } = this.formModel()().value();
+		const items = this.formItems()().value();
 		const reg = {} as Record<
 			string,
 			FieldTree<Strict<FormItemField | NewFormItemField>>
 		>;
-		for (const i of items) {
-			walkFormItemTree(i, (item) => {
-				const tree = get(
-					this.formModel().items,
-					item.path.split(formItemPathSeparator),
-				) as FieldTree<Strict<FormItemDefinition>>;
-				if (isFieldTree(tree) && tree().valid()) {
-					reg[item.path] = tree;
-				}
-			});
-		}
+		// for (const i of items) {
+		// 	walkFormItemTree(i, (item) => {
+		// 		const tree = get(
+		// 			this.items(),
+		// 			item.path.split(formItemPathSeparator),
+		// 		) as FieldTree<Strict<FormItemDefinition>>;
+		// 		if (isFieldTree(tree) && tree().valid()) {
+		// 			reg[item.path] = tree;
+		// 		}
+		// 	});
+		// }
 		return reg;
 	});
 	protected readonly itemComponentInjector = createFormSchemaContextInjector({
@@ -97,14 +89,12 @@ export class FormDesigner {
 	}
 
 	protected onFormItemsReordered({
-		container,
-		previousContainer,
 		currentIndex,
 		previousIndex,
-	}: CdkDragDrop<FieldTree<Strict<FormItem>[]>>) {
-		this.formModel()().value.update((v) =>
+	}: CdkDragDrop<FieldTree<Strict<FormItemEntity>[]>>) {
+		this.formItems()().value.update((v) =>
 			produce(v, (draft) => {
-				moveItemInArray(draft.items, previousIndex, currentIndex);
+				moveItemInArray(draft, previousIndex, currentIndex);
 			}),
 		);
 		this.computeItemPaths();
@@ -112,26 +102,26 @@ export class FormDesigner {
 
 
 	public handleNewItemAdded(type: FormItemType) {
-		this.formModel()().value.update((state) =>
+		this.formItems()().value.update((state) =>
 			produce(state, (draft) => {
-				const path = `${current(draft).items.length}`;
+				const path = `${current(draft).length}`;
 				const item = defaultFormItemDefinitionSchemaValue(
 					path,
 					type,
 				) as Strict<NewFormItemDefinition>;
-				draft.items.push(item as any);
+				draft.push(item as any);
 			}),
 		);
 		this.computeItemPaths();
-		this.formModel()().markAsDirty();
+		this.formItems()().markAsDirty();
 	}
 
 	protected onRemoveFormItem(path: string, index: number) {
 		const segments = path.split(formItemPathSeparator);
 		const target = (
 			segments.length == 1
-				? this.formModel().items
-				: get(this.formModel().items, segments.slice(0, -1))
+				? this.formItems()
+				: get(this.formItems(), segments.slice(0, -1))
 		) as FieldTree<FieldTree<Strict<FormItemDefinition>>[]>;
 		if (!target) return;
 
@@ -142,68 +132,68 @@ export class FormDesigner {
 		);
 		this.removeDependentRelevanceExpressionsFor(path);
 		this.computeItemPaths();
-		this.formModel()().markAsDirty();
+		this.formItems()().markAsDirty();
 	}
 
 	private computeItemPaths() {
 		let changed = false;
-		for (let i = 0; i < this.formModel().items.length; i++) {
-			const item = this.formModel().items[i];
+		for (let i = 0; i < this.formItems().length; i++) {
+			const item = this.formItems()[i];
 			const newPath = String(i);
 			const oldPath = item.path().value();
 			const pathsEquals = newPath === oldPath;
 			changed ||= !pathsEquals;
-			if (item.type().value() == "group") {
-				const config = item.config as unknown as FieldTree<
-					Strict<FormItemGroup | NewFormItemGroup>["config"]
-				>;
-				for (let j = 0; j < config.fields.length; j++) {
-					const field = config.fields[j];
-					const newChildPath = [newPath, "config", "fields", String(j)].join(
-						formItemPathSeparator,
-					);
-					const oldChildPath = field.path().value();
-					const pathsEquals = newChildPath === oldChildPath;
-					changed ||= !pathsEquals;
-					field.path().value.set(newChildPath);
-				}
-			}
+			// if (item.type().value() == "group") {
+			// 	const config = item.config as unknown as FieldTree<
+			// 		Strict<FormItemGroup | NewFormItemGroup>["config"]
+			// 	>;
+			// 	for (let j = 0; j < config.fields.length; j++) {
+			// 		const field = config.fields[j];
+			// 		const newChildPath = [newPath, "config", "fields", String(j)].join(
+			// 			formItemPathSeparator,
+			// 		);
+			// 		const oldChildPath = field.path().value();
+			// 		const pathsEquals = newChildPath === oldChildPath;
+			// 		changed ||= !pathsEquals;
+			// 		field.path().value.set(newChildPath);
+			// 	}
+			// }
 			item.path().value.set(newPath);
 		}
 		if (changed) {
-			this.formModel()().markAsDirty();
+			this.formItems()().markAsDirty();
 		}
 	}
 
 	private removeDependentRelevanceExpressionsFor(dataKey: string) {
-		for (const item of this.formModel().items) {
-			if (item.type().value() == "group") {
-				const config = item.config as unknown as FieldTree<
-					Strict<FormItemGroup | NewFormItemGroup>["config"]
-				>;
-				for (const field of config.fields) {
-					for (const logic of field.relevance.logic) {
-						logic().value.update((v) =>
-							produce(v, (draft) => {
-								draft.expressions = remove(
-									current(draft).expressions,
-									(e) => e.field == dataKey,
-								);
-							}),
-						);
-					}
-				}
-			}
-			for (const logic of item.relevance.logic) {
-				logic().value.update((v) =>
-					produce(v, (draft) => {
-						draft.expressions = remove(
-							current(draft).expressions,
-							(e) => e.field == dataKey,
-						);
-					}),
-				);
-			}
+		for (const item of this.formItems()) {
+			// if (item.type().value() == "group") {
+			// 	const config = item.config as unknown as FieldTree<
+			// 		Strict<FormItemGroup | NewFormItemGroup>["config"]
+			// 	>;
+			// 	for (const field of config.fields) {
+			// 		for (const logic of field.relevance.logic) {
+			// 			logic().value.update((v) =>
+			// 				produce(v, (draft) => {
+			// 					draft.expressions = remove(
+			// 						current(draft).expressions,
+			// 						(e) => e.field == dataKey,
+			// 					);
+			// 				}),
+			// 			);
+			// 		}
+			// 	}
+			// }
+			// for (const logic of item.relevance.logic) {
+			// 	logic().value.update((v) =>
+			// 		produce(v, (draft) => {
+			// 			draft.expressions = remove(
+			// 				current(draft).expressions,
+			// 				(e) => e.field == dataKey,
+			// 			);
+			// 		}),
+			// 	);
+			// }
 		}
 	}
 

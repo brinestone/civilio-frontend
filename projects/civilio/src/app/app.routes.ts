@@ -1,60 +1,30 @@
 import { Routes } from '@angular/router';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
-import { provideFormStore } from '@app/store/form';
-import { provideDatasetSdk, provideFormsSdk, withFormsSdk, withSubmissionsSdk } from '@civilio/sdk/providers';
+import { provideDatasetSdk, provideDocumentsSdk, provideFormsSdk, withFormsSdk, withSubmissionsSdk } from '@civilio/sdk/providers';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
 export const routes: Routes = [
 	{
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-		providers: [provideFormStore(withFormsSdk(), withSubmissionsSdk())],
+		providers: [withFormsSdk(), withSubmissionsSdk()],
 		title: 'submissions.title',
 		path: 'submissions',
 		loadComponent: () => import('./pages/submissions/submissions.page').then(m => m.SubmissionsPage),
 	},
-	// {
-	// 	children: [
-	// 		{
-	// 			path: 'assets',
-	// 			loadComponent: () => import('./pages/forms/designer/library/library.page').then(m => m.LibraryPage),
-	// 			outlet: 'library'
-	// 		}
-	// 	],
-	// 	title: 'Form Designer',
-	// 	path: 'schemas/:slug/edit/:version',
-	// 	providers: [
-	// 		provideFormsSdk(),
-	// 		provideDatasetSdk()
-	// 	],
-	// 	canDeactivate: [hasChangesGuard],
-	// 	loadComponent: () => import('./pages/forms/designer/designer-page/schema-design.page').then(m => m.SchemaDesignPage)
-	// },
-	// {
-	// 	path: 'schemas',
-	// 	loadComponent: () => import('./pages/forms/designer/list/form-schemas-list.page').then(m => m.FormSchemasPage),
-	// 	canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-	// 	providers: [provideFormStore(withFormsSdk())],
-	// },
 	{
 		path: 'forms',
 		title: 'forms.page_title',
 		canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
 		providers: [
 			provideFormsSdk(),
-			provideDatasetSdk()
+			provideDatasetSdk(),
+			provideDocumentsSdk(),
+
 		],
-		// loadComponent: () => import('@app/layouts/forms/forms.layout').then(m => m.FormsLayout),
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},
-	// {
-	// 	path: 'forms',
-	// 	title: 'forms.page_title',
-	// 	canActivate: [dbConfigValidGuardFn, apiConfigValidGuardFn],
-	// 	providers: [provideFormStore(withFormsSdk())],
-	// 	loadChildren: () => import('./form.routes').then(m => m.formRoutes)
-	// },
 	{
 		title: 'settings.title',
 		path: 'settings',

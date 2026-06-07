@@ -11,6 +11,7 @@ export default defineConfig({
 		output: {
 			mode: 'tags-split',
 			target: 'projects/civilio/src/sdk/services',
+			indexFiles: true,
 			namingConvention: 'kebab-case',
 			client: 'angular',
 			override: {
@@ -23,7 +24,8 @@ export default defineConfig({
 				type: 'zod',
 				path: './libs/sdk/models'
 			},
-			operationSchemas: './libs/sdk/dto'
+			operationSchemas: './libs/sdk/dto',
+
 		},
 	}
 });

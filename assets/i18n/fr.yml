@@ -34,6 +34,7 @@ misc:
   form_data: Données du formulaire
   forms: Formulaires
   all_submissions: Soumissions
+  name_used: Ce nom est déjà utilisé
   changed_at: Enregistré à
   changed_by: Enregistré par
   size: Taille de la commune

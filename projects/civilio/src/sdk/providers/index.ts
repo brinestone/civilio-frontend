@@ -2,6 +2,7 @@ import { EnvironmentProviders, makeEnvironmentProviders } from "@angular/core";
 import { FormsService } from "../services/forms/forms.service";
 import { SubmissionsService } from "../services/submissions/submissions.service";
 import { DatasetsService } from "../services/datasets/datasets.service";
+import { DocumentsService } from "../services/documents/documents.service";
 
 /**
  * Creates Angular environment providers for the Forms SDK.
@@ -37,3 +38,11 @@ export function withDatasetSdk(): EnvironmentProviders {
 }
 
 export const provideDatasetSdk = withDatasetSdk;
+
+export function withDocumentsSdk() {
+	return makeEnvironmentProviders([
+		{ provide: DocumentsService, multi: false }
+	])
+};
+
+export const provideDocumentsSdk = withDocumentsSdk;

@@ -5,7 +5,7 @@
 	cdkDropList
 	(cdkDropListDropped)="onFormItemsReordered($event)"
 >
-	@for(item of formModel().items; track item) {
+	@for(item of formItems(); track item) {
 	<ng-container>
 		@let designer = formItemComponents[item.type().value()];
 	</ng-container>

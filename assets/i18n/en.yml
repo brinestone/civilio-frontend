@@ -32,6 +32,7 @@ misc:
   form_data: Form Data
   forms: Forms
   all_submissions: Submissions
+  name_used: This name is already in use
   changed_at: Recorded at
   changed_by: Recorded by
   size: Size of the commune

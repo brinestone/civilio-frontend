@@ -1,0 +1,13 @@
+<ng-container> @let renderer = rendererProvider(); </ng-container>
+@if(renderer) {
+<div hlmFieldGroup>
+	<ng-container
+		[ngComponentOutlet]="renderer | async"
+		[ngComponentOutletInjector]="fieldContextInjector"
+		[ngComponentOutletInputs]="{
+			tanstackField: withForm.form,
+			name: config().dataKey
+		}"
+	/>
+</div>
+}

@@ -1,7 +1,8 @@
 import { Component, computed } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { FieldItemConfig, FormItemField, NewFormItemField } from "@civilio/sdk/models";
+import { FieldItemConfig } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { FormItemEntity } from "../../form-designer-config";
 import { injectFormItemDesignerContext } from "../../items";
 
 @Component({
@@ -9,7 +10,7 @@ import { injectFormItemDesignerContext } from "../../items";
 	template: ''
 })
 export class BaseFieldConfig<T extends FieldItemConfig> {
-	protected readonly ctx = injectFormItemDesignerContext<FormItemField | NewFormItemField>();
+	protected readonly ctx = injectFormItemDesignerContext<FormItemEntity>();
 	protected readonly meta = computed(() => {
 		const item = this.ctx.fieldTree();
 		return item.config as unknown as FieldTree<Strict<T>>;

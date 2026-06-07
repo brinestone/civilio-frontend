@@ -1,0 +1,25 @@
+<div hlmField>
+	<label hlmFieldLabel [for]="field.api.name">{{ config().title }}</label>
+	@if(config().type == 'text') {
+	<input
+		type="text"
+		[id]="field.api.name"
+		[name]="field.api.name"
+		[value]="field.api.state.value"
+		(blur)="field.api.handleBlur()"
+		(input)="field.api.handleChange($event.target.value)"
+		hlmInput
+	/>
+	} @else {
+	<textarea [id]="field.api.name" [id]="field.api.name" hlmTextarea></textarea>
+	}
+	<ng-container>
+		@if(field.api.state.meta.isTouched && !field.api.state.meta.isValid) {
+		<div>
+			@for(error of field.api.state.meta.errors; track $index) {
+			<hlm-field-error>{{ error }}</hlm-field-error>
+			}
+		</div>
+		}
+	</ng-container>
+</div>

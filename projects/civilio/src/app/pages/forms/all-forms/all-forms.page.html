@@ -16,7 +16,7 @@
 <div
 	class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent overflow-y-auto"
 >
-	@if (!formsAvailable() && forms.status() == 'resolved' || ['error',
+	@if (!formsAvailable() && forms.status() == 'ready' || ['error',
 	'idle'].includes(forms.status())) {
 	<div hlmEmpty>
 		<div hlmEmptyHeader>
@@ -56,20 +56,20 @@
 		</ng-container>
 		}@else {
 		<ng-container>
-			@for(form of forms.value(); track form.slug){
+			@for(form of forms.data(); track form.slug){
 			<div class="flex items-center justify-between group/row">
 				<div class="space-y-1 max-w-1/2">
 					<a
 						[routerLink]="[form.slug]"
 						[queryParams]="{
-							version:  form.currentVersion?.id ?? 'current'
+							version:  form.currentVersion.id ?? 'current'
 						}"
 						class="font-semibold line-clamp-1 text-ellipsis text-primary"
 					>
 						{{ form.title }}
 					</a>
 					<span class="text-muted-foreground text-sm"
-						>{{form.updatedAt | date}}</span
+						>{{form.lastUpdated | relativeDate}}</span
 					>
 				</div>
 				<div
