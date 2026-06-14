@@ -66,7 +66,7 @@ export class ConnectionManager {
 			SELECT EXISTS(SELECT 1 FROM connections WHERE id = ?) connectionExists;
 		`);
 		const result = query.get(id);
-		return result?.connectionExists === 1;
+		return result?.["connectionExists"] === 1;
 	}
 
 	hasConnections() {
@@ -74,7 +74,7 @@ export class ConnectionManager {
 			SELECT EXISTS(SELECT * FROM connections) as hasConnections;
 		`);
 		const result = query.get();
-		return result?.hasConnections === 1;
+		return result?.["hasConnections"] === 1;
 	}
 
 	getCurrentConnection(includePassword = false) {

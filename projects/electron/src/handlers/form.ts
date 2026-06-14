@@ -259,7 +259,7 @@ export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) 
 				acc[mapping.dbColumn] = sql`${ curr.value || null }::${ sql.raw(mapping.dbColumnType) }`;
 				return acc;
 			}, {} as Record<string, SQL>)
-			const requiredCols = sequences[form].data;
+			const requiredCols = sequences[form]['data'];
 			const columns = [...requiredCols.map(c => sql.identifier(c.column)), ...keys(dataEntries).map(k => sql.identifier(k))]
 			const dataValues = [...requiredCols.map(c => sql.raw(`nextval('${ c.sequence.schema }.${ c.sequence.seqName }')`)), ...values(dataEntries)]
 
@@ -274,7 +274,7 @@ export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) 
 			if (result.rows.length == 0) {
 				throw new Error('An unexpected error occurred. Please try again later or contact your administrator')
 			}
-			_submission_index = result.rows[0]._index as number;
+			_submission_index = result.rows[0]['_index'] as number;
 
 			//language=PostgreSQL
 			await tx.execute(sql`
@@ -367,7 +367,7 @@ export async function processSubmissionDataUpdate(req: UpdateSubmissionRequest) 
 						logger.debug('kvm', kvm);
 						logger.debug('unique mappings', uniqueMappings);
 						const cols = [...sequences[form][table].map(({ column }) => column), ...kvm.keys(), '_parent_index'].map(c => sql.identifier(c));
-						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${ sql.join([sql.raw(sequence.schema), sql.raw(sequence.seqName)], sql`.`) }')`), ...[...kvm.values()].map(([v, t]) => sql`${ v || null }::${ sql.raw(t) }`), _submission_index];
+						const values = [...sequences[form][table].map(({ sequence }) => sql`nextval('${ sql.join([sql.raw(sequence.schema!), sql.raw(sequence.seqName!)], sql`.`) }')`), ...[...kvm.values()].map(([v, t]) => sql`${ v || null }::${ sql.raw(t) }`), _submission_index];
 						await tx.execute(sql`
 							INSERT INTO ${ sql.identifier(form) }.${ sql.identifier(table) } (${ sql.join(cols, sql`, `) })
 							VALUES (${ sql.join(values, sql`,
@@ -424,7 +424,7 @@ export async function initializeSubmissionVersioning({
 	const queryResult = await db.execute(sql`SELECT revisions.func_log_submission_state(
 																										${ index },
 																										${ form }) AS version`);
-	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.version ?? null);
+	return InitializeSubmissionVersionResponseSchema.parse(queryResult.rows[0]?.['version'] ?? null);
 }
 
 export async function findCurrentSubmissionVersion({
@@ -561,7 +561,7 @@ export async function findFormData({
 		FROM information_schema.tables t
 		WHERE t.table_schema = ${ form };
 	`);
-	const tableNames = queryResult.rows.map(row => row.t as string);
+	const tableNames = queryResult.rows.map(row => row['t'] as string);
 	for (const tableName of tableNames) {
 		// language=PostgreSQL
 		queryResult = await db.execute(sql`
@@ -569,7 +569,7 @@ export async function findFormData({
 																				${ index }, ${ tableName },
 																				${ version || null }) AS "data";
 		`);
-		const row = queryResult.rows[0]?.data as any;
+		const row = queryResult.rows[0]?.['data'] as any;
 		if (!row) continue;
 		result = { ...result, ...row };
 	}
@@ -590,21 +590,24 @@ export async function updateFieldMappings(
 				.where(
 					and(
 						eq(vwDbColumns.form, form),
-						eq(vwDbColumns.name, spec.dbColumn),
+						eq(vwDbColumns.name, spec.dbColumn!),
 						eq(vwDbColumns.tableName, spec.table),
 					),
 				);
-			if (!dbSpec) {
+			if (!dbSpec || !dbSpec.dataType || !dbSpec.name || !dbSpec.tableName) {
 				throw new Error(
 					"Database column datatype could not be determined for column: " +
 					spec.dbColumn,
 				);
 			}
+			const dbColumnType = dbSpec.dataType;
+			const dbColumnName = dbSpec.name;
+			const dbTableName = dbSpec.tableName;
 			retVal.push(await tx
 				.insert(fieldMappings)
 				.values({
-					dbColumn: spec.dbColumn,
-					dbColumnType: dbSpec.dataType,
+					dbColumn: spec.dbColumn!,
+					dbColumnType,
 					dbTable: spec.table,
 					field: spec.field,
 					form,
@@ -613,9 +616,9 @@ export async function updateFieldMappings(
 				.onConflictDoUpdate({
 					target: [fieldMappings.field, fieldMappings.form],
 					set: {
-						dbColumnType: dbSpec.dataType,
-						dbColumn: dbSpec.name,
-						dbTable: dbSpec.tableName,
+						dbColumnType,
+						dbColumn: dbColumnName,
+						dbTable: dbTableName,
 						i18nKey: spec.field,
 					},
 				})

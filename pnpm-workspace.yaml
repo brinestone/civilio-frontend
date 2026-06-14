@@ -14,3 +14,17 @@ onlyBuiltDependencies:
   - lmdb
   - msgpackr-extract
   - native-machine-id
+
+blockExoticSubdeps: false
+
+allowBuilds:
+  '@bitdisaster/exe-icon-extractor': true
+  '@parcel/watcher': true
+  better-sqlite3: true
+  electron: true
+  electron-winstaller: true
+  esbuild: true
+  less: true
+  lmdb: false
+  msgpackr-extract: true
+  nx: false

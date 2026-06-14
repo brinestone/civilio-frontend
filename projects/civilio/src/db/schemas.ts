@@ -1,4 +1,4 @@
-import { RelevanceDefinition, Tag } from "@civilio/sdk/models";
+import { Tag } from "@civilio/sdk/models";
 import z from "zod";
 
 export const BaseSchema = z.object({
@@ -23,6 +23,38 @@ export const FormSchema = BaseSchema.extend({
 	archivedAt: z.string().nullish().default(null),
 }).and(Archivable);
 
+export const RelevanceDefinition = z.object({
+	"id": z.uuid(),
+	"enabled": z.boolean().default(true),
+	"operator": z.enum(['and', 'or']).default('and'),
+	"logic": z.object({
+		"operator": z.enum(['and', 'or']),
+		"expressions": z.object({
+			"question": z.string().nullish().default(null),
+			"operator": z.enum(['in', 'eq', 'ne', 'gt', 'lt', 'lte', 'gte', 'empty', 'notEmpty', 'between', 'match', 'isNull', 'isNotNull', 'checked', 'unchecked', 'selectedAny', 'selectedAll', 'startsWith', 'endsWith', 'noselection', 'before', 'after', 'afterOrOn', 'beforeOrOn']).nullish().default(null),
+			"negated": z.boolean().default(false),
+			"value": z.union([
+				z.union([
+					z.string(),
+					z.number(),
+					z.boolean()
+				]),
+				z.union([
+					z.string(),
+					z.number(),
+					z.boolean()
+				]).array(),
+				z.object({
+					"start": z.number().nullish(),
+					"end": z.number().nullish()
+				})])
+				.nullish()
+				.default(null)
+		}).array().default([])
+	}).array().default([])
+});
+export type RelevanceDefinition = z.infer<typeof RelevanceDefinition>;
+
 export const FormItemType = z.enum(['question', 'group']);
 export type FormItemType = z.infer<typeof FormItemType>;
 const BaseFormItemSchema = BaseSchema.extend({
@@ -30,7 +62,7 @@ const BaseFormItemSchema = BaseSchema.extend({
 	formVersion: z.uuid(),
 	type: FormItemType,
 	path: z.string(),
-	relevance: RelevanceDefinition,
+	relevance: z.uuid().nullish().default(null),
 	tags: Tag.array().default([]),
 	metaTag: z.string().nullish().default(null),
 });

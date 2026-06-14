@@ -51,7 +51,6 @@ export function createInvokeChannelHandler<TChannel extends Channel>(channel: TC
 	logger.debug('Registering IPC invoke handler', 'channel', channel);
 	ipcMain.handle(channel, async (event, eventData) => {
 		logRequest(channel);
-		const bodySchema = channelArgs[channel];
 		try {
 			let result = handler(eventData);
 			if (isPromise(result)) {
@@ -86,7 +85,11 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 				body = bodySchema.parse(eventData.body) as ChannelArg<TChannel> | undefined;
 			}
 			messageId = headers.messageId;
-			let result = handler(body);
+			let result: unknown;
+
+			if (body) {
+				result = handler(body);
+			}
 			if (isPromise(result)) {
 				result = await result;
 			}
@@ -101,8 +104,9 @@ export function createChannelHandler<TChannel extends Channel>(channel: TChannel
 			event.sender.send(replyChannel, replyRpc);
 			logResponse(channel);
 		} catch (e) {
+			const err = e as Error;
 			logger.error(e);
-			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(e.message, e, channel, messageId, e))
+			reportError(logger, event, e instanceof AppErrorBase ? e : new ExecutionError(err.message, err, channel, messageId, e))
 			// console.timeEnd(channel);
 		}
 	})

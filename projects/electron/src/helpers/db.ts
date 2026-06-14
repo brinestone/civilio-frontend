@@ -90,7 +90,8 @@ export async function testConnection(req: TestDbConnectionRequest) {
 		const res = await client.query('SELECT NOW()');
 		logger.log(`Database time is ${res.rows[0].now}`);
 		return true;
-	} catch (ex) {
+	} catch (e) {
+		const ex = e as Error;
 		logger.warn(`Test connection: ${url} failed`);
 		logger.error(ex);
 		return ex.message;

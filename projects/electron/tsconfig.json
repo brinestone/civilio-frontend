@@ -1,43 +1,40 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "allowJs": true,
-    "module": "esnext",
-    "skipLibCheck": true,
-    "removeComments": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "baseUrl": "./",
-    "outDir": "../../dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "paths": {
-      "*": [
-        "node_modules/*"
-      ],
-      "@civilio/shared": [
-        "../../libs/shared/index.ts"
-      ],
-      "@civilio/schema": [
-        "./src/db/schema.ts"
-      ],
-      "@civilio/handlers": [
-        "./src/handlers/index.ts"
-      ],
-      "@civilio/helpers/*": [
-        "./src/helpers/*"
-      ],
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"target": "esnext",
+		"allowJs": true,
+		"module": "esnext",
+		"skipLibCheck": true,
+		"removeComments": true,
+		"esModuleInterop": true,
+		"noImplicitAny": true,
+		"sourceMap": true,
+		"outDir": "../../dist",
+		// "moduleResolution": "nodenext",
+		"resolveJsonModule": true,
+		"paths": {
+			"@civilio/shared": [
+				"../../libs/shared/index.ts"
+			],
+			"@civilio/schema": [
+				"./src/db/schema.ts"
+			],
+			"@civilio/handlers": [
+				"./src/handlers/index.ts"
+			],
+			"@civilio/helpers/*": [
+				"./src/helpers/*"
+			],
 			"@civilio/contracts": [
 				"../../libs/contracts/index.ts"
 			]
-    }
-  },
-  "include": [
-    "src/**/*",
-    "../../libs/*"
-  ],
-  "exclude": [
-    "../../libs/ui"
-  ]
+		}
+	},
+	"include": [
+		"src/**/*",
+		"../../libs/*"
+	],
+	"exclude": [
+		"../../libs/ui"
+	]
 }

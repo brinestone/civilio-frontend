@@ -129,9 +129,9 @@ export function registerProductionIpcHandlers() {
 	createInvokeChannelHandler('index-suggestions:read', async (args) => {
 		return await findIndexSuggestions(args);
 	});
-	createInvokeChannelHandler('submission-ref:read', async (args) => {
-		return await findSubmissionRef(args);
-	});
+	// createInvokeChannelHandler('submission-ref:read', async (args) => {
+	// 	return await findSubmissionRef(args);
+	// });
 	createInvokeChannelHandler('suggestions:read', async (dto) => {
 		return await findAutocompleteSuggestions(dto);
 	})
@@ -141,9 +141,9 @@ export function registerProductionIpcHandlers() {
 	createInvokeChannelHandler('field-mappings:update', async ({ form, updates }) => {
 		return await updateFieldMappings(form, updates);
 	});
-	createInvokeChannelHandler('columns:read', async ({ form }) => {
-		return await findDbColumns(form);
-	});
+	// createInvokeChannelHandler('columns:read', async ({ form }) => {
+	// 	return await findDbColumns(form);
+	// });
 	createInvokeChannelHandler('options:read', async ({ form }) => {
 		return await findFormOptions(form);
 	});
