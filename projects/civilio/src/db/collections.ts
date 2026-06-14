@@ -1,10 +1,17 @@
 import { provideAppInitializer } from "@angular/core";
-import { SubmissionLookup } from "@civilio/sdk/models";
+import { RelevanceDefinition, SubmissionLookup } from "@civilio/sdk/models";
 import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
 import { FormItem, FormSchema, FormVersionSchema } from "./schemas";
 
 const dbName = 'civilio-db';
+
+export const formItemRelevanceCollection = createCollection(dexieCollectionOptions({
+	id: 'relevances',
+	schema: RelevanceDefinition,
+	dbName,
+	getKey: r => r.
+}))
 
 export const formItemsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-items',
