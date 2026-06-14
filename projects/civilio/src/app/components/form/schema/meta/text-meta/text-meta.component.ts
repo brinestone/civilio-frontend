@@ -11,6 +11,7 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { current, produce } from 'immer';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
+import { TextQuestionConfig } from '@db/schemas';
 
 @Component({
 	selector: 'cv-text-meta',
@@ -39,7 +40,7 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	styleUrl: './text-meta.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TextMetaComponent extends BaseFieldConfig<TextFieldConfig> {
+export class TextMetaComponent extends BaseFieldConfig<TextQuestionConfig> {
 	protected readonly patternPresets = [
 		{ name: 'email', label: 'Email', icon: 'lucideAtSign', regex: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$` },
 		{ name: 'phone', label: 'Phone', icon: 'lucidePhone', regex: `^(\\+?237|\\(\\+?237\\))?6([5679]|[2])\\d{7}$` },
@@ -66,8 +67,8 @@ export class TextMetaComponent extends BaseFieldConfig<TextFieldConfig> {
 			if (readonly) {
 				untracked(this.meta)().value.update(v => produce(v, draft => {
 					draft.required = false;
-					draft.maxlength = null as any;
-					draft.minlength = null as any;
+					draft.maxLength = null as any;
+					draft.minLength = null as any;
 					draft.pattern = null as any;
 				}))
 			}

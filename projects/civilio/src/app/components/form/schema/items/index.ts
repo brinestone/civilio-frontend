@@ -8,7 +8,7 @@ export * from './field-item-schema-designer/field-item-schema-designer';
 
 export type FormSchemaContext = {
 	libraryToggleHandler: (itemId: string) => void;
-	itemDeleteHandler: (path: string, index: number) => void;
+	itemDeleteHandler: (id: string) => void;
 	// selectionToggledHandler: (path: string, state: boolean) => void;
 	allFields: Signal<Record<string, FieldTree<Strict<FormItemField | NewFormItemField>>>>;
 	// allItemsSelected: Signal<boolean>;

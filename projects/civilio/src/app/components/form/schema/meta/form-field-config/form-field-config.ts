@@ -1,9 +1,11 @@
 import { AsyncPipe, NgComponentOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FieldTree, FormField } from "@angular/forms/signals";
+import { FieldError } from "@app/components/form/field-error/field-error.component";
 import { FieldTypeSchema } from "@app/model/form";
 import { FieldItemConfig } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { QuestionConfig } from "@db/schemas";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideCalendar,
@@ -23,13 +25,11 @@ import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmCheckbox } from "@spartan-ng/helm/checkbox";
 import { HlmDialogImports } from "@spartan-ng/helm/dialog";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
+import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmToggleGroupImports } from "@spartan-ng/helm/toggle-group";
 import z from "zod";
 import { BaseFieldConfig } from "../base-meta-config/base-meta-config.component";
-import { HlmInput } from "@spartan-ng/helm/input";
-import { HlmSwitch } from "@spartan-ng/helm/switch";
-import { FieldError } from "@app/components/form/field-error/field-error.component";
 
 @Component({
 	selector: "cv-form-field-config",
@@ -67,7 +67,7 @@ import { FieldError } from "@app/components/form/field-error/field-error.compone
 	templateUrl: "./form-field-config.html",
 	styleUrl: "./form-field-config.scss",
 })
-export class FormFieldConfig extends BaseFieldConfig<FieldItemConfig> {
+export class FormFieldConfig extends BaseFieldConfig<QuestionConfig> {
 	protected readonly fieldItemTypes = FieldTypeSchema.options;
 	protected readonly fieldItemTypesMap = {
 		boolean: { label: "True/False", icon: "lucideCheckSquare" },
@@ -119,14 +119,14 @@ export class FormFieldConfig extends BaseFieldConfig<FieldItemConfig> {
 		"geo-point": import("../geo-point/geo-point.component").then(
 			(m) => m.GeoPointMetaComponent,
 		),
-	} as Record<z.infer<typeof FieldTypeSchema>, Promise<typeof BaseFieldConfig>>;
-	protected onFieldTypeChanged(
-		node: FieldTree<Strict<FieldItemConfig>>,
+	} as Record<QuestionConfig['type'], Promise<typeof BaseFieldConfig>>;
+	protected onFieldTypeChanged<T extends QuestionConfig>(
+		node: FieldTree<Strict<T>>,
 		newType: any,
 	) {
-		const baseState = FieldItemConfig.parse(node().value());
+		const baseState = QuestionConfig.parse(node().value());
 		const { defaultValue: _, ...baseWithoutDefault } = baseState;
-		const newState = FieldItemConfig.parse({
+		const newState = QuestionConfig.parse({
 			...baseWithoutDefault,
 			type: newType,
 		});

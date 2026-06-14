@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { apiConfiguredGuard } from '@app/guards/api-config-valid-guard';
 import { dbConfiguredGuard } from '@app/guards/db-config-valid-guard';
 import { provideDatasetSdk, provideDocumentsSdk, provideFormsSdk, withFormsSdk, withSubmissionsSdk } from '@civilio/sdk/providers';
+import { provideFormStore } from './store/form';
 
 const dbConfigValidGuardFn = dbConfiguredGuard('/settings/advanced');
 const apiConfigValidGuardFn = apiConfiguredGuard('/settings/advanced');
@@ -21,7 +22,7 @@ export const routes: Routes = [
 			provideFormsSdk(),
 			provideDatasetSdk(),
 			provideDocumentsSdk(),
-
+			provideFormStore()
 		],
 		loadChildren: () => import('./form.routes').then(m => m.formRoutes)
 	},

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, untracked } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { FieldError } from '@app/components/form/field-error/field-error.component';
-import { NumberFieldConfig } from '@civilio/sdk/models';
+import { NumberQuestionConfig } from '@db/schemas';
 import { HlmFieldGroup, HlmFieldImports, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
@@ -22,7 +22,7 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NumberComponent extends BaseFieldConfig<NumberFieldConfig> {
+export class NumberComponent extends BaseFieldConfig<NumberQuestionConfig> {
 	protected readonly step = computed(() => {
 		return untracked(this.meta).type().value() == 'float' ? .1 : 1;
 	});

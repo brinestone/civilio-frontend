@@ -23,6 +23,7 @@ import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { produce } from 'immer';
 import { EMPTY, of } from 'rxjs';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
+import { SelectQuestionConfig } from '@db/schemas';
 
 @Component({
 	selector: 'cv-select-meta',
@@ -67,7 +68,7 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	styleUrl: './select-meta.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SelectMetaComponent extends BaseFieldConfig<SelectFieldConfig> {
+export class SelectMetaComponent extends BaseFieldConfig<SelectQuestionConfig> {
 	private readonly datasetService = inject(DatasetsService);
 	protected readonly activeImportTab = signal<string>('dataset');
 	protected readonly importDialogState = signal<BrnDialogState>('closed');

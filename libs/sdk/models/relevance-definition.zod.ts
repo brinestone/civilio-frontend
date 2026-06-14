@@ -12,6 +12,7 @@ export const relevanceDefinitionLogicItemExpressionsItemFieldDefault = null;
 export const relevanceDefinitionLogicItemExpressionsItemOperatorDefault = null;
 export const relevanceDefinitionLogicItemExpressionsItemNegatedDefault = false;
 export const relevanceDefinitionLogicItemExpressionsItemValueDefault = null;
+export const relevanceDefinitionLogicDefault = [];
 export const RelevanceDefinition = zod.object({
   "enabled": zod.boolean().default(relevanceDefinitionEnabledDefault),
   "operator": zod.enum(['and', 'or']).default(relevanceDefinitionOperatorDefault),
@@ -26,7 +27,7 @@ export const RelevanceDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(relevanceDefinitionLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(relevanceDefinitionLogicDefault)
 })
 
 export type RelevanceDefinition = zod.input<typeof RelevanceDefinition>;

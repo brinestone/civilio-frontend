@@ -17,6 +17,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogi
 export const updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigOneOneDataKeyDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigOneOneAutoDataKeyDefault = true;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigOneTwoTitleDefault = null;
@@ -36,6 +37,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsI
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemTwoParentIdDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemTwoConfigOneOneOneDataKeyDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -139,6 +141,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicIt
 export const updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemTwoTwoConfigFontSizeDefault = 13;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeOnePathDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneTagsItemKeyDefault = null;
@@ -151,6 +154,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogic
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeTwoParentIdDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeTwoConfigOneOneOneDataKeyDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemThreeTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -253,6 +257,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicI
 export const updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemFourTwoConfigWidthDefault = 10;
 export const updateFormVersionDefinitionBodyAddedItemsItemFourTwoConfigWidthMin = 10;
 
@@ -271,6 +276,7 @@ export const updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicI
 export const updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyAddedItemsItemFiveTwoConfigOrientationDefault = `vertical`;
 export const updateFormVersionDefinitionBodyAddedItemsDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneOneInLibraryDefault = false;
@@ -285,6 +291,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanc
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneTagsItemKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneTagsItemValueDefault = null;
@@ -296,6 +303,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneReleva
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeTwoConfigFontSizeDefault = 13;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneTagsItemKeyDefault = null;
@@ -308,6 +316,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanc
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneTagsItemKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneTagsItemValueDefault = null;
@@ -319,6 +328,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanc
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoTwoConfigWidthDefault = 10;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoTwoConfigWidthMin = 10;
 
@@ -338,6 +348,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneReleva
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneTagsItemKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneTagsItemValueDefault = null;
@@ -349,6 +360,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneReleva
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoTwoParentIdDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoTwoConfigOneOneOneDataKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -452,6 +464,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevan
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneTagsItemKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneTagsItemValueDefault = null;
@@ -463,6 +476,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevan
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoTwoConfigOrientationDefault = `vertical`;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneTagsItemKeyDefault = null;
@@ -475,6 +489,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceL
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOnePathDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneTagsItemKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneTagsItemValueDefault = null;
@@ -486,6 +501,7 @@ export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceL
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicDefault = [];
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveThreeConfigOneDataKeyDefault = null;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveThreeConfigOneAutoDataKeyDefault = true;
 export const updateFormVersionDefinitionBodyUpdatedItemsItemFiveThreeConfigTwoTitleDefault = null;
@@ -518,7 +534,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])
@@ -555,7 +571,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemOneTwoConfigTwoFieldsItemOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -740,7 +756,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),
@@ -771,7 +787,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -952,7 +968,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemFourOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),
@@ -988,7 +1004,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyAddedItemsItemFiveOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({
@@ -1022,7 +1038,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemOneOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1051,7 +1067,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemOneOneThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),
@@ -1086,7 +1102,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1115,7 +1131,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemTwoOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),
@@ -1157,7 +1173,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1186,7 +1202,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemThreeOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -1373,7 +1389,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemFourOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1402,7 +1418,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemFourOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({
@@ -1437,7 +1453,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemFiveOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1466,7 +1482,7 @@ export const UpdateFormVersionDefinitionBody = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(updateFormVersionDefinitionBodyUpdatedItemsItemFiveTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])

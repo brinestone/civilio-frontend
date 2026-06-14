@@ -17,6 +17,7 @@ export const formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpression
 export const formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemOneOneOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemOneTwoOnePathDefault = null;
 export const formVersionDefinitionItemsItemOneTwoOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemOneTwoOneTagsItemValueDefault = null;
@@ -28,6 +29,7 @@ export const formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpression
 export const formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemOneTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemOneThreeInLibraryDefault = false;
 export const formVersionDefinitionItemsItemOneFourConfigOneOneDataKeyDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigOneOneAutoDataKeyDefault = true;
@@ -48,6 +50,7 @@ export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelev
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOnePathDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneTagsItemValueDefault = null;
@@ -59,6 +62,7 @@ export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelev
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoTwoParentIdDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoTwoConfigOneOneOneDataKeyDefault = null;
 export const formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -164,6 +168,7 @@ export const formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpression
 export const formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemTwoThreeOnePathDefault = null;
 export const formVersionDefinitionItemsItemTwoThreeOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemTwoThreeOneTagsItemValueDefault = null;
@@ -175,6 +180,7 @@ export const formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicItemExpressi
 export const formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemTwoThreeTwoConfigFontSizeDefault = 13;
 export const formVersionDefinitionItemsItemThreeOneOnePathDefault = null;
 export const formVersionDefinitionItemsItemThreeOneOneTagsItemKeyDefault = null;
@@ -187,6 +193,7 @@ export const formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressi
 export const formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemThreeOneOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemThreeTwoOnePathDefault = null;
 export const formVersionDefinitionItemsItemThreeTwoOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemThreeTwoOneTagsItemValueDefault = null;
@@ -198,6 +205,7 @@ export const formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressi
 export const formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemThreeTwoTwoParentIdDefault = null;
 export const formVersionDefinitionItemsItemThreeTwoTwoConfigOneOneOneDataKeyDefault = null;
 export const formVersionDefinitionItemsItemThreeTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -301,6 +309,7 @@ export const formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressio
 export const formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemFourOneOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemFourTwoOnePathDefault = null;
 export const formVersionDefinitionItemsItemFourTwoOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemFourTwoOneTagsItemValueDefault = null;
@@ -312,6 +321,7 @@ export const formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressio
 export const formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemFourTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemFourTwoTwoConfigWidthDefault = 10;
 export const formVersionDefinitionItemsItemFourTwoTwoConfigWidthMin = 10;
 
@@ -331,6 +341,7 @@ export const formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressio
 export const formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemFiveOneOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemFiveTwoOnePathDefault = null;
 export const formVersionDefinitionItemsItemFiveTwoOneTagsItemKeyDefault = null;
 export const formVersionDefinitionItemsItemFiveTwoOneTagsItemValueDefault = null;
@@ -342,6 +353,7 @@ export const formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressio
 export const formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicDefault = [];
 export const formVersionDefinitionItemsItemFiveTwoTwoConfigOrientationDefault = `vertical`;
 export const FormVersionDefinition = zod.object({
   "id": zod.uuid(),
@@ -368,7 +380,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -397,7 +409,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])
@@ -436,7 +448,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -465,7 +477,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemOneFourConfigTwoFieldsItemTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -656,7 +668,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemTwoTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -685,7 +697,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemTwoThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),
@@ -718,7 +730,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemThreeOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -747,7 +759,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemThreeTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -932,7 +944,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemFourOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -961,7 +973,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemFourTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),
@@ -1001,7 +1013,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemFiveOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -1030,7 +1042,7 @@ export const FormVersionDefinition = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formVersionDefinitionItemsItemFiveTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({

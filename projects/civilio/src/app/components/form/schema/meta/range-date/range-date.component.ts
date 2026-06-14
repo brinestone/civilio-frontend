@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { DatePicker, DateRangePicker } from '@app/components';
 import { FieldError } from '@app/components/form';
-import { RangeDateFieldConfig } from '@civilio/sdk/models';
+import { RangeDateQuestionConfig } from '@db/schemas';
 import { HlmField, HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
@@ -23,6 +23,6 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	styleUrl: './range-date.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RangeDateMetaComponent extends BaseFieldConfig<RangeDateFieldConfig> {
+export class RangeDateMetaComponent extends BaseFieldConfig<RangeDateQuestionConfig> {
 
 }

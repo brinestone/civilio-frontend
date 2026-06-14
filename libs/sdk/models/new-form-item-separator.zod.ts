@@ -17,6 +17,7 @@ export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemFieldDefaul
 export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemSeparatorOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemSeparatorOneRelevanceLogicDefault = [];
 export const newFormItemSeparatorTwoConfigOrientationDefault = `vertical`;
 export const NewFormItemSeparator = zod.object({
   "itemId": zod.uuid().nullish(),
@@ -40,7 +41,7 @@ export const NewFormItemSeparator = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemSeparatorOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemSeparatorOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({

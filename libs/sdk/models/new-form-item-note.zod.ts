@@ -17,6 +17,7 @@ export const newFormItemNoteOneRelevanceLogicItemExpressionsItemFieldDefault = n
 export const newFormItemNoteOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemNoteOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemNoteOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemNoteOneRelevanceLogicDefault = [];
 export const newFormItemNoteTwoConfigFontSizeDefault = 13;
 export const NewFormItemNote = zod.object({
   "itemId": zod.uuid().nullish(),
@@ -40,7 +41,7 @@ export const NewFormItemNote = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemNoteOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemNoteOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),

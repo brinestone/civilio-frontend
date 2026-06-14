@@ -10,14 +10,13 @@ import {
 	hidden,
 	max,
 	maxLength,
-	metadata,
 	min,
 	minLength,
 	pattern,
 	required,
 	SchemaPath,
 	SchemaPathTree,
-	validate,
+	validate
 } from "@angular/forms/signals";
 import { RelevanceLogicExpressionInputSchema } from "@app/model/form/schemas";
 import {
@@ -37,18 +36,17 @@ import {
 	RelevanceCondition,
 	RelevanceDefinition,
 	SelectFieldConfig,
-	SimpleDateFieldConfig,
-	TextFieldConfig
+	SimpleDateFieldConfig
 } from "@civilio/sdk/models";
 
 import { Strict } from "@civilio/shared";
 import { Entity } from "@db/collections";
-import { FormItem, TextQuestionConfig } from "@db/schemas";
+import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, RangeDateQuestionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
 import { omit } from "lodash";
 import z from "zod";
 
 export type FormItemEntity = Entity<FormItem>;
-export type FormItemType = FormItem['type'];
+export type FormItemType = FormItemEntity['type'];
 
 export const formItemPathSeparator = ".";
 export const StandardFacilityTagsSchema = z.enum({
@@ -75,16 +73,16 @@ export function walkFormItemTree(
 }
 
 function defineTextFieldConfigFormSchema(
-	paths: SchemaPathTree<Strict<TextFieldConfig>>,
+	paths: SchemaPathTree<Strict<TextQuestionConfig>>,
 ) {
 	debounce(paths.pattern, debounceDuration);
-	debounce(paths.maxlength, debounceDuration);
-	debounce(paths.minlength, debounceDuration);
+	debounce(paths.maxLength, debounceDuration);
+	debounce(paths.minLength, debounceDuration);
 	debounce(paths.defaultValue, debounceDuration);
-	min(paths.minlength, 0);
+	min(paths.minLength, 0);
 	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
-	hidden(paths.maxlength, ({ valueOf }) => valueOf(paths.readonly) === true);
-	hidden(paths.minlength, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.maxLength, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.minLength, ({ valueOf }) => valueOf(paths.readonly) === true);
 	hidden(paths.pattern, ({ valueOf }) => valueOf(paths.readonly) === true);
 	validate(paths.pattern, ({ value, valueOf }) => {
 		const currentValue = value();
@@ -100,8 +98,8 @@ function defineTextFieldConfigFormSchema(
 			return { message: "Invalid regular expression", kind: "regex" };
 		}
 	});
-	validate(paths.maxlength, ({ valueOf, value }) => {
-		const minlength = Number(valueOf(paths.minlength) ?? undefined);
+	validate(paths.maxLength, ({ valueOf, value }) => {
+		const minlength = Number(valueOf(paths.minLength) ?? undefined);
 		const currentValue = Number(value() ?? undefined);
 		if (!minlength || !currentValue) return null;
 		else if (currentValue - minlength <= 0)
@@ -112,8 +110,8 @@ function defineTextFieldConfigFormSchema(
 			};
 		return null;
 	});
-	validate(paths.minlength, ({ valueOf, value }) => {
-		const maxlength = Number(valueOf(paths.maxlength) ?? undefined);
+	validate(paths.minLength, ({ valueOf, value }) => {
+		const maxlength = Number(valueOf(paths.maxLength) ?? undefined);
 		const currentValue = Number(value() ?? undefined);
 		if (!maxlength || !currentValue) return null;
 		else if (maxlength - currentValue <= 0)
@@ -131,16 +129,16 @@ function defineTextFieldConfigFormSchema(
 	applyWhen(
 		paths.defaultValue,
 		({ valueOf, stateOf }) =>
-			!!valueOf(paths.maxlength) &&
-			!stateOf(paths.maxlength).hidden() &&
-			stateOf(paths.maxlength).valid(),
+			!!valueOf(paths.maxLength) &&
+			!stateOf(paths.maxLength).hidden() &&
+			stateOf(paths.maxLength).valid(),
 		(p) => {
 			maxLength(
 				p as SchemaPath<string, 1>,
-				({ valueOf }) => Number(valueOf(paths.maxlength)),
+				({ valueOf }) => Number(valueOf(paths.maxLength)),
 				{
 					message: ({ valueOf }) =>
-						`Value cannot have more than ${valueOf(paths.maxlength)} characters`,
+						`Value cannot have more than ${valueOf(paths.maxLength)} characters`,
 				},
 			);
 		},
@@ -148,16 +146,16 @@ function defineTextFieldConfigFormSchema(
 	applyWhen(
 		paths.defaultValue,
 		({ valueOf, stateOf }) =>
-			!!valueOf(paths.minlength) &&
-			!stateOf(paths.minlength).hidden() &&
-			stateOf(paths.minlength).valid(),
+			!!valueOf(paths.minLength) &&
+			!stateOf(paths.minLength).hidden() &&
+			stateOf(paths.minLength).valid(),
 		(p) => {
 			minLength(
 				p as SchemaPath<string, 1>,
-				({ valueOf }) => Number(valueOf(paths.minlength)),
+				({ valueOf }) => Number(valueOf(paths.minLength)),
 				{
 					message: ({ valueOf }) =>
-						`Value cannot have less than ${valueOf(paths.minlength)} characters`,
+						`Value cannot have less than ${valueOf(paths.minLength)} characters`,
 				},
 			);
 		},
@@ -412,8 +410,8 @@ export const isFieldTree = (
 ): v is FieldTree<Strict<FormItemField | NewFormItemField>> =>
 	v.type().value() == "field";
 export const isField = (
-	v: Strict<FormItemDefinition | NewFormItemDefinition>,
-): v is Strict<FormItemField | NewFormItemField> => v.type == "field";
+	v: Strict<Entity<FormItem>>,
+): v is Strict<Entity<FormItem>> => v.type == "question";
 export const isGroup = (
 	v: Strict<FormItemDefinition | NewFormItemDefinition>,
 ): v is Strict<FormItemGroup | NewFormItemGroup> => v.type == "group";
@@ -426,38 +424,38 @@ export function isExistingFormItem(
 	return "id" in v && "addedAt" in v && "updatedAt" in v;
 }
 function defineFieldItemDefinitionFormSchema(
-	paths: SchemaPathTree<Strict<FormItemField | NewFormItemField>>,
+	paths: SchemaPathTree<Strict<Entity<FormItem>>>,
 ) {
 	apply(paths.config, (config) => {
 		required(config.type, { message: "A field type must be specified" });
 		hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
 
-		const isText = (v: FormItemField["config"]): v is Strict<TextFieldConfig> =>
+		const isText = (v: Strict<QuestionConfig>): v is Strict<TextQuestionConfig> =>
 			v?.type == "text" || v?.type == "multiline";
 		const isBoolean = (
-			v: FormItemField["config"],
-		): v is Strict<BooleanFieldConfig> => v?.type === "boolean";
+			v: Strict<QuestionConfig>,
+		): v is Strict<BooleanQuestionConfig> => v?.type === "boolean";
 		const isGeo = (
-			v: FormItemField["config"],
-		): v is Strict<GeoPointFieldConfig> => v?.type === "geo-point";
+			v: QuestionConfig,
+		): v is Strict<GeoPointQuestionConfig> => v?.type === "geo-point";
 		const isDate = (
-			v: FormItemField["config"],
-		): v is Strict<SimpleDateFieldConfig> =>
+			v: QuestionConfig,
+		): v is Strict<SimpleDateQuestionConfig> =>
 			v?.type === "date" || v?.type === "date-time";
 		const isNumber = (
-			v: FormItemField["config"],
-		): v is Strict<NumberFieldConfig> =>
+			v: QuestionConfig,
+		): v is Strict<NumberQuestionConfig> =>
 			v?.type == "float" || v?.type === "integer";
 		const isSelection = (
-			v: FormItemField["config"],
-		): v is Strict<SelectFieldConfig> =>
+			v: QuestionConfig,
+		): v is Strict<SelectQuestionConfig> =>
 			v?.type == "single-select" || v?.type == "multi-select";
 		const isDateRange = (
-			v: FormItemField["config"],
-		): v is Strict<RangeDateFieldConfig> => v?.type == "date-range";
+			v: QuestionConfig,
+		): v is Strict<RangeDateQuestionConfig> => v?.type == "date-range";
 		const isMultiDate = (
-			v: FormItemField["config"],
-		): v is Strict<MultiDateFieldConfig> => v?.type == "multi-date";
+			v: QuestionConfig,
+		): v is Strict<MultiDateQuestionConfig> => v?.type == "multi-date";
 		applyWhenValue(config, isText, defineTextFieldConfigFormSchema);
 		applyWhenValue(config, isBoolean, defineBooleanFieldConfigFormSchema);
 		applyWhenValue(config, isGeo, defineGeopointFieldConfigFormSchema);
@@ -471,6 +469,7 @@ function defineFieldItemDefinitionFormSchema(
 		debounce(config.description, debounceDuration);
 		required(config.title, { message: "A title is required" });
 		disabled(config.dataKey, ({ valueOf }) => valueOf(config.autoDataKey));
+		hidden(config.readonly, ({ valueOf }) => valueOf(config.required));
 		applyWhen(
 			config.dataKey,
 			({ valueOf }) => valueOf(config.autoDataKey) !== true,
@@ -488,40 +487,40 @@ function defineFieldItemDefinitionFormSchema(
 	});
 }
 
-function defineGroupItemDefinitionFormSchema(
-	paths: SchemaPathTree<Strict<FormItemGroup | NewFormItemGroup>>,
-) {
-	hidden(
-		paths.metaTag,
-		({ valueOf }) => valueOf(paths.config.repeatable) === true,
-	);
-	apply(paths.config, (config) => {
-		required(config.title, { message: "A field group must have a title" });
-		metadata(
-			config.repeatable,
-			HINT,
-			() => "Whether or not this group can have multiple rows of data",
-		);
-		metadata(config.title, PLACEHOLDER, () => "Group Title");
-		metadata(
-			config.title,
-			HINT,
-			() => "A user facing title for this group of fields",
-		);
-		metadata(config.description, PLACEHOLDER, () => "Subtitle or description");
-		min(config.divisionCount, 0);
-		required(config.orientation, {
-			message: "An orientation must be specified",
-		});
-		metadata(
-			config.repeatable,
-			HINT,
-			() => "Whether or not this group can have multiple rows of data",
-		);
+// function defineGroupItemDefinitionFormSchema(
+// 	paths: SchemaPathTree<Strict<FormItemGroup | NewFormItemGroup>>,
+// ) {
+// 	hidden(
+// 		paths.metaTag,
+// 		({ valueOf }) => valueOf(paths.config.repeatable) === true,
+// 	);
+// 	apply(paths.config, (config) => {
+// 		required(config.title, { message: "A field group must have a title" });
+// 		metadata(
+// 			config.repeatable,
+// 			HINT,
+// 			() => "Whether or not this group can have multiple rows of data",
+// 		);
+// 		metadata(config.title, PLACEHOLDER, () => "Group Title");
+// 		metadata(
+// 			config.title,
+// 			HINT,
+// 			() => "A user facing title for this group of fields",
+// 		);
+// 		metadata(config.description, PLACEHOLDER, () => "Subtitle or description");
+// 		min(config.divisionCount, 0);
+// 		required(config.orientation, {
+// 			message: "An orientation must be specified",
+// 		});
+// 		metadata(
+// 			config.repeatable,
+// 			HINT,
+// 			() => "Whether or not this group can have multiple rows of data",
+// 		);
 
-		applyEach(config.fields, defineFieldItemDefinitionFormSchema);
-	});
-}
+// 		applyEach(config.fields, defineFieldItemDefinitionFormSchema);
+// 	});
+// }
 
 function defineImageItemDefinitionFormSchema(
 	paths: SchemaPathTree<Strict<FormItemImage | NewFormItemImage>>,
@@ -535,25 +534,33 @@ function defineImageItemDefinitionFormSchema(
 }
 
 function defineFormItemDefinitionFormSchema(
-	paths: SchemaPathTree<Strict<FormItemDefinition | NewFormItemDefinition>>,
+	paths: SchemaPathTree<Strict<Entity<FormItem>>>,
 ) {
-	applyWhenValue(paths, isExistingFormItem, (paths) => {
-		hidden(paths.id, () => true);
-		hidden(paths.addedAt, () => true);
-		hidden(paths.updatedAt, () => true);
-		hidden(paths.itemId, () => true);
-	});
-	hidden(paths.path, () => true);
+	hidden(paths.createdAt, () => true);
+	hidden(paths.updatedAt, () => true);
+	hidden(paths.id, () => true);
+	hidden(paths.formVersion, () => true);
 	hidden(paths.type, () => true);
+	hidden(paths.path, () => true);
 
 	applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema);
-	applyWhenValue(paths, isGroup, defineGroupItemDefinitionFormSchema);
-	applyWhenValue(paths, isImage, defineImageItemDefinitionFormSchema);
+	// applyWhenValue(paths, isExistingFormItem, (paths) => {
+	// 	hidden(paths.id, () => true);
+	// 	hidden(paths.addedAt, () => true);
+	// 	hidden(paths.updatedAt, () => true);
+	// 	hidden(paths.itemId, () => true);
+	// });
+	// hidden(paths.path, () => true);
+	// hidden(paths.type, () => true);
+
+	// applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema);
+	// applyWhenValue(paths, isGroup, defineGroupItemDefinitionFormSchema);
+	// applyWhenValue(paths, isImage, defineImageItemDefinitionFormSchema);
 }
 
 export function defineFormDesignerFormSchema() {
 	return (paths: SchemaPath<Strict<Entity<FormItem>>[]>) => {
-		545655
+		applyEach(paths, defineFormItemDefinitionFormSchema);
 	}
 }
 
@@ -563,27 +570,29 @@ export function domainToStrictFormDefinition(value: FormVersionDefinition) {
 
 export function defaultFormItemDefinitionSchemaValue(
 	path: string,
-	type: Entity<FormItem>['type'],
+	id: string,
+	type: FormItemType,
+	formVersion: string,
+	parentId?: string
 ) {
 	const config = formItemDefaultConfig(type);
-	return NewFormItemDefinition.parse({
+	return FormItem.parse({
+		parentId,
+		id,
 		config,
 		path,
 		relevance: defaultFormItemRelevanceSchemaValue(),
 		tags: [],
+		formVersion,
 		type,
 	});
 }
 
 function defaultFormItemRelevanceSchemaValue() {
-	return {
-		logic: [],
-		enabled: false,
-		operator: "and",
-	} as RelevanceDefinition;
+	return RelevanceDefinition.parse({})
 }
 
-export function formItemDefaultConfig(type: Entity<FormItem>['type']) {
+export function formItemDefaultConfig(type: FormItemType) {
 	switch (type) {
 		case 'question':
 			return TextQuestionConfig.parse({ type: 'text' })

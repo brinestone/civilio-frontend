@@ -40,7 +40,7 @@
 		<cv-form-designer-header
 			[formState]="formModel()"
 			(onSubmit)="onFormSubmit()"
-
+			(itemAdd)="onItemAdd($event)"
 		/>
 	</div>
 </div>
@@ -49,7 +49,10 @@
 >
 	<div class="container mx-auto py-10">
 		@if(!formDefinition.isLoading()) {
-		<cv-form-designer [formItems]="formModel" />
+		<cv-form-designer
+			[formItems]="formModel"
+			(onItemRemoved)="onRemoveItem($event)"
+		/>
 		} @else {
 		<div class="space-y-4">
 			@for(i of [1,2,3,4]; track $index) {

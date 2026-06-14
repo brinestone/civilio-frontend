@@ -5,8 +5,9 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { FormField } from '@angular/forms/signals';
 import { SelectFieldItemConfigSchema } from '@app/model/form';
 import { createImporterInjector } from '@app/pages/importers';
-import { DatasetItem, MultiSelectFieldConfig } from '@civilio/sdk/models';
+import { DatasetItem } from '@civilio/sdk/models';
 import { DatasetsService } from '@civilio/sdk/services/datasets/datasets.service';
+import { MultiSelectQuestionConfig } from '@db/schemas';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideDatabase, lucideFile, lucideGrip, lucideLink, lucidePlus, lucideUnlink, lucideX } from '@ng-icons/lucide';
 import { BrnDialogContent, BrnDialogState } from '@spartan-ng/brain/dialog';
@@ -67,7 +68,7 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	styleUrl: './multi-select.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultiSelectMeta extends BaseFieldConfig<MultiSelectFieldConfig> {
+export class MultiSelectMeta extends BaseFieldConfig<MultiSelectQuestionConfig> {
 	private readonly datasetService = inject(DatasetsService);
 	protected readonly activeImportTab = signal<string>('dataset');
 	protected readonly importDialogState = signal<BrnDialogState>('closed');

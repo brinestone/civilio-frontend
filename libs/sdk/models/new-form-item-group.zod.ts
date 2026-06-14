@@ -17,6 +17,7 @@ export const newFormItemGroupOneOneRelevanceLogicItemExpressionsItemFieldDefault
 export const newFormItemGroupOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemGroupOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemGroupOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemGroupOneOneRelevanceLogicDefault = [];
 export const newFormItemGroupTwoConfigOneOneDataKeyDefault = null;
 export const newFormItemGroupTwoConfigOneOneAutoDataKeyDefault = true;
 export const newFormItemGroupTwoConfigOneTwoTitleDefault = null;
@@ -36,6 +37,7 @@ export const newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressi
 export const newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicDefault = [];
 export const newFormItemGroupTwoConfigTwoFieldsItemTwoParentIdDefault = null;
 export const newFormItemGroupTwoConfigTwoFieldsItemTwoConfigOneOneOneDataKeyDefault = null;
 export const newFormItemGroupTwoConfigTwoFieldsItemTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -150,7 +152,7 @@ export const NewFormItemGroup = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemGroupOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemGroupOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])
@@ -187,7 +189,7 @@ export const NewFormItemGroup = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemGroupTwoConfigTwoFieldsItemOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),

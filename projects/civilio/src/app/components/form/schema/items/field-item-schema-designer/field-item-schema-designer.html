@@ -5,7 +5,7 @@
 		<cv-form-item-actions
 			orientation="vertical"
 			[showLibAdd]="!isNew()"
-			(delete)="context.itemDeleteHandler(field.path().value(), index())"
+			(delete)="context.itemDeleteHandler(field.id().value())"
 			(libToggle)="context.libraryToggleHandler($any(node()).id?.().value())"
 			(togglePreview)="editing.set(!$event)"
 			(toggleSettings)="expanded.set($event)"

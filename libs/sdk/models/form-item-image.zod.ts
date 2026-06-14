@@ -17,6 +17,7 @@ export const formItemImageOneOneRelevanceLogicItemExpressionsItemFieldDefault = 
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemImageOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemImageOneOneRelevanceLogicDefault = [];
 export const formItemImageTwoOnePathDefault = null;
 export const formItemImageTwoOneTagsItemKeyDefault = null;
 export const formItemImageTwoOneTagsItemValueDefault = null;
@@ -28,6 +29,7 @@ export const formItemImageTwoOneRelevanceLogicItemExpressionsItemFieldDefault = 
 export const formItemImageTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemImageTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemImageTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemImageTwoOneRelevanceLogicDefault = [];
 export const formItemImageTwoTwoConfigWidthDefault = 10;
 export const formItemImageTwoTwoConfigWidthMin = 10;
 
@@ -58,7 +60,7 @@ export const FormItemImage = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemImageOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemImageOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -87,7 +89,7 @@ export const FormItemImage = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemImageTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemImageTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),

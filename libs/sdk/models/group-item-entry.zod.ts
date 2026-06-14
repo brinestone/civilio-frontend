@@ -17,6 +17,7 @@ export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemFieldDefault =
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemEntryOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemEntryOneOneRelevanceLogicDefault = [];
 export const groupItemEntryOneTwoParentIdDefault = null;
 export const groupItemEntryOneTwoConfigOneOneOneDataKeyDefault = null;
 export const groupItemEntryOneTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -119,6 +120,7 @@ export const groupItemEntryTwoOneOneRelevanceLogicItemExpressionsItemFieldDefaul
 export const groupItemEntryTwoOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemEntryTwoOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemEntryTwoOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemEntryTwoOneOneRelevanceLogicDefault = [];
 export const groupItemEntryTwoTwoOnePathDefault = null;
 export const groupItemEntryTwoTwoOneTagsItemKeyDefault = null;
 export const groupItemEntryTwoTwoOneTagsItemValueDefault = null;
@@ -130,6 +132,7 @@ export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemFieldDefaul
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const groupItemEntryTwoTwoOneRelevanceLogicDefault = [];
 export const groupItemEntryTwoTwoTwoParentIdDefault = null;
 export const groupItemEntryTwoTwoTwoConfigOneOneOneDataKeyDefault = null;
 export const groupItemEntryTwoTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -244,7 +247,7 @@ export const GroupItemEntry = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(groupItemEntryOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(groupItemEntryOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -425,7 +428,7 @@ export const GroupItemEntry = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(groupItemEntryTwoOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(groupItemEntryTwoOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -454,7 +457,7 @@ export const GroupItemEntry = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(groupItemEntryTwoTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(groupItemEntryTwoTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),

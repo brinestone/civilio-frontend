@@ -17,6 +17,7 @@ export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemFie
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemValueDefault = null;
+export const baseFormItemDefinitionWithoutIdRelevanceLogicDefault = [];
 export const BaseFormItemDefinitionWithoutId = zod.object({
   "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(baseFormItemDefinitionWithoutIdPathDefault),
@@ -39,7 +40,7 @@ export const BaseFormItemDefinitionWithoutId = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(baseFormItemDefinitionWithoutIdRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(baseFormItemDefinitionWithoutIdRelevanceLogicDefault)
 })
 })
 

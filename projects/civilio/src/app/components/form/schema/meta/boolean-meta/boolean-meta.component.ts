@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { BooleanFieldConfig } from '@civilio/sdk/models';
+import { BooleanQuestionConfig } from '@db/schemas';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { HlmButtonGroupImports } from '@spartan-ng/helm/button-group';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
@@ -31,7 +31,7 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
   styleUrl: './boolean-meta.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BooleanMetaComponent extends BaseFieldConfig<BooleanFieldConfig> {
+export class BooleanMetaComponent extends BaseFieldConfig<BooleanQuestionConfig> {
 	protected onClearDefaultValueButtonClicked() {
 		this.meta().defaultValue().value.set(null as any);
 	}

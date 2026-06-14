@@ -17,6 +17,7 @@ export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemFiel
 export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionOneOneOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionOneTwoConfigOneOneDataKeyDefault = null;
 export const newFormItemDefinitionOneTwoConfigOneOneAutoDataKeyDefault = true;
 export const newFormItemDefinitionOneTwoConfigOneTwoTitleDefault = null;
@@ -36,6 +37,7 @@ export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItem
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoParentIdDefault = null;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneOneDataKeyDefault = null;
 export const newFormItemDefinitionOneTwoConfigTwoFieldsItemTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -139,6 +141,7 @@ export const newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemFieldDe
 export const newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionTwoOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionTwoTwoConfigFontSizeDefault = 13;
 export const newFormItemDefinitionThreeOnePathDefault = null;
 export const newFormItemDefinitionThreeOneTagsItemKeyDefault = null;
@@ -151,6 +154,7 @@ export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemField
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionThreeOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionThreeTwoParentIdDefault = null;
 export const newFormItemDefinitionThreeTwoConfigOneOneOneDataKeyDefault = null;
 export const newFormItemDefinitionThreeTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -253,6 +257,7 @@ export const newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemFieldD
 export const newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionFourOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionFourTwoConfigWidthDefault = 10;
 export const newFormItemDefinitionFourTwoConfigWidthMin = 10;
 
@@ -271,6 +276,7 @@ export const newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemFieldD
 export const newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemDefinitionFiveOneRelevanceLogicDefault = [];
 export const newFormItemDefinitionFiveTwoConfigOrientationDefault = `vertical`;
 export const NewFormItemDefinition = zod.union([zod.object({
   "itemId": zod.uuid().nullish(),
@@ -294,7 +300,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])
@@ -331,7 +337,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionOneTwoConfigTwoFieldsItemOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -516,7 +522,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),
@@ -547,7 +553,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
@@ -728,7 +734,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionFourOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionFourOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),
@@ -764,7 +770,7 @@ export const NewFormItemDefinition = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemDefinitionFiveOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemDefinitionFiveOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({

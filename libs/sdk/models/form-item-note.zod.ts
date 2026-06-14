@@ -18,6 +18,7 @@ export const formItemNoteTwoOneRelevanceLogicItemExpressionsItemFieldDefault = n
 export const formItemNoteTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemNoteTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemNoteTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemNoteTwoOneRelevanceLogicDefault = [];
 export const formItemNoteThreeOnePathDefault = null;
 export const formItemNoteThreeOneTagsItemKeyDefault = null;
 export const formItemNoteThreeOneTagsItemValueDefault = null;
@@ -29,6 +30,7 @@ export const formItemNoteThreeOneRelevanceLogicItemExpressionsItemFieldDefault =
 export const formItemNoteThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemNoteThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemNoteThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemNoteThreeOneRelevanceLogicDefault = [];
 export const formItemNoteThreeTwoConfigFontSizeDefault = 13;
 export const FormItemNote = zod.object({
   "inLibrary": zod.boolean().default(formItemNoteOneInLibraryDefault)
@@ -54,7 +56,7 @@ export const FormItemNote = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemNoteTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemNoteTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -83,7 +85,7 @@ export const FormItemNote = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemNoteThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemNoteThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),

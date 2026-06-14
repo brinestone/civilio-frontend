@@ -18,6 +18,7 @@ export const formItemNoteUpdateOneTwoOneRelevanceLogicItemExpressionsItemFieldDe
 export const formItemNoteUpdateOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemNoteUpdateOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemNoteUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemNoteUpdateOneTwoOneRelevanceLogicDefault = [];
 export const formItemNoteUpdateOneThreeOnePathDefault = null;
 export const formItemNoteUpdateOneThreeOneTagsItemKeyDefault = null;
 export const formItemNoteUpdateOneThreeOneTagsItemValueDefault = null;
@@ -29,6 +30,7 @@ export const formItemNoteUpdateOneThreeOneRelevanceLogicItemExpressionsItemField
 export const formItemNoteUpdateOneThreeOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemNoteUpdateOneThreeOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemNoteUpdateOneThreeOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemNoteUpdateOneThreeOneRelevanceLogicDefault = [];
 export const formItemNoteUpdateOneThreeTwoConfigFontSizeDefault = 13;
 export const FormItemNoteUpdate = zod.object({
   "inLibrary": zod.boolean().default(formItemNoteUpdateOneOneInLibraryDefault)
@@ -54,7 +56,7 @@ export const FormItemNoteUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemNoteUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemNoteUpdateOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -83,7 +85,7 @@ export const FormItemNoteUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemNoteUpdateOneThreeOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemNoteUpdateOneThreeOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['note']),

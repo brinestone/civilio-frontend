@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormField } from "@angular/forms/signals";
 import { GeoPointPicker } from '@app/components/geo-point-picker/geo-point-picker.component';
-import { GeoPointFieldConfig } from '@civilio/sdk/models';
+import { GeoPointQuestionConfig } from '@db/schemas';
 import { HlmFieldGroup, HlmFieldLabel } from '@spartan-ng/helm/field';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
 
@@ -19,6 +19,6 @@ import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component'
 	styleUrl: './geo-point.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GeoPointMetaComponent extends BaseFieldConfig<GeoPointFieldConfig> {
+export class GeoPointMetaComponent extends BaseFieldConfig<GeoPointQuestionConfig> {
 
 }

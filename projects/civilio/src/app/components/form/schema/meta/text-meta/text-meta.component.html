@@ -1,32 +1,32 @@
 {{meta() | json}}
-@if (!meta().minlength().hidden()) {
+@if (!meta().minLength().hidden()) {
 	<div hlmField>
 		<input
 			hlmInput
 			type="number"
 			placeholder="Min length"
-			[formField]="meta().minlength"
+			[formField]="meta().minLength"
 		/>
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
-			[ngTemplateOutletContext]="{ $implicit: meta().minlength }"
+			[ngTemplateOutletContext]="{ $implicit: meta().minLength }"
 		/>
 		<p hlmFieldDescription>
 			The minimum number of characters allowed for this question's response
 		</p>
 	</div>
 }
-@if (!meta().maxlength().hidden()) {
+@if (!meta().minLength().hidden()) {
 	<div hlmField>
 		<input
 			hlmInput
 			type="number"
 			placeholder="Max length"
-			[formField]="meta().maxlength"
+			[formField]="meta().maxLength"
 		/>
 		<ng-container
 			[ngTemplateOutlet]="errorsTemplate"
-			[ngTemplateOutletContext]="{ $implicit: meta().maxlength }"
+			[ngTemplateOutletContext]="{ $implicit: meta().maxLength }"
 		/>
 		<p hlmFieldDescription>
 			The maximum number of characters allowed for this question's response

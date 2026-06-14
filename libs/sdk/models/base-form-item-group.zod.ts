@@ -17,6 +17,7 @@ export const baseFormItemGroupOneRelevanceLogicItemExpressionsItemFieldDefault =
 export const baseFormItemGroupOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const baseFormItemGroupOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const baseFormItemGroupOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const baseFormItemGroupOneRelevanceLogicDefault = [];
 export const BaseFormItemGroup = zod.object({
   "itemId": zod.uuid().nullish(),
   "path": zod.string().nullable().default(baseFormItemGroupOnePathDefault),
@@ -39,7 +40,7 @@ export const BaseFormItemGroup = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(baseFormItemGroupOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(baseFormItemGroupOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])

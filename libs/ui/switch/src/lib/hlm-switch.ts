@@ -64,7 +64,7 @@ export class HlmSwitch implements ControlValueAccessor {
 	public readonly checked = model<boolean>(false);
 
 	/** Emits when the checked state of the switch changes. */
-	public readonly checkedChange = output<boolean>();
+	// public readonly checkedChange = output<boolean>();
 
 	/** The disabled state of the switch. */
 	public readonly disabled = input<boolean, BooleanInput>(false, {
@@ -91,7 +91,7 @@ export class HlmSwitch implements ControlValueAccessor {
 	protected handleChange(value: boolean): void {
 		this.checked.set(value);
 		this._onChange?.(value);
-		this.checkedChange.emit(value);
+		// this.checkedChange.emit(value);
 	}
 
 	/** CONROL VALUE ACCESSOR */

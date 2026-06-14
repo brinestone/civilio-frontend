@@ -33,11 +33,9 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 		this.actions$.pipe(
 			ofActionSuccessful(LoadConfig),
 			take(1),
-			concatMap(() => interval(6_000)),
+			concatMap(() => interval(60_000)),
 			takeUntilDestroyed(this.destroyRef),
-			filter(() => {
-				return document.visibilityState == 'visible';
-			})
+			filter(() => document.visibilityState == 'visible')
 		).subscribe(() => ctx.dispatch(PullChanges))
 	}
 

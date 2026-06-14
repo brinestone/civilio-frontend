@@ -17,6 +17,7 @@ export const formItemGroupUpdateOneOneRelevanceLogicItemExpressionsItemFieldDefa
 export const formItemGroupUpdateOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemGroupUpdateOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemGroupUpdateOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemGroupUpdateOneOneRelevanceLogicDefault = [];
 export const formItemGroupUpdateTwoOnePathDefault = null;
 export const formItemGroupUpdateTwoOneTagsItemKeyDefault = null;
 export const formItemGroupUpdateTwoOneTagsItemValueDefault = null;
@@ -28,6 +29,7 @@ export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemFieldDefa
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemGroupUpdateTwoOneRelevanceLogicDefault = [];
 export const formItemGroupUpdateThreeConfigOneDataKeyDefault = null;
 export const formItemGroupUpdateThreeConfigOneAutoDataKeyDefault = true;
 export const formItemGroupUpdateThreeConfigTwoTitleDefault = null;
@@ -58,7 +60,7 @@ export const FormItemGroupUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemGroupUpdateOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemGroupUpdateOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -87,7 +89,7 @@ export const FormItemGroupUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemGroupUpdateTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemGroupUpdateTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['group'])

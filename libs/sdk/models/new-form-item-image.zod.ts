@@ -17,6 +17,7 @@ export const newFormItemImageOneRelevanceLogicItemExpressionsItemFieldDefault = 
 export const newFormItemImageOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newFormItemImageOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newFormItemImageOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newFormItemImageOneRelevanceLogicDefault = [];
 export const newFormItemImageTwoConfigWidthDefault = 10;
 export const newFormItemImageTwoConfigWidthMin = 10;
 
@@ -46,7 +47,7 @@ export const NewFormItemImage = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newFormItemImageOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newFormItemImageOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['image']),

@@ -17,6 +17,7 @@ export const formItemSeparatorUpdateOneOneOneRelevanceLogicItemExpressionsItemFi
 export const formItemSeparatorUpdateOneOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemSeparatorUpdateOneOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemSeparatorUpdateOneOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemSeparatorUpdateOneOneOneRelevanceLogicDefault = [];
 export const formItemSeparatorUpdateOneTwoOnePathDefault = null;
 export const formItemSeparatorUpdateOneTwoOneTagsItemKeyDefault = null;
 export const formItemSeparatorUpdateOneTwoOneTagsItemValueDefault = null;
@@ -28,6 +29,7 @@ export const formItemSeparatorUpdateOneTwoOneRelevanceLogicItemExpressionsItemFi
 export const formItemSeparatorUpdateOneTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const formItemSeparatorUpdateOneTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const formItemSeparatorUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const formItemSeparatorUpdateOneTwoOneRelevanceLogicDefault = [];
 export const formItemSeparatorUpdateOneTwoTwoConfigOrientationDefault = `vertical`;
 export const FormItemSeparatorUpdate = zod.object({
   "itemId": zod.uuid().nullish(),
@@ -51,7 +53,7 @@ export const FormItemSeparatorUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemSeparatorUpdateOneOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemSeparatorUpdateOneOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -80,7 +82,7 @@ export const FormItemSeparatorUpdate = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(formItemSeparatorUpdateOneTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(formItemSeparatorUpdateOneTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "config": zod.object({

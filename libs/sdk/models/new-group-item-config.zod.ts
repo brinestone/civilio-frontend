@@ -25,6 +25,7 @@ export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItem
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const newGroupItemConfigTwoFieldsItemOneRelevanceLogicDefault = [];
 export const newGroupItemConfigTwoFieldsItemTwoParentIdDefault = null;
 export const newGroupItemConfigTwoFieldsItemTwoConfigOneOneOneDataKeyDefault = null;
 export const newGroupItemConfigTwoFieldsItemTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -149,7 +150,7 @@ export const NewGroupItemConfig = zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(newGroupItemConfigTwoFieldsItemOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(newGroupItemConfigTwoFieldsItemOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),

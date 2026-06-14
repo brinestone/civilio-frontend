@@ -2,20 +2,18 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
 	ChangeDetectionStrategy,
 	Component,
-	inject,
 	input,
 	isDevMode,
 	linkedSignal,
-	signal,
-	viewChild
+	signal
 } from "@angular/core";
 import { form } from "@angular/forms/signals";
 import { RouterOutlet } from "@angular/router";
-import { FormDesigner, FormDesignerHeader } from "@app/components/form/schema";
+import { FormDesigner, FormDesignerHeader, ItemReorderedEvent } from "@app/components/form/schema";
+import { defineFormDesignerFormSchema, FormItemEntity } from '@app/components/form/schema/form-designer-config';
 import { HasPendingChanges } from "@app/model/form";
-import { FormsService } from "@civilio/sdk/services/forms/forms.service";
 import { Strict } from "@civilio/shared";
-import { Entity, formItemsCollection, formVersionsCollection } from "@db/collections";
+import { formItemsCollection, formVersionsCollection } from "@db/collections";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import {
 	lucideChevronLeft,
@@ -24,17 +22,17 @@ import {
 } from "@ng-icons/lucide";
 import { TranslatePipe } from "@ngx-translate/core";
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
-import { defineFormDesignerFormSchema } from '@app/components/form/schema/form-designer-config'
 import { HlmAlertDialogImports } from "@spartan-ng/helm/alert-dialog";
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 
+import { addFormItem, removeFormItem } from "@db/actions";
+import { FormItemType } from "@db/schemas";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { and, eq, injectLiveQuery } from "@tanstack/angular-db";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 import { Observable } from "rxjs";
-import { FormItem } from "@db/schemas";
 
 @Component({
 	selector: "cv-forms",
@@ -68,25 +66,39 @@ import { FormItem } from "@db/schemas";
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SchemaDesignPage implements HasPendingChanges {
-	readonly slug = input.required<string>();
-	private readonly formVersion = injectQueryParams("version", {
-		defaultValue: "current",
-	});
-	private readonly formService = inject(FormsService);
-	private readonly designer = viewChild(FormDesigner);
+	readonly slug = input<string>();
+	private readonly formVersionArg = injectQueryParams("version");
 	protected readonly sidebarState = signal<BrnDialogState>(isDevMode() ? 'closed' : 'closed');
+	protected readonly addFormItem = addFormItem();
+	protected readonly removeFormItem = removeFormItem();
 
-	protected readonly formDefinition = injectLiveQuery(q => {
-		return q.from({
-			fi: formItemsCollection,
-		}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
-			.where(({ fv }) => and(
-				eq(fv.form, this.slug()),
-				this.formVersion() === 'current' ? eq(fv.isCurrent, true) : eq(fv.id, this.formVersion())
-			))
-			.select(({ fi }) => fi)
+	protected readonly formDefinition = injectLiveQuery({
+		params: () => ({ fv: this.formVersionArg(), form: this.slug() }),
+		query: ({ params, q }) => {
+			return q.from({
+				fi: formItemsCollection,
+			}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
+				.where(({ fv }) => and(
+					eq(fv.form, params.form),
+					params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true)
+				))
+				.orderBy(({ fi }) => fi.path, { direction: 'asc' })
+				.select(({ fi }) => fi)
+		}
 	});
-	protected readonly formData = linkedSignal(() => this.formDefinition.data() as unknown as Strict<Entity<FormItem>[]>);
+	protected readonly formVersion = injectLiveQuery({
+		params: () => ({ form: this.slug(), fv: this.formVersionArg() }),
+		query: ({ params, q }) => {
+			return q.from({ fv: formVersionsCollection })
+				.where(({ fv }) => and(
+					eq(fv.form, params.form),
+					params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true)
+				))
+				.findOne()
+		}
+	})
+
+	protected readonly formData = linkedSignal(() => this.formDefinition.data() as unknown as Strict<FormItemEntity[]>);
 	protected readonly renderForm = linkedSignal(() => !!this.slug());
 	protected readonly pendingChangesDialogState =
 		signal<BrnDialogState>("closed");
@@ -97,6 +109,58 @@ export class SchemaDesignPage implements HasPendingChanges {
 		this.formData,
 		defineFormDesignerFormSchema()
 	);
+
+	protected async onRemoveItem(id: string) {
+		const tx = this.removeFormItem({ id, formVersion: this.formVersion.data()!.id });
+		await tx.commit();
+	}
+
+	protected async onReordered({ endIndex, startIndex }: ItemReorderedEvent) {
+
+	}
+
+	protected async onItemAdd(type: FormItemType) {
+		const fvId = this.formVersion.data()?.id;
+		if (fvId) {
+			const tx = this.addFormItem({
+				type,
+				path: String(this.formData().length ?? 0),
+				formVersion: fvId,
+				id: crypto.randomUUID()
+			});
+			await tx.commit();
+		}
+	}
+
+	private computeItemPaths() {
+		let changed = false;
+		for (let i = 0; i < this.formModel().value().length; i++) {
+			const item = this.formModel[i];
+			const newPath = String(i);
+			const oldPath = item.path().value();
+			const pathsEquals = newPath === oldPath;
+			changed ||= !pathsEquals;
+			// if (item.type().value() == "group") {
+			// 	const config = item.config as unknown as FieldTree<
+			// 		Strict<FormItemGroup | NewFormItemGroup>["config"]
+			// 	>;
+			// 	for (let j = 0; j < config.fields.length; j++) {
+			// 		const field = config.fields[j];
+			// 		const newChildPath = [newPath, "config", "fields", String(j)].join(
+			// 			formItemPathSeparator,
+			// 		);
+			// 		const oldChildPath = field.path().value();
+			// 		const pathsEquals = newChildPath === oldChildPath;
+			// 		changed ||= !pathsEquals;
+			// 		field.path().value.set(newChildPath);
+			// 	}
+			// }
+			item.path().value.set(newPath);
+		}
+		if (changed) {
+			this.formModel().markAsDirty();
+		}
+	}
 
 	// private findNewItems() {
 	// 	const newItems = Array<string>();

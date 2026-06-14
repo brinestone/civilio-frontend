@@ -131,6 +131,7 @@ export const libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicItemExpres
 export const libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicDefault = [];
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOnePathDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOneTagsItemKeyDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOneTagsItemValueDefault = null;
@@ -142,6 +143,7 @@ export const libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicItemExpres
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemOperatorDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemNegatedDefault = false;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault = null;
+export const libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicDefault = [];
 export const libraryItemFourTwoConfigTwoFieldsItemTwoTwoParentIdDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoTwoConfigOneOneOneDataKeyDefault = null;
 export const libraryItemFourTwoConfigTwoFieldsItemTwoTwoConfigOneOneOneAutoDataKeyDefault = true;
@@ -472,7 +474,7 @@ export const LibraryItem = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(libraryItemFourTwoConfigTwoFieldsItemOneOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "id": zod.uuid(),
@@ -501,7 +503,7 @@ export const LibraryItem = zod.union([zod.object({
   "end": zod.number().nullish()
 })]).nullish().default(libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicItemExpressionsItemValueDefault)
 }))
-}))
+})).default(libraryItemFourTwoConfigTwoFieldsItemTwoOneRelevanceLogicDefault)
 })
 }).and(zod.object({
   "type": zod.enum(['field']),
