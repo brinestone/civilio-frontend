@@ -76,8 +76,8 @@ export class MultiDatePicker implements FormValueControl<number[] | null | undef
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	public readonly buttonId = input<string>(`multi-date-picker-${++nextId}`, { alias: 'id' });
 	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
-	public readonly min = input<number | undefined, unknown>(undefined, { transform: toNumericalDate });
-	public readonly max = input<number | undefined, unknown>(undefined, { transform: toNumericalDate });
+	public readonly minInput = input<number | undefined, unknown>(undefined, { alias: 'min', transform: toNumericalDate });
+	public readonly maxInput = input<number | undefined, unknown>(undefined, { alias: 'max', transform: toNumericalDate });
 	public readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 	public readonly minSelection = input<number, NumberInput>(undefined, { transform: numberAttribute });
 	public readonly maxSelection = input<number, NumberInput>(undefined, { transform: numberAttribute });
@@ -98,12 +98,12 @@ export class MultiDatePicker implements FormValueControl<number[] | null | undef
 		'flex justify-between w-70 items-center group-[:is(.ng-invalid)]/multi-date-picker:border-destructive! group-[:is(.ng-invalid)]/multi-date-picker:text-destructive! group-[:is(.ng-invalid)]/multi-date-picker:ring-destructive/40!',
 		this.userClass()
 	));
-	protected readonly minDate = computed(() => toDate(this.min()));
-	protected readonly maxDate = computed(() => toDate(this.max()));
+	protected readonly minDate = computed(() => toDate(this.minInput()));
+	protected readonly maxDate = computed(() => toDate(this.maxInput()));
 
 	constructor() {
 		effect(() => {
-			const min = this.min();
+			const min = this.minInput();
 			const value = untracked(this.value);
 			if (min === undefined || !value || value.length == 0) return;
 			const diff = value[0] - min;
@@ -111,7 +111,7 @@ export class MultiDatePicker implements FormValueControl<number[] | null | undef
 			this.value.set(value.filter(n => n >= min).sort());
 		});
 		effect(() => {
-			const max = this.min();
+			const max = this.minInput();
 			const value = untracked(this.value);
 			if (max === undefined || !value || value.length == 0) return;
 			const diff = last(value)!.valueOf() - max;

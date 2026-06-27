@@ -1,5 +1,4 @@
 {
-	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"target": "esnext",
 		"allowJs": true,
@@ -9,8 +8,9 @@
 		"esModuleInterop": true,
 		"noImplicitAny": true,
 		"sourceMap": true,
+		"rootDir": "../..",
 		"outDir": "../../dist",
-		// "moduleResolution": "nodenext",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
 		"paths": {
 			"@civilio/shared": [
@@ -31,10 +31,12 @@
 		}
 	},
 	"include": [
-		"src/**/*",
-		"../../libs/*"
+		"src/**/*.ts",
+		"../../libs/**/*.ts"
 	],
 	"exclude": [
-		"../../libs/ui"
+		"../../libs/ui",
+		"../../libs/sdk",
+		"../civilio"
 	]
 }

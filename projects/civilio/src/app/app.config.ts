@@ -11,6 +11,7 @@ import {
 	withComponentInputBinding,
 	withRouterConfig,
 } from "@angular/router";
+import { withDocumentsSdk } from "@civilio/sdk/providers";
 import { provideCollectionIndexing } from "@db/collections";
 import { provideNgIconLoader } from "@ng-icons/core";
 import {
@@ -28,16 +29,14 @@ import {
 import { TranslateTitleStrategy } from "./adapters/ngx-translate/title.strategy";
 import { routes } from "./app.routes";
 import { provideHttpClientErrorHandler } from "./http/error-handler";
-import { apiUrlInterceptor } from "./interceptors/api-url-interceptor";
+import { apiInterceptor } from "./interceptors/api-url-interceptor";
 import { provideDomainConfig } from "./services/config";
-import { provideSseClient } from "./services/sse.service";
 import { ConfigState } from "./store/config";
 import { DocsState, SYNC_STATE } from "./store/docs";
-import { withDocumentsSdk } from "@civilio/sdk/providers";
 
 export const appConfig: ApplicationConfig = {
 	providers: [
-		provideHttpClient(withInterceptors([apiUrlInterceptor])),
+		provideHttpClient(withInterceptors([apiInterceptor])),
 		provideCollectionIndexing(),
 		provideHttpClientErrorHandler(),
 		provideBrowserGlobalErrorListeners(),

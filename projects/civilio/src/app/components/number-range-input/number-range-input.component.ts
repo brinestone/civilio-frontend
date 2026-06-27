@@ -12,8 +12,8 @@ import { produce } from "immer";
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
-		<input [readonly]="readonly()" [disabled]="disabled()" type="number" [min]="min()" [max]="end()" (change)="startChanged($event)" [value]="start()" [step]="step()" hlmInput [placeholder]="minPlaceholder() ?? 'Min'" class="rounded-r-none border-r-0">
-		<input [readonly]="readonly()" [disabled]="disabled()" type="number" [max]="max()" [min]="start()" (change)="endChanged($event)" [value]="end()" [step]="step()" hlmInput [placeholder]="maxPlaceholder() ?? 'Max'" class="rounded-l-none">
+		<input [readonly]="readonly()" [disabled]="disabled()" type="number" [min]="minValue()" [max]="end()" (change)="startChanged($event)" [value]="start()" [step]="step()" hlmInput [placeholder]="minPlaceholder() ?? 'Min'" class="rounded-r-none border-r-0">
+		<input [readonly]="readonly()" [disabled]="disabled()" type="number" [max]="maxValue()" [min]="start()" (change)="endChanged($event)" [value]="end()" [step]="step()" hlmInput [placeholder]="maxPlaceholder() ?? 'Max'" class="rounded-l-none">
 	`,
 	styles: `
 		:host {
@@ -27,8 +27,9 @@ export class NumberRangeInputComponent implements FormValueControl<NumberRange |
 	readonly minPlaceholder = input<string>();
 	readonly maxPlaceholder = input<string>();
 	readonly step = input<number>();
-	readonly min = input<number | undefined, unknown>(undefined, { transform: numberAttribute });
-	readonly max = input<number | undefined, unknown>(undefined, { transform: numberAttribute });
+	readonly minValue = input<number | undefined, unknown>(undefined, { transform: numberAttribute });
+	readonly maxValue = input<number | undefined, unknown>(undefined, { transform: numberAttribute });
+
 	readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 	readonly readonly = input<boolean, unknown>(false, { transform: booleanAttribute });
 

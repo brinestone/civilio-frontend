@@ -2,20 +2,10 @@ import { provideAppInitializer } from "@angular/core";
 import { SubmissionLookup } from "@civilio/sdk/models";
 import { BasicIndex, createCollection, InferSchemaOutput, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import { FormItem, FormSchema, FormVersionSchema, RelevanceDefinition } from "./schemas";
 import z from "zod";
+import { FormItem, FormSchema, FormVersionSchema } from "./schemas";
 
 const dbName = 'civilio-db';
-
-export const formItemRelevanceCollection = createCollection(dexieCollectionOptions({
-	id: 'relevances',
-	schema: RelevanceDefinition,
-	dbName,
-	getKey: r => r.id,
-	startSync: true,
-	syncMode: 'on-demand',
-	rowUpdateMode: 'partial'
-}));
 
 export const formItemsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-items',
@@ -68,7 +58,6 @@ export function provideCollectionIndexing() {
 		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
 		submissionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
-		formItemRelevanceCollection.createIndex(row => row.id, { indexType: BasicIndex });
 	})
 }
 

@@ -80,10 +80,10 @@ function defineTextFieldConfigFormSchema(
 	debounce(paths.minLength, debounceDuration);
 	debounce(paths.defaultValue, debounceDuration);
 	min(paths.minLength, 0);
-	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
-	hidden(paths.maxLength, ({ valueOf }) => valueOf(paths.readonly) === true);
-	hidden(paths.minLength, ({ valueOf }) => valueOf(paths.readonly) === true);
-	hidden(paths.pattern, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.required, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
+	hidden(paths.maxLength, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
+	hidden(paths.minLength, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
+	hidden(paths.pattern, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
 	validate(paths.pattern, ({ value, valueOf }) => {
 		const currentValue = value();
 		if (!currentValue) return null;

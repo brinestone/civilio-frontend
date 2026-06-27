@@ -1,6 +1,5 @@
 export * from './theme-selector/theme-selector.component';
 export * from './locale-selector/locale-selector.component';
-export * from './geo-point/geo-point.component';
 export * from './tabular-field/tabular-field.component';
 export * from './map/map.component';
 export * from './version-cell/version-cell.component';

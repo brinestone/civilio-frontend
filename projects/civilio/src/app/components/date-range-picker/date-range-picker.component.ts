@@ -1,6 +1,6 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DatePipe } from '@angular/common';
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, effect, HostListener, input, linkedSignal, model, OnDestroy, OnInit, signal, untracked } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, HostListener, input, linkedSignal, model, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormValueControl } from '@angular/forms/signals';
 import { NumberRange } from '@civilio/sdk/models';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -14,23 +14,13 @@ import { HlmIcon } from "@spartan-ng/helm/icon";
 import { HlmPopoverImports } from '@spartan-ng/helm/popover';
 import { hlm } from '@spartan-ng/helm/utils';
 import { ClassValue } from 'clsx';
-import { isDate } from 'date-fns';
 import { produce, setAutoFreeze } from 'immer';
 
 let nextId = 0;
-function toNumericalDate(arg: unknown) {
-	switch (typeof arg) {
-		case 'string': return Date.parse(arg);
-		case 'number': return new Date(arg).valueOf();
-		case 'object': return isDate(arg) ? arg.valueOf() : undefined;
-		default: return undefined;
-	}
-}
 function toDate(arg: number | undefined | null) {
 	if (arg === null || arg === undefined) return undefined;
 	return new Date(arg);
 }
-
 
 @Component({
 	selector: 'date-range-picker',
@@ -76,8 +66,6 @@ export class DateRangePicker implements FormValueControl<undefined | null | Numb
 	public readonly userClass = input<ClassValue>('', { alias: 'class' });
 	public readonly buttonId = input<string>(`date-range-picker-${++nextId}`, { alias: 'id' });
 	public readonly captionLayout = input<'dropdown' | 'label' | 'dropdown-months' | 'dropdown-years'>('label');
-	public readonly min = input<number | undefined, unknown>(undefined, { transform: toNumericalDate })
-	public readonly max = input<number | undefined, unknown>(undefined, { transform: toNumericalDate })
 	public readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 	public readonly autoCloseOnEndSelection = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	public readonly size = input<ButtonVariants['size']>('default');
@@ -88,8 +76,6 @@ export class DateRangePicker implements FormValueControl<undefined | null | Numb
 	public readonly touched = model<boolean>(false);
 	public readonly pending = model<boolean>(false);
 
-	protected readonly minDate = computed(() => toDate(this.min()));
-	protected readonly maxDate = computed(() => toDate(this.max()));
 	protected readonly start = linkedSignal(() => toDate(this.value()?.start));
 	protected readonly end = linkedSignal(() => toDate(this.value()?.end));
 	protected readonly computedClass = computed(() => hlm(
@@ -100,26 +86,26 @@ export class DateRangePicker implements FormValueControl<undefined | null | Numb
 
 
 	constructor() {
-		effect(() => {
-			const min = this.min();
-			const start = untracked(this.start);
-			if (min === undefined || !start) return;
-			const diff = start.valueOf() - min;
-			if (diff > 0) return;
-			this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
-				draft.start = min;
-			}))
-		});
-		effect(() => {
-			const max = this.max();
-			const end = untracked(this.end);
-			if (max === undefined || !end) return;
-			const diff = end.valueOf() - max;
-			if (diff < 0) return;
-			this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
-				draft.end = max;
-			}));
-		});
+		// effect(() => {
+		// 	const min = this.min();
+		// 	const start = untracked(this.start);
+		// 	if (min === undefined || !start) return;
+		// 	const diff = start.valueOf() - min;
+		// 	if (diff > 0) return;
+		// 	this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
+		// 		draft.start = min;
+		// 	}))
+		// });
+		// effect(() => {
+		// 	const max = this.max();
+		// 	const end = untracked(this.end);
+		// 	if (max === undefined || !end) return;
+		// 	const diff = end.valueOf() - max;
+		// 	if (diff < 0) return;
+		// 	this.value.update(v => produce(v ?? { start: null, end: null }, draft => {
+		// 		draft.end = max;
+		// 	}));
+		// });
 	}
 	ngOnDestroy() {
 	}

@@ -4,6 +4,7 @@
   "cwd": ".",
 	"watch": [
 		"projects/electron/src/*",
+		"projects/electron/tsconfig.json",
 		"assets/i18n/*"
 	],
   "ext": "ts,json,yml"

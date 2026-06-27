@@ -25,7 +25,6 @@ export default defineConfig({
 				path: './libs/sdk/models'
 			},
 			operationSchemas: './libs/sdk/dto',
-
 		},
 	}
 });

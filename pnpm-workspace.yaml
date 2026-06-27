@@ -28,3 +28,5 @@ allowBuilds:
   lmdb: false
   msgpackr-extract: true
   nx: false
+
+nodeLinker: hoisted

@@ -9,7 +9,6 @@ export * from './availability-response';
 export * from './bad-request-response';
 export * from './create-dataset-reference-body';
 export * from './create-new-form-body';
-export * from './file-upload-response';
 export * from './find-form-definition-by-version-params';
 export * from './find-sparse-index-ranges-params';
 export * from './get-facility-info-params';

@@ -1,7 +1,7 @@
 import { BooleanInput } from '@angular/cdk/coercion';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { AfterViewInit, booleanAttribute, ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, effect, ElementRef, inject, input, linkedSignal, model, Renderer2, untracked, viewChild, ViewContainerRef } from '@angular/core';
-import { FormValueControl, ValidationError, WithOptionalField } from '@angular/forms/signals';
+import { FormValueControl, ValidationError, WithOptionalFieldTree } from '@angular/forms/signals';
 import { GeoPoint } from '@civilio/shared';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideAlertTriangle, lucideX } from '@ng-icons/lucide';
@@ -51,7 +51,7 @@ export class GeoPointPicker implements AfterViewInit, FormValueControl<GeoPoint 
 	public readonly invalid = input<boolean, unknown>(false, { transform: booleanAttribute })
 	public readonly touched = model<boolean>(false);
 	public readonly valid = computed(() => !this.invalid());
-	public readonly errors = input<readonly WithOptionalField<ValidationError>[]>([]);
+	public readonly errors = input<readonly WithOptionalFieldTree<ValidationError>[]>([]);
 	public readonly clearable = input<boolean, BooleanInput>(true, { transform: booleanAttribute });
 	public readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
 	public readonly elementId = input<string>(undefined, { alias: 'id' });

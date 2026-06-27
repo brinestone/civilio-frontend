@@ -16,6 +16,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { createFormSchemaContextInjector } from "../items";
+import { QuestionFormItem } from "@db/schemas";
 
 export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 
@@ -60,7 +61,7 @@ export class FormDesigner {
 		const items = this.formItems()().value();
 		const reg = {} as Record<
 			string,
-			FieldTree<Strict<FormItemField | NewFormItemField>>
+			FieldTree<Strict<QuestionFormItem>>
 		>;
 		// for (const i of items) {
 		// 	walkFormItemTree(i, (item) => {
