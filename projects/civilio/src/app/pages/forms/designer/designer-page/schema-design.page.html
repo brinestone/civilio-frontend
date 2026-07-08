@@ -49,10 +49,12 @@
 >
 	<div class="container mx-auto py-10">
 		@if(!formDefinition.isLoading()) {
-		<cv-form-designer
-			[formItems]="formModel"
-			(onItemRemoved)="onRemoveItem($event)"
-		/>
+		<form>
+			<cv-form-designer
+				[formItems]="formModel"
+				(onItemRemoved)="onRemoveItem($event)"
+			/>
+		</form>
 		} @else {
 		<div class="space-y-4">
 			@for(i of [1,2,3,4]; track $index) {

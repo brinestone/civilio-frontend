@@ -2,11 +2,11 @@ import { GeoPoint, NumberRange, RelevanceDefinition, Tag } from "@civilio/sdk/mo
 import z from "zod";
 
 export const BaseSchema = z.object({
-	createdAt: z.string().nullish().default(new Date().toISOString()),
-	updatedAt: z.string().nullish().default(new Date().toISOString()),
+	createdAt: z.string().trim().nullish().default(new Date().toISOString()),
+	updatedAt: z.string().trim().nullish().default(new Date().toISOString()),
 });
 export const Archivable = z.object({
-	archivedAt: z.string().nullish().default(null)
+	archivedAt: z.string().trim().nullish().default(null)
 })
 
 export const FormVersionSchema = BaseSchema.extend({
@@ -18,9 +18,9 @@ export const FormVersionSchema = BaseSchema.extend({
 
 export const FormSchema = BaseSchema.extend({
 	slug: z.string(),
-	description: z.string().nullish().default(null),
+	description: z.string().trim().nullish().default(null),
 	title: z.string(),
-	archivedAt: z.string().nullish().default(null),
+	archivedAt: z.string().trim().nullish().default(null),
 }).and(Archivable);
 
 export const FormItemType = z.enum(['question']);
@@ -32,21 +32,21 @@ const BaseFormItemSchema = BaseSchema.extend({
 	path: z.string(),
 	relevance: RelevanceDefinition,
 	tags: Tag.array().default([]),
-	metaTag: z.string().nullish().default(null),
-	parentId: z.string().optional()
+	metaTag: z.string().trim().nullish().default(null),
+	parentId: z.string().trim().optional()
 });
 
 const DataKeyItemParams = z.object({
-	dataKey: z.string().default(''),
+	dataKey: z.string().trim().default(''),
 	autoDataKey: z.boolean().default(true)
 });
 
 const BaseQuestionConfig = DataKeyItemParams.extend({
 	required: z.boolean().default(false),
 	disabled: z.boolean().default(false),
-	disabledReason: z.string().nullish().default(null),
-	title: z.string().default(''),
-	description: z.string().nullish().default(null),
+	disabledReason: z.string().trim().nullish().default(null),
+	title: z.string('A title is required').trim().default(''),
+	description: z.string().trim().nullish().default(''),
 	readonly: z.boolean().default(false)
 });
 
@@ -57,12 +57,12 @@ export const GeoPointQuestionConfig = BaseQuestionConfig.extend({
 export type GeoPointQuestionConfig = z.infer<typeof GeoPointQuestionConfig>;
 
 export const TextQuestionConfig = BaseQuestionConfig.extend({
-	placeholder: z.string().nullish().default(null),
+	placeholder: z.string().trim().nullish().default(null),
 	minLength: z.number().nullish().default(null),
 	maxLength: z.number().nullish().default(null),
 	type: z.union([z.literal('text'), z.literal('multiline')]),
-	pattern: z.string().nullish().default(null),
-	defaultValue: z.string().nullish().default(null)
+	pattern: z.string().trim().nullish().default(null),
+	defaultValue: z.string().trim().nullish().default(null)
 });
 export type TextQuestionConfig = z.infer<typeof TextQuestionConfig>;
 
@@ -87,7 +87,7 @@ export const MultiSelectQuestionConfig = BaseQuestionConfig.extend({
 	defaultValue: z.string().array().default([]),
 	itemSourceRef: z.string().nullish().default(null),
 	hardItems: z.object({
-		label: z.string().default(''),
+		label: z.string().trim().default(''),
 		value: z.string().nullish().default(null)
 	}).array().default([]),
 	type: z.literal('multi-select')
@@ -111,7 +111,7 @@ export const RangeDateQuestionConfig = BaseQuestionConfig.extend({
 export type RangeDateQuestionConfig = z.infer<typeof RangeDateQuestionConfig>;
 
 export const SelectQuestionConfig = MultiSelectQuestionConfig.extend({
-	defaultValue: z.string().nullish().default(null),
+	defaultValue: z.string().trim().nullish().default(null),
 	type: z.literal('single-select')
 });
 export type SelectQuestionConfig = z.infer<typeof SelectQuestionConfig>;
@@ -130,11 +130,11 @@ const BaseQuestionFormItem = BaseFormItemSchema.extend({
 	type: z.literal('question'),
 });
 
-export const TextQuestionItem = BaseQuestionFormItem.extend({
-	config: TextQuestionConfig.optional()
+export const QuestionItem = BaseQuestionFormItem.extend({
+	config: QuestionConfig.optional()
 });
-export type TextQuestionItem = z.infer<typeof TextQuestionItem>;
+export type QuestionItem = z.infer<typeof QuestionItem>;
 
-export const FormItem = z.discriminatedUnion('type', [TextQuestionItem]);
+export const FormItem = z.discriminatedUnion('type', [QuestionItem]);
 export type FormItem = z.infer<typeof FormItem>;
-export type QuestionFormItem = Extract<FormItem, { type: 'question' }>;
+export type FormItemInput = z.input<typeof FormItem>;

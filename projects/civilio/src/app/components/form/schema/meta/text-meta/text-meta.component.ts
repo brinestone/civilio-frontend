@@ -1,9 +1,9 @@
 import { JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, untracked } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
-import { TextFieldConfig } from '@civilio/sdk/models';
+import { TextQuestionConfig } from '@db/schemas';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideAtSign, lucideGlobe, lucidePhone } from '@ng-icons/lucide';
+import { lucideAtSign, lucideFormInput, lucideGlobe, lucidePhone } from '@ng-icons/lucide';
 import { HlmFieldGroup, HlmFieldImports } from '@spartan-ng/helm/field';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
@@ -11,7 +11,7 @@ import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmToggleGroupImports } from '@spartan-ng/helm/toggle-group';
 import { current, produce } from 'immer';
 import { BaseFieldConfig } from '../base-meta-config/base-meta-config.component';
-import { TextQuestionConfig } from '@db/schemas';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 
 @Component({
 	selector: 'cv-text-meta',
@@ -19,12 +19,14 @@ import { TextQuestionConfig } from '@db/schemas';
 		provideIcons({
 			lucideAtSign,
 			lucideGlobe,
-			lucidePhone
+			lucidePhone,
+			lucideFormInput
 		})
 	],
 	imports: [
 		HlmFieldImports,
 		HlmToggleGroupImports,
+		HlmSelectImports,
 		NgIcon,
 		FormField,
 		HlmTextarea,

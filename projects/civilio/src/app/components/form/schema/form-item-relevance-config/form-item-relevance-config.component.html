@@ -122,7 +122,7 @@
 									</hlm-select-trigger>
 									<hlm-select-content class="w-full">
 										@for (field of otherFieldsList(); track field) {
-											<hlm-option [value]="field.path().value()">{{
+											<hlm-option [value]="field.id().value()">{{
 												field.config.title().value()
 											}}</hlm-option>
 										}

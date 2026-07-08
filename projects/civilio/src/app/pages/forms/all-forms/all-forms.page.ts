@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { debounce, form, FormField, hidden, required, submit, validate, validateAsync } from '@angular/forms/signals';
+import { debounce, form, FormField, hidden, required, submit, validate, validateAsync, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FieldError } from '@app/components/form';
 import { HasPendingChanges } from '@app/model/form';
@@ -9,7 +9,7 @@ import { RelativeDatePipe } from '@app/pipes';
 import { randomString } from '@app/util';
 import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
-import { createForm } from '@db/actions';
+import { createFormAction, NewFormData } from '@db/actions';
 import { formsCollection, formVersionsCollection } from '@db/collections';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArchive, lucideCopy, lucideEye, lucideFormInput, lucidePencil, lucidePlus, lucideSave } from '@ng-icons/lucide';
@@ -86,9 +86,11 @@ export class AllFormsPage implements HasPendingChanges {
 			.orderBy(({ $selected }) => $selected.lastUpdated, { direction: 'desc' })
 	});
 	protected readonly formsAvailable = computed(() => this.forms.data().length > 0 && this.forms.status() == 'ready');
-	private readonly formData = signal<NewFormData>(defaultFormData());
-	protected readonly newFormForm = form(this.formData, paths => {
-		required(paths.title, { message: 'This field is required' });
+	private readonly newFormData = signal(defaultNewFormData());
+	protected readonly newFormForm = form(this.newFormData, paths => {
+		// required(paths.title, { message: 'This field is required' });
+		validateStandardSchema(paths.title, NewFormData.shape.title);
+		validateStandardSchema(paths.description, NewFormData.shape.description);
 		debounce(paths.title, 200);
 		validateAsync(paths.title, {
 			params: ({ value }) => value() ?? '',
@@ -134,7 +136,7 @@ export class AllFormsPage implements HasPendingChanges {
 		return rxResource({
 			params: () => titleSignal(),
 			stream: ({ params: title }) => {
-				if (!title) return EMPTY;
+				if (!title) return of(true);
 
 				const cached = this.titleCheckCache.get(title);
 				if (cached !== undefined) return of(cached);
@@ -152,7 +154,7 @@ export class AllFormsPage implements HasPendingChanges {
 
 	protected onNewFormDialogStateChanged(state: BrnDialogState) {
 		if (state == 'closed') {
-			this.newFormForm().reset(defaultFormData());
+			this.newFormForm().reset(defaultNewFormData());
 			this.titleCheckCache.clear();
 		}
 		this.newFormDialogState.set(state);
@@ -180,31 +182,30 @@ export class AllFormsPage implements HasPendingChanges {
 		})
 	}
 
-	private readonly newFormAction = createForm();
-	protected async onSubmitNewFormForm(event: Event) {
-		event.preventDefault();
-		if (this.newFormForm().invalid()) {
-			return;
-		}
-		await submit(this.newFormForm, async tree => {
-			const value = tree().value();
-			try {
-				const version = crypto.randomUUID();
-				const slug = randomString(16);
-				const tx = this.newFormAction({
-					version,
-					slug,
-					title: value.title,
-					description: value.description
-				});
-				await tx.commit();
-				tree().reset(defaultFormData());
-				this.newFormDialogState.set('closed');
-				this.navigate([slug, 'edit', version], undefined, { relativeTo: this.route }).subscribe();
-				return null;
-			} catch (e) {
-				return { kind: 'submitError', message: 'Could not submit' }
-			}
+	private readonly newFormAction = createFormAction();
+	protected async onSubmitNewFormForm(event?: Event) {
+		event?.preventDefault();
+		await submit(this.newFormForm, {
+			action: async tree => {
+				const value = tree().value();
+				try {
+					const version = crypto.randomUUID();
+					const slug = randomString(16);
+					const tx = this.newFormAction({
+						version,
+						slug,
+						title: value.title,
+						description: value.description ?? undefined
+					});
+					await tx.commit();
+					tree().reset(defaultNewFormData());
+					this.newFormDialogState.set('closed');
+					this.navigate([slug, 'edit', version], undefined, { relativeTo: this.route }).subscribe();
+					return null;
+				} catch (e) {
+					return { kind: 'submitError', message: 'Could not submit' }
+				}
+			},
 		});
 	}
 	protected async onCopyButtonClicked(text: string) {
@@ -218,11 +219,6 @@ type ArchiveFormFormData = {
 	slug: string;
 }
 
-type NewFormData = {
-	title: string;
-	description: string;
-}
-
 function defaultArchiveFormData() {
 	return {
 		confirmationTitle: null as any,
@@ -230,9 +226,6 @@ function defaultArchiveFormData() {
 		slug: null as any,
 	} as Strict<ArchiveFormFormData>;
 }
-function defaultFormData() {
-	return {
-		title: null as any,
-		description: null as any
-	} as Strict<NewFormData>;
+function defaultNewFormData() {
+	return NewFormData.parse({}) as Strict<NewFormData>;
 }

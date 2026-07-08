@@ -266,6 +266,6 @@ export type Strict<T> = {
 	[P in keyof T]-?: T[P] extends (infer U)[]
 	? Strict<U>[]
 	: T[P] extends object | null | undefined
-	? Strict<NonNullable<T[P]>>
+	? Strict<Required<NonNullable<T[P]>>>
 	: NonNullable<T[P]>;
 };

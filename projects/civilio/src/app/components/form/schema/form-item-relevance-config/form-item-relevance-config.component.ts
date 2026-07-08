@@ -55,6 +55,7 @@ export class FormItemRelevanceConfig {
 	private readonly ctx = injectFormItemDesignerContext();
 	protected readonly relevance = computed(() => this.ctx.fieldTree().relevance);
 	protected readonly path = computed(() => this.ctx.fieldTree().path().value());
+	protected readonly itemId = computed(() => this.ctx.fieldTree().id().value());
 	protected readonly index = this.ctx.index;
 
 	private readonly booleanExpressionValueTemplate = viewChild.required<TemplateRef<any>>('booleanExpressionValueTemplate');
@@ -85,7 +86,7 @@ export class FormItemRelevanceConfig {
 	} as Record<keyof typeof fieldTypeExpressionOperatorsMap, Signal<TemplateRef<any>>>;
 	protected readonly fieldMap = this.formContext.allFields;
 	protected readonly otherFieldsList = computed(() => {
-		return values(this.formContext.allFields()).filter(f => f.path().value() !== untracked(this.path));
+		return values(this.formContext.allFields()).filter(f => untracked(f.id().value) !== untracked(this.itemId) );
 	});
 	protected readonly fieldTypeExpressionOperatorsMap = fieldTypeExpressionOperatorsMap;
 	protected readonly operatorsMap = operatorsMap;
@@ -110,6 +111,7 @@ export class FormItemRelevanceConfig {
 		this.relevance().logic[conditionIndex].expressions().value.update(expressions => produce(expressions, draft => {
 			draft.splice(expressionIndex, 1);
 		}));
+		this.formContext.allFields
 	}
 	constructor() {
 		effect(() => {

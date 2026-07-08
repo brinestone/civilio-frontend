@@ -7,7 +7,7 @@ import {
 	linkedSignal,
 	signal
 } from "@angular/core";
-import { form } from "@angular/forms/signals";
+import { form, submit } from "@angular/forms/signals";
 import { RouterOutlet } from "@angular/router";
 import { FormDesigner, FormDesignerHeader, ItemReorderedEvent } from "@app/components/form/schema";
 import { defineFormDesignerFormSchema, FormItemEntity } from '@app/components/form/schema/form-designer-config';
@@ -27,10 +27,12 @@ import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 
-import { addFormItem, removeFormItem } from "@db/actions";
+import { HttpErrorResponse } from "@angular/common/http";
+import { addFormItem, removeFormItemAction, updateFormItemAction } from "@db/actions";
 import { FormItemType } from "@db/schemas";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { and, eq, injectLiveQuery } from "@tanstack/angular-db";
+import { toast } from "ngx-sonner";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 import { Observable } from "rxjs";
 
@@ -70,7 +72,8 @@ export class SchemaDesignPage implements HasPendingChanges {
 	private readonly formVersionArg = injectQueryParams("version");
 	protected readonly sidebarState = signal<BrnDialogState>(isDevMode() ? 'closed' : 'closed');
 	protected readonly addFormItem = addFormItem();
-	protected readonly removeFormItem = removeFormItem();
+	protected readonly removeFormItem = removeFormItemAction();
+	protected readonly updateFormItem = updateFormItemAction();
 
 	protected readonly formDefinition = injectLiveQuery({
 		params: () => ({ fv: this.formVersionArg(), form: this.slug() }),
@@ -228,43 +231,32 @@ export class SchemaDesignPage implements HasPendingChanges {
 
 	protected async onFormSubmit(event?: SubmitEvent) {
 		event?.preventDefault();
-		// 	if (!this.formModel().valid()) {
-		// 		toast.warning("Invalid form state", {
-		// 			description:
-		// 				"The current state of the form designer is invalid. Pleace update the form's state and try again",
-		// 		});
-		// 		return;
-		// 	}
-		// 	// this.computeItemPaths();
-		// 	await submit(this.formModel, async (tree) => {
-		// 		const addedItems = this.findNewItems().map((p) =>
-		// 			(get(tree.items, p) as FieldTree<any>)?.().value(),
-		// 		) as any;
-		// 		const removedItems = this.findDeletedItems();
-		// 		const updatedItems = this.findUpdatedItems().map((p) =>
-		// 			(get(tree.items, p) as FieldTree<any>)?.().value(),
-		// 		) as any;
-		// 		try {
-		// 			await lastValueFrom(
-		// 				this.formService.updateFormVersionDefinition(
-		// 					this.slug(),
-		// 					this.formVersion() ?? "current",
-		// 					{
-		// 						addedItems,
-		// 						updatedItems,
-		// 						removedItems,
-		// 					},
-		// 				),
-		// 			);
-		// 			this.formDefinition.reload();
-		// 			tree().reset(this.formData());
-		// 		} catch (e) {
-		// 			console.error(e);
-		// 			toast.error("Could not save changes", {
-		// 				description: (e as Error).message,
-		// 			});
-		// 		}
-		// 	});
+		this.computeItemPaths();
+		await submit(this.formModel, {
+			action: async tree => {
+				const value: any[] = [];
+				try {
+					for (let i = 0; i < tree.length; i++) {
+						const ch = tree[i];
+						if (!ch().dirty()) continue;
+						value.push(ch().value());
+					}
+
+					if (value.length == 0) return;
+					const tx = this.updateFormItem({
+						changes: value
+					});
+					await tx.commit();
+				} catch (e) {
+					const err = e as HttpErrorResponse;
+					console.error(e);
+					toast.error('Could not save changes', { description: err.error?.error ?? err.message });
+				}
+			},
+			onInvalid: () => {
+				toast.warning('Invalid state', { description: 'The designer is in an invalid state. Verify all elements are valid and try again' })
+			}
+		});
 	}
 
 	// protected onFormDiscard(event?: Event) {

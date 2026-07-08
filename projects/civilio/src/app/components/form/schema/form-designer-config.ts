@@ -80,10 +80,10 @@ function defineTextFieldConfigFormSchema(
 	debounce(paths.minLength, debounceDuration);
 	debounce(paths.defaultValue, debounceDuration);
 	min(paths.minLength, 0);
-	hidden(paths.required, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
-	hidden(paths.maxLength, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
-	hidden(paths.minLength, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
-	hidden(paths.pattern, { when: ({ valueOf }) => valueOf(paths.readonly) === true });
+	hidden(paths.required, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.maxLength, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.minLength, ({ valueOf }) => valueOf(paths.readonly) === true);
+	hidden(paths.pattern, ({ valueOf }) => valueOf(paths.readonly) === true);
 	validate(paths.pattern, ({ value, valueOf }) => {
 		const currentValue = value();
 		if (!currentValue) return null;
@@ -410,8 +410,8 @@ export const isFieldTree = (
 ): v is FieldTree<Strict<FormItemField | NewFormItemField>> =>
 	v.type().value() == "field";
 export const isField = (
-	v: Strict<Entity<FormItem>>,
-): v is Strict<Entity<FormItem>> => v.type == "question";
+	v: Strict<FormItemEntity>,
+): v is Strict<FormItemEntity> => v.type == "question";
 export const isGroup = (
 	v: Strict<FormItemDefinition | NewFormItemDefinition>,
 ): v is Strict<FormItemGroup | NewFormItemGroup> => v.type == "group";
@@ -424,67 +424,86 @@ export function isExistingFormItem(
 	return "id" in v && "addedAt" in v && "updatedAt" in v;
 }
 function defineFieldItemDefinitionFormSchema(
-	paths: SchemaPathTree<Strict<Entity<FormItem>>>,
+	allItems: SchemaPathTree<Strict<FormItemEntity>[]>,
 ) {
-	apply(paths.config, (config) => {
-		required(config.type, { message: "A field type must be specified" });
-		hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
+	return (paths: SchemaPathTree<Strict<FormItemEntity>>) => {
+		apply(paths.config, (config) => {
+			required(config.type, { message: "A field type must be specified" });
+			hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
 
-		const isText = (v: Strict<QuestionConfig>): v is Strict<TextQuestionConfig> =>
-			v?.type == "text" || v?.type == "multiline";
-		const isBoolean = (
-			v: Strict<QuestionConfig>,
-		): v is Strict<BooleanQuestionConfig> => v?.type === "boolean";
-		const isGeo = (
-			v: QuestionConfig,
-		): v is Strict<GeoPointQuestionConfig> => v?.type === "geo-point";
-		const isDate = (
-			v: QuestionConfig,
-		): v is Strict<SimpleDateQuestionConfig> =>
-			v?.type === "date" || v?.type === "date-time";
-		const isNumber = (
-			v: QuestionConfig,
-		): v is Strict<NumberQuestionConfig> =>
-			v?.type == "float" || v?.type === "integer";
-		const isSelection = (
-			v: QuestionConfig,
-		): v is Strict<SelectQuestionConfig> =>
-			v?.type == "single-select" || v?.type == "multi-select";
-		const isDateRange = (
-			v: QuestionConfig,
-		): v is Strict<RangeDateQuestionConfig> => v?.type == "date-range";
-		const isMultiDate = (
-			v: QuestionConfig,
-		): v is Strict<MultiDateQuestionConfig> => v?.type == "multi-date";
-		applyWhenValue(config, isText, defineTextFieldConfigFormSchema);
-		applyWhenValue(config, isBoolean, defineBooleanFieldConfigFormSchema);
-		applyWhenValue(config, isGeo, defineGeopointFieldConfigFormSchema);
-		applyWhenValue(config, isDate, defineDateFieldConfigFormSchema);
-		applyWhenValue(config, isNumber, defineNumberFieldConfigFormSchema);
-		applyWhenValue(config, isSelection, defineSelectionFieldConfigFormSchema);
-		applyWhenValue(config, isDateRange, defineRangeDateFieldConfigFormSchema);
-		applyWhenValue(config, isMultiDate, defineMultiDateFieldConfigFormSchema);
+			const isText = (v: Strict<QuestionConfig>): v is Strict<TextQuestionConfig> =>
+				v?.type == "text" || v?.type == "multiline";
+			const isBoolean = (
+				v: Strict<QuestionConfig>,
+			): v is Strict<BooleanQuestionConfig> => v?.type === "boolean";
+			const isGeo = (
+				v: QuestionConfig,
+			): v is Strict<GeoPointQuestionConfig> => v?.type === "geo-point";
+			const isDate = (
+				v: QuestionConfig,
+			): v is Strict<SimpleDateQuestionConfig> =>
+				v?.type === "date" || v?.type === "date-time";
+			const isNumber = (
+				v: QuestionConfig,
+			): v is Strict<NumberQuestionConfig> =>
+				v?.type == "float" || v?.type === "integer";
+			const isSelection = (
+				v: QuestionConfig,
+			): v is Strict<SelectQuestionConfig> =>
+				v?.type == "single-select" || v?.type == "multi-select";
+			const isDateRange = (
+				v: QuestionConfig,
+			): v is Strict<RangeDateQuestionConfig> => v?.type == "date-range";
+			const isMultiDate = (
+				v: QuestionConfig,
+			): v is Strict<MultiDateQuestionConfig> => v?.type == "multi-date";
+			applyWhenValue(config, isText, defineTextFieldConfigFormSchema);
+			applyWhenValue(config, isBoolean, defineBooleanFieldConfigFormSchema);
+			applyWhenValue(config, isGeo, defineGeopointFieldConfigFormSchema);
+			applyWhenValue(config, isDate, defineDateFieldConfigFormSchema);
+			applyWhenValue(config, isNumber, defineNumberFieldConfigFormSchema);
+			applyWhenValue(config, isSelection, defineSelectionFieldConfigFormSchema);
+			applyWhenValue(config, isDateRange, defineRangeDateFieldConfigFormSchema);
+			applyWhenValue(config, isMultiDate, defineMultiDateFieldConfigFormSchema);
 
-		debounce(config.title, debounceDuration);
-		debounce(config.description, debounceDuration);
-		required(config.title, { message: "A title is required" });
-		disabled(config.dataKey, ({ valueOf }) => valueOf(config.autoDataKey));
-		hidden(config.readonly, ({ valueOf }) => valueOf(config.required));
-		applyWhen(
-			config.dataKey,
-			({ valueOf }) => valueOf(config.autoDataKey) !== true,
-			(p) => {
-				pattern(p, /^[a-zA-Z0-9_-]+$/, {
-					message:
-						"Data key must contain only letters, numbers, underscores or hyphens",
-				});
-				required(p, {
-					message:
-						"Data key is required when auto-generate data key is disabled",
-				});
-			},
-		);
-	});
+			debounce(config.title, debounceDuration);
+			debounce(config.description, debounceDuration);
+			required(config.title, { message: "A title is required" });
+			disabled(config.dataKey, ({ valueOf }) => valueOf(config.autoDataKey));
+			hidden(config.readonly, ({ valueOf }) => valueOf(config.required));
+			applyWhen(
+				config.dataKey,
+				({ valueOf }) => valueOf(config.autoDataKey) !== true,
+				(p) => {
+					pattern(p, /^[a-zA-Z0-9_-]+$/, {
+						message:
+							"Data key must contain only letters, numbers, underscores or hyphens",
+					});
+					required(p, {
+						message:
+							"Data key is required when auto-generate data key is disabled",
+					});
+				},
+			);
+
+			validate(config.dataKey, ({ valueOf }) => {
+				const itemId = valueOf(paths.id)
+				const otherDataKeys = valueOf(allItems).filter(v => v.type == 'question' && v.id != itemId).map(v => v.config.dataKey?.trim());
+				if (otherDataKeys.includes(valueOf(config.dataKey))) {
+					return { message: "Data key must be unique", kind: "unique" }
+				}
+				return null;
+			});
+			validate(config.title, ({ valueOf }) => {
+				const itemId = valueOf(paths.id)
+				const otherTitles = valueOf(allItems).filter(v => v.type == 'question' && v.id != itemId).map(v => v.config.title.trim());
+				if (otherTitles.includes(valueOf(config.title).trim())) {
+					return { message: "Title must be unique", kind: "unique" }
+				}
+				return null;
+			})
+		});
+	}
 }
 
 // function defineGroupItemDefinitionFormSchema(
@@ -534,33 +553,31 @@ function defineImageItemDefinitionFormSchema(
 }
 
 function defineFormItemDefinitionFormSchema(
-	paths: SchemaPathTree<Strict<Entity<FormItem>>>,
+	allFields: SchemaPathTree<Strict<FormItemEntity>[]>,
 ) {
-	hidden(paths.createdAt, () => true);
-	hidden(paths.updatedAt, () => true);
-	hidden(paths.id, () => true);
-	hidden(paths.formVersion, () => true);
-	hidden(paths.type, () => true);
-	hidden(paths.path, () => true);
+	return (paths: SchemaPathTree<Strict<FormItemEntity>>) => {
+		hidden(paths.createdAt, () => true);
+		hidden(paths.updatedAt, () => true);
+		hidden(paths.id, () => true);
+		hidden(paths.formVersion, () => true);
+		hidden(paths.type, () => true);
+		hidden(paths.path, () => true);
 
-	applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema);
-	// applyWhenValue(paths, isExistingFormItem, (paths) => {
-	// 	hidden(paths.id, () => true);
-	// 	hidden(paths.addedAt, () => true);
-	// 	hidden(paths.updatedAt, () => true);
-	// 	hidden(paths.itemId, () => true);
-	// });
-	// hidden(paths.path, () => true);
-	// hidden(paths.type, () => true);
+		applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema(allFields));
+		disabled(paths.relevance, ({ stateOf, valueOf }) => {
+			const minCnt = valueOf(paths.type) != 'question' ? 0 : 1;
+			const msg = minCnt == 0 ? "There must be at least one question in the form" : "There must be at least one other question in the form";
+			return stateOf(allFields).value().filter(i => i.type == 'question').length <= minCnt ? msg : false;
+		});
+		apply(paths.relevance, paths => {
 
-	// applyWhenValue(paths, isField, defineFieldItemDefinitionFormSchema);
-	// applyWhenValue(paths, isGroup, defineGroupItemDefinitionFormSchema);
-	// applyWhenValue(paths, isImage, defineImageItemDefinitionFormSchema);
+		})
+	}
 }
 
 export function defineFormDesignerFormSchema() {
-	return (paths: SchemaPath<Strict<Entity<FormItem>>[]>) => {
-		applyEach(paths, defineFormItemDefinitionFormSchema);
+	return (paths: SchemaPath<Strict<FormItemEntity>[]>) => {
+		applyEach(paths, defineFormItemDefinitionFormSchema(paths));
 	}
 }
 

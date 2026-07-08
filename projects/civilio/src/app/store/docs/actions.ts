@@ -3,6 +3,10 @@ import { SyncStateModel } from ".";
 
 const prefix = '[sync]';
 
+export class PurgeStore {
+	static type = `${prefix} Purge local store changes`;
+}
+
 export class PushDocumentChanges {
 	static type = `${prefix} Push Document changes`;
 	constructor(readonly changes: PushDocumentChange[]) { }
@@ -25,7 +29,7 @@ export class GetEntity {
 
 export class UpdateSyncState {
 	static type = `${prefix} Update Sync State`;
-	constructor(readonly key: keyof SyncStateModel, readonly value: string) {
+	constructor(readonly key: keyof SyncStateModel['offsets'], readonly value: string) {
 	}
 }
 

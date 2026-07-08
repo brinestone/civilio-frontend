@@ -9,6 +9,7 @@ import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
+	computed,
 	effect,
 	input,
 	signal,
@@ -65,11 +66,11 @@ const slugifier = z.string().trim().slugify().nullish().default("").transform(v 
 		DebugHeader,
 		JsonPipe,
 	],
-	templateUrl: "./field-item-schema-designer.html",
-	styleUrl: "./field-item-schema-designer.scss",
+	templateUrl: "./field-item-designer.html",
+	styleUrl: "./field-item-designer.scss",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldItemSchemaDesigner extends BaseFormItemSchemaDesigner<FormItemEntity> {
+export class FieldItemDesigner extends BaseFormItemSchemaDesigner<FormItemEntity> {
 	readonly noWrapper = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});

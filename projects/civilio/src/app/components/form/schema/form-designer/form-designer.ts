@@ -6,23 +6,23 @@ import {
 	CdkDragPreview,
 	CdkDropList
 } from "@angular/cdk/drag-drop";
-import { AsyncPipe, NgComponentOutlet } from "@angular/common";
-import { Component, computed, input, output, Type } from "@angular/core";
+import { AsyncPipe, NgClass, NgComponentOutlet } from "@angular/common";
+import { Component, computed, input, output, Type, untracked } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { FormItemEntity, FormItemType } from "@app/components/form/schema/form-designer-config";
-import { FormItemField, NewFormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { QuestionItem } from "@db/schemas";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { createFormSchemaContextInjector } from "../items";
-import { QuestionFormItem } from "@db/schemas";
 
 export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 
 @Component({
 	selector: "cv-form-designer",
 	templateUrl: "./form-designer.html",
+	styleUrl: './form-designer.scss',
 	viewProviders: [
 		provideIcons({
 			lucideGrip
@@ -30,7 +30,6 @@ export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 	],
 	imports: [
 		HlmFieldImports,
-		CdkDropList,
 		CdkDrag,
 		CdkDragHandle,
 		CdkDragPlaceholder,
@@ -38,7 +37,11 @@ export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 		NgIcon,
 		AsyncPipe,
 		NgComponentOutlet,
+		NgClass
 	],
+	hostDirectives: [
+		CdkDropList
+	]
 })
 export class FormDesigner {
 	readonly formItems = input.required<FieldTree<Strict<FormItemEntity>[]>>();
@@ -52,17 +55,24 @@ export class FormDesigner {
 	} as Record<FormItemType, string>;
 	protected readonly formItemComponents = {
 		question:
-			import("../../../../components/form/schema/items/field-item-schema-designer/field-item-schema-designer").then(
-				(m) => m.FieldItemSchemaDesigner,
+			import("../items/field-item-designer/field-item-designer").then(
+				(m) => m.FieldItemDesigner,
 			),
 	} as Record<string, Promise<Type<any>>>;
 
 	protected readonly fieldItems = computed(() => {
-		const items = this.formItems()().value();
+		const items = this.formItems();
 		const reg = {} as Record<
 			string,
-			FieldTree<Strict<QuestionFormItem>>
+			FieldTree<Strict<QuestionItem>>
 		>;
+
+		for (const i of items) {
+			if (untracked(i.type().value) == 'question') {
+				const id = untracked(i.id().value);
+				reg[id] = i as FieldTree<Strict<QuestionItem>>;
+			}
+		}
 		// for (const i of items) {
 		// 	walkFormItemTree(i, (item) => {
 		// 		const tree = get(
@@ -96,5 +106,4 @@ export class FormDesigner {
 	protected onRemoveFormItem(id: string) {
 		this.onItemRemoved.emit(id);
 	}
-
 }

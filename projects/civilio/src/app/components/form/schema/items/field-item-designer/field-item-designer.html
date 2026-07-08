@@ -18,7 +18,7 @@
 	<cv-debug-panel
 		class="absolute top-0 right-[calc(100%+5px)] max-h-100 min-w-65"
 	>
-		<cv-debug-header> Item State</cv-debug-header>
+		<cv-debug-header>Item State</cv-debug-header>
 		<div class="px-2 py-1">
 			<dl>
 				<dt>Validity</dt>
@@ -55,7 +55,7 @@
 			/>
 		</div>
 		<div hlmField>
-			<label hlmFieldLabel>Question Hint</label>
+			<label hlmFieldLabel>Question Description or Hint</label>
 			<input hlmInput [formField]="field.config.description" />
 			<ng-container
 				[ngTemplateOutlet]="errorsTemplate"
@@ -94,7 +94,7 @@
 		</div>
 		} @else if (control().invalid() && control().dirty()) {
 		<div class="space-y-1">
-			@for (error of control().errors(); track error) {
+			@for (error of control().errors(); track $index) {
 			<hlm-field-error class="block">{{ error.message }}</hlm-field-error>
 			}
 		</div>
