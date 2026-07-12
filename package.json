@@ -5,6 +5,7 @@
 	"displayName": "CivilIO",
 	"description": "A cross-platform civil status survey data management tool.",
 	"main": "./dist/electron/index.js",
+	"packageManager": "pnpm@11.11.0",
 	"license": "ISC",
 	"scripts": {
 		"translate": "node translate.mjs --input path=./assets/i18n/en.yml lang=en --output lang=fr",
@@ -113,7 +114,7 @@
 		"concurrently": "^9.2.1",
 		"copy-webpack-plugin": "^13.0.1",
 		"drizzle-kit": "^0.31.10",
-		"electron": "^38.8.6",
+		"electron": "^43.1.0",
 		"electron-wix-msi": "^5.1.3",
 		"jasmine-core": "~5.8.0",
 		"jsonpointer": "^5.0.1",

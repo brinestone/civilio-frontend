@@ -1,7 +1,7 @@
-import { Channel } from "../contracts";
 import { flatten } from 'flat';
 import entries from 'lodash/entries';
-import set from 'lodash/set';
+import isEqual from "lodash/isEqual";
+import { Channel } from "../contracts";
 
 export type Unwrap<T> = T extends (infer U)[] ? U : T;
 
@@ -34,14 +34,12 @@ export function deepObjectDiff<R extends object, U extends object>(a: R, b: U) {
 	const flatA = flatten<R, Record<string, unknown>>(a);
 	const flatB = flatten<U, Record<string, unknown>>(b);
 
-	debugger;
 	const diff: Record<string, unknown> = {};
 	const entriesA = entries(flatA);
 	for (const [key, value] of entriesA) {
 		const bVal = flatB[key];
-		if (bVal === value) continue;
-
-		set(diff, key, bVal);
+		if (isEqual(bVal, value)) continue;
+		diff[key] = bVal;
 	}
 
 	return diff;

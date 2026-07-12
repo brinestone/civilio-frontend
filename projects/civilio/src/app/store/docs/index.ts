@@ -4,7 +4,7 @@ import { DocumentsService } from "@civilio/sdk/services/documents/documents.serv
 import { allCollections } from "@db/collections";
 import { Action, Actions, NgxsOnInit, ofActionSuccessful, State, StateContext, StateToken } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
-import { entries, keys } from "lodash";
+import { entries, keys, set } from "lodash";
 import { concatMap, filter, from, interval, map, merge, mergeMap, of, take, tap, zip } from "rxjs";
 import { LoadConfig } from "../config";
 import { PullChanges, PurgeStore, PushDocumentChanges, RecordLocalChanges, UpdateSyncState } from "./actions";
@@ -120,7 +120,7 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 		)
 	}
 	@Action(RecordLocalChanges)
-	async onRecordLocalChangese(_: Context, { changes }: RecordLocalChanges) {
+	async onRecordLocalChanges(_: Context, { changes }: RecordLocalChanges) {
 		for (const change of changes) {
 			const collection = allCollections[change.collection as keyof typeof allCollections];
 			if (!collection) {
@@ -134,15 +134,19 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 				await collection.utils['insertLocally']({ ...change.data, updatedAt: change.recordedAt, createdAt: change.recordedAt });
 			} else if (change.operation === 'update') {
 				debugger;
-				const original = await queryOnce(q => q.from({ c: collection }).where(({ c }) => eq(c.$key, change.entityKey)).select(({ c }) => c));
+				const original = await queryOnce(
+					q => q.from({ c: collection })
+						.where(({ c }) => eq(c.$key, change.entityKey))
+						.select(({ c }) => c)
+						.findOne()
+				);
 				if (!original) {
 					console.warn(`Received update for non-existing entity: ${change.entityKey} in collection: ${change.collection}`);
 					continue;
 				}
-				const update = removeVirtualProps(original as any);
-				const kv = flatten(change.data) as Record<string, unknown>;
-				for (const [k, v] of Object.entries(kv)) {
-					update[k] = v;
+				const update = collection.config.schema?.parse(original)!;
+				for (const [k, v] of Object.entries(change.data)) {
+					set(update, k, v);
 				}
 				await collection.utils['updateLocally'](change.entityKey, { ...update, updatedAt: change.recordedAt });
 			}
