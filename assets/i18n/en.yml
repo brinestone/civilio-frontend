@@ -1735,6 +1735,8 @@ form:
           title: Submissions
         designer:
           title: Designer
+      actions:
+        all_forms: All Forms
     version_selector:
       placeholder: Select version
       no_versions: New submission

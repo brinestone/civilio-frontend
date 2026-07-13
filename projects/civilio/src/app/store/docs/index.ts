@@ -42,7 +42,7 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 		this.actions$.pipe(
 			ofActionSuccessful(LoadConfig),
 			take(1),
-			concatMap(() => interval(isDevMode() ? 5_000 : 60_000)),
+			concatMap(() => interval(300_000)),
 			takeUntilDestroyed(this.destroyRef),
 			filter(() => document.visibilityState == 'visible')
 		).subscribe(() => ctx.dispatch(PullChanges))
@@ -133,7 +133,6 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 			} else if (change.operation === 'insert') {
 				await collection.utils['insertLocally']({ ...change.data, updatedAt: change.recordedAt, createdAt: change.recordedAt });
 			} else if (change.operation === 'update') {
-				debugger;
 				const original = await queryOnce(
 					q => q.from({ c: collection })
 						.where(({ c }) => eq(c.$key, change.entityKey))
