@@ -1,10 +1,10 @@
 import { BooleanInput } from "@angular/cdk/coercion";
-import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, isDevMode, model, output, untracked } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, computed, input, isDevMode, model, output } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { HasLibraryStatus } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { FormItem } from "@db/schemas";
 import { createFormItemDesignerContextInjector, injectFormSchemaContext } from "..";
-import { FormItemEntity } from "../../form-designer-config";
 
 
 function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Strict<HasLibraryStatus>> {
@@ -22,7 +22,7 @@ function hasLibraryStatus(item: FieldTree<Strict<any>>): item is FieldTree<Stric
 	},
 	styleUrl: './base-form-item-schema-designer.scss'
 })
-export class BaseFormItemSchemaDesigner<T extends FormItemEntity> {
+export class BaseFormItemSchemaDesigner<T extends FormItem> {
 	readonly node = input.required<FieldTree<Strict<T>>>();
 	readonly index = input.required<number>();
 	readonly previewing = input<boolean, BooleanInput>(false, { transform: booleanAttribute, alias: 'preview' });

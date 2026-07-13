@@ -1,8 +1,7 @@
 import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from '@angular/core';
 import { FieldTree } from '@angular/forms/signals';
-import { FormItemEntity } from '@app/components/form/schema/form-designer-config';
 import { Strict } from '@civilio/shared';
-import { QuestionItem } from '@db/schemas';
+import { FormItem, QuestionItem } from '@db/schemas';
 
 export * from './field-item-designer/field-item-designer';
 
@@ -13,16 +12,16 @@ export type FormSchemaContext = {
 	allFields: Signal<Record<string, FieldTree<Strict<QuestionItem>>>>;
 	// allItemsSelected: Signal<boolean>;
 };
-export type FormItemDesignerContext<T extends FormItemEntity> = {
+export type FormItemDesignerContext<T extends FormItem> = {
 	fieldTree: Signal<FieldTree<Strict<T>>>;
 	index: Signal<number>;
 	// selected: WritableSignal<boolean>;
 };
 
 const FormDesignerContextToken = new InjectionToken<FormSchemaContext>('forms.ctx');
-const FormItemDesignerContextToken = new InjectionToken<FormItemDesignerContext<FormItemEntity>>('forms.item.ctx');
+const FormItemDesignerContextToken = new InjectionToken<FormItemDesignerContext<FormItem>>('forms.item.ctx');
 
-export function injectFormItemDesignerContext<T extends FormItemEntity>() {
+export function injectFormItemDesignerContext<T extends FormItem>() {
 	assertInInjectionContext(injectFormItemDesignerContext);
 	return inject<FormItemDesignerContext<T>>(FormItemDesignerContextToken);
 }
@@ -31,7 +30,7 @@ export function injectFormSchemaContext() {
 	assertInInjectionContext(injectFormSchemaContext);
 	return inject(FormDesignerContextToken);
 }
-export function createFormItemDesignerContextInjector<T extends FormItemEntity>(context: FormItemDesignerContext<T>, parentInjector?: Injector) {
+export function createFormItemDesignerContextInjector<T extends FormItem>(context: FormItemDesignerContext<T>, parentInjector?: Injector) {
 	assertInInjectionContext(createFormSchemaContextInjector);
 	const parent = parentInjector ?? inject(Injector);
 	return Injector.create({

@@ -52,11 +52,11 @@
 	<div class="border-t border-muted"></div>
 </div>
 <div class="relative overflow-auto">
-	@let definition = formDefinition.value();
+	@let definition = formDefinition.data();
 	<ng-container>
 		@if(definition) {
 		<div class="py-5 px-4">
-			<cv-form-renderer [formDefinition]="definition" />
+			<cv-form-renderer [formItems]="$any(definition)" />
 		</div>
 		}
 	</ng-container>

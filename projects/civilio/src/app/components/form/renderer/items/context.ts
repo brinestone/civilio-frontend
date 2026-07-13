@@ -1,15 +1,17 @@
 import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from "@angular/core";
 import { FormItemDefinition, FormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { FormItem } from "@db/schemas";
+import { FormItemEntity } from "@db/types";
 
-export type RenderedFormItemContext<TDefinition extends FormItemDefinition> = {
+export type RenderedFormItemContext<TDefinition extends FormItem> = {
 	definition: Signal<Strict<TDefinition>>;
 	// itemId: Signal<string>;
 };
 
 const RendererdFormItemContextToken = new InjectionToken<RenderedFormItemContext<any>>('rendererd-form-item-context');
 
-export function createRenderedFormItemContextInjector(ctx: RenderedFormItemContext<FormItemDefinition>, parent?: Injector) {
+export function createRenderedFormItemContextInjector(ctx: RenderedFormItemContext<FormItem>, parent?: Injector) {
 	assertInInjectionContext(createRenderedFormItemContextInjector);
 	return Injector.create({
 		providers: [
@@ -19,7 +21,7 @@ export function createRenderedFormItemContextInjector(ctx: RenderedFormItemConte
 	});
 }
 
-export function injectRenderedFormItemContext<TDefinition extends FormItemDefinition>() {
+export function injectRenderedFormItemContext<TDefinition extends FormItem>() {
 	assertInInjectionContext(injectRenderedFormItemContext);
 	return inject<RenderedFormItemContext<TDefinition>>(RendererdFormItemContextToken);
 }

@@ -10,8 +10,9 @@ import {
 	Type
 } from "@angular/core";
 import { JsonLogic } from "@app/adapters/json-logic";
-import { FormVersionDefinition, SubmissionData } from "@civilio/sdk/models";
+import { SubmissionData } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
+import { FormItemEntity } from "@db/types";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
 import { injectForm, injectStore } from '@tanstack/angular-form';
 import { produce } from "immer";
@@ -38,15 +39,14 @@ export class FormRenderer {
 		}
 	})
 
-	readonly formDefinition = input<Strict<FormVersionDefinition>>({ items: [], parentId: '', id: '' });
+	readonly formItems = input<FormItemEntity[]>([]);
 	readonly submissionData = input<Strict<SubmissionData>>({});
 	readonly preview = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});
 
 	protected readonly dataKeyItems = computed(() => {
-		return this.formDefinition().items.filter(i => i.type == 'field' || i.type == 'group')
-			.flatMap(i => i.type == 'field' ? [i] : i.config.fields);
+		return this.formItems().filter(i => i.type == 'question' || i.type == 'group');
 	});
 	protected readonly form = injectForm({
 		...submissionDataFormOptions,

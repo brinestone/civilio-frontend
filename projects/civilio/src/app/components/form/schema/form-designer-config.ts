@@ -40,12 +40,10 @@ import {
 } from "@civilio/sdk/models";
 
 import { Strict } from "@civilio/shared";
-import { Entity } from "@db/collections";
 import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, RangeDateQuestionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
+import { FormItemEntity } from "@db/types";
 import { omit } from "lodash";
 import z from "zod";
-
-export type FormItemEntity = Entity<FormItem>;
 export type FormItemType = FormItemEntity['type'];
 
 export const formItemPathSeparator = ".";

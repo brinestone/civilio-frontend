@@ -16,7 +16,6 @@ import {
 } from "@app/components/form/schema";
 import {
 	defineFormDesignerFormSchema,
-	FormItemEntity,
 } from "@app/components/form/schema/form-designer-config";
 import { HasPendingChanges } from "@app/model/form";
 import { Strict } from "@civilio/shared";
@@ -41,6 +40,7 @@ import {
 	updateFormItemAction,
 } from "@db/actions";
 import { FormItemType } from "@db/schemas";
+import { FormItemEntity } from "@db/types";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { and, eq, injectLiveQuery, queryOnce } from "@tanstack/angular-db";
 import { toast } from "ngx-sonner";

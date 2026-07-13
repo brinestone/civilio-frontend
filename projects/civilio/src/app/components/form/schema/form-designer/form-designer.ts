@@ -1,3 +1,4 @@
+import { BooleanInput } from "@angular/cdk/coercion";
 import {
 	CdkDrag,
 	CdkDragDrop,
@@ -9,14 +10,13 @@ import {
 import { AsyncPipe, NgClass, NgComponentOutlet } from "@angular/common";
 import { booleanAttribute, Component, computed, input, output, Type, untracked } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
-import { FormItemEntity, FormItemType } from "@app/components/form/schema/form-designer-config";
 import { Strict } from "@civilio/shared";
-import { QuestionItem } from "@db/schemas";
+import { FormItemType, QuestionItem } from "@db/schemas";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { createFormSchemaContextInjector } from "../items";
-import { BooleanInput } from "@angular/cdk/coercion";
+import { FormItemEntity } from "@db/types";
 
 export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 

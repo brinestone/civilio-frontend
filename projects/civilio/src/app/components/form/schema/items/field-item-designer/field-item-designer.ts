@@ -9,7 +9,6 @@ import {
 	booleanAttribute,
 	ChangeDetectionStrategy,
 	Component,
-	computed,
 	effect,
 	input,
 	signal,
@@ -29,13 +28,14 @@ import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import z from "zod";
-import { FormItemEntity, formItemPathSeparator } from "../../form-designer-config";
+import { formItemPathSeparator } from "../../form-designer-config";
 import { FormItemActions } from "../../form-item-actions/form-item-actions.component";
 import {
 	ConfigTab,
 	FormItemSettingsDesigner,
 } from "../../form-item-settings/form-item-settings";
 import { BaseFormItemSchemaDesigner } from "../base-item-schema-designer/base-form-item-schema-designer";
+import { FormItem } from "@db/schemas";
 
 const slugifier = z.string().trim().slugify().nullish().default("").transform(v => v?.replace(/[-]/g, '_') ?? null);
 @Component({
@@ -70,7 +70,7 @@ const slugifier = z.string().trim().slugify().nullish().default("").transform(v 
 	styleUrl: "./field-item-designer.scss",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldItemDesigner extends BaseFormItemSchemaDesigner<FormItemEntity> {
+export class FieldItemDesigner extends BaseFormItemSchemaDesigner<FormItem> {
 	readonly noWrapper = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});
