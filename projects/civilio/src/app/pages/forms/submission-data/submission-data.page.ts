@@ -9,12 +9,10 @@ import {
 	numberAttribute,
 	signal
 } from "@angular/core";
-import { rxResource } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
 import { FormRenderer } from '@app/components/form/renderer';
-import { domainToStrictFormDefinition } from "@app/components/form/schema/form-designer-config";
 import { FormsService } from "@civilio/sdk/services/forms/forms.service";
-import { formVersionsCollection, submissionsCollection } from "@db/collections";
+import { formItemsCollection, formVersionsCollection, submissionsCollection } from "@db/collections";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmEmptyImports } from "@spartan-ng/helm/empty";
 import { HlmField, HlmFieldLabel } from "@spartan-ng/helm/field";
@@ -23,7 +21,6 @@ import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
 import { and, eq } from "@tanstack/db";
 import { injectQueryParams } from "ngxtension/inject-query-params";
-import { map, of } from "rxjs";
 
 @Component({
 	selector: "cv-form-data-page",
@@ -56,18 +53,18 @@ export class SubmissionDataPage {
 		pageIndex: Math.max(0, this.pageIndex() - 1),
 		pageSize: this.pageSize(),
 	}));
-	private readonly formService = inject(FormsService);
 	private readonly formVersionArg = injectQueryParams('version');
-	protected readonly formVersion = linkedSignal(() => this.formVersionArg())
-	protected readonly formDefinition = rxResource({
+	protected readonly formVersion = linkedSignal(() => this.formVersionArg());
+	protected readonly formDefinition = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), version: this.formVersion() }),
-		stream: ({ params }) => {
-			if (!params.slug) return of(undefined);
-			return this.formService.findFormDefinitionByVersion(params.slug, { version: params.version || undefined }).pipe(
-				map(definition => domainToStrictFormDefinition(definition))
-			);
+		query: ({ q, params: { slug, version } }) => {
+			return q.from({
+				fi: formItemsCollection,
+			}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
+				.where(({ fv }) => and(eq(fv.form, slug), version ? eq(fv.id, version) : eq(fv.isCurrent, true)))
+				.select(({ fi }) => fi);
 		}
-	})
+	});
 	protected readonly formVersions = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), pagination: this.pagination() }),
 		query: ({ q, params }) =>

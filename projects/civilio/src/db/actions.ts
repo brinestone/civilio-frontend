@@ -3,22 +3,21 @@ import { defaultFormItemDefinitionSchemaValue } from "@app/components/form/schem
 import { PushDocumentChanges } from "@app/store/docs/actions";
 import { deepObjectDiff } from "@civilio/shared";
 import { Store } from "@ngxs/store";
-import { createOptimisticAction, eq, inArray, queryOnce } from "@tanstack/db";
+import { createOptimisticAction } from "@tanstack/db";
 import omit from "lodash/omit";
 import { lastValueFrom } from "rxjs";
 import z from "zod";
 import {
-	Entity,
 	formItemsCollection,
 	formsCollection,
-	formVersionsCollection,
+	formVersionsCollection
 } from "./collections";
 import {
-	FormItem,
 	FormItemType,
 	FormSchema,
-	FormVersionSchema,
+	FormVersionSchema
 } from "./schemas";
+import { FormItemEntity } from "./types";
 import { removeVirtualProps } from "./utils";
 
 export const NewFormData = z.object({
@@ -33,7 +32,7 @@ export function updateFormItemAction() {
 	const store = inject(Store);
 	return createOptimisticAction<{
 		changes: {
-			pristine: Entity<FormItem>;
+			pristine: FormItemEntity;
 			change: any;
 		}[];
 	}>({

@@ -1,7 +1,7 @@
 import { AsyncPipe, NgComponentOutlet } from '@angular/common';
 import { Component, computed, OnDestroy, Type } from '@angular/core';
-import { FormItemField } from '@civilio/sdk/models';
 import { Strict } from '@civilio/shared';
+import { FormItemEntity } from '@db/types';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
 import { submissionDataFormOptions } from '../../../form-renderer-config';
@@ -25,7 +25,7 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 		}
 	]
 })
-export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemField>, any> implements OnDestroy {
+export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEntity>, any> implements OnDestroy {
 	protected readonly withForm = injectWithForm(submissionDataFormOptions);
 	protected readonly config = computed(() => this.itemDefinition().config)
 	protected readonly renderers = {

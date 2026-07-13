@@ -1,7 +1,8 @@
 import { Component, computed, effect, untracked } from "@angular/core";
 import { FormField } from "@angular/forms/signals";
 import { FieldError } from "@app/components/form";
-import { FormItemEntity, formItemPathSeparator, HINT } from "@app/components/form/schema/form-designer-config";
+import { formItemPathSeparator } from "@app/components/form/schema/form-designer-config";
+import { FormItem } from "@db/schemas";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
@@ -18,7 +19,7 @@ const slugifier = z.string().trim().slugify().nullish().default("").transform(v 
 	imports: [HlmFieldImports, HlmSelectImports, BrnSelectImports, HlmSwitch, FormField, FieldError, HlmInput],
 })
 export class GroupConfigDesigner {
-	protected readonly ctx = injectFormItemDesignerContext<FormItemEntity>();
+	protected readonly ctx = injectFormItemDesignerContext<FormItem>();
 	protected readonly index = this.ctx.index;
 	protected readonly item = this.ctx.fieldTree;
 	protected readonly config = computed(() => this.item().config);
