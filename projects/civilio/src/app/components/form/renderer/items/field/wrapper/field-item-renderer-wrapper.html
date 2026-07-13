@@ -10,4 +10,6 @@
 		}"
 	/>
 </div>
+} @else if (fallbackContent(); as fallback){
+<ng-container *ngTemplateOutlet="fallback" />
 }

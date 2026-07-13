@@ -2,6 +2,7 @@ import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import {
 	ApplicationConfig,
 	isDevMode,
+	LOCALE_ID,
 	provideBrowserGlobalErrorListeners,
 	provideZonelessChangeDetection,
 } from "@angular/core";

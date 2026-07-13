@@ -1,6 +1,7 @@
-import { AsyncPipe, NgComponentOutlet } from '@angular/common';
+import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, OnDestroy, Type } from '@angular/core';
 import { Strict } from '@civilio/shared';
+import { QuestionType } from '@db/schemas';
 import { FormItemEntity } from '@db/types';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
@@ -16,7 +17,7 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 		AsyncPipe,
 		NgComponentOutlet,
 		HlmFieldGroup,
-
+		NgTemplateOutlet,
 	],
 	hostDirectives: [
 		{
@@ -27,16 +28,15 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 })
 export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEntity>, any> implements OnDestroy {
 	protected readonly withForm = injectWithForm(submissionDataFormOptions);
-	protected readonly config = computed(() => this.itemDefinition().config)
+	protected readonly config = computed(() => this.itemDefinition().config);
 	protected readonly renderers = {
-		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer)
-	} as Record<string, () => Promise<Type<any>>>;
+		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
+	} as Record<QuestionType, () => Promise<Type<any>>>;
 	protected readonly rendererProvider = computed(() => {
 		return this.renderers[this.itemDefinition().config.type]?.();
 	});
 	private fieldId = computed(() => `${this.path()}__${this.itemDefinition().parentId ? (this.index() + '__') : ''}${this.itemDefinition().config.dataKey}`)
 	protected readonly fieldContextInjector = createRenderedFieldItemContextInjector({
-		// rootForm: this._form,
 		fieldId: this.fieldId
 	}, this.formItemContextInjector);
 

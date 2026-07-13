@@ -4,7 +4,7 @@
 	'border-r border-muted': !isNew()
 }"
 >
-	<!-- <div class="relative overflow-auto">
+	<div class="relative overflow-auto">
 		<div class="px-3 py-2 border-b border-muted backdrop-blur min-h-20">
 			@defer(when !formVersions.isLoading()) {
 			<div hlmField>
@@ -22,7 +22,8 @@
 							<hlm-select-scroll-up />
 							@for(version of formVersions.data(); track version.id) {
 							<hlm-option [value]="version.id"
-								>{{ version.label || 'N/A' }}</hlm-option
+								>{{ version.label || (version.createdAt | date:'longDate')
+								}}</hlm-option
 							>
 							}
 						</hlm-select-group>
@@ -40,23 +41,28 @@
 		<a [routerLink]="['..', submission.index]" class="p-3 space-y-2">
 			<span class="block font-semibold"> Index = {{submission.index}}</span>
 			<span class="block text-muted-foreground text-sm"
-				>{{ submission.recordedAt | date }}</span
+				>{{ submission.recordedAt | date:'longDate' }}</span
 			>
 		</a>
 		} @empty { @if(!submissions.isLoading()) {
 		<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
-		} @else if (!submissions.isReady()) {
+		} @else {
 		<ng-container [ngTemplateOutlet]="loadingTemplate" />
 		} }
-	</div> -->
-	<div class="border-t border-muted"></div>
+	</div>
+	<div class="border-muted border-t"></div>
 </div>
 <div class="relative overflow-auto">
 	@let definition = formDefinition.data();
 	<ng-container>
 		@if(definition) {
 		<div class="py-5 px-4">
-			<cv-form-renderer [formItems]="$any(definition)" />
+			<cv-form-renderer
+				[formData]="submissionData()"
+				[showMissingRendererMessages]="isDevMode()"
+				[itemFallbackContent]="itemFallbackTemplate"
+				[formItems]="$any(definition)"
+			/>
 		</div>
 		}
 	</ng-container>
@@ -76,5 +82,18 @@
 	<div hlmEmpty>
 		<p hlmEmptyTitle>No Submissions</p>
 		<p hlmEmptyDescription>No submissions have been recorded yet.</p>
+	</div>
+</ng-template>
+<ng-template #itemFallbackTemplate>
+	<div
+		hlmAlert
+		class="max-w-md border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"
+	>
+		<ng-icon name="lucideAlertTriangle" />
+		<h4 hlmAlertTitle>Unsupported Form Item Type</h4>
+		<p hlmAlertDescription>
+			This is a fallback template for unsupported form item types. This is only
+			visible during development.
+		</p>
 	</div>
 </ng-template>

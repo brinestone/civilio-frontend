@@ -15,7 +15,7 @@ import {
 import {
 	FormItemType,
 	FormSchema,
-	FormVersionSchema
+	FormVersion
 } from "./schemas";
 import { FormItemEntity } from "./types";
 import { removeVirtualProps } from "./utils";
@@ -75,7 +75,7 @@ export function removeFormItemAction() {
 		onMutate: ({ id }) => {
 			formItemsCollection.delete(id);
 		},
-		mutationFn: async ({ id, formVersion }) => {
+		mutationFn: async ({ id }) => {
 			await lastValueFrom(
 				store.dispatch(
 					new PushDocumentChanges([
@@ -173,7 +173,7 @@ export function createFormAction() {
 						},
 						{
 							collection: "form-versions",
-							data: FormVersionSchema.parse({
+							data: FormVersion.parse({
 								isCurrent: true,
 								form: slug,
 								id: version,

@@ -7,16 +7,17 @@ import {
 	effect,
 	inject,
 	input,
-	Type
+	TemplateRef,
+	Type,
+	untracked
 } from "@angular/core";
 import { JsonLogic } from "@app/adapters/json-logic";
 import { SubmissionData } from "@civilio/sdk/models";
-import { Strict } from "@civilio/shared";
+import { FormItemType } from "@db/schemas";
 import { FormItemEntity } from "@db/types";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
 import { injectForm, injectStore } from '@tanstack/angular-form';
-import { produce } from "immer";
-import { entries } from "lodash";
+import entries from 'lodash/entries';
 import { submissionDataFormOptions } from "../form-renderer-config";
 
 @Component({
@@ -30,17 +31,20 @@ export class FormRenderer {
 	private readonly logic = inject(JsonLogic);
 	#updateFormValueEffect = effect(() => {
 		const newValue = this.submissionData();
-
+		if (!newValue) return;
 		for (const [k, v] of entries(newValue)) {
-			debugger;
-			this.form.baseStore.setState(current => produce(current, draft => {
-				draft.values[k] = v;
-			}));
+			// this.form.baseStore.setState(current => produce(current.values, draft => {
+			// 	draft.values[k] = v;
+			// }, (patches, inversePatches) => {
+			// 	// TODO: Push into undo/redo stacks
+			// }));
 		}
 	})
 
 	readonly formItems = input<FormItemEntity[]>([]);
-	readonly submissionData = input<Strict<SubmissionData>>({});
+	readonly submissionData = input<SubmissionData>({}, { alias: 'formData' });
+	readonly showMissingRendererMessages = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
+	readonly itemFallbackContent = input<TemplateRef<any>>();
 	readonly preview = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});
@@ -54,13 +58,22 @@ export class FormRenderer {
 
 		}
 	});
+	protected readonly canMergeRemoteChanges = injectStore(this.form, state => !state.isDirty);
 	protected readonly canSubmit = injectStore(this.form, state => state.canSubmit);
 	protected readonly formSubmitting = injectStore(this.form, state => state.isSubmitting);
 	protected readonly renderers = {
-		field: import("../items/field/wrapper/field-item-renderer-wrapper").then(
+		question: import("../items/field/wrapper/field-item-renderer-wrapper").then(
 			(m) => m.FieldItemRendererWrapper,
 		),
-	} as Record<string, Promise<Type<any>>>;
+	} as Record<FormItemType, Promise<Type<any>>>;
+	#updateFormData = effect(() => {
+		const canProceed = untracked(this.canMergeRemoteChanges);
+		if (!canProceed) return;
+
+		for (const [k, v] of entries(this.submissionData())) {
+			this.form.setFieldValue(k, v, { dontRunListeners: true })
+		}
+	});
 
 	private evaluateRelevance(data: SubmissionData, logic: any) {
 		return this.logic.run(logic, data);

@@ -7,14 +7,34 @@ export const BaseSchema = z.object({
 });
 export const Archivable = z.object({
 	archivedAt: z.string().trim().nullish().default(null)
-})
+});
 
-export const FormVersionSchema = BaseSchema.extend({
+export const SubmissionSession = BaseSchema.extend({
+	id: z.uuid(),
+	index: z.number(),
+	label: z.string().trim().nullish().default(new Date().toString()),
+	form: z.string(),
+	formVersion: z.string(),
+}).and(Archivable);
+export type SubmissionSession = z.infer<typeof SubmissionSession>;
+export const SubmissionResponse = z.object({
+	id: z.uuid(),
+	value: z.any().nullable().default(null),
+	sessionId: z.uuid(),
+	parentId: z.uuid().nullish().default(null),
+	valueIndex: z.number().positive('Index must be a positive number').nullish().default(0),
+	formItem: z.uuid()
+}).and(Archivable);
+export type SubmissionResponse = z.infer<typeof SubmissionResponse>;
+
+export const FormVersion = BaseSchema.extend({
 	id: z.uuid(),
 	form: z.string(),
 	parentId: z.uuid().nullish().default(null),
 	isCurrent: z.boolean().default(true),
+	label: z.string().trim().nullish().default(null)
 }).and(Archivable);
+export type FormVersion = z.infer<typeof FormVersion>;
 
 export const FormSchema = BaseSchema.extend({
 	slug: z.string(),
@@ -126,6 +146,7 @@ export type SimpleDateQuestionConfig = z.infer<typeof SimpleDateQuestionConfig>;
 
 export const QuestionConfig = z.discriminatedUnion('type', [SimpleDateQuestionConfig, SelectQuestionConfig, RangeDateQuestionConfig, NumberQuestionConfig, MultiSelectQuestionConfig, TextQuestionConfig, BooleanQuestionConfig, GeoPointQuestionConfig, MultiDateQuestionConfig]);
 export type QuestionConfig = z.infer<typeof QuestionConfig>;
+export type QuestionType = QuestionConfig['type'];
 const BaseQuestionFormItem = BaseFormItemSchema.extend({
 	type: z.literal('question'),
 });
