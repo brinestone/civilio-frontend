@@ -1,11 +1,31 @@
 import { provideAppInitializer } from "@angular/core";
-import { SubmissionLookup } from "@civilio/sdk/models";
-import { BasicIndex, createCollection, InferSchemaOutput, WithVirtualProps } from "@tanstack/db";
+import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import z from "zod";
-import { FormItem, FormSchema, FormVersionSchema } from "./schemas";
+import { FormItem, FormSchema, FormVersion, SubmissionResponse, SubmissionSession } from "./schemas";
 
 const dbName = 'civilio-db';
+
+export const responseSessionsCollection = createCollection(dexieCollectionOptions({
+	id: 'form-response-sessions',
+	schema: SubmissionSession,
+	dbName,
+	getKey: s => s.id,
+	startSync: true,
+	syncMode: 'on-demand',
+	rowUpdateMode: 'partial',
+	tableName: 'form-response-sessions',
+}))
+
+export const responseCollection = createCollection(dexieCollectionOptions({
+	id: 'form-responses',
+	schema: SubmissionResponse,
+	dbName,
+	getKey: (r) => [r.id, r.sessionId].join('|'),
+	startSync: true,
+	syncMode: 'on-demand',
+	rowUpdateMode: 'partial',
+	tableName: 'form-responses',
+}))
 
 export const formItemsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-items',
@@ -33,45 +53,41 @@ export const formsCollection = createCollection(dexieCollectionOptions({
 export const formVersionsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-versions',
 	dbName,
-	schema: FormVersionSchema,
+	schema: FormVersion,
 	getKey: (fv) => fv.id,
 	startSync: true,
-}));
-export const submissionsCollection = createCollection(dexieCollectionOptions({
-	id: 'submissions',
-	dbName,
-	schema: SubmissionLookup,
-	getKey: s => [s.index, s.form, s.formVersion].join('|'),
-	startSync: true
 }));
 
 export const allCollections = {
 	forms: formsCollection,
 	'form-versions': formVersionsCollection,
 	'form-items': formItemsCollection,
-	submissions: submissionsCollection
+	submissions: responseSessionsCollection,
+	responses: responseCollection,
 };
 
 export function provideCollectionIndexing() {
 	return provideAppInitializer(async () => {
-		console.log('setting up indexes')
-		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
-		submissionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
+		responseCollection.createIndex(row => row.id, { indexType: BasicIndex });
+		responseCollection.createIndex(row => row.sessionId, { indexType: BasicIndex });
+		responseCollection.createIndex(row => row.parentId, { indexType: BasicIndex });
+		// responseCollection.createIndex(row => [row.sessionId, row.parentId], { indexType: BasicIndex });
+
+		formsCollection.createIndex(row => row.slug, { indexType: BasicIndex });
+
+		formItemsCollection.createIndex(row => row.id, { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => row.updatedAt, { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => [row.formVersion, row.path], { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
+
+		formVersionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
+		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
+		formVersionsCollection.createIndex(row => row.updatedAt, { indexType: BasicIndex });
+		formVersionsCollection.createIndex(row => [row.form, row.updatedAt], { indexType: BasicIndex });
+
+		responseSessionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
 	})
 }
 
 export type Entity<T extends object> = WithVirtualProps<T, string>;
-
-function configureCollection<TId extends string, T extends z.ZodType>(id: TId, schema: T, keyFunc: (arg: InferSchemaOutput<T>) => string | number) {
-	return dexieCollectionOptions({
-		id,
-		dbName,
-		schema,
-		getKey: keyFunc,
-		startSync: true,
-		rowUpdateMode: 'partial',
-		awaitPersistence: false,
-		syncMode: 'on-demand',
-	})
-}

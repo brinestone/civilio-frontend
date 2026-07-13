@@ -1,15 +1,17 @@
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, TemplateRef } from "@angular/core";
 import { Strict } from "@civilio/shared";
+import { FormItem } from "@db/schemas";
 import { createRenderedFormItemContextInjector } from "./context";
-import { FormItemEntity } from "@db/types";
 
 @Component({
 	selector: "cv-base-item-renderer",
-	template: "",
+	template: ``,
 })
-export class BaseItemRenderer<T extends Strict<FormItemEntity>, V> {
+export class BaseItemRenderer<T extends Strict<FormItem>, V> {
 	readonly itemDefinition = input.required<T>();
 	readonly index = input.required<number>();
+	readonly fallbackContent = input<TemplateRef<any>>();
+	readonly _ = input(undefined, { alias: 'form' })
 
 	protected readonly formItemContextInjector = createRenderedFormItemContextInjector({
 		definition: this.itemDefinition,

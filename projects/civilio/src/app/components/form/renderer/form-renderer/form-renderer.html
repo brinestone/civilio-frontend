@@ -1,25 +1,18 @@
 <form (submit)="handleSubmit($event)" hlmFieldGroup>
 	@for(item of formItems(); track item) {
 	<ng-container> @let renderer = renderers[item.type]; </ng-container>
-	<div>
-		@if(renderer) { @if(item.type != 'question' && item.type != 'group') {
+	<ng-container>
+		@if(renderer !== undefined) {
 		<ng-container
 			[ngComponentOutlet]="renderer | async"
 			[ngComponentOutletInputs]="{
-		itemDefinition: item,
-		index: $index
-	}"
-		/>
-		} @else if(item.type == 'question') {
-		<ng-container
-			[ngComponentOutlet]="renderer | async"
-			[ngComponentOutletInputs]="{
-			form: form,
 			itemDefinition: item,
-			index: $index
+			form: form,
+			index: $index,
+			fallbackContent: showMissingRendererMessages() ?  itemFallbackContent() : null
 		}"
 		/>
-		} @else { } }
-	</div>
+		}
+	</ng-container>
 	}
 </form>

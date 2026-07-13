@@ -29,7 +29,8 @@ const offsetDefault = '';
 			forms: offsetDefault,
 			'form-versions': offsetDefault,
 			"form-items": offsetDefault,
-			submissions: offsetDefault
+			submissions: offsetDefault,
+			responses: offsetDefault
 		}
 	}
 })
@@ -68,7 +69,7 @@ export class DocsState implements NgxsOnInit, OnDestroy {
 	onPullChanges(ctx: Context) {
 		const state = ctx.getState().offsets as Record<string, string>;
 		return of(keys(allCollections)).pipe(
-			mergeMap(names => merge(...names.map(c => zip(of(c as keyof typeof allCollections), this.docsService.pullDocumentChanges(c, { lastCheckpoint: encodeURIComponent(state[c]), batchSize: 100 }, { observe: 'response' }))))),
+			mergeMap(names => merge(...names.map(c => zip(of(c as keyof typeof allCollections), this.docsService.pullDocumentChanges(c, { lastCheckpoint: encodeURIComponent(state[c] ?? ''), batchSize: 100 }, { observe: 'response' }))))),
 			tap(([_, response]) => {
 				const storeVersion = response.headers.get('x-store-version');
 				const fingerprint = response.headers.get('x-store-fingerprint')

@@ -1,5 +1,4 @@
 import { Component, computed } from "@angular/core";
-import { FormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { QuestionConfig, QuestionItem } from "@db/schemas";
 import { HlmField } from "@spartan-ng/helm/field";
@@ -29,4 +28,5 @@ export abstract class BaseFieldRenderer<TFieldType extends FieldType, TValue> {
 	protected readonly path = computed(() => this.definition().path);
 	protected readonly config = computed(() => this.definition().config as Extract<Strict<QuestionConfig>, { type: TFieldType }>);
 	protected readonly dataKey = computed(() => this.config().dataKey);
+	protected readonly defaultValue = computed(() => this.config().defaultValue as TValue | undefined)
 }
