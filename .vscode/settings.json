@@ -9,5 +9,8 @@
 	"js/ts.tsdk.path": "node_modules\\typescript\\lib",
 	"[html]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
 	}
 }

@@ -1760,6 +1760,8 @@ form:
           title: Soumissions
         designer:
           title: Designer
+      actions:
+        all_forms: Tous les formulaires
     version_selector:
       placeholder: Sélectionnez la version
       no_versions: Nouvelle soumission

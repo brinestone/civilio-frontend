@@ -5,12 +5,19 @@ import {
 	input,
 	isDevMode,
 	linkedSignal,
-	signal
+	signal,
 } from "@angular/core";
 import { form, submit } from "@angular/forms/signals";
 import { RouterOutlet } from "@angular/router";
-import { FormDesigner, FormDesignerHeader, ItemReorderedEvent } from "@app/components/form/schema";
-import { defineFormDesignerFormSchema, FormItemEntity } from '@app/components/form/schema/form-designer-config';
+import {
+	FormDesigner,
+	FormDesignerHeader,
+	ItemReorderedEvent,
+} from "@app/components/form/schema";
+import {
+	defineFormDesignerFormSchema,
+	FormItemEntity,
+} from "@app/components/form/schema/form-designer-config";
 import { HasPendingChanges } from "@app/model/form";
 import { Strict } from "@civilio/shared";
 import { formItemsCollection, formVersionsCollection } from "@db/collections";
@@ -28,10 +35,14 @@ import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 
 import { HttpErrorResponse } from "@angular/common/http";
-import { addFormItem, removeFormItemAction, updateFormItemAction } from "@db/actions";
+import {
+	createFormItemAction,
+	removeFormItemAction,
+	updateFormItemAction,
+} from "@db/actions";
 import { FormItemType } from "@db/schemas";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
-import { and, eq, injectLiveQuery } from "@tanstack/angular-db";
+import { and, eq, injectLiveQuery, queryOnce } from "@tanstack/angular-db";
 import { toast } from "ngx-sonner";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 import { Observable } from "rxjs";
@@ -70,38 +81,51 @@ import { Observable } from "rxjs";
 export class SchemaDesignPage implements HasPendingChanges {
 	readonly slug = input<string>();
 	private readonly formVersionArg = injectQueryParams("version");
-	protected readonly sidebarState = signal<BrnDialogState>(isDevMode() ? 'closed' : 'closed');
-	protected readonly addFormItem = addFormItem();
+	protected readonly sidebarState = signal<BrnDialogState>(
+		isDevMode() ? "closed" : "closed",
+	);
+	protected readonly addFormItem = createFormItemAction();
 	protected readonly removeFormItem = removeFormItemAction();
 	protected readonly updateFormItem = updateFormItemAction();
 
 	protected readonly formDefinition = injectLiveQuery({
 		params: () => ({ fv: this.formVersionArg(), form: this.slug() }),
 		query: ({ params, q }) => {
-			return q.from({
-				fi: formItemsCollection,
-			}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
-				.where(({ fv }) => and(
-					eq(fv.form, params.form),
-					params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true)
-				))
-				.orderBy(({ fi }) => fi.path, { direction: 'asc' })
-				.select(({ fi }) => fi)
-		}
+			return q
+				.from({
+					fi: formItemsCollection,
+				})
+				.innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) =>
+					eq(fi.formVersion, fv.id),
+				)
+				.where(({ fv }) =>
+					and(
+						eq(fv.form, params.form),
+						params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true),
+					),
+				)
+				.orderBy(({ fi }) => fi.path, { direction: "asc" })
+				.select(({ fi }) => fi);
+		},
 	});
 	protected readonly formVersion = injectLiveQuery({
 		params: () => ({ form: this.slug(), fv: this.formVersionArg() }),
 		query: ({ params, q }) => {
-			return q.from({ fv: formVersionsCollection })
-				.where(({ fv }) => and(
-					eq(fv.form, params.form),
-					params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true)
-				))
-				.findOne()
-		}
-	})
+			return q
+				.from({ fv: formVersionsCollection })
+				.where(({ fv }) =>
+					and(
+						eq(fv.form, params.form),
+						params.fv ? eq(fv.id, params.fv) : eq(fv.isCurrent, true),
+					),
+				)
+				.findOne();
+		},
+	});
 
-	protected readonly formData = linkedSignal(() => this.formDefinition.data() as unknown as Strict<FormItemEntity[]>);
+	protected readonly formData = linkedSignal(
+		() => this.formDefinition.data() as unknown as Strict<FormItemEntity[]>,
+	);
 	protected readonly renderForm = linkedSignal(() => !!this.slug());
 	protected readonly pendingChangesDialogState =
 		signal<BrnDialogState>("closed");
@@ -110,17 +134,18 @@ export class SchemaDesignPage implements HasPendingChanges {
 	) => void;
 	protected readonly formModel = form(
 		this.formData,
-		defineFormDesignerFormSchema()
+		defineFormDesignerFormSchema(),
 	);
 
 	protected async onRemoveItem(id: string) {
-		const tx = this.removeFormItem({ id, formVersion: this.formVersion.data()!.id });
+		const tx = this.removeFormItem({
+			id,
+			formVersion: this.formVersion.data()!.id,
+		});
 		await tx.commit();
 	}
 
-	protected async onReordered({ endIndex, startIndex }: ItemReorderedEvent) {
-
-	}
+	protected async onReordered({ endIndex, startIndex }: ItemReorderedEvent) { }
 
 	protected async onItemAdd(type: FormItemType) {
 		const fvId = this.formVersion.data()?.id;
@@ -129,10 +154,15 @@ export class SchemaDesignPage implements HasPendingChanges {
 				type,
 				path: String(this.formData().length ?? 0),
 				formVersion: fvId,
-				id: crypto.randomUUID()
+				id: crypto.randomUUID(),
 			});
 			await tx.commit();
 		}
+		toast.error('An unknown error occurred.', {
+			onDismiss: () => {
+
+			}
+		})
 	}
 
 	private computeItemPaths() {
@@ -233,29 +263,44 @@ export class SchemaDesignPage implements HasPendingChanges {
 		event?.preventDefault();
 		this.computeItemPaths();
 		await submit(this.formModel, {
-			action: async tree => {
-				const value: any[] = [];
+			action: async (tree) => {
+				const value: {
+					pristine: FormItemEntity;
+					change: any;
+				}[] = [];
 				try {
 					for (let i = 0; i < tree.length; i++) {
 						const ch = tree[i];
 						if (!ch().dirty()) continue;
-						value.push(ch().value());
+						const pristine = await queryOnce((q) =>
+							q
+								.from({ fi: formItemsCollection })
+								.where(({ fi }) => eq(fi.id, ch.id().value()))
+								.findOne(),
+						);
+						if (!pristine) continue;
+						value.push({ pristine: pristine as any, change: ch().value() });
 					}
 
 					if (value.length == 0) return;
 					const tx = this.updateFormItem({
-						changes: value
+						changes: value,
 					});
 					await tx.commit();
 				} catch (e) {
 					const err = e as HttpErrorResponse;
 					console.error(e);
-					toast.error('Could not save changes', { description: err.error?.error ?? err.message });
+					toast.error("Could not save changes", {
+						description: err.error?.error ?? err.message,
+					});
 				}
 			},
 			onInvalid: () => {
-				toast.warning('Invalid state', { description: 'The designer is in an invalid state. Verify all elements are valid and try again' })
-			}
+				toast.warning("Invalid state", {
+					description:
+						"The designer is in an invalid state. Verify all elements are valid and try again",
+				});
+			},
 		});
 	}
 
@@ -298,7 +343,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 	// }
 
 	protected toggleSidebarState() {
-		this.sidebarState.update(v => v == 'open' ? 'closed' : 'open');
+		this.sidebarState.update((v) => (v == "open" ? "closed" : "open"));
 	}
 
 	// constructor(router: Router) {

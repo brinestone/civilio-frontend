@@ -11,7 +11,7 @@ const out = String(
 ).toString();
 const dateLine = out.split("\n").find((line) => line.includes("Date:"));
 
-const date = new Date(dateLine.split("Date:")[1].trim());
+const date = new Date(dateLine.split("Date:", 2)[1].trim());
 
 const content = JSON.stringify({
 	author,

@@ -7,7 +7,7 @@ import {
 	CdkDropList
 } from "@angular/cdk/drag-drop";
 import { AsyncPipe, NgClass, NgComponentOutlet } from "@angular/common";
-import { Component, computed, input, output, Type, untracked } from "@angular/core";
+import { booleanAttribute, Component, computed, input, output, Type, untracked } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { FormItemEntity, FormItemType } from "@app/components/form/schema/form-designer-config";
 import { Strict } from "@civilio/shared";
@@ -16,6 +16,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { createFormSchemaContextInjector } from "../items";
+import { BooleanInput } from "@angular/cdk/coercion";
 
 export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 
@@ -45,6 +46,7 @@ export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 })
 export class FormDesigner {
 	readonly formItems = input.required<FieldTree<Strict<FormItemEntity>[]>>();
+	readonly enableDebugPanels = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	readonly libAdd = output<string>();
 	readonly libRemove = output<string>();
 	readonly onItemRemoved = output<string>();
