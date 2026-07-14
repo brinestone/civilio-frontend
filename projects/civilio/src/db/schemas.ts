@@ -82,7 +82,7 @@ export const TextQuestionConfig = BaseQuestionConfig.extend({
 	maxLength: z.number().nullish().default(null),
 	type: z.union([z.literal('text'), z.literal('multiline')]),
 	pattern: z.string().trim().nullish().default(null),
-	defaultValue: z.string().trim().nullish().default(null)
+	defaultValue: z.string().trim().nullish().default('')
 });
 export type TextQuestionConfig = z.infer<typeof TextQuestionConfig>;
 

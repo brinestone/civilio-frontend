@@ -1,4 +1,4 @@
-import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, NgComponentOutlet } from '@angular/common';
 import { Component, computed, OnDestroy, Type } from '@angular/core';
 import { Strict } from '@civilio/shared';
 import { QuestionType } from '@db/schemas';
@@ -17,7 +17,6 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 		AsyncPipe,
 		NgComponentOutlet,
 		HlmFieldGroup,
-		NgTemplateOutlet,
 	],
 	hostDirectives: [
 		{
@@ -31,6 +30,8 @@ export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEn
 	protected readonly config = computed(() => this.itemDefinition().config);
 	protected readonly renderers = {
 		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
+		integer: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
+		float: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
 	} as Record<QuestionType, () => Promise<Type<any>>>;
 	protected readonly rendererProvider = computed(() => {
 		return this.renderers[this.itemDefinition().config.type]?.();

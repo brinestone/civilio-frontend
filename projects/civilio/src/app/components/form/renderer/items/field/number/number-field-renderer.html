@@ -1,23 +1,18 @@
 <div hlmField>
 	<label hlmFieldLabel [for]="field.api.name">{{ config().title }}</label>
 	<ng-container>
-		@if(config().type == 'text') {
 		<input
-			type="text"
+			type="number"
 			[id]="field.api.name"
 			[name]="field.api.name"
 			[value]="field.api.state.value"
 			(blur)="field.api.handleBlur()"
-			(input)="field.api.handleChange($event.target.value)"
+			(input)="field.api.handleChange($event.target.valueAsNumber)"
+			[step]="config().type == 'integer' ? 1 : .1"
+			[max]="config().max"
+			[min]="config().min"
 			hlmInput
 		/>
-		} @else {
-		<textarea
-			[id]="field.api.name"
-			[id]="field.api.name"
-			hlmTextarea
-		></textarea>
-		}
 	</ng-container>
 	@if(hintText(); as hint) {
 	<p hlmFieldDescription>{{ hint }}</p>
