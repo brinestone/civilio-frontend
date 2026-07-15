@@ -1,5 +1,5 @@
 import { FormItemDefinition, FormItemField, FormItemGroup, SubmissionData, TextFieldConfig } from "@civilio/sdk/models";
-import { formOptions } from "@tanstack/angular-form";
+import { formOptions, revalidateLogic } from "@tanstack/angular-form";
 
 export const submissionDataFormOptions = formOptions({
 	defaultValues: SubmissionData.parse({})

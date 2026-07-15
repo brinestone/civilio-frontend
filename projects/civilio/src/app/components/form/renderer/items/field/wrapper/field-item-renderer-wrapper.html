@@ -6,7 +6,10 @@
 		[ngComponentOutletInjector]="fieldContextInjector"
 		[ngComponentOutletInputs]="{
 			tanstackField: withForm.form,
-			name: config().dataKey
+			name: config().dataKey,
+			validators: {
+				onChange: validatorSchema()
+			}
 		}"
 	/>
 </div>

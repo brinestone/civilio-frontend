@@ -1,4 +1,5 @@
 import { Component, computed } from "@angular/core";
+import { IsStringPipe } from "@app/pipes";
 import { HlmField, HlmFieldDescription, HlmFieldError, HlmFieldLabel } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmTextarea } from "@spartan-ng/helm/textarea";
@@ -14,6 +15,7 @@ import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
 		HlmTextarea,
 		HlmField,
 		HlmFieldError,
+		IsStringPipe,
 		HlmInput
 	]
 })

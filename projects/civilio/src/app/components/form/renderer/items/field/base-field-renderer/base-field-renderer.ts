@@ -1,10 +1,9 @@
-import { Component, computed } from "@angular/core";
+import { Component, computed, OnInit } from "@angular/core";
 import { Strict } from "@civilio/shared";
 import { QuestionConfig, QuestionItem } from "@db/schemas";
 import { HlmField } from "@spartan-ng/helm/field";
-import { FieldValidateFn, injectField, TanStackAppField } from "@tanstack/angular-form";
+import { injectField, TanStackAppField } from "@tanstack/angular-form";
 import { injectRenderedFieldContext, injectRenderedFormItemContext } from "../../context";
-import { isNull } from "lodash";
 
 export type FieldType = QuestionConfig['type'];
 
@@ -15,18 +14,14 @@ export type FieldType = QuestionConfig['type'];
 		HlmField,
 		{
 			directive: TanStackAppField,
-			inputs: ['name', 'tanstackField']
+			inputs: ['name', 'tanstackField', 'validators']
 		},
-	]
+	],
 })
 export abstract class BaseFieldRenderer<TFieldType extends FieldType, TValue> {
 	private itemContext = injectRenderedFormItemContext<Strict<QuestionItem>>();
 	private fieldContext = injectRenderedFieldContext<TValue>();
-
-	protected readonly validators = {
-		required: (({ value }) => { return !isNull(value) }) as FieldValidateFn<any, any, TValue>
-	}
-
+	// private fieldDirective = inject(TanStackAppField);
 	protected readonly field = injectField<TValue>();
 	protected readonly definition = this.itemContext.definition;
 	protected readonly fieldId = this.fieldContext.fieldId;

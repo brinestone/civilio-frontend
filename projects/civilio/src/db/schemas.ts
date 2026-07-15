@@ -80,7 +80,7 @@ export const TextQuestionConfig = BaseQuestionConfig.extend({
 	placeholder: z.string().trim().nullish().default(null),
 	minLength: z.number().nullish().default(null),
 	maxLength: z.number().nullish().default(null),
-	type: z.union([z.literal('text'), z.literal('multiline')]),
+	type: z.union([z.literal('text'), z.literal('multiline'), /* z.literal('email'), z.literal('phone') */]),
 	pattern: z.string().trim().nullish().default(null),
 	defaultValue: z.string().trim().nullish().default('')
 });

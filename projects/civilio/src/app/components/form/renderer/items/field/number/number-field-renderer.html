@@ -7,7 +7,7 @@
 			[name]="field.api.name"
 			[value]="field.api.state.value"
 			(blur)="field.api.handleBlur()"
-			(input)="field.api.handleChange($event.target.valueAsNumber)"
+			(input)="field.api.handleChange($event.target.valueAsNumber || undefined)"
 			[step]="config().type == 'integer' ? 1 : .1"
 			[max]="config().max"
 			[min]="config().min"
@@ -21,7 +21,11 @@
 		@if(field.api.state.meta.isTouched && !field.api.state.meta.isValid) {
 		<div>
 			@for(error of field.api.state.meta.errors; track $index) {
-			<hlm-field-error>{{ error }}</hlm-field-error>
+			<hlm-field-error>
+				@if(error | isString) {
+				<ng-container>{{error}}</ng-container>
+				} @else{ <ng-container> {{error.message}} </ng-container>}
+			</hlm-field-error>
 			}
 		</div>
 		}

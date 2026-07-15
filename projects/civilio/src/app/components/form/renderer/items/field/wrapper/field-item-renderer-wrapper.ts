@@ -1,4 +1,4 @@
-import { AsyncPipe, NgComponentOutlet } from '@angular/common';
+import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, OnDestroy, Type } from '@angular/core';
 import { Strict } from '@civilio/shared';
 import { QuestionType } from '@db/schemas';
@@ -8,6 +8,7 @@ import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
 import { submissionDataFormOptions } from '../../../form-renderer-config';
 import { BaseItemRenderer } from '../../base-item-renderer';
 import { createRenderedFieldItemContextInjector } from '../../context';
+import { buildValidatorSchemaFromConfig } from '../config';
 
 @Component({
 	selector: 'cv-field-item-renderer',
@@ -17,6 +18,7 @@ import { createRenderedFieldItemContextInjector } from '../../context';
 		AsyncPipe,
 		NgComponentOutlet,
 		HlmFieldGroup,
+		NgTemplateOutlet
 	],
 	hostDirectives: [
 		{
@@ -36,6 +38,7 @@ export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEn
 	protected readonly rendererProvider = computed(() => {
 		return this.renderers[this.itemDefinition().config.type]?.();
 	});
+	protected readonly validatorSchema = computed(() => buildValidatorSchemaFromConfig(this.config()));
 	private fieldId = computed(() => `${this.path()}__${this.itemDefinition().parentId ? (this.index() + '__') : ''}${this.itemDefinition().config.dataKey}`)
 	protected readonly fieldContextInjector = createRenderedFieldItemContextInjector({
 		fieldId: this.fieldId

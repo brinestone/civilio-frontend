@@ -1,4 +1,5 @@
-import { Component, computed } from "@angular/core";
+import { Component } from "@angular/core";
+import { IsStringPipe } from "@app/pipes";
 import { HlmField, HlmFieldDescription, HlmFieldError, HlmFieldLabel } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
@@ -11,9 +12,9 @@ import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
 		HlmField,
 		HlmFieldDescription,
 		HlmInput,
-		HlmFieldError
+		HlmFieldError,
+		IsStringPipe
 	]
 })
-export class NumberFieldRenderer extends BaseFieldRenderer<'integer' | 'float', number> {
-
+export class NumberFieldRenderer extends BaseFieldRenderer<'integer' | 'float', number | undefined | null> {
 }
