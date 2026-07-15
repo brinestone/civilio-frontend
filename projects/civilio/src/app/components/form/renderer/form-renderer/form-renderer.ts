@@ -39,7 +39,7 @@ export class FormRenderer {
 			// 	// TODO: Push into undo/redo stacks
 			// }));
 		}
-	})
+	});
 
 	readonly formItems = input<FormItemEntity[]>([]);
 	readonly submissionData = input<SubmissionData>({}, { alias: 'formData' });

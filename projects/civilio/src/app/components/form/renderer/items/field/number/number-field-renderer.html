@@ -1,31 +1,20 @@
 <div hlmField>
 	<label hlmFieldLabel [for]="field.api.name">{{ config().title }}</label>
 	<ng-container>
-		@if(config().type == 'text') {
 		<input
-			type="text"
-			[placeholder]="placeholderText()"
+			type="number"
 			[id]="field.api.name"
 			[name]="field.api.name"
-			[disabled]="config().disabled"
 			[value]="field.api.state.value"
 			(blur)="field.api.handleBlur()"
-			(input)="field.api.handleChange($event.target.value)"
+			(input)="field.api.handleChange($event.target.valueAsNumber || undefined)"
+			[step]="config().type == 'integer' ? 1 : .1"
+			[max]="config().max"
+			[min]="config().min"
 			hlmInput
 		/>
-		} @else {
-		<textarea
-			[id]="field.api.name"
-			[id]="field.api.name"
-			[disabled]="config().disabled"
-			[placeholder]="placeholderText()"
-			hlmTextarea
-		></textarea>
-		}
 	</ng-container>
-	@if(config().disabled && config().disabledReason; as disabledReason) {
-	<p hlmFieldDescription>{{ disabledReason }}</p>
-	}@else if(hintText(); as hint) {
+	@if(hintText(); as hint) {
 	<p hlmFieldDescription>{{ hint }}</p>
 	}
 	<ng-container>
