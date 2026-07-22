@@ -5,6 +5,20 @@ import z from "zod";
 export function buildValidatorSchemaFromConfig<TConfig extends QuestionConfig>(config: TConfig): z.ZodType {
 	let schema: z.ZodType;
 	switch (config.type) {
+		case 'email': {
+			if (config.required) {
+				schema = z.email({
+					error: ctx => {
+						if (!ctx.input) return 'A value is required';
+						return 'Invalid email'
+					}
+				}).trim()
+			} else {
+				schema = z.string().trim().refine(v => !v || z.email().safeParse(v).success, { error: 'Invalid email' })
+			}
+			break;
+		}
+
 		case 'text':
 		case 'multiline': {
 			let s = z.string(config.required ? 'A value is required' : undefined).trim();

@@ -3,6 +3,7 @@ import { IsStringPipe } from "@app/pipes";
 import { HlmField, HlmFieldDescription, HlmFieldError, HlmFieldLabel } from "@spartan-ng/helm/field";
 import { HlmInput } from "@spartan-ng/helm/input";
 import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
+import { NumberQuestionConfig } from "@db/schemas";
 
 @Component({
 	selector: 'cv-number-field-renderer',
@@ -16,5 +17,5 @@ import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
 		IsStringPipe
 	]
 })
-export class NumberFieldRenderer extends BaseFieldRenderer<'integer' | 'float', number | undefined | null> {
+export class NumberFieldRenderer extends BaseFieldRenderer<NumberQuestionConfig['type'], number | undefined | null> {
 }

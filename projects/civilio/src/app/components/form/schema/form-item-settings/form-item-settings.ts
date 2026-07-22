@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, model, output, Signal, Type } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideSettings, lucideX } from "@ng-icons/lucide";
+import { TranslatePipe } from "@ngx-translate/core";
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmTabsImports } from "@spartan-ng/helm/tabs";
 
@@ -20,6 +21,7 @@ export type ConfigTab = {
 	imports: [
 		HlmTabsImports,
 		NgIcon,
+		TranslatePipe,
 		HlmButton
 	],
 	viewProviders: [
