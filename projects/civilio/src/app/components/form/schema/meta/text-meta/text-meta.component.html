@@ -35,7 +35,7 @@
 }
 @if (!meta().pattern().hidden()) {
 	<div hlmField>
-		<div class="flex gap-2 items-center">
+		<!-- <div class="flex gap-2 items-center">
 			<span class="text-sm text-muted-foreground font-medim">Presets: </span>
 			<hlm-toggle-group
 				(valueChange)="onTextFieldPatternPresetChanged($any($event))"
@@ -65,7 +65,7 @@
 					<span>Custom</span>
 				</button>
 			</hlm-toggle-group>
-		</div>
+		</div> -->
 		<input
 			(valueChange)="onTextFieldPatternInputValueChanged()"
 			[formField]="meta().pattern"
@@ -81,7 +81,7 @@
 			<a
 				target="_blank"
 				tabindex="-1"
-				href="https://en.wikipedia.org/wiki/Regular_expression"
+				href="https://wikipedia.org/wiki/Regular_expression"
 				>Learn more about regular expressions.</a
 			>
 		</p>

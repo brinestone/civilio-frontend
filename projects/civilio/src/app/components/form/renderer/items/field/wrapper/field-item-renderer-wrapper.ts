@@ -32,6 +32,8 @@ export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEn
 	protected readonly config = computed(() => this.itemDefinition().config);
 	protected readonly renderers = {
 		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
+		email: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
+		phone: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
 		integer: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
 		float: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
 	} as Record<QuestionType, () => Promise<Type<any>>>;

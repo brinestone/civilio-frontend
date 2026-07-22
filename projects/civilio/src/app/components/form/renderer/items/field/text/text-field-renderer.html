@@ -1,9 +1,9 @@
 <div hlmField>
 	<label hlmFieldLabel [for]="field.api.name">{{ config().title }}</label>
 	<ng-container>
-		@if(config().type == 'text') {
+		@if(config().type != 'multiline') {
 		<input
-			type="text"
+			[type]="config().type == 'email' ? 'email' : config().type == 'phone' ? 'tel' : 'text'"
 			[placeholder]="placeholderText()"
 			[id]="field.api.name"
 			[name]="field.api.name"

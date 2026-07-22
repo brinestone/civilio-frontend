@@ -4,6 +4,7 @@ import { HlmField, HlmFieldDescription, HlmFieldError, HlmFieldLabel } from "@sp
 import { HlmInput } from "@spartan-ng/helm/input";
 import { HlmTextarea } from "@spartan-ng/helm/textarea";
 import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
+import { TextQuestionConfig } from "@db/schemas";
 
 @Component({
 	selector: 'cv-text-field-renderer',
@@ -19,7 +20,7 @@ import { BaseFieldRenderer } from "../base-field-renderer/base-field-renderer";
 		HlmInput
 	]
 })
-export class TextFieldRenderer extends BaseFieldRenderer<'text' | 'multiline', string> {
+export class TextFieldRenderer extends BaseFieldRenderer<TextQuestionConfig['type'], string> {
 	protected readonly placeholderText = computed(() => {
 		return this.config().placeholder ?? ''
 	});
