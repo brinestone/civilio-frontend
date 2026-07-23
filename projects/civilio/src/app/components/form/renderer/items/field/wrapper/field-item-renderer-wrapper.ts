@@ -35,6 +35,7 @@ export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEn
 		email: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
 		phone: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),
 		integer: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
+		boolean: () => import('../boolean/boolean-field-renderer').then(m => m.BooleanFieldRenderer),
 		float: () => import('../number/number-field-renderer').then(m => m.NumberFieldRenderer),
 	} as Record<QuestionType, () => Promise<Type<any>>>;
 	protected readonly rendererProvider = computed(() => {

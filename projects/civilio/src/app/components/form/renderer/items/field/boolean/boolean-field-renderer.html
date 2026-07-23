@@ -1,0 +1,33 @@
+<div hlmField>
+	<label hlmFieldLabel [for]="field.api.name">{{config().title}}</label>
+	@if(hintText(); as hint) {
+	<p hlmFieldDescription>{{hint}}</p>
+	}
+	<ng-container>
+		@if(config().renderAs == 'checkbox') {
+		<hlm-checkbox
+			[checked]="field.api.state.value ?? false"
+			[id]="field.api.name"
+			[name]="field.api.name"
+			(blur)="field.api.handleBlur()"
+			(checkedChange)="field.api.handleChange($event)"
+		/>
+		}@else {
+		<hlm-select
+			[value]="field.api.state.value"
+			[id]="field.api.name"
+			(blur)="field.api.handleBlur()"
+			(valueChange)="field.api.handleChange($any($event))"
+			class="w-full"
+		>
+			<hlm-select-trigger class="w-full"
+				><hlm-select-value
+			/></hlm-select-trigger>
+			<hlm-select-content class="w-full">
+				<hlm-option [value]="true">Yes</hlm-option>
+				<hlm-option [value]="false">No</hlm-option>
+			</hlm-select-content>
+		</hlm-select>
+		}
+	</ng-container>
+</div>
