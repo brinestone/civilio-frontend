@@ -1,65 +1,6 @@
-import { GeoPoint, NumberRange, RelevanceDefinition, Tag } from "@civilio/sdk/models";
 import z from "zod";
-
-export const BaseSchema = z.object({
-	createdAt: z.string().trim().nullish().default(new Date().toISOString()),
-	updatedAt: z.string().trim().nullish().default(new Date().toISOString()),
-});
-export const Archivable = z.object({
-	archivedAt: z.string().trim().nullish().default(null)
-});
-
-export const SubmissionSession = BaseSchema.extend({
-	id: z.uuid(),
-	index: z.number(),
-	label: z.string().trim().nullish().default(new Date().toString()),
-	form: z.string(),
-	formVersion: z.string(),
-}).and(Archivable);
-export type SubmissionSession = z.infer<typeof SubmissionSession>;
-export const SubmissionResponse = z.object({
-	id: z.uuid(),
-	value: z.any().nullable().default(null),
-	sessionId: z.uuid(),
-	parentId: z.uuid().nullish().default(null),
-	valueIndex: z.number().positive('Index must be a positive number').nullish().default(0),
-	formItem: z.uuid()
-}).and(Archivable);
-export type SubmissionResponse = z.infer<typeof SubmissionResponse>;
-
-export const FormVersion = BaseSchema.extend({
-	id: z.uuid(),
-	form: z.string(),
-	parentId: z.uuid().nullish().default(null),
-	isCurrent: z.boolean().default(true),
-	label: z.string().trim().nullish().default(null)
-}).and(Archivable);
-export type FormVersion = z.infer<typeof FormVersion>;
-
-export const FormSchema = BaseSchema.extend({
-	slug: z.string(),
-	description: z.string().trim().nullish().default(null),
-	title: z.string(),
-	archivedAt: z.string().trim().nullish().default(null),
-}).and(Archivable);
-
-export const FormItemType = z.enum(['question']);
-export type FormItemType = z.infer<typeof FormItemType>;
-const BaseFormItemSchema = BaseSchema.extend({
-	id: z.uuid(),
-	formVersion: z.uuid(),
-	type: FormItemType,
-	path: z.string(),
-	relevance: RelevanceDefinition,
-	tags: Tag.array().default([]),
-	metaTag: z.string().trim().nullish().default(null),
-	parentId: z.string().trim().optional()
-});
-
-const DataKeyItemParams = z.object({
-	dataKey: z.string().trim().default(''),
-	autoDataKey: z.boolean().default(true)
-});
+import { BaseFormItem, DataKeyItemParams } from "./base";
+import { GeoPoint, NumberRange } from "@civilio/sdk/models";
 
 const BaseQuestionConfig = DataKeyItemParams.extend({
 	required: z.boolean().default(false),
@@ -147,7 +88,7 @@ export type SimpleDateQuestionConfig = z.infer<typeof SimpleDateQuestionConfig>;
 export const QuestionConfig = z.discriminatedUnion('type', [SimpleDateQuestionConfig, SelectQuestionConfig, RangeDateQuestionConfig, NumberQuestionConfig, MultiSelectQuestionConfig, TextQuestionConfig, BooleanQuestionConfig, GeoPointQuestionConfig, MultiDateQuestionConfig]);
 export type QuestionConfig = z.infer<typeof QuestionConfig>;
 export type QuestionType = QuestionConfig['type'];
-const BaseQuestionFormItem = BaseFormItemSchema.extend({
+const BaseQuestionFormItem = BaseFormItem.extend({
 	type: z.literal('question'),
 });
 
@@ -155,7 +96,3 @@ export const QuestionItem = BaseQuestionFormItem.extend({
 	config: QuestionConfig.optional()
 });
 export type QuestionItem = z.infer<typeof QuestionItem>;
-
-export const FormItem = z.discriminatedUnion('type', [QuestionItem]);
-export type FormItem = z.infer<typeof FormItem>;
-export type FormItemInput = z.input<typeof FormItem>;

@@ -14,7 +14,7 @@ import {
 } from "./collections";
 import {
 	FormItemType,
-	FormSchema,
+	Form,
 	FormVersion
 } from "./schemas";
 import { FormItemEntity } from "./types";
@@ -167,7 +167,7 @@ export function createFormAction() {
 					new PushDocumentChanges([
 						{
 							collection: "forms",
-							data: FormSchema.parse({ slug, title, description }),
+							data: Form.parse({ slug, title, description }),
 							entityKey: slug,
 							operation: "insert",
 						},
