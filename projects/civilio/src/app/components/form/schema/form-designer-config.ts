@@ -40,7 +40,7 @@ import {
 } from "@civilio/sdk/models";
 
 import { Strict } from "@civilio/shared";
-import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, RangeDateQuestionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
+import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, QuestionItem, RangeDateQuestionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
 import { FormItemEntity } from "@db/types";
 import { omit } from "lodash";
 import z from "zod";
@@ -408,8 +408,8 @@ export const isFieldTree = (
 ): v is FieldTree<Strict<FormItemField | NewFormItemField>> =>
 	v.type().value() == "field";
 export const isField = (
-	v: Strict<FormItemEntity>,
-): v is Strict<FormItemEntity> => v.type == "question";
+	v: Strict<FormItem>,
+): v is Strict<QuestionItem> => v.type == "question";
 export const isGroup = (
 	v: Strict<FormItemDefinition | NewFormItemDefinition>,
 ): v is Strict<FormItemGroup | NewFormItemGroup> => v.type == "group";
@@ -422,9 +422,9 @@ export function isExistingFormItem(
 	return "id" in v && "addedAt" in v && "updatedAt" in v;
 }
 function defineFieldItemDefinitionFormSchema(
-	allItems: SchemaPathTree<Strict<FormItemEntity>[]>,
+	allItems: SchemaPathTree<Strict<FormItem>[]>,
 ) {
-	return (paths: SchemaPathTree<Strict<FormItemEntity>>) => {
+	return (paths: SchemaPathTree<Strict<QuestionItem>>) => {
 		apply(paths.config, (config) => {
 			required(config.type, { message: "A field type must be specified" });
 			hidden(config.required, ({ valueOf }) => valueOf(config.readonly) === true);
@@ -551,9 +551,9 @@ function defineImageItemDefinitionFormSchema(
 }
 
 function defineFormItemDefinitionFormSchema(
-	allFields: SchemaPathTree<Strict<FormItemEntity>[]>,
+	allFields: SchemaPathTree<Strict<FormItem>[]>,
 ) {
-	return (paths: SchemaPathTree<Strict<FormItemEntity>>) => {
+	return (paths: SchemaPathTree<Strict<FormItem>>) => {
 		hidden(paths.createdAt, () => true);
 		hidden(paths.updatedAt, () => true);
 		hidden(paths.id, () => true);
@@ -574,7 +574,7 @@ function defineFormItemDefinitionFormSchema(
 }
 
 export function defineFormDesignerFormSchema() {
-	return (paths: SchemaPath<Strict<FormItemEntity>[]>) => {
+	return (paths: SchemaPath<Strict<FormItem>[]>) => {
 		applyEach(paths, defineFormItemDefinitionFormSchema(paths));
 	}
 }

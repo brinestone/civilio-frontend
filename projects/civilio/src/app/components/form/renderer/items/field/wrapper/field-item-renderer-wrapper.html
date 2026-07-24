@@ -8,6 +8,7 @@
 			tanstackField: withForm.form,
 			name: config().dataKey,
 			validators: {
+				onChangeDebounceMs: 300,
 				onChange: validatorSchema()
 			}
 		}"

@@ -11,12 +11,12 @@ import { AsyncPipe, NgClass, NgComponentOutlet } from "@angular/common";
 import { booleanAttribute, Component, computed, input, output, Type, untracked } from "@angular/core";
 import { FieldTree } from "@angular/forms/signals";
 import { Strict } from "@civilio/shared";
-import { FormItemType, QuestionItem } from "@db/schemas";
+import { FormItem, FormItemType, QuestionItem } from "@db/schemas";
+import { FormItemEntity } from "@db/types";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideGrip } from "@ng-icons/lucide";
 import { HlmFieldImports } from "@spartan-ng/helm/field";
 import { createFormSchemaContextInjector } from "../items";
-import { FormItemEntity } from "@db/types";
 
 export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 
@@ -45,7 +45,7 @@ export type ItemReorderedEvent = { startIndex: number; endIndex: number };
 	]
 })
 export class FormDesigner {
-	readonly formItems = input.required<FieldTree<Strict<FormItemEntity>[]>>();
+	readonly formItems = input.required<FieldTree<Strict<FormItem>[]>>();
 	readonly enableDebugPanels = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	readonly libAdd = output<string>();
 	readonly libRemove = output<string>();

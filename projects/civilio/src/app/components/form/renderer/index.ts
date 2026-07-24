@@ -1,1 +1,1 @@
-export * from "./form-renderer/form-renderer";
+export * from "./section-renderer/section-renderer";

@@ -12,8 +12,10 @@ import {
 	untracked
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { FormRenderer, FormState } from '@app/components/form/renderer';
+import { SectionRenderer } from '@app/components/form/renderer';
+import { SubmissionData } from "@civilio/sdk/models";
 import { formItemsCollection, formVersionsCollection, responseCollection, responseSessionsCollection } from "@db/collections";
+import { QuestionItemEntity } from "@db/types";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertTriangle } from "@ng-icons/lucide";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
@@ -23,8 +25,10 @@ import { HlmField, HlmFieldLabel } from "@spartan-ng/helm/field";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
+import { injectForm, injectStore } from "@tanstack/angular-form";
 import { and, count, eq, queryOnce } from "@tanstack/db";
 import { createDraft, finishDraft } from "immer";
+import { identity } from "lodash";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 const newSessionId = () => crypto.randomUUID();
 @Component({
@@ -49,7 +53,7 @@ const newSessionId = () => crypto.randomUUID();
 		HlmSkeleton,
 		DatePipe,
 		RouterLink,
-		FormRenderer
+		SectionRenderer
 	],
 })
 export class SubmissionDataPage {
@@ -119,21 +123,35 @@ export class SubmissionDataPage {
 		}
 	});
 	#updateSubmissionData = effect(async () => {
-		const questions = this.questionItems.data();
+		const questions = this.questionItems.data() as QuestionItemEntity[];
 		const draft = createDraft(untracked(this.submissionData));
 		for (const item of questions) {
-			const response = await queryOnce(q => q.from(({ res: responseCollection }))
-				.join(({ fi: formItemsCollection }), ({ res, fi }) => eq(fi.id, res.formItem))
-				.join(({ se: responseSessionsCollection }), ({ res, se }) => eq(se.id, res.sessionId))
-				.where(({ res, se }) => and(eq(res.formItem, item.id), and(eq(se.id, this.sessionId()), eq(se.form, this.formSlug()), eq(se.formVersion, this.formVersion()))))
-				.select(({ res }) => res)
-				.findOne()
+			const response = await queryOnce(q => {
+				let query = q.from(({ res: responseCollection }))
+					.join(({ fi: formItemsCollection }), ({ res, fi }) => eq(fi.id, res.formItem))
+					.join(({ se: responseSessionsCollection }), ({ res, se }) => eq(se.id, res.sessionId))
+					.where(({ res, se }) => and(eq(res.formItem, item.id), and(eq(se.id, this.sessionId()), eq(se.form, this.formSlug()), eq(se.formVersion, this.formVersion()))))
+					.orderBy(({ res }) => res.valueIndex)
+					.select(({ res }) => ({ value: res.value }));
+
+				if (!item.acceptsMultipleValues) {
+					query = query.findOne();
+				}
+				return query;
+			}
 			);
-			draft[item.config!.dataKey] = response?.value ?? item.config?.defaultValue ?? null;
+			draft[item.config!.dataKey] = (Array.isArray(response) ? response.map(r => r.value) : (response as any)?.value) ?? item.config?.defaultValue ?? null;
 		}
 		this.submissionData.set(finishDraft(draft));
 	});
-	protected onFormStateChanged(event: FormState) {
-		console.log(event);
-	}
+	protected readonly submissionForm = injectForm({
+		defaultValues: {} as SubmissionData
+	});
+	private readonly currentFormState = injectStore(this.submissionForm, identity);
+	protected readonly canMergeRemoteChanges = injectStore(this.submissionForm, state => !state.isDirty);
+	#mergeRemoteChanges = effect(() => {
+		const canProceed = untracked(this.canMergeRemoteChanges);
+		if (!canProceed) return;
+		this.submissionForm.reset(this.submissionData());
+	})
 }

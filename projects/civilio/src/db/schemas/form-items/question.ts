@@ -2,7 +2,7 @@ import z from "zod";
 import { BaseFormItem, DataKeyItemParams } from "./base";
 import { GeoPoint, NumberRange } from "@civilio/sdk/models";
 
-const BaseQuestionConfig = DataKeyItemParams.extend({
+export const BaseQuestionConfig = DataKeyItemParams.extend({
 	required: z.boolean().default(false),
 	disabled: z.boolean().default(false),
 	disabledReason: z.string().trim().nullish().default(null),
@@ -94,5 +94,5 @@ const BaseQuestionFormItem = BaseFormItem.extend({
 
 export const QuestionItem = BaseQuestionFormItem.extend({
 	config: QuestionConfig.optional()
-});
+}).transform(v => ({ ...v, acceptsMultipleValues: false }));
 export type QuestionItem = z.infer<typeof QuestionItem>;

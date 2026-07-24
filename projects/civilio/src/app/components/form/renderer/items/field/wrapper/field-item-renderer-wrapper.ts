@@ -1,11 +1,10 @@
 import { AsyncPipe, NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import { Component, computed, OnDestroy, Type } from '@angular/core';
 import { Strict } from '@civilio/shared';
-import { QuestionType } from '@db/schemas';
-import { FormItemEntity } from '@db/types';
+import { QuestionItem, QuestionType } from '@db/schemas';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
-import { BaseItemRenderer } from '../../base-item-renderer';
+import { DataItemRenderer } from '../../base-item-renderer';
 import { createRenderedFieldItemContextInjector } from '../../context';
 import { buildValidatorSchemaFromConfig } from '../config';
 
@@ -26,7 +25,7 @@ import { buildValidatorSchemaFromConfig } from '../config';
 		}
 	]
 })
-export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEntity>, any> implements OnDestroy {
+export class FieldItemRendererWrapper extends DataItemRenderer<Strict<QuestionItem>, any> implements OnDestroy {
 	protected readonly withForm = injectWithForm({});
 	protected readonly config = computed(() => this.itemDefinition().config);
 	protected readonly renderers = {

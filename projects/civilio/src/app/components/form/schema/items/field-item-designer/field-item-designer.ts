@@ -35,7 +35,7 @@ import {
 	FormItemSettingsDesigner,
 } from "../../form-item-settings/form-item-settings";
 import { BaseFormItemSchemaDesigner } from "../base-item-schema-designer/base-form-item-schema-designer";
-import { FormItem } from "@db/schemas";
+import { FormItem, QuestionItem } from "@db/schemas";
 
 const slugifier = z.string().trim().slugify().nullish().default("").transform(v => v?.replace(/[-]/g, '_') ?? null);
 @Component({
@@ -70,7 +70,7 @@ const slugifier = z.string().trim().slugify().nullish().default("").transform(v 
 	styleUrl: "./field-item-designer.scss",
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FieldItemDesigner extends BaseFormItemSchemaDesigner<FormItem> {
+export class FieldItemDesigner extends BaseFormItemSchemaDesigner<QuestionItem> {
 	readonly noWrapper = input<boolean, BooleanInput>(false, {
 		transform: booleanAttribute,
 	});
