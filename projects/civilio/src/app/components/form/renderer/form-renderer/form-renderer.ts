@@ -7,6 +7,7 @@ import {
 	effect,
 	inject,
 	input,
+	output,
 	TemplateRef,
 	Type,
 	untracked
@@ -17,8 +18,25 @@ import { FormItemType } from "@db/schemas";
 import { FormItemEntity } from "@db/types";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
 import { injectForm, injectStore } from '@tanstack/angular-form';
-import entries from 'lodash/entries';
-import { submissionDataFormOptions } from "../form-renderer-config";
+
+export type FormState = {
+	canSubmit: boolean;
+	isDefault: boolean;
+	valid: boolean;
+	dirty: boolean;
+	/**
+	 * Whether remote changes can be merged without triggering user interaction events
+	 */
+	remoteMergable: boolean;
+	submitting: boolean;
+	validating: boolean;
+	submissionAttempts: number;
+	touched: boolean;
+	errors: unknown[];
+	errorMap: Record<string, unknown>;
+	fieldErrors: Record<string, unknown[]>;
+	pristine: boolean;
+}
 
 @Component({
 	selector: "cv-form-renderer",
@@ -29,20 +47,9 @@ import { submissionDataFormOptions } from "../form-renderer-config";
 })
 export class FormRenderer {
 	private readonly logic = inject(JsonLogic);
-	#updateFormValueEffect = effect(() => {
-		const newValue = this.submissionData();
-		if (!newValue) return;
-		for (const [k, v] of entries(newValue)) {
-			// this.form.baseStore.setState(current => produce(current.values, draft => {
-			// 	draft.values[k] = v;
-			// }, (patches, inversePatches) => {
-			// 	// TODO: Push into undo/redo stacks
-			// }));
-		}
-	});
-
+	readonly stateChange = output<FormState>();
 	readonly formItems = input<FormItemEntity[]>([]);
-	readonly submissionData = input<SubmissionData>({}, { alias: 'formData' });
+	readonly submissionData = input.required<SubmissionData>({ alias: 'formData' });
 	readonly showMissingRendererMessages = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
 	readonly itemFallbackContent = input<TemplateRef<any>>();
 	readonly preview = input<boolean, BooleanInput>(false, {
@@ -53,27 +60,41 @@ export class FormRenderer {
 		return this.formItems().filter(i => i.type == 'question' || i.type == 'group');
 	});
 	protected readonly form = injectForm({
-		...submissionDataFormOptions,
-		onSubmit: async ({ value }) => {
-
-		}
+		defaultValues: {} as SubmissionData
 	});
-	protected readonly canMergeRemoteChanges = injectStore(this.form, state => !state.isDirty);
-	protected readonly canSubmit = injectStore(this.form, state => state.canSubmit);
-	protected readonly formSubmitting = injectStore(this.form, state => state.isSubmitting);
 	protected readonly renderers = {
 		question: import("../items/field/wrapper/field-item-renderer-wrapper").then(
 			(m) => m.FieldItemRendererWrapper,
 		),
 	} as Record<FormItemType, Promise<Type<any>>>;
-	#updateFormData = effect(() => {
+	protected readonly canMergeRemoteChanges = injectStore(this.form, state => !state.isDirty);
+	protected readonly formState = injectStore(this.form, state => ({
+		canSubmit: state.canSubmit,
+		isDefault: state.isDefaultValue,
+		dirty: state.isDirty,
+		remoteMergable: !state.isDirty,
+		submitting: state.isSubmitting,
+		valid: state.isValid,
+		touched: state.isTouched,
+		submissionAttempts: state.submissionAttempts,
+		validating: state.isValidating,
+		pristine: state.isPristine,
+		errorMap: state.errorMap,
+		errors: state.errors,
+		fieldErrors: Object.entries(state.fieldMeta).reduce((acc, [k, meta]) => {
+			acc[k] = meta?.errors ?? [];
+			return acc;
+		}, {} as Record<string, unknown[]>)
+	}) as FormState);
+	#mergeRemoteChanges = effect(() => {
 		const canProceed = untracked(this.canMergeRemoteChanges);
 		if (!canProceed) return;
 
-		for (const [k, v] of entries(this.submissionData())) {
-			this.form.setFieldValue(k, v, { dontRunListeners: true })
-		}
+		this.form.reset(this.submissionData());
 	});
+	#emitStateChanges = effect(() => {
+		this.stateChange.emit(this.formState());
+	})
 
 	private evaluateRelevance(data: SubmissionData, logic: any) {
 		return this.logic.run(logic, data);

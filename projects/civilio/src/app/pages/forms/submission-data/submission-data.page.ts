@@ -12,7 +12,7 @@ import {
 	untracked
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { FormRenderer } from '@app/components/form/renderer';
+import { FormRenderer, FormState } from '@app/components/form/renderer';
 import { formItemsCollection, formVersionsCollection, responseCollection, responseSessionsCollection } from "@db/collections";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertTriangle } from "@ng-icons/lucide";
@@ -24,7 +24,7 @@ import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
 import { and, count, eq, queryOnce } from "@tanstack/db";
-import { createDraft, finishDraft, produce } from "immer";
+import { createDraft, finishDraft } from "immer";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 const newSessionId = () => crypto.randomUUID();
 @Component({
@@ -133,4 +133,7 @@ export class SubmissionDataPage {
 		}
 		this.submissionData.set(finishDraft(draft));
 	});
+	protected onFormStateChanged(event: FormState) {
+		console.log(event);
+	}
 }

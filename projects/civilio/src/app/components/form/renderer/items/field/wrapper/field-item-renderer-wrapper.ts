@@ -5,7 +5,6 @@ import { QuestionType } from '@db/schemas';
 import { FormItemEntity } from '@db/types';
 import { HlmFieldGroup } from '@spartan-ng/helm/field';
 import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
-import { submissionDataFormOptions } from '../../../form-renderer-config';
 import { BaseItemRenderer } from '../../base-item-renderer';
 import { createRenderedFieldItemContextInjector } from '../../context';
 import { buildValidatorSchemaFromConfig } from '../config';
@@ -28,7 +27,7 @@ import { buildValidatorSchemaFromConfig } from '../config';
 	]
 })
 export class FieldItemRendererWrapper extends BaseItemRenderer<Strict<FormItemEntity>, any> implements OnDestroy {
-	protected readonly withForm = injectWithForm(submissionDataFormOptions);
+	protected readonly withForm = injectWithForm({});
 	protected readonly config = computed(() => this.itemDefinition().config);
 	protected readonly renderers = {
 		text: () => import('../text/text-field-renderer').then(m => m.TextFieldRenderer),

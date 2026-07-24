@@ -1,8 +1,7 @@
 import { assertInInjectionContext, inject, InjectionToken, Injector, Signal } from "@angular/core";
-import { FormItemDefinition, FormItemField } from "@civilio/sdk/models";
+import { FormItemField } from "@civilio/sdk/models";
 import { Strict } from "@civilio/shared";
 import { FormItem } from "@db/schemas";
-import { FormItemEntity } from "@db/types";
 
 export type RenderedFormItemContext<TDefinition extends FormItem> = {
 	definition: Signal<Strict<TDefinition>>;

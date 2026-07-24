@@ -1,9 +1,5 @@
-import { FormItemDefinition, FormItemField, FormItemGroup, SubmissionData, TextFieldConfig } from "@civilio/sdk/models";
-import { formOptions, revalidateLogic } from "@tanstack/angular-form";
+import { FormItemDefinition, FormItemField, FormItemGroup, TextFieldConfig } from "@civilio/sdk/models";
 
-export const submissionDataFormOptions = formOptions({
-	defaultValues: SubmissionData.parse({})
-});
 
 const fieldTypesMap = {
 	text: TextFieldConfig

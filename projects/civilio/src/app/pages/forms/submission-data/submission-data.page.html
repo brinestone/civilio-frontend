@@ -58,6 +58,7 @@
 		@if(definition) {
 		<div class="py-5 px-4">
 			<cv-form-renderer
+				(stateChange)="onFormStateChanged($event)"
 				[formData]="submissionData()"
 				[showMissingRendererMessages]="isDevMode()"
 				[itemFallbackContent]="itemFallbackTemplate"
