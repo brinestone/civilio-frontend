@@ -93,6 +93,6 @@ const BaseQuestionFormItem = BaseFormItem.extend({
 });
 
 export const QuestionItem = BaseQuestionFormItem.extend({
-	config: QuestionConfig.optional()
+	config: QuestionConfig
 }).transform(v => ({ ...v, acceptsMultipleValues: false }));
 export type QuestionItem = z.infer<typeof QuestionItem>;

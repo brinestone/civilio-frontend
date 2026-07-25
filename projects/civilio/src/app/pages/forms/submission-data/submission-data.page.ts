@@ -26,9 +26,9 @@ import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
 import { injectForm, injectStore } from "@tanstack/angular-form";
-import { and, count, eq, queryOnce } from "@tanstack/db";
+import { and, count, eq, inArray, queryOnce } from "@tanstack/db";
 import { createDraft, finishDraft } from "immer";
-import { identity } from "lodash";
+import { identity, set } from "lodash";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 const newSessionId = () => crypto.randomUUID();
 @Component({
@@ -112,35 +112,40 @@ export class SubmissionDataPage {
 					vc: count(sessions)
 				})),
 	});
-	protected readonly questionItems = injectLiveQuery({
+	protected readonly questions = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), version: this.formVersion() }),
 		query: ({ q, params: { slug, version } }) => {
 			return q.from({
 				fi: formItemsCollection,
 			}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
-				.where(({ fv, fi }) => and(eq(fi.type, 'question'), and(eq(fv.form, slug), version ? eq(fv.id, version) : eq(fv.isCurrent, true))))
+				.where(({ fv, fi }) => and(inArray(fi.type, ['question']), and(eq(fv.form, slug), version ? eq(fv.id, version) : eq(fv.isCurrent, true))))
 				.select(({ fi }) => fi);
 		}
 	});
 	#updateSubmissionData = effect(async () => {
-		const questions = this.questionItems.data() as QuestionItemEntity[];
+		const questions = this.questions.data() as QuestionItemEntity[];
 		const draft = createDraft(untracked(this.submissionData));
 		for (const item of questions) {
-			const response = await queryOnce(q => {
-				let query = q.from(({ res: responseCollection }))
-					.join(({ fi: formItemsCollection }), ({ res, fi }) => eq(fi.id, res.formItem))
-					.join(({ se: responseSessionsCollection }), ({ res, se }) => eq(se.id, res.sessionId))
+			if (item.type == 'question') {
+				const response = await queryOnce(q => q.from({ res: responseCollection })
+					.join({ fi: formItemsCollection }, ({ res, fi }) => eq(fi.id, res.formItem))
+					.join({ se: responseSessionsCollection }, ({ res, se }) => eq(se.id, res.sessionId))
+					.leftJoin({ parentItem: formItemsCollection }, ({ parentItem, fi }) => eq(parentItem.id, fi.parentId))
 					.where(({ res, se }) => and(eq(res.formItem, item.id), and(eq(se.id, this.sessionId()), eq(se.form, this.formSlug()), eq(se.formVersion, this.formVersion()))))
 					.orderBy(({ res }) => res.valueIndex)
-					.select(({ res }) => ({ value: res.value }));
+					.select(({ res, parentItem }) => ({
+						value: res.value,
+						parentDataKey: parentItem.config.dataKey,
+					}))
+				);
 
-				if (!item.acceptsMultipleValues) {
-					query = query.findOne();
+				const parentKeys = await findAllParentDataKeys(item.id);
+				if (item.acceptsMultipleValues) {
+					set(draft, [...parentKeys, item.config.dataKey], response.map(r => r.value));
+				} else {
+					set(draft, [...parentKeys, item.config.dataKey], response[0]?.value ?? item.config?.defaultValue ?? null);
 				}
-				return query;
 			}
-			);
-			draft[item.config!.dataKey] = (Array.isArray(response) ? response.map(r => r.value) : (response as any)?.value) ?? item.config?.defaultValue ?? null;
 		}
 		this.submissionData.set(finishDraft(draft));
 	});
@@ -152,6 +157,21 @@ export class SubmissionDataPage {
 	#mergeRemoteChanges = effect(() => {
 		const canProceed = untracked(this.canMergeRemoteChanges);
 		if (!canProceed) return;
-		this.submissionForm.reset(this.submissionData());
-	})
+		const changes = this.submissionData();
+		this.submissionForm.reset(changes);
+	});
+	// #foo
+}
+
+async function findAllParentDataKeys(id: string): Promise<string[]> {
+	const response = await queryOnce(q => q.from({ fi: formItemsCollection })
+		.join(({ parent: formItemsCollection }), ({ fi, parent }) => eq(fi.parentId, parent.id))
+		.where(({ fi }) => eq(fi.id, id))
+		.select(({ parent }) => ({ dataKey: parent.config.dataKey }))
+		.findOne()
+	);
+
+	if (!response || !response.dataKey) return Array<string>();
+
+	return [response.dataKey, ...(await findAllParentDataKeys(response.dataKey))];
 }

@@ -14,9 +14,8 @@ export const LayoutItemParams = z.object({
 export const SectionConfig = BaseQuestionConfig.and(LayoutItemParams);
 export type SectionConfig = z.infer<typeof SectionConfig>;
 
-export const SectionItem = BaseFormItem.omit({
-	parentId: true
-}).extend({
+export const SectionItem = BaseFormItem.extend({
+	parentId: z.null().default(null),
 	type: z.literal('section'),
 	config: SectionConfig,
 });
