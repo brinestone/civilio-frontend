@@ -11,13 +11,12 @@ import {
 } from "@angular/core";
 import { JsonLogic } from "@app/adapters/json-logic";
 import { SubmissionData } from "@civilio/sdk/models";
-import { FormItemType } from "@db/schemas";
-import { FormItemEntity } from "@db/types";
+import { FormItem, FormItemType } from "@db/schemas";
 import { HlmFieldGroup } from "@spartan-ng/helm/field";
 import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
 
 @Component({
-	selector: "cv-form-renderer",
+	selector: "cv-section-renderer",
 	templateUrl: "./section-renderer.html",
 	styleUrl: "./section-renderer.scss",
 	imports: [HlmFieldGroup, NgComponentOutlet, AsyncPipe],
@@ -31,14 +30,11 @@ import { injectWithForm, TanStackWithForm } from '@tanstack/angular-form';
 })
 export class SectionRenderer<TData extends SubmissionData> {
 	private readonly logic = inject(JsonLogic);
-	readonly formItems = input<FormItemEntity[]>([]);
+	readonly formItems = input<FormItem[]>([]);
 	readonly submissionData = input<TData>(undefined, { alias: 'formData' });
-	protected readonly formAccessor = injectWithForm<TData, any, any, any, any, any, any, any, any, any, any, any>()
+	protected readonly formApi = injectWithForm<TData, any, any, any, any, any, any, any, any, any, any, any>()
 	readonly showMissingRendererMessages = input<boolean, BooleanInput>(false, { transform: booleanAttribute })
 	readonly itemFallbackContent = input<TemplateRef<any>>();
-	readonly preview = input<boolean, BooleanInput>(false, {
-		transform: booleanAttribute,
-	});
 
 	protected readonly dataKeyItems = computed(() => {
 		return this.formItems().filter(i => i.type == 'question' || i.type == 'section');
@@ -62,6 +58,6 @@ export class SectionRenderer<TData extends SubmissionData> {
 	protected handleSubmit(event: Event) {
 		event.preventDefault();
 		event.stopPropagation();
-		this.formAccessor.form.handleSubmit();
+		this.formApi.form.handleSubmit();
 	}
 }

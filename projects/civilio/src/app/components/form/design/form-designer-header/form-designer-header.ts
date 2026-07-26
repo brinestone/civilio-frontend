@@ -12,6 +12,7 @@ import { HlmSpinner } from "@spartan-ng/helm/spinner";
 
 const FORM_ITEM_TYPES = {
 	question: { icon: 'lucideFormInput', label: 'Question' },
+	section: { icon: 'lucideGroup', label: 'Section' },
 	// group: { icon: 'lucideGroup', label: 'Group' },
 	// note: { icon: 'lucideStickyNote', label: 'Note' },
 	// image: { icon: 'lucideImage', label: 'Image' },

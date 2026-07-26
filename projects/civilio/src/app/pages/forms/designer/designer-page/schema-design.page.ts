@@ -13,10 +13,10 @@ import {
 	FormDesigner,
 	FormDesignerHeader,
 	ItemReorderedEvent,
-} from "@app/components/form/schema";
+} from "@app/components/form/design";
 import {
 	defineFormDesignerFormSchema,
-} from "@app/components/form/schema/form-designer-config";
+} from "@app/components/form/design/form-designer-config";
 import { HasPendingChanges } from "@app/model/form";
 import { Strict } from "@civilio/shared";
 import { formItemsCollection, formVersionsCollection } from "@db/collections";

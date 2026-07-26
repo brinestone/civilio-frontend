@@ -5,16 +5,16 @@ import {
 	computed,
 	effect,
 	input,
-	isDevMode,
 	linkedSignal,
 	numberAttribute,
 	signal,
 	untracked
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { SectionRenderer } from '@app/components/form/renderer';
+import { FormRenderer } from '@app/components/form/render';
 import { SubmissionData } from "@civilio/sdk/models";
-import { formItemsCollection, formVersionsCollection, responseCollection, responseSessionsCollection } from "@db/collections";
+import { pause } from "@civilio/shared";
+import { formItemsCollection, formsCollection, formVersionsCollection, responseCollection, responseSessionsCollection } from "@db/collections";
 import { QuestionItemEntity } from "@db/types";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertTriangle } from "@ng-icons/lucide";
@@ -25,10 +25,9 @@ import { HlmField, HlmFieldLabel } from "@spartan-ng/helm/field";
 import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
-import { injectForm, injectStore } from "@tanstack/angular-form";
 import { and, count, eq, inArray, queryOnce } from "@tanstack/db";
 import { createDraft, finishDraft } from "immer";
-import { identity, set } from "lodash";
+import { set } from "lodash";
 import { injectQueryParams } from "ngxtension/inject-query-params";
 const newSessionId = () => crypto.randomUUID();
 @Component({
@@ -53,7 +52,7 @@ const newSessionId = () => crypto.randomUUID();
 		HlmSkeleton,
 		DatePipe,
 		RouterLink,
-		SectionRenderer
+		FormRenderer
 	],
 })
 export class SubmissionDataPage {
@@ -64,7 +63,6 @@ export class SubmissionDataPage {
 	readonly sessionId = input<string>(undefined, { alias: "session" });
 	private readonly formVersionArg = injectQueryParams('version');
 
-	protected readonly isDevMode = isDevMode;
 	protected readonly submissionData = signal<Record<string, unknown>>({});
 	protected readonly isNew = computed(() => this.index() === undefined);
 	protected readonly pageIndex = signal<number>(0);
@@ -73,17 +71,22 @@ export class SubmissionDataPage {
 		pageIndex: Math.max(0, this.pageIndex() - 1),
 		pageSize: this.pageSize(),
 	}));
+	protected readonly formInfo = injectLiveQuery({
+		params: () => ({ slug: this.formSlug() }),
+		query: ({ q, params: { slug } }) => q.from({ form: formsCollection })
+			.where(({ form }) => eq(form.slug, slug))
+			.select(({ form }) => ({ title: form.title, description: form.description }))
+			.findOne()
+	})
 	protected readonly formVersion = linkedSignal(() => this.formVersionArg());
 	protected readonly formDefinition = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), version: this.formVersion() }),
-		query: ({ q, params: { slug, version } }) => {
-			return q.from({
-				fi: formItemsCollection,
-			}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
-				.where(({ fv }) => and(eq(fv.form, slug), version ? eq(fv.id, version) : eq(fv.isCurrent, true)))
-				.orderBy(({ fi }) => fi.path, 'asc')
-				.select(({ fi }) => fi);
-		}
+		query: ({ q, params: { slug, version } }) => q.from({
+			fi: formItemsCollection,
+		}).innerJoin({ fv: formVersionsCollection }, ({ fi, fv }) => eq(fi.formVersion, fv.id))
+			.where(({ fv }) => and(eq(fv.form, slug), version ? eq(fv.id, version) : eq(fv.isCurrent, true)))
+			.orderBy(({ fi }) => fi.path, 'asc')
+			.select(({ fi }) => fi)
 	});
 	protected readonly formVersions = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), pagination: this.pagination() }),
@@ -141,7 +144,7 @@ export class SubmissionDataPage {
 
 				const parentKeys = await findAllParentDataKeys(item.id);
 				if (item.acceptsMultipleValues) {
-					set(draft, [...parentKeys, item.config.dataKey], response.map(r => r.value));
+					set(draft, [...parentKeys, item.config.dataKey], response.map(r => r.value ?? item.config?.defaultValue ?? null));
 				} else {
 					set(draft, [...parentKeys, item.config.dataKey], response[0]?.value ?? item.config?.defaultValue ?? null);
 				}
@@ -149,18 +152,11 @@ export class SubmissionDataPage {
 		}
 		this.submissionData.set(finishDraft(draft));
 	});
-	protected readonly submissionForm = injectForm({
-		defaultValues: {} as SubmissionData
-	});
-	private readonly currentFormState = injectStore(this.submissionForm, identity);
-	protected readonly canMergeRemoteChanges = injectStore(this.submissionForm, state => !state.isDirty);
-	#mergeRemoteChanges = effect(() => {
-		const canProceed = untracked(this.canMergeRemoteChanges);
-		if (!canProceed) return;
-		const changes = this.submissionData();
-		this.submissionForm.reset(changes);
-	});
-	// #foo
+	protected async handleSubmission(data: SubmissionData) {
+		debugger;
+		await pause(5000);
+		throw new Error('herll');
+	}
 }
 
 async function findAllParentDataKeys(id: string): Promise<string[]> {

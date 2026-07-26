@@ -1,7 +1,7 @@
 import { Component, computed, effect, untracked } from "@angular/core";
 import { FormField } from "@angular/forms/signals";
 import { FieldError } from "@app/components/form";
-import { formItemPathSeparator } from "@app/components/form/schema/form-designer-config";
+import { formItemPathSeparator } from "@app/components/form/design/form-designer-config";
 import { FormItem } from "@db/schemas";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { HlmFieldImports } from "@spartan-ng/helm/field";

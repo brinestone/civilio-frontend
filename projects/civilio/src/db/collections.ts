@@ -1,19 +1,19 @@
 import { provideAppInitializer } from "@angular/core";
 import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import { FormItem, Form, FormVersion, SubmissionResponse, SubmissionSession } from "./schemas";
+import { FormItem, Form, FormVersion, SubmissionResponse, ResponseSession } from "./schemas";
 
 const dbName = 'civilio-db';
 
 export const responseSessionsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-response-sessions',
-	schema: SubmissionSession,
+	schema: ResponseSession,
 	dbName,
 	getKey: s => s.id,
 	startSync: true,
 	syncMode: 'on-demand',
 	rowUpdateMode: 'partial',
-	tableName: 'form-response-sessions',
+	tableName: 'response-sessions',
 }))
 
 export const responseCollection = createCollection(dexieCollectionOptions({

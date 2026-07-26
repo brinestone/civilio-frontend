@@ -7,7 +7,7 @@
 			[ngComponentOutlet]="renderer | async"
 			[ngComponentOutletInputs]="{
 			itemDefinition: item,
-			form: formAccessor.form,
+			form: formApi.form,
 			index: $index,
 			fallbackContent: showMissingRendererMessages() ?  itemFallbackContent() : null
 		}"

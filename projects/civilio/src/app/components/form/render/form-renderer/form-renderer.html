@@ -1,0 +1,93 @@
+<div
+	class="flex gap-3 justify-between items-center flex-wrap col-start-1 col-span-3 row-start-1 row-span-1 border-b border-border px-4 pt-5 pb-4"
+>
+	<div class="flex gap-3 items-center flex-wrap">
+		@if(logo(); as l) {
+		<img [src]="l" alt="logo" width="80" />
+		}
+		<div class="space-y-2">
+			<h1 class="font-extrabold text-2xl">{{ title() }}</h1>
+			@if(description(); as desc) {
+			<p>{{desc}}</p>
+			}
+		</div>
+	</div>
+	@if(dirty() || !pristine()) {
+	<div class="flex gap-2">
+		<button
+			(click)="onFormReset()"
+			[disabled]="submitting()"
+			hlmBtn
+			variant="destructive"
+		>
+			<ng-icon name="lucideTrash2" />
+			<span>Discard Changes</span>
+			<kbd hlmKbdGroup>
+				<kbd hlmKbd>Esc</kbd>
+			</kbd>
+		</button>
+		<button
+			(click)="onFormSubmit()"
+			type="button"
+			hlmBtn
+			[disabled]="!canSubmit() || submitting() || validating()"
+		>
+			@if(!submitting()) {
+			<ng-icon name="lucideSave" />
+			}@else {
+			<hlm-spinner icon="lucideLoader" />
+			}
+			<span>{{submitting() ? 'Saving' : 'Save'}} Changes</span>
+			<kbd hlmKbdGroup>
+				<kbd hlmKbd>Ctrl + S</kbd>
+			</kbd>
+		</button>
+	</div>
+	}
+</div>
+<div
+	class="col-start-1 col-span-1 row-start-2 row-span-2 border-border overflow-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+	[class.border-r]="sections().length > 0"
+>
+	<ul class="flex flex-col gap-y-1" cdkListbox>
+		@for(section of sections(); track $index){
+		<li cdkOption>{{ section.config.title }}</li>
+		}
+	</ul>
+</div>
+<form
+	class="col-start-2 col-span-1 row-start-2 row-span-1 overflow-auto scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent"
+	(reset)="onFormReset($event)"
+	(submit)="onFormSubmit($event)"
+>
+	<cv-section-renderer
+		[form]="dataForm"
+		[formData]="formData()"
+		[formItems]="formItems()"
+		[showMissingRendererMessages]="isDevMode()"
+		[itemFallbackContent]="itemFallbackTemplate"
+	/>
+</form>
+<!-- <div
+	class="scroll-auto col-start-3 col-span-1 row-start-2 row-span-2 border-border border-l"
+>
+
+</div> -->
+<!-- <div
+	class="col-start-2 col-span-1 row-start-3 row-span-1 border-t border-border"
+>
+	footer
+</div> -->
+<ng-template #itemFallbackTemplate>
+	<div
+		hlmAlert
+		class="max-w-md border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"
+	>
+		<ng-icon name="lucideAlertTriangle" />
+		<h4 hlmAlertTitle>Unsupported Form Item Type</h4>
+		<p hlmAlertDescription>
+			This is a fallback template for unsupported form item types. This is only
+			visible during development.
+		</p>
+	</div>
+</ng-template>

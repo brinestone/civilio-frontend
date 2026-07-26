@@ -11,7 +11,7 @@ export const LayoutItemParams = z.object({
 	itemAlignment: LayoutAlignment.nullish().default('start'),
 })
 
-export const SectionConfig = BaseQuestionConfig.and(LayoutItemParams);
+export const SectionConfig = BaseQuestionConfig.omit({ required: true }).and(LayoutItemParams);
 export type SectionConfig = z.infer<typeof SectionConfig>;
 
 export const SectionItem = BaseFormItem.extend({

@@ -56,13 +56,13 @@
 	@let definition = formDefinition.data();
 	<ng-container>
 		@if(definition) {
-		<div class="py-5 px-4">
+		<div class="h-full">
 			<cv-form-renderer
+				[submitHandler]="handleSubmission.bind(this)"
 				[formData]="submissionData()"
-				[form]="submissionForm"
-				[showMissingRendererMessages]="isDevMode()"
-				[itemFallbackContent]="itemFallbackTemplate"
 				[formItems]="$any(definition)"
+				[title]="formInfo.data()?.title || ''"
+				[description]="formInfo.data()?.description || ''"
 			/>
 		</div>
 		}

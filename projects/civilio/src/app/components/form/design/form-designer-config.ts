@@ -40,7 +40,7 @@ import {
 } from "@civilio/sdk/models";
 
 import { Strict } from "@civilio/shared";
-import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, QuestionItem, RangeDateQuestionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
+import { BooleanQuestionConfig, FormItem, GeoPointQuestionConfig, MultiDateQuestionConfig, NumberQuestionConfig, QuestionConfig, QuestionItem, RangeDateQuestionConfig, SectionConfig, SelectQuestionConfig, SimpleDateQuestionConfig, TextQuestionConfig } from "@db/schemas";
 import { FormItemEntity } from "@db/types";
 import { omit } from "lodash";
 import z from "zod";
@@ -611,6 +611,8 @@ export function formItemDefaultConfig(type: FormItemType) {
 	switch (type) {
 		case 'question':
 			return TextQuestionConfig.parse({ type: 'text' })
+		case 'section':
+			return SectionConfig.parse({})
 		// case "field":
 		//   return FieldItemConfig.parse({ type: "text" });
 		// case "group":

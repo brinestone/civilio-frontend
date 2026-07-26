@@ -1,5 +1,5 @@
 import { assertInInjectionContext, inject } from "@angular/core";
-import { defaultFormItemDefinitionSchemaValue } from "@app/components/form/schema/form-designer-config";
+import { defaultFormItemDefinitionSchemaValue } from "@app/components/form/design/form-designer-config";
 import { PushDocumentChanges } from "@app/store/docs/actions";
 import { deepObjectDiff } from "@civilio/shared";
 import { Store } from "@ngxs/store";

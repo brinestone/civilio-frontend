@@ -1,14 +1,14 @@
 import z from "zod";
 import { Archivable, Base } from "./base";
 
-export const SubmissionSession = Base.extend({
+export const ResponseSession = Base.extend({
 	id: z.uuid(),
 	index: z.number(),
 	label: z.string().trim().nullish().default(new Date().toString()),
 	form: z.string(),
 	formVersion: z.string(),
 }).and(Archivable);
-export type SubmissionSession = z.infer<typeof SubmissionSession>;
+export type ResponseSession = z.infer<typeof ResponseSession>;
 export const SubmissionResponse = z.object({
 	id: z.uuid(),
 	value: z.any().nullable().default(null),
