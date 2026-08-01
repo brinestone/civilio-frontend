@@ -1,15 +1,14 @@
 import { CdkListbox, CdkOption } from "@angular/cdk/listbox";
-import { Component, computed, effect, HostListener, input, isDevMode, output, signal, untracked } from "@angular/core";
+import { Component, computed, effect, HostListener, input, isDevMode, signal, untracked } from "@angular/core";
 import { FormItem, SectionItem } from "@db/schemas";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { lucideAlertTriangle, lucideLoader, lucideSave, lucideTrash, lucideTrash2 } from "@ng-icons/lucide";
-import { injectForm, injectStore } from "@tanstack/angular-form";
-import { entries, groupBy } from "lodash";
-import { SectionRenderer } from "../section-renderer/section-renderer";
+import { lucideAlertTriangle, lucideLoader, lucideSave, lucideTrash2 } from "@ng-icons/lucide";
 import { HlmButton } from "@spartan-ng/helm/button";
 import { HlmKbd, HlmKbdGroup } from "@spartan-ng/helm/kbd";
-import { toast } from "ngx-sonner";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
+import { injectForm, injectStore } from "@tanstack/angular-form";
+import { toast } from "ngx-sonner";
+import { SectionRenderer } from "../section-renderer/section-renderer";
 
 @Component({
 	selector: 'cv-form-renderer',
@@ -36,10 +35,7 @@ import { HlmSpinner } from "@spartan-ng/helm/spinner";
 })
 export class FormRenderer<TData extends Record<string, unknown>> {
 	readonly formData = input.required<TData>();
-	readonly formItems = input.required<FormItem[]>()
-	readonly description = input<string>();
-	readonly logo = input<string>();
-	readonly title = input.required<string>();
+	readonly formItems = input.required<FormItem[]>();
 	readonly submitHandler = input.required<((data: TData) => Promise<void>)>();
 	protected readonly isDevMode = isDevMode;
 	protected readonly dataForm = injectForm({

@@ -1,4 +1,4 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debounce, form, FormField, hidden, required, submit, validate, validateAsync, validateStandardSchema } from '@angular/forms/signals';
@@ -10,7 +10,7 @@ import { randomString } from '@app/util';
 import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
 import { createFormAction, NewFormData } from '@db/actions';
-import { formsCollection, formVersionsCollection } from '@db/collections';
+import { formsCollection, formVersionsCollection, responseSessionsCollection } from '@db/collections';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArchive, lucideCopy, lucideEye, lucideFormInput, lucidePencil, lucidePlus, lucideSave } from '@ng-icons/lucide';
 import { Navigate } from '@ngxs/router-plugin';
@@ -27,7 +27,7 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmH3 } from "@spartan-ng/helm/typography";
-import { eq, injectLiveQuery } from '@tanstack/angular-db';
+import { and, eq, injectLiveQuery, max } from '@tanstack/angular-db';
 import { produce } from 'immer';
 import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 
@@ -61,6 +61,7 @@ import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
 		HlmSpinner,
 		FieldError,
 		HlmInput,
+		SlicePipe,
 		NgTemplateOutlet,
 		HlmH3
 	],
@@ -77,11 +78,13 @@ export class AllFormsPage implements HasPendingChanges {
 	protected readonly forms = injectLiveQuery({
 		query: q => q.from({ forms: formsCollection })
 			.leftJoin({ fv: formVersionsCollection }, ({ forms, fv }) => eq(forms.slug, fv.form))
-			.select(({ forms, fv }) => ({
+			.leftJoin({ sessions: responseSessionsCollection }, ({ fv, sessions }) => eq(sessions.formVersion, fv.id))
+			.select(({ forms, fv, sessions }) => ({
 				title: forms.title,
 				slug: forms.slug,
 				currentVersion: { id: fv.id, lastUpdated: fv.updatedAt },
-				lastUpdated: forms.updatedAt
+				lastUpdated: forms.updatedAt,
+				sessions: sessions.id
 			}))
 			.orderBy(({ $selected }) => $selected.lastUpdated, { direction: 'desc' })
 	});
@@ -118,7 +121,7 @@ export class AllFormsPage implements HasPendingChanges {
 		});
 	})
 	protected readonly formActions = [
-		{ icon: 'lucidePencil', route: (form: ReturnType<typeof this.forms.data>[number]) => ({ query: { version: form.currentVersion.id ?? 'current' }, path: [form.slug, 'designer'] }) },
+		{ icon: 'lucidePencil', route: (form: ReturnType<typeof this.forms.data>[number]) => ({ query: { version: form.currentVersion.id ?? 'current' }, path: [form.slug, form.currentVersion.id ?? 'current', 'designer'] }) },
 		{ icon: 'lucideArchive', handler: this.onArchiveFormButtonClicked.bind(this) }
 	];
 	protected readonly formArchivingDialogState = signal<BrnDialogState>('closed');

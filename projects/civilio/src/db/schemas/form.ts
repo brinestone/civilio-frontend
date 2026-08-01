@@ -16,4 +16,5 @@ export const Form = Base.extend({
 	title: z.string(),
 	logoUrl: z.string().nullish().default(null),
 	archivedAt: z.string().trim().nullish().default(null),
+	validationCodes: z.string().array().nullish().default([])
 }).and(Archivable);

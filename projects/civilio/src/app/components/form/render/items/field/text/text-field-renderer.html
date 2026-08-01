@@ -8,7 +8,7 @@
 			[id]="field.api.name"
 			[name]="field.api.name"
 			[disabled]="config().disabled"
-			[value]="field.api.state.value"
+			[value]="field.api.state.value || ''"
 			(blur)="field.api.handleBlur()"
 			(input)="field.api.handleChange($event.target.value)"
 			hlmInput
@@ -16,9 +16,11 @@
 		} @else {
 		<textarea
 			[id]="field.api.name"
-			[id]="field.api.name"
+			[value]="field.api.state.value || ''"
 			[disabled]="config().disabled"
 			[placeholder]="placeholderText()"
+			(blur)="field.api.handleBlur()"
+			(input)="field.api.handleChange($any($event.target).value)"
 			hlmTextarea
 		></textarea>
 		}

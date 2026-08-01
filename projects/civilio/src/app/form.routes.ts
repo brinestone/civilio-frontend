@@ -4,7 +4,7 @@ import { hasChangesGuard } from "./guards/has-changes-guard";
 
 export const formRoutes: Routes = [
 	{
-		path: ":slug",
+		path: ":slug/:version",
 		loadComponent: () =>
 			import("./layouts/forms/form.layout").then((m) => m.FormLayout),
 		children: [

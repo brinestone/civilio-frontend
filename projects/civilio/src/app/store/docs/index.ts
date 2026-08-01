@@ -1,16 +1,14 @@
-import { DestroyRef, inject, Injectable, isDevMode, OnDestroy } from "@angular/core";
+import { DestroyRef, inject, Injectable, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { DocumentsService } from "@civilio/sdk/services/documents/documents.service";
 import { allCollections } from "@db/collections";
 import { Action, Actions, NgxsOnInit, ofActionSuccessful, State, StateContext, StateToken } from "@ngxs/store";
 import { patch } from "@ngxs/store/operators";
-import { entries, keys, set } from "lodash";
+import { eq, queryOnce } from "@tanstack/db";
+import { keys, set } from "lodash";
 import { concatMap, filter, from, interval, map, merge, mergeMap, of, take, tap, zip } from "rxjs";
 import { LoadConfig } from "../config";
 import { PullChanges, PurgeStore, PushDocumentChanges, RecordLocalChanges, UpdateSyncState } from "./actions";
-import { eq, queryOnce } from "@tanstack/db";
-import { flatten } from "flat";
-import { removeVirtualProps } from "@db/utils";
 
 type Context = StateContext<SyncStateModel>;
 export type SyncStateModel = {
@@ -29,8 +27,8 @@ const offsetDefault = '';
 			forms: offsetDefault,
 			'form-versions': offsetDefault,
 			"form-items": offsetDefault,
-			submissions: offsetDefault,
-			responses: offsetDefault
+			'response-sessions': offsetDefault,
+			'form-responses': offsetDefault
 		}
 	}
 })

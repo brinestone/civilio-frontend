@@ -22,7 +22,7 @@
 							<hlm-select-scroll-up />
 							@for(version of formVersions.data(); track version.id) {
 							<hlm-option [value]="version.id"
-								>{{ version.label || (version.createdAt | date:'longDate')
+								>{{ version.label || (version.createdAt | relativeDate)
 								}}</hlm-option
 							>
 							}
@@ -38,10 +38,15 @@
 			}
 		</div>
 		@for(submission of submissions.data(); track $index) {
-		<a [routerLink]="['..', submission.index]" class="p-3 space-y-2">
+		<a
+			[routerLink]="['..', submission.index]"
+			[relativeTo]="pageRoute"
+			queryParamsHandling="preserve"
+			class="p-3 space-y-2"
+		>
 			<span class="block font-semibold"> Index = {{submission.index}}</span>
 			<span class="block text-muted-foreground text-sm"
-				>{{ submission.recordedAt | date:'longDate' }}</span
+				>{{ submission.recordedAt | relativeDate }}</span
 			>
 		</a>
 		} @empty { @if(!submissions.isLoading()) {
@@ -61,9 +66,21 @@
 				[submitHandler]="handleSubmission.bind(this)"
 				[formData]="submissionData()"
 				[formItems]="$any(definition)"
-				[title]="formInfo.data()?.title || ''"
-				[description]="formInfo.data()?.description || ''"
-			/>
+			>
+				<ng-container slot="header">
+					@if(formInfo.data()?.logo; as l) {
+					<img [src]="l" alt="logo" width="80" />
+					}
+					<div class="space-y-2">
+						<h1 class="font-extrabold text-2xl">
+							{{ formInfo.data()?.title }}
+						</h1>
+						@if(formInfo.data()?.description; as desc) {
+						<p>{{desc}}</p>
+						}
+					</div>
+				</ng-container>
+			</cv-form-renderer>
 		</div>
 		}
 	</ng-container>
@@ -98,3 +115,40 @@
 		</p>
 	</div>
 </ng-template>
+<!-- <hlm-sheet
+	side="right"
+	[state]="submissionMetaSheetState()"
+	(stateChanged)="submissionMetaSheetState.set($event)"
+>
+	<hlm-sheet-content *hlmSheetPortal="let ctx">
+		<hlm-sheet-header>
+			<h1 hlmSheetTitle>Submission Information</h1>
+		</hlm-sheet-header>
+		<form [formRoot]="submissionMetaForm" class="p-3" hlmFieldGroup>
+			<div hlmField>
+				<label hlmFieldLabel for="validationCode">Validation Code</label>
+				<input
+					[formField]="submissionMetaForm.validationCode"
+					hlmInput
+					id="validationCode"
+				/>
+			</div>
+			<div hlmField>
+				<label hlmFieldLabel for="commitMessage">Change notes</label>
+				<textarea
+					id="commitMessage"
+					[formField]="submissionMetaForm.changeNotes"
+					hlmTextarea
+				></textarea>
+			</div>
+			<button
+				[disabled]="submissionMetaForm().invalid() || submissionMetaForm().submitting()"
+				type="submit"
+				class="flex w-full"
+				hlmBtn
+			>
+				Finish
+			</button>
+		</form>
+	</hlm-sheet-content>
+</hlm-sheet> -->

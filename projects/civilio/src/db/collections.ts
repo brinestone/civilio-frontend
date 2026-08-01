@@ -1,5 +1,5 @@
 import { provideAppInitializer } from "@angular/core";
-import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
+import { BasicIndex, createPacedMutations, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
 import { FormItem, Form, FormVersion, SubmissionResponse, ResponseSession } from "./schemas";
 
@@ -62,8 +62,8 @@ export const allCollections = {
 	forms: formsCollection,
 	'form-versions': formVersionsCollection,
 	'form-items': formItemsCollection,
-	submissions: responseSessionsCollection,
-	responses: responseCollection,
+	'response-sessions': responseSessionsCollection,
+	'form-responses': responseCollection,
 };
 
 export function provideCollectionIndexing() {
@@ -79,6 +79,8 @@ export function provideCollectionIndexing() {
 		formItemsCollection.createIndex(row => row.updatedAt, { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => [row.formVersion, row.path], { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => [row.id, row.config.dataKey], { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => [row.formVersion, row.config.dataKey], { indexType: BasicIndex });
 
 		formVersionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
 		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });

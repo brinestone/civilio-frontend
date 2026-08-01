@@ -58,7 +58,7 @@ export const appConfig: ApplicationConfig = {
 			withNgxsRouterPlugin(),
 			withNgxsLoggerPlugin({
 				disabled: !isDevMode(),
-				collapsed: false,
+				collapsed: true,
 			}),
 		),
 		provideNgIconLoader(async (name) => {
