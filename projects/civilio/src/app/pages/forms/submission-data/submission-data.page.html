@@ -1,14 +1,11 @@
 <div
-	class="min-w-100 grid overflow-hidden grid-rows-[1fr_auto]"
-	[ngClass]="{
-	'border-r border-muted': !isNew()
-}"
+	class="min-w-100 grid overflow-hidden grid-rows-[1fr_auto] border-r border-muted"
 >
 	<div class="relative overflow-auto">
 		<div class="px-3 py-2 border-b border-muted backdrop-blur min-h-20">
 			@defer(when !formVersions.isLoading()) {
 			<div hlmField>
-				<label hlmFieldLabel for="fv">Form version</label>
+				<label hlmFieldLabel for="fv">Form Version</label>
 				<hlm-select
 					id="fv"
 					[(value)]="formVersion"
@@ -20,7 +17,7 @@
 					<hlm-select-content class="w-full">
 						<hlm-select-group>
 							<hlm-select-scroll-up />
-							@for(version of formVersions.data(); track version.id) {
+							@for(version of formVersions.value(); track version.id) {
 							<hlm-option [value]="version.id"
 								>{{ version.label || (version.createdAt | relativeDate)
 								}}</hlm-option
@@ -37,23 +34,39 @@
 			</div>
 			}
 		</div>
-		@for(submission of submissions.data(); track $index) {
-		<a
-			[routerLink]="['..', submission.index]"
-			[relativeTo]="pageRoute"
-			queryParamsHandling="preserve"
-			class="p-3 space-y-2"
-		>
-			<span class="block font-semibold"> Index = {{submission.index}}</span>
-			<span class="block text-muted-foreground text-sm"
-				>{{ submission.recordedAt | relativeDate }}</span
+		<ul class="px-3 space-y-2 pt-4">
+			@for(submission of submissions.data(); track $index) {
+			<li
+				class="p-2 hover:bg-muted/60 focus-within:bg-muted/50 focus-within:ring-2 focus-within:ring-primary rounded has-[.active-index]:bg-primary has-[.active-index]:text-primary-foreground"
 			>
-		</a>
-		} @empty { @if(!submissions.isLoading()) {
-		<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
-		} @else {
-		<ng-container [ngTemplateOutlet]="loadingTemplate" />
-		} }
+				<a
+					[routerLink]="['..', submission.index]"
+					[relativeTo]="pageRoute"
+					[queryParams]="{
+					session: 'current'
+				}"
+					routerLinkActive="active-index"
+					queryParamsHandling="merge"
+					class="focus:outline-none group/index-link"
+				>
+					<p class="block font-semibold">
+						Index = {{submission.index | number:'3.0-0'}}
+					</p>
+					<p class="block text-muted-foreground group-[:is(.active-index)]/index-link:text-primary-foreground text-sm">
+						{{ submission.recordedAt | relativeDate }}
+					</p>
+				</a>
+			</li>
+			} @empty {
+			<ng-container>
+				@if(!submissions.isLoading()) {
+				<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
+				} @else {
+				<ng-container [ngTemplateOutlet]="loadingTemplate" />
+				}
+			</ng-container>
+			}
+		</ul>
 	</div>
 	<div class="border-muted border-t"></div>
 </div>
@@ -97,10 +110,10 @@
 	</div>
 </ng-template>
 <ng-template #emptySubmissionsListTemplate>
-	<div hlmEmpty>
+	<li hlmEmpty>
 		<p hlmEmptyTitle>No Submissions</p>
 		<p hlmEmptyDescription>No submissions have been recorded yet.</p>
-	</div>
+	</li>
 </ng-template>
 <ng-template #itemFallbackTemplate>
 	<div

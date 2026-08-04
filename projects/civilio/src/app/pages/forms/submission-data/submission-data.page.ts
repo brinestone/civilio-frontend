@@ -1,5 +1,5 @@
 import { NumberInput } from "@angular/cdk/coercion";
-import { DatePipe, NgClass, NgTemplateOutlet } from "@angular/common";
+import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
 	Component,
 	computed,
@@ -8,11 +8,12 @@ import {
 	input,
 	linkedSignal,
 	numberAttribute,
+	resource,
 	signal,
 	untracked
 } from "@angular/core";
 import { form, metadata, required } from "@angular/forms/signals";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, RouterLink, RouterLinkActive } from "@angular/router";
 import { HINT } from "@app/components/form/design/form-designer-config";
 import { FormRenderer } from '@app/components/form/render';
 import { RelativeDatePipe } from "@app/pipes";
@@ -33,7 +34,7 @@ import { HlmSelectImports } from "@spartan-ng/helm/select";
 import { HlmSheetImports } from "@spartan-ng/helm/sheet";
 import { HlmSkeleton } from "@spartan-ng/helm/skeleton";
 import { injectLiveQuery } from "@tanstack/angular-db";
-import { and, count, eq, inArray, max, queryOnce } from "@tanstack/db";
+import { and, count, eq, inArray, isNull, max, queryOnce } from "@tanstack/db";
 import { createDraft, finishDraft } from "immer";
 import set from 'lodash/set';
 import { injectQueryParams } from "ngxtension/inject-query-params";
@@ -61,13 +62,13 @@ const newSessionId = () => crypto.randomUUID();
 		HlmEmptyImports,
 		HlmSheetImports,
 		BrnSheetImports,
-		NgClass,
 		NgIcon,
+		DecimalPipe,
 		HlmFieldLabel,
+		RouterLinkActive,
 		NgTemplateOutlet,
 		HlmSkeleton,
 		RelativeDatePipe,
-		DatePipe,
 		RouterLink,
 		FormRenderer,
 		HlmField,
@@ -77,30 +78,27 @@ export class SubmissionDataPage {
 	readonly index = input<number | undefined, NumberInput>(undefined, {
 		transform: numberAttribute,
 	});
-	readonly formVersion = input<string>(undefined, { alias: 'version' });
+	readonly formVersionArg = input<string>(undefined, { alias: 'version' })
 	readonly formSlug = input<string>(undefined, { alias: "slug" });
 	private readonly _sessionId = injectQueryParams('session', { defaultValue: newSessionId() });
 	private readonly sessionId = linkedSignal(() => this._sessionId());
+
 	protected readonly submissionMetaFormData = signal<SubmissionMetaData>({
 		changeNotes: '',
 		validationCode: ''
 	});
 	protected readonly submissionMetaForm = form(this.submissionMetaFormData, paths => {
 		required(paths.validationCode, { message: 'A value is required' });
-		metadata(paths.changeNotes, HINT, () => 'A note describing the changes made')
-		// hidden(paths.inde)
+		metadata(paths.changeNotes, HINT, () => 'A note describing the changes made');
 	});
 
 	protected readonly pageRoute = inject(ActivatedRoute);
+	protected readonly formVersion = linkedSignal(() => this.formVersionArg());
 	protected readonly submissionMetaSheetState = signal<BrnDialogState>('open');
 	protected readonly submissionData = signal<Record<string, unknown>>({});
-	protected readonly isNew = computed(() => this.index() === undefined);
+	protected readonly isNew = computed(() => this.index() === undefined || isNaN(Number(this.index())));
 	protected readonly pageIndex = signal<number>(0);
 	protected readonly pageSize = signal<number>(100);
-	protected readonly pagination = computed(() => ({
-		pageIndex: Math.max(0, this.pageIndex() - 1),
-		pageSize: this.pageSize(),
-	}));
 	protected readonly formInfo = injectLiveQuery({
 		params: () => ({ slug: this.formSlug() }),
 		query: ({ q, params: { slug } }) => q.from({ form: formsCollection })
@@ -117,15 +115,23 @@ export class SubmissionDataPage {
 			.orderBy(({ fi }) => fi.path, 'asc')
 			.select(({ fi }) => fi)
 	});
-	protected readonly formVersions = injectLiveQuery({
-		params: () => ({ slug: this.formSlug(), pagination: this.pagination() }),
-		query: ({ q, params }) =>
-			q
+	protected readonly formVersions = resource({
+		params: () => ({
+			slug: this.formSlug(),
+			pagination: {
+				pageIndex: Math.max(0, this.pageIndex() - 1),
+				pageSize: this.pageSize()
+			}
+		}),
+		defaultValue: [],
+		loader: async ({ params }) => {
+			return await queryOnce(q => q
 				.from({ fv: formVersionsCollection })
 				.where(({ fv }) => eq(fv.form, params.slug))
 				.limit(params.pagination.pageSize)
 				.orderBy(({ fv }) => fv.updatedAt, "desc")
-				.offset(params.pagination.pageIndex * params.pagination.pageSize),
+				.offset(params.pagination.pageIndex * params.pagination.pageSize));
+		}
 	});
 	protected readonly submissions = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), index: this.index(), fv: this.formVersion() }),
@@ -135,14 +141,17 @@ export class SubmissionDataPage {
 				.where(
 					({ sessions }) => and(
 						eq(sessions.form, params.slug),
-						eq(sessions.formVersion, params.fv)
+						eq(sessions.formVersion, params.fv),
+						isNull(sessions.archivedAt)
 					),
 				).groupBy(({ sessions }) => [sessions.index, sessions.createdAt])
 				.select(({ sessions }) => ({
 					index: sessions.index,
 					recordedAt: sessions.createdAt,
-					vc: count(sessions)
-				})),
+					vc: count(sessions),
+					lastUpdated: max(sessions.createdAt)
+				}))
+				.orderBy(({ $selected }) => $selected.lastUpdated, { direction: 'desc' }),
 	});
 	protected readonly questions = injectLiveQuery({
 		params: () => ({ slug: this.formSlug(), version: this.formVersion() }),
@@ -154,41 +163,44 @@ export class SubmissionDataPage {
 				.select(({ fi }) => fi);
 		}
 	});
-	private readonly router = inject(Router)
-	#updateFormVersionQueryParam = effect(() => {
-		const formVersion = this.formVersion();
-		if (!formVersion) return;
-		this.router.navigate([], {
-			relativeTo: this.pageRoute,
-			queryParamsHandling: 'merge',
-			queryParams: {
-				version: formVersion
-			}
-		})
-	})
 	#updateSubmissionData = effect(async () => {
 		const questions = this.questions.data() as QuestionItemEntity[];
 		const draft = createDraft(untracked(this.submissionData));
+		const index = this.index();
+		const sessionId = this.sessionId();
+		const formId = this.formSlug();
+		const formVersion = this.formVersion();
+		const isNew = untracked(this.isNew);
 		for (const item of questions) {
-			if (item.type == 'question') {
-				const response = await queryOnce(q => q.from({ res: responseCollection })
-					.join({ fi: formItemsCollection }, ({ res, fi }) => eq(fi.id, res.formItem))
-					.join({ se: responseSessionsCollection }, ({ res, se }) => eq(se.id, res.sessionId))
-					.leftJoin({ parentItem: formItemsCollection }, ({ parentItem, fi }) => eq(parentItem.id, fi.parentId))
-					.where(({ res, se }) => and(eq(res.formItem, item.id), and(eq(se.id, this.sessionId()), eq(se.form, this.formSlug()), eq(se.formVersion, this.formVersion()))))
-					.orderBy(({ res }) => res.valueIndex)
-					.select(({ res, parentItem }) => ({
-						value: res.value,
-						parentDataKey: parentItem.config.dataKey,
-					}))
-				);
+			const response = isNew ? [] : await queryOnce(q => q.from({ res: responseCollection })
+				.join({ fi: formItemsCollection }, ({ res, fi }) => eq(fi.id, res.formItem))
+				.join({ se: responseSessionsCollection }, ({ res, se }) => eq(se.id, res.sessionId))
+				.leftJoin({ parentItem: formItemsCollection }, ({ parentItem, fi }) => eq(parentItem.id, fi.parentId))
+				.where(({ res, se }) => {
+					const clauses = [
+						eq(res.formItem, item.id),
+						eq(se.form, formId),
+						eq(se.formVersion, formVersion)
+					];
+					if (sessionId)
+						clauses.push(eq(se.id, sessionId));
+					else {
 
-				const parentKeys = await findAllParentDataKeys(item.id);
-				if (item.acceptsMultipleValues) {
-					set(draft, [...parentKeys, item.config.dataKey], response.map(r => r.value ?? item.config?.defaultValue ?? null));
-				} else {
-					set(draft, [...parentKeys, item.config.dataKey], response[0]?.value ?? item.config?.defaultValue ?? null);
-				}
+					}
+					return and(eq(res.formItem, item.id), eq(se.id, sessionId), eq(se.form, formId), eq(se.formVersion, formVersion));
+				})
+				.orderBy(({ res }) => res.valueIndex)
+				.select(({ res, parentItem }) => ({
+					value: res.value,
+					parentDataKey: parentItem.config.dataKey,
+				}))
+			);
+
+			const parentKeys = await findAllParentDataKeys(item.id);
+			if (item.acceptsMultipleValues) {
+				set(draft, [...parentKeys, item.config.dataKey], isNew ? [] : response.map(r => r.value ?? item.config?.defaultValue ?? null));
+			} else {
+				set(draft, [...parentKeys, item.config.dataKey], isNew ? (item.config.defaultValue ?? null) : response[0]?.value ?? item.config?.defaultValue ?? null);
 			}
 		}
 		this.submissionData.set(finishDraft(draft));
@@ -205,7 +217,13 @@ export class SubmissionDataPage {
 				.select(({ session }) => ({ index: max(session.index) }))
 				.findOne()
 			);
-			const index = isNaN(Number(this.index())) ? (lastIndex?.index ?? 1) : this.index();
+			let index: number;
+			// const index = isNaN(Number(this.index())) ? (lastIndex?.index ?? 1) : this.index();
+			if (this.isNew()) index = (lastIndex?.index ?? 0) + 1;
+			else {
+				index = Number(this.index() ?? lastIndex?.index);
+				index = (isNaN(index) ? 0 : index) + 1;
+			}
 			const tx = this.persistSubmissionChanges({
 				data,
 				formSlug: this.formSlug()!,

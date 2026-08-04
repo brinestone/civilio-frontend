@@ -2,9 +2,8 @@ import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import {
 	ApplicationConfig,
 	isDevMode,
-	LOCALE_ID,
 	provideBrowserGlobalErrorListeners,
-	provideZonelessChangeDetection,
+	provideZonelessChangeDetection
 } from "@angular/core";
 import {
 	provideRouter,
@@ -29,7 +28,6 @@ import {
 } from "./adapters/ngx-translate/ngx-translate";
 import { TranslateTitleStrategy } from "./adapters/ngx-translate/title.strategy";
 import { routes } from "./app.routes";
-import { provideHttpClientErrorHandler } from "./http/error-handler";
 import { apiInterceptor } from "./interceptors/api-url-interceptor";
 import { provideDomainConfig } from "./services/config";
 import { ConfigState } from "./store/config";
@@ -39,7 +37,7 @@ export const appConfig: ApplicationConfig = {
 	providers: [
 		provideHttpClient(withInterceptors([apiInterceptor])),
 		provideCollectionIndexing(),
-		provideHttpClientErrorHandler(),
+		// provideHttpClientErrorHandler(),
 		provideBrowserGlobalErrorListeners(),
 		provideZonelessChangeDetection(),
 		provideRouter(

@@ -1,5 +1,5 @@
 import { CdkListbox, CdkOption } from "@angular/cdk/listbox";
-import { Component, computed, effect, HostListener, input, isDevMode, signal, untracked } from "@angular/core";
+import { booleanAttribute, Component, computed, effect, HostListener, input, isDevMode, signal, untracked } from "@angular/core";
 import { FormItem, SectionItem } from "@db/schemas";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertTriangle, lucideLoader, lucideSave, lucideTrash2 } from "@ng-icons/lucide";
@@ -9,6 +9,9 @@ import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { injectForm, injectStore } from "@tanstack/angular-form";
 import { toast } from "ngx-sonner";
 import { SectionRenderer } from "../section-renderer/section-renderer";
+import { get, keys, set } from "lodash";
+import { flatten } from "flat";
+import { BooleanInput } from "@angular/cdk/coercion";
 
 @Component({
 	selector: 'cv-form-renderer',
@@ -37,14 +40,26 @@ export class FormRenderer<TData extends Record<string, unknown>> {
 	readonly formData = input.required<TData>();
 	readonly formItems = input.required<FormItem[]>();
 	readonly submitHandler = input.required<((data: TData) => Promise<void>)>();
+	readonly disabled = input<boolean, BooleanInput>(false, { transform: booleanAttribute });
 	protected readonly isDevMode = isDevMode;
 	protected readonly dataForm = injectForm({
 		defaultValues: {} as TData,
-		onSubmit: async ({ value }) => {
+		onSubmit: async ({ value, formApi }) => {
+			const dataKeys = keys(flatten(value));
+			const copy = {} as typeof value;
+			let hasChanges = false;
+			for (const key of dataKeys) {
+				const meta = formApi.getFieldMeta(key);
+				if (meta?.isPristine) continue;
+				const changed = get(value, key);
+				set(copy, key, changed);
+				hasChanges = true;
+			}
+			if (!hasChanges) return;
 			const handler = this.submitHandler();
-			await handler(value);
+			await handler(copy);
 		},
-		onSubmitInvalid: async ({ value }) => {
+		onSubmitInvalid: async ({ value, formApi }) => {
 			if (!this.ignoreInvalidSubmissions()) {
 				toast.warning('There are some invalid fields', {
 					action: {
@@ -55,8 +70,19 @@ export class FormRenderer<TData extends Record<string, unknown>> {
 				return;
 			}
 
+			const dataKeys = keys(flatten(value));
+			const copy = {} as typeof value;
+			let hasChanges = false;
+			for (const key of dataKeys) {
+				const meta = formApi.getFieldMeta(key);
+				if (meta?.isPristine) continue;
+				const changed = get(value, key);
+				set(copy, key, changed);
+				hasChanges = true;
+			}
+			if (!hasChanges) return;
 			const handler = this.submitHandler();
-			await handler(value);
+			await handler(copy);
 		}
 	});
 	protected readonly ignoreInvalidSubmissions = signal(false);

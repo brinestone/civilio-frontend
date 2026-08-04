@@ -1,7 +1,7 @@
 import { provideAppInitializer } from "@angular/core";
-import { BasicIndex, createPacedMutations, createCollection, WithVirtualProps } from "@tanstack/db";
+import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import { FormItem, Form, FormVersion, SubmissionResponse, ResponseSession } from "./schemas";
+import { Form, FormItem, FormVersion, ResponseSession, SubmissionResponse } from "./schemas";
 
 const dbName = 'civilio-db';
 
@@ -89,6 +89,9 @@ export function provideCollectionIndexing() {
 
 		responseSessionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
 		responseSessionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => [row.formVersion, row.index], { indexType: BasicIndex });
 	})
 }
 

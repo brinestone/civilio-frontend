@@ -46,7 +46,6 @@ export function createSubmissionSessionAction() {
 	}>({
 		autoCommit: false,
 		onMutate: (params) => {
-			debugger;
 			let index = params.index;
 			if (index === undefined || isNaN(index)) {
 				index = Date.now();
