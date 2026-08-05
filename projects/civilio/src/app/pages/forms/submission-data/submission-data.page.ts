@@ -1,3 +1,4 @@
+import { Listbox, Option } from '@angular/aria/listbox';
 import { NumberInput } from "@angular/cdk/coercion";
 import { DecimalPipe, NgTemplateOutlet } from "@angular/common";
 import {
@@ -24,6 +25,8 @@ import { QuestionItemEntity } from "@db/types";
 import { findAllParentDataKeys } from "@db/utils";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideAlertTriangle } from "@ng-icons/lucide";
+import { Navigate } from '@ngxs/router-plugin';
+import { dispatch } from '@ngxs/store';
 import { BrnDialogState } from "@spartan-ng/brain/dialog";
 import { BrnSelectImports } from "@spartan-ng/brain/select";
 import { BrnSheetImports } from "@spartan-ng/brain/sheet";
@@ -71,6 +74,8 @@ const newSessionId = () => crypto.randomUUID();
 		RelativeDatePipe,
 		RouterLink,
 		FormRenderer,
+		Listbox,
+		Option,
 		HlmField,
 	],
 })
@@ -239,5 +244,10 @@ export class SubmissionDataPage {
 		} catch (e) {
 			console.error(e);
 		}
+	}
+	private readonly navigate = dispatch(Navigate)
+	protected onIndexChanged(index: number) {
+		if (index === undefined) return;
+		this.navigate(['..', index], { session: 'current' }, { relativeTo: this.pageRoute, queryParamsHandling: 'merge' }).subscribe();
 	}
 }

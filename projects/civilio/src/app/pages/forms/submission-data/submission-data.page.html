@@ -34,28 +34,26 @@
 			</div>
 			}
 		</div>
-		<ul class="px-3 space-y-2 pt-4">
+		<ul
+			class="px-3 space-y-2 pt-4"
+			ngListbox
+			[value]="[index()!]"
+			(valueChange)="onIndexChanged($event[0])"
+			selectionMode="follow"
+		>
 			@for(submission of submissions.data(); track $index) {
 			<li
-				class="p-2 hover:bg-muted/60 focus-within:bg-muted/50 focus-within:ring-2 focus-within:ring-primary rounded has-[.active-index]:bg-primary has-[.active-index]:text-primary-foreground"
+				ngOption
+				[value]="submission.index"
 			>
-				<a
-					[routerLink]="['..', submission.index]"
-					[relativeTo]="pageRoute"
-					[queryParams]="{
-					session: 'current'
-				}"
-					routerLinkActive="active-index"
-					queryParamsHandling="merge"
-					class="focus:outline-none group/index-link"
+				<p class="block font-semibold">
+					Index = {{submission.index | number:'3.0-0'}}
+				</p>
+				<p
+					class="block text-muted-foreground group-[:is(.active-index)]/index-link:text-primary-foreground text-sm"
 				>
-					<p class="block font-semibold">
-						Index = {{submission.index | number:'3.0-0'}}
-					</p>
-					<p class="block text-muted-foreground group-[:is(.active-index)]/index-link:text-primary-foreground text-sm">
-						{{ submission.recordedAt | relativeDate }}
-					</p>
-				</a>
+					{{ submission.recordedAt | relativeDate }}
+				</p>
 			</li>
 			} @empty {
 			<ng-container>
