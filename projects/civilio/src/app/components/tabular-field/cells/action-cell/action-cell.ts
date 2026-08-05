@@ -1,10 +1,9 @@
+import { RowContext } from '@angular/cdk/table';
 import { Component, computed, input, output } from '@angular/core';
-import { HlmButton } from '@spartan-ng/helm/button';
 import { NgIcon } from '@ng-icons/core';
 import { TranslatePipe } from '@ngx-translate/core';
+import { HlmButton } from '@spartan-ng/helm/button';
 import { CellContext, injectFlexRenderContext, RowData } from '@tanstack/angular-table';
-import { RowContext } from '@angular/cdk/table';
-import { HlmTd } from "@spartan-ng/helm/table";
 
 export type ActionTriggeredEvent<T> = {
 	row: T,
@@ -28,6 +27,7 @@ export type RowAction<T> = {
 				<button [title]="minimal() ? (_static() ? action.label : (action.label| translate)) : ''"
 								(click)="onActionButtonClicked(action.identifier)"
 								hlmBtn
+								type="button"
 								variant="ghost"
 								[size]="!action.label && action.icon ? 'icon' : 'default'">
 					@if (action.icon) {

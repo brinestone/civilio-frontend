@@ -1,7 +1,13 @@
 <div class="border-b border-muted sticky top-0 z-20 backdrop-blur-md">
 	<div class="flex justify-between items-center px-3">
 		<div class="flex items-center gap-2">
-			<a hlmBtn variant="outline" routerLink=".." size="sm">
+			<a
+				hlmBtn
+				variant="outline"
+				routerLink="../.."
+				[relativeTo]="route"
+				size="sm"
+			>
 				<ng-icon name="lucideChevronLeft" />
 				<span>{{ 'misc.forms' | translate }}</span>
 			</a>

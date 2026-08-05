@@ -1,19 +1,19 @@
 import { provideAppInitializer } from "@angular/core";
 import { BasicIndex, createCollection, WithVirtualProps } from "@tanstack/db";
 import { dexieCollectionOptions } from "tanstack-dexie-db-collection";
-import { FormItem, FormSchema, FormVersion, SubmissionResponse, SubmissionSession } from "./schemas";
+import { Form, FormItem, FormVersion, ResponseSession, SubmissionResponse } from "./schemas";
 
 const dbName = 'civilio-db';
 
 export const responseSessionsCollection = createCollection(dexieCollectionOptions({
 	id: 'form-response-sessions',
-	schema: SubmissionSession,
+	schema: ResponseSession,
 	dbName,
 	getKey: s => s.id,
 	startSync: true,
 	syncMode: 'on-demand',
 	rowUpdateMode: 'partial',
-	tableName: 'form-response-sessions',
+	tableName: 'response-sessions',
 }))
 
 export const responseCollection = createCollection(dexieCollectionOptions({
@@ -40,7 +40,7 @@ export const formItemsCollection = createCollection(dexieCollectionOptions({
 
 export const formsCollection = createCollection(dexieCollectionOptions({
 	id: 'forms',
-	schema: FormSchema,
+	schema: Form,
 	startSync: true,
 	dbName,
 	getKey: f => f.slug,
@@ -62,8 +62,8 @@ export const allCollections = {
 	forms: formsCollection,
 	'form-versions': formVersionsCollection,
 	'form-items': formItemsCollection,
-	submissions: responseSessionsCollection,
-	responses: responseCollection,
+	'response-sessions': responseSessionsCollection,
+	'form-responses': responseCollection,
 };
 
 export function provideCollectionIndexing() {
@@ -79,6 +79,8 @@ export function provideCollectionIndexing() {
 		formItemsCollection.createIndex(row => row.updatedAt, { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => [row.formVersion, row.path], { indexType: BasicIndex });
 		formItemsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => [row.id, row.config.dataKey], { indexType: BasicIndex });
+		formItemsCollection.createIndex(row => [row.formVersion, row.config.dataKey], { indexType: BasicIndex });
 
 		formVersionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
 		formVersionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
@@ -87,6 +89,9 @@ export function provideCollectionIndexing() {
 
 		responseSessionsCollection.createIndex(row => row.id, { indexType: BasicIndex });
 		responseSessionsCollection.createIndex(row => row.index, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => row.form, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => row.formVersion, { indexType: BasicIndex });
+		responseSessionsCollection.createIndex(row => [row.formVersion, row.index], { indexType: BasicIndex });
 	})
 }
 

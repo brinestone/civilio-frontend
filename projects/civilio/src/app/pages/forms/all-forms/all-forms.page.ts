@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, Signal, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, resource, Signal, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debounce, form, FormField, hidden, required, submit, validate, validateAsync, validateStandardSchema } from '@angular/forms/signals';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -10,7 +10,7 @@ import { randomString } from '@app/util';
 import { FormsService } from '@civilio/sdk/services/forms/forms.service';
 import { Strict } from '@civilio/shared';
 import { createFormAction, NewFormData } from '@db/actions';
-import { formsCollection, formVersionsCollection } from '@db/collections';
+import { formsCollection, formVersionsCollection, responseSessionsCollection } from '@db/collections';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideArchive, lucideCopy, lucideEye, lucideFormInput, lucidePencil, lucidePlus, lucideSave } from '@ng-icons/lucide';
 import { Navigate } from '@ngxs/router-plugin';
@@ -27,9 +27,9 @@ import { HlmSkeleton } from '@spartan-ng/helm/skeleton';
 import { HlmSpinner } from '@spartan-ng/helm/spinner';
 import { HlmTextarea } from '@spartan-ng/helm/textarea';
 import { HlmH3 } from "@spartan-ng/helm/typography";
-import { eq, injectLiveQuery } from '@tanstack/angular-db';
+import { count, eq, injectLiveQuery, isNull, max, queryOnce } from '@tanstack/angular-db';
 import { produce } from 'immer';
-import { EMPTY, lastValueFrom, map, Observable, of } from 'rxjs';
+import { lastValueFrom, map, Observable, of } from 'rxjs';
 
 @Component({
 	selector: 'cv-forms-definition-layout',
@@ -74,21 +74,15 @@ export class AllFormsPage implements HasPendingChanges {
 	private readonly titleCheckCache = new Map<string, boolean>();
 	protected readonly newFormDialogState = signal<BrnDialogState>('closed');
 	protected readonly route = inject(ActivatedRoute);
-	protected readonly forms = injectLiveQuery({
-		query: q => q.from({ forms: formsCollection })
-			.leftJoin({ fv: formVersionsCollection }, ({ forms, fv }) => eq(forms.slug, fv.form))
-			.select(({ forms, fv }) => ({
-				title: forms.title,
-				slug: forms.slug,
-				currentVersion: { id: fv.id, lastUpdated: fv.updatedAt },
-				lastUpdated: forms.updatedAt
-			}))
-			.orderBy(({ $selected }) => $selected.lastUpdated, { direction: 'desc' })
+	protected readonly forms = resource({
+		defaultValue: [],
+		loader: async () => {
+			return await queryOnce(q => q.from({ forms: formsCollection }));
+		}
 	});
-	protected readonly formsAvailable = computed(() => this.forms.data().length > 0 && this.forms.status() == 'ready');
+	protected readonly formsAvailable = computed(() => this.forms.hasValue());
 	private readonly newFormData = signal(defaultNewFormData());
 	protected readonly newFormForm = form(this.newFormData, paths => {
-		// required(paths.title, { message: 'This field is required' });
 		validateStandardSchema(paths.title, NewFormData.shape.title);
 		validateStandardSchema(paths.description, NewFormData.shape.description);
 		debounce(paths.title, 200);
@@ -118,12 +112,12 @@ export class AllFormsPage implements HasPendingChanges {
 		});
 	})
 	protected readonly formActions = [
-		{ icon: 'lucidePencil', route: (form: ReturnType<typeof this.forms.data>[number]) => ({ query: { version: form.currentVersion.id ?? 'current' }, path: [form.slug, 'designer'] }) },
+		{ icon: 'lucidePencil', route: (form: ReturnType<typeof this.forms.value>[number]) => ({ path: [form.slug, 'current', 'designer'] }) },
 		{ icon: 'lucideArchive', handler: this.onArchiveFormButtonClicked.bind(this) }
 	];
 	protected readonly formArchivingDialogState = signal<BrnDialogState>('closed');
 
-	private onArchiveFormButtonClicked(form: ReturnType<typeof this.forms.data>[number]) {
+	private onArchiveFormButtonClicked(form: ReturnType<typeof this.forms.value>[number]) {
 		this.archivingPromptForm
 		this.archivingPromptForm().value.update(v => produce(v, draft => {
 			draft.title = form.title as string;
@@ -200,7 +194,7 @@ export class AllFormsPage implements HasPendingChanges {
 					await tx.commit();
 					tree().reset(defaultNewFormData());
 					this.newFormDialogState.set('closed');
-					this.navigate([slug, 'edit', version], undefined, { relativeTo: this.route }).subscribe();
+					this.navigate([slug, version, 'designer'], undefined, { relativeTo: this.route }).subscribe();
 					return null;
 				} catch (e) {
 					return { kind: 'submitError', message: 'Could not submit' }

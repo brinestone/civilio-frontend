@@ -1,12 +1,16 @@
 import { Routes } from "@angular/router";
 import { provideSubmissionsSdk } from "@civilio/sdk/providers";
 import { hasChangesGuard } from "./guards/has-changes-guard";
+import { formVersionResolver, submissionSessionResolver } from "./resolvers";
 
 export const formRoutes: Routes = [
 	{
-		path: ":slug",
+		path: ":slug/:version",
 		loadComponent: () =>
 			import("./layouts/forms/form.layout").then((m) => m.FormLayout),
+		resolve: {
+			fv: formVersionResolver,
+		},
 		children: [
 			{
 				title: "form.header.toolbar.tabs.designer.title",
@@ -44,7 +48,7 @@ export const formRoutes: Routes = [
 					),
 			},
 			{
-				providers: [provideSubmissionsSdk(), ],
+				providers: [provideSubmissionsSdk(),],
 				path: "submissions/new",
 				loadComponent: () =>
 					import("./pages/forms/submission-data/submission-data.page").then(
@@ -53,6 +57,9 @@ export const formRoutes: Routes = [
 			},
 			{
 				providers: [provideSubmissionsSdk()],
+				resolve: {
+					session: submissionSessionResolver
+				},
 				path: "submissions/:index",
 				loadComponent: () =>
 					import("./pages/forms/submission-data/submission-data.page").then(

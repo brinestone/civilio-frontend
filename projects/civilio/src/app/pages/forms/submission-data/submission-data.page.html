@@ -1,14 +1,11 @@
 <div
-	class="min-w-100 grid overflow-hidden grid-rows-[1fr_auto]"
-	[ngClass]="{
-	'border-r border-muted': !isNew()
-}"
+	class="min-w-100 grid overflow-hidden grid-rows-[1fr_auto] border-r border-muted"
 >
 	<div class="relative overflow-auto">
 		<div class="px-3 py-2 border-b border-muted backdrop-blur min-h-20">
 			@defer(when !formVersions.isLoading()) {
 			<div hlmField>
-				<label hlmFieldLabel for="fv">Form version</label>
+				<label hlmFieldLabel for="fv">Form Version</label>
 				<hlm-select
 					id="fv"
 					[(value)]="formVersion"
@@ -20,9 +17,9 @@
 					<hlm-select-content class="w-full">
 						<hlm-select-group>
 							<hlm-select-scroll-up />
-							@for(version of formVersions.data(); track version.id) {
+							@for(version of formVersions.value(); track version.id) {
 							<hlm-option [value]="version.id"
-								>{{ version.label || (version.createdAt | date:'longDate')
+								>{{ version.label || (version.createdAt | relativeDate)
 								}}</hlm-option
 							>
 							}
@@ -37,18 +34,37 @@
 			</div>
 			}
 		</div>
-		@for(submission of submissions.data(); track $index) {
-		<a [routerLink]="['..', submission.index]" class="p-3 space-y-2">
-			<span class="block font-semibold"> Index = {{submission.index}}</span>
-			<span class="block text-muted-foreground text-sm"
-				>{{ submission.recordedAt | date:'longDate' }}</span
+		<ul
+			class="px-3 space-y-2 pt-4"
+			ngListbox
+			[value]="[index()!]"
+			(valueChange)="onIndexChanged($event[0])"
+			selectionMode="follow"
+		>
+			@for(submission of submissions.data(); track $index) {
+			<li
+				ngOption
+				[value]="submission.index"
 			>
-		</a>
-		} @empty { @if(!submissions.isLoading()) {
-		<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
-		} @else {
-		<ng-container [ngTemplateOutlet]="loadingTemplate" />
-		} }
+				<p class="block font-semibold">
+					Index = {{submission.index | number:'3.0-0'}}
+				</p>
+				<p
+					class="block text-muted-foreground group-[:is(.active-index)]/index-link:text-primary-foreground text-sm"
+				>
+					{{ submission.recordedAt | relativeDate }}
+				</p>
+			</li>
+			} @empty {
+			<ng-container>
+				@if(!submissions.isLoading()) {
+				<ng-container [ngTemplateOutlet]="emptySubmissionsListTemplate" />
+				} @else {
+				<ng-container [ngTemplateOutlet]="loadingTemplate" />
+				}
+			</ng-container>
+			}
+		</ul>
 	</div>
 	<div class="border-muted border-t"></div>
 </div>
@@ -56,13 +72,26 @@
 	@let definition = formDefinition.data();
 	<ng-container>
 		@if(definition) {
-		<div class="py-5 px-4">
+		<div class="h-full">
 			<cv-form-renderer
+				[submitHandler]="handleSubmission.bind(this)"
 				[formData]="submissionData()"
-				[showMissingRendererMessages]="isDevMode()"
-				[itemFallbackContent]="itemFallbackTemplate"
 				[formItems]="$any(definition)"
-			/>
+			>
+				<ng-container slot="header">
+					@if(formInfo.data()?.logo; as l) {
+					<img [src]="l" alt="logo" width="80" />
+					}
+					<div class="space-y-2">
+						<h1 class="font-extrabold text-2xl">
+							{{ formInfo.data()?.title }}
+						</h1>
+						@if(formInfo.data()?.description; as desc) {
+						<p>{{desc}}</p>
+						}
+					</div>
+				</ng-container>
+			</cv-form-renderer>
 		</div>
 		}
 	</ng-container>
@@ -79,10 +108,10 @@
 	</div>
 </ng-template>
 <ng-template #emptySubmissionsListTemplate>
-	<div hlmEmpty>
+	<li hlmEmpty>
 		<p hlmEmptyTitle>No Submissions</p>
 		<p hlmEmptyDescription>No submissions have been recorded yet.</p>
-	</div>
+	</li>
 </ng-template>
 <ng-template #itemFallbackTemplate>
 	<div
@@ -97,3 +126,40 @@
 		</p>
 	</div>
 </ng-template>
+<!-- <hlm-sheet
+	side="right"
+	[state]="submissionMetaSheetState()"
+	(stateChanged)="submissionMetaSheetState.set($event)"
+>
+	<hlm-sheet-content *hlmSheetPortal="let ctx">
+		<hlm-sheet-header>
+			<h1 hlmSheetTitle>Submission Information</h1>
+		</hlm-sheet-header>
+		<form [formRoot]="submissionMetaForm" class="p-3" hlmFieldGroup>
+			<div hlmField>
+				<label hlmFieldLabel for="validationCode">Validation Code</label>
+				<input
+					[formField]="submissionMetaForm.validationCode"
+					hlmInput
+					id="validationCode"
+				/>
+			</div>
+			<div hlmField>
+				<label hlmFieldLabel for="commitMessage">Change notes</label>
+				<textarea
+					id="commitMessage"
+					[formField]="submissionMetaForm.changeNotes"
+					hlmTextarea
+				></textarea>
+			</div>
+			<button
+				[disabled]="submissionMetaForm().invalid() || submissionMetaForm().submitting()"
+				type="submit"
+				class="flex w-full"
+				hlmBtn
+			>
+				Finish
+			</button>
+		</form>
+	</hlm-sheet-content>
+</hlm-sheet> -->

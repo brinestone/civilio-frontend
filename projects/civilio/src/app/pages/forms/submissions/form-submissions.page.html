@@ -6,6 +6,7 @@
 			{{ 'form.submissions.heading.title' | translate }}
 		</h1>
 		<div class="flex items-center gap-2">
+			<ng-container [ngTemplateOutlet]="formVersionSelectorTemplate" />
 			<a
 				routerLink="new"
 				queryParamsHandling="preserve"
@@ -16,14 +17,12 @@
 			>
 				<ng-icon name="lucidePlus" />
 			</a>
-			<ng-container [ngTemplateOutlet]="formVersionSelectorTemplate" />
 		</div>
 	</div>
 </div>
 <div class="container mx-auto">
 	<ng-container [ngTemplateOutlet]="submissionTableTemplate" />
 </div>
-
 <ng-template #submissionTableTemplate>
 	<div
 		class="scrollbar-thin scrollbar-thumb-primary/50 scrollbar-track-transparent border border-border block w-full rounded-md max-h-[72vh] overflow-auto relative"
@@ -50,11 +49,11 @@
 				}
 			</thead>
 
-			<tbody>
+			<tbody hlmTBody>
 				@for (row of table.getRowModel().rows; track row.id) {
-				<tr>
+				<tr hlmTr>
 					@for (cell of row.getVisibleCells(); track cell.id) {
-					<td>
+					<td hlmTd>
 						<ng-container
 							*flexRender="
                     cell.column.columnDef.cell;
@@ -74,7 +73,7 @@
 						class="h-24 text-center"
 						hlmTd
 					>
-						<!-- @if (submissionData.isLoading()) {
+						@if (tableData.isLoading()) {
 						<div class="flex items-center gap-2 justify-center">
 							<hlm-spinner />
 							<span>{{ "loading.txt" | translate }}</span>
@@ -91,7 +90,7 @@
 								</p>
 							</div>
 						</div>
-						} -->
+						}
 					</td>
 				</tr>
 				}
@@ -100,16 +99,16 @@
 				<tr hlmTr>
 					<td [attr.colspan]="columnConfig.length" hlmTd>
 						<div class="flex justify-center items-center">
-							<!-- @defer(when !submissionData.isLoading()) {
+							@defer(when !tableData.isLoading()) {
 							<hlm-numbered-pagination
 								[(currentPage)]="pageIndex"
 								maxSize="3"
 								[(itemsPerPage)]="pageSize"
-								[totalItems]="submissionData.data().length"
+								[totalItems]="tableData.data().length"
 							/>
 							} @placeholder {
 							<hlm-skeleton class="w-50 h-9" />
-							} -->
+							}
 						</div>
 					</td>
 				</tr>
@@ -119,30 +118,27 @@
 </ng-template>
 
 <ng-template #formVersionSelectorTemplate>
-	<!-- @defer(when !formVersions.isLoading() && !formVersions.isError()) {
+	@defer(when !formVersions.isLoading() && !formVersions.isError()) {
 	<hlm-select [(value)]="selectVersionId" placeholder="Select form Version">
-		<hlm-select-trigger class="max-w-100 w-50">
+		<hlm-select-trigger class="">
 			<hlm-select-value>
 				<div class="flex items-center gap-2" *hlmSelectValue="let value">
-					<span>{{ selectFormVersion()?.label || 'N/A' }}</span>
-					@if(selectFormVersion()?.isCurrent) {
-					<span hlmBadge class="rounded-full text-sm">Current</span>
-					}
+					<span
+						>{{ selectFormVersion()?.label || (selectFormVersion()?.createdAt |
+						relativeDate) }}</span
+					>
 				</div>
 			</hlm-select-value>
 		</hlm-select-trigger>
 		<hlm-select-content class="max-w-100 w-50">
 			@for(version of formVersions.data(); track version) {
 			<hlm-option [value]="version.id" class="flex items-center gap-3">
-				<span>{{version.label || 'N/A'}}</span>
-				@if(version.isCurrent) {
-				<span hlmBadge class="rounded-full text-sm">Current</span>
-				}
+				<span>{{version.label || (version.createdAt | relativeDate)}}</span>
 			</hlm-option>
 			}
 		</hlm-select-content>
 	</hlm-select>
 	}@placeholder {
 	<hlm-skeleton class="w-32 h-9" />
-	} -->
+	}
 </ng-template>

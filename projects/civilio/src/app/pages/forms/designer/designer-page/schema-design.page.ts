@@ -13,10 +13,10 @@ import {
 	FormDesigner,
 	FormDesignerHeader,
 	ItemReorderedEvent,
-} from "@app/components/form/schema";
+} from "@app/components/form/design";
 import {
 	defineFormDesignerFormSchema,
-} from "@app/components/form/schema/form-designer-config";
+} from "@app/components/form/design/form-designer-config";
 import { HasPendingChanges } from "@app/model/form";
 import { Strict } from "@civilio/shared";
 import { formItemsCollection, formVersionsCollection } from "@db/collections";
@@ -39,7 +39,7 @@ import {
 	removeFormItemAction,
 	updateFormItemAction,
 } from "@db/actions";
-import { FormItemType } from "@db/schemas";
+import { FormItem, FormItemType } from "@db/schemas";
 import { FormItemEntity } from "@db/types";
 import { HlmSpinner } from "@spartan-ng/helm/spinner";
 import { and, eq, injectLiveQuery, queryOnce } from "@tanstack/angular-db";
@@ -124,7 +124,7 @@ export class SchemaDesignPage implements HasPendingChanges {
 	});
 
 	protected readonly formData = linkedSignal(
-		() => this.formDefinition.data() as unknown as Strict<FormItemEntity[]>,
+		() => this.formDefinition.data() as unknown as Strict<FormItem[]>,
 	);
 	protected readonly renderForm = linkedSignal(() => !!this.slug());
 	protected readonly pendingChangesDialogState =

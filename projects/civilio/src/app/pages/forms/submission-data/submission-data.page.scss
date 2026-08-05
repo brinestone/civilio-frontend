@@ -1,5 +1,12 @@
 @reference "tailwindcss";
 
 :host {
-	@apply h-full overflow-hidden grid-cols-[auto_1fr] grid;
+	@apply h-full overflow-hidden grid-cols-[auto_1fr_auto] grid;
+}
+
+[ngOption] {
+	@apply p-2 cursor-pointer rounded outline-none hover:bg-(--muted) focus:ring-2 focus:ring-(--primary);
+	&[aria-selected='true'] {
+		@apply text-(--primary-foreground) bg-(--primary)
+	}
 }

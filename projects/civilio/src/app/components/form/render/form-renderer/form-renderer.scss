@@ -1,0 +1,5 @@
+@reference "tailwindcss";
+
+:host {
+	@apply grid h-full overflow-hidden grid-cols-[auto_1fr_auto] grid-rows-[auto_1fr_auto];
+}

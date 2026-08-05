@@ -1,0 +1,18 @@
+<form (submit)="handleSubmit($event)" hlmFieldGroup>
+	@for(item of formItems(); track item) {
+	<ng-container> @let renderer = renderers[item.type]; </ng-container>
+	<ng-container>
+		@if(renderer !== undefined) {
+		<ng-container
+			[ngComponentOutlet]="renderer | async"
+			[ngComponentOutletInputs]="{
+			itemDefinition: item,
+			form: formApi.form,
+			index: $index,
+			fallbackContent: showMissingRendererMessages() ?  itemFallbackContent() : null
+		}"
+		/>
+		}
+	</ng-container>
+	}
+</form>
