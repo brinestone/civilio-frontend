@@ -14,7 +14,7 @@ import {
 	untracked
 } from "@angular/core";
 import { form, metadata, required } from "@angular/forms/signals";
-import { ActivatedRoute, RouterLink, RouterLinkActive } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { HINT } from "@app/components/form/design/form-designer-config";
 import { FormRenderer } from '@app/components/form/render';
 import { RelativeDatePipe } from "@app/pipes";
@@ -68,11 +68,9 @@ const newSessionId = () => crypto.randomUUID();
 		NgIcon,
 		DecimalPipe,
 		HlmFieldLabel,
-		RouterLinkActive,
 		NgTemplateOutlet,
 		HlmSkeleton,
 		RelativeDatePipe,
-		RouterLink,
 		FormRenderer,
 		Listbox,
 		Option,
@@ -171,7 +169,6 @@ export class SubmissionDataPage {
 	#updateSubmissionData = effect(async () => {
 		const questions = this.questions.data() as QuestionItemEntity[];
 		const draft = createDraft(untracked(this.submissionData));
-		const index = this.index();
 		const sessionId = this.sessionId();
 		const formId = this.formSlug();
 		const formVersion = this.formVersion();
